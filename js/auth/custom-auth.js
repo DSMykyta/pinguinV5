@@ -462,19 +462,14 @@ function clearAuthData() {
 
 // ============= Експорт функцій =============
 
+// ES6 модульні експорти
+export { initCustomAuth, handleSignIn, handleSignOut, getAuthToken, getUserData };
+
+// Залишаємо window.* для backward compatibility з існуючим кодом
 window.initCustomAuth = initCustomAuth;
 window.handleSignIn = handleSignIn;
 window.handleSignOut = handleSignOut;
 window.getAuthToken = getAuthToken;
 window.getUserData = getUserData;
-
-// Автоматична ініціалізація при завантаженні
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initCustomAuth();
-  });
-} else {
-  initCustomAuth();
-}
 
 console.log('Custom Auth Module loaded');

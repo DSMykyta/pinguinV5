@@ -8,28 +8,28 @@ import { initTabs } from './common/ui-tabs.js';
 import { autoInitTabsScroll } from './common/ui-tabs-scroll.js';
 import { initEventHandlers } from './utils/event-handlers.js';
 import { initSectionNavigator } from './panel/section-navigator.js';
+import { initCustomAuth } from './auth/custom-auth.js';
 
 
 export function initCore() {
     initPanelLeft();
     initPanelRight();
     initDropdowns();
+
+    // ВАЖЛИВО: initModals() повинен бути ДО initCustomAuth()
+    // щоб modal system був готовий коли auth спробує відкрити модал
     initModals();
+
     initTabs();
     autoInitTabsScroll();  // Автоматична ініціалізація горизонтального скролу
     initEventHandlers();
     initSectionNavigator();
 
-    // Ініціалізуємо Custom Auth (замість Google Auth)
-    // window.initCustomAuth визначено в js/auth/custom-auth.js
-    if (typeof window.initCustomAuth === 'function') {
-        // Callback викликається після успішної авторизації
-        window.onAuthSuccess = () => {
-            console.log('✅ Авторизація на сторінці інструментів готова');
-        };
+    // Ініціалізуємо Custom Auth
+    // Callback викликається після успішної авторизації
+    window.onAuthSuccess = () => {
+        console.log('✅ Авторизація готова');
+    };
 
-        window.initCustomAuth();
-    } else {
-        console.error('❌ Custom Auth не завантажено');
-    }
+    initCustomAuth();
 }
