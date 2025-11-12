@@ -12,9 +12,8 @@ export function getBrandsData() {
 }
 
 export async function fetchData() {
-    const API_BASE = window.location.origin;
-    const triggersSheetUrl = `${API_BASE}/api/sheets/csv-proxy?gid=90240383`;
-    const brandsSheetUrl = `${API_BASE}/api/sheets/csv-proxy?gid=653695455`;
+    const triggersSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=90240383';
+    const brandsSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=653695455';
 
     try {
         const [triggersResponse, brandsResponse] = await Promise.all([
@@ -30,9 +29,9 @@ export async function fetchData() {
             triggersResponse.text(),
             brandsResponse.text()
         ]);
-        
+
         const parsedBrands = Papa.parse(brandsCsv, { header: true, skipEmptyLines: true }).data;
-        
+
         console.log('[АНАЛІЗ ТАБЛИЦІ БРЕНДІВ]: Ось як виглядає перший рядок:', parsedBrands[0]);
 
         brandsData = parsedBrands.reduce((acc, row) => {
@@ -47,13 +46,13 @@ export async function fetchData() {
             const allNames = [...new Set([nameUk, nameRu, ...namesAlt])].filter(Boolean);
 
             // Визначаємо "головну" назву (ключ для об'єкта), пріоритет у name_ua
-            const primaryName = (nameUk || nameRu || '').toLowerCase(); 
+            const primaryName = (nameUk || nameRu || '').toLowerCase();
 
             if (primaryName && allNames.length > 0) {
                 acc[primaryName] = {
                     country: row.country_option_id || '',
                     // Зберігаємо список ВСІХ назв для пошуку
-                    searchNames: allNames 
+                    searchNames: allNames
                 };
             }
             return acc;

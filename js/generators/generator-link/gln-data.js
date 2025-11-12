@@ -7,11 +7,12 @@ export function getCountriesData() { return countriesData; }
 
 export async function fetchLinksData() {
     // === ВИКОРИСТОВУЄМО ПРАВИЛЬНИЙ GID для таблиці брендів ===
-    const API_BASE = window.location.origin;
+    const sheetId = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
     const sheetGid = '653695455'; // GID для Brands
+    const csvUrlLinksBase = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${sheetGid}`;
     // =======================================================
 
-    const csvUrlLinks = `${API_BASE}/api/sheets/csv-proxy?gid=${sheetGid}&_=${Date.now()}`; // Додаємо параметр проти кешу
+    const csvUrlLinks = `${csvUrlLinksBase}&_=${Date.now()}`; // Додаємо параметр проти кешу
 
     try {
         const response = await fetch(csvUrlLinks);
