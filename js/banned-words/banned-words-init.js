@@ -10,7 +10,6 @@
  * Уся логіка винесена в окремі модулі.
  */
 
-import { initGoogleAuth } from '../auth/google-auth.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initTabsScroll } from '../common/ui-tabs-scroll.js';
 import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton } from './banned-words-aside.js';
@@ -83,9 +82,27 @@ export function initBannedWords() {
     // Завантажити UI одразу (без даних)
     initializeUIWithoutData();
 
-    // Ініціалізувати Google Auth
-    initGoogleAuth(async () => {
-        console.log('✅ Google Auth готова');
+    // Перевірити стан авторизації
+    checkAuthAndLoadData();
+
+    // Слухати події зміни авторизації
+    document.addEventListener('auth-state-changed', (event) => {
+        console.log('🔐 Подія auth-state-changed:', event.detail);
+        if (event.detail.isAuthorized) {
+            checkAuthAndLoadData();
+        }
+    });
+}
+
+/**
+ * Перевірити авторизацію та завантажити дані
+ */
+async function checkAuthAndLoadData() {
+    console.log('🔐 Перевірка авторизації...');
+
+    // Перевіряємо глобальний стан авторизації з custom-auth.js
+    if (window.isAuthorized) {
+        console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         // Завантажити ТІЛЬКИ заборонені слова
         const { loadBannedWords } = await import('./banned-words-data.js');
@@ -106,7 +123,9 @@ export function initBannedWords() {
         }
 
         console.log('✅ Banned Words готовий до роботи');
-    });
+    } else {
+        console.log('⚠️ Користувач не авторизований');
+    }
 }
 
 /**

@@ -39,6 +39,11 @@ async function initCustomAuth() {
       window.currentUser = getUserData();
       updateAuthUI(true);
 
+      // Генеруємо подію зміни стану авторизації
+      document.dispatchEvent(new CustomEvent('auth-state-changed', {
+        detail: { isAuthorized: true, user: window.currentUser }
+      }));
+
       // Викликаємо callback якщо він визначений
       if (typeof window.onAuthSuccess === 'function') {
         window.onAuthSuccess();
@@ -88,6 +93,11 @@ async function handleSignIn(username, password) {
     // Оновлюємо UI
     updateAuthUI(true);
 
+    // Генеруємо подію зміни стану авторизації
+    document.dispatchEvent(new CustomEvent('auth-state-changed', {
+      detail: { isAuthorized: true, user: data.user }
+    }));
+
     // Закриваємо модал
     closeLoginModal();
 
@@ -128,6 +138,11 @@ async function handleSignOut() {
     window.isAuthorized = false;
     window.currentUser = null;
     updateAuthUI(false);
+
+    // Генеруємо подію зміни стану авторизації
+    document.dispatchEvent(new CustomEvent('auth-state-changed', {
+      detail: { isAuthorized: false, user: null }
+    }));
 
     // Перезавантажуємо сторінку
     window.location.reload();
@@ -451,10 +466,12 @@ window.closeLoginModal = closeLoginModal;
 // Автоматична ініціалізація при завантаженні
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
+    initCustomAuth();
     setupLoginForm();
     setupLogoutButton();
   });
 } else {
+  initCustomAuth();
   setupLoginForm();
   setupLogoutButton();
 }
