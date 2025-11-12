@@ -277,8 +277,8 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
         });
         console.log(`✅ Дані отримано з API`);
 
-        // Отримуємо дані з колонок окремо
-        const valueRanges = dataResult.valueRanges;
+        // Backend повертає масив valueRanges напряму
+        const valueRanges = dataResult;
         const expectedCount = hasTitle ? 4 : 3;
         if (!valueRanges || valueRanges.length !== expectedCount) {
             console.warn('⚠️ Не всі колонки завантажено');
