@@ -114,7 +114,8 @@ export async function loadSheetNames() {
         console.log('📥 Завантаження списку аркушів...');
 
         const result = await callSheetsAPI('getSheetNames', { spreadsheetType: 'texts' });
-        bannedWordsState.sheetNames = result || [];
+        // Backend повертає [{title, sheetId, index}], витягуємо тільки title
+        bannedWordsState.sheetNames = (result || []).map(sheet => sheet.title);
 
         console.log(`✅ Знайдено ${bannedWordsState.sheetNames.length} аркушів:`, bannedWordsState.sheetNames);
 
