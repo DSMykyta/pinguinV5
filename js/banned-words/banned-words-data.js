@@ -83,7 +83,7 @@ export async function loadBannedWords() {
  * Helper функція для виклику backend API з авторизацією
  */
 async function callSheetsAPI(action, params = {}) {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('auth_token');
     if (!token) {
         throw new Error('Authorization required. Please login first.');
     }
