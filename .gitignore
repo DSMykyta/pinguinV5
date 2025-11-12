@@ -44,3 +44,15 @@ build/
 # Google Service Account credentials (ВАЖЛИВО!)
 *service-account*.json
 credentials*.json
+
+# Personal notes and planning files
+pin-guin-*.txt
+pin-map-*.txt
+Гірше
+План
+План авторизації
+Розмова від *.txt
+план рефакторингу
+Claude Writing Assistant
+*.OLD.html
+test-*.html
