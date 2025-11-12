@@ -1,0 +1,37 @@
+/**
+ * COMPONENT: Panel Title
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Заголовки та підзаголовки всередині панелей (aside/sidebar).
+ * Використовується для розділення секцій у панелях.
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="panel-item-title">
+ *   <h3>Знайти та замінити</h3>
+ * </div>
+ *
+ * ОСОБЛИВОСТІ:
+ * - Uppercase text
+ * - Letter spacing для кращої читабельності
+ * - Невеликий розмір шрифту (13px)
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-on-surface)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - aside-text.html (розділення інструментів)
+ * - Будь-які aside панелі з секціями
+ */
+
+.panel-item-title {
+    padding: 12px 16px 8px;
+}
+
+.panel-item-title h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}

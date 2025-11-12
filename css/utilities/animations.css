@@ -1,0 +1,59 @@
+/**
+ * UTILITY: Animations
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Допоміжні класи та keyframes для анімацій (спінери, брендові ефекти).
+ *
+ * ВИКОРИСТАННЯ:
+ * Додавайте до елементів які потрібно анімувати.
+ *
+ * HTML ПРИКЛАД:
+ * <span class="material-symbols-outlined is-spinning">refresh</span>
+ *
+ * КЛАСИ:
+ * - .is-spinning - обертання по колу (для іконок завантаження)
+ *
+ * KEYFRAMES:
+ * - @keyframes spin - обертання 360°
+ * - @keyframes stripeMove - брендова анімація бігучих діагональних смуг
+ *
+ * ЗАЛЕЖНОСТІ:
+ * Немає
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Кнопка оновлення даних
+ * - Індикатори завантаження
+ * - Progress bar з діагональними смугами
+ */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.is-spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Брендова анімація бігучих діагональних смуг */
+@keyframes stripeMove {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 0;
+    }
+}
+
+/**background: repeating-linear-gradient(
+*    45deg,                             Кут 45° - діагональні смуги
+*    var(--color-main),                 Основний колір
+*    var(--color-main) 10px,            10px основного кольору
+*    rgba(255, 255, 255, 0.2) 10px,     Напівпрозорий білий
+*    rgba(255, 255, 255, 0.2) 20px      20px білого = смуга
+*);
+*/

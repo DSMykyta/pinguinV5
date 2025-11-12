@@ -1,0 +1,44 @@
+<div class="modal-content" style="width: 800px;">
+    <div class="modal-header">
+        <h2 id="merge-form-title">Об'єднання Елементів</h2>
+        <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p>Вибрано <strong id="merge-count">0</strong> елементів. Будь ласка, оберіть один елемент, який стане <strong>Еталонним</strong> (Master). Всі інші елементи будуть об'єднані з ним та видалені.</p>
+        
+        <div class="merge-table-container">
+            <table class="admin-table merge-table" id="merge-selection-table">
+                <thead>
+                    <tr>
+                        <th style="width: 100px; text-align: center;">Еталон?</th>
+                        <th>ID</th>
+                        <th>Назва</th>
+                        <th>Деталі</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div class="merge-warning">
+            <h4>Що відбудеться:</h4>
+            <ul>
+                <li>Всі пов'язані сутності (напр., дочірні категорії, опції) будуть переприв'язані до Еталону.</li>
+                <li>Прив'язки (Mappings) будуть перенесені до Еталону. Якщо є конфлікт (Еталон вже має прив'язку до цього маркетплейсу), дані Еталону мають пріоритет.</li>
+                <li>Дублікати будуть остаточно видалені. <strong>Ця дія незворотна.</strong></li>
+            </ul>
+        </div>
+    </div>
+    <div class="connected-button-group-square modal-footer" role="group">
+        <button data-action="cancel" class="segment" aria-label="Скасувати">
+            <div class="state-layer">
+                <span class="label">Скасувати</span>
+            </div>
+        </button>
+        <button id="confirm-merge-btn" class="segment" aria-label="Виконати Об'єднання" disabled>
+            <div class="state-layer">
+                <span class="label">Виконати Об'єднання</span>
+            </div>
+        </button>
+    </div>
+</div>

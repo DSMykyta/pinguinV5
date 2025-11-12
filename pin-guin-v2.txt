@@ -1,0 +1,3441 @@
+/* aside.css: Оновлені стилі для правої панелі (Студія) */
+
+/* --- Базовий стан (Mobile First) --- */
+/* Панель ЗАВЖДИ видима, вузька, поверх контенту */
+.right-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: var(--sidebar-width-collapsed);
+    background-color: #f2ecee;
+    z-index: 200;
+    display: flex;
+    border-radius: 0;
+    flex-direction: column;
+    transition: width var(--transition-speed) ease-in-out;
+}
+
+/* Розширений стан на мобільних по класу .is-open */
+.right-sidebar.is-open {
+    width: var(--right-sidebar-width);
+}
+
+.right-sidebar.is-open .aside-link-text,
+.right-sidebar.is-open .result-card-text,
+.right-sidebar.is-open .nav-link-external-icon {
+    display: block;
+}
+
+/* --- Внутрішня структура панелі (без змін) --- */
+.panel-content {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+.panel-content.is-active { display: flex; }
+
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 8px;
+    height: var(--header-height);
+    flex-shrink: 0;
+}
+
+/* глобальний хедер у правій панелі */
+.panel-header-global {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: inherit;           /* щоб колір збігався з панеллю */
+  border-bottom: 1px solid var(--main-10);
+}
+
+
+.panel-body {
+    padding: 8px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.panel-footer {
+    padding: 8px;
+    min-height: fit-content;
+    /*flex-grow: 1;*/
+}
+
+.aside-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.aside-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 48px;
+    min-width: 48px;
+    padding: 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    color: var(--main-45);
+    background-color: transparent;
+}
+
+.aside-item:hover {
+    background-color: var(--splash-10);
+    color: var(--splash);
+}
+
+.aside-list.pill-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 8px;
+}
+
+.pill-btn {
+    padding: 8px 12px;
+    background-color: var(--main-5);
+    border: none;
+    border-radius: 16px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--main);
+}
+
+.pill-btn:hover {
+    background-color: var(--main-10);
+}
+
+/* --- Картки та кнопки (без змін) --- */
+.results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.result-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--splash);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    height: 64px !important;
+    background-color: var(--splash-10);
+}
+
+.result-card:hover {
+    background-color: var(--splash-20);
+}
+
+.result-card .material-symbols-outlined {
+    color: var(--splash);
+}
+
+.result-card-text {
+    flex-grow: 1;
+
+}
+
+.result-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--splash);
+}
+
+.result-status {
+    font-size: 12px;
+    color: var(--main-65);
+}
+
+.result-card.copied {
+    border-color: var(--splash);
+    background-color: var(--splash-20);
+}
+
+/* --- Стилі для випадаючого меню в картках результату --- */
+.result-card-actions {
+    position: relative; /* Встановлюємо контекст позиціонування */
+    margin-left: auto;
+}
+.result-card-actions .attributes-dropdown {
+    /* --- ОСНОВНІ ЗМІНИ ТУТ --- */
+    position: absolute; /* Дозволяє меню вийти за межі батьківського блоку */
+    z-index: 10;      /* Переконуємось, що меню буде поверх інших елементів */
+    right: 0;
+    top: 100%;
+    margin-top: 4px;
+    min-width: 200px; /* Задаємо мінімальну ширину, щоб текст не переносився */
+    
+    /* Додаємо стилі, щоб меню виглядало як панель */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 1023px) {
+
+    /* За замовчуванням (згорнуто) показуємо лише іконки */
+    .right-sidebar .aside-link-text,
+    .right-sidebar .result-card-text,
+    .right-sidebar .nav-link-external-icon,
+    .right-sidebar .lil-btn,
+    .right-sidebar .result-card-actions,
+    .right-sidebar #search-triger,
+    .right-sidebar .panel-body #triger-buttons-container {
+        display: none;
+    }
+
+    /* У розгорнутому мобільному стані (is-open) знову показуємо тексти */
+    .right-sidebar.is-open .aside-link-text,
+    .right-sidebar.is-open .result-card-text,
+    .right-sidebar.is-open .nav-link-external-icon,
+    .right-sidebar.is-open .lil-btn,
+    .right-sidebar.is-open .result-card-actions,
+    .right-sidebar.is-open #search-triger {
+        display: block;
+    }
+
+    .right-sidebar.is-open .panel-body #triger-buttons-container {
+        display: flex;
+    }
+}
+
+/* --- Десктопні стилі --- */
+@media (min-width: 1024px) {
+
+    .right-sidebar {
+        position: relative;
+        transform: none;
+        min-width: var(--right-sidebar-width);
+        order: 3;
+        box-shadow: none;
+        border-radius: 12px 0 0 12px;
+    }
+
+    /* Стилі для ЗГОРНУТОГО стану по класу .is-collapsed */
+    .right-sidebar.is-collapsed {
+        min-width: var(--sidebar-width-collapsed);
+    }
+
+    .right-sidebar.is-collapsed.aside-secondary {
+        visibility: hidden;
+    }
+
+    .right-sidebar.is-collapsed {
+        border-radius: 0;
+    }
+
+    .right-sidebar.is-collapsed .aside-link-text,
+    .right-sidebar.is-collapsed .result-card-text,
+    .right-sidebar.is-collapsed .nav-link-external-icon,
+    .right-sidebar.is-collapsed .lil-btn,
+    .right-sidebar.is-collapsed .result-card-actions,
+    .right-sidebar.is-collapsed #search-triger,
+    .right-sidebar.is-collapsed #triger-buttons-container {
+        display: none;
+    }
+
+}
+
+/* base.css: Базові стилі для всього документа */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+
+}
+
+body {
+    background-color: var(--back);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--main);
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+h2 {
+    font-size: 1rem;
+    margin: 0;
+    color: var(--main-45);
+}
+
+input:focus-visible,
+textarea:focus-visible {
+    outline: none;
+}
+
+.separator {
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 8px;
+}
+
+.move-btn {
+    height: 32px;
+    border: none;
+    background-color: var(--tran);
+    color: var(--main-10);
+    cursor: grab;
+}
+
+.move-btn:hover {
+    color: var(--main);
+}
+
+.lil-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 99px;
+    background-color: var(--tran);
+    color: var(--main-45);
+    cursor: pointer;
+}
+
+.primary-btn,
+.secondary-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.primary-btn {
+    flex-grow: 1;
+    background-color: var(--main);
+    color: var(--white);
+}
+
+.primary-btn:hover {
+    opacity: 0.9;
+}
+
+
+a .primary-btn,
+a .secondary-btn {
+    margin-bottom: 4px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.secondary-btn {
+    background-color: var(--main-10);
+    color: var(--main);
+}
+
+.secondary-btn:hover {
+    background-color: var(--main-20);
+}
+
+.lil-btn:hover {
+    background-color: var(--splash-20);
+    color: var(--splash);
+}
+
+::selection {
+    color: var(--splash);
+    background-color: var(--splash-20);
+}
+
+::-webkit-scrollbar {
+    background-color: var(--trans);
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--main-10);
+    border-radius: 99px;
+}
+
+::marker {
+    color: var(--main-45);
+}
+// dom-elements.js
+
+// Панелі
+export const sidebarNav = document.getElementById('sidebar-nav');
+export const rightSidebar = document.getElementById('right-sidebar');
+export const mainContent = document.getElementById('main-content');
+
+// Мобільні кнопки
+export const menuToggleBtn = document.getElementById('menu-toggle-btn');
+export const rightSidebarMobileToggle = document.getElementById('aside-mobile-toggle-btn');
+
+// Десктопні кнопки
+export const leftSidebarToggle = document.getElementById('left-sidebar-toggle');
+export const rightSidebarDesktopToggle = document.getElementById('aside-desktop-toggle-btn');
+
+// Генератор таблиць
+export const addInputBtn = document.getElementById('add-input');
+export const addEmptyLineButton = document.getElementById('add-ampty-line');
+// export const tablesBtn = document.getElementById('tables-btn');
+export const rowsContainer = document.getElementById('rows-container');
+export const ingredientsBtn = document.getElementById('ingredients');
+export const warningTextBtn = document.getElementById('warning-text');
+export const compositionTextBtn = document.getElementById('different_product_composition');
+export const addNutritionFactsSampleBtn = document.getElementById('add-nutrition-facts-sample');
+export const addVitaminsSampleBtn = document.getElementById('add-vitamins-sample');
+export const addAminoAcidsSampleBtn = document.getElementById('add-amino-acids-sample');
+
+// Елементи результатів
+export const resultCardHtml = document.getElementById('result-card-html');
+export const resultCardBr = document.getElementById('result-card-br');
+// export const tableHtmlStorage = document.createElement('textarea');
+// export const tableHtmlBrStorage = document.createElement('textarea');
+
+// Модальне вікно "Магія"
+export const magicModal = document.getElementById('magic-modal');
+export const magicModalTrigger = document.getElementById('magic-modal-trigger');
+export const modalCloseBtn = document.getElementById('modal-close-btn');
+export const magicText = document.getElementById('magic-text');
+export const magicButton = document.getElementById('magic-button');
+
+// Модальне вікно для Попереднього перегляду
+export const previewModal = document.getElementById('preview-modal');
+export const previewModalTitle = document.getElementById('preview-modal-title');
+export const previewContent = document.getElementById('preview-content');
+
+// --- Text Generator ---
+export const textInputArea = document.getElementById('text-input-area');
+
+// Toolbar buttons
+export const formatBoldBtn = document.getElementById('format-bold');
+export const formatH1Btn = document.getElementById('format-h1');
+export const formatH2Btn = document.getElementById('format-h2');
+export const formatH3Btn = document.getElementById('format-h3');
+export const formatLowercaseBtn = document.getElementById('format-lowercase');
+export const clearTextBtn = document.getElementById('clear-text-btn');
+
+// Result cards
+export const resultCardAutoformat = document.getElementById('result-card-autoformat');
+export const resultCardCleanStyles = document.getElementById('result-card-clean-styles');
+export const resultCardCleanTags = document.getElementById('result-card-clean-tags');
+export const resultCardBrization = document.getElementById('result-card-brization');
+
+
+// --- SEO Generator ---
+export const seoGenerator = document.getElementById('seo-generator');
+export const brandNameInput = document.getElementById('brand-name');
+export const countryNameDiv = document.getElementById('country-name');
+export const productNameInput = document.getElementById('product-name');
+export const productPackagingInput = document.getElementById('product-packaging');
+export const seoTitleInput = document.getElementById('seo-title');
+export const seoTitleCounterSpan = document.getElementById('seo-title-counter');
+export const seoKeywordsInput = document.getElementById('seo-keywords');
+export const seoKeywordsCounterSpan = document.getElementById('seo-keywords-counter');
+export const seoDescriptionInput = document.getElementById('seo-description');
+export const seoDescriptionCounterSpan = document.getElementById('seo-description-counter');
+export const triggerTitlesContainer = document.getElementById('trigger-titles-container');
+export const trigerButtonsContainer = document.getElementById('triger-buttons-container');
+export const searchTrigerInput = document.getElementById('search-triger');
+export const commonWarning = document.getElementById('common-warning');
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Допоміжний сайт</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <header class="page-header">
+        <button id="menu-toggle-btn" class="menu-toggle-btn" aria-label="Відкрити меню">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <button id="aside-mobile-toggle-btn" class="menu-toggle-btn" aria-label="Відкрити студію">
+            <span class="material-symbols-outlined">auto_fix_high</span>
+        </button>
+
+    </header>
+
+    <nav id="sidebar-nav" class="sidebar-nav">
+        <ul class="nav-list">
+            <li class="nav-item">
+                <a href="#table" class="nav-link">
+                    <span class="material-symbols-outlined">table_rows</span>
+                    <span class="nav-link-text">Склад</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#text" class="nav-link">
+                    <span class="material-symbols-outlined">edit_note</span>
+                    <span class="nav-link-text">Текст</span>
+                </a>
+                <a href="p_text.html" class="open-new-tab" target="_blank" aria-label="Відкрити в новій вкладці">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#seo" class="nav-link">
+                    <span class="material-symbols-outlined">language</span>
+                    <span class="nav-link-text">SEO</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#trans" class="nav-link">
+                    <span class="material-symbols-outlined">translate</span>
+                    <span class="nav-link-text">Переклад</span>
+                </a>
+                <a href="https://semi-shop.com.ua/5tLKV0FnOo.php?all" class="open-new-tab" target="_blank"
+                    aria-label="Відкрити в новій вкладці">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#links" class="nav-link">
+                    <span class="material-symbols-outlined">task_alt</span>
+                    <span class="nav-link-text">Офіційні сайти</span>
+                </a>
+            </li>
+
+            <li class="separator"></li>
+
+            <li class="nav-item">
+                <a href="/shablon-hrafic/index.html" class="nav-link" target="_blank">
+                    <span class="material-symbols-outlined">print</span>
+                    <span class="nav-link-text">Графік</span>
+                    <span class="material-symbols-outlined nav-link-external-icon">open_in_new</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="p_glossary.html" class="nav-link" target="_blank">
+                    <span class="material-symbols-outlined">import_contacts</span>
+                    <span class="nav-link-text">Глосарій</span>
+                    <span class="material-symbols-outlined nav-link-external-icon">open_in_new</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="https://docs.google.com/spreadsheets/d/1JFICWpsPnZWOS1HcdUYEP-FLUFw1gf8aDEd47aFcEeo/edit"
+                    class="nav-link" target="_blank">
+                    <span class="material-symbols-outlined">account_tree</span>
+                    <span class="nav-link-text">База данних</span>
+                    <span class="material-symbols-outlined nav-link-external-icon">open_in_new</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="https://docs.google.com/spreadsheets/d/1kDpQ6FoSsEsA7dc36MKYA97j6lTmLZ_de11o83CZGXU/edit"
+                    class="nav-link" target="_blank">
+                    <span class="material-symbols-outlined">account_tree</span>
+                    <span class="nav-link-text">База брендів</span>
+                    <span class="material-symbols-outlined nav-link-external-icon">open_in_new</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <main id="main-content" class="main-content">
+
+        <div id="table" class="block-1 content-section" data-panel-target="panel-table-generator">
+            <div class="block-2">
+                <h1>Таблиці</h1>
+                <h2>Генерація складу і вмісту елементів на 1 порцію</h2>
+            </div>
+            <div class="block">
+                <div class="flex-5">
+                    <div>
+                        <div id="inputs-container" class="white-box">
+                            <div id="rows-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="text" class="block-1 content-section" data-panel-target="panel-text">
+            <div class="block-2">
+                <h1>Текст</h1>
+                <h2>Інструменти для роботи з текстом</h2>
+            </div>
+            <div class="block">
+                <div class="flex-5">
+                    <div class="text-box white-box">
+                        <textarea id="input-text-markup" class="text"
+                            placeholder="Встав тут текст або HTML…"></textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="seo" class="block-1 content-section" data-panel-target="panel-seo">
+            <div class="block-2">
+                <h1>SEO</h1>
+                <h2>Генерація Meta Title, Keywords і Description</h2>
+            </div>
+            <div class="block">
+                <div class="flex-5">
+                    <div class="white-box" style="margin-bottom: 12px;">
+                        <div class="seo-line-container">
+                            <input id="brand-name" class="text-line" placeholder="Назва бренду:" autocomplete="off">
+                            <div id="country-name" class="country-display"></div>
+                        </div>
+                        <div class="seo-line-container">
+                            <input id="product-name" class="text-line" placeholder="Назва товару:" autocomplete="off">
+                        </div>
+                        <div class="seo-line-container">
+                            <input id="product-packaging" class="text-line"
+                                placeholder="Фасування товару (напр. 90 капс):" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="white-box">
+                        <div class="seo-line-container result-line" title="Клікнути, щоб скопіювати">
+                            <span class="context-span">Title:</span>
+                            <input class="text-line" id="seo-title" readonly>
+                            <span class="counter" id="seo-title-counter">0/65</span>
+                        </div>
+                        <div class="seo-line-container result-line" title="Клікнути, щоб скопіювати">
+                            <span class="context-span">Keywords:</span>
+                            <input class="text-line" id="seo-keywords" readonly>
+                            <span class="counter" id="seo-keywords-counter">0/250</span>
+                        </div>
+                        <div class="seo-line-container result-line" title="Клікнути, щоб скопіювати">
+                            <span class="context-span">Description:</span>
+                            <input class="text-line" id="seo-description" readonly>
+                            <span class="counter" id="seo-description-counter">0/200</span>
+                        </div>
+                    </div>
+
+                    <div class="tooltip-box">
+                        <div id="trigger-titles-container"></div>
+                        <div id="common-warning"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="trans" class="block-1 content-section" data-panel-target="panel-trans">
+            <div class="block-2">
+                <h1>Переклад</h1>
+                <h2>Інструменти для оптимізації</h2>
+            </div>
+            <div class="block">
+                <div class="white-box">
+                    <iframe
+                        style="border: none; height: 560px; background-color: transparent; width: -webkit-fill-available; border-radius: 12px;"
+                        src="https://semi-shop.com.ua/5tLKV0FnOo.php?all"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div id="links" class="block-1 content-section" data-panel-target="panel-links">
+            <div class="block-2">
+                <h1>Офіційні сайти</h1>
+                <h2>Список посилань на сайти виробників</h2>
+            </div>
+            <div class="block">
+                <div class="white-box links-white-box">
+                    <div class="seo-line-container search-container"
+                        style="margin-bottom: 12px; border: 1px solid var(--border-color);">
+                        <span class="material-symbols-outlined">search</span>
+                        <input id="search-link" class="text-line" placeholder="Пошук виробника..." autocomplete="off">
+                        <div id="links-country-name" class="country-display"></div>
+                    </div>
+
+                    <div id="buttons-container" class="links-container"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <aside id="right-sidebar" class="right-sidebar">
+        <div class="panel-header">
+            <button id="aside-desktop-toggle-btn" class="aside-item" aria-label="Згорнути панель">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+        </div>
+
+        <div id="panel-table-generator" class="panel-content is-active">
+            <div class="panel-footer">
+                <div class="results-container">
+
+                    <div id="result-card-html" class="result-card" title="Копіювати HTML таблицю">
+                        <span class="material-symbols-outlined">code</span>
+                        <div class="result-card-text">
+                            <span class="result-title">Склад</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display: none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="html">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="result-card-br" class="result-card" title="Копіювати текст з <br>">
+                        <span class="material-symbols-outlined">notes</span>
+                        <div class="result-card-text">
+                            <span class="result-title">1 порція</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display: none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="br">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-body">
+                <div class="aside-list">
+                    <button id="add-input" class="aside-item">
+                        <span class="material-symbols-outlined">add</span>
+                        <span class="aside-link-text">Новий рядок</span>
+                    </button>
+                    <button id="add-ampty-line" class="aside-item">
+                        <span class="material-symbols-outlined">rectangle</span>
+                        <span class="aside-link-text">Розділювач</span>
+                    </button>
+                    <button id="ingredients" class="aside-item">
+                        <span class="material-symbols-outlined">source_notes</span>
+                        <span class="aside-link-text">Інгредієнти</span>
+                    </button>
+
+                    <div class="separator"></div>
+
+                    <button id="warning-text" class="aside-item">
+                        <span class="material-symbols-outlined">warning</span>
+                        <span class="aside-link-text">Попередження</span>
+                    </button>
+                    <button id="different_product_composition" class="aside-item">
+                        <span class="material-symbols-outlined">call_split</span>
+                        <span class="aside-link-text">Різний склад</span>
+                    </button>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="aside-list">
+                    <button id="add-nutrition-facts-sample" class="aside-item">
+                        <span class="material-symbols-outlined">nutrition</span>
+                        <span class="aside-link-text">Nutrition Facts</span>
+                    </button>
+                    <button id="add-vitamins-sample" class="aside-item">
+                        <span class="material-symbols-outlined">spo2</span>
+                        <span class="aside-link-text">Вітаміни</span>
+                    </button>
+                    <button id="add-amino-acids-sample" class="aside-item">
+                        <span class="material-symbols-outlined">pill</span>
+                        <span class="aside-link-text">Амінокислоти</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-footer" style="padding-bottom: 32px;">
+                <div class="aside-list">
+                    <button id="magic-modal-trigger" class="primary-btn" data-modal-trigger="magic-modal"
+                        style="margin-bottom: 4px;">
+                        <span class="material-symbols-outlined">auto_fix_high</span>
+                        <span class="aside-link-text">Магія</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-text" class="panel-content is-active">
+            <div class="panel-footer">
+                <div class="results-container">
+
+                    <div id="result-card-text-html" class="result-card" title="Копіювати авто-розмітку (HTML)">
+                        <span class="material-symbols-outlined">code</span>
+                        <div class="result-card-text">
+                            <span class="result-title">Розмітка</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display:none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="text-html">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-body">
+                <div id="text-btns" class="aside-list">
+                    <button class="aside-item" id="boldBtn">
+                        <span class="material-symbols-outlined">format_bold</span>
+                        <span class="aside-link-text">Жирний текст</span>
+                    </button>
+
+                    <button class="aside-item" id="lowercaseBtn">
+                        <span class="material-symbols-outlined">text_rotate_vertical</span>
+                        <span class="aside-link-text">Всі маленькі</span>
+                    </button>
+                    <button class="aside-item" id="h1Btn">
+                        <span class="material-symbols-outlined">format_h1</span>
+                        <span class="aside-link-text">Заголовок 1</span>
+                    </button>
+                    <button class="aside-item" id="h2Btn">
+                        <span class="material-symbols-outlined">format_h2</span>
+                        <span class="aside-link-text">Заголовок 2</span>
+                    </button>
+                    <button class="aside-item" id="h3Btn">
+                        <span class="material-symbols-outlined">format_h3</span>
+                        <span class="aside-link-text">Заголовок 3</span>
+                    </button>
+                </div>
+
+                <div class="separator"></div>
+
+                <div class="aside-list">
+                    <div id="result-card-text-br" class="aside-item" title="Копіювати текст з &lt;br&gt;">
+                        <span class="material-symbols-outlined">notes</span>
+                        <div class="result-card-text">
+                            <span class="result-title">br/ізація</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display:none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="text-br">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="result-card-text-clean-tags" class="aside-item"
+                        title="Копіювати: без стилів, теги збережено">
+                        <span class="material-symbols-outlined">format_clear</span>
+                        <div class="result-card-text">
+                            <span class="result-title">Без стилів (теги)</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display:none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="text-clean-tags">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="result-card-text-clean" class="aside-item" title="Копіювати: повністю без коду">
+                        <span class="material-symbols-outlined">clear_all</span>
+                        <div class="result-card-text">
+                            <span class="result-title">Повністю без коду</span>
+                            <span class="result-status"></span>
+                        </div>
+                        <div class="result-card-actions">
+                            <button class="icon-btn lil-btn"><span
+                                    class="material-symbols-outlined">more_vert</span></button>
+                            <div class="attributes-dropdown" style="display:none;">
+                                <button class="option-btn option-btn-l" data-modal-trigger="preview-modal"
+                                    data-preview-target="text-clean">
+                                    <span>Показати візуалізацію</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-footer" style="padding-bottom: 32px;">
+                <div class="aside-list">
+                    <a href="https://gemini.google.com/gem/1G8XKY4TEhLYZCOraRdx1vf3hPQbjZ5PY?usp=sharing"
+                        target="_blank" class="primary-btn"
+                        style="margin-bottom: 4px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined">auto_fix_high</span>
+                        <span class="aside-link-text">Текст від Gemini</span>
+                    </a>
+
+
+                    <a href="https://chatgpt.com/g/g-wTxhkdE8O-opis-tekstu?model=gpt-4o" target="_blank"
+                        class="primary-btn"
+                        style="margin-bottom: 4px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined">auto_fix_high</span>
+                        <span class="aside-link-text">Текст від GPT</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-seo" class="panel-content">
+            <div class="panel-footer">
+                <div class="seo-line-container search-container result-card" style="margin-bottom: 8px;">
+                    <span class="material-symbols-outlined">search</span>
+                    <input id="search-triger" class="text-line" placeholder="Пошук тригера..." autocomplete="off">
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-body">
+                <div class="flex-wrap-container" id="triger-buttons-container" style="height: 20px;">
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="panel-footer" style="padding-bottom: 32px;">
+                <div class="aside-list">
+                    <a href="https://docs.google.com/spreadsheets/d/1JFICWpsPnZWOS1HcdUYEP-FLUFw1gf8aDEd47aFcEeo/edit"
+                        target="_blank" class="primary-btn"
+                        style="margin-bottom: 4px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <span class="aside-link-text">Створити тригер</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel-trans" class="panel-content">
+            <div class="panel-body">
+                <p class="aside-link-text">Тут будуть інструменти для перекладів.</p>
+            </div>
+        </div>
+
+
+        <div id="panel-links" class="panel-content">
+            <div class="panel-body">
+                <p class="aside-link-text">Тут будуть інструменти для посилань.</p>
+            </div>
+        </div>
+
+    </aside>
+
+    <div id="magic-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"></h2>
+                <button class="lil-btn" data-modal-close>
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <textarea id="magic-text" class="code-text" placeholder="Вставте скопійований текст сюди..."></textarea>
+            <button id="magic-button" class="primary-btn">Застосувати магію</button>
+        </div>
+    </div>
+
+    <div id="preview-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="preview-modal-title" class="modal-title">Попередній перегляд</h2>
+                <button class="lil-btn" data-modal-close>
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="preview-content" class="modal-preview-content">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
+/* layout.css: Стилі для основної розмітки сторінки (хедер, контент) */
+
+/* --- Хедер --- */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    padding: 0 8px;
+    z-index: 100;
+}
+
+.header-title {
+    font-size: 18px;
+    font-weight: 500;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.menu-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    color: var(--main-65);
+}
+
+.menu-toggle-btn:hover {
+    background-color: var(--main-10);
+    color: var(--main);
+}
+
+/* --- Основний контент --- */
+/* Ці зміни забезпечують повноекранний скролінг та "прилипання" блоків */
+.main-content {
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-right: var(--sidebar-width-collapsed); 
+    transition: margin-left var(--transition-speed) ease-in-out;
+    scroll-snap-type: y mandatory; /* Визначає, що прокрутка має "прилипати" */
+    height: 100vh; /* Робить основний контейнер висотою всього вікна */
+    overflow-y: auto; /* Дозволяє прокручувати його вміст */
+}
+
+/* Кожен блок-1 займає всю висоту вікна і "прилипає" до верхнього краю */
+.main-content .block-1 {
+    min-height: calc(100vh - var(--header-height));
+    padding-top: var(--header-height);
+    scroll-snap-align: start; /* Змушує блок "прилипнути" до верху контейнера */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Десктопна розмітка --- */
+@media (min-width: 1024px) {
+    body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .main-content {
+        flex-grow: 1;
+        height: 100vh;
+        overflow-y: auto;
+        padding-top: 0; 
+        margin-left: var(--sidebar-width-collapsed);
+        margin-right: 0; 
+    }
+    
+    .main-content .block-1 {
+        min-height: 100vh;
+        padding-top: 24px;
+    }
+
+    .page-header {
+        display: none;
+    }
+}
+
+.block {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0;
+}
+// links-generator.js
+
+let countriesData = {}; // Зберігаємо дані про країни
+
+// Функція для ініціалізації блоку "Офіційні сайти"
+export function initLinksGenerator() {
+    const buttonsContainer = document.getElementById("buttons-container");
+    const searchInput = document.getElementById("search-link");
+    const countryDisplay = document.getElementById("links-country-name");
+    
+    if (!buttonsContainer || !searchInput || !countryDisplay) {
+        return;
+    }
+
+    const csvUrlLinks = 'https://docs.google.com/spreadsheets/d/1kDpQ6FoSsEsA7dc36MKYA97j6lTmLZ_de11o83CZGXU/export?format=csv';
+
+    const updateLinkCountry = () => {
+        const brandName = searchInput.value.trim().toLowerCase();
+        countryDisplay.textContent = countriesData[brandName] || '';
+    };
+
+    Papa.parse(csvUrlLinks, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            const data = results.data;
+            
+            countriesData = data.reduce((acc, row) => {
+                const brand = row.BrandName ? row.BrandName.toLowerCase().trim() : '';
+                const country = row.CountryName ? row.CountryName.trim() : '';
+                if (brand && country) {
+                    acc[brand] = country;
+                }
+                return acc;
+            }, {});
+
+            buttonsContainer.innerHTML = ''; 
+            data.forEach(row => {
+                if (row.BrandName && row.Link) {
+                    const button = document.createElement("button");
+                    button.className = "link-button";
+                    
+                    const linkElement = document.createElement("a");
+                    linkElement.href = row.Link;
+                    linkElement.target = "_blank";
+
+                    // 1. Створюємо span для тексту
+                    const textSpan = document.createElement("span");
+                    textSpan.className = "link-button-text";
+                    textSpan.textContent = row.BrandName;
+
+                    // 2. Створюємо span для іконки
+                    const iconSpan = document.createElement("span");
+                    iconSpan.className = "material-symbols-outlined link-button-icon";
+                    iconSpan.textContent = "open_in_new";
+                    
+                    // 3. Додаємо текст та іконку в посилання
+                    linkElement.appendChild(textSpan);
+                    //linkElement.appendChild(iconSpan);
+                    
+                    button.appendChild(linkElement);
+                    buttonsContainer.appendChild(button);
+                }
+            });
+            
+            updateLinkCountry();
+        },
+        error: function(err) {
+            console.error('Помилка завантаження CSV з посиланнями:', err);
+        }
+    });
+
+    searchInput.addEventListener("input", function () {
+        const searchTerm = searchInput.value.toLowerCase();
+        const buttons = buttonsContainer.getElementsByClassName("link-button");
+        for (let i = 0; i < buttons.length; i++) {
+            const buttonText = buttons[i].textContent.toLowerCase();
+            if (buttonText.includes(searchTerm)) {
+                buttons[i].style.display = "inline-flex";
+            } else {
+                buttons[i].style.display = "none";
+            }
+        }
+    });
+
+    searchInput.addEventListener('input', updateLinkCountry);
+}
+/* links-generator.css: Оновлені стилі для блоку "Офіційні сайти" */
+
+.links-white-box {
+    display: flex;
+    flex-direction: column;
+    height: 70vh; 
+}
+
+.links-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+#links .flex-5 {
+    flex-grow: 0;
+    flex-basis: auto;
+}
+
+.link-button {
+    display: inline-flex;
+    padding: 0; /* Забираємо внутрішній відступ у кнопки */
+    background-color: var(--main-5);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.link-button a {
+    display: flex; /* Робимо посилання гнучким контейнером */
+    align-items: center;
+    gap: 8px; /* Відстань між текстом та іконкою */
+    padding: 6px 12px; /* Переносимо відступ сюди */
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--main-65);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.link-button-text {
+    /* Цьому елементу додаткові стилі не потрібні */
+}
+
+.link-button-text:hover {
+    
+}
+
+.link-button:hover {
+    background-color: var(--splash-20);
+    font-style: italic;  
+}
+
+.link-button:hover a {
+    color: var(--splash);
+}
+
+
+// main.js
+
+import { initSidebars } from './sidebar.js';
+import { initTableGenerator } from './table-generator.js';
+import { initTextGenerator } from './text-generator.js';
+import { initSeoGenerator } from './seo-generator.js';
+import { initializeModal } from './modal.js';
+import { initStickyPanelObserver } from './sticky-panel.js';
+import { initPreviewFeature } from './preview.js';
+import { initLinksGenerator } from './links-generator.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+    initSidebars();
+    initializeModal();
+    initTableGenerator();
+    initTextGenerator();
+    initSeoGenerator();
+    initPreviewFeature();
+    initStickyPanelObserver();
+    initLinksGenerator();
+});
+// modal.js: Універсальний обробник модальних вікон
+
+export function initializeModal() {
+    // Знайти всі елементи, які можуть відкривати модальні вікна
+    const triggers = document.querySelectorAll('[data-modal-trigger]');
+
+    // Функція для відкриття вікна
+    const openModal = (modal) => {
+        if (!modal) return;
+        modal.classList.add('is-open');
+        document.body.classList.add('is-modal-open');
+    };
+
+    // Функція для закриття вікна
+    const closeModal = (modal) => {
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        document.body.classList.remove('is-modal-open');
+    };
+
+    // Навісити слухач на кожну кнопку-тригер
+    triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const modalId = trigger.dataset.modalTrigger;
+            const modal = document.getElementById(modalId);
+            openModal(modal);
+        });
+    });
+
+    // Навісити слухач на всі кнопки закриття
+    const closeButtons = document.querySelectorAll('[data-modal-close]');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = button.closest('.modal-overlay');
+            closeModal(modal);
+        });
+    });
+
+    // Дозволити закриття по кліку на темний фон
+    const overlays = document.querySelectorAll('.modal-overlay');
+    overlays.forEach(overlay => {
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) {
+                closeModal(overlay);
+            }
+        });
+    });
+
+    // Дозволити закриття по натисканню на Escape
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            const openModal = document.querySelector('.modal-overlay.is-open');
+            closeModal(openModal);
+        }
+    });
+}
+/* modal.css: Універсальні стилі модального вікна */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(29, 27, 32, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  width: min(720px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: #f2ecee;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+  transform: translateY(8px) scale(.98);
+  opacity: 0;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.modal-overlay.is-open .modal-content {
+  transform: none;
+  opacity: 1;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 8px 8px 24px;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+body.is-modal-open {
+  overflow: hidden;
+}
+
+.code-text {
+    width: 100%;
+    height: 400px;
+    background-color: transparent;
+    border: none;
+    padding: 12px;
+}
+
+/* --- Стилі для вмісту вікна попереднього перегляду --- */
+.modal-preview-content {
+    padding: 24px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.modal-preview-content table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border-color);
+}
+.modal-preview-content th,
+.modal-preview-content td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: top;
+}
+.modal-preview-content th {
+    background-color: var(--main-5);
+}
+.modal-preview-content h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+/* --- Адаптивність для мобільних пристроїв --- */
+@media (max-width: 1023px) {
+  .modal-overlay {
+    padding: 0;
+    /* Вирівнюємо по нижньому краю */
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    width: 100%;
+    height: 90vh;
+    max-height: 90vh;
+    border-radius: 0px;
+    transform: translateY(100%);
+  }
+
+  /* При відкритті виїжджає на свою позицію */
+  .modal-overlay.is-open .modal-content {
+    transform: translateY(0);
+  }
+}
+/* navigation.css: Стилі для лівого меню навігації */
+
+.sidebar-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width-expanded);
+    background-color: var(--back);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
+    transform: translateX(-100%);
+    background-color: #f2ecee;
+    /* Сховано за замовчуванням на моб. */
+    transition: transform var(--transition-speed) ease-in-out;
+}
+
+.sidebar-nav.is-open {
+    transform: translateX(0);
+}
+
+.nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-radius: 8px;
+    color: var(--main-45);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.nav-item:hover {
+    background-color: var(--splash-10);
+    color: var(--splash);
+}
+
+.nav-item:hover .nav-link-external-icon {
+    color: var(--splash);
+}
+
+.nav-link .material-symbols-outlined,
+span.material-symbols-outlined {
+    font-size: 16px;
+    flex-shrink: 0;
+    /* Забороняє іконці стискатись */
+}
+
+/* Кнопка "відкрити в новій вкладці", яка з'являється при наведенні */
+.open-new-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--main-45);
+    flex-shrink: 0;
+
+    /* Схована за замовчуванням */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+
+.open-new-tab:hover {
+    color: var(--splash);
+}
+
+/* Показати кнопку при наведенні на весь елемент списку */
+.nav-item:hover .open-new-tab {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Статична іконка для посилань, що завжди зовнішні */
+.nav-link-external-icon {
+    margin-left: auto;
+    color: var(--main-45);
+}
+
+@media (min-width: 1024px) {
+    .sidebar-nav {
+        transform: translateX(0);
+        width: var(--sidebar-width-collapsed);
+        transition: width var(--transition-speed) ease-in-out, background-color var(--transition-speed);
+    }
+
+    .sidebar-nav:hover {
+        width: var(--sidebar-width-expanded);
+        border-radius: 0px 8px 8px 0px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-list {
+        margin-top: 16px;
+        /* Зменшуємо відступ, бо хедера немає */
+    }
+
+    /* Ховаємо текст і всі типи іконок "open_in_new", коли меню згорнуте */
+    .nav-link-text,
+    .open-new-tab,
+    .nav-link-external-icon {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--transition-speed), visibility var(--transition-speed);
+    }
+
+    /* Показуємо текст і статичну іконку, коли меню розгортається */
+    .sidebar-nav:hover .nav-link-text,
+    .sidebar-nav:hover .nav-link-external-icon {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Кнопку, що з'являється, показуємо тільки при наведенні на сам елемент ВЖЕ в розгорнутому меню */
+    .sidebar-nav:hover .nav-item:hover .open-new-tab {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Розгорнутий стан по класу .is-expanded */
+    .sidebar-nav.is-expanded {
+        width: var(--sidebar-width-expanded);
+    }
+
+    /* Декоративні стилі для розгорнутого стану */
+    .sidebar-nav.is-expanded {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-nav.is-expanded {
+        border-radius: 0 12px 12px 0;
+    }
+
+    /* Показуємо текст у розгорнутому стані */
+    .sidebar-nav.is-expanded .nav-link-text,
+    .sidebar-nav.is-expanded .open-new-tab,
+    .sidebar-nav.is-expanded .nav-link-external-icon {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Анімація іконки для ЛІВОЇ панелі (без змін) */
+    .sidebar-nav.is-expanded #left-sidebar-toggle > span {
+        transform: rotate(180deg);
+    }
+}
+// preview.js
+import * as dom from './dom-elements.js';
+import { generateHtmlTable, generateBrText } from './table-generator.js';
+import { generateTextHtml, generateTextBr, generateTextClean, generateTextKeepTags } from './text-generator.js';
+
+export function initPreviewFeature() {
+    const actionWrappers = document.querySelectorAll('.result-card-actions');
+    const previewTriggers = document.querySelectorAll('[data-modal-trigger="preview-modal"]');
+
+    // Керування випадаючим меню
+    actionWrappers.forEach(wrapper => {
+        const trigger = wrapper.querySelector('.lil-btn');
+        const dropdown = wrapper.querySelector('.attributes-dropdown');
+
+        if (!trigger || !dropdown) return;
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Зупиняємо копіювання по кліку на всю картку
+
+            const isVisible = dropdown.style.display === 'flex';
+
+            // Закриваємо всі інші меню
+            document.querySelectorAll('.result-card-actions .attributes-dropdown').forEach(d => {
+                d.style.display = 'none';
+            });
+
+            // Показуємо або ховаємо поточне меню
+            dropdown.style.display = isVisible ? 'none' : 'flex';
+        });
+    });
+
+    // Глобальний слухач для закриття меню по кліку за межами
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.result-card-actions')) {
+            document.querySelectorAll('.result-card-actions .attributes-dropdown').forEach(d => {
+                d.style.display = 'none';
+            });
+        }
+    });
+
+    // --- НОВА ЛОГІКА ДЛЯ ПОПЕРЕДНЬОГО ПЕРЕГЛЯДУ ---
+
+    // Навішуємо слухач на кожну кнопку "Показати візуалізацію"
+    previewTriggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            // Визначаємо, який тип контенту потрібно показати (html чи br)
+            const previewType = trigger.dataset.previewTarget;
+
+            let content = '';
+            let title = 'Попередній перегляд';
+
+            // Викликаємо відповідну функцію генерації
+            if (previewType === 'html') {
+                title = 'Попередній перегляд: Склад (таблиця)';
+                content = generateHtmlTable();
+            } else if (previewType === 'br') {
+                title = 'Попередній перегляд: 1 порція (текст)';
+                content = generateBrText();
+            } else if (previewType === 'text-html') {
+                title = 'Попередній перегляд: Розмітка';
+                content = generateTextHtml();
+            } else if (previewType === 'text-br') {
+                title = 'Попередній перегляд: br/ізація';
+                content = generateTextBr();
+            } else if (previewType === 'text-clean') {
+                title = 'Попередній перегляд: Чистий текст';
+                content = `<pre>${generateTextClean()}</pre>`;
+            } else if (previewType === 'text-clean-tags') {
+                title = 'Попередній перегляд: Без стилів (теги)';
+                content = generateTextKeepTags(); // показуємо як HTML зі збереженими тегами
+            }
+
+            // Якщо контенту немає, показуємо заглушку
+            if (!content.trim()) {
+                content = '<p class="preview-placeholder">Немає даних для попереднього перегляду. Спочатку заповніть поля.</p>';
+            }
+
+            // Вставляємо згенерований контент та заголовок у модальне вікно
+            if (dom.previewModalTitle && dom.previewContent) {
+                dom.previewModalTitle.textContent = title;
+                dom.previewContent.innerHTML = content;
+            }
+
+            // Примітка: саме відкриття модального вікна обробляється
+            // універсальним скриптом modal.js, оскільки на кнопці є
+            // атрибут data-modal-trigger="preview-modal"
+        });
+    });
+}
+// seo-generator.js
+
+let countriesData = {};
+let triggersData = [];
+
+// DOM елементи
+const dom = {
+    // Вхідні дані з основного контенту
+    inputTextMarkup: null,
+    brandNameInput: null,
+    productNameInput: null,
+    productPackagingInput: null,
+    
+    // Елементи для виводу
+    countryNameDiv: null,
+    seoTitleInput: null,
+    seoTitleCounterSpan: null,
+    seoKeywordsInput: null,
+    seoKeywordsCounterSpan: null,
+    seoDescriptionInput: null,
+    seoDescriptionCounterSpan: null,
+    
+    // Тригери
+    triggerTitlesContainer: null,
+    trigerButtonsContainer: null,
+    searchTrigerInput: null,
+    
+    // Попередження
+    commonWarning: null
+};
+
+// Завантаження даних
+async function fetchData() {
+    const csvUrlTriggers = 'https://docs.google.com/spreadsheets/d/1JFICWpsPnZWOS1HcdUYEP-FLUFw1gf8aDEd47aFcEeo/export?format=csv';
+    const csvUrlBrandsCountries = 'https://docs.google.com/spreadsheets/d/1kDpQ6FoSsEsA7dc36MKYA97j6lTmLZ_de11o83CZGXU/export?format=csv';
+
+    try {
+        const [triggersResponse, brandsResponse] = await Promise.all([
+            fetch(csvUrlTriggers),
+            fetch(csvUrlBrandsCountries)
+        ]);
+
+        const [triggersCsv, brandsCsv] = await Promise.all([
+            triggersResponse.text(),
+            brandsResponse.text()
+        ]);
+        
+        // Парсинг брендів та країн
+        Papa.parse(brandsCsv, {
+            header: true,
+            complete: (results) => {
+                countriesData = results.data.reduce((acc, row) => {
+                    const brand = row.BrandName ? row.BrandName.toLowerCase().trim() : '';
+                    const country = row.CountryName ? row.CountryName.trim() : '';
+                    if (brand && country) acc[brand] = country;
+                    return acc;
+                }, {});
+                updateCountry();
+            }
+        });
+        
+        // Парсинг тригерів
+        Papa.parse(triggersCsv, {
+            header: true,
+            complete: (results) => {
+                triggersData = results.data.map(row => ({
+                    title: row.TitleUA ? row.TitleUA.trim() : '',
+                    triggers: row.Triggers ? row.Triggers.split(',').map(t => t.trim()).filter(Boolean) : [],
+                    keywords: row.KeywordsRU ? row.KeywordsRU.split(',').map(k => k.trim()).filter(Boolean) : []
+                })).filter(t => t.title && (t.triggers.length > 0 || t.keywords.length > 0));
+                renderTriggerButtons();
+            }
+        });
+
+    } catch (error) {
+        console.error("Error fetching CSV data:", error);
+    }
+}
+
+// Функції генерації
+function generateSeoTitle() {
+    const brandName = dom.brandNameInput.value.trim();
+    const productName = dom.productNameInput.value.trim();
+    const packaging = dom.productPackagingInput.value.trim();
+    const seoTitle = `Купить ${brandName} ${productName}${packaging ? ' ' + packaging : ''} в Украине. Низкие цены!`;
+    dom.seoTitleInput.value = seoTitle;
+    dom.seoTitleCounterSpan.innerText = `${seoTitle.length}/65`;
+}
+
+function generateSeoDescription() {
+    const text = (dom.inputTextMarkup.value || '').replace(/<\/?[^>]+(>|$)/g, '').trim();
+    const firstSentence = text.match(/[^\.!\?]+[\.!\?]+/g)?.[0] || text;
+    const phoneNumbers = ["(096)519-78-22", "(073)475-67-07", "(099)237-90-38"];
+    const randomPhone = phoneNumbers[Math.floor(Math.random() * phoneNumbers.length)];
+    const seoDescription = `${firstSentence} Для заказа звоните по номеру: ${randomPhone}`;
+    dom.seoDescriptionInput.value = seoDescription;
+    dom.seoDescriptionCounterSpan.innerText = `${seoDescription.length}/200`;
+}
+
+function generateSeoKeywords() {
+    const brandName = dom.brandNameInput.value.trim();
+    const productName = dom.productNameInput.value.trim();
+    const packaging = dom.productPackagingInput.value.trim();
+
+    let baseKeywords = [
+        `купить ${brandName} ${productName}${packaging ? ' ' + packaging : ''}`,
+        `${brandName} ${productName}`,
+        `${brandName}`,
+        `${productName}`
+    ].filter(Boolean);
+
+    let triggerKeywords = [];
+    const activeTulips = dom.triggerTitlesContainer.querySelectorAll('.trigger-title-active');
+    activeTulips.forEach(tulip => {
+        const title = tulip.dataset.title;
+        const trigger = triggersData.find(t => t.title === title);
+        if (trigger) {
+            triggerKeywords.push(...trigger.keywords);
+        }
+    });
+
+    const allKeywords = [...new Set([...baseKeywords, ...triggerKeywords])];
+    const seoKeywords = allKeywords.join(', ');
+    dom.seoKeywordsInput.value = seoKeywords;
+    dom.seoKeywordsCounterSpan.innerText = `${seoKeywords.length}/250`;
+}
+
+// Функції оновлення UI
+function updateBrandAndProductName() {
+    const text = (dom.inputTextMarkup.value || '').replace(/<\/?[^>]+(>|$)/g, '');
+    const words = text.split(/\s+/);
+    dom.brandNameInput.value = words[0] || '';
+    
+    const dashIndex = words.findIndex(word => word === '-' || word === '–');
+    dom.productNameInput.value = (dashIndex !== -1 ? words.slice(1, dashIndex) : words.slice(1)).join(' ');
+
+    runAllUpdates();
+}
+
+function updateCountry() {
+    const brandName = dom.brandNameInput.value.trim().toLowerCase();
+    dom.countryNameDiv.innerText = countriesData[brandName] || '';
+}
+
+function updateTriggerTulips() {
+    const productName = dom.productNameInput.value.toLowerCase();
+    const activeTitles = new Set();
+    
+    // Зберігаємо існуючі активні тюльпани, додані вручну
+    dom.triggerTitlesContainer.querySelectorAll('.trigger-title-active').forEach(tulip => {
+        activeTitles.add(tulip.dataset.title);
+    });
+
+    // Додаємо тюльпани, що відповідають назві продукту
+    triggersData.forEach(trigger => {
+        if (trigger.triggers.some(t => productName.includes(t.toLowerCase()))) {
+            activeTitles.add(trigger.title);
+        }
+    });
+
+    dom.triggerTitlesContainer.innerHTML = '';
+    activeTitles.forEach(title => {
+        const trigger = triggersData.find(t => t.title === title);
+        if (trigger) {
+            addTulipToContainer(trigger, true);
+        }
+    });
+    generateSeoKeywords();
+}
+
+function addTulipToContainer(trigger, isActive = true) {
+    if (!trigger || !trigger.title) return;
+    // Перевірка, чи тюльпан вже існує
+    if (dom.triggerTitlesContainer.querySelector(`[data-title="${trigger.title}"]`)) {
+        return;
+    }
+
+    const tulip = document.createElement('div');
+    tulip.className = isActive ? 'trigger-title-active' : 'trigger-title-inactive';
+    tulip.textContent = trigger.title;
+    tulip.dataset.title = trigger.title;
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = trigger.keywords.join(', ');
+    tulip.appendChild(tooltip);
+
+    tulip.addEventListener('click', () => {
+        tulip.classList.toggle('trigger-title-active');
+        tulip.classList.toggle('trigger-title-inactive');
+        generateSeoKeywords();
+    });
+
+    dom.triggerTitlesContainer.appendChild(tulip);
+}
+
+function renderTriggerButtons() {
+    if (!dom.trigerButtonsContainer) return;
+    dom.trigerButtonsContainer.innerHTML = '';
+    triggersData.forEach(trigger => {
+        const button = document.createElement('button');
+        button.className = 'trigger-button';
+        button.textContent = trigger.title;
+        button.addEventListener('click', () => {
+            addTulipToContainer(trigger, true);
+            generateSeoKeywords();
+        });
+        dom.trigerButtonsContainer.appendChild(button);
+    });
+}
+
+// Система безпеки
+function checkSafety() {
+    const BANNED_BRANDS = ['clomapharm', 'cloma pharm'];
+    const BANNED_PRODUCTS = ['alpha gpc', 'aloe-emodin', 'aloin', 'barbaloin', 'hydroxyanthracene', 'anthraquinone', 'dantron', 'danthron', 'emodin', 'ephedra', 'ma huang', 'ephedrine', 'pseudoephedrine', 'norephedrine', 'phenylpropanolamine', 'yohimbe', 'yohimbine', 'rauwolscine', 'quebrachine', 'dmaa', '1,3-dimethylamylamine', 'methylhexanamine', 'geranamine', 'dmha'];
+    const brandValue = dom.brandNameInput.value.toLowerCase();
+    const productValue = dom.productNameInput.value.toLowerCase();
+    const isBanned = BANNED_BRANDS.some(b => brandValue.includes(b)) || BANNED_PRODUCTS.some(p => productValue.includes(p));
+    dom.commonWarning.textContent = isBanned ? 'Заборонено до продажу в Україні' : '';
+}
+
+// Загальна функція оновлення
+function runAllUpdates() {
+    updateCountry();
+    updateTriggerTulips();
+    generateSeoTitle();
+    generateSeoDescription();
+    generateSeoKeywords(); // Ця функція має йти після updateTriggerTulips
+    checkSafety();
+}
+
+// Ініціалізація
+export function initSeoGenerator() {
+    // Прив'язка DOM елементів
+    dom.inputTextMarkup = document.getElementById('input-text-markup');
+    dom.brandNameInput = document.getElementById('brand-name');
+    dom.productNameInput = document.getElementById('product-name');
+    dom.productPackagingInput = document.getElementById('product-packaging');
+    dom.countryNameDiv = document.getElementById('country-name');
+    dom.seoTitleInput = document.getElementById('seo-title');
+    dom.seoTitleCounterSpan = document.getElementById('seo-title-counter');
+    dom.seoKeywordsInput = document.getElementById('seo-keywords');
+    dom.seoKeywordsCounterSpan = document.getElementById('seo-keywords-counter');
+    dom.seoDescriptionInput = document.getElementById('seo-description');
+    dom.seoDescriptionCounterSpan = document.getElementById('seo-description-counter');
+    dom.triggerTitlesContainer = document.getElementById('trigger-titles-container');
+    dom.trigerButtonsContainer = document.getElementById('triger-buttons-container');
+    dom.searchTrigerInput = document.getElementById('search-triger');
+    dom.commonWarning = document.getElementById('common-warning');
+
+    if (!dom.brandNameInput) return; // Якщо на сторінці немає цього блоку, нічого не робити
+
+    fetchData();
+
+    // Слухачі подій
+    dom.inputTextMarkup.addEventListener('input', updateBrandAndProductName);
+    ['brandNameInput', 'productNameInput', 'productPackagingInput'].forEach(key => {
+        dom[key].addEventListener('input', runAllUpdates);
+    });
+    
+    dom.searchTrigerInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        dom.trigerButtonsContainer.querySelectorAll('.trigger-button').forEach(button => {
+            button.style.display = button.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Копіювання по кліку
+    [dom.seoTitleInput, dom.seoKeywordsInput, dom.seoDescriptionInput].forEach(input => {
+        input.addEventListener('click', () => {
+            navigator.clipboard.writeText(input.value).then(() => {
+                // Можна додати візуальний фідбек
+            });
+        });
+    });
+
+    // Перший запуск
+    runAllUpdates();
+}
+/* seo-generator.css: Стилі для блоку генерації SEO */
+
+/* --- Основний контент --- */
+.seo-line-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background-color 0.2s;
+}
+
+.white-box .seo-line-container:hover {
+    background-color: var(--main-5);
+}
+
+.seo-line-container.result-line {
+    cursor: copy;
+}
+
+.seo-line-container .context-span {
+    color: var(--main-65);
+    user-select: none;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.text-line {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: var(--main);
+    font-size: 14px;
+}
+
+.country-display {
+    position: absolute;
+    right: 12px;
+    color: var(--main-65);
+    font-size: 14px;
+    user-select: none;
+}
+
+.counter {
+    font-size: 12px;
+    color: var(--main-45);
+    background-color: var(--main-5);
+    padding: 2px 8px;
+    border-radius: 16px;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.tooltip-box {
+    padding-top: 12px;
+}
+
+#trigger-titles-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.trigger-button,
+.trigger-title-inactive,
+.trigger-title-active {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 12px;
+    font-weight: 500;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--back-secondary);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.trigger-button,
+.trigger-title-inactive {
+    color: var(--main-65);
+}
+
+.trigger-button:hover,
+.trigger-title-inactive:hover {
+    color: var(--main);
+    background-color: var(--main-5);
+    border-color: var(--main-20);
+}
+
+.trigger-title-active {
+    color: var(--white);
+    border-color: var(--splash);
+    background-color: var(--splash);
+}
+
+.trigger-title-active:hover {
+    opacity: 0.9;
+}
+
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: max-content;
+    max-width: 250px;
+    background-color: var(--main);
+    border: none;
+    font-weight: 400;
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 100;
+    color: var(--white);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.trigger-title-active:hover .tooltip,
+.trigger-title-inactive:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+#common-warning {
+    color: var(--splash);
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 16px;
+    text-align: center;
+}
+
+#panel-seo .flex-wrap-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+}
+// sidebar.js
+
+import * as dom from './dom-elements.js';
+
+function initializeLeftSidebarMobile() {
+    if (dom.menuToggleBtn && dom.sidebarNav) {
+        dom.menuToggleBtn.addEventListener('click', () => {
+            dom.sidebarNav.classList.toggle('is-open');
+        });
+        document.addEventListener('click', (event) => {
+            const isClickInside = dom.sidebarNav.contains(event.target);
+            const isClickOnToggle = dom.menuToggleBtn.contains(event.target);
+            if (!isClickInside && !isClickOnToggle && dom.sidebarNav.classList.contains('is-open')) {
+                dom.sidebarNav.classList.remove('is-open');
+            }
+        });
+    }
+}
+
+/**
+ * Керує правою бічною панеллю для всіх пристроїв
+ */
+function initializeRightSidebar() {
+    if (!dom.rightSidebar) return;
+
+    // Єдина функція-обробник для обох кнопок
+    function handleToggle() {
+        if (window.innerWidth < 1024) {
+            // На мобільних перемикаємо клас .is-open
+            dom.rightSidebar.classList.toggle('is-open');
+        } else {
+            // На десктопі перемикаємо клас .is-collapsed
+            dom.rightSidebar.classList.toggle('is-collapsed');
+        }
+    }
+
+    // Призначаємо обробник для мобільної кнопки
+    if (dom.rightSidebarMobileToggle) {
+        dom.rightSidebarMobileToggle.addEventListener('click', handleToggle);
+    }
+    // Призначаємо той самий обробник для десктопної кнопки
+    if (dom.rightSidebarDesktopToggle) {
+        dom.rightSidebarDesktopToggle.addEventListener('click', handleToggle);
+    }
+
+    // Закриття на мобільних при кліку поза панеллю
+    document.addEventListener('click', (event) => {
+        if (window.innerWidth < 1024) {
+            const isClickInside = dom.rightSidebar.contains(event.target);
+            // Перевіряємо клік на обох кнопках, оскільки десктопна видима всередині панелі
+            const isClickOnMobileToggle = dom.rightSidebarMobileToggle && dom.rightSidebarMobileToggle.contains(event.target);
+            const isClickOnDesktopToggle = dom.rightSidebarDesktopToggle && dom.rightSidebarDesktopToggle.contains(event.target);
+
+            if (!isClickInside && !isClickOnMobileToggle && !isClickOnDesktopToggle && dom.rightSidebar.classList.contains('is-open')) {
+                dom.rightSidebar.classList.remove('is-open');
+            }
+        }
+    });
+}
+
+function initializeDesktopSidebars() {
+    // Ця функція тепер керує тільки лівою панеллю на десктопі
+    if (dom.leftSidebarToggle) {
+        dom.leftSidebarToggle.addEventListener('click', () => {
+            dom.sidebarNav.classList.toggle('is-expanded');
+        });
+    }
+}
+
+export function initSidebars() {
+    initializeLeftSidebarMobile();
+    initializeRightSidebar(); // Викликаємо нову об'єднану функцію
+    initializeDesktopSidebars();
+
+    // Обробник зміни розміру вікна для скидання станів
+    const handleResize = () => {
+        if (window.innerWidth >= 1024) {
+            // Забираємо мобільні класи на десктопі
+            dom.rightSidebar.classList.remove('is-open');
+            dom.sidebarNav.classList.remove('is-open');
+        } else {
+            // Забираємо десктопні класи на мобільних
+            dom.rightSidebar.classList.remove('is-collapsed');
+            dom.sidebarNav.classList.remove('is-expanded');
+        }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Перший запуск для встановлення правильного стану
+}
+// sticky-panel.js
+export function initStickyPanelObserver() {
+    const sections = document.querySelectorAll('.content-section');
+    const panels = document.querySelectorAll('.panel-content');
+    if (!sections.length || !panels.length) return;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const targetPanelId = entry.target.dataset.panelTarget;
+                panels.forEach(panel => panel.classList.remove('is-active'));
+                const targetPanel = document.getElementById(targetPanelId);
+                if (targetPanel) targetPanel.classList.add('is-active');
+            }
+        });
+    }, { root: document.getElementById('main-content'), threshold: 0.4 });
+    sections.forEach(section => observer.observe(section));
+}
+
+/* styles.css: Головний файл, що імпортує всі модулі стилів */
+
+/* **Важливо:** Порядок імпорту має значення. 
+1. Змінні мають бути першими, щоб їх можна було використовувати в інших файлах.
+2. Базові стилі другими, щоб їх могли перевизначати більш специфічні стилі.
+3. Далі йдуть макет, навігація та стилі компонентів.
+*/
+
+@import url('variables.css');
+@import url('base.css');
+@import url('layout.css');
+@import url('navigation.css');
+@import url('aside.css');
+@import url('table-generator.css');
+@import url('text-generator.css');
+@import url('modal.css');
+@import url('seo-generator.css');
+@import url('links-generator.css');
+// table-generator.js
+import * as dom from './dom-elements.js';
+
+let rowCounter = 1;
+
+export function initTableGenerator() {
+    if (!dom.rowsContainer) return;
+    setupEventListeners();
+    initializeFirstRow();
+    new Sortable(dom.rowsContainer, {
+        handle: '.move-btn',
+        animation: 150,
+    });
+}
+
+function setupEventListeners() {
+    dom.addInputBtn.addEventListener('click', () => createAndAppendRow());
+    dom.addEmptyLineButton.addEventListener('click', initializeEmptyRow);
+    // dom.tablesBtn.addEventListener('click', generateTables);
+    dom.ingredientsBtn.addEventListener('click', addIngredientsSample);
+    dom.warningTextBtn.addEventListener('click', addWarningSample);
+    dom.compositionTextBtn.addEventListener('click', addCompositionSample);
+    dom.addNutritionFactsSampleBtn.addEventListener('click', () => addSample(getNutritionFacts()));
+    dom.addVitaminsSampleBtn.addEventListener('click', () => addSample(getVitamins()));
+    dom.addAminoAcidsSampleBtn.addEventListener('click', () => addSample(getAminoAcids()));
+
+    document.addEventListener('applyMagic', (event) => processAndFillInputs(event.detail));
+
+    const debounce = (func, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
+
+    const debouncedCalculate = debounce(calculatePercentages, 300);
+
+    dom.rowsContainer.addEventListener('input', debouncedCalculate);
+
+    dom.resultCardHtml.addEventListener("click", () => {
+        if (checkForEmptyNutritionFacts()) {
+            return;
+        }
+        const htmlContent = generateHtmlTable();
+        copyToClipboard(htmlContent, dom.resultCardHtml);
+    });
+
+    dom.resultCardBr.addEventListener("click", () => {
+        if (checkForEmptyNutritionFacts()) {
+            return;
+        }
+        const brContent = generateBrText();
+        copyToClipboard(brContent, dom.resultCardBr);
+    });
+
+    if (dom.magicButton) {
+        dom.magicButton.addEventListener('click', () => {
+            // Створюємо та відправляємо подію "applyMagic" з текстом з поля вводу
+            document.dispatchEvent(new CustomEvent('applyMagic', { detail: dom.magicText.value }));
+
+            // Закриваємо модальне вікно
+            if (dom.magicModal) {
+                dom.magicModal.classList.remove('is-open');
+                document.body.classList.remove('is-modal-open');
+            }
+        });
+    }
+
+}
+
+function createAndAppendRow() {
+    const newRow = createNewRow();
+    dom.rowsContainer.appendChild(newRow);
+    updateRowIdsAndEvents();
+    return newRow;
+}
+
+function createNewRow() {
+    const rowId = rowCounter++;
+    const newRow = document.createElement('div');
+    newRow.className = 'inputs-bloc td';
+    newRow.id = `inputs-bloc-${rowId}`;
+    newRow.innerHTML = `
+        <button class="move-btn" tabindex="-1"><span class="material-symbols-outlined">expand_all</span></button>
+        <div class="inputs-line">
+            <div class="left"><input class="input-left" placeholder="Введіть текст" autocomplete="off"></div>
+            <div class="right"><input class="input-right" placeholder="Введіть текст" autocomplete="off"><span class="input-right-tool"></span></div>
+        </div>
+        <div class="select">
+            <button class="use-attributes lil-btn" tabindex="-1"><span class="material-symbols-outlined">tune</span></button>
+            <div class="attributes-dropdown" style="display: none;">
+                <button class="option-btn option-btn-l active" data-class="td"><span>Звичайний</span></button>
+                <button class="option-btn option-btn-l" data-class="th-strong"><span>Заголовок</span></button>
+                <button class="option-btn option-btn-l" data-class="th"><span>Підзаголовок</span></button>
+                <div class="line"></div>
+                <div class="container-option-btn-sm">
+                    <button class="option-btn option-btn-sm" data-class="bold"><span class="material-symbols-outlined">format_bold</span></button>
+                    <button class="option-btn option-btn-sm" data-class="italic"><span class="material-symbols-outlined">format_italic</span></button>
+                    <button class="option-btn option-btn-sm" data-class="h2"><span class="material-symbols-outlined">format_h2</span></button>
+                    <button class="option-btn option-btn-sm" data-class="colspan2"><span class="material-symbols-outlined">fit_page</span></button>
+                </div>
+                <div class="line"></div>
+                <button class="option-btn option-btn-l" data-class="new-table"><span>Нова таблиця</span></button>
+                <div class="line"></div>
+                <button class="option-btn option-btn-l" data-action="insert-above"><span>Створити вище</span></button>
+                <button class="option-btn option-btn-l" data-action="insert-below"><span>Створити нижче</span></button>
+                <div class="line"></div>
+                <div class="switch-container">
+                    <input type="radio" id="row-${rowId}" name="input-type-${rowId}" value="row" checked>
+                    <label for="row-${rowId}" class="switch-label">Строка</label>
+                    <input type="radio" id="field-${rowId}" name="input-type-${rowId}" value="field">
+                    <label for="field-${rowId}" class="switch-label">Поле</label>
+                </div>
+            </div>
+        </div>
+        <button class="lil-btn" tabindex="-1"><span class="material-symbols-outlined">close</span></button>
+    `;
+
+    const dropdown = newRow.querySelector('.attributes-dropdown');
+    const closeBtn = newRow.querySelector('.lil-btn:last-child');
+    const triggerBtn = newRow.querySelector('.use-attributes');
+
+    // --- ОНОВЛЕНА ЛОГІКА ---
+
+    // Функція для закриття меню та очищення слухачів
+    const closeDropdown = () => {
+        dropdown.style.display = 'none';
+        document.removeEventListener('click', handleClickOutside);
+    };
+
+    // Функція для закриття по кліку за межами
+    const handleClickOutside = (event) => {
+        if (!triggerBtn.contains(event.target) && !dropdown.contains(event.target)) {
+            closeDropdown();
+        }
+    };
+
+    triggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = dropdown.style.display === 'flex';
+        document.querySelectorAll('.attributes-dropdown').forEach(d => d.style.display = 'none');
+
+        if (isVisible) {
+            closeDropdown();
+        } else {
+            dropdown.style.display = 'flex';
+            document.addEventListener('click', handleClickOutside);
+        }
+    });
+
+    // ==> ОСЬ ВИРІШЕННЯ ВАШОЇ ПРОБЛЕМИ <==
+    // Додаємо слухач, який закриває меню, коли миша його покидає
+    dropdown.addEventListener('mouseleave', closeDropdown);
+
+    closeBtn.addEventListener('click', () => { newRow.remove(); updateRowIdsAndEvents(); });
+
+    dropdown.querySelectorAll('.option-btn').forEach(button => button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = button.dataset.action;
+        if (action === 'insert-above') insertRowAbove(newRow);
+        else if (action === 'insert-below') insertRowBelow(newRow);
+        else handleOptionClick(button, newRow);
+
+        closeDropdown(); // Закриваємо меню після вибору будь-якої опції
+    }));
+
+    dropdown.querySelectorAll('input[type="radio"]').forEach(input => input.addEventListener('change', () => handleInputTypeSwitch(newRow, input.value)));
+
+    dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+    return newRow;
+}
+
+function initializeFirstRow() {
+    if (dom.rowsContainer.children.length > 0) return;
+    const firstRow = createAndAppendRow();
+    const thStrongBtn = firstRow.querySelector('[data-class="th-strong"]');
+    if (thStrongBtn) handleOptionClick(thStrongBtn, firstRow);
+    firstRow.querySelector('.input-left').value = 'Пищевая ценность';
+}
+
+function initializeEmptyRow() {
+    const newRow = createAndAppendRow();
+    const newTblBtn = newRow.querySelector('[data-class="new-table"]');
+    if (newTblBtn) handleOptionClick(newTblBtn, newRow);
+}
+
+function insertRowAbove(referenceRow) {
+    const newRow = createNewRow();
+    referenceRow.parentNode.insertBefore(newRow, referenceRow);
+    updateRowIdsAndEvents();
+}
+
+function insertRowBelow(referenceRow) {
+    const newRow = createNewRow();
+    referenceRow.parentNode.insertBefore(newRow, referenceRow.nextSibling);
+    updateRowIdsAndEvents();
+}
+
+function updateRowIdsAndEvents() { /* IDs are not critical for functionality, can be simplified */ }
+
+function handleOptionClick(button, row) {
+    const classToApply = button.dataset.class;
+    const exclusiveClasses = ['td', 'th-strong', 'th', 'new-table', 'h2'];
+    const isExclusive = exclusiveClasses.includes(classToApply);
+
+    if (isExclusive) {
+        if (row.classList.contains(classToApply)) {
+            row.classList.remove(classToApply);
+            button.classList.remove('active');
+            if (!row.classList.contains('td')) {
+                row.classList.add('td');
+                const tdButton = row.querySelector('[data-class="td"]');
+                if (tdButton) tdButton.classList.add('active');
+            }
+        } else {
+            exclusiveClasses.forEach(cls => row.classList.remove(cls));
+            row.classList.add(classToApply);
+            row.querySelectorAll('.option-btn-l, [data-class="h2"]').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+        }
+    } else {
+        row.classList.toggle(classToApply);
+        button.classList.toggle('active');
+    }
+}
+
+function handleInputTypeSwitch(row, type) {
+    ['.input-left', '.input-right'].forEach(selector => {
+        const oldEl = row.querySelector(selector);
+        const newEl = document.createElement(type === 'field' ? 'textarea' : 'input');
+        newEl.className = oldEl.className;
+        newEl.placeholder = oldEl.placeholder;
+        newEl.value = oldEl.value;
+        if (type === 'row') newEl.autocomplete = 'off';
+        oldEl.parentNode.replaceChild(newEl, oldEl);
+    });
+}
+
+export function generateHtmlTable() {
+    let tableHTML = '';
+    let isTableOpen = false;
+    dom.rowsContainer.querySelectorAll('.inputs-bloc').forEach(row => {
+        let leftInput = row.querySelector('.input-left').value;
+        let rightInput = row.querySelector('.input-right').value;
+
+        if ((row.classList.contains('added') && !rightInput.trim()) || (!row.classList.contains('new-table') && !leftInput.trim() && !rightInput.trim())) return;
+        if (row.classList.contains('new-table') || row.classList.contains('h2')) {
+            if (isTableOpen) { tableHTML += '</tbody></table>'; isTableOpen = false; }
+            if (row.classList.contains('h2')) tableHTML += `<h2>${sanitizeText(leftInput)}</h2>`;
+            return;
+        }
+        if (!isTableOpen) { tableHTML += '<table><tbody>'; isTableOpen = true; }
+
+        let leftContent = sanitizeText(leftInput);
+        let rightContent = sanitizeText(rightInput);
+
+        leftContent = leftContent.replace(/\(([^)]+)\)/g, '<em>($1)</em>');
+        rightContent = rightContent.replace(/\(([^)]+)\)/g, '<em>($1)</em>');
+        if (row.classList.contains('italic')) {
+            leftContent = `<em>${leftContent}</em>`;
+            rightContent = `<em>${rightContent}</em>`;
+        }
+
+        const isTh = row.classList.contains('th-strong') || row.classList.contains('th');
+        const cellTag = isTh ? 'th' : 'td';
+
+        // --- ОСЬ ТУТ ЗМІНИ ---
+        if (row.classList.contains('colspan2')) {
+            // Логіка для colspan="2"
+            let content = row.classList.contains('th-strong') || row.classList.contains('bold') ? `<strong>${leftContent}</strong>` : leftContent;
+            tableHTML += `<tr><${cellTag} colspan="2">${content}</${cellTag}></tr>`;
+
+        } else if (row.classList.contains('single')) {
+            // НОВА логіка для single: одна комірка БЕЗ colspan
+            let content = row.classList.contains('th-strong') || row.classList.contains('bold') ? `<strong>${leftContent}</strong>` : leftContent;
+            tableHTML += `<tr><${cellTag}>${content}</${cellTag}></tr>`;
+
+        } else {
+            // Стандартна логіка для двох комірок
+            let leftCell = row.classList.contains('th-strong') || row.classList.contains('bold') ? `<strong>${leftContent}</strong>` : leftContent;
+            let rightCell = row.classList.contains('th-strong') || row.classList.contains('bold') ? `<strong>${rightContent}</strong>` : rightContent;
+            tableHTML += `<tr><${cellTag}>${leftCell}</${cellTag}><${cellTag}>${rightCell}</${cellTag}></tr>`;
+        }
+    });
+    if (isTableOpen) tableHTML += '</tbody></table>';
+    return tableHTML;
+}
+
+export function generateBrText() {
+    let textHTML = '';
+    dom.rowsContainer.querySelectorAll('.inputs-bloc').forEach(row => {
+        if (row.classList.contains('new-table')) { textHTML += '<br>'; return; }
+
+        let leftInput = row.querySelector('.input-left').value;
+        let rightInput = row.querySelector('.input-right').value;
+
+        if ((row.classList.contains('added') && !rightInput.trim()) || (!leftInput.trim() && !rightInput.trim())) return;
+        if (leftInput.match(/Харчова цінність|Пищевая ценность/gi)) leftInput = '';
+
+        const sanitizedLeft = sanitizeText(leftInput);
+        let line;
+
+        // ВИПРАВЛЕННЯ: Для h2 та colspan2 беремо тільки ліве поле
+        if (row.classList.contains('h2') || row.classList.contains('colspan2') || row.classList.contains('single')) {
+            line = sanitizedLeft;
+        } else {
+            const sanitizedRight = sanitizeText(rightInput);
+            line = `${sanitizedLeft} ${sanitizedRight}`.trim();
+        }
+
+        if (row.classList.contains('h2') || row.classList.contains('bold') || row.classList.contains('th-strong') || row.classList.contains('th')) {
+            line = `<strong>${line}</strong>`;
+        }
+
+        if (line) textHTML += line + '<br>';
+    });
+    return textHTML;
+}
+
+function checkForEmptyNutritionFacts(silent = false) {
+    const nutritionRow = Array.from(dom.rowsContainer.querySelectorAll('.inputs-bloc')).find(row => row.querySelector('.input-left').value.match(/Харчова цінність|Пищевая ценность/gi));
+    if (nutritionRow && !nutritionRow.querySelector('.input-right').value.trim()) {
+        if (!silent) alert('Обов\'язкове поле "Пищевая ценность" не заповнено!');
+        return true;
+    }
+    return false;
+}
+
+function addSample(items) {
+    items.forEach(item => {
+        const newRow = createAndAppendRow();
+        newRow.classList.add('added');
+        newRow.querySelector('.input-left').value = item;
+    });
+}
+
+function addIngredientsSample() {
+    initializeEmptyRow(); // Створюємо розділювач
+
+    // Створюємо заголовок "Ингредиенты"
+    const headerRow = createAndAppendRow();
+    handleOptionClick(headerRow.querySelector('[data-class="th-strong"]'), headerRow);
+    headerRow.querySelector('.input-left').value = 'Ингредиенты';
+    headerRow.classList.add('single'); // Робимо його однокомірковим
+
+    // Створюємо поле для вводу інгредієнтів
+    const fieldRow = createAndAppendRow();
+    handleInputTypeSwitch(fieldRow, 'field'); // Перетворюємо на <textarea>
+    fieldRow.classList.add('single'); // Робимо його однокомірковим
+}
+
+function addWarningSample() {
+    initializeEmptyRow(); // Створюємо розділювач
+
+    // Створюємо поле для вводу попередження
+    const fieldRow = createAndAppendRow();
+    handleInputTypeSwitch(fieldRow, 'field'); // Перетворюємо на <textarea>
+    handleOptionClick(fieldRow.querySelector('[data-class="bold"]'), fieldRow); // Робимо жирним
+    fieldRow.classList.add('single'); // Робимо його однокомірковим
+}
+
+function addCompositionSample() {
+    initializeEmptyRow(); // Створюємо розділювач
+
+    // Створюємо поле з готовим текстом
+    const fieldRow = createAndAppendRow();
+    handleInputTypeSwitch(fieldRow, 'field'); // Перетворюємо на <textarea>
+    handleOptionClick(fieldRow.querySelector('[data-class="bold"]'), fieldRow); // Робимо жирним
+    fieldRow.classList.add('single'); // Робимо його однокомірковим
+    fieldRow.querySelector('.input-left').value = 'Состав может незначительно отличаться в зависимости от вкуса';
+}
+
+function processAndFillInputs(text) {
+    if (!text) return;
+    const lines = text.split('\n');
+    lines.forEach(line => {
+        line = line.replace(/\d+\s*%(\*\*)?|\d+\*\*+|\*+/g, '').trim();
+        if (!line) return;
+        let rightCell = '', leftCell = line;
+        const parenthesesMatch = line.match(/\(([^)]+)\)$/);
+        if (parenthesesMatch) { rightCell = `(${parenthesesMatch[1].trim()})`.replace(/,/g, '.'); leftCell = line.slice(0, parenthesesMatch.index).trim(); }
+        const valueMatch = leftCell.match(/(<\s*)?(\d+\.\d+|\d+,\d+|\d+)(?!(.*\d))(\s+[а-яА-Яa-zA-Z]+\.*\s*(?!.*\))|(?=\n|$))/);
+        if (valueMatch) { let newRightCell = valueMatch[0].trim().replace(/,/g, '.'); leftCell = leftCell.slice(0, valueMatch.index).trim(); rightCell = `${newRightCell} ${rightCell}`.trim(); }
+        const newRow = createAndAppendRow();
+        newRow.querySelector('.input-left').value = leftCell;
+        newRow.querySelector('.input-right').value = rightCell;
+    });
+    if (dom.magicText) dom.magicText.value = '';
+}
+
+function getNutritionFacts() { return ["Калории", " - от жиров", "Жиры", " - насыщенные", " - транс-жиры", "Холестерин", "Углеводы", " - сахар", "Пищевые волокна", "Белок", "Соль"]; }
+function getVitamins() { return ["Витамин A", "Витамин C", "Витамин D", "Витамин E", "Витамин K", "Витамин B1", "Витамин B2", "Витамин B3", "Витамин B5", "Витамин B6", "Витамин B7", "Витамин B9", "Витамин B12"]; }
+function getAminoAcids() { return ["Аланин", "Аргинин", "Аспарагин", "Аспарагиновая кислота", "Цистеин", "Глутамин", "Глутаминовая кислота", "Глицин", "Гистидин", "Изолейцин", "Лейцин", "Лизин", "Метионин", "Фенилаланин", "Пролин", "Серин", "Треонин", "Триптофан", "Тирозин", "Валин"]; }
+
+
+function calculatePercentages() {
+    let servingWeight = 0;
+    const servingRow = Array.from(dom.rowsContainer.querySelectorAll('.inputs-bloc')).find(r => r.querySelector('.input-left').value.match(/Пищевая ценность|Харчова цінність/gi));
+    if (servingRow) {
+        const weightMatch = servingRow.querySelector('.input-right').value.match(/(\d+)/);
+        if (weightMatch) servingWeight = parseInt(weightMatch[0], 10);
+    }
+    if (servingWeight === 0) {
+        dom.rowsContainer.querySelectorAll('.input-right-tool').forEach(span => { span.textContent = ''; span.classList.remove('tooltip-sm'); });
+        return;
+    };
+    ['Жиры', 'Жири', 'Углеводы', 'Вуглеводи', 'Белок', 'Білок'].forEach(nutrient => {
+        const row = Array.from(dom.rowsContainer.querySelectorAll('.inputs-bloc')).find(r => r.querySelector('.input-left').value.includes(nutrient));
+        if (row) {
+            const value = parseFloat(row.querySelector('.input-right').value) || 0;
+            const percentage = value > 0 ? `${Math.round((value / servingWeight) * 100)}%` : '';
+            const toolSpan = row.querySelector('.input-right-tool');
+            toolSpan.textContent = percentage;
+            toolSpan.classList.toggle('tooltip-sm', !!percentage);
+        }
+    });
+}
+
+function copyToClipboard(text, cardElement) {
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.value = text;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempTextarea);
+
+    if (cardElement) {
+        const status = cardElement.querySelector('.result-status');
+        const originalText = status.textContent; // Зберігаємо оригінальний текст (Склад/1 порція)
+        status.textContent = 'Скопійовано!';
+        cardElement.classList.add('copied');
+        setTimeout(() => {
+            status.textContent = originalText;
+            cardElement.classList.remove('copied');
+        }, 2000);
+    }
+}
+
+function sanitizeText(text) {
+    if (!text) return '';
+    return text.trim()
+        .replace(/МСМ/g, "MSM")
+        .replace(/(\d+),(\d+)/g, '$1.$2');
+}
+/* table-generator.css: Всі стилі для генератора таблиць та його панелі */
+
+/* --- Mobile First Layout --- */
+.block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.flex-2 {
+    display: none;
+}
+
+.stiky {
+    position: relative;
+}
+
+.white-box {
+    padding: 24px;
+    background-color: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+/* --- Рядки вводу --- */
+#rows-container .inputs-bloc {
+    display: flex;
+    align-items: start;
+    gap: 8px;
+}
+
+.inputs-bloc .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.inputs-bloc input,
+.inputs-bloc textarea {
+    font-size: 12px;
+    border: none;
+    padding: 0 4px;
+    background-color: var(--tran);
+    width: 100%;
+    resize: vertical;
+}
+
+.inputs-bloc input {
+    height: 32px;
+}
+
+.inputs-line {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.inputs-line textarea {
+    padding: 9px 8px 0 4px;
+    min-height: 1.4375rem;
+}
+
+.left,
+.right {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.left {
+    flex: 3;
+}
+
+.right {
+    flex: 1;
+    border-top: 1px solid var(--main-5);
+}
+
+/* --- Інструменти рядка --- */
+.move-btn {
+    height: 32px;
+    border: none;
+    background-color: var(--tran);
+    color: var(--main-20);
+    cursor: grab;
+}
+
+.move-btn:hover {
+    color: var(--main);
+}
+
+.lil-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 99px;
+    background-color: var(--tran);
+    color: var(--main-45);
+    cursor: pointer;
+}
+
+.lil-btn:hover {
+    background-color: var(--splash-20);
+    color: var(--splash);
+}
+
+.input-right-tool {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--splash);
+    background-color: var(--splash-10);
+    padding: 4px 8px;
+    border-radius: 99px;
+    margin-right: 4px;
+}
+
+.input-right-tool.tooltip-sm {
+    display: flex;
+}
+
+/* --- Випадаюче меню налаштувань --- */
+.select {
+    position: relative;
+}
+
+.attributes-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    flex-direction: column;
+    width: max-content;
+    border: 1px solid var(--main-5);
+    border-radius: 8px;
+    padding: 8px 0;
+    margin-top: 4px;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1), 0 4px 6px -4px rgba(0, 0, 0, .1);
+    z-index: 10;
+}
+
+.attributes-dropdown .line {
+    border-top: 1px solid var(--main-10);
+    margin: 8px 0;
+}
+
+.option-btn {
+    cursor: pointer;
+}
+
+.option-btn-l {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: var(--tran);
+    color: var(--main-45);
+    border: none;
+    width: 100%;
+    font-size: 12px;
+}
+
+.option-btn-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 99px;
+    background-color: var(--tran);
+    color: var(--main-45);
+}
+
+.option-btn-l:hover,
+.option-btn-sm:hover {
+    background-color: var(--main-10);
+    color: var(--main);
+}
+
+.table-menu-label {
+    margin-left: 12px;
+    padding: 2px 6px;
+    background-color: var(--main-10);
+    color: var(--main-65);
+    border-radius: 4px;
+    font-size: 10px;
+}
+
+.container-option-btn-sm {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.attributes-dropdown .active {
+    background-color: var(--splash-10);
+    color: var(--splash);
+}
+
+.attributes-dropdown .active:hover {
+    background-color: var(--splash-20);
+}
+
+/* --- Перемикач Строка/Поле --- */
+.switch-container {
+    display: flex;
+    align-items: center;
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 0 8px;
+}
+
+.switch-container input[type="radio"] {
+    display: none;
+}
+
+.switch-label {
+    flex: 1;
+    text-align: center;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: var(--main-5);
+    color: var(--main-45);
+    font-size: 12px;
+}
+
+.switch-container input[type="radio"]:checked+.switch-label {
+    background-color: var(--splash-10);
+    color: var(--splash);
+}
+
+/* --- Панель керування --- */
+.mode-toggle-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.mode-toggle-options {
+    display: flex;
+    width: 100%;
+    margin: 0 auto 12px;
+    padding: 4px;
+    background: var(--main-5);
+    border-radius: 99px;
+}
+
+.mode-toggle-label {
+    flex: 1;
+    text-align: center;
+    padding: 6px;
+    border-radius: 99px;
+    cursor: pointer;
+    color: var(--main-65);
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-toggle-options input[type="radio"]:checked+.mode-toggle-label {
+    background-color: var(--white);
+    color: var(--main);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .07);
+}
+
+.mode-toggle-options input[type="radio"] {
+    display: none;
+}
+
+.mode-toggle-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.table-btns-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 8px;
+}
+
+.context-span {
+    width: 4.5rem;
+    color: var(--main-65);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.tbc-second {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.mode-toggle-content .line {
+    width: 100%;
+    margin: 8px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- Поля виводу --- */
+
+.seed-span {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 10px;
+    color: var(--splash);
+    background-color: var(--splash-10);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.result-output {
+    resize: none;
+    overflow: hidden;
+    padding: 2px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-indent: 44px;
+    height: 32px;
+    background-color: var(--main-5);
+}
+
+/* --- Візуалізація рядків таблиці --- */
+.inputs-bloc.td+.inputs-bloc.td .inputs-line {
+    margin-top: -1px;
+}
+
+.td .inputs-line {
+    border: 1px solid var(--border-color);
+}
+
+.th .inputs-line {
+    background-color: var(--main-5);
+    border: 1px solid var(--border-color);
+}
+
+.th-strong .inputs-line {
+    background-color: var(--main-10);
+    border: 1px solid var(--border-color);
+}
+
+.italic .input-left,
+.italic .input-right {
+    font-style: italic;
+}
+
+.bold .input-left,
+.bold .input-right,
+.th-strong .input-left,
+.th-strong .input-right {
+    font-weight: 700;
+}
+
+.added .input-left,
+.added .input-right {
+    color: var(--accent);
+}
+
+.h2 .input-left {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.h2 .right,
+.single .right,
+.colspan2 .right {
+    display: none;
+}
+
+.new-table .inputs-line {
+    visibility: hidden;
+}
+
+.inputs-bloc:first-child .inputs-line {
+    border-radius: 8px 8px 0 0;
+}
+
+.inputs-bloc:last-child .inputs-line {
+    border-radius: 0 0 8px 8px;
+}
+
+.inputs-bloc:has(+ .inputs-bloc.new-table) .inputs-line,
+.inputs-bloc:has(+ .inputs-bloc.h2) .inputs-line {
+    border-radius: 0 0 8px 8px;
+}
+
+.inputs-bloc.new-table+.inputs-bloc .inputs-line,
+.inputs-bloc.h2+.inputs-bloc .inputs-line {
+    border-radius: 8px 8px 0 0;
+}
+
+.inputs-bloc:only-child .inputs-line {
+    border-radius: 8px;
+}
+
+/* --- НОВІ СТИЛІ ДЛЯ "ПОВНОЕКРАННИХ" СЕКЦІЙ --- */
+.main-content {
+    /* Додано */
+    scroll-snap-type: y mandatory;
+    height: 100vh;
+    overflow-y: scroll;
+}
+
+.main-content .block-1 {
+    /* Додано */
+    min-height: calc(100vh - var(--header-height));
+    padding-top: var(--header-height);
+    scroll-snap-align: start;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+    .main-content {
+        /* Додано */
+        padding-top: 0;
+    }
+
+    .main-content .block-1 {
+        /* Додано */
+        min-height: 100vh;
+        padding-top: 24px;
+    }
+
+    .inputs-line {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .right {
+        border-left: 1px solid var(--main-10);
+        border-top: none;
+    }
+
+    .block {
+        margin-bottom: 240px;
+    }
+}
+// text-generator.js
+// Збережені функції зі старого скрипта: автоформат, очищення стилів/коду, br-ізація,
+// плюс кнопки-обгортки (bold/H1/H2/H3/lowercase) і логіка "натиснув картку → скопійовано".
+// Джерело регулярок та кнопок — твій script_text.js. (див. файл-джерело) 
+
+let $input, $statusNodes;
+
+export function initTextGenerator() {
+  $input = document.getElementById('input-text-markup');
+  if (!$input) return;
+
+  // КНОПКИ-ОБГОРТКИ (як у канві)
+  bindFormatting('#boldBtn',  wrapTag.bind(null, 'strong'));
+  bindFormatting('#h1Btn',    wrapTag.bind(null, 'h1'));
+  bindFormatting('#h2Btn',    wrapTag.bind(null, 'h2'));
+  bindFormatting('#h3Btn',    wrapTag.bind(null, 'h3'));
+  bindFormatting('#lowercaseBtn', makeLowercase);
+
+  // КАРТКИ-РЕЗУЛЬТАТИ: “натиснув → згенерувалось → скопійовано”
+  bindResultCard('#result-card-text-html', generateTextHtml);
+  bindResultCard('#result-card-text-br',   generateTextBr);
+  bindResultCard('#result-card-text-clean',generateTextClean);
+  bindResultCard('#result-card-text-clean-tags', generateTextKeepTags);
+
+
+  // Кеш для швидкого доступу до статусів
+  $statusNodes = document.querySelectorAll('.result-card .result-status');
+}
+
+/* ===================== КНОПКИ-ОБГОРТКИ ===================== */
+function bindFormatting(selector, handler) {
+  const btn = document.querySelector(selector);
+  if (!btn) return;
+  btn.addEventListener('click', (e) => { e.preventDefault(); handler(); });
+}
+function wrapTag(tag) {
+  const { value, selectionStart, selectionEnd } = $input;
+  const sel = value.slice(selectionStart, selectionEnd);
+  const before = value.slice(0, selectionStart);
+  const after  = value.slice(selectionEnd);
+  const wrapped = `<${tag}>${sel}</${tag}>`;
+  $input.value = before + wrapped + after;
+  // Повернути курсор після вставки
+  const pos = before.length + wrapped.length;
+  $input.focus();
+  $input.setSelectionRange(pos, pos);
+}
+function makeLowercase() {
+  const { value, selectionStart, selectionEnd } = $input;
+  const sel = value.slice(selectionStart, selectionEnd).toLowerCase();
+  $input.setRangeText(sel, selectionStart, selectionEnd, 'end');
+}
+
+/* ===================== КАРТКИ/КОПІЮВАННЯ ===================== */
+function bindResultCard(selector, generatorFn) {
+  const card = document.querySelector(selector);
+  if (!card) return;
+
+  card.addEventListener('click', async (e) => {
+    // клік по трьох крапках не копіює
+    const isMenu = e.target.closest('.result-card-actions');
+    if (isMenu) return;
+
+    const text = generatorFn();
+    await copyToClipboard(text);
+    showCopied(card);
+  });
+}
+async function copyToClipboard(text) {
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+function showCopied(card) {
+  const status = card.querySelector('.result-status');
+  if (!status) return;
+  status.textContent = 'Скопійовано!';
+  card.classList.add('copied');
+  setTimeout(() => {
+    status.textContent = '';
+    card.classList.remove('copied');
+  }, 1000);
+}
+
+/* ===================== ЯДРО: ГЕНЕРАТОРИ ===================== */
+// 1) Автоформатування (autoTag) — перенесено зі старого script_text.js
+export function generateTextHtml() {
+  const text = ($input?.value || '').trim();
+  if (!text) return '';
+  let marked = autoTag(text);
+  // Пост-обробка форматування — як у старому коді
+  marked = marked
+    .replace(/<\/strong><strong>/g, '')
+    .replace(/<\/strong> <strong>/g, '')
+    .replace(/<p><p>/g, '<p>')
+    .replace(/<\/p><\/p>/g, '</p>')
+    .replace(/<p><\/p>/g, '')
+    .replace(/<\/p>/g, '</p>\n\n')
+    .replace(/<h3><h3>/g, '<h3>')
+    .replace(/<\/h3><\/h3>/g, '</h3>')
+    .replace(/<\/li>/g, '</li>\n')
+    .replace(/<ul>/g, '<ul>\n')
+    .replace(/<ol>/g, '<ol>\n')
+    .replace(/<\/ul>/g, '</ul>\n\n')
+    .replace(/<\/ol>/g, '</ol>\n\n')
+    .replace(/<\/h3>/g, '</h3>\n\n')
+    .replace(/<\/h2>/g, '</h2>\n\n')
+    .replace(/<\/h1>/g, '</h1>\n\n');
+  return marked;
+}
+
+// 2) BR-ізація — перенесено зі старого script_text.js
+export function generateTextBr() {
+  const text = ($input?.value || '');
+  return text
+    .replace(/<\/?(table|thead|tbody|tr|th|td)\b[^>]*>/gi, '')
+    .replace(/<\/?(strong|em|b|u|h2)\b[^>]*>/gi, '')
+    .replace(/&nbsp;|\n|\r|\t/g, ' ')
+    .replace(/<h2\b[^>]*>(.*?)<\/h2>/gi, '<strong>$1</strong>')
+    .replace(/<th\b[^>]*>(.*?)<\/th>/gi, '<strong>$1</strong>')
+    .replace(/ +/g, ' ')
+    .replace(/>\s+</g, '><')
+    .replace(/Харчова цінність|Пищевая ценность/g, '')
+    .replace(/Состав может незначительно отличаться в зависимости от вкуса/g, '<strong>Состав может незначительно отличаться в зависимости от вкуса</strong>')
+    .replace(/<\/(tr|table)>/g, '<br/>')
+    .trim()
+    .replace(/(<br\/>)+$/, '');
+}
+
+// 3) Очищення (стилі/теги/сервісні вставки) — перенесено зі старого script_text.js
+export function generateTextClean() {
+  const text = ($input?.value || '');
+
+  // повне очищення (як кнопка “Очистити Теги”)
+  const cleaned = text
+    .replace(/<\/?(table|tbody|thead|tr|th|td|h1|h2|h3|p|em|ul|ol|li|b|pre|u|strong|hr|br|span|img|script)\b[^>]*>|\s*особливості:\s*|\n\n\n+|\n{3}|\r|\t|&nbsp;|\x01/gi, (m) => {
+      if (m.startsWith('<h') && m.endsWith('>')) return '\n\n';
+      if (m === 'особливості:') return 'Особливості:';
+      return '';
+    })
+    .replace(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1[^>]*>(.*?)<\/a>/gi, '$3')
+    .replace(/:contentReference\[oaicite:\d+\]\{index=\d+\}/g, '')
+    .replace(/ +/g, ' ')
+    .replace(/>\s+</g, '><')
+    .trim();
+
+  return cleaned;
+}
+
+// 3b) Часткове очищення: зберегти теги, прибрати стилі/сміття (зі старого script_text.js)
+export function generateTextKeepTags() {
+  const text = ($input?.value || '');
+
+  return text
+    // 1) Прибрати атрибути у ВСІХ тегів (залишити тільки сам тег)
+    .replace(/<([a-z0-9]+)\b[^>]*>/gi, '<$1>')
+    // 2) <pre> → <p>
+    .replace(/<\/?pre>/gi, '<p>')
+    // 3) Посилання: лишити видимий текст
+    .replace(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1[^>]*>(.*?)<\/a>/gi, '$3')
+    // 4) Прибрати службові вставки :contentReference[oaicite:X]{index:X}
+    .replace(/:contentReference\[oaicite:\d+\]\{index=\d+\}/g, '')
+    // 5) &nbsp; → пробіл; <br> → розрив абзаців
+    .replace(/&nbsp;|<br\s*\/?>/gi, (m) => m === '&nbsp;' ? ' ' : '</p><p>')
+    // 6) Прибрати порожні <p> і звести повтори </p><p>
+    .replace(/<p(?:>|\s[^>]*>)(\s|&nbsp;)*<\/p>/gi, '')
+    .replace(/(<\/p><p>)+/g, '</p><p>')
+    // 7) Позбутися маркерів списку та <img>
+    .replace(/[•·●]/g, '')
+    .replace(/<img[^>]+>/gi, '')
+    // 8) Нормалізувати Особливості
+    .replace(/<h3>\s*особливості:<\/h3>/gi, '<h3>Особливості:</h3>')
+    // 9) Прибрати <span> та <script> блоки
+    .replace(/<\/?span[^>]*>|<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    // 10) Прибрати спецсимвол \x01
+    .replace(/\x01/g, '')
+    // 11) Підчистити пробіли
+    .replace(/ +/g, ' ')
+    .replace(/>\s+</g, '><')
+    .trim();
+}
+
+
+/* -------- допоміжні: автоTag з твого коду -------- */
+function autoTag(text) {
+  const lines = text.split('\n');
+  let result = '';
+  let isList = false;
+  let isParagraph = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+
+    if (line.length === 0) {
+      if (isList)  { result += '</ul>'; isList = false; }
+      if (isParagraph) { result += '</p>'; isParagraph = false; }
+      continue;
+    }
+
+    if (line.endsWith(':')) {
+      if (isList)  { result += '</ul>'; isList = false; }
+      if (isParagraph) { result += '</p>'; isParagraph = false; }
+      result += `<h3>${line}</h3>`;
+      continue;
+    }
+
+    if (i < lines.length - 1 && lines[i + 1].trim().length > 0) {
+      if (!isList) { result += '<ul>'; isList = true; }
+      result += `<li>${line}</li>`;
+    } else {
+      if (isList) {
+        result += `<li>${line}</li></ul>`;
+        isList = false;
+      } else {
+        if (isParagraph && !line.startsWith('<h1') && !line.startsWith('<h2') && !line.startsWith('<h3')) {
+          result += `${line}</p>`;
+          isParagraph = false;
+        } else {
+          if (!line.startsWith('<h1') && !line.startsWith('<h2') && !line.startsWith('<h3')) {
+            result += `<p>${line}`;
+            isParagraph = true;
+          } else {
+            result += `${line}`;
+          }
+        }
+      }
+    }
+  }
+  if (isList) result += '</ul>';
+  if (isParagraph) result += '</p>';
+  return result;
+}
+/* text-generator.css */
+#input-text-markup {
+    width: 100%;
+    min-height: 240px;
+    resize: vertical;
+}
+
+.result-card.copied .result-status::after {
+    content: '';
+}
+
+#input-text-markup {
+    width: 100%;
+    border: none;
+    background: transparent;
+    height: 70vh;
+}
+/* variables.css: Глобальні змінні проєкту (кольори, розміри) */
+:root {
+    --splash: rgb(103, 80, 164);
+    --splash-10: rgba(103, 80, 164, 0.1);
+    --splash-20: rgba(103, 80, 164, 0.2);
+    --splash-20-f: rgb(225, 220, 237);
+    --accent: rgb(98, 0, 238);
+    --main: rgb(29, 27, 32);
+    --main-5: rgba(29, 27, 32, 0.05);
+    --main-10: rgba(29, 27, 32, 0.1);
+    --main-20: rgba(29, 27, 32, 0.2);
+    --main-45: rgba(29, 27, 32, 0.45);
+    --main-65: rgba(29, 27, 32, 0.65);
+    --back: #f8f8fa;
+    --white: #ffffff;
+    --border-color: #e5e5e5;
+    --tran: transparent;
+    --sidebar-width-collapsed: 68px;
+    --sidebar-width-expanded: 260px;
+    --right-sidebar-width: 320px;
+    --header-height: 60px;
+    --transition-speed: 0.2s;
+}

@@ -1,0 +1,254 @@
+/**
+ * COMPONENT: Chip (Badge)
+ *
+ * ПРИЗНАЧЕННЯ:
+ * ЄДИНИЙ універсальний компонент chip/badge.
+ * Всі варіанти використовують базовий клас .chip + модифікатор.
+ *
+ * ВИКОРИСТАННЯ:
+ * <span class="chip">Базовий</span>
+ * <span class="chip chip-active">Активний</span>
+ * <button class="chip chip-clickable">Кнопка</button>
+ * <a class="chip chip-link" href="#">Посилання</a>
+ * <span class="chip chip-error">Помилка</span>
+ *
+ * КОНТЕЙНЕРИ:
+ * - .chip-container - зі scroll (для великої кількості)
+ * - .chip-list - без scroll (для невеликої кількості, tooltip-friendly)
+ *
+ * ЄДИНИЙ ВИГЛЯД:
+ * - padding: 4px 12px
+ * - border-radius: 16px (4px за замовчуванням, 16px при hover)
+ * - font-size: 13px
+ * - font-weight: 500
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-main, --color-error, --color-success, --color-surface-c-low)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Генератори (SEO, Links, Text)
+ * - Banned words (лічильники, помилки, знайдені слова)
+ * - Validation (заборонені слова)
+ */
+
+/* ============================================ */
+/* КОНТЕЙНЕРИ ДЛЯ CHIP */
+/* ============================================ */
+
+/* Контейнер зі scroll (для великої кількості елементів) */
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+    padding: 8px;
+    overflow-y: auto;
+}
+
+/* Коли є tooltip всередині - дозволити йому виходити за межі */
+.chip-container:has(.chip-tooltip:hover) {
+    overflow: visible;
+}
+
+/* Список без scroll (для невеликої кількості елементів) */
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+    overflow: visible;
+}
+
+/* ============================================ */
+/* БАЗОВИЙ CHIP */
+/* ============================================ */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s;
+    /* За замовчуванням: сірий з рамкою */
+    background: var(--color-main-c);
+    color: var(--color-on-surface);
+    border: 1px solid var(--color-outline);
+
+    transform: border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.chip:hover {
+    background: var(--color-main);
+    color: var(--color-on-main);
+    border-color: var(--color-main);
+    border-radius: 16px;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: АКТИВНИЙ (кольоровий) */
+/* ============================================ */
+
+.chip-active {
+    background: var(--color-main);
+    color: var(--color-on-main);
+    border-color: transparent;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: ПОМИЛКА (червоний) */
+/* ============================================ */
+
+.chip-error {
+    background: var(--color-error-c);
+    color: var(--color-error);
+    border-color: var(--color-error);
+}
+
+.chip-error:hover {
+    background: var(--color-error-c);
+    color: var(--color-error);
+    border-color: var(--color-error);
+    border-radius: 8px;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: УСПІХ (зелений) */
+/* ============================================ */
+
+.chip-success {
+    background: var(--color-success-c);
+    color: var(--color-success);
+    border-color: transparent;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: ІНТЕРАКТИВНИЙ */
+/* ============================================ */
+
+.chip-clickable,
+.chip-link {
+    cursor: pointer;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: З TOOLTIP */
+/* ============================================ */
+
+.chip-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.chip-tooltip-content {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    padding: 8px 12px;
+    background: var(--color-on-surface);
+    color: var(--color-surface);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: normal;
+    min-width: 400px;
+    max-width: 500px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.chip-tooltip:hover .chip-tooltip-content {
+    opacity: 1;
+}
+
+/* ============================================ */
+/* ТЕТОВИЙ ЧІП */
+/* ============================================ */
+
+/* ... в кінець /css/components/tables/pseudo-table.css ... */
+
+/* ============================================ */
+/* WORD CHIPS IN CELLS - (ВИПРАВЛЕНО v2) */
+/* ============================================ */
+
+.cell-words-list {
+    display: flex;
+    flex-wrap: nowrap; /* Заборонити перенос */
+    gap: 4px;
+    padding: 6px 0 !important;
+    white-space: nowrap; 
+    line-height: 1.4;
+    /* overflow-x: auto; - ВИДАЛЕНО */
+}
+
+.word-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--color-surface-c-low);
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    flex-shrink: 0; /* Заборонити чіпам стискатися */
+}
+
+/* Виділення основного слова (для name_uk) */
+.word-chip.primary {
+    background: var(--color-main-c);
+    color: var(--color-main);
+    font-weight: 600;
+}
+
+
+/* ============================================ */
+/* FILTER PILLS - Швидкі фільтри */
+/* ============================================ */
+
+.filter-pills-container {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: transparent;
+    color: var(--color-main);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.filter-pill:hover {
+    background-color: var(--color-main-t-2);
+    color: var(--color-main);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-pill.active {
+    background-color: var(--color-main-t-2);
+    color: var(--color-main);
+    border-color: var(--color-main);
+}
+
+.filter-pill:active {
+    transform: scale(0.97);
+}
+

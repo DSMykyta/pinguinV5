@@ -1,0 +1,188 @@
+/**
+ * COMPONENT: Image Tool
+ *
+ * Стилі для секції обробки зображень.
+ */
+
+/* Контейнер для зображення та мініатюр */
+.image-tool-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    gap: 16px;
+}
+
+/* Область для головного Canvas */
+.canvas-area {
+    flex: 2; /* Займає більшу частину */
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    /* [ЗМІНЕНО] Прибрано центрування, щоб canvas був зверху */
+    align-items: flex-start; 
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+/* Стилі для Canvas */
+#gim-image-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+    box-shadow: var(--shadow-1);
+    transition: all 0.3s ease;
+    cursor: grab;
+    /* [ЗМІНЕНО] Додано для коректного центрування при масштабуванні */
+    display: block;
+    margin: auto; 
+}
+
+/* Стилі для контейнера Drag & Drop */
+.drag-drop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent; /* Використовуємо rgba(var(--color-surface-rgb), 0.9) якщо var(--color-surface-rgb) визначено */
+    border: 3px dashed var(--color-outline-v);
+    border-radius: 12px;
+    z-index: 10;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.drag-drop-overlay.visible {
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.drag-drop-overlay.dragover {
+    border-color: var(--color-main);
+    background-color: var(--color-main-c);
+    color: var(--color-main);
+}
+
+.drag-drop-overlay #gim-select-file-btn {
+    pointer-events: auto;
+    margin-top: 8px;
+}
+
+.drag-drop-overlay .material-symbols-outlined {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+/* Контейнер для мініатюр */
+.thumbnails-area {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+    overflow-y: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.thumbnail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background-color: var(--color-surface-c-lowest);
+    border: 1px solid var(--color-outline-v);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.thumbnail-item.active {
+    background-color: var(--color-main-c);
+    border-color: var(--color-main);
+}
+
+.thumbnail-item:hover {
+    background-color: var(--color-surface-c-high);
+}
+
+/* [ДОДАНО] Стиль для чекбокса всередині мініатюри */
+.thumbnail-item .row-checkbox {
+    flex-shrink: 0;
+    margin: 0 4px; /* Використовуємо ваші стилі з checkbox.css */
+    width: 24px;
+    height: 24px;
+}
+
+.thumbnail-item img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.thumbnail-item-info {
+    flex-grow: 1;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.thumbnail-item-info strong {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* [ВИПРАВЛЕНО] Стилізація кнопки видалення (як в табах) */
+.thumbnail-item .tab-close-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    background-color: var(--color-surface-c-low); /* [ЗМІНЕНО] Фон як у .switch.css */
+    color: var(--color-on-surface);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 5;
+    /* [ЗМІНЕНО] Використовуємо .btn-icon стилі */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+}
+
+.thumbnail-item:hover .tab-close-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.thumbnail-item .tab-close-btn:hover {
+    background-color: var(--color-error-c); /* Червоний фон при наведенні */
+    color: var(--color-error);
+}
+
+/* Група полів в Aside */
+.canvas-controls-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}

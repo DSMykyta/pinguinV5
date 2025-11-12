@@ -1,0 +1,75 @@
+.section-navigator {
+    position: sticky;
+    top: 8px;
+    z-index: 200;
+    
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: fit-content;
+
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    padding: 6px;
+    border-radius: var(--radius-full);
+}
+
+.nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 4px;
+    background-color: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--color-on-surface);
+    
+    height: 32px;
+    max-width: 32px;
+    overflow: hidden;
+    
+    transition: max-width 0.55s ease, 
+                background-color 0.5s ease, 
+                color 0.5s ease;
+}
+
+.nav-icon .material-symbols-outlined {
+    font-size: 16px !important;
+    opacity: 1;
+    flex-shrink: 0;
+}
+
+.nav-icon-label {
+    opacity: 0; 
+    white-space: nowrap;
+    
+    transition: opacity 0.5s ease 0.1s;
+}
+
+.nav-icon:hover {
+    background-color: var(--color-main-c);
+    color: var(--color-main);
+    
+    max-width: 200px;
+    padding-right: 16px;
+}
+
+.nav-icon:hover .nav-icon-label {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+}
+
+.nav-icon.is-active,
+.nav-icon.active {
+    background-color: var(--color-main-t-2);
+    color: var(--color-main);
+    box-shadow: var(--shadow-1);
+}
+
+.nav-icon.is-active .material-symbols-outlined {
+    opacity: 1;
+}

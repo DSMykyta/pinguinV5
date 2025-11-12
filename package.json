@@ -1,0 +1,17 @@
+{
+  "name": "pinguin-v5",
+  "version": "1.0.0",
+  "description": "Pinguin V5 - Custom Auth System",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "googleapis": "^128.0.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}

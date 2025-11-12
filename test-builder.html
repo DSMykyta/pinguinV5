@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Builder Functions</title>
+</head>
+<body>
+    <h1>Тест функцій генератора</h1>
+
+    <h2>Вхідний текст:</h2>
+    <textarea id="input" style="width: 100%; height: 200px;">Заголовок:
+Перший пункт
+Другий пункт
+Третій пункт
+
+Ще один параграф тексту.</textarea>
+
+    <button onclick="testClean()">Test Clean</button>
+    <button onclick="testKeepTags()">Test Keep Tags</button>
+    <button onclick="testHtml()">Test HTML</button>
+    <button onclick="testBr()">Test BR</button>
+
+    <h2>Результат:</h2>
+    <pre id="output" style="border: 1px solid #ccc; padding: 10px; white-space: pre-wrap;"></pre>
+
+    <script type="module">
+        import { generateTextClean, generateTextKeepTags, generateTextHtml, generateTextBr } from './js/generators/generator-text/gte-builder.js';
+
+        window.testClean = function() {
+            const text = document.getElementById('input').value;
+            const result = generateTextClean(text);
+            document.getElementById('output').textContent = result;
+            console.log('Clean:', result);
+        };
+
+        window.testKeepTags = function() {
+            const text = document.getElementById('input').value;
+            const result = generateTextKeepTags(text);
+            document.getElementById('output').textContent = result;
+            console.log('Keep Tags:', result);
+        };
+
+        window.testHtml = function() {
+            const text = document.getElementById('input').value;
+            const result = generateTextHtml(text);
+            document.getElementById('output').textContent = result;
+            console.log('HTML:', result);
+        };
+
+        window.testBr = function() {
+            const text = document.getElementById('input').value;
+            const result = generateTextBr(text);
+            document.getElementById('output').textContent = result;
+            console.log('BR:', result);
+        };
+    </script>
+</body>
+</html>

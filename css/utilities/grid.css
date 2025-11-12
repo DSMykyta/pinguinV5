@@ -1,0 +1,46 @@
+/**
+ * UTILITY: Grid Layouts
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Допоміжні класи для створення сіток з фіксованою кількістю колонок.
+ *
+ * ВИКОРИСТАННЯ:
+ * Обгортка для елементів які потрібно розташувати в сітку.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="grid3">
+ *   <button class="panel-item">...</button>
+ *   <button class="panel-item">...</button>
+ *   <button class="panel-item">...</button>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .grid2 - сітка 2 колонки
+ * - .grid3 - сітка 3 колонки
+ * - .grid4 - сітка 4 колонки
+ *
+ * ЗАЛЕЖНОСТІ:
+ * Немає
+ *
+ * ЗАСТОСУВАННЯ:
+ * - aside-text.html (кнопки форматування)
+ * - Будь-які панелі з групами кнопок
+ */
+
+.grid2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.grid4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}

@@ -1,0 +1,236 @@
+/**
+ * COMPONENT: Form Group
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Група елементів форми з label, input/select/textarea та підказкою.
+ *
+ * ВИКОРИСТАННЯ:
+ * У формах та модалках для організації полів вводу.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="form-group">
+ *   <label for="field-id">Назва поля <span class="required">*</span></label>
+ *   <input type="text" id="field-id" class="input-main" placeholder="Введіть значення">
+ *   <p class="form-hint">Підказка для користувача</p>
+ * </div>
+ *
+ * <div class="form-group form-group-result">
+ *   <span class="form-group-label">Title:</span>
+ *   <input type="text" class="input-main" readonly>
+ *   <span class="form-group-counter">0/65</span>
+ * </div>
+ *
+ * <div class="form-group-column">
+ *   <div class="form-group">...</div>
+ *   <div class="form-group">...</div>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .form-group - контейнер групи форми
+ * - .form-group-column - вертикальний стовпець груп
+ * - .form-group-result - група з результатом (readonly поля)
+ * - .form-group-label - мітка всередині групи результату
+ * - .form-group-counter - лічильник символів
+ * - .form-group-icon - іконка всередині групи
+ * - .form-hint - підказка під полем
+ * - .required - зірочка для обов'язкових полів
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-on-surface, --color-on-surface-v, --color-error)
+ * - forms/input.css (.input-main)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Всі модалки редагування/додавання
+ * - index.html (секція SEO)
+ * - Форми в aside панелях
+ */
+
+ /* --- Загальні елементи форм --- */
+
+.form-fieldset {
+    border: 1px solid var(--color-outline-v);
+    border-radius: var(--radius-m);
+    padding: var(--space-m);
+    margin-bottom: var(--space-m);
+}
+
+.form-fieldset legend {
+    padding: 0 8px;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--color-on-surface);
+}
+
+.form-fieldset {
+    min-width: 0;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.form-fieldset input[type="text"],
+.form-fieldset input[type="number"],
+.form-fieldset select {
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    margin-bottom: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Універсальне правило для всіх полів вводу та кастомних селектів всередині .form-group */
+.form-group input[type="text"],
+.form-group input[type="search"],
+.form-group textarea {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-xs, 4px);
+    cursor: pointer;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+    min-height: 40px;
+    max-height: 40px;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.form-group .required {
+    color: var(--color-error);
+}
+
+.form-group .custom-select-wrapper {
+    width: 100%;
+}
+
+/* Remove borders from custom-select search input */
+.form-group .custom-select-search {
+    border: none !important;
+    padding: 8px 0;
+}
+
+.form-group .custom-select-search:hover,
+.form-group .custom-select-search:focus {
+    border: none !important;
+}
+
+.form-group input[type="text"]:hover,
+.form-group input[type="search"]:hover {
+    border-color: var(--color-on-surface);
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="search"]:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+}
+
+.form-hint {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    margin: 0;
+}
+
+/* Form group column */
+.form-group-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Form group with result (readonly fields) */
+.form-group-result {
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-surface-c-low);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.form-group-result:hover {
+    background: var(--color-surface-c);
+}
+
+.form-group-result-copied {
+    background: var(--color-main-c) !important;
+    border: 1px solid var(--color-main);
+}
+
+.form-group-result-copied .input-main {
+    background: var(--color-main-t-2);
+    color: var(--color-main);
+}
+
+.form-group-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+}
+
+.form-group-counter {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+    margin-left: auto;
+}
+
+.form-group-icon {
+    color: var(--color-on-surface-v);
+    font-size: 20px;
+}
+
+/* Select styling */
+.form-group select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+/* Textarea styling */
+.form-group textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-main);
+}

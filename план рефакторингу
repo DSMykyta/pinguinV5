@@ -1,0 +1,126 @@
+План рефакторингу: Розділення відповідальностей в banned-words модулі
+Мета: Винести загальні компоненти (таблиці, таби, сортування, пошук) в js/common/, залишити в banned-words/ тільки бізнес-логіку
+ЕТАП 1: Створити базові утиліти (БЕЗ ЛАМАННЯ КОДУ)
+1.1. Створити js/utils/text-utils.js
+Перенести escapeHtml() (з banned-words-manage.js та banned-words-check.js)
+Перенести checkTextForBannedWords() (з banned-words-data.js)
+Додати функції: highlightText(), truncateText(), getTextFragment()
+1.2. Створити js/common/ui-table.js
+Функція renderPseudoTable(container, options):
+Генерація HTML таблиці з конфігурації колонок
+Підтримка sortable-header, visibleColumns, rowActions
+Підтримка emptyState (іконка + повідомлення)
+Функція renderBadge(value, type) - універсальний рендер badge
+1.3. Створити js/common/ui-table-sort.js
+Функція initTableSorting(container, options):
+Event delegation для .sortable-header
+Підтримка типів: string, number, boolean, id-number (ban-000123)
+Візуальні індикатори (▲/▼)
+Callback onSort(sortedData)
+1.4. Створити js/common/ui-table-search.js
+Функція initTableSearch(searchInput, options):
+Dropdown з чекбоксами колонок
+Збереження вибору в localStorage
+Кнопка очищення
+Callback onSearch(query, selectedColumns)
+1.5. Створити js/common/ui-tabs-dynamic.js
+Функція initDynamicTabs(container, options):
+API: createTab(), removeTab(), switchToTab(), getActiveTab()
+Підтримка статичних табів (не можна закрити)
+Підтвердження закриття через модал
+Кешування шаблонів табів
+1.6. Створити js/common/ui-pagination-tabs.js
+Функція initMultiTabPagination(footer, options):
+Реєстрація пагінації для кожного табу
+Відновлення при перемиканні табів
+API: registerTab(), updateTab(), removeTab()
+✅ Тестування ЕТАПУ 1: Створити test-ui-components.html з прикладами використання всіх компонентів
+ЕТАП 2: Рефакторинг banned-words-manage.js
+2.1. Замінити дублікати
+Імпортувати escapeHtml з utils/text-utils.js
+Видалити локальну функцію escapeHtml()
+2.2. Використати ui-table.js для рендерингу
+Замінити HTML генерацію на виклик renderPseudoTable()
+Передати конфігурацію колонок:
+columns: [
+  {id: 'local_id', label: 'ID', sortable: true, width: '160px'},
+  {id: 'name_uk', label: 'Українське', sortable: true, width: '2fr'},
+  {id: 'cheaked_line', label: 'Перевірено', sortable: true, 
+   render: (value) => renderBadge(value, 'checked')}
+]
+2.3. Винести renderCheckedBadge
+Перенести логіку в ui-table.js як renderBadge(value, type)
+✅ Тестування ЕТАПУ 2: Перевірити що таблиця виглядає ідентично, працює редагування, сортування
+ЕТАП 3: Рефакторинг banned-words-check.js
+3.1. Замінити дублікати
+Імпортувати escapeHtml з utils/text-utils.js
+Видалити локальну функцію escapeHtml()
+3.2. Використати ui-table.js
+Замінити HTML генерацію в renderCheckResults() на renderPseudoTable()
+Конфігурація колонок: ID, Назва, Перевірено (з sortable: true)
+3.3. Об'єднати renderStatusToggle
+Використовувати renderBadge() з ui-table.js
+✅ Тестування ЕТАПУ 3: Перевірити перевірку текстів, відображення результатів, оновлення статусів
+ЕТАП 4: Рефакторинг banned-words-events.js
+4.1. Замінити initBannedWordsSorting()
+Використати initTableSorting() з ui-table-sort.js
+Передати конфігурацію типів колонок:
+columnTypes: {
+  local_id: 'id-number',  // ban-000123 -> 123
+  cheaked_line: 'boolean',
+  name_uk: 'string',
+  name_ru: 'string'
+}
+4.2. Додати сортування для check tabs
+Створити функцію initCheckTabSorting() яка використовує initTableSorting()
+Викликати при створенні check табу
+4.3. Видалити дублікати
+Видалити updateSortIndicators() (тепер в ui-table-sort.js)
+Видалити sortBannedWordsArray() (тепер в ui-table-sort.js)
+✅ Тестування ЕТАПУ 4: Перевірити сортування в tab-manage та check tabs по всіх колонках
+ЕТАП 5: Рефакторинг banned-words-init.js (НАЙБІЛЬШИЙ)
+5.1. Замінити логіку табів
+Імпортувати initDynamicTabs з ui-tabs-dynamic.js
+Видалити функції: initTabHandlers(), removeCheckTab(), частину createCheckResultsTab()
+Використати tabsAPI.createTab() для створення check табів
+5.2. Замінити пошук
+Імпортувати initTableSearch з ui-table-search.js
+Видалити populateSearchColumns() та весь код пошуку
+Передати конфігурацію доступних колонок
+5.3. Замінити пагінацію
+Імпортувати initMultiTabPagination з ui-pagination-tabs.js
+Видалити initPaginationForBannedWords()
+Використати paginationAPI.registerTab() для кожного табу
+✅ Тестування ЕТАПУ 5: Перевірити створення/закриття табів, перемикання, пагінацію, пошук
+ЕТАП 6: Очищення та фінальні правки
+6.1. Видалити banned-words-render.js
+Підтвердити що ніде не імпортується
+Видалити файл (не використовується)
+6.2. Оновити banned-words-data.js
+Замінити checkTextForBannedWords() на реекспорт з utils/text-utils.js
+6.3. Виправити hideChecked дублювання
+Видалити локальну змінну hideCheckedRows з banned-words-check.js
+Використовувати тільки bannedWordsState.hideChecked
+6.4. Додати документацію
+JSDoc для всіх нових функцій в common/
+Приклади використання (@example блоки)
+README.md в js/common/ з описом компонентів
+✅ Тестування ЕТАПУ 6: ПОВНА ПЕРЕВІРКА ВСЬОГО ФУНКЦІОНАЛУ banned-words модуля
+РЕЗУЛЬТАТ:
+Нові файли (6):
+js/utils/text-utils.js (~50 рядків)
+js/common/ui-table.js (~200 рядків)
+js/common/ui-table-sort.js (~150 рядків)
+js/common/ui-table-search.js (~120 рядків)
+js/common/ui-tabs-dynamic.js (~180 рядків)
+js/common/ui-pagination-tabs.js (~100 рядків)
+Рефакторинг існуючих (5):
+banned-words-init.js: 1059 → ~400 рядків (-62%)
+banned-words-manage.js: 440 → ~250 рядків (-43%)
+banned-words-check.js: 380 → ~200 рядків (-47%)
+banned-words-events.js: 389 → ~150 рядків (-61%)
+banned-words-data.js: незначні зміни
+Видалення (1):
+banned-words-render.js (не використовується)
+Переваги:
+✅ Загальні компоненти можна використати в entities та інших модулях ✅ Зменшення дублювання коду (escapeHtml в 1 місці замість 2) ✅ Простіше підтримувати (баг виправити в 1 місці) ✅ Сортування працює однаково в tab-manage та check tabs ✅ Модульна архітектура для майбутніх проєктів

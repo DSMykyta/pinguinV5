@@ -1,0 +1,114 @@
+/**
+ * COMPONENT: Panel Box
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Виділений блок у панелі з фоном, іконкою, текстом та опціональним dropdown.
+ * Схожий на panel-item але з візуальним виділенням (background).
+ * Використовується для відображення результатів обробки, статистики.
+ *
+ * ВИКОРИСТАННЯ:
+ * <!-- Simple box -->
+ * <div class="panel-box">
+ *   <span class="material-symbols-outlined panel-box-icon">code</span>
+ *   <span class="panel-item-text">Автоформат HTML</span>
+ * </div>
+ *
+ * <!-- Box with dropdown -->
+ * <div class="panel-box dropdown-wrapper">
+ *   <span class="material-symbols-outlined panel-box-icon">code</span>
+ *   <span class="panel-item-text">Результат</span>
+ *   <div class="panel-item-action-wrapper">
+ *     <button class="btn-icon" data-dropdown-trigger>
+ *       <span class="material-symbols-outlined">more_vert</span>
+ *     </button>
+ *   </div>
+ *   <div class="dropdown-menu">
+ *     <button class="dropdown-item">Дія 1</button>
+ *   </div>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .panel-box - контейнер з фоном
+ * - .panel-box-icon - іконка всередині box
+ * - .panel-item-action-wrapper - обгортка для dropdown
+ * - .panel-content-fix - фіксований контент у панелі (не скролиться)
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface-c-low, --color-main, --color-on-surface)
+ * - components/overlays/dropdown.css (для dropdown функціоналу)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - aside-text.html (результати обробки тексту)
+ * - Панелі з результатами операцій
+ */
+
+.panel-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 12px;
+    height: 62px;
+    min-height: 62px;
+    width: 100%;
+    padding: 12px;
+    background: var(--color-surface-c-low);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel-box-icon {
+    font-size: 20px;
+    color: var(--color-main);
+    flex-shrink: 0;
+}
+
+.panel-content-fix {
+    flex-shrink: 0;
+}
+
+/* Обгортка для дій справа (для dropdown) */
+.panel-box .panel-item-action-wrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Показ dropdown меню */
+.panel-box.dropdown-wrapper.is-open .dropdown-menu {
+    display: block;
+}
+
+/* Кнопка очищення пошуку */
+.panel-box .clear-search-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity var(--transition-speed), transform var(--transition-speed);
+}
+
+.panel-box .clear-search-btn:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+/* Input всередині panel-box */
+.panel-box .input-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Текст всередині panel-box */
+.panel-box .panel-item-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Country display всередині panel-box */
+.panel-box .country-display {
+    flex-shrink: 0;
+}
