@@ -11,49 +11,57 @@ export { checkText as checkTextForBannedWords, getFragment as getTextFragment };
 export const TEXTS_SPREADSHEET_ID = '1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM';
 export const BANNED_SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
 const BANNED_SHEET_NAME = 'Banned';
+const BANNED_SHEET_GID = '1742878044'; // GID для аркуша Banned
 
 /**
- * Завантажити ТІЛЬКИ заборонені слова з таблиці Banned
+ * Завантажити ТІЛЬКИ заборонені слова з таблиці Banned через CSV export
  */
 export async function loadBannedWords() {
     try {
         console.log('📥 Завантаження заборонених слів...');
 
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: BANNED_SPREADSHEET_ID,
-            range: `${BANNED_SHEET_NAME}!A:I`
-        });
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${BANNED_SPREADSHEET_ID}/export?format=csv&gid=${BANNED_SHEET_GID}`;
+        const response = await fetch(csvUrl);
 
-        const rows = response.result.values;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+
+        // Перевіряємо чи завантажено PapaParse
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library is not loaded');
+        }
+
+        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = parsedData.data;
+
         if (!rows || rows.length === 0) {
             console.warn('⚠️ Таблиця Banned порожня');
             bannedWordsState.bannedWords = [];
             return;
         }
 
-        // Парсимо дані (перший рядок - заголовки)
-        const headers = rows[0];
-        console.log('📋 Заголовки таблиці Banned:', headers);
+        console.log('📋 Перший рядок даних:', rows[0]);
 
-        const data = rows.slice(1).map((row, index) => {
-            const obj = {};
-            headers.forEach((header, colIndex) => {
-                obj[header] = row[colIndex] || '';
-            });
-
+        const data = rows.map((row, index) => {
             // NEW: Додати розпарсені масиви слів
-            obj.name_uk_array = (obj.name_uk || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-            obj.name_ru_array = (obj.name_ru || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            const obj = {
+                ...row,
+                name_uk_array: (row.name_uk || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+                name_ru_array: (row.name_ru || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+            };
 
-            // Додати severity якщо відсутній (за замовчуванням medium)
+            // Додати severity якщо відсутній (за замовчуванням high)
             if (!obj.severity || !['low', 'medium', 'high'].includes(obj.severity.toLowerCase())) {
                 obj.severity = 'high';
             } else {
                 obj.severity = obj.severity.toLowerCase();
             }
 
-            // Додати _rowIndex (рядок 2 = індекс 0 в data)
-            obj._rowIndex = index + 2; // +2 бо рядок 1 - заголовки, нумерація з 1
+            // Додати _rowIndex (рядок 2 = індекс 0 в data, +1 для заголовка)
+            obj._rowIndex = index + 2;
 
             return obj;
         });
@@ -72,18 +80,41 @@ export async function loadBannedWords() {
 }
 
 /**
+ * Helper функція для виклику backend API з авторизацією
+ */
+async function callSheetsAPI(action, params = {}) {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        throw new Error('Authorization required. Please login first.');
+    }
+
+    const response = await fetch(`${window.location.origin}/api/sheets/proxy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action, ...params })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'API request failed');
+    }
+
+    const result = await response.json();
+    return result.data;
+}
+
+/**
  * Отримати список назв аркушів з таблиці текстів
  */
 export async function loadSheetNames() {
     try {
         console.log('📥 Завантаження списку аркушів...');
 
-        const response = await gapi.client.sheets.spreadsheets.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID
-        });
-
-        const sheets = response.result.sheets || [];
-        bannedWordsState.sheetNames = sheets.map(sheet => sheet.properties.title);
+        const result = await callSheetsAPI('getSheetNames', { spreadsheetType: 'texts' });
+        bannedWordsState.sheetNames = result || [];
 
         console.log(`✅ Знайдено ${bannedWordsState.sheetNames.length} аркушів:`, bannedWordsState.sheetNames);
 
@@ -104,12 +135,12 @@ export async function loadSheetColumn(sheetName, columnName) {
         console.log(`📥 Завантаження колонки "${columnName}" з аркуша "${sheetName}"...`);
 
         // Спочатку отримуємо заголовки для знаходження індексу потрібної колонки
-        const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!1:1`
+        const headerResult = await callSheetsAPI('get', {
+            range: `${sheetName}!1:1`,
+            spreadsheetType: 'texts'
         });
 
-        const headers = headerResponse.result.values ? headerResponse.result.values[0] : [];
+        const headers = headerResult.values ? headerResult.values[0] : [];
         console.log('📋 Заголовки:', headers);
 
         // Знайти індекс ID та потрібної колонки
@@ -135,12 +166,12 @@ export async function loadSheetColumn(sheetName, columnName) {
         const range = `${sheetName}!${idColumnLetter}:${idColumnLetter},${targetColumnLetter}:${targetColumnLetter}`;
         console.log(`📥 Завантажуємо діапазон: ${range}`);
 
-        const dataResponse = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: range
+        const dataResult = await callSheetsAPI('get', {
+            range: range,
+            spreadsheetType: 'texts'
         });
 
-        const values = dataResponse.result.values;
+        const values = dataResult.values;
         if (!values || values.length === 0) {
             console.warn('⚠️ Дані не знайдено');
             return [];
@@ -185,13 +216,13 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
     try {
         console.log(`📥 Завантаження даних для перевірки з аркуша "${sheetName}"...`);
 
-        // Отримуємо заголовки
-        const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!1:1`
+        // Отримуємо заголовки через backend API
+        const headerResult = await callSheetsAPI('get', {
+            range: `${sheetName}!1:1`,
+            spreadsheetType: 'texts'
         });
 
-        const headers = headerResponse.result.values ? headerResponse.result.values[0] : [];
+        const headers = headerResult.values ? headerResult.values[0] : [];
         console.log('📋 Заголовки:', headers);
 
         // Знайти індекси потрібних колонок
@@ -233,14 +264,14 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
             console.log(`⏳ Завантаження 3 колонок: ${idCol}, ${targetCol}, ${checkedCol}...`);
         }
 
-        const dataResponse = await gapi.client.sheets.spreadsheets.values.batchGet({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            ranges: ranges
+        const dataResult = await callSheetsAPI('batchGet', {
+            ranges: ranges,
+            spreadsheetType: 'texts'
         });
         console.log(`✅ Дані отримано з API`);
 
         // Отримуємо дані з колонок окремо
-        const valueRanges = dataResponse.result.valueRanges;
+        const valueRanges = dataResult.valueRanges;
         const expectedCount = hasTitle ? 4 : 3;
         if (!valueRanges || valueRanges.length !== expectedCount) {
             console.warn('⚠️ Не всі колонки завантажено');
@@ -331,55 +362,47 @@ export async function saveBannedWord(wordData, isEdit) {
         // [local_id, group_name_ua, name_uk, name_ru, banned_type, banned_explaine, banned_hint, severity, cheaked_line]
         const values = [[
             wordData.local_id || '',          // 1. local_id
-            wordData.group_name_ua || '',     // 2. group_name_ua (ДОДАНО)
+            wordData.group_name_ua || '',     // 2. group_name_ua
             wordData.name_uk || '',           // 3. name_uk
             wordData.name_ru || '',           // 4. name_ru
             wordData.banned_type || '',       // 5. banned_type
             wordData.banned_explaine || '',   // 6. banned_explaine
-            wordData.banned_hint || '',       // 7. banned_hint (ВИПРАВЛЕНО ОДРУК)
-            wordData.severity || 'high',      // 8. severity (ДОДАНО)
-            wordData.cheaked_line || 'FALSE'  // 9. cheaked_line (ПЕРЕМІЩЕНО)
+            wordData.banned_hint || '',       // 7. banned_hint
+            wordData.severity || 'high',      // 8. severity
+            wordData.cheaked_line || 'FALSE'  // 9. cheaked_line
         ]];
 
         if (isEdit) {
-            // Знайти рядок для оновлення
-            const response = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: BANNED_SPREADSHEET_ID,
-                range: `${BANNED_SHEET_NAME}!A:A` // Шукаємо по ID в колонці A
+            // Знайти рядок для оновлення через backend API
+            const result = await callSheetsAPI('get', {
+                range: `${BANNED_SHEET_NAME}!A:A`,
+                spreadsheetType: 'banned'
             });
 
-            const ids = response.result.values || [];
-            // +1 бо нумерація з 1, і ще +1 бо slice(1) в loadBannedWords (або просто шукаємо ID)
-            const rowIndex = ids.findIndex(row => row[0] === wordData.local_id) + 1; // +1 бо нумерація з 1
+            const ids = result.values || [];
+            const rowIndex = ids.findIndex(row => row[0] === wordData.local_id) + 1;
 
-            if (rowIndex === 0) { // findIndex поверне -1, +1 = 0
+            if (rowIndex === 0) {
                 throw new Error('Заборонене слово не знайдено в таблиці');
             }
 
-            // Використовуємо _rowIndex якщо він є (надійніше)
             const targetRowIndex = wordData._rowIndex ? wordData._rowIndex : rowIndex;
-
-            // ЗМІНЕНО: A${...}:H${...} -> A${...}:I${...} (для 9 колонок)
             const updateRange = `${BANNED_SHEET_NAME}!A${targetRowIndex}:I${targetRowIndex}`;
 
-            await gapi.client.sheets.spreadsheets.values.update({
-                spreadsheetId: BANNED_SPREADSHEET_ID,
+            await callSheetsAPI('update', {
                 range: updateRange,
-                valueInputOption: 'RAW',
-                resource: { values } // Використовуємо новий масив values
+                values: values,
+                spreadsheetType: 'banned'
             });
 
             console.log('✅ Заборонене слово оновлено в рядку:', targetRowIndex);
 
         } else {
             // Додати новий рядок
-
-            await gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: BANNED_SPREADSHEET_ID,
+            await callSheetsAPI('append', {
                 range: `${BANNED_SHEET_NAME}!A:I`,
-                valueInputOption: 'RAW',
-                insertDataOption: 'INSERT_ROWS',
-                resource: { values } // Використовуємо новий масив values
+                values: values,
+                spreadsheetType: 'banned'
             });
 
             console.log('✅ Заборонене слово додано');
@@ -402,13 +425,13 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
     try {
         console.log(`💾 Оновлення статусу для ${productId} в "${sheetName}"...`);
 
-        // Знайти рядок продукту
-        const idResponse = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!A:A`
+        // Знайти рядок продукту через backend API
+        const idResult = await callSheetsAPI('get', {
+            range: `${sheetName}!A:A`,
+            spreadsheetType: 'texts'
         });
 
-        const ids = idResponse.result.values || [];
+        const ids = idResult.values || [];
         const rowIndex = ids.findIndex(row => row[0] === productId);
 
         if (rowIndex === -1) {
@@ -416,15 +439,14 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
         }
 
         // Отримати заголовки для знаходження колонки статусу
-        const headerResponse = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!1:1`
+        const headerResult = await callSheetsAPI('get', {
+            range: `${sheetName}!1:1`,
+            spreadsheetType: 'texts'
         });
 
-        const headers = headerResponse.result.values ? headerResponse.result.values[0] : [];
+        const headers = headerResult.values ? headerResult.values[0] : [];
 
-        // Знайти колонку статусу (залежить від перевіреної колонки)
-        // Припустимо, що status зберігається в окремій колонці 'status' або 'cheaked_line'
+        // Знайти колонку статусу
         const statusColumnIndex = headers.findIndex(h =>
             h.toLowerCase() === 'status' ||
             h.toLowerCase() === 'cheaked_line' ||
@@ -438,11 +460,10 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
         const statusColumnLetter = columnIndexToLetter(statusColumnIndex);
         const updateRange = `${sheetName}!${statusColumnLetter}${rowIndex + 1}`;
 
-        await gapi.client.sheets.spreadsheets.values.update({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
+        await callSheetsAPI('update', {
             range: updateRange,
-            valueInputOption: 'RAW',
-            resource: { values: [[status]] }
+            values: [[status]],
+            spreadsheetType: 'texts'
         });
 
         console.log(`✅ Статус оновлено для ${productId}: ${status}`);
@@ -464,12 +485,12 @@ export async function getSheetHeaders(sheetName) {
     try {
         console.log(`📥 Завантаження заголовків аркуша "${sheetName}"...`);
 
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!1:1`
+        const result = await callSheetsAPI('get', {
+            range: `${sheetName}!1:1`,
+            spreadsheetType: 'texts'
         });
 
-        const headers = response.result.values ? response.result.values[0] : [];
+        const headers = result.values ? result.values[0] : [];
 
         console.log(`✅ Знайдено ${headers.length} колонок в аркуші "${sheetName}"`);
 
@@ -494,12 +515,12 @@ export async function loadProductFullData(sheetName, rowIndex) {
         const headers = await getSheetHeaders(sheetName);
 
         // Завантажити рядок з даними
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: TEXTS_SPREADSHEET_ID,
-            range: `${sheetName}!${rowIndex}:${rowIndex}`
+        const result = await callSheetsAPI('get', {
+            range: `${sheetName}!${rowIndex}:${rowIndex}`,
+            spreadsheetType: 'texts'
         });
 
-        const row = response.result.values ? response.result.values[0] : [];
+        const row = result.values ? result.values[0] : [];
 
         if (!row || row.length === 0) {
             throw new Error(`Рядок ${rowIndex} не знайдено або порожній`);
