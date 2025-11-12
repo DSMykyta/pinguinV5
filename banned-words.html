@@ -13,8 +13,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
         rel="stylesheet">
-    <script async defer src="https://apis.google.com/js/api.js"></script>
-    <script async defer src="https://accounts.google.com/gsi/client"></script>
+    <!-- Custom Auth System -->
+    <script src="js/auth/custom-auth.js"></script>
 </head>
 
 <body>
@@ -81,11 +81,21 @@
         </div>
 
         <div class="panel-content-footer">
-            <button id="auth-btn" class="panel-item" style="display: none;">
+            <!-- Custom Auth UI -->
+            <button id="auth-login-trigger-btn" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">login</span>
-                <span class="panel-item-text">Авторизація</span>
+                <span class="panel-item-text">Увійти</span>
             </button>
-            <button id="signout-btn" class="panel-item" style="display: none;">
+
+            <div id="auth-user-info" class="panel-item" style="display: none;">
+                <span class="material-symbols-outlined panel-item-icon">account_circle</span>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span id="auth-username-display" class="panel-item-text" style="font-size: 14px;"></span>
+                    <span id="auth-user-role-display" style="font-size: 12px; color: var(--text-secondary);"></span>
+                </div>
+            </div>
+
+            <button id="auth-logout-btn" class="panel-item" style="display: none;">
                 <span class="material-symbols-outlined panel-item-icon">logout</span>
                 <span class="panel-item-text">Вийти</span>
             </button>

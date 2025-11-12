@@ -4,7 +4,13 @@
       "Bash(tree:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nFix CORS errors and API_BASE duplication\n\n- Rename API_BASE to AUTH_API_BASE in custom-auth.js to fix SyntaxError\n- Create new public API endpoint (api/sheets/public.js) without auth\n- Update gse-data.js to use backend API instead of direct Google Sheets\n- Update gte-validator.js to use backend API for banned words\n- Update gln-data.js to use backend API for links data\n\nThis fixes CORS errors and allows data to load without authentication.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix CORS errors and API_BASE duplication\n\n- Rename API_BASE to AUTH_API_BASE in custom-auth.js to fix SyntaxError\n- Create new public API endpoint (api/sheets/public.js) without auth\n- Update gse-data.js to use backend API instead of direct Google Sheets\n- Update gte-validator.js to use backend API for banned words\n- Update gln-data.js to use backend API for links data\n\nThis fixes CORS errors and allows data to load without authentication.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
