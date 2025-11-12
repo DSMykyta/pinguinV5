@@ -394,6 +394,15 @@ function setupLoginForm() {
     });
   }
 
+  // Закриття модалу при натисканні кнопки Cancel
+  const cancelButton = document.getElementById('auth-modal-cancel');
+  if (cancelButton) {
+    cancelButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeLoginModal();
+    });
+  }
+
   // Закриття модалу при кліку поза вікном
   if (modal) {
     modal.addEventListener('click', (e) => {
