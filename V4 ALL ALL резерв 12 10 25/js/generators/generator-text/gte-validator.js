@@ -2,10 +2,9 @@
 import { getTextDOM } from './gte-dom.js';
 
 // Список відсортований за алфавітом для відображення в модальному вікні
-let bannedWords = [];
+let bannedWords = []; 
 let validationRegex = null;
-const API_BASE = window.location.origin;
-const BANNED_WORDS_URL = `${API_BASE}/api/sheets/csv-proxy?gid=1742878044`;
+const BANNED_WORDS_URL = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=1742878044';
 
 // Резервний список слів (Скорочено для стислості)
 const FALLBACK_WORDS = [

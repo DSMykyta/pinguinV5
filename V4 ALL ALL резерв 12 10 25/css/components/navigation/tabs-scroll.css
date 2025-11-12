@@ -1,0 +1,265 @@
+/**
+ * COMPONENT: Tabs Scroll
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Універсальний компонент для горизонтального скролу табів з кнопками навігації.
+ * Автоматично показує/приховує кнопки залежно від наявності overflow.
+ *
+ * ВИКОРИСТАННЯ:
+ * Додайте клас .tabs-scroll-container до контейнера з табами.
+ * JS модуль ui-tabs-scroll.js автоматично створить wrapper та кнопки.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="tabs-scroll-wrapper">
+ *   <div class="tabs-scroll-fade-left"></div>
+ *   <button class="tabs-scroll-nav tabs-scroll-prev">
+ *     <span class="material-symbols-outlined">chevron_left</span>
+ *   </button>
+ *   <div class="tabs-scroll-container">
+ *     <!-- Таби тут -->
+ *   </div>
+ *   <button class="tabs-scroll-nav tabs-scroll-next">
+ *     <span class="material-symbols-outlined">chevron_right</span>
+ *   </button>
+ *   <div class="tabs-scroll-fade-right"></div>
+ * </div>
+ *
+ * КЛАСИ СТАНУ:
+ * - .is-start - контейнер на початку (приховати ліву кнопку)
+ * - .is-end - контейнер в кінці (приховати праву кнопку)
+ * - .has-overflow - є overflow (показати кнопки навігації)
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - Material Symbols для іконок
+ * - root.css для CSS змінних
+ * - ui-tabs-scroll.js для функціональності
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Таби в banned-words модулі
+ * - Будь-які горизонтальні контейнери з overflow
+ */
+
+/* ============================================================================
+   WRAPPER - головний контейнер
+   ============================================================================ */
+
+.tabs-scroll-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+}
+
+/* ============================================================================
+   SCROLL CONTAINER - контейнер з прокруткою
+   ============================================================================ */
+
+.tabs-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+
+    /* Приховати scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+
+    /* Дозволити гнучке розтягування */
+    flex: 1;
+    min-width: 0;
+
+    /* Курсор для drag */
+    cursor: grab;
+}
+
+.tabs-scroll-container:active {
+    cursor: grabbing;
+}
+
+/* Приховати scrollbar для Chrome/Safari */
+.tabs-scroll-container::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Забезпечити що контент не переноситься та не стискається */
+.tabs-scroll-container > .connected-button-group-square,
+.tabs-scroll-container > .connected-button-group-round {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    min-width: min-content; /* Дозволити контейнеру розтягуватися */
+}
+
+/* Заборонити стискання табів (тільки для справжніх табів з кнопкою закриття) */
+.tabs-scroll-container .segment:has(.tab-close-btn),
+.tabs-scroll-container .tab-button:has(.tab-close-btn) {
+    flex-shrink: 0; /* Заборонити стискання */
+    white-space: nowrap; /* Заборонити перенос тексту */
+    cursor: pointer; /* Курсор для кнопок */
+}
+
+/* ============================================================================
+   NAVIGATION BUTTONS - кнопки прокрутки
+   ============================================================================ */
+
+.tabs-scroll-nav {
+    display: none; /* За замовчуванням приховані */
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    padding: 0;
+    margin: 0;
+
+    background-color: var(--color-surface-c-high, #e7e9e8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.tabs-scroll-nav:hover {
+    background-color: var(--color-secondary, #4c635d);
+}
+
+.tabs-scroll-nav:hover .material-symbols-outlined {
+    color: var(--color-on-secondary, #ffffff);
+}
+
+.tabs-scroll-nav:active {
+    transform: scale(0.95);
+}
+
+.tabs-scroll-nav .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--color-on-surface, #1d1b20);
+    transition: color 0.2s ease;
+}
+
+/* Показати кнопки тільки коли є overflow */
+.tabs-scroll-wrapper.has-overflow .tabs-scroll-nav {
+    display: flex;
+}
+
+/* Приховати кнопку prev на початку */
+.tabs-scroll-wrapper.is-start .tabs-scroll-prev {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* Приховати кнопку next в кінці */
+.tabs-scroll-wrapper.is-end .tabs-scroll-next {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ============================================================================
+   FADE INDICATORS - градієнтні індикатори
+   ============================================================================ */
+
+.tabs-scroll-fade-left,
+.tabs-scroll-fade-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+}
+
+.tabs-scroll-fade-left {
+    left: 24px; /* Після кнопки prev */
+    background: linear-gradient(
+        to right,
+        var(--color-surface, #f8f8fa),
+        transparent
+    );
+}
+
+.tabs-scroll-fade-right {
+    right: 24px; /* Перед кнопкою next */
+    background: linear-gradient(
+        to left,
+        var(--color-surface, #f8f8fa),
+        transparent
+    );
+}
+
+/* Показати fade індикатори коли є overflow */
+.tabs-scroll-wrapper.has-overflow .tabs-scroll-fade-left,
+.tabs-scroll-wrapper.has-overflow .tabs-scroll-fade-right {
+    opacity: 1;
+}
+
+/* Приховати лівий fade на початку */
+.tabs-scroll-wrapper.is-start .tabs-scroll-fade-left {
+    opacity: 0;
+}
+
+/* Приховати правий fade в кінці */
+.tabs-scroll-wrapper.is-end .tabs-scroll-fade-right {
+    opacity: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE - адаптивність
+   ============================================================================ */
+
+/* На малих екранах зменшити fade індикатори */
+@media (max-width: 768px) {
+    .tabs-scroll-fade-left,
+    .tabs-scroll-fade-right {
+        width: 24px;
+    }
+}
+
+/* На дуже малих екранах можна збільшити кнопки */
+@media (max-width: 480px) {
+    .tabs-scroll-nav {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+    }
+
+    .tabs-scroll-nav .material-symbols-outlined {
+        font-size: 20px;
+    }
+
+    .tabs-scroll-fade-left {
+        left: 32px;
+    }
+
+    .tabs-scroll-fade-right {
+        right: 32px;
+    }
+}
+
+/* ============================================================================
+   ACCESSIBILITY - доступність
+   ============================================================================ */
+
+/* Focus стилі для кнопок */
+.tabs-scroll-nav:focus-visible {
+    outline: 2px solid var(--color-main, #003942);
+    outline-offset: 2px;
+}
+
+/* Приховати кнопки при друку */
+@media print {
+    .tabs-scroll-nav,
+    .tabs-scroll-fade-left,
+    .tabs-scroll-fade-right {
+        display: none !important;
+    }
+
+    .tabs-scroll-container {
+        overflow: visible !important;
+    }
+}

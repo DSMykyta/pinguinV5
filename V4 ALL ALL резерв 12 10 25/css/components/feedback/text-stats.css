@@ -1,0 +1,44 @@
+/**
+ * COMPONENT: Text Stats
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Відображення статистики тексту (кількість символів, слів, речень).
+ * Показується поверх textarea як плаваючий індикатор.
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="text-stats-container">
+ *   <span class="stat-item">Символів: <strong>1234</strong></span>
+ *   <span class="stat-item">Слів: <strong>200</strong></span>
+ *   <span class="stat-item">Речень: <strong>12</strong></span>
+ * </div>
+ *
+ * ОСОБЛИВОСТІ:
+ * - pointer-events: none - не блокує взаємодію з textarea
+ * - z-index: 5 - відображається поверх контенту
+ * - fit-content - розмір під контент
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface-c-low, --color-on-surface, --color-on-surface-v, --radius-full)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Generator Text (лічильник символів/слів)
+ * - Generator SEO (лічильники для title/description/keywords)
+ */
+
+.text-stats-container {
+    width: fit-content;
+    background-color: var(--color-surface-c-low);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    display: flex;
+    gap: 16px;
+    z-index: 5;
+    pointer-events: none; /* Щоб не заважав клікати по textarea */
+}
+
+.text-stats-container .stat-item strong {
+    font-weight: 600;
+    color: var(--color-on-surface);
+}

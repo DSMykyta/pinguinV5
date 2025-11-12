@@ -1,0 +1,91 @@
+/* css/components/_fab.css */
+/* Floating Action Button - з pin-map-v1.txt */
+
+.fab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: var(--color-main-c, #b0f1eb);
+    color: var(--color-on-main-c, #00201d);
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: var(--shadow-2, 0px 2px 6px 2px rgba(0, 0, 0, 0.15));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.fab::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.fab:hover {
+    box-shadow: var(--shadow-3, 0px 4px 8px 3px rgba(0, 0, 0, 0.15));
+    transform: translateY(-2px);
+}
+
+.fab:hover::before {
+    opacity: 0.08;
+}
+
+.fab:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-1, 0px 1px 3px 1px rgba(0, 0, 0, 0.15));
+}
+
+.fab:active::before {
+    opacity: 0.12;
+}
+
+.fab .material-symbols-outlined {
+    font-size: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.fab:disabled {
+    background: var(--color-surface-c, #eceeed);
+    color: var(--color-on-surface, #191c1c);
+    opacity: 0.38;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.fab:disabled:hover {
+    transform: none;
+}
+
+/* Small FAB variant */
+.fab-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+}
+
+.fab-small .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Extended FAB (with text) */
+.fab-extended {
+    width: auto;
+    padding: 0 16px;
+    gap: 12px;
+}
+
+.fab-extended .fab-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.1px;
+    position: relative;
+    z-index: 1;
+}

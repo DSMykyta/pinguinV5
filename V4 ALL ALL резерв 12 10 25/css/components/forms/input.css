@@ -1,0 +1,74 @@
+/**
+ * COMPONENT: Input
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Універсальне текстове поле вводу для форм та панелей інструментів.
+ *
+ * ВИКОРИСТАННЯ:
+ * Для всіх текстових полів (text, email, url, number тощо).
+ *
+ * HTML ПРИКЛАД:
+ * <input type="text" class="input-main" placeholder="Введіть текст...">
+ * <input type="email" class="input-main" value="example@mail.com">
+ *
+ * КЛАСИ:
+ * - .input-main - базовий клас
+ * - .input-main:focus - стан фокусу
+ * - .input-main:disabled - вимкнений стан
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-main, --color-outline)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Всі форми додавання/редагування
+ * - SEO генератор
+ * - Table генератор
+ * - Поля пошуку
+ */
+
+.input-main {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: var(--color-main);
+    font-size: 14px;
+    line-height: 1.5;
+    height: 32px;
+    padding: 0 8px;
+}
+
+.input-main:focus {
+    outline: none;
+}
+
+.input-main:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.input-main::placeholder {
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
+}
+
+/* ContentEditable placeholder */
+.input-main[contenteditable="true"]:empty:before {
+    content: attr(data-placeholder);
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Підсвічування заборонених слів */
+.banned-word-highlight {
+    background-color: var(--color-error-c);
+    color: var(--color-error);
+    padding: 2px 8px;
+    border-radius: 8px;
+    cursor: help;
+    transition: background-color 0.2s ease;
+}
+
+.banned-word-highlight:hover {
+    background-color: var(--color-error-h);
+}

@@ -1,0 +1,56 @@
+/**
+ * COMPONENT: Search Input
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Поле пошуку з іконкою для фільтрації та пошуку даних у таблицях.
+ *
+ * ВИКОРИСТАННЯ:
+ * У headers сторінок для швидкого пошуку по контенту.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="search-container">
+ *   <span class="material-symbols-outlined">search</span>
+ *   <input type="text" id="search-input" placeholder="Пошук..." class="input-main">
+ * </div>
+ *
+ * КЛАСИ:
+ * - .search-container - контейнер з іконкою та input
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface-c-low, --color-on-surface-v)
+ * - forms/input.css (.input-main)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - entities.html (пошук сутностей)
+ * - banned-words.html (пошук слів)
+ * - glossary.html (пошук термінів)
+ */
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-surface-c-low);
+    border-radius: 8px;
+    min-width: 300px;
+}
+
+.search-container .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--color-on-surface-v);
+}
+
+.search-container input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+    color: var(--color-on-surface);
+}
+
+.search-container input::placeholder {
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
+}

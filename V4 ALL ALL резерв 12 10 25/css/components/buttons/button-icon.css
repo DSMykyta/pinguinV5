@@ -1,0 +1,82 @@
+/**
+ * COMPONENT: Icon Button
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Кругла кнопка з іконкою для швидких дій (закрити, меню, інформація, редагувати).
+ * Мінімалістичний дизайн без тексту, тільки іконка Material Symbols.
+ *
+ * ВИКОРИСТАННЯ:
+ * Використовується для дій де іконка сама по собі зрозуміла без тексту.
+ * Обов'язково додавайте aria-label для доступності.
+ *
+ * HTML ПРИКЛАД:
+ * <button class="btn-icon" aria-label="Закрити">
+ *   <span class="material-symbols-outlined">close</span>
+ * </button>
+ *
+ * <a href="#" class="btn-icon" aria-label="Редагувати">
+ *   <span class="material-symbols-outlined">edit</span>
+ * </a>
+ *
+ * КЛАСИ:
+ * - .btn-icon - базовий клас (32x32px, круглий)
+ * - .btn-icon:hover - стан наведення (фон, тінь)
+ * - .btn-icon.active / .is-active - активний стан
+ *
+ * МОДИФІКАТОРИ:
+ * - .on-hover - показується тільки при наведенні на батьківський елемент
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-main-t-2, --color-main, --transition-speed)
+ * - Material Symbols (для іконок)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Modal header (кнопка закриття)
+ * - Panel header (згортання панелі)
+ * - Table actions (редагувати, видалити)
+ * - Навігація (back, forward)
+ */
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 32px;
+    height: 32px;
+
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    text-decoration: none;
+
+    color: inherit;
+
+    transition: background-color var(--transition-speed);
+}
+
+.btn-icon:hover,
+.btn-icon.active,
+.btn-icon.is-active {
+    background-color: var(--color-main-t-2);
+    border-color: var(--color-main);
+    color: var(--color-main);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-icon .material-symbols-outlined {
+    font-size: 16px;
+}
+
+/* Модифікатор: показується при наведенні на батька */
+.btn-icon.on-hover {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed), visibility var(--transition-speed);
+}
+
+*:hover > .btn-icon.on-hover {
+    opacity: 1;
+    visibility: visible;
+}

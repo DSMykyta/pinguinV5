@@ -1,0 +1,58 @@
+/**
+ * COMPONENT: Modal Structure
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Структурні класи для контенту всередині модальних вікон.
+ * Доповнення до component-modal.css.
+ *
+ * ВИКОРИСТАННЯ:
+ * У template файлах модалок для організації контенту.
+ *
+ * HTML ПРИКЛАД:
+ * <div class="modal-body-source">
+ *   <form class="modal-form">
+ *     <div class="form-group">...</div>
+ *     <div class="modal-footer">
+ *       <button class="btn-secondary">Скасувати</button>
+ *       <button class="btn-primary">Зберегти</button>
+ *     </div>
+ *   </form>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .modal-title-source - джерело заголовку (hidden)
+ * - .modal-header-actions-source - джерело дій у header (hidden)
+ * - .modal-body-source - джерело контенту тіла модалки
+ * - .modal-form - форма всередині модалки
+ * - .modal-footer - футер з кнопками
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - component-modal.css (базова структура modal)
+ * - forms/form-group.css (групи форми)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - templates/modals/*.html (всі модалки)
+ */
+
+.modal-title-source,
+.modal-header-actions-source {
+    display: none;
+}
+
+.modal-body-source {
+    /* Контент витягується JS та вставляється в modal-body */
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-outline-v);
+}

@@ -1,0 +1,144 @@
+<!-- Модальне вікно адміністрування маркетплейсів -->
+<div id="modal-marketplace-admin" class="modal-overlay" style="display: none;">
+    <div class="modal-content admin-modal" style="max-width: 1000px;">
+
+        <!-- HEADER -->
+        <div class="modal-header">
+            <div class="modal-title-container">
+                <h2>Управління маркетплейсами</h2>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon modal-close-btn" aria-label="Закрити">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="modal-body">
+
+            <!-- ТАБИ -->
+            <div class="admin-tabs">
+                <button class="admin-tab-link active" data-tab="list">Список маркетплейсів</button>
+                <button class="admin-tab-link" data-tab="columns">Налаштування колонок</button>
+            </div>
+
+            <!-- TAB 1: Список маркетплейсів -->
+            <div id="tab-list" class="admin-tab-content active">
+                <div class="admin-table-container">
+                    <table class="admin-table" id="marketplaces-table">
+                        <thead>
+                            <tr>
+                                <th>ID маркетплейсу</th>
+                                <th>Назва</th>
+                                <th>Статус</th>
+                                <th class="action-cell">Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Рядки додаються через JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <button id="add-marketplace-btn" class="btn-secondary" style="margin-top: 16px;">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Додати маркетплейс</span>
+                </button>
+            </div>
+
+            <!-- TAB 2: Налаштування колонок -->
+            <div id="tab-columns" class="admin-tab-content" style="display: none;">
+                <div class="form-group">
+                    <label for="columns-mp-select">Маркетплейс</label>
+                    <select id="columns-mp-select" data-custom-select>
+                        <option value="">-- Оберіть маркетплейс --</option>
+                        <!-- Опції додаються через JS -->
+                    </select>
+                </div>
+
+                <div id="columns-config-container" style="display: none;">
+                    <!-- Підтаби для типів сутностей -->
+                    <div class="admin-tabs" style="margin-top: 16px;">
+                        <button class="admin-tab-link active" data-subtab="Categories">Categories</button>
+                        <button class="admin-tab-link" data-subtab="Characteristics">Characteristics</button>
+                        <button class="admin-tab-link" data-subtab="Options">Options</button>
+                    </div>
+
+                    <!-- Таблиця колонок для Categories -->
+                    <div id="subtab-Categories" class="admin-tab-content active">
+                        <table class="admin-table" id="columns-Categories-table">
+                            <thead>
+                                <tr>
+                                    <th>Назва колонки</th>
+                                    <th>Відображувана назва</th>
+                                    <th>Тип поля</th>
+                                    <th>Обов'язкове</th>
+                                    <th class="action-cell">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Рядки додаються через JS -->
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary add-column-btn" data-entity-type="Categories" style="margin-top: 16px;">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати колонку</span>
+                        </button>
+                    </div>
+
+                    <!-- Таблиця колонок для Characteristics -->
+                    <div id="subtab-Characteristics" class="admin-tab-content" style="display: none;">
+                        <table class="admin-table" id="columns-Characteristics-table">
+                            <thead>
+                                <tr>
+                                    <th>Назва колонки</th>
+                                    <th>Відображувана назва</th>
+                                    <th>Тип поля</th>
+                                    <th>Обов'язкове</th>
+                                    <th class="action-cell">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Рядки додаються через JS -->
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary add-column-btn" data-entity-type="Characteristics" style="margin-top: 16px;">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати колонку</span>
+                        </button>
+                    </div>
+
+                    <!-- Таблиця колонок для Options -->
+                    <div id="subtab-Options" class="admin-tab-content" style="display: none;">
+                        <table class="admin-table" id="columns-Options-table">
+                            <thead>
+                                <tr>
+                                    <th>Назва колонки</th>
+                                    <th>Відображувана назва</th>
+                                    <th>Тип поля</th>
+                                    <th>Обов'язкове</th>
+                                    <th class="action-cell">Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Рядки додаються через JS -->
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary add-column-btn" data-entity-type="Options" style="margin-top: 16px;">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати колонку</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+            <button class="btn-secondary modal-close-btn">Закрити</button>
+            <button id="save-marketplace-config-btn" class="btn-primary" style="display: none;">Зберегти зміни</button>
+        </div>
+
+    </div>
+</div>

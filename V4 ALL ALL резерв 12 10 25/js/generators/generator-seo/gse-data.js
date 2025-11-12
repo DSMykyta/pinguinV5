@@ -12,9 +12,8 @@ export function getBrandsData() {
 }
 
 export async function fetchData() {
-    const API_BASE = window.location.origin;
-    const triggersSheetUrl = `${API_BASE}/api/sheets/csv-proxy?gid=90240383`;
-    const brandsSheetUrl = `${API_BASE}/api/sheets/csv-proxy?gid=653695455`;
+    const triggersSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=90240383';
+    const brandsSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=653695455';
 
     try {
         const [triggersResponse, brandsResponse] = await Promise.all([

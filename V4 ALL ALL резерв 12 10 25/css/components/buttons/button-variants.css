@@ -1,0 +1,114 @@
+/**
+ * COMPONENT: Button Variants
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Додаткові варіанти кнопок (базові, delete, reload, move).
+ *
+ * ВИКОРИСТАННЯ:
+ * <button class="btn">Базова кнопка</button>
+ * <button class="btn-delete">Видалити</button>
+ * <button class="btn-reload">Оновити</button>
+ * <button class="move-btn"><span class="material-symbols-outlined">drag_handle</span></button>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-error, --color-main, --color-on-surface-v)
+ */
+
+/* Базова кнопка */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--color-surface-c-high);
+    color: var(--color-on-surface);
+}
+
+.btn:hover {
+    background: var(--color-main-c);
+    color: var(--color-main);
+}
+
+/* Кнопка видалення */
+.btn-delete {
+    background: var(--color-error-c);
+    color: var(--color-error);
+}
+
+.btn-delete:hover {
+    background: var(--color-error);
+    color: var(--color-on-error);
+}
+
+/* Кнопка перезавантаження */
+.btn-reload {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--color-on-surface-v);
+    transition: all 0.2s;
+}
+
+.btn-reload:hover {
+    background: var(--color-surface-c-high);
+    color: var(--color-main);
+}
+
+.btn-reload .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Кнопка переміщення (drag handle) */
+.move-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: grab;
+    color: var(--color-outline);
+    transition: all 0.2s;
+}
+
+.move-btn:hover {
+    color: var(--color-on-surface);
+}
+
+.move-btn:active {
+    cursor: grabbing;
+}
+
+.move-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Маленькі кнопки */
+.btn-small {
+    padding: 4px 12px;
+    font-size: 13px;
+}
+
+.btn-icon-small {
+    width: 28px;
+    height: 28px;
+}
+
+.btn-icon-small .material-symbols-outlined {
+    font-size: 18px;
+}

@@ -1,0 +1,212 @@
+<div class="modal-title-source" style="display: none;">
+    Редагувати Категорію
+</div>
+
+<div class="modal-header-actions-source" style="display: none;">
+</div>
+
+<div class="modal-body-source">
+    <form id="form-edit-category" class="modal-form">
+        
+        <input type="hidden" id="edit-category-row-index">
+        
+        <div class="form-group">
+            <label for="edit-category-id">ID</label>
+            <input type="text" id="edit-category-id" class="input-main" readonly disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-category-parent-id">Батьківська категорія</label>
+            <select id="edit-category-parent-id" class="input-main">
+                <option value="">— Немає (коренева категорія) —</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-category-name-ua">Назва (українською) <span class="required">*</span></label>
+            <input type="text" id="edit-category-name-ua" class="input-main" required>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-category-name-ru">Назва (російською)</label>
+            <input type="text" id="edit-category-name-ru" class="input-main">
+        </div>
+
+        <div class="form-group">
+            <label for="edit-category-type">Тип категорії <span class="required">*</span></label>
+            <select id="edit-category-type" class="input-main" required>
+                <option value="">— Оберіть тип —</option>
+                <option value="product">Товар (product)</option>
+                <option value="service">Послуга (service)</option>
+                <option value="digital">Цифровий товар (digital)</option>
+            </select>
+        </div>
+
+        <div class="connected-button-group-square modal-footer" role="group">
+            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">close</span>
+                    <span class="label">Скасувати</span>
+                </div>
+            </button>
+            <button type="submit" class="segment" aria-label="Зберегти">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">save</span>
+                    <span class="label">Зберегти</span>
+                </div>
+            </button>
+        </div>
+
+    </form>
+</div>
+📄 3. Створіть файл: /templates/modals/entity-add-characteristic.html
+<div class="modal-title-source" style="display: none;">
+    Додати Характеристику
+</div>
+
+<div class="modal-header-actions-source" style="display: none;">
+</div>
+
+<div class="modal-body-source">
+    <form id="form-add-characteristic" class="modal-form">
+        
+        <div class="form-group">
+            <label for="characteristic-name-ua">Назва (українською) <span class="required">*</span></label>
+            <input type="text" id="characteristic-name-ua" class="input-main" required placeholder="Наприклад: Вага">
+        </div>
+
+        <div class="form-group">
+            <label for="characteristic-name-ru">Назва (російською)</label>
+            <input type="text" id="characteristic-name-ru" class="input-main" placeholder="Наприклад: Вес">
+        </div>
+
+        <div class="form-group">
+            <label for="characteristic-param-type">Тип параметра <span class="required">*</span></label>
+            <select id="characteristic-param-type" class="input-main" required>
+                <option value="">— Оберіть тип —</option>
+                <option value="number">Число (number)</option>
+                <option value="string">Текст (string)</option>
+                <option value="select">Вибір зі списку (select)</option>
+                <option value="boolean">Так/Ні (boolean)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="characteristic-unit">Одиниця виміру</label>
+            <input type="text" id="characteristic-unit" class="input-main" placeholder="кг, л, см, тощо">
+            <p class="form-hint">Необов'язкове поле</p>
+        </div>
+
+        <div class="form-group">
+            <label for="characteristic-filter-type">Тип фільтра <span class="required">*</span></label>
+            <select id="characteristic-filter-type" class="input-main" required>
+                <option value="">— Оберіть тип —</option>
+                <option value="range">Діапазон (range)</option>
+                <option value="checkbox">Чекбокси (checkbox)</option>
+                <option value="none">Без фільтра (none)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="characteristic-is-global">
+                <span>Глобальна характеристика</span>
+            </label>
+            <p class="form-hint">Глобальні характеристики доступні для всіх категорій</p>
+        </div>
+
+        <div class="connected-button-group-square modal-footer" role="group">
+            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">close</span>
+                    <span class="label">Скасувати</span>
+                </div>
+            </button>
+            <button type="submit" class="segment" aria-label="Створити">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">add</span>
+                    <span class="label">Створити</span>
+                </div>
+            </button>
+        </div>
+
+    </form>
+</div>
+📄 4. Створіть файл: /templates/modals/entity-edit-characteristic.html
+<div class="modal-title-source" style="display: none;">
+    Редагувати Характеристику
+</div>
+
+<div class="modal-header-actions-source" style="display: none;">
+</div>
+
+<div class="modal-body-source">
+    <form id="form-edit-characteristic" class="modal-form">
+        
+        <input type="hidden" id="edit-characteristic-row-index">
+        
+        <div class="form-group">
+            <label for="edit-characteristic-id">ID</label>
+            <input type="text" id="edit-characteristic-id" class="input-main" readonly disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-characteristic-name-ua">Назва (українською) <span class="required">*</span></label>
+            <input type="text" id="edit-characteristic-name-ua" class="input-main" required>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-characteristic-name-ru">Назва (російською)</label>
+            <input type="text" id="edit-characteristic-name-ru" class="input-main">
+        </div>
+
+        <div class="form-group">
+            <label for="edit-characteristic-param-type">Тип параметра <span class="required">*</span></label>
+            <select id="edit-characteristic-param-type" class="input-main" required>
+                <option value="">— Оберіть тип —</option>
+                <option value="number">Число (number)</option>
+                <option value="string">Текст (string)</option>
+                <option value="select">Вибір зі списку (select)</option>
+                <option value="boolean">Так/Ні (boolean)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="edit-characteristic-unit">Одиниця виміру</label>
+            <input type="text" id="edit-characteristic-unit" class="input-main">
+        </div>
+
+        <div class="form-group">
+            <label for="edit-characteristic-filter-type">Тип фільтра <span class="required">*</span></label>
+            <select id="edit-characteristic-filter-type" class="input-main" required>
+                <option value="">— Оберіть тип —</option>
+                <option value="range">Діапазон (range)</option>
+                <option value="checkbox">Чекбокси (checkbox)</option>
+                <option value="none">Без фільтра (none)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="edit-characteristic-is-global">
+                <span>Глобальна характеристика</span>
+            </label>
+        </div>
+
+        <div class="connected-button-group-square modal-footer" role="group">
+            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">close</span>
+                    <span class="label">Скасувати</span>
+                </div>
+            </button>
+            <button type="submit" class="segment" aria-label="Зберегти">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">save</span>
+                    <span class="label">Зберегти</span>
+                </div>
+            </button>
+        </div>
+
+    </form>
+</div>
