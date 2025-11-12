@@ -1,6 +1,0 @@
-/* /css/component/component-context-menu.css */
-.context-menu {
-    position: fixed; /* Позиціонування відносно вікна */
-    display: none;
-    z-index: 1001;
-}
