@@ -4,6 +4,8 @@
  * Сайт працює БЕЗ авторизації, авторизація тільки для доступу до Google Sheets
  */
 
+import { showModal, closeModal } from '../common/ui-modal.js';
+
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -24,116 +26,24 @@ window.currentUser = null;
 window.customAuthInitialized = window.customAuthInitialized || false;
 
 /**
- * Завантажує модал входу з шаблону
- */
-async function loadAuthModal() {
-  // Перевіряємо чи модал вже існує в DOM
-  if (document.getElementById('auth-login-modal')) {
-    console.log('Auth modal already exists in DOM');
-    return;
-  }
-
-  try {
-    const response = await fetch('/templates/modals/auth-login-modal.html');
-    if (!response.ok) {
-      console.error('Failed to load auth modal template');
-      return;
-    }
-
-    const modalHTML = await response.text();
-
-    // Створюємо обгортку модалу
-    const modalWrapper = document.createElement('div');
-    modalWrapper.id = 'auth-login-modal';
-    modalWrapper.className = 'modal-overlay';
-
-    // Встановлюємо критичні inline стилі для overlay
-    modalWrapper.style.cssText = `
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    `;
-
-    // Створюємо контейнер модалу
-    const modalContainer = document.createElement('div');
-    modalContainer.className = 'modal-content';
-    modalContainer.style.cssText = `
-      max-width: 450px;
-      width: 90%;
-      background: var(--color-surface-container, #fff);
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-      position: relative;
-    `;
-
-    // Створюємо header
-    const modalHeader = document.createElement('div');
-    modalHeader.className = 'modal-header';
-    modalHeader.innerHTML = `
-      <div class="modal-title-container">
-        <h2 id="modal-title">Вхід</h2>
-      </div>
-      <div class="header-actions">
-        <div class="connected-button-group-square" role="group">
-          <button id="auth-modal-close" class="segment modal-close-btn" aria-label="Закрити">
-            <div class="state-layer">
-              <span class="label">&times;</span>
-            </div>
-          </button>
-        </div>
-      </div>
-    `;
-
-    // Створюємо body з завантаженим контентом
-    const modalBody = document.createElement('div');
-    modalBody.className = 'modal-body scrollable-panel';
-    modalBody.innerHTML = modalHTML;
-
-    // Збираємо модал
-    modalContainer.appendChild(modalHeader);
-    modalContainer.appendChild(modalBody);
-    modalWrapper.appendChild(modalContainer);
-
-    // Додаємо в DOM
-    document.body.appendChild(modalWrapper);
-
-    console.log('Auth modal loaded successfully');
-    console.log('📍 Модал додано в DOM, перевірка:', {
-      modalExists: !!document.getElementById('auth-login-modal'),
-      parentElement: modalWrapper.parentElement?.tagName,
-      modalInBody: document.body.contains(modalWrapper)
-    });
-  } catch (error) {
-    console.error('Error loading auth modal:', error);
-  }
-}
-
-/**
  * Ініціалізація системи авторизації
  */
 async function initCustomAuth() {
   // Перевіряємо чи вже ініціалізовано
   if (window.customAuthInitialized) {
-    console.log('Custom auth already initialized, skipping...');
+    console.log('✅ Custom auth already initialized, skipping...');
     return;
   }
 
-  console.log('Initializing custom auth...');
+  console.log('🔐 Initializing custom auth...');
   window.customAuthInitialized = true;
 
-  // Завантажуємо модал входу
-  await loadAuthModal();
-
-  // Ініціалізуємо обробники подій ПІСЛЯ завантаження модалу
-  setupLoginForm();
+  // Ініціалізуємо обробники кнопок (logout, login trigger)
+  setupLoginTrigger();
   setupLogoutButton();
+
+  // Слухаємо подію відкриття модалу для прив'язки обробників форми
+  document.addEventListener('modal-opened', handleModalOpened);
 
   // Перевіряємо наявність токена
   const token = getAuthToken();
@@ -143,7 +53,7 @@ async function initCustomAuth() {
     const isValid = await verifyToken(token);
 
     if (isValid) {
-      console.log('Token is valid, user is authorized');
+      console.log('✅ Token is valid, user is authorized');
       window.isAuthorized = true;
       window.currentUser = getUserData();
       updateAuthUI(true);
@@ -158,12 +68,12 @@ async function initCustomAuth() {
         window.onAuthSuccess();
       }
     } else {
-      console.log('Token is invalid or expired');
+      console.log('⚠️ Token is invalid or expired');
       clearAuthData();
       updateAuthUI(false);
     }
   } else {
-    console.log('No token found, user is not authorized');
+    console.log('ℹ️ No token found, user is not authorized');
     updateAuthUI(false);
   }
 
@@ -207,8 +117,8 @@ async function handleSignIn(username, password) {
       detail: { isAuthorized: true, user: data.user }
     }));
 
-    // Закриваємо модал
-    closeLoginModal();
+    // Закриваємо модал через існуючу систему
+    closeModal();
 
     // Викликаємо callback
     if (typeof window.onAuthSuccess === 'function') {
@@ -360,197 +270,114 @@ function updateEditButtons(role) {
 }
 
 /**
- * Відкриття модального вікна логіну
+ * Налаштування кнопки входу (тригер модалу)
  */
-function openLoginModal() {
-  console.log('📂 openLoginModal() викликано');
+function setupLoginTrigger() {
+  console.log('🔧 setupLoginTrigger() викликано');
 
-  const modal = document.getElementById('auth-login-modal');
-  const usernameInput = document.getElementById('auth-username');
-  const passwordInput = document.getElementById('auth-password');
-  const loginError = document.getElementById('auth-login-error');
-
-  console.log('🔍 Елементи модалу:', {
-    modal: !!modal,
-    usernameInput: !!usernameInput,
-    passwordInput: !!passwordInput,
-    loginError: !!loginError
-  });
-
-  if (modal) {
-    console.log('✅ Відкриваємо модал (display = flex)');
-    console.log('📐 Поточні стилі модалу ДО змін:', {
-      display: modal.style.display,
-      position: modal.style.position,
-      zIndex: modal.style.zIndex
-    });
-
-    modal.style.display = 'flex';
-
-    console.log('📐 Поточні стилі модалу ПІСЛЯ змін:', {
-      display: modal.style.display,
-      position: modal.style.position,
-      zIndex: modal.style.zIndex,
-      top: modal.style.top,
-      left: modal.style.left
-    });
-
-    console.log('🔍 Computed styles:', window.getComputedStyle(modal).display);
-
-    // Очищаємо поля
-    if (usernameInput) usernameInput.value = '';
-    if (passwordInput) passwordInput.value = '';
-    if (loginError) loginError.style.display = 'none';
-
-    // Фокус на логін
-    setTimeout(() => {
-      if (usernameInput) {
-        usernameInput.focus();
-        console.log('✅ Фокус встановлено на поле логіну');
-      }
-    }, 100);
-  } else {
-    console.error('❌ Модал НЕ ЗНАЙДЕНИЙ! Неможливо відкрити');
-  }
-}
-
-/**
- * Закриття модального вікна логіну
- */
-function closeLoginModal() {
-  console.log('📁 closeLoginModal() викликано');
-
-  const modal = document.getElementById('auth-login-modal');
-  if (modal) {
-    console.log('✅ Закриваємо модал (display = none)');
-    modal.style.display = 'none';
-  } else {
-    console.error('❌ Модал НЕ ЗНАЙДЕНИЙ! Неможливо закрити');
-  }
-}
-
-/**
- * Обробка подій форми логіну
- */
-function setupLoginForm() {
-  console.log('🔧 setupLoginForm() викликано');
-
-  const loginForm = document.getElementById('auth-login-form');
   const loginTriggerButton = document.getElementById('auth-login-trigger-btn');
-  const modalCloseButton = document.getElementById('auth-modal-close');
-  const modal = document.getElementById('auth-login-modal');
-  const usernameInput = document.getElementById('auth-username');
-  const passwordInput = document.getElementById('auth-password');
-  const loginButton = document.getElementById('auth-login-btn');
-  const loginError = document.getElementById('auth-login-error');
 
-  console.log('🔍 Пошук елементів:', {
+  if (loginTriggerButton) {
+    console.log('✅ Додаємо обробник на кнопку "Увійти"');
+    loginTriggerButton.addEventListener('click', (e) => {
+      console.log('🖱️ КЛІК на кнопку "Увійти"!');
+      e.preventDefault();
+
+      // Використовуємо існуючу систему модалів
+      showModal('auth-login-modal');
+    });
+  } else {
+    console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
+  }
+}
+
+/**
+ * Обробка події відкриття модалу
+ * Цей обробник викликається коли модал вже завантажений в DOM
+ */
+function handleModalOpened(event) {
+  const { modalId, bodyTarget } = event.detail;
+
+  // Перевіряємо чи це наш модал входу
+  if (modalId !== 'auth-login-modal') {
+    return;
+  }
+
+  console.log('🔓 Модал входу відкрито, налаштовуємо обробники форми...');
+
+  // Знаходимо елементи форми в завантаженому модалі
+  const loginForm = bodyTarget.querySelector('#auth-login-form');
+  const usernameInput = bodyTarget.querySelector('#auth-username');
+  const passwordInput = bodyTarget.querySelector('#auth-password');
+  const loginButton = bodyTarget.querySelector('#auth-login-btn');
+  const loginError = bodyTarget.querySelector('#auth-login-error');
+
+  console.log('🔍 Елементи форми в модалі:', {
     loginForm: !!loginForm,
-    loginTriggerButton: !!loginTriggerButton,
-    modalCloseButton: !!modalCloseButton,
-    modal: !!modal,
     usernameInput: !!usernameInput,
     passwordInput: !!passwordInput,
     loginButton: !!loginButton,
     loginError: !!loginError
   });
 
-  // Відкриття модалу при натисканні "Увійти"
-  if (loginTriggerButton) {
-    console.log('✅ Додаємо обробник на кнопку "Увійти"');
-    loginTriggerButton.addEventListener('click', (e) => {
-      console.log('🖱️ КЛІК на кнопку "Увійти"!');
-      e.preventDefault();
-      openLoginModal();
-    });
-  } else {
-    console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
+  if (!loginForm) {
+    console.error('❌ Форма входу НЕ ЗНАЙДЕНА в модалі!');
+    return;
   }
 
-  // Закриття модалу при натисканні X
-  if (modalCloseButton) {
-    console.log('✅ Додаємо обробник на кнопку закриття (X)');
-    modalCloseButton.addEventListener('click', (e) => {
-      console.log('🖱️ КЛІК на кнопку закриття (X)!');
-      e.preventDefault();
-      closeLoginModal();
-    });
-  } else {
-    console.warn('⚠️ Кнопка закриття (X) НЕ ЗНАЙДЕНА!');
-  }
+  // Очищаємо поля
+  if (usernameInput) usernameInput.value = '';
+  if (passwordInput) passwordInput.value = '';
+  if (loginError) loginError.style.display = 'none';
 
-  // Закриття модалу при натисканні кнопки Cancel
-  const cancelButton = document.getElementById('auth-modal-cancel');
-  if (cancelButton) {
-    console.log('✅ Додаємо обробник на кнопку Cancel');
-    cancelButton.addEventListener('click', (e) => {
-      console.log('🖱️ КЛІК на кнопку Cancel!');
-      e.preventDefault();
-      closeLoginModal();
-    });
-  } else {
-    console.warn('⚠️ Кнопка Cancel НЕ ЗНАЙДЕНА!');
-  }
-
-  // Закриття модалу при кліку поза вікном
-  if (modal) {
-    console.log('✅ Додаємо обробник на клік поза модалом');
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        console.log('🖱️ КЛІК поза модалом!');
-        closeLoginModal();
-      }
-    });
-  } else {
-    console.warn('⚠️ Модал НЕ ЗНАЙДЕНИЙ!');
-  }
+  // Фокус на логін
+  setTimeout(() => {
+    if (usernameInput) {
+      usernameInput.focus();
+      console.log('✅ Фокус встановлено на поле логіну');
+    }
+  }, 100);
 
   // Submit форми
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      const username = usernameInput?.value?.trim();
-      const password = passwordInput?.value;
+    const username = usernameInput?.value?.trim();
+    const password = passwordInput?.value;
 
-      // Валідація
-      if (!username || !password) {
-        showLoginError('Будь ласка, введіть логін та пароль');
-        return;
-      }
+    // Валідація
+    if (!username || !password) {
+      showLoginError('Будь ласка, введіть логін та пароль', loginError);
+      return;
+    }
 
-      // Показуємо індикатор завантаження
+    // Показуємо індикатор завантаження
+    if (loginButton) {
+      loginButton.disabled = true;
+      const label = loginButton.querySelector('.label');
+      if (label) label.textContent = 'Вхід...';
+    }
+    if (loginError) loginError.style.display = 'none';
+
+    // Виконуємо вхід
+    const result = await handleSignIn(username, password);
+
+    if (result.success) {
+      console.log('✅ Вхід успішний');
+      // UI оновиться автоматично через updateAuthUI
+      // Модал закриється в handleSignIn()
+    } else {
+      // Показуємо помилку
+      showLoginError(result.error || 'Невірний логін або пароль', loginError);
+
       if (loginButton) {
-        loginButton.disabled = true;
-        loginButton.textContent = 'Вхід...';
+        loginButton.disabled = false;
+        const label = loginButton.querySelector('.label');
+        if (label) label.textContent = 'Увійти';
       }
-      if (loginError) loginError.style.display = 'none';
 
-      // Виконуємо вхід
-      const result = await handleSignIn(username, password);
-
-      if (result.success) {
-        console.log('Login successful');
-        // UI оновиться автоматично через updateAuthUI
-      } else {
-        // Показуємо помилку
-        showLoginError(result.error || 'Невірний логін або пароль');
-
-        if (loginButton) {
-          loginButton.disabled = false;
-          loginButton.textContent = 'Увійти';
-        }
-
-        // Очищаємо пароль
-        if (passwordInput) passwordInput.value = '';
-      }
-    });
-  }
-
-  // Закриття модалу по Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeLoginModal();
+      // Очищаємо пароль
+      if (passwordInput) passwordInput.value = '';
     }
   });
 }
@@ -558,8 +385,7 @@ function setupLoginForm() {
 /**
  * Показати помилку логіну
  */
-function showLoginError(message) {
-  const loginError = document.getElementById('auth-login-error');
+function showLoginError(message, loginError) {
   if (loginError) {
     loginError.textContent = message;
     loginError.style.display = 'block';
@@ -639,22 +465,16 @@ function clearAuthData() {
 window.initCustomAuth = initCustomAuth;
 window.handleSignIn = handleSignIn;
 window.handleSignOut = handleSignOut;
-window.setupLoginForm = setupLoginForm;
-window.setupLogoutButton = setupLogoutButton;
 window.getAuthToken = getAuthToken;
 window.getUserData = getUserData;
-window.openLoginModal = openLoginModal;
-window.closeLoginModal = closeLoginModal;
 
 // Автоматична ініціалізація при завантаженні
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initCustomAuth();
-    // setupLoginForm() та setupLogoutButton() викликаються всередині initCustomAuth()
   });
 } else {
   initCustomAuth();
-  // setupLoginForm() та setupLogoutButton() викликаються всередині initCustomAuth()
 }
 
 console.log('Custom Auth Module loaded');
