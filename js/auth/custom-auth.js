@@ -20,14 +20,18 @@ const API_LOGOUT = `${AUTH_API_BASE}/api/auth/logout`;
 window.isAuthorized = false;
 window.currentUser = null;
 
-// Змінна для зберігання завантаженого модалу
-let authModalLoaded = false;
+// Глобальна змінна для перевірки чи вже ініціалізовано
+window.customAuthInitialized = window.customAuthInitialized || false;
 
 /**
  * Завантажує модал входу з шаблону
  */
 async function loadAuthModal() {
-  if (authModalLoaded) return;
+  // Перевіряємо чи модал вже існує в DOM
+  if (document.getElementById('auth-login-modal')) {
+    console.log('Auth modal already exists in DOM');
+    return;
+  }
 
   try {
     const response = await fetch('/templates/modals/auth-login-modal.html');
@@ -81,7 +85,6 @@ async function loadAuthModal() {
     // Додаємо в DOM
     document.body.appendChild(modalWrapper);
 
-    authModalLoaded = true;
     console.log('Auth modal loaded successfully');
   } catch (error) {
     console.error('Error loading auth modal:', error);
@@ -92,7 +95,14 @@ async function loadAuthModal() {
  * Ініціалізація системи авторизації
  */
 async function initCustomAuth() {
+  // Перевіряємо чи вже ініціалізовано
+  if (window.customAuthInitialized) {
+    console.log('Custom auth already initialized, skipping...');
+    return;
+  }
+
   console.log('Initializing custom auth...');
+  window.customAuthInitialized = true;
 
   // Завантажуємо модал входу
   await loadAuthModal();
