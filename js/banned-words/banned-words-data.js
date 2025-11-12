@@ -144,7 +144,8 @@ export async function loadSheetColumn(sheetName, columnName) {
             spreadsheetType: 'texts'
         });
 
-        const headers = headerResult.values ? headerResult.values[0] : [];
+        // Backend повертає масив напряму, а не {values: [...]}
+        const headers = Array.isArray(headerResult) && headerResult.length > 0 ? headerResult[0] : [];
         console.log('📋 Заголовки:', headers);
 
         // Знайти індекс ID та потрібної колонки
@@ -175,7 +176,8 @@ export async function loadSheetColumn(sheetName, columnName) {
             spreadsheetType: 'texts'
         });
 
-        const values = dataResult.values;
+        // Backend повертає масив напряму
+        const values = dataResult;
         if (!values || values.length === 0) {
             console.warn('⚠️ Дані не знайдено');
             return [];
@@ -226,7 +228,8 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
             spreadsheetType: 'texts'
         });
 
-        const headers = headerResult.values ? headerResult.values[0] : [];
+        // Backend повертає масив напряму, а не {values: [...]}
+        const headers = Array.isArray(headerResult) && headerResult.length > 0 ? headerResult[0] : [];
         console.log('📋 Заголовки:', headers);
 
         // Знайти індекси потрібних колонок
@@ -383,7 +386,8 @@ export async function saveBannedWord(wordData, isEdit) {
                 spreadsheetType: 'banned'
             });
 
-            const ids = result.values || [];
+            // Backend повертає масив напряму
+            const ids = result || [];
             const rowIndex = ids.findIndex(row => row[0] === wordData.local_id) + 1;
 
             if (rowIndex === 0) {
@@ -435,7 +439,8 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
             spreadsheetType: 'texts'
         });
 
-        const ids = idResult.values || [];
+        // Backend повертає масив напряму
+        const ids = idResult || [];
         const rowIndex = ids.findIndex(row => row[0] === productId);
 
         if (rowIndex === -1) {
@@ -448,7 +453,8 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
             spreadsheetType: 'texts'
         });
 
-        const headers = headerResult.values ? headerResult.values[0] : [];
+        // Backend повертає масив напряму, а не {values: [...]}
+        const headers = Array.isArray(headerResult) && headerResult.length > 0 ? headerResult[0] : [];
 
         // Знайти колонку статусу
         const statusColumnIndex = headers.findIndex(h =>
@@ -494,7 +500,8 @@ export async function getSheetHeaders(sheetName) {
             spreadsheetType: 'texts'
         });
 
-        const headers = result.values ? result.values[0] : [];
+        // Backend повертає масив напряму
+        const headers = Array.isArray(result) && result.length > 0 ? result[0] : [];
 
         console.log(`✅ Знайдено ${headers.length} колонок в аркуші "${sheetName}"`);
 
@@ -524,7 +531,8 @@ export async function loadProductFullData(sheetName, rowIndex) {
             spreadsheetType: 'texts'
         });
 
-        const row = result.values ? result.values[0] : [];
+        // Backend повертає масив напряму
+        const row = Array.isArray(result) && result.length > 0 ? result[0] : [];
 
         if (!row || row.length === 0) {
             throw new Error(`Рядок ${rowIndex} не знайдено або порожній`);
