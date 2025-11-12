@@ -107,6 +107,10 @@ async function initCustomAuth() {
   // Завантажуємо модал входу
   await loadAuthModal();
 
+  // Ініціалізуємо обробники подій ПІСЛЯ завантаження модалу
+  setupLoginForm();
+  setupLogoutButton();
+
   // Перевіряємо наявність токена
   const token = getAuthToken();
 
@@ -335,12 +339,22 @@ function updateEditButtons(role) {
  * Відкриття модального вікна логіну
  */
 function openLoginModal() {
+  console.log('📂 openLoginModal() викликано');
+
   const modal = document.getElementById('auth-login-modal');
   const usernameInput = document.getElementById('auth-username');
   const passwordInput = document.getElementById('auth-password');
   const loginError = document.getElementById('auth-login-error');
 
+  console.log('🔍 Елементи модалу:', {
+    modal: !!modal,
+    usernameInput: !!usernameInput,
+    passwordInput: !!passwordInput,
+    loginError: !!loginError
+  });
+
   if (modal) {
+    console.log('✅ Відкриваємо модал (display = flex)');
     modal.style.display = 'flex';
 
     // Очищаємо поля
@@ -350,8 +364,13 @@ function openLoginModal() {
 
     // Фокус на логін
     setTimeout(() => {
-      if (usernameInput) usernameInput.focus();
+      if (usernameInput) {
+        usernameInput.focus();
+        console.log('✅ Фокус встановлено на поле логіну');
+      }
     }, 100);
+  } else {
+    console.error('❌ Модал НЕ ЗНАЙДЕНИЙ! Неможливо відкрити');
   }
 }
 
@@ -359,9 +378,14 @@ function openLoginModal() {
  * Закриття модального вікна логіну
  */
 function closeLoginModal() {
+  console.log('📁 closeLoginModal() викликано');
+
   const modal = document.getElementById('auth-login-modal');
   if (modal) {
+    console.log('✅ Закриваємо модал (display = none)');
     modal.style.display = 'none';
+  } else {
+    console.error('❌ Модал НЕ ЗНАЙДЕНИЙ! Неможливо закрити');
   }
 }
 
@@ -369,6 +393,8 @@ function closeLoginModal() {
  * Обробка подій форми логіну
  */
 function setupLoginForm() {
+  console.log('🔧 setupLoginForm() викликано');
+
   const loginForm = document.getElementById('auth-login-form');
   const loginTriggerButton = document.getElementById('auth-login-trigger-btn');
   const modalCloseButton = document.getElementById('auth-modal-close');
@@ -378,38 +404,65 @@ function setupLoginForm() {
   const loginButton = document.getElementById('auth-login-btn');
   const loginError = document.getElementById('auth-login-error');
 
+  console.log('🔍 Пошук елементів:', {
+    loginForm: !!loginForm,
+    loginTriggerButton: !!loginTriggerButton,
+    modalCloseButton: !!modalCloseButton,
+    modal: !!modal,
+    usernameInput: !!usernameInput,
+    passwordInput: !!passwordInput,
+    loginButton: !!loginButton,
+    loginError: !!loginError
+  });
+
   // Відкриття модалу при натисканні "Увійти"
   if (loginTriggerButton) {
+    console.log('✅ Додаємо обробник на кнопку "Увійти"');
     loginTriggerButton.addEventListener('click', (e) => {
+      console.log('🖱️ КЛІК на кнопку "Увійти"!');
       e.preventDefault();
       openLoginModal();
     });
+  } else {
+    console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
   }
 
   // Закриття модалу при натисканні X
   if (modalCloseButton) {
+    console.log('✅ Додаємо обробник на кнопку закриття (X)');
     modalCloseButton.addEventListener('click', (e) => {
+      console.log('🖱️ КЛІК на кнопку закриття (X)!');
       e.preventDefault();
       closeLoginModal();
     });
+  } else {
+    console.warn('⚠️ Кнопка закриття (X) НЕ ЗНАЙДЕНА!');
   }
 
   // Закриття модалу при натисканні кнопки Cancel
   const cancelButton = document.getElementById('auth-modal-cancel');
   if (cancelButton) {
+    console.log('✅ Додаємо обробник на кнопку Cancel');
     cancelButton.addEventListener('click', (e) => {
+      console.log('🖱️ КЛІК на кнопку Cancel!');
       e.preventDefault();
       closeLoginModal();
     });
+  } else {
+    console.warn('⚠️ Кнопка Cancel НЕ ЗНАЙДЕНА!');
   }
 
   // Закриття модалу при кліку поза вікном
   if (modal) {
+    console.log('✅ Додаємо обробник на клік поза модалом');
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
+        console.log('🖱️ КЛІК поза модалом!');
         closeLoginModal();
       }
     });
+  } else {
+    console.warn('⚠️ Модал НЕ ЗНАЙДЕНИЙ!');
   }
 
   // Submit форми
@@ -557,13 +610,11 @@ window.closeLoginModal = closeLoginModal;
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initCustomAuth();
-    setupLoginForm();
-    setupLogoutButton();
+    // setupLoginForm() та setupLogoutButton() викликаються всередині initCustomAuth()
   });
 } else {
   initCustomAuth();
-  setupLoginForm();
-  setupLogoutButton();
+  // setupLoginForm() та setupLogoutButton() викликаються всередині initCustomAuth()
 }
 
 console.log('Custom Auth Module loaded');
