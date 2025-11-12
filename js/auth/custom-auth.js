@@ -46,13 +46,32 @@ async function loadAuthModal() {
     const modalWrapper = document.createElement('div');
     modalWrapper.id = 'auth-login-modal';
     modalWrapper.className = 'modal-overlay';
-    modalWrapper.style.display = 'none';
+
+    // Встановлюємо критичні inline стилі для overlay
+    modalWrapper.style.cssText = `
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    `;
 
     // Створюємо контейнер модалу
     const modalContainer = document.createElement('div');
     modalContainer.className = 'modal-content';
-    modalContainer.style.maxWidth = '450px';
-    modalContainer.style.width = '90%';
+    modalContainer.style.cssText = `
+      max-width: 450px;
+      width: 90%;
+      background: var(--color-surface-container, #fff);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      position: relative;
+    `;
 
     // Створюємо header
     const modalHeader = document.createElement('div');
@@ -86,6 +105,11 @@ async function loadAuthModal() {
     document.body.appendChild(modalWrapper);
 
     console.log('Auth modal loaded successfully');
+    console.log('📍 Модал додано в DOM, перевірка:', {
+      modalExists: !!document.getElementById('auth-login-modal'),
+      parentElement: modalWrapper.parentElement?.tagName,
+      modalInBody: document.body.contains(modalWrapper)
+    });
   } catch (error) {
     console.error('Error loading auth modal:', error);
   }
@@ -355,7 +379,23 @@ function openLoginModal() {
 
   if (modal) {
     console.log('✅ Відкриваємо модал (display = flex)');
+    console.log('📐 Поточні стилі модалу ДО змін:', {
+      display: modal.style.display,
+      position: modal.style.position,
+      zIndex: modal.style.zIndex
+    });
+
     modal.style.display = 'flex';
+
+    console.log('📐 Поточні стилі модалу ПІСЛЯ змін:', {
+      display: modal.style.display,
+      position: modal.style.position,
+      zIndex: modal.style.zIndex,
+      top: modal.style.top,
+      left: modal.style.left
+    });
+
+    console.log('🔍 Computed styles:', window.getComputedStyle(modal).display);
 
     // Очищаємо поля
     if (usernameInput) usernameInput.value = '';
