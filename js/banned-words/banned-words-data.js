@@ -114,6 +114,9 @@ export async function loadSheetNames() {
         console.log('📥 Завантаження списку аркушів...');
 
         const result = await callSheetsAPI('getSheetNames', { spreadsheetType: 'texts' });
+        console.log('🔍 DEBUG: result from backend:', result);
+        console.log('🔍 DEBUG: first item:', result?.[0]);
+
         // Backend повертає [{title, sheetId, index}], витягуємо тільки title
         bannedWordsState.sheetNames = (result || []).map(sheet => sheet.title);
 
