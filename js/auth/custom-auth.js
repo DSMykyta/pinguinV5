@@ -20,11 +20,82 @@ const API_LOGOUT = `${AUTH_API_BASE}/api/auth/logout`;
 window.isAuthorized = false;
 window.currentUser = null;
 
+// Змінна для зберігання завантаженого модалу
+let authModalLoaded = false;
+
+/**
+ * Завантажує модал входу з шаблону
+ */
+async function loadAuthModal() {
+  if (authModalLoaded) return;
+
+  try {
+    const response = await fetch('/templates/modals/auth-login-modal.html');
+    if (!response.ok) {
+      console.error('Failed to load auth modal template');
+      return;
+    }
+
+    const modalHTML = await response.text();
+
+    // Створюємо обгортку модалу
+    const modalWrapper = document.createElement('div');
+    modalWrapper.id = 'auth-login-modal';
+    modalWrapper.className = 'modal-overlay';
+    modalWrapper.style.display = 'none';
+
+    // Створюємо контейнер модалу
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-content';
+    modalContainer.style.maxWidth = '450px';
+    modalContainer.style.width = '90%';
+
+    // Створюємо header
+    const modalHeader = document.createElement('div');
+    modalHeader.className = 'modal-header';
+    modalHeader.innerHTML = `
+      <div class="modal-title-container">
+        <h2 id="modal-title">Вхід</h2>
+      </div>
+      <div class="header-actions">
+        <div class="connected-button-group-square" role="group">
+          <button id="auth-modal-close" class="segment modal-close-btn" aria-label="Закрити">
+            <div class="state-layer">
+              <span class="label">&times;</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Створюємо body з завантаженим контентом
+    const modalBody = document.createElement('div');
+    modalBody.className = 'modal-body scrollable-panel';
+    modalBody.innerHTML = modalHTML;
+
+    // Збираємо модал
+    modalContainer.appendChild(modalHeader);
+    modalContainer.appendChild(modalBody);
+    modalWrapper.appendChild(modalContainer);
+
+    // Додаємо в DOM
+    document.body.appendChild(modalWrapper);
+
+    authModalLoaded = true;
+    console.log('Auth modal loaded successfully');
+  } catch (error) {
+    console.error('Error loading auth modal:', error);
+  }
+}
+
 /**
  * Ініціалізація системи авторизації
  */
 async function initCustomAuth() {
   console.log('Initializing custom auth...');
+
+  // Завантажуємо модал входу
+  await loadAuthModal();
 
   // Перевіряємо наявність токена
   const token = getAuthToken();

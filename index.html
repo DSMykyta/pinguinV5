@@ -20,43 +20,6 @@
 
 <body class="panel-left-closed">
 
-    <!-- Login Form Modal (показується при натисканні "Увійти") -->
-    <div id="auth-login-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-        <div style="display: flex; flex-direction: column; gap: 16px; max-width: 400px; width: 90%; padding: 32px; background: var(--color-surface-container); border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span class="material-symbols-outlined" style="font-size: 32px; color: var(--color-primary);">lock</span>
-                    <h2 style="margin: 0; font-size: 24px; color: var(--text-primary);">Вхід</h2>
-                </div>
-                <button id="auth-modal-close" class="btn-icon" style="color: var(--text-secondary);">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-
-            <div id="auth-login-error" style="display: none; width: 100%; padding: 12px; background: var(--color-error-container); color: var(--color-on-error-container); border-radius: 8px; font-size: 14px; text-align: center;"></div>
-
-            <form id="auth-login-form" style="width: 100%; display: flex; flex-direction: column; gap: 16px;">
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <label for="auth-username" style="font-size: 14px; font-weight: 500; color: var(--text-primary);">Логін</label>
-                    <input type="text" id="auth-username" placeholder="Введіть логін" style="padding: 12px; border: 1px solid var(--color-outline); border-radius: 8px; font-size: 16px; background: var(--color-surface); color: var(--text-primary);" autofocus>
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <label for="auth-password" style="font-size: 14px; font-weight: 500; color: var(--text-primary);">Пароль</label>
-                    <input type="password" id="auth-password" placeholder="Введіть пароль" style="padding: 12px; border: 1px solid var(--color-outline); border-radius: 8px; font-size: 16px; background: var(--color-surface); color: var(--text-primary);">
-                </div>
-
-                <button type="submit" id="auth-login-btn" style="padding: 14px; background: var(--color-primary); color: var(--color-on-primary); border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.2s;">
-                    Увійти
-                </button>
-            </form>
-
-            <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">
-                Для отримання доступу зверніться до адміністратора
-            </div>
-        </div>
-    </div>
-
     <nav id="panel-left" class="panel panel-left">
 
         <div class="panel-content-scroll">            
