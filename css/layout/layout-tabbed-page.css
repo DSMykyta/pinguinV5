@@ -45,17 +45,13 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    padding: 16px;
     flex-direction: column;
-    gap: 16px;
 }
 
-/* Tab Header */
-.tab-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* Section header в табах */
+.tabbed-page .section-header {
     flex-shrink: 0;
+    padding: 16px 24px;
 }
 
 /* Pseudo Table Container в табах - розтягується на весь доступний простір */
@@ -64,24 +60,7 @@
     min-height: 0;           /* Дозволяє зменшуватися для скролу */
     overflow-y: auto;        /* Вертикальний скрол */
     overflow-x: hidden;      /* Без горизонтального скролу */
-}
-
-.tab-title-block {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.tab-title {
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--color-on-surface);
-    margin: 0;
-}
-
-.tab-stats {
-    font-size: 14px;
-    color: var(--color-on-surface-v);
+    padding: 0 24px 16px 24px; /* Padding тільки для table */
 }
 
 /* Container для динамічних табів - "прозорий" контейнер */
