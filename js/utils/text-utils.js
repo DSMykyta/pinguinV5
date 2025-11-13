@@ -55,13 +55,16 @@ export function checkTextForBannedWords(text, bannedWords) {
 
     // ОДИН regex для всіх слів (швидко!)
     // Використовуємо простий fallback без Unicode Property Escapes
-    const wordRegex = new RegExp(`(^|[^а-яїієґёa-z])(${regexBody})($|[^а-яїієґёa-z])`, 'gi');
+    // ВИПРАВЛЕНО: додано великі літери в boundaries для підтримки "Препарат", "ЛІКУЄ" тощо
+    const wordRegex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${regexBody})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
 
-    // Підрахунок входжень
+    // Підрахунок входжень - ВИПРАВЛЕНО для правильного підрахунку множинних входжень
     const wordCounts = new Map();
-    let match;
 
-    while ((match = wordRegex.exec(cleanText)) !== null) {
+    // Використовуємо matchAll() для надійного знаходження ВСІХ входжень
+    const matches = cleanText.matchAll(wordRegex);
+
+    for (const match of matches) {
         if (match[2]) {
             const word = match[2].toLowerCase();
             const currentCount = wordCounts.get(word) || 0;
@@ -120,7 +123,7 @@ export function getTextFragment(text, position, contextLength = 50) {
  * // 'Текст з <span class="highlight">важливим</span> словом'
  */
 export function highlightText(text, searchTerms, highlightClass = 'highlight') {
-    // ВИПРАВЛЕНО: Логіка для уникнення вкладених тегів
+    // ВИПРАВЛЕНО: Логіка для уникнення вкладених тегів + word boundaries
     if (!text || !searchTerms || searchTerms.length === 0) return escapeHtml(text);
 
     // 1. Отримуємо унікальні, непусті терміни
@@ -130,19 +133,20 @@ export function highlightText(text, searchTerms, highlightClass = 'highlight') {
     // 2. Сортуємо від найдовшого до найкоротшого (щоб "препарати" знайшлося раніше за "препарат")
     uniqueTerms.sort((a, b) => b.length - a.length);
 
-    // 3. Створюємо єдиний RegExp
+    // 3. Створюємо єдиний RegExp з word boundaries (як в checkTextForBannedWords)
     const regexBody = uniqueTerms
         .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо кожен термін
         .join('|'); // Об'єднуємо через АБО
-    
-    const regex = new RegExp(`(${regexBody})`, 'gi');
+
+    // ВИПРАВЛЕНО: Додано word boundaries для точного збігу слів
+    const regex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${regexBody})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
 
     // 4. Екрануємо HTML в оригінальному тексті
     const escapedText = escapeHtml(text);
-    
-    // 5. Виконуємо заміну ОДИН РАЗ на екранованому тексті
-    const result = escapedText.replace(regex, `<span class="${highlightClass}">$1</span>`);
-    
+
+    // 5. Виконуємо заміну з збереженням boundaries ($1 та $3)
+    const result = escapedText.replace(regex, `$1<span class="${highlightClass}">$2</span>$3`);
+
     return result;
     // КІНЕЦЬ ВИПРАВЛЕННЯ
 }
@@ -214,7 +218,8 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
 
     // Знайти позицію слова (з урахуванням меж слів)
     const escapedWord = lowerWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(^|[^а-яїієґa-z])(${escapedWord})($|[^а-яїієґa-z])`, 'i');
+    // ВИПРАВЛЕНО: додано великі літери в boundaries
+    const regex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${escapedWord})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'i');
     const match = lowerText.match(regex);
 
     if (!match) return null;
@@ -252,9 +257,10 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
     // Екранувати HTML
     fragment = escapeHtml(fragment);
 
-    // Підсвітити заборонене слово
-    const fragmentRegex = new RegExp(`(${escapedWord})`, 'gi');
-    fragment = fragment.replace(fragmentRegex, '<span class="highlight-banned-word">$1</span>');
+    // Підсвітити заборонене слово з word boundaries
+    // ВИПРАВЛЕНО: додано boundaries для точного збігу
+    const fragmentRegex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${escapedWord})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
+    fragment = fragment.replace(fragmentRegex, '$1<span class="highlight-banned-word">$2</span>$3');
 
     return prefix + fragment + suffix;
 }

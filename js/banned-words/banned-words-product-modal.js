@@ -12,15 +12,14 @@ let currentProductData = null;
 // Статистика для кожного поля: { fieldName: { wordCountsMap, totalMatches } }
 let fieldStats = {};
 
-// Конфігурація полів для динамічного створення пілів
-const FIELD_CONFIG = {
-    'titleUkr': { label: 'Назва (Укр)', icon: 'title' },
-    'titleRos': { label: 'Назва (Рос)', icon: 'title' },
-    'descriptionUkr': { label: 'Опис (Укр)', icon: 'description' },
-    'descriptionRos': { label: 'Опис (Рос)', icon: 'description' },
-    'short_descriptionUkr': { label: 'Короткий опис (Укр)', icon: 'description' },
-    'short_descriptionRos': { label: 'Короткий опис (Рос)', icon: 'description' }
-};
+/**
+ * Отримати іконку для поля на основі його назви
+ */
+function getFieldIcon(columnName) {
+    if (columnName.startsWith('title')) return 'title';
+    if (columnName.includes('description')) return 'description';
+    return 'description'; // за замовчуванням
+}
 
 /**
  * Відкрити модальне вікно з повним текстом товару
@@ -111,22 +110,16 @@ function setupFieldTabs(columnNames) {
 
     // ДИНАМІЧНО створити піли та панелі для кожної колонки
     columnsArray.forEach((columnName, index) => {
-        const fieldConfig = FIELD_CONFIG[columnName];
-
-        if (!fieldConfig) {
-            console.warn(`⚠️ Немає конфігурації для поля: ${columnName}`);
-            return;
-        }
-
         // Створити кнопку
         const button = document.createElement('button');
         button.className = 'nav-icon';
         button.dataset.field = columnName;
         if (index === 0) button.classList.add('active');
 
+        // Використовуємо технічну назву колонки безпосередньо
         button.innerHTML = `
-            <span class="material-symbols-outlined">${fieldConfig.icon}</span>
-            <span class="nav-icon-label">${fieldConfig.label}</span>
+            <span class="material-symbols-outlined">${getFieldIcon(columnName)}</span>
+            <span class="nav-icon-label">${columnName}</span>
         `;
 
         pillsContainer.appendChild(button);
@@ -326,8 +319,9 @@ function initModalHandlers() {
             button.classList.add('active');
 
             // Показати відповідну панель
+            // ВИПРАВЛЕНО: уточнено selector для пошуку тільки панелей, не кнопок
             panels.forEach(p => p.classList.remove('active'));
-            const activePanel = document.querySelector(`[data-field="${field}"]`);
+            const activePanel = document.querySelector(`.product-text-panel[data-field="${field}"]`);
             if (activePanel) activePanel.classList.add('active');
 
             // Оновити статистику для цього поля
@@ -339,12 +333,6 @@ function initModalHandlers() {
     const markCheckedBtn = document.getElementById('product-modal-mark-checked');
     if (markCheckedBtn) {
         markCheckedBtn.addEventListener('click', handleMarkChecked);
-    }
-
-    // Кнопка "Відкрити в Google Sheets"
-    const openSheetsBtn = document.getElementById('product-modal-open-sheets');
-    if (openSheetsBtn) {
-        openSheetsBtn.addEventListener('click', handleOpenSheets);
     }
 
     // Кнопка "Копіювати текст"
@@ -402,28 +390,6 @@ async function handleMarkChecked() {
         console.error('❌ Помилка позначення товару:', error);
         showToast('Помилка при оновленні статусу', 'error');
     }
-}
-
-/**
- * Обробник кнопки "Відкрити в Google Sheets"
- */
-function handleOpenSheets() {
-    const sheetName = document.getElementById('product-modal-sheet-name').value;
-    const rowIndex = document.getElementById('product-modal-row-index').value;
-
-    if (!sheetName || !rowIndex) {
-        console.error('❌ Відсутні метадані для відкриття Sheets');
-        return;
-    }
-
-    // URL до Google Sheets
-    const spreadsheetId = '1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM'; // TODO: Винести в конфіг
-    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit#gid=0&range=A${rowIndex}`;
-
-    console.log(`📄 Відкриття Google Sheets: ${url}`);
-
-    // Відкрити в новій вкладці
-    window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 /**
