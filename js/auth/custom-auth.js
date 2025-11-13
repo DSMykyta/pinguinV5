@@ -431,8 +431,8 @@ function getAuthToken() {
 
 function setAuthToken(token) {
   localStorage.setItem(AUTH_TOKEN_KEY, token);
-  // Зберігаємо час експірації (15 хвилин)
-  const expiryTime = Date.now() + (15 * 60 * 1000);
+  // Зберігаємо час експірації (8 годин)
+  const expiryTime = Date.now() + (8 * 60 * 60 * 1000);
   localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
 }
 

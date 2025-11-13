@@ -34,39 +34,56 @@ export function checkTextForBannedWords(text, bannedWords) {
     const found = [];
 
     if (!text || !text.trim()) return found;
+    if (!bannedWords || bannedWords.length === 0) return found;
 
     // Видаляємо HTML теги для чистішого пошуку
-    const cleanText = text.replace(/<[^>]*>/g, ' ').toLowerCase();
+    const cleanText = text.replace(/<[^>]*>/g, ' ');
 
-    bannedWords.forEach(word => {
-        if (!word || word.length === 0) return;
+    // Дедуплікація і підготовка списку слів
+    const uniqueWords = [...new Set(bannedWords.map(w =>
+        typeof w === 'string' ? w.toLowerCase().trim() : ''
+    ))].filter(Boolean);
 
-        // Перетворимо слово в lowercase для пошуку (якщо ще не lowercase)
-        const searchWord = typeof word === 'string' ? word.toLowerCase() : word;
+    if (uniqueWords.length === 0) return found;
 
-        // Екрануємо спецсимволи regex
-        const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Сортування за довжиною (спадне) критичне для коректної роботи RegExp
+    const sortedWords = uniqueWords
+        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо
+        .sort((a, b) => b.length - a.length);
 
-        // Використовуємо lookahead/lookbehind щоб не споживати boundary символи
-        const globalRegex = new RegExp(`(?:^|(?<=[^а-яїієґa-z]))${escapedWord}(?:$|(?=[^а-яїієґa-z]))`, 'gi');
+    const regexBody = sortedWords.join('|');
 
-        // Підрахувати всі входження через exec loop
-        const positions = [];
-        let match;
-        let count = 0;
+    // Будуємо regex з Unicode Property Escapes (як в gte-validator.js)
+    let validationRegex;
+    try {
+        validationRegex = new RegExp(`(?<!\\p{L})(${regexBody})(?!\\p{L})`, 'giu');
+    } catch (error) {
+        // Fallback для браузерів без підтримки Unicode Property Escapes
+        console.warn('Unicode Property Escapes не підтримуються, використовуємо fallback');
+        validationRegex = new RegExp(`(^|[^а-яїієґa-z])(${regexBody})($|[^а-яїієґa-z])`, 'gi');
+    }
 
-        while ((match = globalRegex.exec(cleanText)) !== null) {
-            positions.push(match.index);
-            count++;
+    // Підрахунок входжень для кожного слова (як в gte-validator.js)
+    const wordCounts = new Map();
+    validationRegex.lastIndex = 0;
+    let match;
+
+    while ((match = validationRegex.exec(cleanText)) !== null) {
+        const foundWord = match[1] || match[2]; // match[1] для Unicode, match[2] для fallback
+        if (foundWord) {
+            const word = foundWord.toLowerCase();
+            const currentCount = wordCounts.get(word) || 0;
+            wordCounts.set(word, currentCount + 1);
         }
+    }
 
-        if (count > 0) {
-            found.push({
-                word: searchWord,
-                count: count,
-                positions: positions
-            });
-        }
+    // Формуємо результат
+    wordCounts.forEach((count, word) => {
+        found.push({
+            word: word,
+            count: count,
+            positions: [] // Позиції не використовуються, але залишаємо для сумісності
+        });
     });
 
     return found;
@@ -205,13 +222,13 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
 
     // Знайти позицію слова (з урахуванням меж слів)
     const escapedWord = lowerWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(?:^|(?<=[^а-яїієґa-z]))${escapedWord}(?:$|(?=[^а-яїієґa-z]))`, 'i');
+    const regex = new RegExp(`(^|[^а-яїієґa-z])(${escapedWord})($|[^а-яїієґa-z])`, 'i');
     const match = lowerText.match(regex);
 
     if (!match) return null;
 
-    // Знайти фактичну позицію слова
-    const wordStart = match.index;
+    // Знайти фактичну позицію слова (після prefix boundary)
+    const wordStart = match.index + match[1].length;
     const wordEnd = wordStart + bannedWord.length;
 
     // Визначити межі фрагменту
