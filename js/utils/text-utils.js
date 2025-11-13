@@ -36,8 +36,8 @@ export function checkTextForBannedWords(text, bannedWords) {
     if (!text || !text.trim()) return found;
     if (!bannedWords || bannedWords.length === 0) return found;
 
-    // Видаляємо HTML теги та нормалізуємо пробіли
-    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
+    // Видаляємо HTML теги
+    const cleanText = text.replace(/<[^>]*>/g, ' ');
 
     // Дедуплікація заборонених слів
     const uniqueWords = [...new Set(bannedWords.map(w =>
@@ -46,42 +46,28 @@ export function checkTextForBannedWords(text, bannedWords) {
 
     if (uniqueWords.length === 0) return found;
 
-    // Підрахунок для кожного слова окремо
+    // Сортування за довжиною (спадне) - довші слова мають знаходитись першими
+    const sortedWords = uniqueWords
+        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо
+        .sort((a, b) => b.length - a.length);
+
+    const regexBody = sortedWords.join('|');
+
+    // ОДИН regex для всіх слів (швидко!)
+    // Використовуємо простий fallback без Unicode Property Escapes
+    const wordRegex = new RegExp(`(^|[^а-яїієґёa-z])(${regexBody})($|[^а-яїієґёa-z])`, 'gi');
+
+    // Підрахунок входжень
     const wordCounts = new Map();
+    let match;
 
-    uniqueWords.forEach(bannedWord => {
-        // Екрануємо спецсимволи regex
-        const escapedWord = bannedWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-        // Створюємо regex для пошуку слова з word boundaries
-        // \b не працює з кирилицею, тому використовуємо власну перевірку
-        const wordRegex = new RegExp(`(^|[^а-яїієґёa-z])${escapedWord}($|[^а-яїієґёa-z])`, 'gi');
-
-        let count = 0;
-        let searchText = cleanText;
-        let offset = 0;
-
-        // Шукаємо всі входження
-        while (true) {
-            const match = wordRegex.exec(searchText);
-            if (!match) break;
-
-            count++;
-
-            // Зсуваємо позицію пошуку ОДРАЗУ після знайденого слова
-            // Це дозволяє знаходити послідовні входження
-            const matchEnd = match.index + match[0].length;
-            const wordEnd = match.index + match[1].length + bannedWord.length;
-
-            offset += wordEnd;
-            searchText = cleanText.slice(offset);
-            wordRegex.lastIndex = 0;
+    while ((match = wordRegex.exec(cleanText)) !== null) {
+        if (match[2]) {
+            const word = match[2].toLowerCase();
+            const currentCount = wordCounts.get(word) || 0;
+            wordCounts.set(word, currentCount + 1);
         }
-
-        if (count > 0) {
-            wordCounts.set(bannedWord, count);
-        }
-    });
+    }
 
     // Формуємо результат
     wordCounts.forEach((count, word) => {
