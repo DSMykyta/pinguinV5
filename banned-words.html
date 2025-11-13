@@ -122,13 +122,14 @@
         <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
         <div class="tab-content active" data-tab-content="tab-manage" id="tab-manage">
 
-            <!-- Tab Header -->
-            <div class="tab-header">
-                <div class="tab-title-block">
-                    <h2 class="tab-title">Заборонені слова</h2>
-                    <span class="tab-stats" id="tab-stats-manage">Показано 0 з 0</span>
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Заборонені слова</h2>
+                    </div>
+                    <h3 id="tab-stats-manage">Показано 0 з 0</h3>
                 </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="tab-controls">
                     <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage">
                         <span class="material-symbols-outlined">list</span>
                         <span class="nav-icon-label">Всі</span>
@@ -142,14 +143,12 @@
                         <span class="nav-icon-label">Перевірені</span>
                     </button>
 
-                    <div style="width: 1px; height: 24px; background: var(--color-outline); margin: 0 4px;"></div>
-
                     <button id="refresh-tab-manage" class="nav-icon" aria-label="Оновити таб">
                         <span class="material-symbols-outlined">refresh</span>
                         <span class="nav-icon-label">Оновити</span>
                     </button>
 
-                    <div class="dropdown-wrapper" style="position: relative;">
+                    <div class="dropdown-wrapper">
                         <button class="nav-icon" data-dropdown-trigger aria-label="Вібір колонок">
                             <span class="material-symbols-outlined">view_column</span>
                             <span class="nav-icon-label">Колонки</span>
@@ -163,9 +162,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Filter Pills -->
-
 
             <!-- Table Container -->
             <div id="banned-words-table-container" class="pseudo-table-container">

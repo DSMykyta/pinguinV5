@@ -63,3 +63,9 @@
     color: var(--color-on-surface-variant);
     font-weight: 400;
 }
+
+.tab-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
