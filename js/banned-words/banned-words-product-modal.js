@@ -205,7 +205,7 @@ function renderProductModal(productData, columnNames) {
     console.log('📦 Доступні дані товару:', Object.keys(productData));
     console.log('📋 Field mapping:', fieldMapping);
 
-    let totalBannedWords = 0;
+    let uniqueBannedWords = new Set();
     let totalMatches = 0;
 
     // Рендеримо ТІЛЬКИ ті поля що в columnsArray
@@ -233,9 +233,11 @@ function renderProductModal(productData, columnNames) {
 
             viewer.innerHTML = highlightedText;
 
-            // Підрахувати статистику
-            totalBannedWords += foundWords.length;
-            totalMatches += foundWords.reduce((sum, f) => sum + f.count, 0);
+            // Підрахувати статистику - ТІЛЬКИ унікальні слова
+            foundWords.forEach(f => {
+                uniqueBannedWords.add(f.word.toLowerCase());
+                totalMatches += f.count;
+            });
 
             console.log(`🔴 Поле ${field}: знайдено ${foundWords.length} слів`);
         } else {
@@ -245,6 +247,8 @@ function renderProductModal(productData, columnNames) {
         }
     });
 
+    const totalBannedWords = uniqueBannedWords.size;
+
     console.log(`📊 Загальна статистика: ${totalBannedWords} слів, ${totalMatches} входжень`);
 
     // Оновити статистику
@@ -253,6 +257,18 @@ function renderProductModal(productData, columnNames) {
 
     if (bannedCountEl) bannedCountEl.textContent = totalBannedWords;
     if (matchCountEl) matchCountEl.textContent = totalMatches;
+
+    // Створити chip'и для заборонених слів
+    const chipsContainer = document.getElementById('product-modal-banned-chips');
+    if (chipsContainer && uniqueBannedWords.size > 0) {
+        chipsContainer.innerHTML = '';
+        Array.from(uniqueBannedWords).forEach(word => {
+            const chip = document.createElement('span');
+            chip.className = 'chip chip-error';
+            chip.textContent = word;
+            chipsContainer.appendChild(chip);
+        });
+    }
 }
 
 /**
@@ -288,6 +304,12 @@ function initModalHandlers() {
     const openSheetsBtn = document.getElementById('product-modal-open-sheets');
     if (openSheetsBtn) {
         openSheetsBtn.addEventListener('click', handleOpenSheets);
+    }
+
+    // Кнопка "Копіювати текст"
+    const copyBtn = document.getElementById('product-modal-copy-btn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', handleCopyText);
     }
 }
 
@@ -361,4 +383,42 @@ function handleOpenSheets() {
 
     // Відкрити в новій вкладці
     window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/**
+ * Обробник кнопки "Копіювати текст"
+ */
+function handleCopyText() {
+    // Знайти активну панель
+    const activePanel = document.querySelector('.product-text-panel.active');
+    if (!activePanel) {
+        console.warn('⚠️ Немає активної панелі для копіювання');
+        showToast('Немає тексту для копіювання', 'warning');
+        return;
+    }
+
+    // Отримати текст з text-viewer (без HTML тегів)
+    const viewer = activePanel.querySelector('.text-viewer');
+    if (!viewer) {
+        console.warn('⚠️ Не знайдено text-viewer');
+        return;
+    }
+
+    const textToCopy = viewer.textContent || viewer.innerText;
+
+    if (!textToCopy || !textToCopy.trim()) {
+        showToast('Немає тексту для копіювання', 'warning');
+        return;
+    }
+
+    // Копіювати в буфер обміну
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            console.log('✅ Текст скопійовано в буфер обміну');
+            showToast('Текст скопійовано', 'success');
+        })
+        .catch(err => {
+            console.error('❌ Помилка копіювання:', err);
+            showToast('Помилка копіювання тексту', 'error');
+        });
 }

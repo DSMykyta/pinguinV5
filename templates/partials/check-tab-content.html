@@ -1,27 +1,29 @@
 <!-- Tab Header -->
-<div class="tab-header">
-    <div class="tab-title-block">
-        <h2 class="tab-title" id="check-tab-title-{{tabId}}">Перевірка</h2>
-        <span class="tab-stats" id="check-tab-stats-{{tabId}}">Показано 0 з 0</span>
+<div class="section-header">
+    <div class="section-name-block">
+        <div class="section-name">
+            <h2 id="check-tab-title-{{tabId}}">Перевірка</h2>
+        </div>
+        <h3 id="check-tab-stats-{{tabId}}">Показано 0 з 0</h3>
     </div>
 
-    <div style="display: flex; gap: 8px; align-items: center;">
-        <div class="filter-pills-container" id="filter-pills-{{tabId}}">
-            <button class="filter-pill active" data-filter="all" data-tab-id="{{tabId}}">
-                <span class="material-symbols-outlined">list</span>
-                Всі
-            </button>
-            <button class="filter-pill" data-filter="unchecked" data-tab-id="{{tabId}}">
-                <span class="material-symbols-outlined">radio_button_unchecked</span>
-                Не перевірені
-            </button>
-            <button class="filter-pill" data-filter="checked" data-tab-id="{{tabId}}">
-                <span class="material-symbols-outlined">check_circle</span>
-                Перевірені
-            </button>
-        </div>
-        <button id="refresh-check-{{tabId}}" class="btn-icon" aria-label="Оновити результати">
+    <div class="tab-controls">
+        <button class="nav-icon active" data-filter="all" data-tab-id="{{tabId}}">
+            <span class="material-symbols-outlined">list</span>
+            <span class="nav-icon-label">Всі</span>
+        </button>
+        <button class="nav-icon" data-filter="unchecked" data-tab-id="{{tabId}}">
+            <span class="material-symbols-outlined">radio_button_unchecked</span>
+            <span class="nav-icon-label">Не перевірені</span>
+        </button>
+        <button class="nav-icon" data-filter="checked" data-tab-id="{{tabId}}">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span class="nav-icon-label">Перевірені</span>
+        </button>
+
+        <button id="refresh-check-{{tabId}}" class="nav-icon" aria-label="Оновити результати">
             <span class="material-symbols-outlined">refresh</span>
+            <span class="nav-icon-label">Оновити</span>
         </button>
     </div>
 </div>

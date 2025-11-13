@@ -86,7 +86,7 @@ export function initPaginationForBannedWords() {
 export function registerCheckTabPagination(tabId, totalItems, renderFn) {
     bannedWordsState.tabPaginations[tabId] = {
         currentPage: 1,
-        pageSize: 25,
+        pageSize: 10,
         totalItems: totalItems,
         renderFn: renderFn
     };
