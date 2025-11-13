@@ -289,7 +289,7 @@ function initModalHandlers() {
 
             // Показати відповідну панель
             panels.forEach(p => p.classList.remove('active'));
-            const activePanel = document.querySelector(`.product-text-panel[data-field="${field}"]`);
+            const activePanel = document.querySelector(`[data-field="${field}"]`);
             if (activePanel) activePanel.classList.add('active');
         });
     });

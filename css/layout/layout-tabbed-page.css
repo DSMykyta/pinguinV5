@@ -20,8 +20,6 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-    padding: 8px 24px;
-    padding-bottom: 0;
 }
 
 /* HEADER - фіксований зверху */
@@ -53,8 +51,8 @@
 /* Section header в табах */
 .tabbed-page .section-header {
     flex-shrink: 0;
-    padding: 16px 0;
-    margin-top: 8px;
+    padding: 16px 24px;
+    padding-top: 24px;
 }
 
 /* Pseudo Table Container в табах - розтягується на весь доступний простір */
@@ -63,7 +61,7 @@
     min-height: 0;           /* Дозволяє зменшуватися для скролу */
     overflow-y: auto;        /* Вертикальний скрол */
     overflow-x: hidden;      /* Без горизонтального скролу */
-    padding: 0 0 16px 0;     /* Padding тільки знизу */
+    padding: 0 0 16px 0;     /* Тільки нижній padding - горизонтальний вже є в header */
 }
 
 /* Container для динамічних табів - "прозорий" контейнер */
@@ -79,7 +77,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 12px 24px;
     gap: 16px;
     background: var(--color-surface);
 }

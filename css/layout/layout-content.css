@@ -54,7 +54,7 @@
     display: block;
     flex: 1;
     overflow: hidden;
-    padding: var(--space-m);
+    /* padding removed - handled by child elements */
     min-height: 0;
 }
 
