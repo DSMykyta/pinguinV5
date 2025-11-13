@@ -208,47 +208,7 @@
 
 
 /* ============================================ */
-/* FILTER PILLS - Швидкі фільтри */
+/* FILTER PILLS - DEPRECATED */
 /* ============================================ */
-
-.filter-pills-container {
-    display: flex;
-    gap: 8px;
-}
-
-.filter-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    background-color: transparent;
-    color: var(--color-main);
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-pill .material-symbols-outlined {
-    font-size: 18px;
-}
-
-.filter-pill:hover {
-    background-color: var(--color-main-t-2);
-    color: var(--color-main);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.filter-pill.active {
-    background-color: var(--color-main-t-2);
-    color: var(--color-main);
-    border-color: var(--color-main);
-}
-
-.filter-pill:active {
-    transform: scale(0.97);
-}
+/* Використовується nav-icon з layout-section-navigator.css */
 

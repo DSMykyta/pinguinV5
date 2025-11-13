@@ -532,9 +532,9 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
  * Ініціалізувати фільтри для табу управління
  */
 export function initManageTabFilters() {
-    const filterPills = document.querySelectorAll('.filter-pill[data-tab-id="tab-manage"]');
+    const filterButtons = document.querySelectorAll('.nav-icon[data-filter][data-tab-id="tab-manage"]');
 
-    if (!filterPills.length) {
+    if (!filterButtons.length) {
         console.warn('⚠️ Фільтри не знайдено для табу управління');
         return;
     }
@@ -544,16 +544,16 @@ export function initManageTabFilters() {
         bannedWordsState.tabFilters['tab-manage'] = 'all';
     }
 
-    filterPills.forEach(pill => {
-        pill.addEventListener('click', async () => {
-            const filter = pill.dataset.filter;
+    filterButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const filter = button.dataset.filter;
 
             // Оновити стан фільтру
             bannedWordsState.tabFilters['tab-manage'] = filter;
 
-            // Оновити UI активних pills
-            filterPills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
+            // Оновити UI активних кнопок
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
             // Перерендерити таблицю з новим фільтром
             await renderBannedWordsTable();

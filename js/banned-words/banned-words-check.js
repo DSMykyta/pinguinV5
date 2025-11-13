@@ -445,9 +445,9 @@ export async function renderCheckResults(sheetName, bannedWord) {
  * @param {string} tabId - ID табу
  */
 export function initCheckTabFilters(tabId) {
-    const filterPills = document.querySelectorAll(`.filter-pill[data-tab-id="${tabId}"]`);
+    const filterButtons = document.querySelectorAll(`.nav-icon[data-filter][data-tab-id="${tabId}"]`);
 
-    if (!filterPills.length) {
+    if (!filterButtons.length) {
         console.warn('⚠️ Фільтри не знайдено для табу:', tabId);
         return;
     }
@@ -457,16 +457,16 @@ export function initCheckTabFilters(tabId) {
         bannedWordsState.tabFilters[tabId] = 'all';
     }
 
-    filterPills.forEach(pill => {
-        pill.addEventListener('click', async () => {
-            const filter = pill.dataset.filter;
+    filterButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const filter = button.dataset.filter;
 
             // Оновити стан фільтру
             bannedWordsState.tabFilters[tabId] = filter;
 
-            // Оновити UI активних pills
-            filterPills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
+            // Оновити UI активних кнопок
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
             // Перерендерити результати з новим фільтром
             const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);

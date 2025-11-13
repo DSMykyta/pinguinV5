@@ -177,9 +177,11 @@ body.is-modal-open {
 /* PRODUCT TEXT VIEW MODAL - Перегляд тексту товару */
 /* ============================================ */
 
-/* Використовуємо filter-pill (з chip.css) замість унікальних стилів */
+/* Використовуємо nav-icon (з layout-section-navigator.css) для табів */
 #product-text-field-pills {
     margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
 }
 
 /* Контент табів */

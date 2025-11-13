@@ -129,24 +129,30 @@
                     <span class="tab-stats" id="tab-stats-manage">Показано 0 з 0</span>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <div class="filter-pills-container" id="filter-pills-tab-manage">
-                        <button class="filter-pill active" data-filter="all" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">list</span>
-                            Всі
-                        </button>
-                        <button class="filter-pill" data-filter="unchecked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">radio_button_unchecked</span>
-                            Не перевірені
-                        </button>
-                        <button class="filter-pill" data-filter="checked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            Перевірені
-                        </button>
-                    </div>
-                    <div class="dropdown-wrapper" style="display: flex; position: relative;">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
-                            style="display: inline-flex; align-items: center; justify-content: center;">
+                    <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage">
+                        <span class="material-symbols-outlined">list</span>
+                        <span class="nav-icon-label">Всі</span>
+                    </button>
+                    <button class="nav-icon" data-filter="unchecked" data-tab-id="tab-manage">
+                        <span class="material-symbols-outlined">radio_button_unchecked</span>
+                        <span class="nav-icon-label">Не перевірені</span>
+                    </button>
+                    <button class="nav-icon" data-filter="checked" data-tab-id="tab-manage">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <span class="nav-icon-label">Перевірені</span>
+                    </button>
+
+                    <div style="width: 1px; height: 24px; background: var(--color-outline); margin: 0 4px;"></div>
+
+                    <button id="refresh-tab-manage" class="nav-icon" aria-label="Оновити таб">
+                        <span class="material-symbols-outlined">refresh</span>
+                        <span class="nav-icon-label">Оновити</span>
+                    </button>
+
+                    <div class="dropdown-wrapper" style="position: relative;">
+                        <button class="nav-icon" data-dropdown-trigger aria-label="Вібір колонок">
                             <span class="material-symbols-outlined">view_column</span>
+                            <span class="nav-icon-label">Колонки</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-header">Показати колонки</div>
@@ -155,10 +161,6 @@
                             </div>
                         </div>
                     </div>
-                    <button id="refresh-tab-manage" class="btn-icon" aria-label="Оновити таб"
-                        style="display: inline-flex; align-items: center; justify-content: center;">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
                 </div>
             </div>
 

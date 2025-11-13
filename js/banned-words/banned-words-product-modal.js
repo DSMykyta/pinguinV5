@@ -116,18 +116,18 @@ function setupFieldTabs(columnNames) {
             return;
         }
 
-        // Створити піл
-        const pill = document.createElement('button');
-        pill.className = 'filter-pill';
-        pill.dataset.field = columnName;
-        if (index === 0) pill.classList.add('active');
+        // Створити кнопку
+        const button = document.createElement('button');
+        button.className = 'nav-icon';
+        button.dataset.field = columnName;
+        if (index === 0) button.classList.add('active');
 
-        pill.innerHTML = `
+        button.innerHTML = `
             <span class="material-symbols-outlined">${fieldConfig.icon}</span>
-            ${fieldConfig.label}
+            <span class="nav-icon-label">${fieldConfig.label}</span>
         `;
 
-        pillsContainer.appendChild(pill);
+        pillsContainer.appendChild(button);
 
         // Створити панель
         const panel = document.createElement('div');
@@ -259,17 +259,17 @@ function renderProductModal(productData, columnNames) {
  * Ініціалізувати обробники подій модалу
  */
 function initModalHandlers() {
-    // Перемикання табів (використовуємо filter-pill)
-    const pills = document.querySelectorAll('#product-text-field-pills .filter-pill');
+    // Перемикання табів (використовуємо nav-icon)
+    const buttons = document.querySelectorAll('#product-text-field-pills .nav-icon');
     const panels = document.querySelectorAll('.product-text-panel');
 
-    pills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            const field = pill.dataset.field;
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const field = button.dataset.field;
 
             // Оновити активний таб
-            pills.forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
             // Показати відповідну панель
             panels.forEach(p => p.classList.remove('active'));
