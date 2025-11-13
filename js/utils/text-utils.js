@@ -47,8 +47,8 @@ export function checkTextForBannedWords(text, bannedWords) {
         // Екрануємо спецсимволи regex
         const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-        // Використовуємо більш м'які межі слів
-        const globalRegex = new RegExp(`(^|[^а-яїієґa-z])${escapedWord}($|[^а-яїієґa-z])`, 'gi');
+        // Використовуємо lookahead/lookbehind щоб не споживати boundary символи
+        const globalRegex = new RegExp(`(?:^|(?<=[^а-яїієґa-z]))${escapedWord}(?:$|(?=[^а-яїієґa-z]))`, 'gi');
 
         // Підрахувати всі входження через exec loop
         const positions = [];
@@ -205,13 +205,13 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
 
     // Знайти позицію слова (з урахуванням меж слів)
     const escapedWord = lowerWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(^|[^а-яїієґa-z])${escapedWord}($|[^а-яїієґa-z])`, 'i');
+    const regex = new RegExp(`(?:^|(?<=[^а-яїієґa-z]))${escapedWord}(?:$|(?=[^а-яїієґa-z]))`, 'i');
     const match = lowerText.match(regex);
 
     if (!match) return null;
 
-    // Знайти фактичну позицію слова (після можливих пробілів на початку)
-    const wordStart = match.index + (match[1]?.length || 0);
+    // Знайти фактичну позицію слова
+    const wordStart = match.index;
     const wordEnd = wordStart + bannedWord.length;
 
     // Визначити межі фрагменту

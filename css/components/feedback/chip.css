@@ -50,13 +50,15 @@
     overflow: visible;
 }
 
-/* Список без scroll (для невеликої кількості елементів) */
+/* Список chips - горизонтальний scroll */
 .chip-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     padding: 8px 0;
-    overflow: visible;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 /* ============================================ */
