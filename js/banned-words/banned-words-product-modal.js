@@ -147,6 +147,17 @@ function setupFieldTabs(columnNames) {
     });
 
     console.log(`✅ Створено ${columnsArray.length} піл(ів): ${columnsArray.join(', ')}`);
+
+    // Приховати контейнер pills якщо тільки одне поле
+    const pillsParentContainer = pillsContainer.closest('.filter-pills-container');
+    if (pillsParentContainer) {
+        if (columnsArray.length === 1) {
+            pillsParentContainer.style.display = 'none';
+            console.log('🙈 Приховано pills контейнер (тільки одне поле)');
+        } else {
+            pillsParentContainer.style.display = '';
+        }
+    }
 }
 
 /**
@@ -205,7 +216,7 @@ function renderProductModal(productData, columnNames) {
     console.log('📦 Доступні дані товару:', Object.keys(productData));
     console.log('📋 Field mapping:', fieldMapping);
 
-    let uniqueBannedWords = new Set();
+    let wordCountsMap = new Map(); // word -> count
     let totalMatches = 0;
 
     // Рендеримо ТІЛЬКИ ті поля що в columnsArray
@@ -233,9 +244,11 @@ function renderProductModal(productData, columnNames) {
 
             viewer.innerHTML = highlightedText;
 
-            // Підрахувати статистику - ТІЛЬКИ унікальні слова
+            // Підрахувати статистику - кількість входжень для кожного слова
             foundWords.forEach(f => {
-                uniqueBannedWords.add(f.word.toLowerCase());
+                const wordKey = f.word.toLowerCase();
+                const currentCount = wordCountsMap.get(wordKey) || 0;
+                wordCountsMap.set(wordKey, currentCount + f.count);
                 totalMatches += f.count;
             });
 
@@ -247,7 +260,7 @@ function renderProductModal(productData, columnNames) {
         }
     });
 
-    const totalBannedWords = uniqueBannedWords.size;
+    const totalBannedWords = wordCountsMap.size;
 
     console.log(`📊 Загальна статистика: ${totalBannedWords} слів, ${totalMatches} входжень`);
 
@@ -258,14 +271,16 @@ function renderProductModal(productData, columnNames) {
     if (bannedCountEl) bannedCountEl.textContent = totalBannedWords;
     if (matchCountEl) matchCountEl.textContent = totalMatches;
 
-    // Створити chip'и для заборонених слів
+    // Створити chip'и для заборонених слів з кількістю входжень
     const chipsContainer = document.getElementById('product-modal-banned-chips');
-    if (chipsContainer && uniqueBannedWords.size > 0) {
+    if (chipsContainer && wordCountsMap.size > 0) {
         chipsContainer.innerHTML = '';
-        Array.from(uniqueBannedWords).forEach(word => {
+        // Сортуємо за алфавітом для консистентності
+        const sortedWords = Array.from(wordCountsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        sortedWords.forEach(([word, count]) => {
             const chip = document.createElement('span');
             chip.className = 'chip chip-error';
-            chip.textContent = word;
+            chip.textContent = `${word} (${count})`;
             chipsContainer.appendChild(chip);
         });
     }
