@@ -52,6 +52,7 @@
 .tabbed-page .tab-content .pseudo-table-container {
     flex: 1 1 auto;
     min-height: 0;
+    margin: 16px 0;
 }
 
 /* Container для динамічних табів - "прозорий" контейнер */
