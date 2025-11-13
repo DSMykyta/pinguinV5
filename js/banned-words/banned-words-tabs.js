@@ -14,6 +14,7 @@
 
 import { bannedWordsState } from './banned-words-init.js';
 import { showTabControls } from './banned-words-ui.js';
+import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
 
 let checkTabTemplate = null;
 let checkTabContentTemplate = null;
@@ -134,6 +135,9 @@ export async function createCheckResultsTab() {
     console.log(`📋 Кнопка додана до DOM:`, tabsContainer.contains(tabButton));
     console.log(`📋 Контент додано до DOM:`, contentContainer.contains(tabContent));
 
+    // Зберегти стан табу для відновлення після перезавантаження
+    addTabToState(tabId, selectedSheet, selectedWord, selectedColumn, true);
+
     // Активувати новий таб через клік (затримка для оновлення DOM)
     setTimeout(() => {
         console.log(`🖱️ Імітуємо клік по табу "${tabId}"`);
@@ -217,6 +221,9 @@ export function initTabHandlers() {
 
         if (tabContent) {
             tabContent.classList.add('active');
+
+            // Оновити активний таб в збереженому стані
+            setActiveTab(tabId);
 
             // Відновити пагінацію для цього табу
             const tabPagination = bannedWordsState.tabPaginations[tabId];
@@ -333,6 +340,9 @@ export function removeCheckTab(tabId) {
         console.log(`✅ Пагінація табу видалена`);
     }
 
+    // Видалити таб зі збереженого стану
+    removeTabFromState(tabId);
+
     // Якщо таб був активним, переключитись на tab-manage
     if (wasActive) {
         const manageTab = document.querySelector('[data-tab-target="tab-manage"]');
@@ -345,4 +355,68 @@ export function removeCheckTab(tabId) {
     }
 
     console.log(`✅ Таб ${tabId} успішно видалено`);
+}
+
+/**
+ * Відновити збережені таби після перезавантаження сторінки
+ */
+export async function restoreSavedTabs() {
+    const { loadTabsState } = await import('./banned-words-state-persistence.js');
+    const savedState = loadTabsState();
+
+    if (!savedState || !savedState.openTabs || savedState.openTabs.length === 0) {
+        console.log('📭 Немає збережених табів для відновлення');
+        return;
+    }
+
+    console.log(`🔄 Відновлення ${savedState.openTabs.length} збережених табів...`);
+
+    // Імпортувати необхідні модулі
+    const { performCheck } = await import('./banned-words-check.js');
+
+    // Відновити кожен таб
+    for (const tab of savedState.openTabs) {
+        try {
+            console.log(`📂 Відновлення табу: ${tab.tabId}`);
+
+            // Оновити state
+            bannedWordsState.selectedSheet = tab.sheetName;
+            bannedWordsState.selectedWord = tab.wordId;
+            bannedWordsState.selectedColumn = tab.columnName;
+
+            // Відновити фільтр
+            if (tab.filter) {
+                bannedWordsState.tabFilters[tab.tabId] = tab.filter;
+            }
+
+            // Відновити пагінацію
+            if (tab.currentPage && tab.pageSize) {
+                bannedWordsState.tabPaginations[tab.tabId] = {
+                    currentPage: tab.currentPage,
+                    pageSize: tab.pageSize,
+                    totalItems: 0 // буде оновлено при завантаженні даних
+                };
+            }
+
+            // Виконати перевірку (це створить таб автоматично через createCheckResultsTab)
+            await performCheck(tab.sheetName, tab.wordId, tab.columnName);
+
+            console.log(`✅ Таб відновлено: ${tab.tabId}`);
+        } catch (error) {
+            console.error(`❌ Помилка відновлення табу ${tab.tabId}:`, error);
+        }
+    }
+
+    // Активувати збережений активний таб
+    if (savedState.activeTabId) {
+        setTimeout(() => {
+            const activeTabButton = document.querySelector(`[data-tab-target="${savedState.activeTabId}"]`);
+            if (activeTabButton) {
+                activeTabButton.click();
+                console.log(`✅ Активовано збережений таб: ${savedState.activeTabId}`);
+            }
+        }, 500);
+    }
+
+    console.log(`✅ Відновлення табів завершено`);
 }

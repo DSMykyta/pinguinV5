@@ -62,6 +62,12 @@ export function initPaginationForBannedWords() {
             tabPagination.currentPage = page;
             tabPagination.pageSize = pageSize;
 
+            // Зберегти стан пагінації в localStorage
+            if (tabId !== 'tab-manage') {
+                const { updateTabState } = await import('./banned-words-state-persistence.js');
+                updateTabState(tabId, { currentPage: page, pageSize: pageSize });
+            }
+
             // 4. Викликати функцію рендерингу для цього табу
             if (tabPagination.renderFn) {
                 console.log(`🔄 Виклик renderFn для табу ${tabId}`);

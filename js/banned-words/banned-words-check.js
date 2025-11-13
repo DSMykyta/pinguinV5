@@ -464,6 +464,10 @@ export function initCheckTabFilters(tabId) {
             // Оновити стан фільтру
             bannedWordsState.tabFilters[tabId] = filter;
 
+            // Зберегти стан фільтра в localStorage
+            const { updateTabState } = await import('./banned-words-state-persistence.js');
+            updateTabState(tabId, { filter });
+
             // Оновити UI активних кнопок
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');

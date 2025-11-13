@@ -114,12 +114,9 @@ async function checkAuthAndLoadData() {
         // Оновити UI з даними
         await updateUIWithData();
 
-        // Очистити старі збережені таби з localStorage
-        try {
-            localStorage.removeItem('banned-words-tabs');
-        } catch (e) {
-            console.warn('⚠️ Не вдалося очистити localStorage:', e);
-        }
+        // Відновити збережені таби після перезавантаження
+        const { restoreSavedTabs } = await import('./banned-words-tabs.js');
+        await restoreSavedTabs();
 
         console.log('✅ Banned Words готовий до роботи');
     } else {
