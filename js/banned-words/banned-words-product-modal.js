@@ -9,6 +9,8 @@ import { showToast } from '../common/ui-toast.js';
 
 // Поточні дані модалу
 let currentProductData = null;
+// Статистика для кожного поля: { fieldName: { wordCountsMap, totalMatches } }
+let fieldStats = {};
 
 // Конфігурація полів для динамічного створення пілів
 const FIELD_CONFIG = {
@@ -148,7 +150,7 @@ function setupFieldTabs(columnNames) {
 
     console.log(`✅ Створено ${columnsArray.length} піл(ів): ${columnsArray.join(', ')}`);
 
-    // Приховати контейнер pills якщо тільки одне поле
+    // Приховати pills контейнер якщо тільки одне поле
     const pillsParentContainer = pillsContainer.closest('.filter-pills-container');
     if (pillsParentContainer) {
         if (columnsArray.length === 1) {
@@ -197,11 +199,15 @@ function renderProductModal(productData, columnNames) {
     idElement.textContent = `ID: ${productData.id}`;
 
     // Отримати ВСІ заборонені слова (обидві мови) для підсвічування
-    const allBannedWords = bannedWordsState.bannedWords.flatMap(w =>
+    const allBannedWordsRaw = bannedWordsState.bannedWords.flatMap(w =>
         [...w.name_uk_array, ...w.name_ru_array]
     );
 
-    console.log(`🔍 Пошук серед ${allBannedWords.length} заборонених слів`);
+    // ДЕДУПЛІКАЦІЯ: одне слово може бути в кількох рядках таблиці banned, але рахуємо як одне
+    const allBannedWords = [...new Set(allBannedWordsRaw.map(w => w.toLowerCase()))];
+
+    console.log(`🔍 Пошук серед ${allBannedWords.length} унікальних заборонених слів (було ${allBannedWordsRaw.length})`);
+
 
     // Мапінг полів модалу до полів Google Sheets
     const fieldMapping = {
@@ -216,8 +222,8 @@ function renderProductModal(productData, columnNames) {
     console.log('📦 Доступні дані товару:', Object.keys(productData));
     console.log('📋 Field mapping:', fieldMapping);
 
-    let wordCountsMap = new Map(); // word -> count
-    let totalMatches = 0;
+    // Очистити попередню статистику
+    fieldStats = {};
 
     // Рендеримо ТІЛЬКИ ті поля що в columnsArray
     columnsArray.forEach(field => {
@@ -231,11 +237,16 @@ function renderProductModal(productData, columnNames) {
 
         if (!text || !text.trim()) {
             viewer.innerHTML = '<p class="text-muted">Немає даних</p>';
+            fieldStats[field] = { wordCountsMap: new Map(), totalMatches: 0 };
             return;
         }
 
         // Перевірити текст на ВСІ заборонені слова
         const foundWords = checkTextForBannedWords(text, allBannedWords);
+
+        // Статистика для цього конкретного поля
+        let wordCountsMap = new Map();
+        let totalMatches = 0;
 
         if (foundWords.length > 0) {
             // Є заборонені слова - підсвітити їх ВСІ
@@ -244,7 +255,7 @@ function renderProductModal(productData, columnNames) {
 
             viewer.innerHTML = highlightedText;
 
-            // Підрахувати статистику - кількість входжень для кожного слова
+            // Підрахувати статистику для ЦЬОГО поля
             foundWords.forEach(f => {
                 const wordKey = f.word.toLowerCase();
                 const currentCount = wordCountsMap.get(wordKey) || 0;
@@ -252,17 +263,38 @@ function renderProductModal(productData, columnNames) {
                 totalMatches += f.count;
             });
 
-            console.log(`🔴 Поле ${field}: знайдено ${foundWords.length} слів`);
+            console.log(`🔴 Поле ${field}: знайдено ${foundWords.length} слів, ${totalMatches} входжень`);
         } else {
             // Немає заборонених слів - просто показати текст
             viewer.textContent = text;
             console.log(`✅ Поле ${field}: заборонених слів не знайдено`);
         }
+
+        // Зберегти статистику для цього поля
+        fieldStats[field] = { wordCountsMap, totalMatches };
     });
 
+    // Показати статистику для ПЕРШОГО (активного) поля
+    const firstField = columnsArray[0];
+    updateModalStats(firstField);
+}
+
+/**
+ * Оновити статистику модалу для конкретного поля
+ * @param {string} fieldName - Назва поля
+ */
+function updateModalStats(fieldName) {
+    const stats = fieldStats[fieldName];
+
+    if (!stats) {
+        console.warn(`⚠️ Немає статистики для поля: ${fieldName}`);
+        return;
+    }
+
+    const { wordCountsMap, totalMatches } = stats;
     const totalBannedWords = wordCountsMap.size;
 
-    console.log(`📊 Загальна статистика: ${totalBannedWords} слів, ${totalMatches} входжень`);
+    console.log(`📊 Статистика для ${fieldName}: ${totalBannedWords} слів, ${totalMatches} входжень`);
 
     // Оновити статистику
     const bannedCountEl = document.getElementById('product-modal-banned-count');
@@ -273,16 +305,18 @@ function renderProductModal(productData, columnNames) {
 
     // Створити chip'и для заборонених слів з кількістю входжень
     const chipsContainer = document.getElementById('product-modal-banned-chips');
-    if (chipsContainer && wordCountsMap.size > 0) {
+    if (chipsContainer) {
         chipsContainer.innerHTML = '';
-        // Сортуємо за алфавітом для консистентності
-        const sortedWords = Array.from(wordCountsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-        sortedWords.forEach(([word, count]) => {
-            const chip = document.createElement('span');
-            chip.className = 'chip chip-error';
-            chip.textContent = `${word} (${count})`;
-            chipsContainer.appendChild(chip);
-        });
+        if (wordCountsMap.size > 0) {
+            // Сортуємо за алфавітом для консистентності
+            const sortedWords = Array.from(wordCountsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+            sortedWords.forEach(([word, count]) => {
+                const chip = document.createElement('span');
+                chip.className = 'chip chip-error';
+                chip.textContent = `${word} (${count})`;
+                chipsContainer.appendChild(chip);
+            });
+        }
     }
 }
 
@@ -306,6 +340,9 @@ function initModalHandlers() {
             panels.forEach(p => p.classList.remove('active'));
             const activePanel = document.querySelector(`[data-field="${field}"]`);
             if (activePanel) activePanel.classList.add('active');
+
+            // Оновити статистику для цього поля
+            updateModalStats(field);
         });
     });
 

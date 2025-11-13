@@ -31,13 +31,13 @@
     </div>
 
     <!-- Таби для вибору поля та кнопка копіювання -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px;">
-        <div class="filter-pills-container" id="product-text-field-pills">
-            <!-- Піли будуть динамічно створені на основі перевірених колонок -->
-        </div>
+    <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
         <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
             <span class="material-symbols-outlined">content_copy</span>
         </button>
+        <div class="filter-pills-container" id="product-text-field-pills" style="flex: 1;">
+            <!-- Піли будуть динамічно створені на основі перевірених колонок -->
+        </div>
     </div>
 
     <!-- Контент табів (динамічно створюється в JS) -->
