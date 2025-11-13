@@ -54,7 +54,7 @@
     background-color: var(--color-main-c);
     color: var(--color-main);
     
-    max-width: max-content;
+    max-width: 400px;
     padding-right: 16px;
 }
 
