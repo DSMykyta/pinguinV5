@@ -55,8 +55,9 @@ async function getCheckTabContentTemplate() {
 
 /**
  * Створити новий таб для результатів перевірки
+ * @param {boolean} skipAutoActivate - Чи пропустити автоматичну активацію (для відновлення)
  */
-export async function createCheckResultsTab() {
+export async function createCheckResultsTab(skipAutoActivate = false) {
     const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
 
     // Знайти слово для назви табу
@@ -139,10 +140,15 @@ export async function createCheckResultsTab() {
     addTabToState(tabId, selectedSheet, selectedWord, selectedColumn, true);
 
     // Активувати новий таб через клік (затримка для оновлення DOM)
-    setTimeout(() => {
-        console.log(`🖱️ Імітуємо клік по табу "${tabId}"`);
-        tabButton.click();
-    }, 50);
+    // ВИПРАВЛЕНО: Пропустити автоактивацію при відновленні табів
+    if (!skipAutoActivate) {
+        setTimeout(() => {
+            console.log(`🖱️ Імітуємо клік по табу "${tabId}"`);
+            tabButton.click();
+        }, 50);
+    } else {
+        console.log(`⏭️ Автоактивацію пропущено для табу "${tabId}"`);
+    }
 }
 
 /**
@@ -371,9 +377,6 @@ export async function restoreSavedTabs() {
 
     console.log(`🔄 Відновлення ${savedState.openTabs.length} збережених табів...`);
 
-    // Імпортувати необхідні модулі
-    const { performCheck } = await import('./banned-words-check.js');
-
     // Відновити кожен таб
     for (const tab of savedState.openTabs) {
         try {
@@ -398,7 +401,11 @@ export async function restoreSavedTabs() {
                 };
             }
 
-            // Виконати перевірку (це створить таб автоматично через createCheckResultsTab)
+            // ВИПРАВЛЕНО: Спочатку створити таб UI БЕЗ автоактивації
+            await createCheckResultsTab(true); // skipAutoActivate = true
+
+            // Тепер виконати перевірку вручну (контейнер вже існує)
+            const { performCheck } = await import('./banned-words-check.js');
             await performCheck(tab.sheetName, tab.wordId, tab.columnName);
 
             console.log(`✅ Таб відновлено: ${tab.tabId}`);
