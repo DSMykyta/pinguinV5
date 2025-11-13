@@ -149,17 +149,6 @@ function setupFieldTabs(columnNames) {
     });
 
     console.log(`✅ Створено ${columnsArray.length} піл(ів): ${columnsArray.join(', ')}`);
-
-    // Приховати pills контейнер якщо тільки одне поле
-    const pillsParentContainer = pillsContainer.closest('.filter-pills-container');
-    if (pillsParentContainer) {
-        if (columnsArray.length === 1) {
-            pillsParentContainer.style.display = 'none';
-            console.log('🙈 Приховано pills контейнер (тільки одне поле)');
-        } else {
-            pillsParentContainer.style.display = '';
-        }
-    }
 }
 
 /**

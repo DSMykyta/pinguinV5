@@ -41,26 +41,29 @@ export function checkTextForBannedWords(text, bannedWords) {
     bannedWords.forEach(word => {
         if (!word || word.length === 0) return;
 
+        // Перетворимо слово в lowercase для пошуку (якщо ще не lowercase)
+        const searchWord = typeof word === 'string' ? word.toLowerCase() : word;
+
         // Екрануємо спецсимволи regex
-        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const escapedWord = searchWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         // Використовуємо більш м'які межі слів
-        const regex = new RegExp(`(^|[^а-яїієґa-z])${escapedWord}($|[^а-яїієґa-z])`, 'gi');
-        const matches = cleanText.match(regex);
+        const globalRegex = new RegExp(`(^|[^а-яїієґa-z])${escapedWord}($|[^а-яїієґa-z])`, 'gi');
 
-        if (matches && matches.length > 0) {
-            // Знайти всі позиції входження
-            const positions = [];
-            let match;
-            const globalRegex = new RegExp(`(^|[^а-яїієґa-z])${escapedWord}($|[^а-яїієґa-z])`, 'gi');
+        // Підрахувати всі входження через exec loop
+        const positions = [];
+        let match;
+        let count = 0;
 
-            while ((match = globalRegex.exec(cleanText)) !== null) {
-                positions.push(match.index);
-            }
+        while ((match = globalRegex.exec(cleanText)) !== null) {
+            positions.push(match.index);
+            count++;
+        }
 
+        if (count > 0) {
             found.push({
-                word: word,
-                count: matches.length,
+                word: searchWord,
+                count: count,
                 positions: positions
             });
         }

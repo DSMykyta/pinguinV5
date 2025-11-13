@@ -262,4 +262,12 @@ body.is-modal-open {
 
 .product-text-stats .stat-label {
     font-size: 12px;
+    white-space: nowrap;
+}
+
+.product-text-stats .chip-list {
+    width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+    justify-content: flex-end;
 }
