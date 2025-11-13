@@ -11,17 +11,8 @@ export function initBannedWordsEvents() {
     // Слухаємо кліки на чекбоксах
     initCheckboxEvents();
 
-    // Слухаємо кліки на кнопках статусу
-    initStatusToggleEvents();
-
-    // Слухаємо кнопку масової зміни статусу (опціонально)
-    // initBulkActionButton();
-
-    // Слухаємо зміни фільтрів
-    initFilterEvents();
-
-    // Слухаємо сортування
-    initSortingEvents();
+    // ПРИМІТКА: Сортування ініціалізується окремо через initBannedWordsSorting() та initCheckTabSorting()
+    // ПРИМІТКА: Фільтри і пошук обробляються в banned-words-aside.js
 
     console.log('✅ Обробники подій Banned Words ініціалізовано');
 }
@@ -96,188 +87,9 @@ function updateHeaderCheckbox() {
     }
 }
 
-/**
- * Обробка кнопок зміни статусу
- */
-function initStatusToggleEvents() {
-    const contentContainer = document.getElementById('tab-content-container');
-    if (!contentContainer) return;
-
-    contentContainer.addEventListener('click', (e) => {
-        const button = e.target.closest('.status-toggle');
-        if (!button) return;
-
-        const productId = button.dataset.id;
-        const currentStatus = button.dataset.status === 'true';
-        const newStatus = !currentStatus;
-
-        // Оновлюємо статус
-        updateProductStatus(productId, newStatus);
-
-        // Оновлюємо UI кнопки
-        button.dataset.status = newStatus;
-        button.className = `status-toggle ${newStatus ? 'status-true' : 'status-false'}`;
-        button.textContent = newStatus ? 'TRUE' : 'FALSE';
-
-        // Перерендерюємо таблицю (щоб статистика оновилась)
-        renderTable(bannedWordsState.currentSheet);
-    });
-}
-
-/**
- * Обробка фільтрів
- */
-function initFilterEvents() {
-    // Фільтр за статусом
-    const statusFilter = document.getElementById('filter-status');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', (e) => {
-            bannedWordsState.filters.status = e.target.value;
-            renderTable(bannedWordsState.currentSheet);
-            console.log(`🔍 Фільтр статус: ${e.target.value}`);
-        });
-    }
-
-    // Фільтр за полем
-    const fieldFilter = document.getElementById('filter-field');
-    if (fieldFilter) {
-        fieldFilter.addEventListener('change', (e) => {
-            bannedWordsState.filters.field = e.target.value;
-            renderTable(bannedWordsState.currentSheet);
-            console.log(`🔍 Фільтр поле: ${e.target.value}`);
-        });
-    }
-
-    // Пошук за забороненим словом
-    const bannedWordSearch = document.getElementById('search-banned-word');
-    if (bannedWordSearch) {
-        bannedWordSearch.addEventListener('input', (e) => {
-            bannedWordsState.filters.bannedWord = e.target.value.toLowerCase();
-            renderTable(bannedWordsState.currentSheet);
-        });
-    }
-
-    // Пошук за ID/назвою товару
-    const productSearch = document.getElementById('search-product');
-    if (productSearch) {
-        productSearch.addEventListener('input', (e) => {
-            bannedWordsState.filters.productSearch = e.target.value.toLowerCase();
-            renderTable(bannedWordsState.currentSheet);
-        });
-    }
-}
-
-/**
- * Обробка сортування
- */
-function initSortingEvents() {
-    const contentContainer = document.getElementById('tab-content-container');
-    if (!contentContainer) return;
-
-    contentContainer.addEventListener('click', (e) => {
-        const header = e.target.closest('.sortable-header');
-        if (!header) return;
-
-        const sortKey = header.dataset.sortKey;
-        if (!sortKey) return;
-
-        // Оновлюємо стан сортування для поточного аркуша
-        const currentSheet = bannedWordsState.currentSheet;
-
-        if (!bannedWordsState.pagination[currentSheet]) {
-            bannedWordsState.pagination[currentSheet] = {
-                currentPage: 1,
-                pageSize: 25
-            };
-        }
-
-        const pagination = bannedWordsState.pagination[currentSheet];
-
-        // Перемикаємо напрямок сортування
-        if (pagination.sortKey === sortKey) {
-            pagination.sortDirection = pagination.sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            pagination.sortKey = sortKey;
-            pagination.sortDirection = 'asc';
-        }
-
-        // Оновлюємо індикатори сортування
-        updateSortIndicators(sortKey, pagination.sortDirection);
-
-        // Сортуємо результати
-        sortResults(sortKey, pagination.sortDirection);
-
-        // Перерендерюємо таблицю
-        renderTable(currentSheet);
-
-        console.log(`↕️ Сортування: ${sortKey} ${pagination.sortDirection}`);
-    });
-}
-
-/**
- * Оновити індикатори сортування в заголовках
- */
-function updateSortIndicators(activeSortKey, direction) {
-    const headers = document.querySelectorAll('.sortable-header');
-
-    headers.forEach(header => {
-        const indicator = header.querySelector('.sort-indicator');
-        if (!indicator) return;
-
-        const sortKey = header.dataset.sortKey;
-
-        if (sortKey === activeSortKey) {
-            indicator.textContent = direction === 'asc' ? '▲' : '▼';
-            indicator.style.opacity = '1';
-        } else {
-            indicator.textContent = '';
-            indicator.style.opacity = '0';
-        }
-    });
-}
-
-/**
- * Сортувати результати
- */
-function sortResults(sortKey, direction) {
-    const currentSheet = bannedWordsState.currentSheet;
-
-    // Отримуємо результати для поточного аркуша
-    const results = bannedWordsState.checkedResults.filter(r => r._sheetName === currentSheet);
-
-    results.sort((a, b) => {
-        let valueA, valueB;
-
-        switch (sortKey) {
-            case 'id':
-                valueA = a.id;
-                valueB = b.id;
-                break;
-            case 'titleRos':
-                valueA = a.titleRos.toLowerCase();
-                valueB = b.titleRos.toLowerCase();
-                break;
-            case 'status':
-                valueA = a.status ? 1 : 0;
-                valueB = b.status ? 1 : 0;
-                break;
-            default:
-                return 0;
-        }
-
-        if (valueA < valueB) return direction === 'asc' ? -1 : 1;
-        if (valueA > valueB) return direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    // Оновлюємо порядок в глобальному масиві
-    bannedWordsState.checkedResults = [
-        ...results,
-        ...bannedWordsState.checkedResults.filter(r => r._sheetName !== currentSheet)
-    ];
-}
-
-// initRefreshButton видалено - тепер функція в banned-words-init.js
+// Старі функції (initStatusToggleEvents, initFilterEvents, initSortingEvents) видалені
+// - Фільтрація і пошук тепер обробляються в banned-words-aside.js
+// - Сортування тепер обробляється через ui-table-sort.js
 
 /**
  * Ініціалізація сортування для таблиці заборонених слів (tab-manage)
@@ -333,7 +145,7 @@ export function initCheckTabSorting(tabId) {
     }
 
     const sortAPI = initTableSorting(container, {
-        dataSource: () => bannedWordsState.bannedWords,
+        dataSource: () => bannedWordsState.checkResults,
         onSort: async (sortedData) => {
             // Оновити результати перевірки
             bannedWordsState.checkResults = sortedData;
@@ -365,6 +177,6 @@ export function initCheckTabSorting(tabId) {
         }
     });
 
-    console.log('✅ Сортування заборонених слів (tab-manage) ініціалізовано');
+    console.log(`✅ Сортування для check tab ${tabId} ініціалізовано`);
     return sortAPI;
 }

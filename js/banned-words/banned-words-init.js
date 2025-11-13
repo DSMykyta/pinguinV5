@@ -11,7 +11,6 @@
  */
 
 import { initTooltips } from '../common/ui-tooltip.js';
-import { initTabsScroll } from '../common/ui-tabs-scroll.js';
 import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton } from './banned-words-aside.js';
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
@@ -139,9 +138,6 @@ async function initializeUIWithoutData() {
 
     // 2. Ініціалізувати обробники табів (не потребує даних)
     initTabHandlers();
-
-    // 2.5 Ініціалізувати горизонтальний скрол для табів
-    initTabsScroll('#tabs-head-container');
 
     // 3. Показати aside-check-panel (з селектами для перевірки)
     const checkPanel = document.getElementById('aside-check-panel');

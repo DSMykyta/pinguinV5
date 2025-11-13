@@ -7,7 +7,6 @@ import { initCustomSelects } from '../common/ui-select.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderPseudoTable, renderBadge, renderSeverityBadge } from '../common/ui-table.js';
-import { autoInitTabsScroll } from '../common/ui-tabs-scroll.js';
 
 /**
  * Рендер табу управління забороненими словами
@@ -48,8 +47,7 @@ export async function renderBannedWordsTable() {
          const primaryClass = isPrimary ? ' primary' : '';
          // Використовуємо escapeHtml, який вже імпортовано в цьому файлі
          const chipsHtml = words.map(word => `<span class="word-chip${primaryClass}">${escapeHtml(word)}</span>`).join('');
-         // Обгортаємо в data-tabs-scroll, щоб ваш компонент його підхопив
-         return `<div data-tabs-scroll><div class="cell-words-list">${chipsHtml}</div></div>`;
+         return `<div class="cell-words-list">${chipsHtml}</div>`;
      };
 
 
@@ -259,9 +257,6 @@ renderPseudoTable(container, {
             }
         });
     });
-
-    // Ініціалізувати нові скрол-компоненти, які ми щойно додали в комірки
-    autoInitTabsScroll();
 
     // Pagination вже ініціалізована в banned-words-init.js через initPagination()
 }

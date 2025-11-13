@@ -11,7 +11,6 @@ import { initEntityEvents } from './entities-events.js';
 import { initMarketplaceAdmin } from './entities-marketplace-admin.js';
 import { initSearchClear } from '../utils/search-clear.js';
 import { initTooltips } from '../common/ui-tooltip.js';
-import { initTabsScroll } from '../common/ui-tabs-scroll.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 
 // Глобальний state для entities
@@ -72,13 +71,10 @@ export function initEntities() {
     // 4. Ініціалізувати обробники подій (таби, кнопки, тощо)
     initEntityEvents();
 
-    // 5. Ініціалізувати горизонтальну прокрутку табів
-    initTabsScroll('#tabs-head-container');
-
-    // 6. Ініціалізувати адмін-панель маркетплейсів
+    // 5. Ініціалізувати адмін-панель маркетплейсів
     initMarketplaceAdmin();
 
-    // 7. Ініціалізувати Google Auth з callback для завантаження даних
+    // 6. Ініціалізувати Google Auth з callback для завантаження даних
     initGoogleAuth(() => {
         console.log('✅ Google Auth готова, завантажуємо дані...');
         loadAllEntitiesData().then(() => {

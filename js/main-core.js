@@ -5,7 +5,6 @@ import { initPanelRight } from './panel/panel-right.js';
 import { initDropdowns } from './common/ui-dropdown.js';
 import { initModals } from './common/ui-modal.js';
 import { initTabs } from './common/ui-tabs.js';
-import { autoInitTabsScroll } from './common/ui-tabs-scroll.js';
 import { initEventHandlers } from './utils/event-handlers.js';
 import { initSectionNavigator } from './panel/section-navigator.js';
 import { initCustomAuth } from './auth/custom-auth.js';
@@ -21,7 +20,6 @@ export function initCore() {
     initModals();
 
     initTabs();
-    autoInitTabsScroll();  // Автоматична ініціалізація горизонтального скролу
     initEventHandlers();
     initSectionNavigator();
 
