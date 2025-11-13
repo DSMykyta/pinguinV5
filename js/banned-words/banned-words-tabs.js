@@ -76,7 +76,7 @@ export async function createCheckResultsTab() {
     // Створити кнопку табу
     const tabsContainer = document.getElementById('tabs-head-container');
     const tabButton = document.createElement('button');
-    tabButton.className = 'segment tab-button';
+    tabButton.className = 'nav-icon';
     tabButton.dataset.tabTarget = tabId;
 
     const tabTemplate = await getCheckTabTemplate();
@@ -157,7 +157,7 @@ export function initTabHandlers() {
         e.stopPropagation();
 
         // Знайти батьківську кнопку табу
-        const tabButton = closeButton.closest('.tab-button, .segment');
+        const tabButton = closeButton.closest('.nav-icon');
         if (!tabButton) return;
 
         const tabId = tabButton.dataset.tabTarget;
@@ -183,7 +183,7 @@ export function initTabHandlers() {
     // Використовуємо делегування подій на document для надійності
     document.addEventListener('click', async (e) => {
         // Шукаємо клікнуту кнопку табу
-        const tabButton = e.target.closest('.tab-button, .segment');
+        const tabButton = e.target.closest('.nav-icon');
         if (!tabButton) return;
 
         // Перевіряємо чи є data-tab-target
@@ -200,7 +200,7 @@ export function initTabHandlers() {
         console.log(`🔄 Перемикання на таб: "${tabId}"`);
 
         // Знімаємо active з ВСІХ кнопок
-        tabsContainer.querySelectorAll('.tab-button, .segment').forEach(btn => {
+        tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
             btn.classList.remove('active');
         });
 

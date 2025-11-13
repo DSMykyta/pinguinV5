@@ -88,9 +88,9 @@
 
             <div id="auth-user-info" class="panel-item" style="display: none;">
                 <span class="material-symbols-outlined panel-item-icon">account_circle</span>
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <span id="auth-username-display" class="panel-item-text" style="font-size: 14px;"></span>
-                    <span id="auth-user-role-display" style="font-size: 12px; color: var(--text-secondary);"></span>
+                <div>
+                    <span class="material-symbols-outlined panel-item-icon" id="auth-username-display"></span>
+                    <span id="auth-user-role-display" class="panel-item-text"></span>
                 </div>
             </div>
 
@@ -108,15 +108,14 @@
         <!-- ФІКСОВАНА ШАПКА -->
         <header class="fixed-header">
 
-            <div class="connected-button-group-square tabs-head" role="group" aria-label="Таби"
-                data-tabs-container id="tabs-head-container">
-                <button class="segment tab-button active" data-tab-target="tab-manage">
-                    <div class="state-layer">
-                        <span class="label">Заборонені слова</span>
-                    </div>
+            <nav class="section-navigator" role="group" aria-label="Таби"
+                 data-tabs-container id="tabs-head-container">
+                <button class="nav-icon active" data-tab-target="tab-manage">
+                    <span class="material-symbols-outlined">lists</span>
+                    <span class="nav-icon-label">Заборонені слова</span>
                 </button>
-                <!-- Динамічні таби для аркушів додаються тут -->
-            </div>
+                <!-- Динамічні check таби додаються тут -->
+            </nav>
 
         </header>
 

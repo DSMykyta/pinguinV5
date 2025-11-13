@@ -67,7 +67,8 @@
 
 /* Показати кнопку при наведенні на таб (тільки для check табів) */
 .segment:not([data-tab-target="tab-manage"]):hover .tab-close-btn,
-.tab-button:not([data-tab-target="tab-manage"]):hover .tab-close-btn {
+.tab-button:not([data-tab-target="tab-manage"]):hover .tab-close-btn,
+.nav-icon:not([data-tab-target="tab-manage"]):hover .tab-close-btn {
     display: flex;
 }
 
@@ -93,4 +94,13 @@
 .segment:not([data-tab-target="tab-manage"]):has(.tab-close-btn):hover .state-layer,
 .tab-button:not([data-tab-target="tab-manage"]):has(.tab-close-btn):hover .state-layer {
     padding-right: 32px;
+}
+
+/* Для nav-icon структури */
+.nav-icon:not([data-tab-target="tab-manage"]) {
+    position: relative;
+}
+
+.nav-icon:not([data-tab-target="tab-manage"]):has(.tab-close-btn):hover {
+    padding-right: 40px;
 }
