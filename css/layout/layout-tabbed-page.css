@@ -16,6 +16,12 @@
  */
 
 /* Головний контейнер табованої сторінки */
+.content-main.tabbed-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
 
 /* Navigator в табах - абсолютне позиціювання, не займає місця в потоці */
 .tabbed-page .section-navigator {
@@ -35,7 +41,8 @@
 .tabbed-page .tab-content.is-active {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
     padding: 8px 24px;
     overflow: hidden;
 }
