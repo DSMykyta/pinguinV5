@@ -15,12 +15,6 @@
  */
 
 /* Головний контейнер табованої сторінки */
-.content-main.tabbed-page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-}
 
 /* HEADER - фіксований зверху */
 .tabbed-page .fixed-header {
