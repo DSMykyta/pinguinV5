@@ -1,13 +1,14 @@
 /**
  * LAYOUT: Tabbed Page
  *
- * Структура табованої сторінки з фіксованими header/footer
- * і контентом між ними.
+ * Структура табованої сторінки з навігацією по табах,
+ * контентом та фіксованим footer.
  *
  * ВИКОРИСТАННЯ:
  * <main class="content-main tabbed-page">
- *   <header class="fixed-header">...</header>
+ *   <nav class="section-navigator">...</nav>
  *   <div class="tab-content active">
+ *     <div class="section-header">...</div>
  *     <div class="pseudo-table-container">...</div>
  *   </div>
  *   <footer class="fixed-footer">...</footer>
@@ -22,15 +23,12 @@
     overflow: hidden;
 }
 
-/* HEADER - фіксований зверху */
-.tabbed-page .fixed-header {
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    gap: 16px;
-    background: var(--color-surface);
+/* Navigator в табах - абсолютне позиціювання, не займає місця в потоці */
+.tabbed-page .section-navigator {
+    position: absolute;
+    top: 8px;
+    margin-top: 0;
+    z-index: 300;
 }
 
 /* CONTENT - неактивні таби приховані */
@@ -38,30 +36,21 @@
     display: none;
 }
 
-/* CONTENT - активний таб займає весь простір між header і footer */
+/* CONTENT - активний таб займає весь доступний простір */
 .tabbed-page .tab-content.active,
 .tabbed-page .tab-content.is-active {
     display: flex;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
     flex-direction: column;
+    height: 100vh;
+    padding: 8px 24px;
+    overflow: hidden;
 }
 
-/* Section header в табах */
-.tabbed-page .section-header {
-    flex-shrink: 0;
-    padding: 16px 24px;
-    padding-top: 24px;
-}
 
 /* Pseudo Table Container в табах - розтягується на весь доступний простір */
 .tabbed-page .tab-content .pseudo-table-container {
-    flex: 1 1 auto;          /* ВИПРАВЛЕНО: auto замість 0 - дозволяє таблиці відображатися */
-    min-height: 0;           /* Дозволяє зменшуватися для скролу */
-    overflow-y: auto;        /* Вертикальний скрол */
-    overflow-x: hidden;      /* Без горизонтального скролу */
-    padding: 0 0 16px 0;     /* Тільки нижній padding - горизонтальний вже є в header */
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 /* Container для динамічних табів - "прозорий" контейнер */

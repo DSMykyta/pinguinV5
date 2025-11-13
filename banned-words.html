@@ -108,10 +108,7 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
-
-
-
-            <nav class="section-navigator" role="group" aria-label="Таби"
+        <nav class="section-navigator" role="group" aria-label="Таби"
                  data-tabs-container id="tabs-head-container">
                 <button class="nav-icon active" data-tab-target="tab-manage">
                     <span class="material-symbols-outlined">block</span>
@@ -119,9 +116,6 @@
                 </button>
                 <!-- Динамічні check таби додаються тут -->
             </nav>
-
-
-
         <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
         <div class="tab-content active" data-tab-content="tab-manage" id="tab-manage">
 
@@ -129,9 +123,14 @@
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>Заборонені слова</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
                     </div>
                     <h3 id="tab-stats-manage">Показано 0 з 0</h3>
                 </div>
+
+
                 <div class="tab-controls">
                     <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage">
                         <span class="material-symbols-outlined">list</span>
@@ -146,15 +145,13 @@
                         <span class="nav-icon-label">Перевірені</span>
                     </button>
 
-                    <button id="refresh-tab-manage" class="nav-icon" aria-label="Оновити таб">
+                    <button id="refresh-tab-manage" class="btn-icon" aria-label="Оновити таб">
                         <span class="material-symbols-outlined">refresh</span>
-                        <span class="nav-icon-label">Оновити</span>
                     </button>
 
                     <div class="dropdown-wrapper">
-                        <button class="nav-icon" data-dropdown-trigger aria-label="Вібір колонок">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вібір колонок">
                             <span class="material-symbols-outlined">view_column</span>
-                            <span class="nav-icon-label">Колонки</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-header">Показати колонки</div>
@@ -167,7 +164,7 @@
             </div>
 
             <!-- Table Container -->
-            <div id="banned-words-table-container" class="pseudo-table-container">
+            <div id="banned-words-table-container" class="pseudo-table-container" style="margin: 16px 0;">
                 <div class="loading-state">
                     <span class="material-symbols-outlined">key</span>
                     <p>Авторизуйтесь для завантаження даних</p>
