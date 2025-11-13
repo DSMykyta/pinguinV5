@@ -36,53 +36,59 @@ export function checkTextForBannedWords(text, bannedWords) {
     if (!text || !text.trim()) return found;
     if (!bannedWords || bannedWords.length === 0) return found;
 
-    // Видаляємо HTML теги для чистішого пошуку
-    const cleanText = text.replace(/<[^>]*>/g, ' ');
+    // Видаляємо HTML теги та нормалізуємо пробіли
+    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ');
 
-    // Дедуплікація і підготовка списку слів
+    // Дедуплікація заборонених слів
     const uniqueWords = [...new Set(bannedWords.map(w =>
         typeof w === 'string' ? w.toLowerCase().trim() : ''
     ))].filter(Boolean);
 
     if (uniqueWords.length === 0) return found;
 
-    // Сортування за довжиною (спадне) критичне для коректної роботи RegExp
-    const sortedWords = uniqueWords
-        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо
-        .sort((a, b) => b.length - a.length);
-
-    const regexBody = sortedWords.join('|');
-
-    // Будуємо regex з Unicode Property Escapes (як в gte-validator.js)
-    let validationRegex;
-    try {
-        validationRegex = new RegExp(`(?<!\\p{L})(${regexBody})(?!\\p{L})`, 'giu');
-    } catch (error) {
-        // Fallback для браузерів без підтримки Unicode Property Escapes
-        console.warn('Unicode Property Escapes не підтримуються, використовуємо fallback');
-        validationRegex = new RegExp(`(^|[^а-яїієґa-z])(${regexBody})($|[^а-яїієґa-z])`, 'gi');
-    }
-
-    // Підрахунок входжень для кожного слова (як в gte-validator.js)
+    // Підрахунок для кожного слова окремо
     const wordCounts = new Map();
-    validationRegex.lastIndex = 0;
-    let match;
 
-    while ((match = validationRegex.exec(cleanText)) !== null) {
-        const foundWord = match[1] || match[2]; // match[1] для Unicode, match[2] для fallback
-        if (foundWord) {
-            const word = foundWord.toLowerCase();
-            const currentCount = wordCounts.get(word) || 0;
-            wordCounts.set(word, currentCount + 1);
+    uniqueWords.forEach(bannedWord => {
+        // Екрануємо спецсимволи regex
+        const escapedWord = bannedWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+        // Створюємо regex для пошуку слова з word boundaries
+        // \b не працює з кирилицею, тому використовуємо власну перевірку
+        const wordRegex = new RegExp(`(^|[^а-яїієґёa-z])${escapedWord}($|[^а-яїієґёa-z])`, 'gi');
+
+        let count = 0;
+        let searchText = cleanText;
+        let offset = 0;
+
+        // Шукаємо всі входження
+        while (true) {
+            const match = wordRegex.exec(searchText);
+            if (!match) break;
+
+            count++;
+
+            // Зсуваємо позицію пошуку ОДРАЗУ після знайденого слова
+            // Це дозволяє знаходити послідовні входження
+            const matchEnd = match.index + match[0].length;
+            const wordEnd = match.index + match[1].length + bannedWord.length;
+
+            offset += wordEnd;
+            searchText = cleanText.slice(offset);
+            wordRegex.lastIndex = 0;
         }
-    }
+
+        if (count > 0) {
+            wordCounts.set(bannedWord, count);
+        }
+    });
 
     // Формуємо результат
     wordCounts.forEach((count, word) => {
         found.push({
             word: word,
             count: count,
-            positions: [] // Позиції не використовуються, але залишаємо для сумісності
+            positions: []
         });
     });
 
