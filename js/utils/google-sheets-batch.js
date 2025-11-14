@@ -1,5 +1,6 @@
 // js/utils/google-sheets-batch.js
 // Універсальна утиліта для пакетних операцій з Google Sheets API
+// ОНОВЛЕНО: використовує api-client.js замість прямих викликів gapi
 
 /**
  * ВИКОРИСТАННЯ:
@@ -21,6 +22,26 @@
  *   ]
  * });
  */
+
+// ID таблиць (потрібні для визначення spreadsheetType)
+const TEXTS_SPREADSHEET_ID = '1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM';
+const BANNED_SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+
+/**
+ * Визначити тип таблиці на основі spreadsheetId
+ * @param {string} spreadsheetId - ID таблиці
+ * @returns {string} Тип таблиці ('main' | 'texts')
+ */
+function getSpreadsheetType(spreadsheetId) {
+    if (spreadsheetId === TEXTS_SPREADSHEET_ID) {
+        return 'texts';
+    }
+    if (spreadsheetId === BANNED_SPREADSHEET_ID) {
+        return 'main';
+    }
+    // За замовчуванням - main
+    return 'main';
+}
 
 /**
  * Конвертувати назву колонки (A, B, C, ..., AA, AB) в індекс (0, 1, 2, ...)
@@ -87,6 +108,9 @@ export async function batchUpdate(config) {
     try {
         console.log(`📦 Batch update: ${updates.length} комірок...`);
 
+        // Визначити тип таблиці
+        const spreadsheetType = getSpreadsheetType(spreadsheetId);
+
         // Перетворити оновлення в формат Google Sheets API
         const data = updates.map(update => {
             const { sheet, row, column, value } = update;
@@ -106,23 +130,23 @@ export async function batchUpdate(config) {
 
         console.log(`📋 Перші 3 оновлення:`, data.slice(0, 3));
 
-        // Викликати Batch Update API
-        const response = await gapi.client.sheets.spreadsheets.values.batchUpdate({
-            spreadsheetId,
-            resource: {
-                data,
-                valueInputOption: raw ? 'RAW' : 'USER_ENTERED'
-            }
-        });
+        // Перевірити наявність API client
+        if (!window.apiClient || !window.apiClient.sheets || !window.apiClient.sheets.batchUpdate) {
+            throw new Error('API Client не ініціалізовано. Переконайтеся, що api-client.js завантажений.');
+        }
 
-        const result = response.result;
-        const updatedCells = result.totalUpdatedCells || 0;
+        // Викликати Batch Update API через backend proxy
+        const response = await window.apiClient.sheets.batchUpdate(data, spreadsheetType);
+
+        // response.data містить result від backend
+        const result = response.data || response;
+        const updatedCells = result.totalUpdatedCells || updates.length;
 
         console.log(`✅ Batch update complete: ${updatedCells} комірок оновлено`);
 
         return {
             updatedCells,
-            updatedRanges: result.responses?.length || 0,
+            updatedRanges: result.responses?.length || data.length,
             response: result
         };
 
@@ -131,7 +155,7 @@ export async function batchUpdate(config) {
         if (error.result && error.result.error) {
             console.error('📋 Деталі помилки:', error.result.error);
         }
-        throw new Error(`Batch update failed: ${error.result?.error?.message || error.message}`);
+        throw new Error(`Batch update failed: ${error.message}`);
     }
 }
 
@@ -173,15 +197,19 @@ export async function batchGet(config) {
     try {
         console.log(`📦 Batch get: ${ranges.length} діапазонів...`);
 
-        // Викликати Batch Get API
-        const response = await gapi.client.sheets.spreadsheets.values.batchGet({
-            spreadsheetId,
-            ranges,
-            majorDimension
-        });
+        // Визначити тип таблиці
+        const spreadsheetType = getSpreadsheetType(spreadsheetId);
 
-        const result = response.result;
-        const valueRanges = result.valueRanges || [];
+        // Перевірити наявність API client
+        if (!window.apiClient || !window.apiClient.sheets || !window.apiClient.sheets.batchGet) {
+            throw new Error('API Client не ініціалізовано. Переконайтеся, що api-client.js завантажений.');
+        }
+
+        // Викликати Batch Get API через backend proxy
+        const response = await window.apiClient.sheets.batchGet(ranges, spreadsheetType);
+
+        // response.data містить масив valueRanges
+        const valueRanges = response.data || response.result?.valueRanges || [];
 
         console.log(`✅ Batch get complete: ${valueRanges.length} діапазонів прочитано`);
 
@@ -228,14 +256,25 @@ export async function batchClear(config) {
     try {
         console.log(`📦 Batch clear: ${ranges.length} діапазонів...`);
 
-        // Викликати Batch Clear API
-        const response = await gapi.client.sheets.spreadsheets.values.batchClear({
-            spreadsheetId,
-            resource: { ranges }
-        });
+        // Визначити тип таблиці
+        const spreadsheetType = getSpreadsheetType(spreadsheetId);
 
-        const result = response.result;
-        const clearedRanges = result.clearedRanges?.length || 0;
+        // Очищення = batchUpdate з порожніми значеннями
+        const data = ranges.map(range => ({
+            range,
+            values: [['']]  // Порожнє значення
+        }));
+
+        // Перевірити наявність API client
+        if (!window.apiClient || !window.apiClient.sheets || !window.apiClient.sheets.batchUpdate) {
+            throw new Error('API Client не ініціалізовано. Переконайтеся, що api-client.js завантажений.');
+        }
+
+        // Викликати Batch Update з порожніми значеннями
+        const response = await window.apiClient.sheets.batchUpdate(data, spreadsheetType);
+
+        const result = response.data || response;
+        const clearedRanges = ranges.length;
 
         console.log(`✅ Batch clear complete: ${clearedRanges} діапазонів очищено`);
 
