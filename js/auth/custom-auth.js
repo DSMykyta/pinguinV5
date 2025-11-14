@@ -223,9 +223,11 @@ function updateAuthUI(isAuthorized) {
 
     // Заповнюємо дані користувача
     const user = getUserData();
+    console.log('👤 User data from localStorage:', user);
 
     // Показуємо display_name якщо є, інакше username
     const displayText = user.display_name || user.username || '';
+    console.log('📝 Display text:', displayText, '(display_name:', user.display_name, ', username:', user.username, ')');
     if (usernameDisplay) usernameDisplay.textContent = displayText;
 
     if (userRoleDisplay) {
@@ -284,13 +286,17 @@ function updateEditButtons(role) {
  * Оновлює аватар користувача в auth-user-info
  */
 function updateUserAvatar(avatarName) {
+  console.log('🖼️ updateUserAvatar called with:', avatarName);
+
   // Знаходимо контейнер для аватара
   const avatarContainers = document.querySelectorAll('#auth-user-avatar-container');
+  console.log('📦 Found avatar containers:', avatarContainers.length);
 
   avatarContainers.forEach(container => {
     if (avatarName) {
       // Є аватар - показуємо його
       const avatarPath = getAvatarPath(avatarName, 'calm');
+      console.log('🎨 Avatar path:', avatarPath);
 
       container.innerHTML = `
         <div class="auth-avatar">
@@ -299,6 +305,7 @@ function updateUserAvatar(avatarName) {
       `;
     } else {
       // Немає аватара - показуємо іконку person
+      console.log('⚠️ No avatar name provided, showing person icon');
       container.innerHTML = `
         <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-primary);">person</span>
       `;
