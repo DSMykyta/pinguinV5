@@ -194,9 +194,14 @@ function showError(message) {
  */
 function initRefreshButton() {
     const refreshBtn = document.getElementById('refresh-tab-users');
-    if (!refreshBtn) return;
+    if (!refreshBtn) {
+        console.error('❌ Кнопка #refresh-tab-users не знайдена');
+        return;
+    }
 
+    console.log('✅ Кнопка оновлення ініціалізована');
     refreshBtn.addEventListener('click', async () => {
+        console.log('🔄 Клік на кнопку оновлення');
         const user = window.currentUser;
         if (user) {
             await checkAuthAndLoadData(user);
@@ -211,9 +216,14 @@ function initRefreshButton() {
  */
 function initAddUserButton() {
     const addBtn = document.getElementById('add-user-btn');
-    if (!addBtn) return;
+    if (!addBtn) {
+        console.error('❌ Кнопка #add-user-btn не знайдена');
+        return;
+    }
 
+    console.log('✅ Кнопка додавання користувача ініціалізована');
     addBtn.addEventListener('click', () => {
+        console.log('➕ Клік на кнопку додавання користувача');
         // Викликати модалку додавання користувача
         const event = new CustomEvent('open-add-user-modal');
         document.dispatchEvent(event);
