@@ -184,6 +184,24 @@ Role: Editor
 - Обмежений доступ (не публічний)
 - Service Account: `pinguin-v5-backend@spatial-vision-473814-d7.iam.gserviceaccount.com`
 
+### Налаштування Vercel Environment Variables
+
+**КРИТИЧНО ВАЖЛИВО:** Щоб Users Admin працював, потрібно налаштувати змінні середовища на Vercel:
+
+1. Відкрийте [Vercel Dashboard](https://vercel.com/dashboard)
+2. Оберіть проєкт **pinguin-v5**
+3. Перейдіть в **Settings** → **Environment Variables**
+4. Додайте наступні змінні:
+
+```
+SPREADSHEET_ID_USERS=1XE9C6eByiQOoJ_3WNewlMO4QjUpSR-eXI-M6eDn20ls
+```
+
+5. Натисніть **Save**
+6. **Redeploy** проєкт (Settings → Deployments → ... → Redeploy)
+
+⚠️ **Без цієї змінної Users Admin НЕ працюватиме!**
+
 ### Безпека паролів
 
 **Хешування:**
