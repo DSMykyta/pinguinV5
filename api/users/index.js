@@ -203,15 +203,15 @@ async function handleCreate(req, res) {
  */
 async function handleUpdate(req, res) {
   try {
-    const { id, username, role } = req.body;
+    const { id, username, role, newPassword } = req.body;
 
     // Валідація вхідних даних
     if (!id) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    if (!username && !role) {
-      return res.status(400).json({ error: 'At least username or role must be provided' });
+    if (!username && !role && !newPassword) {
+      return res.status(400).json({ error: 'At least username, role, or newPassword must be provided' });
     }
 
     // Валідація role (якщо передано)
@@ -222,6 +222,11 @@ async function handleUpdate(req, res) {
           error: 'Invalid role. Must be: admin, editor, or viewer'
         });
       }
+    }
+
+    // Валідація пароля (якщо передано)
+    if (newPassword && newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
     // Читання користувачів з Users Database
@@ -248,11 +253,17 @@ async function handleUpdate(req, res) {
     const updatedUsername = username || userRow[1];
     const updatedRole = role || userRow[3];
 
+    // Хешувати новий пароль якщо передано
+    let updatedPasswordHash = userRow[2]; // За замовчуванням старий хеш
+    if (newPassword) {
+      updatedPasswordHash = await bcrypt.hash(newPassword, 12);
+    }
+
     // Оновлення в Users Database
     const rowNumber = userIndex + 2;
     await updateValues(`Users!B${rowNumber}:D${rowNumber}`, [[
       updatedUsername,
-      userRow[2], // password_hash (не змінюється)
+      updatedPasswordHash,
       updatedRole
     ]], 'users');
 
