@@ -149,7 +149,8 @@ async function handleAddUser() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Створення...';
 
-        const response = await window.apiClient.post('/api/users/create', {
+        const response = await window.apiClient.post('/api/users', {
+            action: 'create',
             username,
             password,
             role
@@ -243,7 +244,7 @@ async function handleEditUser() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Збереження...';
 
-        const response = await window.apiClient.put('/api/users/update', {
+        const response = await window.apiClient.put('/api/users', {
             id,
             username,
             role
@@ -326,7 +327,7 @@ async function handleDeleteUser() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Видалення...';
 
-        const response = await window.apiClient.delete('/api/users/delete', { id });
+        const response = await window.apiClient.delete('/api/users', { id });
 
         if (response.success) {
             console.log('✅ Користувача видалено');
@@ -421,7 +422,8 @@ async function handleResetPassword() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Скидання...';
 
-        const response = await window.apiClient.post('/api/users/reset-password', {
+        const response = await window.apiClient.post('/api/users', {
+            action: 'reset-password',
             id,
             newPassword
         });

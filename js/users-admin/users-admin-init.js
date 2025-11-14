@@ -162,7 +162,7 @@ async function loadUsers() {
     try {
         console.log('📥 Завантаження користувачів...');
 
-        const response = await window.apiClient.get('/api/users/list');
+        const response = await window.apiClient.get('/api/users');
 
         if (response.success) {
             usersAdminState.users = response.users;
