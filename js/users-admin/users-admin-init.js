@@ -14,7 +14,7 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { renderUsersTable } from './users-admin-manage.js';
 import { initModals } from './users-admin-modals.js';
 import { initPaginationForUsers } from './users-admin-pagination.js';
-import { initColumnVisibilityControls } from '../common/ui-column-visibility.js';
+import { createColumnSelector } from '../common/ui-table-columns.js';
 
 /**
  * Глобальний state для users admin модуля
@@ -223,23 +223,20 @@ function initAddUserButton() {
  */
 function initColumnVisibility() {
     const columns = [
-        { id: 'username', label: 'Ім\'я користувача', visible: true },
-        { id: 'role', label: 'Роль', visible: true },
-        { id: 'created_at', label: 'Дата створення', visible: true },
-        { id: 'last_login', label: 'Останній вхід', visible: true },
-        { id: 'actions', label: 'Дії', visible: true }
+        { id: 'username', label: 'Ім\'я користувача', checked: true },
+        { id: 'role', label: 'Роль', checked: true },
+        { id: 'created_at', label: 'Дата створення', checked: true },
+        { id: 'last_login', label: 'Останній вхід', checked: true },
+        { id: 'actions', label: 'Дії', checked: true }
     ];
 
-    usersAdminState.visibleColumns = columns.filter(c => c.visible).map(c => c.id);
+    usersAdminState.visibleColumns = columns.filter(c => c.checked).map(c => c.id);
 
-    initColumnVisibilityControls('table-columns-list', columns, (columnId, visible) => {
-        if (visible) {
-            if (!usersAdminState.visibleColumns.includes(columnId)) {
-                usersAdminState.visibleColumns.push(columnId);
-            }
-        } else {
-            usersAdminState.visibleColumns = usersAdminState.visibleColumns.filter(id => id !== columnId);
+    createColumnSelector('table-columns-list', columns, {
+        checkboxPrefix: 'users-col',
+        onChange: (selectedIds) => {
+            usersAdminState.visibleColumns = selectedIds;
+            renderUsersTable();
         }
-        renderUsersTable();
     });
 }
