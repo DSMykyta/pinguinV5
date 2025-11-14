@@ -5,6 +5,7 @@
  */
 
 import { showModal, closeModal } from '../common/ui-modal.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -222,7 +223,11 @@ function updateAuthUI(isAuthorized) {
 
     // Заповнюємо дані користувача
     const user = getUserData();
-    if (usernameDisplay) usernameDisplay.textContent = user.username || '';
+
+    // Показуємо display_name якщо є, інакше username
+    const displayText = user.display_name || user.username || '';
+    if (usernameDisplay) usernameDisplay.textContent = displayText;
+
     if (userRoleDisplay) {
       const roleLabels = {
         admin: 'Адміністратор',
@@ -231,6 +236,9 @@ function updateAuthUI(isAuthorized) {
       };
       userRoleDisplay.textContent = roleLabels[user.role] || user.role;
     }
+
+    // Оновлюємо аватар
+    updateUserAvatar(user.avatar);
 
     // Показуємо посилання що потребують авторизації
     authRequiredLinks.forEach(link => {
@@ -270,6 +278,52 @@ function updateEditButtons(role) {
       btn.style.display = 'none';
     });
   }
+}
+
+/**
+ * Оновлює аватар користувача в auth-user-info
+ */
+function updateUserAvatar(avatarName) {
+  // Знаходимо всі блоки auth-user-info на сторінці
+  const userInfoBlocks = document.querySelectorAll('#auth-user-info');
+
+  userInfoBlocks.forEach(userInfo => {
+    // Шукаємо іконку person або існуючий аватар
+    let avatarContainer = userInfo.querySelector('.auth-avatar');
+    const personIcon = userInfo.querySelector('.material-symbols-outlined');
+
+    if (avatarName) {
+      // Є аватар - показуємо його
+      const avatarPath = getAvatarPath(avatarName, 'calm');
+
+      if (!avatarContainer) {
+        // Створюємо контейнер аватара
+        avatarContainer = document.createElement('div');
+        avatarContainer.className = 'auth-avatar';
+
+        // Замінюємо іконку person на аватар
+        if (personIcon && personIcon.parentElement) {
+          personIcon.parentElement.replaceChild(avatarContainer, personIcon);
+        }
+      }
+
+      // Оновлюємо зображення аватара
+      avatarContainer.innerHTML = `
+        <img src="${avatarPath}" alt="Avatar" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px; color: var(--text-primary);\\'>person</span>'">
+      `;
+    } else {
+      // Немає аватара - показуємо іконку person
+      if (avatarContainer) {
+        // Замінюємо аватар на іконку
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined';
+        icon.style.fontSize = '20px';
+        icon.style.color = 'var(--text-primary)';
+        icon.textContent = 'person';
+        avatarContainer.parentElement.replaceChild(icon, avatarContainer);
+      }
+    }
+  });
 }
 
 /**

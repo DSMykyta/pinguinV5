@@ -127,6 +127,10 @@ export function renderAvatarSelector(selectedAvatar = null, containerId = 'avata
         return;
     }
 
+    // Визначаємо ID для прихованого input та превью на основі containerId
+    const inputId = containerId === 'avatar-selector' ? 'selected-avatar' : 'selected-avatar-edit';
+    const previewId = containerId === 'avatar-selector' ? 'avatar-preview' : 'avatar-preview-edit';
+
     let html = '<div class="avatar-selector">';
 
     availableAvatars.forEach(avatar => {
@@ -143,6 +147,11 @@ export function renderAvatarSelector(selectedAvatar = null, containerId = 'avata
     html += '</div>';
     container.innerHTML = html;
 
+    // Оновлюємо превью для вже обраного аватара
+    if (selectedAvatar) {
+        updateAvatarPreview(selectedAvatar, previewId);
+    }
+
     // Додаємо обробники кліків
     container.querySelectorAll('.avatar-option').forEach(option => {
         option.addEventListener('click', function() {
@@ -155,13 +164,13 @@ export function renderAvatarSelector(selectedAvatar = null, containerId = 'avata
             this.classList.add('selected');
 
             // Оновлюємо прихований input
-            const avatarInput = document.getElementById('selected-avatar');
+            const avatarInput = document.getElementById(inputId);
             if (avatarInput) {
                 avatarInput.value = this.dataset.avatarName;
             }
 
             // Оновлюємо превью
-            updateAvatarPreview(this.dataset.avatarName);
+            updateAvatarPreview(this.dataset.avatarName, previewId);
 
             // Генеруємо подію зміни
             container.dispatchEvent(new CustomEvent('avatar-changed', {
@@ -174,8 +183,8 @@ export function renderAvatarSelector(selectedAvatar = null, containerId = 'avata
 /**
  * Оновлює превью обраного аватара
  */
-function updateAvatarPreview(avatarName) {
-    const preview = document.getElementById('avatar-preview');
+function updateAvatarPreview(avatarName, previewId = 'avatar-preview') {
+    const preview = document.getElementById(previewId);
     if (!preview) return;
 
     if (!avatarName) {
