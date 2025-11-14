@@ -38,6 +38,8 @@ function handleModalOpened(event) {
         initAddUserHandlers();
     } else if (modalId === 'user-edit') {
         initEditUserHandlers();
+    } else if (modalId === 'user-reset-password') {
+        initResetPasswordHandlers();
     }
 }
 
@@ -138,7 +140,6 @@ async function openEditUserModal(user) {
     document.getElementById('edit-user-id').value = user.id;
     document.getElementById('edit-username').value = user.username;
     document.getElementById('edit-role').value = user.role;
-    document.getElementById('edit-new-password').value = '';
 }
 
 /**
@@ -146,9 +147,12 @@ async function openEditUserModal(user) {
  */
 function initEditUserHandlers() {
     const saveBtn = document.getElementById('save-user-edit');
-    if (!saveBtn) return;
+    const resetPasswordBtn = document.getElementById('reset-user-password');
+    const deleteBtn = document.getElementById('delete-user');
 
-    saveBtn.onclick = handleEditUser;
+    if (saveBtn) saveBtn.onclick = handleEditUser;
+    if (resetPasswordBtn) resetPasswordBtn.onclick = () => openResetPasswordModal(currentEditUser);
+    if (deleteBtn) deleteBtn.onclick = () => handleDeleteUser(currentEditUser);
 }
 
 /**
@@ -158,7 +162,6 @@ async function handleEditUser() {
     const id = document.getElementById('edit-user-id').value;
     const username = document.getElementById('edit-username').value.trim();
     const role = document.getElementById('edit-role').value;
-    const newPassword = document.getElementById('edit-new-password').value;
 
     // Валідація
     if (!username || !role) {
@@ -168,23 +171,14 @@ async function handleEditUser() {
 
     try {
         const saveBtn = document.getElementById('save-user-edit');
-        const originalText = saveBtn.querySelector('.label').textContent;
         saveBtn.disabled = true;
         saveBtn.querySelector('.label').textContent = 'Збереження...';
 
-        // Підготувати дані для оновлення
-        const updateData = {
+        const response = await window.apiClient.put('/api/users', {
             id,
             username,
             role
-        };
-
-        // Якщо введено новий пароль, додати його
-        if (newPassword) {
-            updateData.newPassword = newPassword;
-        }
-
-        const response = await window.apiClient.put('/api/users', updateData);
+        });
 
         if (response.success) {
             console.log('✅ Користувача оновлено:', response.user);
@@ -203,7 +197,7 @@ async function handleEditUser() {
             await renderUsersTable();
 
             closeModal();
-            showToast(newPassword ? 'Дані користувача та пароль оновлено' : 'Дані користувача оновлено', 'success');
+            showToast('Дані користувача оновлено', 'success');
         } else {
             throw new Error(response.error || 'Failed to update user');
         }
@@ -216,5 +210,135 @@ async function handleEditUser() {
             saveBtn.disabled = false;
             saveBtn.querySelector('.label').textContent = 'Зберегти';
         }
+    }
+}
+
+// =========================================================================
+// МОДАЛКА: ЗМІНА ПАРОЛЯ
+// =========================================================================
+
+/**
+ * Відкриває модалку зміни пароля
+ */
+async function openResetPasswordModal(user) {
+    await showModal('user-reset-password');
+
+    // Заповнити дані
+    document.getElementById('reset-password-user-id').value = user.id;
+    document.getElementById('reset-password-username').textContent = user.username;
+    document.getElementById('reset-new-password').value = '';
+    document.getElementById('reset-confirm-password').value = '';
+}
+
+/**
+ * Ініціалізує обробники для модалки зміни пароля
+ */
+function initResetPasswordHandlers() {
+    const saveBtn = document.getElementById('save-password-reset');
+    if (!saveBtn) return;
+
+    saveBtn.onclick = handleResetPassword;
+}
+
+/**
+ * Обробляє зміну пароля
+ */
+async function handleResetPassword() {
+    const id = document.getElementById('reset-password-user-id').value;
+    const newPassword = document.getElementById('reset-new-password').value;
+    const confirmPassword = document.getElementById('reset-confirm-password').value;
+
+    // Валідація
+    if (!newPassword || !confirmPassword) {
+        showToast('Заповніть всі поля', 'error');
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        showToast('Паролі не збігаються', 'error');
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        showToast('Пароль має бути мінімум 6 символів', 'error');
+        return;
+    }
+
+    try {
+        const saveBtn = document.getElementById('save-password-reset');
+        saveBtn.disabled = true;
+        saveBtn.querySelector('.label').textContent = 'Зміна...';
+
+        const response = await window.apiClient.put('/api/users', {
+            id,
+            newPassword
+        });
+
+        if (response.success) {
+            console.log('✅ Пароль змінено');
+
+            closeModal();
+            showToast('Пароль успішно змінено', 'success');
+        } else {
+            throw new Error(response.error || 'Failed to reset password');
+        }
+    } catch (error) {
+        console.error('❌ Помилка зміни пароля:', error);
+        showToast(error.message || 'Не вдалося змінити пароль', 'error');
+    } finally {
+        const saveBtn = document.getElementById('save-password-reset');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.querySelector('.label').textContent = 'Змінити пароль';
+        }
+    }
+}
+
+// =========================================================================
+// ВИДАЛЕННЯ КОРИСТУВАЧА
+// =========================================================================
+
+/**
+ * Обробляє видалення користувача
+ */
+async function handleDeleteUser(user) {
+    const { showConfirmModal } = await import('../common/ui-modal.js');
+
+    const confirmed = await showConfirmModal({
+        title: 'Видалити користувача?',
+        message: `Ви впевнені що хочете видалити користувача <strong>${user.username}</strong>? Цю дію неможливо відмінити.`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger'
+    });
+
+    if (!confirmed) return;
+
+    try {
+        const response = await window.apiClient.delete('/api/users', { id: user.id });
+
+        if (response.success) {
+            console.log('✅ Користувача видалено');
+
+            // Видалити з state
+            usersAdminState.users = usersAdminState.users.filter(u => u.id !== user.id);
+            usersAdminState.pagination.totalItems = usersAdminState.users.length;
+
+            // Оновити пагінацію
+            if (usersAdminState.paginationAPI) {
+                usersAdminState.paginationAPI.updateTotalItems(usersAdminState.users.length);
+            }
+
+            // Перерендерити таблицю
+            await renderUsersTable();
+
+            closeModal();
+            showToast('Користувача видалено', 'success');
+        } else {
+            throw new Error(response.error || 'Failed to delete user');
+        }
+    } catch (error) {
+        console.error('❌ Помилка видалення користувача:', error);
+        showToast(error.message || 'Не вдалося видалити користувача', 'error');
     }
 }
