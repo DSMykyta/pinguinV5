@@ -228,6 +228,6 @@ function initAddUserButton() {
  * Ініціалізує контроль видимості колонок
  */
 function initColumnVisibility() {
-    // Фіксований порядок колонок: Дії, Ім'я, Роль, Останній вхід
-    usersAdminState.visibleColumns = ['actions', 'username', 'role', 'last_login'];
+    // Фіксований порядок колонок: Дії, Аватар, Ім'я, Роль, Останній вхід
+    usersAdminState.visibleColumns = ['actions', 'avatar', 'username', 'role', 'last_login'];
 }

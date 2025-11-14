@@ -9,6 +9,7 @@
  */
 
 import { usersAdminState } from './users-admin-init.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
  * Рендерить таблицю користувачів з пагінацією
@@ -44,6 +45,7 @@ export async function renderUsersTable() {
 function generateTableHTML(users, visibleColumns) {
     const columnConfig = {
         actions: { label: 'Дії', width: '80px' },
+        avatar: { label: '', width: '50px' },
         username: { label: 'Ім\'я користувача', width: '250px' },
         role: { label: 'Роль', width: '120px' },
         last_login: { label: 'Останній вхід', width: '180px' }
@@ -96,6 +98,7 @@ function generateTableHTML(users, visibleColumns) {
 function generateUserRow(user, visibleColumns) {
     const columnConfig = {
         actions: { label: 'Дії', width: '80px' },
+        avatar: { label: '', width: '50px' },
         username: { label: 'Ім\'я користувача', width: '250px' },
         role: { label: 'Роль', width: '120px' },
         last_login: { label: 'Останній вхід', width: '180px' }
@@ -113,6 +116,15 @@ function generateUserRow(user, visibleColumns) {
                     <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
                     </button>
+                </div>
+            `;
+        } else if (columnId === 'avatar') {
+            const avatarHtml = user.avatar
+                ? `<div class="table-avatar"><img src="${getAvatarPath(user.avatar, 'calm')}" alt="${user.avatar}" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px;\\'>person</span>'"></div>`
+                : `<span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-secondary);">person</span>`;
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width}; text-align: center;">
+                    ${avatarHtml}
                 </div>
             `;
         } else if (columnId === 'username') {

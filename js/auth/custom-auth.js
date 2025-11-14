@@ -284,44 +284,24 @@ function updateEditButtons(role) {
  * Оновлює аватар користувача в auth-user-info
  */
 function updateUserAvatar(avatarName) {
-  // Знаходимо всі блоки auth-user-info на сторінці
-  const userInfoBlocks = document.querySelectorAll('#auth-user-info');
+  // Знаходимо контейнер для аватара
+  const avatarContainers = document.querySelectorAll('#auth-user-avatar-container');
 
-  userInfoBlocks.forEach(userInfo => {
-    // Шукаємо іконку person або існуючий аватар
-    let avatarContainer = userInfo.querySelector('.auth-avatar');
-    const personIcon = userInfo.querySelector('.material-symbols-outlined');
-
+  avatarContainers.forEach(container => {
     if (avatarName) {
       // Є аватар - показуємо його
       const avatarPath = getAvatarPath(avatarName, 'calm');
 
-      if (!avatarContainer) {
-        // Створюємо контейнер аватара
-        avatarContainer = document.createElement('div');
-        avatarContainer.className = 'auth-avatar';
-
-        // Замінюємо іконку person на аватар
-        if (personIcon && personIcon.parentElement) {
-          personIcon.parentElement.replaceChild(avatarContainer, personIcon);
-        }
-      }
-
-      // Оновлюємо зображення аватара
-      avatarContainer.innerHTML = `
-        <img src="${avatarPath}" alt="Avatar" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px; color: var(--text-primary);\\'>person</span>'">
+      container.innerHTML = `
+        <div class="auth-avatar">
+          <img src="${avatarPath}" alt="Avatar" onerror="this.parentElement.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px; color: var(--text-primary);\\'>person</span>'">
+        </div>
       `;
     } else {
       // Немає аватара - показуємо іконку person
-      if (avatarContainer) {
-        // Замінюємо аватар на іконку
-        const icon = document.createElement('span');
-        icon.className = 'material-symbols-outlined';
-        icon.style.fontSize = '20px';
-        icon.style.color = 'var(--text-primary)';
-        icon.textContent = 'person';
-        avatarContainer.parentElement.replaceChild(icon, avatarContainer);
-      }
+      container.innerHTML = `
+        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-primary);">person</span>
+      `;
     }
   });
 }
