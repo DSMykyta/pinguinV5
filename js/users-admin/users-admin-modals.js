@@ -73,8 +73,11 @@ function createModalStructure() {
  */
 function closeModal() {
     if (modalWrapper) {
-        modalWrapper.style.display = 'none';
-        modalWrapper.querySelector('.modal-body').innerHTML = '';
+        modalWrapper.classList.remove('is-open');
+        setTimeout(() => {
+            modalWrapper.style.display = 'none';
+            modalWrapper.querySelector('.modal-body').innerHTML = '';
+        }, 200); // Затримка для анімації
     }
 }
 
@@ -84,6 +87,10 @@ function closeModal() {
 function showModal() {
     if (modalWrapper) {
         modalWrapper.style.display = 'flex';
+        // Додаємо клас is-open після короткої затримки для анімації
+        setTimeout(() => {
+            modalWrapper.classList.add('is-open');
+        }, 10);
     }
 }
 
@@ -95,9 +102,6 @@ function showModal() {
  * Відкриває модалку додавання користувача
  */
 function openAddUserModal() {
-    console.log('📝 openAddUserModal() викликано');
-    console.log('modalWrapper:', modalWrapper);
-
     const titleEl = modalWrapper.querySelector('.modal-title');
     const bodyEl = modalWrapper.querySelector('.modal-body');
     const submitBtn = document.getElementById('modal-submit-btn');
@@ -197,9 +201,6 @@ async function handleAddUser() {
  * Відкриває модалку редагування користувача
  */
 function openEditUserModal(user) {
-    console.log('✏️ openEditUserModal() викликано для користувача:', user);
-    console.log('modalWrapper:', modalWrapper);
-
     const titleEl = modalWrapper.querySelector('.modal-title');
     const bodyEl = modalWrapper.querySelector('.modal-body');
     const submitBtn = document.getElementById('modal-submit-btn');
