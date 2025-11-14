@@ -1,3 +1,39 @@
+// api/sheets/proxy.js
+
+// =========================================================================
+// ПРОКСІ ДЛЯ ОПЕРАЦІЙ З GOOGLE SHEETS (З АВТОРИЗАЦІЄЮ)
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Універсальний проксі для всіх операцій з Google Sheets API.
+// Підтримує контроль доступу на основі ролей (admin/editor/viewer).
+//
+// ЕНДПОІНТ: POST /api/sheets/proxy
+// АВТОРИЗАЦІЯ: Bearer token (обов'язково)
+//
+// ПІДТРИМУВАНІ ОПЕРАЦІЇ (action):
+// - get: читання одного діапазону
+// - batchGet: пакетне читання декількох діапазонів
+// - update: оновлення комірок
+// - append: додавання нових рядків
+// - batchUpdate: пакетне оновлення декількох діапазонів
+// - batchUpdateSpreadsheet: структурні зміни (форматування, розміри)
+// - getSheetNames: отримання списку всіх аркушів
+//
+// РОЛІ ТА ПРАВА:
+// ┌─────────┬──────────┬────────────┬─────────┐
+// │ Роль    │ Читання  │ Запис      │ Banned  │
+// ├─────────┼──────────┼────────────┼─────────┤
+// │ viewer  │ ✓        │ ✗          │ ✗       │
+// │ editor  │ ✓        │ ✓          │ ✗       │
+// │ admin   │ ✓        │ ✓          │ ✓       │
+// └─────────┴──────────┴────────────┴─────────┘
+//
+// ПРИКЛАД ЗАПИТУ:
+// POST /api/sheets/proxy
+// Headers: { Authorization: 'Bearer <token>' }
+// Body: { action: 'get', range: 'Sheet1!A1:B10', spreadsheetType: 'main' }
+// =========================================================================
+
 const { corsMiddleware } = require('../utils/cors');
 const { verifyToken, extractTokenFromHeader } = require('../utils/jwt');
 const {
@@ -10,8 +46,16 @@ const {
   getSheetNames,
 } = require('../utils/google-sheets');
 
+// =========================================================================
+// ПЕРЕВІРКА ПРАВ ДОСТУПУ
+// =========================================================================
+
 /**
  * Перевіряє права доступу користувача для конкретної операції
+ * @param {string} userRole - Роль користувача ('admin' | 'editor' | 'viewer')
+ * @param {string} action - Тип операції ('get', 'update', 'batchUpdate', etc.)
+ * @param {string} range - Діапазон комірок (опціонально)
+ * @returns {Object} { allowed: boolean, error?: string }
  */
 function checkPermissions(userRole, action, range) {
   // Viewer може тільки читати
@@ -39,6 +83,26 @@ function checkPermissions(userRole, action, range) {
   return { allowed: true };
 }
 
+// =========================================================================
+// ГОЛОВНИЙ HANDLER
+// =========================================================================
+
+/**
+ * Handler для проксі запитів до Google Sheets API
+ * @param {Object} req - Express request об'єкт
+ * @param {Object} req.headers - HTTP заголовки
+ * @param {string} req.headers.authorization - Bearer токен
+ * @param {Object} req.body - Тіло запиту
+ * @param {string} req.body.action - Тип операції
+ * @param {string} req.body.range - Діапазон (для get/update/append)
+ * @param {Array} req.body.ranges - Масив діапазонів (для batchGet)
+ * @param {Array} req.body.values - Дані для запису
+ * @param {Array} req.body.data - Масив оновлень (для batchUpdate)
+ * @param {Array} req.body.requests - Запити (для batchUpdateSpreadsheet)
+ * @param {string} req.body.spreadsheetType - Тип таблиці ('main' | 'texts' | 'banned')
+ * @param {Object} res - Express response об'єкт
+ * @returns {Promise<Object>} JSON з результатом операції
+ */
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

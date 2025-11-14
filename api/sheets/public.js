@@ -1,12 +1,39 @@
+// api/sheets/public.js
+
+// =========================================================================
+// ПУБЛІЧНИЙ API ДЛЯ ЧИТАННЯ SHEETS БЕЗ АВТОРИЗАЦІЇ
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Надає публічний доступ до певних аркушів Google Sheets для фронтенду.
+// Використовується для завантаження довідкових даних (глосарій, сутності, тощо).
+//
+// ЕНДПОІНТ: GET /api/sheets/public
+// АВТОРИЗАЦІЯ: Не потрібна
+//
+// QUERY ПАРАМЕТРИ:
+// - range: діапазон (формат: "SheetName!A:Z" або "SheetName!A1:B100")
+// - spreadsheetType: тип таблиці ('main' | 'texts' | 'banned')
+//
+// ДОЗВОЛЕНІ АРКУШІ:
+// - SEO, Тригери, Співставлення
+// - Глосарій, Сутності, Тексти
+// - Посилання, Заборонені
+//
+// ПРИКЛАД:
+// GET /api/sheets/public?range=Глосарій!A:E&spreadsheetType=main
+// =========================================================================
+
 const { corsMiddleware } = require('../utils/cors');
 const { getValues } = require('../utils/google-sheets');
 
 /**
- * Публічний API endpoint для отримання даних з Google Sheets
- * БЕЗ авторизації - для даних що не потребують логіну
- *
- * GET /api/sheets/public?range=Sheet!A:B
- * GET /api/sheets/public?range=Sheet!A:B&spreadsheetType=texts
+ * Handler для публічного читання даних з Google Sheets
+ * @param {Object} req - Express request об'єкт
+ * @param {Object} req.query - Query параметри
+ * @param {string} req.query.range - Діапазон (формат: "Sheet!A:B")
+ * @param {string} req.query.spreadsheetType - Тип таблиці
+ * @param {Object} res - Express response об'єкт
+ * @returns {Promise<Object>} JSON з даними або помилкою
  */
 async function handler(req, res) {
   if (req.method !== 'GET') {

@@ -1,3 +1,38 @@
+// api/utils/google-sheets.js
+
+// =========================================================================
+// GOOGLE SHEETS API УТИЛІТИ
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Надає функції для роботи з Google Sheets API v4.
+// Використовує Service Account для авторизації.
+//
+// ЕКСПОРТОВАНІ ФУНКЦІЇ:
+// ┌────────────────────────────┬──────────────────────────────┐
+// │ ЧИТАННЯ                    │ ЗАПИС                        │
+// ├────────────────────────────┼──────────────────────────────┤
+// │ getValues(range)           │ updateValues(range, values)  │
+// │ batchGetValues(ranges)     │ appendValues(range, values)  │
+// │ getSheetNames()            │ batchUpdate(data)            │
+// │                            │ batchUpdateSpreadsheet(req)  │
+// └────────────────────────────┴──────────────────────────────┘
+//
+// КОНФІГУРАЦІЯ (з .env):
+// - GOOGLE_SERVICE_ACCOUNT_EMAIL: email Service Account
+// - GOOGLE_PRIVATE_KEY: приватний ключ (з \n замінюється на переноси)
+// - SPREADSHEET_ID: ID основної таблиці (Banned, Users)
+// - SPREADSHEET_ID_TEXTS: ID таблиці текстів товарів
+//
+// ТИПИ ТАБЛИЦЬ (spreadsheetType):
+// - 'main': основна таблиця (SPREADSHEET_ID)
+// - 'texts': таблиця текстів (SPREADSHEET_ID_TEXTS)
+//
+// ФОРМАТИ ДІАПАЗОНІВ:
+// - "Sheet1!A1:B10" - конкретний діапазон
+// - "Sheet1!A:B" - повні колонки
+// - "Sheet1" - весь аркуш
+// =========================================================================
+
 const { google } = require('googleapis');
 
 // Environment variables
@@ -6,8 +41,13 @@ const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n')
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SPREADSHEET_ID_TEXTS = process.env.SPREADSHEET_ID_TEXTS;
 
+// =========================================================================
+// ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
+// =========================================================================
+
 /**
- * Створює авторизованого клієнта Google Sheets
+ * Створює авторизованого клієнта Google Sheets API
+ * @returns {Object} Google Sheets API client
  */
 function getGoogleSheetsClient() {
   const auth = new google.auth.GoogleAuth({
@@ -23,6 +63,8 @@ function getGoogleSheetsClient() {
 
 /**
  * Отримує ID таблиці за її типом
+ * @param {string} type - Тип таблиці ('main' | 'texts')
+ * @returns {string} ID Google Spreadsheet
  */
 function getSpreadsheetId(type = 'main') {
   if (type === 'texts') {
@@ -31,8 +73,15 @@ function getSpreadsheetId(type = 'main') {
   return SPREADSHEET_ID;
 }
 
+// =========================================================================
+// ОПЕРАЦІЇ ЧИТАННЯ
+// =========================================================================
+
 /**
- * Читає дані з діапазону
+ * Читає дані з одного діапазону
+ * @param {string} range - Діапазон (формат: "Sheet!A1:B10")
+ * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts')
+ * @returns {Promise<Array>} Масив рядків з даними
  */
 async function getValues(range, spreadsheetType = 'main') {
   const sheets = getGoogleSheetsClient();
@@ -51,7 +100,10 @@ async function getValues(range, spreadsheetType = 'main') {
 }
 
 /**
- * Batch отримання даних з кількох діапазонів
+ * Batch отримання даних з кількох діапазонів одночасно
+ * @param {Array<string>} ranges - Масив діапазонів
+ * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts')
+ * @returns {Promise<Array>} Масив об'єктів valueRanges
  */
 async function batchGetValues(ranges, spreadsheetType = 'main') {
   const sheets = getGoogleSheetsClient();

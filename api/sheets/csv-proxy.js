@@ -1,10 +1,37 @@
+// api/sheets/csv-proxy.js
+
+// =========================================================================
+// CORS ПРОКСІ ДЛЯ CSV ЕКСПОРТУ З GOOGLE SHEETS
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Проксі для завантаження CSV файлів з Google Sheets без CORS помилок.
+// Вирішує проблему Same-Origin Policy при прямих запитах до Google Sheets.
+//
+// ЕНДПОІНТ: GET /api/sheets/csv-proxy
+// АВТОРИЗАЦІЯ: Не потрібна
+//
+// QUERY ПАРАМЕТРИ:
+// - gid: Google Sheet ID (номер конкретного аркуша)
+//
+// ПРОЦЕС:
+// 1. Отримує gid з query параметрів
+// 2. Формує URL для CSV export
+// 3. Робить fetch до Google Sheets
+// 4. Повертає CSV як text/csv з правильними CORS headers
+//
+// ПРИКЛАД:
+// GET /api/sheets/csv-proxy?gid=1742878044
+// =========================================================================
+
 const { corsMiddleware } = require('../utils/cors');
 
 /**
- * CORS proxy для Google Sheets CSV export
- * Дозволяє завантажувати CSV без CORS помилок
- *
- * GET /api/sheets/csv-proxy?gid=123456
+ * Handler для проксі CSV експорту з Google Sheets
+ * @param {Object} req - Express request об'єкт
+ * @param {Object} req.query - Query параметри
+ * @param {string} req.query.gid - Google Sheet ID (аркуш)
+ * @param {Object} res - Express response об'єкт
+ * @returns {Promise<string>} CSV текст або JSON помилка
  */
 async function handler(req, res) {
   if (req.method !== 'GET') {

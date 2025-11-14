@@ -1,9 +1,38 @@
+// api/public/data.js
+
+// =========================================================================
+// ПУБЛІЧНИЙ API ДЛЯ ЧИТАННЯ ДАНИХ БЕЗ АВТОРИЗАЦІЇ
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Надає публічний доступ до певних аркушів Google Sheets без JWT токена.
+// Використовується для завантаження заборонених слів та посилань на клієнті.
+//
+// ЕНДПОІНТ: GET /api/public/data
+// АВТОРИЗАЦІЯ: Не потрібна
+//
+// QUERY ПАРАМЕТРИ:
+// - sheet: назва аркуша (Banned або Links)
+// - range: діапазон комірок (наприклад A1:Z1000)
+//
+// ДОЗВОЛЕНІ АРКУШІ:
+// - Banned: заборонені слова та фрази
+// - Links: посилання на зовнішні ресурси
+//
+// ПРИКЛАД ВИКОРИСТАННЯ:
+// GET /api/public/data?sheet=Banned&range=A1:Z1000
+// =========================================================================
+
 const { corsMiddleware } = require('../utils/cors');
 const { getValues } = require('../utils/google-sheets');
 
 /**
- * Публічний API для завантаження даних БЕЗ авторизації
- * Дозволяє читати тільки певні аркуші (заборонені слова, посилання, SEO)
+ * Handler для публічного читання даних з Google Sheets
+ * @param {Object} req - Express request об'єкт
+ * @param {Object} req.query - Query параметри
+ * @param {string} req.query.sheet - Назва аркуша
+ * @param {string} req.query.range - Діапазон комірок
+ * @param {Object} res - Express response об'єкт
+ * @returns {Promise<Object>} JSON з даними або помилкою
  */
 async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -13,7 +42,7 @@ async function handler(req, res) {
   try {
     const { sheet, range } = req.query;
 
-    // Валідація
+    // Валідація обов'язкових параметрів
     if (!sheet || !range) {
       return res.status(400).json({
         error: 'Missing parameters',
@@ -25,8 +54,6 @@ async function handler(req, res) {
     const allowedSheets = [
       'Banned',           // Заборонені слова
       'Links',            // Посилання на сайти
-      'SEO_Keywords',     // SEO ключові слова
-      'SEO_Data',         // SEO дані
     ];
 
     // Перевіряємо чи аркуш в білому списку

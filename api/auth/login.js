@@ -1,8 +1,55 @@
+// api/auth/login.js
+
+// =========================================================================
+// АВТОРИЗАЦІЯ КОРИСТУВАЧА (LOGIN)
+// =========================================================================
+// ПРИЗНАЧЕННЯ:
+// Перевіряє credentials користувача та генерує JWT токени для доступу.
+// Користувачі зберігаються в Google Sheets (аркуш Users).
+//
+// ЕНДПОІНТ: POST /api/auth/login
+// АВТОРИЗАЦІЯ: Не потрібна
+//
+// BODY:
+// {
+//   username: string,
+//   password: string
+// }
+//
+// ВІДПОВІДЬ ПРИ УСПІХУ:
+// {
+//   success: true,
+//   token: string (JWT access token, expires in 7 days),
+//   refreshToken: string (JWT refresh token, expires in 30 days),
+//   user: {
+//     id: string,
+//     username: string,
+//     role: 'admin' | 'editor' | 'viewer'
+//   }
+// }
+//
+// ПРОЦЕС:
+// 1. Читання користувачів з Google Sheets (Users!A2:F1000)
+// 2. Перевірка існування користувача
+// 3. Порівняння bcrypt хешу пароля
+// 4. Генерація JWT токенів
+// 5. Оновлення last_login timestamp
+// =========================================================================
+
 const bcrypt = require('bcryptjs');
 const { corsMiddleware } = require('../utils/cors');
 const { generateToken, generateRefreshToken } = require('../utils/jwt');
 const { getValues, updateValues } = require('../utils/google-sheets');
 
+/**
+ * Handler для авторизації користувача
+ * @param {Object} req - Express request об'єкт
+ * @param {Object} req.body - Тіло запиту
+ * @param {string} req.body.username - Ім'я користувача
+ * @param {string} req.body.password - Пароль (plaintext)
+ * @param {Object} res - Express response об'єкт
+ * @returns {Promise<Object>} JSON з токенами та інформацією про користувача
+ */
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
