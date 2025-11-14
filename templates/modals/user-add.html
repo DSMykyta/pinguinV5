@@ -18,6 +18,13 @@
 <div class="modal-body-source">
     <fieldset class="form-fieldset">
         <div class="form-group">
+            <label for="add-display-name">
+                Повне ім'я
+            </label>
+            <input type="text" id="add-display-name" class="input-main" placeholder="Іван Петренко">
+        </div>
+
+        <div class="form-group">
             <label for="add-username">
                 Ім'я користувача
                 <span class="required">*</span>
@@ -44,6 +51,13 @@
                 <option value="editor">Editor (читання + запис)</option>
                 <option value="admin">Admin (повний доступ)</option>
             </select>
+        </div>
+
+        <div class="form-group">
+            <label>Аватар</label>
+            <input type="hidden" id="selected-avatar" value="">
+            <div id="avatar-preview" class="avatar-preview" style="display: none;"></div>
+            <div id="avatar-selector"></div>
         </div>
     </fieldset>
 </div>

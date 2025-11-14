@@ -13,6 +13,7 @@ import { usersAdminState } from './users-admin-init.js';
 import { renderUsersTable } from './users-admin-manage.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
+import { renderAvatarSelector, getAvailableAvatars } from '../utils/avatar-loader.js';
 
 /**
  * Ініціалізує систему модальних вікон
@@ -62,6 +63,9 @@ function initAddUserHandlers() {
     if (!saveBtn) return;
 
     saveBtn.onclick = handleAddUser;
+
+    // Ініціалізуємо селектор аватарів
+    renderAvatarSelector(null, 'avatar-selector');
 }
 
 /**
@@ -71,6 +75,8 @@ async function handleAddUser() {
     const username = document.getElementById('add-username').value.trim();
     const password = document.getElementById('add-password').value;
     const role = document.getElementById('add-role').value;
+    const displayName = document.getElementById('add-display-name').value.trim();
+    const avatar = document.getElementById('selected-avatar').value;
 
     // Валідація
     if (!username || !password || !role) {
@@ -88,7 +94,9 @@ async function handleAddUser() {
             action: 'create',
             username,
             password,
-            role
+            role,
+            displayName,
+            avatar
         });
 
         if (response.success) {
@@ -140,6 +148,8 @@ async function openEditUserModal(user) {
     document.getElementById('edit-user-id').value = user.id;
     document.getElementById('edit-username').value = user.username;
     document.getElementById('edit-role').value = user.role;
+    document.getElementById('edit-display-name').value = user.display_name || '';
+    document.getElementById('selected-avatar-edit').value = user.avatar || '';
 }
 
 /**
@@ -153,6 +163,10 @@ function initEditUserHandlers() {
     if (saveBtn) saveBtn.onclick = handleEditUser;
     if (resetPasswordBtn) resetPasswordBtn.onclick = () => openResetPasswordModal(currentEditUser);
     if (deleteBtn) deleteBtn.onclick = () => handleDeleteUser(currentEditUser);
+
+    // Ініціалізуємо селектор аватарів з поточним вибраним аватаром
+    const currentAvatar = document.getElementById('selected-avatar-edit').value;
+    renderAvatarSelector(currentAvatar || null, 'avatar-selector-edit');
 }
 
 /**
@@ -162,6 +176,8 @@ async function handleEditUser() {
     const id = document.getElementById('edit-user-id').value;
     const username = document.getElementById('edit-username').value.trim();
     const role = document.getElementById('edit-role').value;
+    const displayName = document.getElementById('edit-display-name').value.trim();
+    const avatar = document.getElementById('selected-avatar-edit').value;
 
     // Валідація
     if (!username || !role) {
@@ -177,7 +193,9 @@ async function handleEditUser() {
         const response = await window.apiClient.put('/api/users', {
             id,
             username,
-            role
+            role,
+            displayName,
+            avatar
         });
 
         if (response.success) {
@@ -189,7 +207,9 @@ async function handleEditUser() {
                 usersAdminState.users[userIndex] = {
                     ...usersAdminState.users[userIndex],
                     username: response.user.username,
-                    role: response.user.role
+                    role: response.user.role,
+                    display_name: response.user.display_name,
+                    avatar: response.user.avatar
                 };
             }
 

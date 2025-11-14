@@ -83,8 +83,8 @@ async function handler(req, res) {
  */
 async function handleList(req, res) {
   try {
-    // Читання користувачів з Users Database
-    const usersData = await getValues('Users!A2:F1000', 'users');
+    // Читання користувачів з Users Database (включаючи display_name та avatar)
+    const usersData = await getValues('Users!A2:H1000', 'users');
 
     // Перетворення в об'єкти без password_hash
     const users = usersData
@@ -95,7 +95,9 @@ async function handleList(req, res) {
         // НЕ повертаємо password_hash для безпеки
         role: row[3] || 'viewer',
         created_at: row[4] || '',
-        last_login: row[5] || ''
+        last_login: row[5] || '',
+        display_name: row[6] || '',
+        avatar: row[7] || ''
       }));
 
     return res.status(200).json({
@@ -121,7 +123,7 @@ async function handleList(req, res) {
  */
 async function handleCreate(req, res) {
   try {
-    const { username, password, role } = req.body;
+    const { username, password, role, displayName, avatar } = req.body;
 
     // Валідація вхідних даних
     if (!username || !password || !role) {
@@ -150,7 +152,7 @@ async function handleCreate(req, res) {
     }
 
     // Читання існуючих користувачів для перевірки унікальності
-    const usersData = await getValues('Users!A2:F1000', 'users');
+    const usersData = await getValues('Users!A2:H1000', 'users');
     const existingUser = usersData.find(row => row[1] === username);
 
     if (existingUser) {
@@ -165,13 +167,15 @@ async function handleCreate(req, res) {
     const createdAt = new Date().toISOString();
 
     // Додавання нового користувача в Users Database
-    await appendValues('Users!A:F', [[
+    await appendValues('Users!A:H', [[
       id,
       username,
       passwordHash,
       role,
       createdAt,
-      ''
+      '',
+      displayName || '',
+      avatar || ''
     ]], 'users');
 
     return res.status(201).json({
@@ -181,7 +185,9 @@ async function handleCreate(req, res) {
         username,
         role,
         created_at: createdAt,
-        last_login: ''
+        last_login: '',
+        display_name: displayName || '',
+        avatar: avatar || ''
       }
     });
   } catch (error) {
@@ -203,15 +209,15 @@ async function handleCreate(req, res) {
  */
 async function handleUpdate(req, res) {
   try {
-    const { id, username, role, newPassword } = req.body;
+    const { id, username, role, newPassword, displayName, avatar } = req.body;
 
     // Валідація вхідних даних
     if (!id) {
       return res.status(400).json({ error: 'User ID is required' });
     }
 
-    if (!username && !role && !newPassword) {
-      return res.status(400).json({ error: 'At least username, role, or newPassword must be provided' });
+    if (!username && !role && !newPassword && displayName === undefined && avatar === undefined) {
+      return res.status(400).json({ error: 'At least one field must be provided for update' });
     }
 
     // Валідація role (якщо передано)
@@ -230,7 +236,7 @@ async function handleUpdate(req, res) {
     }
 
     // Читання користувачів з Users Database
-    const usersData = await getValues('Users!A2:F1000', 'users');
+    const usersData = await getValues('Users!A2:H1000', 'users');
 
     // Пошук користувача за ID
     const userIndex = usersData.findIndex(row => row[0] === id);
@@ -252,6 +258,8 @@ async function handleUpdate(req, res) {
     // Підготовка оновлених даних
     const updatedUsername = username || userRow[1];
     const updatedRole = role || userRow[3];
+    const updatedDisplayName = displayName !== undefined ? displayName : (userRow[6] || '');
+    const updatedAvatar = avatar !== undefined ? avatar : (userRow[7] || '');
 
     // Хешувати новий пароль якщо передано
     let updatedPasswordHash = userRow[2]; // За замовчуванням старий хеш
@@ -267,12 +275,20 @@ async function handleUpdate(req, res) {
       updatedRole
     ]], 'users');
 
+    // Оновлення display_name та avatar (окремий запит для колонок G та H)
+    await updateValues(`Users!G${rowNumber}:H${rowNumber}`, [[
+      updatedDisplayName,
+      updatedAvatar
+    ]], 'users');
+
     return res.status(200).json({
       success: true,
       user: {
         id,
         username: updatedUsername,
-        role: updatedRole
+        role: updatedRole,
+        display_name: updatedDisplayName,
+        avatar: updatedAvatar
       }
     });
   } catch (error) {

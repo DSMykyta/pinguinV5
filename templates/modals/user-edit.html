@@ -28,6 +28,13 @@
         <input type="hidden" id="edit-user-id">
 
         <div class="form-group">
+            <label for="edit-display-name">
+                Повне ім'я
+            </label>
+            <input type="text" id="edit-display-name" class="input-main" placeholder="Іван Петренко">
+        </div>
+
+        <div class="form-group">
             <label for="edit-username">
                 Ім'я користувача
                 <span class="required">*</span>
@@ -45,6 +52,13 @@
                 <option value="editor">Editor (читання + запис)</option>
                 <option value="admin">Admin (повний доступ)</option>
             </select>
+        </div>
+
+        <div class="form-group">
+            <label>Аватар</label>
+            <input type="hidden" id="selected-avatar-edit" value="">
+            <div id="avatar-preview-edit" class="avatar-preview" style="display: none;"></div>
+            <div id="avatar-selector-edit"></div>
         </div>
     </fieldset>
 </div>
