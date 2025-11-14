@@ -58,8 +58,8 @@ export function initUsersAdmin() {
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
         console.log('🔐 Подія auth-state-changed:', event.detail);
-        if (event.detail.isAuthorized) {
-            checkAuthAndLoadData();
+        if (event.detail.isAuthorized && event.detail.user) {
+            checkAuthAndLoadData(event.detail.user);
         } else {
             showUnauthorizedState();
         }
@@ -122,10 +122,9 @@ function showAccessDeniedState() {
 
 /**
  * Перевіряє авторизацію та завантажує дані
+ * @param {Object} user - Дані користувача з події auth-state-changed
  */
-async function checkAuthAndLoadData() {
-    const user = window.AuthService?.getUser();
-
+async function checkAuthAndLoadData(user) {
     if (!user) {
         console.log('❌ Користувач не авторизований');
         showUnauthorizedState();
@@ -199,7 +198,12 @@ function initRefreshButton() {
     if (!refreshBtn) return;
 
     refreshBtn.addEventListener('click', async () => {
-        await checkAuthAndLoadData();
+        const user = window.currentUser;
+        if (user) {
+            await checkAuthAndLoadData(user);
+        } else {
+            showUnauthorizedState();
+        }
     });
 }
 
