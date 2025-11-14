@@ -29,6 +29,10 @@ export const usersAdminState = {
     // Видимість колонок
     visibleColumns: [],        // Видимі колонки таблиці
 
+    // Сортування
+    sortBy: null,              // Колонка для сортування
+    sortDirection: 'asc',      // Напрямок сортування ('asc' або 'desc')
+
     // Пагінація
     pagination: {
         currentPage: 1,

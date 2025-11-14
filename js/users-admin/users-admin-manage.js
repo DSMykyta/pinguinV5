@@ -54,9 +54,13 @@ function generateTableHTML(users, visibleColumns) {
     visibleColumns.forEach(columnId => {
         const config = columnConfig[columnId];
         if (config) {
+            const cellClass = columnId === 'actions' ? 'cell-actions' : 'sortable-header';
+            const dataSort = columnId !== 'actions' ? `data-sort="${columnId}"` : '';
+
             headerHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
+                <div class="pseudo-table-cell ${cellClass}" ${dataSort}>
                     <span>${config.label}</span>
+                    ${columnId !== 'actions' ? '<span class="sort-indicator"></span>' : ''}
                 </div>
             `;
         }
@@ -105,7 +109,7 @@ function generateUserRow(user, visibleColumns) {
 
         if (columnId === 'actions') {
             rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
+                <div class="pseudo-table-cell cell-actions">
                     <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
                     </button>
@@ -216,4 +220,57 @@ function attachEventHandlers() {
             }
         });
     });
+
+    // Сортування колонок
+    document.querySelectorAll('.sortable-header').forEach(header => {
+        header.addEventListener('click', (e) => {
+            const sortBy = e.currentTarget.dataset.sort;
+            handleSort(sortBy);
+        });
+    });
+}
+
+/**
+ * Обробляє сортування таблиці
+ */
+function handleSort(columnId) {
+    const { sortBy, sortDirection } = usersAdminState;
+
+    // Визначити напрямок сортування
+    let newDirection = 'asc';
+    if (sortBy === columnId && sortDirection === 'asc') {
+        newDirection = 'desc';
+    }
+
+    usersAdminState.sortBy = columnId;
+    usersAdminState.sortDirection = newDirection;
+
+    // Сортувати дані
+    usersAdminState.users.sort((a, b) => {
+        let aVal = a[columnId] || '';
+        let bVal = b[columnId] || '';
+
+        // Сортування дат
+        if (columnId === 'last_login') {
+            aVal = aVal ? new Date(aVal).getTime() : 0;
+            bVal = bVal ? new Date(bVal).getTime() : 0;
+        }
+
+        if (aVal < bVal) return newDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return newDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    // Оновити індикатори сортування
+    document.querySelectorAll('.sortable-header').forEach(header => {
+        header.classList.remove('sort-asc', 'sort-desc');
+    });
+
+    const activeHeader = document.querySelector(`.sortable-header[data-sort="${columnId}"]`);
+    if (activeHeader) {
+        activeHeader.classList.add(`sort-${newDirection}`);
+    }
+
+    // Перерендерити таблицю
+    renderUsersTable();
 }
