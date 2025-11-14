@@ -46,7 +46,8 @@ function generateTableHTML(users, visibleColumns) {
     const columnConfig = {
         actions: { label: 'Дії', width: '80px' },
         avatar: { label: '', width: '50px' },
-        username: { label: 'Ім\'я користувача', width: '250px' },
+        display_name: { label: 'Повне ім\'я', width: '200px' },
+        username: { label: 'Ім\'я користувача', width: '200px' },
         role: { label: 'Роль', width: '120px' },
         last_login: { label: 'Останній вхід', width: '180px' }
     };
@@ -99,7 +100,8 @@ function generateUserRow(user, visibleColumns) {
     const columnConfig = {
         actions: { label: 'Дії', width: '80px' },
         avatar: { label: '', width: '50px' },
-        username: { label: 'Ім\'я користувача', width: '250px' },
+        display_name: { label: 'Повне ім\'я', width: '200px' },
+        username: { label: 'Ім\'я користувача', width: '200px' },
         role: { label: 'Роль', width: '120px' },
         last_login: { label: 'Останній вхід', width: '180px' }
     };
@@ -125,6 +127,13 @@ function generateUserRow(user, visibleColumns) {
             rowHTML += `
                 <div class="pseudo-table-cell" style="width: ${config.width}; text-align: center;">
                     ${avatarHtml}
+                </div>
+            `;
+        } else if (columnId === 'display_name') {
+            const displayName = user.display_name || '—';
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <span class="cell-text">${escapeHtml(displayName)}</span>
                 </div>
             `;
         } else if (columnId === 'username') {
