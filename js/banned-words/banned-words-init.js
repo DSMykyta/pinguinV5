@@ -66,6 +66,11 @@ export const bannedWordsState = {
     // Batch actions - вибрані товари
     selectedProducts: {
         // Структура: { "check-{sheet}-{word}-{column}": Set<productId> }
+    },
+
+    // Літери колонок cheaked_line для кожного аркуша
+    sheetCheckedColumns: {
+        // Структура: { "sheetName": "G" }
     }
 };
 

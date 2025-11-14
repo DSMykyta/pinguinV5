@@ -270,13 +270,31 @@ async function batchMarkChecked(selectedIds, tabId) {
             dataSource = bannedWordsState.bannedWords;
             sheetName = 'Banned';
             spreadsheetId = BANNED_SPREADSHEET_ID;
-            columnLetter = 'G'; // cheaked_line в таблиці Banned
+            // Використати збережену літеру колонки для таблиці Banned
+            columnLetter = bannedWordsState.sheetCheckedColumns?.['Banned'];
+
+            if (!columnLetter) {
+                console.error(`❌ Літера колонки cheaked_line не знайдена для таблиці "Banned"`);
+                showToast('Помилка: не знайдено колонку cheaked_line в Banned', 'error');
+                return;
+            }
+
+            console.log(`📍 Використовую колонку ${columnLetter} для таблиці "Banned"`);
         } else {
             // Для check табів оновлюємо результати перевірки
             dataSource = bannedWordsState.checkResults;
             sheetName = bannedWordsState.selectedSheet;
             spreadsheetId = TEXTS_SPREADSHEET_ID;
-            columnLetter = 'G'; // cheaked_line зазвичай в колонці G
+            // Використати збережену літеру колонки для цього аркуша
+            columnLetter = bannedWordsState.sheetCheckedColumns?.[sheetName];
+
+            if (!columnLetter) {
+                console.error(`❌ Літера колонки cheaked_line не знайдена для аркуша "${sheetName}"`);
+                showToast('Помилка: не знайдено колонку cheaked_line', 'error');
+                return;
+            }
+
+            console.log(`📍 Використовую колонку ${columnLetter} для аркуша "${sheetName}"`);
         }
 
         // Зібрати елементи для оновлення

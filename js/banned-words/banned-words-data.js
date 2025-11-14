@@ -45,6 +45,21 @@ export async function loadBannedWords() {
 
         console.log('📋 Перший рядок даних:', rows[0]);
 
+        // Отримати заголовки та знайти індекс колонки cheaked_line
+        const headers = parsedData.meta.fields || [];
+        const cheakedIndex = headers.findIndex(h => h === 'cheaked_line');
+
+        if (cheakedIndex !== -1) {
+            const checkedCol = columnIndexToLetter(cheakedIndex);
+            if (!bannedWordsState.sheetCheckedColumns) {
+                bannedWordsState.sheetCheckedColumns = {};
+            }
+            bannedWordsState.sheetCheckedColumns['Banned'] = checkedCol;
+            console.log(`💾 Збережено колонку cheaked_line для "Banned": ${checkedCol} (індекс ${cheakedIndex})`);
+        } else {
+            console.warn('⚠️ Колонка cheaked_line не знайдена в таблиці Banned');
+        }
+
         const data = rows.map((row, index) => {
             // NEW: Додати розпарсені масиви слів
             const obj = {
@@ -252,6 +267,13 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
         const idCol = columnIndexToLetter(idIndex);
         const targetCol = columnIndexToLetter(targetIndex);
         const checkedCol = columnIndexToLetter(cheakedIndex);
+
+        // Зберегти літеру колонки cheaked_line для batch операцій
+        if (!bannedWordsState.sheetCheckedColumns) {
+            bannedWordsState.sheetCheckedColumns = {};
+        }
+        bannedWordsState.sheetCheckedColumns[sheetName] = checkedCol;
+        console.log(`💾 Збережено колонку cheaked_line для "${sheetName}": ${checkedCol}`);
 
         const ranges = [
             `${sheetName}!${idCol}2:${idCol}`,
