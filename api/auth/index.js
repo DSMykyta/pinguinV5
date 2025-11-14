@@ -83,8 +83,8 @@ async function handleLogin(req, res) {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Читання користувачів з Users Database
-    const usersData = await getValues('Users!A2:F1000', 'users');
+    // Читання користувачів з Users Database (включно з display_name та avatar)
+    const usersData = await getValues('Users!A2:H1000', 'users');
 
     // Пошук користувача
     const userRow = usersData.find(row => row[1] === username);
@@ -93,7 +93,7 @@ async function handleLogin(req, res) {
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
-    const [id, storedUsername, passwordHash, role, createdAt] = userRow;
+    const [id, storedUsername, passwordHash, role, createdAt, lastLogin, displayName, avatar] = userRow;
 
     // Перевірка пароля
     const isPasswordValid = await bcrypt.compare(password, passwordHash);
@@ -121,6 +121,8 @@ async function handleLogin(req, res) {
         id,
         username: storedUsername,
         role,
+        display_name: displayName || '',
+        avatar: avatar || '',
       },
     });
   } catch (error) {
@@ -159,6 +161,18 @@ async function handleVerify(req, res) {
       });
     }
 
+    // Читаємо свіжі дані користувача з Google Sheets (включно з display_name та avatar)
+    const usersData = await getValues('Users!A2:H1000', 'users');
+    const userRow = usersData.find(row => row[0] === decoded.id);
+
+    let displayName = '';
+    let avatar = '';
+
+    if (userRow) {
+      displayName = userRow[6] || ''; // column G
+      avatar = userRow[7] || '';       // column H
+    }
+
     // Повертаємо інформацію про користувача
     return res.status(200).json({
       valid: true,
@@ -166,6 +180,8 @@ async function handleVerify(req, res) {
         id: decoded.id,
         username: decoded.username,
         role: decoded.role,
+        display_name: displayName,
+        avatar: avatar,
       },
     });
   } catch (error) {
