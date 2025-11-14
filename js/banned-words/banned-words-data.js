@@ -103,7 +103,7 @@ async function callSheetsAPI(action, params = {}) {
         throw new Error('Authorization required. Please login first.');
     }
 
-    const response = await fetch(`${window.location.origin}/api/sheets/proxy`, {
+    const response = await fetch(`${window.location.origin}/api/sheets`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

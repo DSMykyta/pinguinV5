@@ -15,7 +15,7 @@ const TOKEN_EXPIRY_KEY = 'token_expiry';
 // API endpoints
 const AUTH_API_BASE = window.location.origin;
 const API_LOGIN = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
-const API_VERIFY = `${AUTH_API_BASE}/api/auth/verify`; // Legacy path still supported
+const API_VERIFY = `${AUTH_API_BASE}/api/auth`; // Unified endpoint (with action: 'verify')
 const API_LOGOUT = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
 
 // Глобальний стан авторизації
@@ -175,10 +175,12 @@ async function handleSignOut() {
 async function verifyToken(token) {
   try {
     const response = await fetch(API_VERIFY, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ action: 'verify' }),
     });
 
     const data = await response.json();
