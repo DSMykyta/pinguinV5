@@ -5,7 +5,7 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Перевіряє credentials користувача та генерує JWT токени для доступу.
-// Користувачі зберігаються в Google Sheets (аркуш Users).
+// Користувачі зберігаються в закритій Users Database таблиці.
 //
 // ЕНДПОІНТ: POST /api/auth/login
 // АВТОРИЗАЦІЯ: Не потрібна
@@ -19,7 +19,7 @@
 // ВІДПОВІДЬ ПРИ УСПІХУ:
 // {
 //   success: true,
-//   token: string (JWT access token, expires in 7 days),
+//   token: string (JWT access token, expires in 8 hours),
 //   refreshToken: string (JWT refresh token, expires in 30 days),
 //   user: {
 //     id: string,
@@ -29,11 +29,11 @@
 // }
 //
 // ПРОЦЕС:
-// 1. Читання користувачів з Google Sheets (Users!A2:F1000)
+// 1. Читання користувачів з Users Database (Users!A2:F1000)
 // 2. Перевірка існування користувача
 // 3. Порівняння bcrypt хешу пароля
 // 4. Генерація JWT токенів
-// 5. Оновлення last_login timestamp
+// 5. Оновлення last_login timestamp в Users Database
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
@@ -63,8 +63,8 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Username and password are required' });
     }
 
-    // Читання користувачів з Google Sheets
-    const usersData = await getValues('Users!A2:F1000'); // A=id, B=username, C=password_hash, D=role, E=created_at, F=last_login
+    // Читання користувачів з Users Database (закритої таблиці)
+    const usersData = await getValues('Users!A2:F1000', 'users'); // A=id, B=username, C=password_hash, D=role, E=created_at, F=last_login
 
     // Пошук користувача
     const userRow = usersData.find(row => row[1] === username);
@@ -87,10 +87,10 @@ async function handler(req, res) {
     const token = generateToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Оновлення last_login в Google Sheets
+    // Оновлення last_login в Users Database
     const userRowIndex = usersData.indexOf(userRow) + 2; // +2 because header row and 0-based index
     const now = new Date().toISOString();
-    await updateValues(`Users!F${userRowIndex}`, [[now]]);
+    await updateValues(`Users!F${userRowIndex}`, [[now]], 'users');
 
     // Повернення токенів та інформації про користувача
     return res.status(200).json({

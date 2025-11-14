@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перевірка заборонених слів</title>
+    <title>Адміністрування користувачів</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -13,7 +13,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
         rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 
 <body>
@@ -30,31 +29,26 @@
             <a href="glossary.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">import_contacts</span>
                 <span class="panel-item-text">Глосарій</span>
-
             </a>
 
             <a href="entities.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">label</span>
                 <span class="panel-item-text">Сутності</span>
-
             </a>
 
-            <a href="banned-words.html" target="_blank" class="panel-item is-active">
+            <a href="banned-words.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">block</span>
                 <span class="panel-item-text">Заборонені слова</span>
-
             </a>
 
             <a href="javascript:void(0)" class="panel-item panel-item-disabled">
                 <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
                 <span class="panel-item-text">Бренди</span>
-
             </a>
 
             <a href="javascript:void(0)" class="panel-item panel-item-disabled">
                 <span class="material-symbols-outlined panel-item-icon">key</span>
                 <span class="panel-item-text">Ключові слова</span>
-
             </a>
 
             <div class="panel-separator"></div>
@@ -79,7 +73,7 @@
 
             <div class="panel-separator"></div>
 
-            <a href="users-admin.html" target="_blank" class="panel-item">
+            <a href="users-admin.html" target="_blank" class="panel-item is-active">
                 <span class="material-symbols-outlined panel-item-icon">manage_accounts</span>
                 <span class="panel-item-text">Користувачі</span>
             </a>
@@ -121,44 +115,28 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
-        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="tabs-head-container">
-            <button class="nav-icon active" data-tab-target="tab-manage">
-                <span class="material-symbols-outlined">block</span>
-                <span class="nav-icon-label">Заборонені слова</span>
-            </button>
-            <!-- Динамічні check таби додаються тут -->
-        </nav>
-        <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
-        <div class="tab-content active" data-tab-content="tab-manage" id="tab-manage">
+
+        <!-- УПРАВЛІННЯ КОРИСТУВАЧАМИ -->
+        <div class="tab-content active" data-tab-content="tab-users" id="tab-users">
 
             <div class="section-header" style="align-items: flex-end;">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Заборонені слова</h2>
+                        <h2>Адміністрування користувачів</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-manage">Показано 0 з 0</h3>
-                    <div class="tab-controls" style="margin-top: 8px;">
-                        <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">list</span>
-                            <span class="nav-icon-label">Всі</span>
-                        </button>
-                        <button class="nav-icon" data-filter="unchecked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">radio_button_unchecked</span>
-                            <span class="nav-icon-label">Не перевірені</span>
-                        </button>
-                        <button class="nav-icon" data-filter="checked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            <span class="nav-icon-label">Перевірені</span>
-                        </button>
-                    </div>
+                    <h3 id="tab-stats-users">Показано 0 з 0</h3>
                 </div>
 
-
                 <div class="tab-controls">
-                    <button id="refresh-tab-manage" class="btn-icon" aria-label="Оновити таб">
+                    <button id="add-user-btn" class="btn-primary" aria-label="Додати користувача">
+                        <span class="material-symbols-outlined">person_add</span>
+                        <span>Додати користувача</span>
+                    </button>
+
+                    <button id="refresh-tab-users" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
 
@@ -177,21 +155,17 @@
             </div>
 
             <!-- Table Container -->
-            <div id="banned-words-table-container" class="pseudo-table-container">
+            <div id="users-table-container" class="pseudo-table-container">
                 <div class="loading-state">
-                    <span class="material-symbols-outlined">key</span>
-                    <p>Авторизуйтесь для завантаження даних</p>
+                    <span class="material-symbols-outlined">manage_accounts</span>
+                    <p>Завантаження користувачів...</p>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2+: ПЕРЕВІРКА АРКУШІВ (створюються динамічно) -->
-        <div id="sheet-tabs-content-container"></div>
-
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="fixed-footer">
             <div></div>
-
 
             <div class="pagination-container">
                 <div id="pagination-nav-container" class="pagination-nav"></div>
@@ -213,8 +187,8 @@
 
     </main>
 
-    <!-- ПРАВА ПАНЕЛЬ -->
-    <aside id="panel-right" class="panel panel-right">
+    <!-- ПРАВА ПАНЕЛЬ (прихована за замовчуванням для цієї сторінки) -->
+    <aside id="panel-right" class="panel panel-right" style="display: none;">
         <div class="panel-header">
             <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
@@ -223,9 +197,9 @@
         <div id="panel-right-content" class="panel-content"></div>
     </aside>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Scripts -->
     <script src="js/utils/api-client.js"></script>
-    <script type="module" src="js/main-banned-words.js"></script>
+    <script type="module" src="js/main-users-admin.js"></script>
 </body>
 
 </html>

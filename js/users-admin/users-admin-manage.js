@@ -1,0 +1,258 @@
+// js/users-admin/users-admin-manage.js
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║            USERS ADMIN - TABLE RENDERING MODULE                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Відповідає за рендеринг таблиці користувачів та обробку дій.
+ */
+
+import { usersAdminState } from './users-admin-init.js';
+
+/**
+ * Рендерить таблицю користувачів з пагінацією
+ */
+export async function renderUsersTable() {
+    const container = document.getElementById('users-table-container');
+    if (!container) {
+        console.error('❌ Контейнер #users-table-container не знайдено');
+        return;
+    }
+
+    const { users, pagination, visibleColumns } = usersAdminState;
+
+    // Фільтрація та пагінація
+    const startIndex = (pagination.currentPage - 1) * pagination.pageSize;
+    const endIndex = startIndex + pagination.pageSize;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+
+    // Оновити статистику
+    updateStats(paginatedUsers.length, users.length);
+
+    // Згенерувати HTML таблиці
+    const tableHTML = generateTableHTML(paginatedUsers, visibleColumns);
+    container.innerHTML = tableHTML;
+
+    // Додати обробники подій
+    attachEventHandlers();
+}
+
+/**
+ * Генерує HTML для таблиці користувачів
+ */
+function generateTableHTML(users, visibleColumns) {
+    const columnConfig = {
+        username: { label: 'Ім\'я користувача', width: '200px' },
+        role: { label: 'Роль', width: '120px' },
+        created_at: { label: 'Дата створення', width: '180px' },
+        last_login: { label: 'Останній вхід', width: '180px' },
+        actions: { label: 'Дії', width: '200px' }
+    };
+
+    // Генерація header
+    let headerHTML = '<div class="pseudo-table-row pseudo-table-header">';
+    visibleColumns.forEach(columnId => {
+        const config = columnConfig[columnId];
+        if (config) {
+            headerHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <span>${config.label}</span>
+                </div>
+            `;
+        }
+    });
+    headerHTML += '</div>';
+
+    // Генерація рядків
+    let rowsHTML = '';
+    if (users.length === 0) {
+        rowsHTML = `
+            <div class="loading-state">
+                <span class="material-symbols-outlined">person_off</span>
+                <p>Користувачів не знайдено</p>
+            </div>
+        `;
+    } else {
+        users.forEach(user => {
+            rowsHTML += generateUserRow(user, visibleColumns);
+        });
+    }
+
+    return `
+        <div class="pseudo-table">
+            ${headerHTML}
+            ${rowsHTML}
+        </div>
+    `;
+}
+
+/**
+ * Генерує HTML для одного рядка користувача
+ */
+function generateUserRow(user, visibleColumns) {
+    const columnConfig = {
+        username: { label: 'Ім\'я користувача', width: '200px' },
+        role: { label: 'Роль', width: '120px' },
+        created_at: { label: 'Дата створення', width: '180px' },
+        last_login: { label: 'Останній вхід', width: '180px' },
+        actions: { label: 'Дії', width: '200px' }
+    };
+
+    let rowHTML = `<div class="pseudo-table-row" data-user-id="${user.id}">`;
+
+    visibleColumns.forEach(columnId => {
+        const config = columnConfig[columnId];
+        if (!config) return;
+
+        if (columnId === 'username') {
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <span class="cell-text">${escapeHtml(user.username)}</span>
+                </div>
+            `;
+        } else if (columnId === 'role') {
+            const roleBadge = getRoleBadge(user.role);
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    ${roleBadge}
+                </div>
+            `;
+        } else if (columnId === 'created_at') {
+            const formattedDate = formatDate(user.created_at);
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <span class="cell-text">${formattedDate}</span>
+                </div>
+            `;
+        } else if (columnId === 'last_login') {
+            const formattedDate = user.last_login ? formatDate(user.last_login) : '—';
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <span class="cell-text">${formattedDate}</span>
+                </div>
+            `;
+        } else if (columnId === 'actions') {
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="btn-icon btn-reset-password" data-user-id="${user.id}" aria-label="Скинути пароль">
+                            <span class="material-symbols-outlined">key</span>
+                        </button>
+                        <button class="btn-icon btn-delete-user" data-user-id="${user.id}" aria-label="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    rowHTML += '</div>';
+    return rowHTML;
+}
+
+/**
+ * Повертає HTML бейдж для ролі
+ */
+function getRoleBadge(role) {
+    const badges = {
+        admin: '<span class="badge badge-error">Admin</span>',
+        editor: '<span class="badge badge-warning">Editor</span>',
+        viewer: '<span class="badge badge-info">Viewer</span>'
+    };
+    return badges[role] || '<span class="badge">Unknown</span>';
+}
+
+/**
+ * Форматує дату в зручний вигляд
+ */
+function formatDate(isoString) {
+    if (!isoString) return '—';
+
+    try {
+        const date = new Date(isoString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        // Якщо сьогодні
+        if (diffDays === 0) {
+            return `Сьогодні, ${date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        // Якщо вчора
+        if (diffDays === 1) {
+            return `Вчора, ${date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        // Інакше показати дату
+        return date.toLocaleDateString('uk-UA', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    } catch (error) {
+        return isoString;
+    }
+}
+
+/**
+ * Екранує HTML спецсимволи
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Оновлює статистику
+ */
+function updateStats(displayed, total) {
+    const statsElement = document.getElementById('tab-stats-users');
+    if (statsElement) {
+        statsElement.textContent = `Показано ${displayed} з ${total}`;
+    }
+}
+
+/**
+ * Додає обробники подій до кнопок дій
+ */
+function attachEventHandlers() {
+    // Кнопки редагування
+    document.querySelectorAll('.btn-edit-user').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.currentTarget.dataset.userId;
+            const user = usersAdminState.users.find(u => u.id === userId);
+            if (user) {
+                document.dispatchEvent(new CustomEvent('open-edit-user-modal', { detail: { user } }));
+            }
+        });
+    });
+
+    // Кнопки скидання пароля
+    document.querySelectorAll('.btn-reset-password').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.currentTarget.dataset.userId;
+            const user = usersAdminState.users.find(u => u.id === userId);
+            if (user) {
+                document.dispatchEvent(new CustomEvent('open-reset-password-modal', { detail: { user } }));
+            }
+        });
+    });
+
+    // Кнопки видалення
+    document.querySelectorAll('.btn-delete-user').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.currentTarget.dataset.userId;
+            const user = usersAdminState.users.find(u => u.id === userId);
+            if (user) {
+                document.dispatchEvent(new CustomEvent('open-delete-user-modal', { detail: { user } }));
+            }
+        });
+    });
+}

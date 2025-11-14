@@ -20,12 +20,14 @@
 // КОНФІГУРАЦІЯ (з .env):
 // - GOOGLE_SERVICE_ACCOUNT_EMAIL: email Service Account
 // - GOOGLE_PRIVATE_KEY: приватний ключ (з \n замінюється на переноси)
-// - SPREADSHEET_ID: ID основної таблиці (Banned, Users)
+// - SPREADSHEET_ID: ID основної таблиці (Banned, Links)
 // - SPREADSHEET_ID_TEXTS: ID таблиці текстів товарів
+// - SPREADSHEET_ID_USERS: ID закритої таблиці користувачів (Users Database)
 //
 // ТИПИ ТАБЛИЦЬ (spreadsheetType):
 // - 'main': основна таблиця (SPREADSHEET_ID)
 // - 'texts': таблиця текстів (SPREADSHEET_ID_TEXTS)
+// - 'users': таблиця користувачів (SPREADSHEET_ID_USERS)
 //
 // ФОРМАТИ ДІАПАЗОНІВ:
 // - "Sheet1!A1:B10" - конкретний діапазон
@@ -40,6 +42,7 @@ const GOOGLE_SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SPREADSHEET_ID_TEXTS = process.env.SPREADSHEET_ID_TEXTS;
+const SPREADSHEET_ID_USERS = process.env.SPREADSHEET_ID_USERS;
 
 // =========================================================================
 // ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
@@ -63,12 +66,15 @@ function getGoogleSheetsClient() {
 
 /**
  * Отримує ID таблиці за її типом
- * @param {string} type - Тип таблиці ('main' | 'texts')
+ * @param {string} type - Тип таблиці ('main' | 'texts' | 'users')
  * @returns {string} ID Google Spreadsheet
  */
 function getSpreadsheetId(type = 'main') {
   if (type === 'texts') {
     return SPREADSHEET_ID_TEXTS;
+  }
+  if (type === 'users') {
+    return SPREADSHEET_ID_USERS;
   }
   return SPREADSHEET_ID;
 }
@@ -80,7 +86,7 @@ function getSpreadsheetId(type = 'main') {
 /**
  * Читає дані з одного діапазону
  * @param {string} range - Діапазон (формат: "Sheet!A1:B10")
- * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts')
+ * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts' | 'users')
  * @returns {Promise<Array>} Масив рядків з даними
  */
 async function getValues(range, spreadsheetType = 'main') {
@@ -102,7 +108,7 @@ async function getValues(range, spreadsheetType = 'main') {
 /**
  * Batch отримання даних з кількох діапазонів одночасно
  * @param {Array<string>} ranges - Масив діапазонів
- * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts')
+ * @param {string} spreadsheetType - Тип таблиці ('main' | 'texts' | 'users')
  * @returns {Promise<Array>} Масив об'єктів valueRanges
  */
 async function batchGetValues(ranges, spreadsheetType = 'main') {
