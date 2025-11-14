@@ -14,9 +14,9 @@ const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 // API endpoints
 const AUTH_API_BASE = window.location.origin;
-const API_LOGIN = `${AUTH_API_BASE}/api/auth/login`;
-const API_VERIFY = `${AUTH_API_BASE}/api/auth/verify`;
-const API_LOGOUT = `${AUTH_API_BASE}/api/auth/logout`;
+const API_LOGIN = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
+const API_VERIFY = `${AUTH_API_BASE}/api/auth/verify`; // Legacy path still supported
+const API_LOGOUT = `${AUTH_API_BASE}/api/auth`; // Unified endpoint
 
 // Глобальний стан авторизації
 window.isAuthorized = false;
@@ -147,6 +147,7 @@ async function handleSignOut() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
+        body: JSON.stringify({ action: 'logout' }),
       });
     }
   } catch (error) {

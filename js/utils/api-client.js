@@ -4,7 +4,7 @@
  */
 
 const API_BASE = window.location.origin;
-const API_SHEETS_PROXY = `${API_BASE}/api/sheets/proxy`;
+const API_SHEETS_PROXY = `${API_BASE}/api/sheets`; // Unified endpoint
 
 /**
  * Виконує запит до backend з автоматичним додаванням токена
