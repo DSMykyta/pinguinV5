@@ -43,11 +43,10 @@ export async function renderUsersTable() {
  */
 function generateTableHTML(users, visibleColumns) {
     const columnConfig = {
-        username: { label: 'Ім\'я користувача', width: '200px' },
+        actions: { label: 'Дії', width: '80px' },
+        username: { label: 'Ім\'я користувача', width: '250px' },
         role: { label: 'Роль', width: '120px' },
-        created_at: { label: 'Дата створення', width: '180px' },
-        last_login: { label: 'Останній вхід', width: '180px' },
-        actions: { label: 'Дії', width: '200px' }
+        last_login: { label: 'Останній вхід', width: '180px' }
     };
 
     // Генерація header
@@ -92,11 +91,10 @@ function generateTableHTML(users, visibleColumns) {
  */
 function generateUserRow(user, visibleColumns) {
     const columnConfig = {
-        username: { label: 'Ім\'я користувача', width: '200px' },
+        actions: { label: 'Дії', width: '80px' },
+        username: { label: 'Ім\'я користувача', width: '250px' },
         role: { label: 'Роль', width: '120px' },
-        created_at: { label: 'Дата створення', width: '180px' },
-        last_login: { label: 'Останній вхід', width: '180px' },
-        actions: { label: 'Дії', width: '200px' }
+        last_login: { label: 'Останній вхід', width: '180px' }
     };
 
     let rowHTML = `<div class="pseudo-table-row" data-user-id="${user.id}">`;
@@ -105,7 +103,15 @@ function generateUserRow(user, visibleColumns) {
         const config = columnConfig[columnId];
         if (!config) return;
 
-        if (columnId === 'username') {
+        if (columnId === 'actions') {
+            rowHTML += `
+                <div class="pseudo-table-cell" style="width: ${config.width};">
+                    <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>
+            `;
+        } else if (columnId === 'username') {
             rowHTML += `
                 <div class="pseudo-table-cell" style="width: ${config.width};">
                     <span class="cell-text">${escapeHtml(user.username)}</span>
@@ -118,34 +124,11 @@ function generateUserRow(user, visibleColumns) {
                     ${roleBadge}
                 </div>
             `;
-        } else if (columnId === 'created_at') {
-            const formattedDate = formatDate(user.created_at);
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    <span class="cell-text">${formattedDate}</span>
-                </div>
-            `;
         } else if (columnId === 'last_login') {
             const formattedDate = user.last_login ? formatDate(user.last_login) : '—';
             rowHTML += `
                 <div class="pseudo-table-cell" style="width: ${config.width};">
                     <span class="cell-text">${formattedDate}</span>
-                </div>
-            `;
-        } else if (columnId === 'actions') {
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
-                            <span class="material-symbols-outlined">edit</span>
-                        </button>
-                        <button class="btn-icon btn-reset-password" data-user-id="${user.id}" aria-label="Скинути пароль">
-                            <span class="material-symbols-outlined">key</span>
-                        </button>
-                        <button class="btn-icon btn-delete-user" data-user-id="${user.id}" aria-label="Видалити">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
                 </div>
             `;
         }
@@ -230,28 +213,6 @@ function attachEventHandlers() {
             const user = usersAdminState.users.find(u => u.id === userId);
             if (user) {
                 document.dispatchEvent(new CustomEvent('open-edit-user-modal', { detail: { user } }));
-            }
-        });
-    });
-
-    // Кнопки скидання пароля
-    document.querySelectorAll('.btn-reset-password').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const userId = e.currentTarget.dataset.userId;
-            const user = usersAdminState.users.find(u => u.id === userId);
-            if (user) {
-                document.dispatchEvent(new CustomEvent('open-reset-password-modal', { detail: { user } }));
-            }
-        });
-    });
-
-    // Кнопки видалення
-    document.querySelectorAll('.btn-delete-user').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const userId = e.currentTarget.dataset.userId;
-            const user = usersAdminState.users.find(u => u.id === userId);
-            if (user) {
-                document.dispatchEvent(new CustomEvent('open-delete-user-modal', { detail: { user } }));
             }
         });
     });

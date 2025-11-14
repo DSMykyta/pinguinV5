@@ -14,7 +14,6 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { renderUsersTable } from './users-admin-manage.js';
 import { initModals } from './users-admin-modals.js';
 import { initPaginationForUsers } from './users-admin-pagination.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
 
 /**
  * Глобальний state для users admin модуля
@@ -225,21 +224,6 @@ function initAddUserButton() {
  * Ініціалізує контроль видимості колонок
  */
 function initColumnVisibility() {
-    const columns = [
-        { id: 'username', label: 'Ім\'я користувача', checked: true },
-        { id: 'role', label: 'Роль', checked: true },
-        { id: 'created_at', label: 'Дата створення', checked: true },
-        { id: 'last_login', label: 'Останній вхід', checked: true },
-        { id: 'actions', label: 'Дії', checked: true }
-    ];
-
-    usersAdminState.visibleColumns = columns.filter(c => c.checked).map(c => c.id);
-
-    createColumnSelector('table-columns-list', columns, {
-        checkboxPrefix: 'users-col',
-        onChange: (selectedIds) => {
-            usersAdminState.visibleColumns = selectedIds;
-            renderUsersTable();
-        }
-    });
+    // Фіксований порядок колонок: Дії, Ім'я, Роль, Останній вхід
+    usersAdminState.visibleColumns = ['actions', 'username', 'role', 'last_login'];
 }
