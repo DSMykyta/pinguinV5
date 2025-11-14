@@ -53,8 +53,7 @@ export function initUsersAdmin() {
     // Показати початковий стан (чекаємо авторизацію)
     showLoadingState();
 
-    // Перевірити стан авторизації
-    checkAuthAndLoadData();
+    // НЕ викликати checkAuthAndLoadData() одразу - чекаємо на auth-state-changed!
 
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
