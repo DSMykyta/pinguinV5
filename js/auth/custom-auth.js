@@ -214,7 +214,7 @@ function updateAuthUI(isAuthorized) {
   if (isAuthorized) {
     // Показуємо інфо про користувача та кнопку виходу
     if (loginTriggerButton) loginTriggerButton.style.display = 'none';
-    if (logoutButton) logoutButton.style.display = 'block';
+    if (logoutButton) logoutButton.style.display = 'flex';
     if (userInfo) userInfo.style.display = 'flex';
 
     // Заповнюємо дані користувача
