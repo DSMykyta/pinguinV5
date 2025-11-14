@@ -243,11 +243,56 @@ function handleApiError(error, context = '') {
   throw error;
 }
 
+// ============= HTTP методи для REST API =============
+
+/**
+ * GET запит
+ */
+async function httpGet(url) {
+  return apiRequest(url, { method: 'GET' });
+}
+
+/**
+ * POST запит
+ */
+async function httpPost(url, data) {
+  return apiRequest(url, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * PUT запит
+ */
+async function httpPut(url, data) {
+  return apiRequest(url, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * DELETE запит
+ */
+async function httpDelete(url, data) {
+  return apiRequest(url, {
+    method: 'DELETE',
+    body: JSON.stringify(data),
+  });
+}
+
 // ============= Експорт =============
 
 window.apiClient = {
   // Основна функція запитів
   request: apiRequest,
+
+  // HTTP методи
+  get: httpGet,
+  post: httpPost,
+  put: httpPut,
+  delete: httpDelete,
 
   // Google Sheets API методи
   sheets: {
