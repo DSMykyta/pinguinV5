@@ -117,12 +117,16 @@
                 <span class="nav-icon-label">Користувачі</span>
             </button>
             <button class="nav-icon" data-tab-target="tab-roles-manage">
-                <span class="material-symbols-outlined">settings</span>
-                <span class="nav-icon-label">Управління ролями</span>
+                <span class="material-symbols-outlined">shield_person</span>
+                <span class="nav-icon-label">Ролі</span>
             </button>
-            <button class="nav-icon" data-tab-target="tab-roles-matrix">
-                <span class="material-symbols-outlined">grid_on</span>
-                <span class="nav-icon-label">Матриця доступів</span>
+            <button class="nav-icon" data-tab-target="tab-permissions-catalog">
+                <span class="material-symbols-outlined">key</span>
+                <span class="nav-icon-label">Права</span>
+            </button>
+            <button class="nav-icon" data-tab-target="tab-permissions-assignments">
+                <span class="material-symbols-outlined">lock_person</span>
+                <span class="nav-icon-label">Доступи</span>
             </button>
         </nav>
 
@@ -197,30 +201,30 @@
 
         </div>
 
-        <!-- МАТРИЦЯ ДОСТУПІВ -->
-        <div class="tab-content" data-tab-content="tab-roles-matrix" id="tab-roles-matrix">
+        <!-- УПРАВЛІННЯ ПРАВАМИ (CATALOG) -->
+        <div class="tab-content" data-tab-content="tab-permissions-catalog" id="tab-permissions-catalog">
 
             <div class="section-header" style="align-items: flex-end;">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Матриця доступів</h2>
+                        <h2>Управління правами</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-permissions">Показано 0 з 0</h3>
+                    <h3 id="tab-stats-permissions-catalog">Показано 0 з 0</h3>
 
                     <!-- Фільтри категорій -->
                     <div class="tab-controls" style="margin-top: 8px;">
-                        <button class="nav-icon active" data-permission-category="pages">
+                        <button class="nav-icon active" data-permission-catalog-category="pages">
                             <span class="material-symbols-outlined">public</span>
                             <span class="nav-icon-label">Сторінки</span>
                         </button>
-                        <button class="nav-icon" data-permission-category="panels">
+                        <button class="nav-icon" data-permission-catalog-category="panels">
                             <span class="material-symbols-outlined">dashboard</span>
                             <span class="nav-icon-label">Панелі</span>
                         </button>
-                        <button class="nav-icon" data-permission-category="actions">
+                        <button class="nav-icon" data-permission-catalog-category="actions">
                             <span class="material-symbols-outlined">settings</span>
                             <span class="nav-icon-label">Дії</span>
                         </button>
@@ -228,17 +232,69 @@
                 </div>
 
                 <div class="tab-controls">
-                    <button id="refresh-tab-permissions" class="btn-icon" aria-label="Оновити">
+                    <button id="add-permission-btn" class="btn-primary" aria-label="Додати право" style="display: none;">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        <span>Додати право</span>
+                    </button>
+
+                    <button id="refresh-tab-permissions-catalog" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
                 </div>
             </div>
 
             <!-- Контейнер для таблиці прав -->
-            <div id="permissions-table-container" class="pseudo-table-container">
+            <div id="permissions-catalog-container" class="pseudo-table-container">
                 <div class="loading-state">
-                    <span class="material-symbols-outlined">shield</span>
+                    <span class="material-symbols-outlined">key</span>
                     <p>Завантаження прав...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ПРИЗНАЧЕННЯ ПРАВ (ASSIGNMENTS) -->
+        <div class="tab-content" data-tab-content="tab-permissions-assignments" id="tab-permissions-assignments">
+
+            <div class="section-header" style="align-items: flex-end;">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Призначення доступів</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3 id="tab-stats-permissions-assignments">Показано 0 з 0</h3>
+
+                    <!-- Фільтри категорій -->
+                    <div class="tab-controls" style="margin-top: 8px;">
+                        <button class="nav-icon active" data-permission-assignment-category="pages">
+                            <span class="material-symbols-outlined">public</span>
+                            <span class="nav-icon-label">Сторінки</span>
+                        </button>
+                        <button class="nav-icon" data-permission-assignment-category="panels">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            <span class="nav-icon-label">Панелі</span>
+                        </button>
+                        <button class="nav-icon" data-permission-assignment-category="actions">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span class="nav-icon-label">Дії</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-permissions-assignments" class="btn-icon" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Контейнер для таблиці призначень -->
+            <div id="permissions-assignments-container" class="pseudo-table-container">
+                <div class="loading-state">
+                    <span class="material-symbols-outlined">lock_person</span>
+                    <p>Завантаження призначень...</p>
                 </div>
             </div>
 

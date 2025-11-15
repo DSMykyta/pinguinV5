@@ -1,6 +1,6 @@
-<div id="permission-modal" class="modal" style="display: none;">
+<div id="permission-assignment-modal" class="modal" style="display: none;">
     <div class="modal-header">
-        <h2 class="modal-title">Редагування права доступу</h2>
+        <h2 class="modal-title">Призначення доступу</h2>
         <button class="btn-icon modal-close" aria-label="Закрити">
             <span class="material-symbols-outlined">close</span>
         </button>
@@ -8,32 +8,33 @@
 
     <fieldset class="input-group">
         <!-- Hidden field для permission_key -->
-        <input type="hidden" id="permission-key-hidden">
+        <input type="hidden" id="permission-assignment-key">
 
-        <!-- Назва права (readonly) -->
+        <!-- Інформація про право -->
         <div class="form-group">
-            <label for="permission-label">
-                Назва права
-            </label>
-            <input type="text" id="permission-label" class="input-main" readonly>
-        </div>
-
-        <!-- Ключ права (readonly) -->
-        <div class="form-group">
-            <label for="permission-key">
-                Ключ права
-            </label>
-            <input type="text" id="permission-key" class="input-main" readonly>
+            <label>📝 Право</label>
+            <div style="padding: 12px; background: var(--color-surface-c-low); border-radius: var(--radius-s); margin-top: 4px;">
+                <div style="font-weight: 500; font-size: 14px;" id="permission-assignment-label"></div>
+                <div style="font-size: 12px; color: var(--color-on-surface-v); margin-top: 4px;">
+                    <code id="permission-assignment-key-display"></code>
+                </div>
+            </div>
         </div>
 
         <!-- Мультиселект ролей (заповнюється динамічно) -->
         <div class="form-group">
-            <label for="permission-roles">
+            <label for="permission-assignment-roles">
                 🛡️ Ролі які мають доступ
             </label>
-            <select id="permission-roles" multiple data-custom-select>
+            <select id="permission-assignment-roles" multiple data-custom-select>
                 <!-- Ролі завантажуються динамічно з API -->
             </select>
+            <small class="form-hint">Оберіть ролі які матимуть доступ до цього права. Guest = неавторизовані користувачі.</small>
         </div>
+
+        <button type="button" class="btn-primary" id="save-permission-assignment-btn">
+            <span class="material-symbols-outlined">save</span>
+            <span>Зберегти</span>
+        </button>
     </fieldset>
 </div>
