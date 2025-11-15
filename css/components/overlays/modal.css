@@ -54,6 +54,7 @@ body.is-modal-open {
     flex-direction: column;
     transform: scale(0.95);
     transition: transform 0.2s ease;
+    overflow: visible; /* Дозволити випадаючим меню виходити за межі */
 }
 
 .modal-overlay.is-open .modal-container {
@@ -89,6 +90,7 @@ body.is-modal-open {
 .modal-body {
     padding: var(--space-l);
     overflow-y: auto;
+    overflow-x: visible; /* Дозволити випадаючим меню виходити за межі по горизонталі */
     flex-grow: 1;
 }
 

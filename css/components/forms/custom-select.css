@@ -65,7 +65,7 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    z-index: 9999; /* Поверх всіх інших елементів */
+    z-index: 10000; /* Поверх модалів і інших елементів */
     background-color: var(--color-surface-c-high);
     border-radius: var(--radius-m, 8px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

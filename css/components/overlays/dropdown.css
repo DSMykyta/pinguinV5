@@ -22,7 +22,7 @@
     box-shadow: var(--shadow-2);
     padding: 4px;
     border: 1px solid var(--color-outline);
-    z-index: 1000;
+    z-index: 10000;
 
     /* Анімація: початковий стан для плавності */
     opacity: 0;

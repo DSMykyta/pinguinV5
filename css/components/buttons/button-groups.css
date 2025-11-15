@@ -106,3 +106,12 @@
 .segment .material-symbols-outlined {
     font-size: 18px;
 }
+
+/* ============================================
+   CONFIRM MODAL BUTTONS (без іконок)
+   ============================================ */
+
+/* Приховування іконок для confirm-модалів */
+.modal-footer.modal-footer-confirm .segment .material-symbols-outlined {
+    display: none;
+}

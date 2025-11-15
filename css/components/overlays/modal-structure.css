@@ -57,12 +57,17 @@
     border-top: 1px solid var(--color-outline-v);
 }
 
+/* Центрування кнопок для confirm-модалів */
+.modal-footer.modal-footer-confirm {
+    justify-content: center;
+}
+
 /* ============================================
    MODAL SIZES (data-modal-size="small|medium|large")
    ============================================ */
 
 .modal-container.modal-small {
-    width: 400px;
+    width: 320px;
     max-width: 90vw;
 }
 

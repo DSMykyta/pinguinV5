@@ -434,6 +434,149 @@ document.addEventListener('modal-closed', () => {
 
 ---
 
+## 🔄 Модалі Створення/Редагування
+
+### ВАЖЛИВО: Create і Edit - це ОДИН модал
+
+**Правило:** Модалі для створення та редагування записів - це **один і той же модал**, який працює в двох режимах:
+
+1. **Режим створення (Create)** - форма порожня, кнопка "Створити"
+2. **Режим редагування (Edit)** - форма заповнена даними, кнопка "Зберегти"
+
+### Як це працює
+
+```javascript
+// Відкриття для створення (порожня форма)
+showModal('entity-add-category'); // Форма порожня
+
+// Відкриття для редагування (форма з даними)
+showModal('entity-add-category'); // Заповнюємо дані після відкриття
+document.getElementById('category-name').value = existingCategory.name;
+document.getElementById('category-slug').value = existingCategory.slug;
+```
+
+### Приклад: Модал Категорії
+
+```html
+<!-- templates/modals/entity-add-category.html -->
+<div class="modal-title-source u-hidden">
+    Категорія
+</div>
+
+<div class="modal-header-actions-source u-hidden">
+</div>
+
+<div class="modal-body-source">
+    <form id="form-category" class="modal-form">
+
+        <div class="form-group">
+            <label for="category-name">Назва <span class="required">*</span></label>
+            <input type="text" id="category-name" class="input-main" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category-slug">Slug <span class="required">*</span></label>
+            <input type="text" id="category-slug" class="input-main" required>
+        </div>
+
+        <div class="connected-button-group-square modal-footer" role="group">
+            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">close</span>
+                    <span class="label">Скасувати</span>
+                </div>
+            </button>
+            <button type="submit" id="btn-save-category" class="segment" aria-label="Зберегти">
+                <div class="state-layer">
+                    <span class="material-symbols-outlined">save</span>
+                    <span class="label">Зберегти</span>
+                </div>
+            </button>
+        </div>
+
+    </form>
+</div>
+```
+
+### JavaScript для обох режимів
+
+```javascript
+// Кнопка "Додати категорію" - Create режим
+btnAddCategory.addEventListener('click', () => {
+    showModal('entity-add-category');
+
+    // Очищаємо форму
+    document.getElementById('form-category').reset();
+
+    // Змінюємо кнопку на "Створити"
+    const btnSave = document.getElementById('btn-save-category');
+    btnSave.querySelector('.label').textContent = 'Створити';
+    btnSave.querySelector('.material-symbols-outlined').textContent = 'add';
+
+    // Прибираємо ID якщо він був
+    delete btnSave.dataset.categoryId;
+});
+
+// Кнопка "Редагувати" - Edit режим
+btnEditCategory.addEventListener('click', (categoryData) => {
+    showModal('entity-add-category');
+
+    // Заповнюємо форму
+    document.getElementById('category-name').value = categoryData.name;
+    document.getElementById('category-slug').value = categoryData.slug;
+
+    // Змінюємо кнопку на "Зберегти"
+    const btnSave = document.getElementById('btn-save-category');
+    btnSave.querySelector('.label').textContent = 'Зберегти';
+    btnSave.querySelector('.material-symbols-outlined').textContent = 'save';
+
+    // Зберігаємо ID для оновлення
+    btnSave.dataset.categoryId = categoryData.id;
+});
+
+// Обробник submit - працює для обох режимів
+document.getElementById('form-category').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const btnSave = document.getElementById('btn-save-category');
+    const categoryId = btnSave.dataset.categoryId;
+
+    const data = {
+        name: document.getElementById('category-name').value,
+        slug: document.getElementById('category-slug').value
+    };
+
+    if (categoryId) {
+        // Режим редагування - UPDATE
+        await updateCategory(categoryId, data);
+    } else {
+        // Режим створення - CREATE
+        await createCategory(data);
+    }
+
+    closeModal();
+});
+```
+
+### Переваги цього підходу
+
+✅ **Менше дублювання коду** - один HTML файл замість двох
+✅ **Єдина логіка валідації** - не потрібно підтримувати двічі
+✅ **Менше файлів** - простіша структура проєкту
+✅ **Консистентний UX** - користувач бачить однаковий інтерфейс
+
+### Що НЕ треба робити
+
+❌ **НЕ створюйте окремі модалі:**
+- `entity-add-category.html` та `entity-edit-category.html` ❌
+- `product-create.html` та `product-edit.html` ❌
+
+✅ **ПРАВИЛЬНО - один модал:**
+- `entity-add-category.html` (для обох режимів) ✅
+- `product-form.html` (для обох режимів) ✅
+
+---
+
 ## 📖 Приклади
 
 ### Приклад 1: Простий Confirm Modal
