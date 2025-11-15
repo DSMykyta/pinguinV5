@@ -10,6 +10,8 @@
 
 import { usersAdminState } from './users-admin-init.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
+import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 /**
  * Рендерить таблицю користувачів з пагінацією
@@ -31,136 +33,71 @@ export async function renderUsersTable() {
     // Оновити статистику
     updateStats(paginatedUsers.length, users.length);
 
-    // Згенерувати HTML таблиці
-    const tableHTML = generateTableHTML(paginatedUsers, visibleColumns);
-    container.innerHTML = tableHTML;
+    // Визначити які колонки показувати
+    const visibleCols = (visibleColumns && visibleColumns.length > 0)
+        ? visibleColumns
+        : ['avatar', 'display_name', 'username', 'role', 'last_login'];
+
+    // Рендеринг таблиці через універсальний компонент
+    renderPseudoTable(container, {
+        data: paginatedUsers,
+        columns: [
+            {
+                id: 'avatar',
+                label: '',
+                sortable: false, // Аватар не сортується
+                className: 'cell-severity',
+                render: (value) => {
+                    if (value) {
+                        const avatarPath = getAvatarPath(value, 'calm');
+                        return `<div class="table-avatar"><img src="${avatarPath}" alt="${value}" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px;\\'>person</span>'"></div>`;
+                    }
+                    return `<span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-secondary);">person</span>`;
+                }
+            },
+            {
+                id: 'display_name',
+                label: 'Повне ім\'я',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => `<strong>${escapeHtml(value || '—')}</strong>`
+            },
+            {
+                id: 'username',
+                label: 'Ім\'я користувача',
+                sortable: true,
+                render: (value) => escapeHtml(value || '—')
+            },
+            {
+                id: 'role',
+                label: 'Роль',
+                sortable: true,
+                render: (value) => getRoleBadge(value)
+            },
+            {
+                id: 'last_login',
+                label: 'Останній вхід',
+                sortable: true,
+                render: (value) => formatDate(value)
+            }
+        ],
+        visibleColumns: visibleCols,
+        rowActionsCustom: (row) => {
+            return `
+                <button class="btn-icon btn-edit-user" data-user-id="${escapeHtml(row.id)}" data-action="edit" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
+        emptyState: {
+            icon: 'person_off',
+            message: 'Користувачів не знайдено'
+        },
+        withContainer: false
+    });
 
     // Додати обробники подій
     attachEventHandlers();
-}
-
-/**
- * Генерує HTML для таблиці користувачів
- */
-function generateTableHTML(users, visibleColumns) {
-    const columnConfig = {
-        actions: { label: 'Дії', width: '80px' },
-        avatar: { label: '', width: '50px' },
-        display_name: { label: 'Повне ім\'я', width: '200px' },
-        username: { label: 'Ім\'я користувача', width: '200px' },
-        role: { label: 'Роль', width: '120px' },
-        last_login: { label: 'Останній вхід', width: '180px' }
-    };
-
-    // Генерація header
-    let headerHTML = '<div class="pseudo-table-row pseudo-table-header">';
-    visibleColumns.forEach(columnId => {
-        const config = columnConfig[columnId];
-        if (config) {
-            const cellClass = columnId === 'actions' ? 'cell-actions' : 'sortable-header';
-            const dataSort = columnId !== 'actions' ? `data-sort="${columnId}"` : '';
-
-            headerHTML += `
-                <div class="pseudo-table-cell ${cellClass}" ${dataSort}>
-                    <span>${config.label}</span>
-                    ${columnId !== 'actions' ? '<span class="sort-indicator"></span>' : ''}
-                </div>
-            `;
-        }
-    });
-    headerHTML += '</div>';
-
-    // Генерація рядків
-    let rowsHTML = '';
-    if (users.length === 0) {
-        rowsHTML = `
-            <div class="loading-state">
-                <span class="material-symbols-outlined">person_off</span>
-                <p>Користувачів не знайдено</p>
-            </div>
-        `;
-    } else {
-        users.forEach(user => {
-            rowsHTML += generateUserRow(user, visibleColumns);
-        });
-    }
-
-    return `
-        <div class="pseudo-table">
-            ${headerHTML}
-            ${rowsHTML}
-        </div>
-    `;
-}
-
-/**
- * Генерує HTML для одного рядка користувача
- */
-function generateUserRow(user, visibleColumns) {
-    const columnConfig = {
-        actions: { label: 'Дії', width: '80px' },
-        avatar: { label: '', width: '50px' },
-        display_name: { label: 'Повне ім\'я', width: '200px' },
-        username: { label: 'Ім\'я користувача', width: '200px' },
-        role: { label: 'Роль', width: '120px' },
-        last_login: { label: 'Останній вхід', width: '180px' }
-    };
-
-    let rowHTML = `<div class="pseudo-table-row" data-user-id="${user.id}">`;
-
-    visibleColumns.forEach(columnId => {
-        const config = columnConfig[columnId];
-        if (!config) return;
-
-        if (columnId === 'actions') {
-            rowHTML += `
-                <div class="pseudo-table-cell cell-actions">
-                    <button class="btn-icon btn-edit-user" data-user-id="${user.id}" aria-label="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                </div>
-            `;
-        } else if (columnId === 'avatar') {
-            const avatarHtml = user.avatar
-                ? `<div class="table-avatar"><img src="${getAvatarPath(user.avatar, 'calm')}" alt="${user.avatar}" onerror="this.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px;\\'>person</span>'"></div>`
-                : `<span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-secondary);">person</span>`;
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width}; text-align: center;">
-                    ${avatarHtml}
-                </div>
-            `;
-        } else if (columnId === 'display_name') {
-            const displayName = user.display_name || '—';
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    <span class="cell-text">${escapeHtml(displayName)}</span>
-                </div>
-            `;
-        } else if (columnId === 'username') {
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    <span class="cell-text">${escapeHtml(user.username)}</span>
-                </div>
-            `;
-        } else if (columnId === 'role') {
-            const roleBadge = getRoleBadge(user.role);
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    ${roleBadge}
-                </div>
-            `;
-        } else if (columnId === 'last_login') {
-            const formattedDate = user.last_login ? formatDate(user.last_login) : '—';
-            rowHTML += `
-                <div class="pseudo-table-cell" style="width: ${config.width};">
-                    <span class="cell-text">${formattedDate}</span>
-                </div>
-            `;
-        }
-    });
-
-    rowHTML += '</div>';
-    return rowHTML;
 }
 
 /**
@@ -183,38 +120,50 @@ function formatDate(isoString) {
 
     try {
         const date = new Date(isoString);
+
+        // Перевірка чи валідна дата
+        if (isNaN(date.getTime())) {
+            return '—';
+        }
+
         const now = new Date();
-        const diffMs = now - date;
+
+        // Скидаємо час до початку дня для обох дат
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const checkDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        const diffMs = today - checkDate;
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        const timeStr = date.toLocaleTimeString('uk-UA', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
 
         // Якщо сьогодні
         if (diffDays === 0) {
-            return `Сьогодні, ${date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}`;
+            return `Сьогодні, ${timeStr}`;
         }
 
         // Якщо вчора
         if (diffDays === 1) {
-            return `Вчора, ${date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}`;
+            return `Вчора, ${timeStr}`;
         }
 
-        // Інакше показати дату
-        return date.toLocaleDateString('uk-UA', {
+        // Інакше показати повну дату
+        return date.toLocaleString('uk-UA', {
             day: '2-digit',
             month: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
         });
     } catch (error) {
-        return isoString;
+        console.error('Error formatting date:', error);
+        return '—';
     }
-}
-
-/**
- * Екранує HTML спецсимволи
- */
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 /**
@@ -241,57 +190,4 @@ function attachEventHandlers() {
             }
         });
     });
-
-    // Сортування колонок
-    document.querySelectorAll('.sortable-header').forEach(header => {
-        header.addEventListener('click', (e) => {
-            const sortBy = e.currentTarget.dataset.sort;
-            handleSort(sortBy);
-        });
-    });
-}
-
-/**
- * Обробляє сортування таблиці
- */
-function handleSort(columnId) {
-    const { sortBy, sortDirection } = usersAdminState;
-
-    // Визначити напрямок сортування
-    let newDirection = 'asc';
-    if (sortBy === columnId && sortDirection === 'asc') {
-        newDirection = 'desc';
-    }
-
-    usersAdminState.sortBy = columnId;
-    usersAdminState.sortDirection = newDirection;
-
-    // Сортувати дані
-    usersAdminState.users.sort((a, b) => {
-        let aVal = a[columnId] || '';
-        let bVal = b[columnId] || '';
-
-        // Сортування дат
-        if (columnId === 'last_login') {
-            aVal = aVal ? new Date(aVal).getTime() : 0;
-            bVal = bVal ? new Date(bVal).getTime() : 0;
-        }
-
-        if (aVal < bVal) return newDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return newDirection === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    // Оновити індикатори сортування
-    document.querySelectorAll('.sortable-header').forEach(header => {
-        header.classList.remove('sort-asc', 'sort-desc');
-    });
-
-    const activeHeader = document.querySelector(`.sortable-header[data-sort="${columnId}"]`);
-    if (activeHeader) {
-        activeHeader.classList.add(`sort-${newDirection}`);
-    }
-
-    // Перерендерити таблицю
-    renderUsersTable();
 }

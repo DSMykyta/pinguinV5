@@ -254,6 +254,12 @@ function updateAuthUI(isAuthorized) {
         link.style.display = 'flex';
       }
     });
+
+    // Показуємо кнопку Users Admin тільки для admin
+    const usersAdminLink = document.getElementById('users-admin-link');
+    if (usersAdminLink) {
+      usersAdminLink.style.display = user.role === 'admin' ? 'flex' : 'none';
+    }
   } else {
     // Показуємо кнопку логіну
     if (loginTriggerButton) loginTriggerButton.style.display = 'block';
@@ -264,6 +270,12 @@ function updateAuthUI(isAuthorized) {
     authRequiredLinks.forEach(link => {
       link.style.display = 'none';
     });
+
+    // Приховуємо кнопку Users Admin
+    const usersAdminLink = document.getElementById('users-admin-link');
+    if (usersAdminLink) {
+      usersAdminLink.style.display = 'none';
+    }
   }
 
   // Оновлюємо кнопки редагування для viewer
