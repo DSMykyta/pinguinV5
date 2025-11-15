@@ -113,6 +113,10 @@
                 <span class="material-symbols-outlined">block</span>
                 <span class="nav-icon-label">Заборонені слова</span>
             </button>
+            <button class="nav-icon" data-tab-target="tab-test">
+                <span class="material-symbols-outlined">science</span>
+                <span class="nav-icon-label">Тест</span>
+            </button>
             <!-- Динамічні check таби додаються тут -->
         </nav>
         <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
@@ -172,7 +176,41 @@
             </div>
         </div>
 
-        <!-- TAB 2+: ПЕРЕВІРКА АРКУШІВ (створюються динамічно) -->
+        <!-- TAB 2: ТЕСТОВА ТАБЛИЦЯ -->
+        <div class="tab-content" data-tab-content="tab-test" id="tab-test">
+
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Тестова таблиця</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3>Демонстрація системи завантаження шаблонів</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-test" class="btn-icon" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div id="test-table-container" class="pseudo-table-container">
+                <!-- Шапка таблиці -->
+                <div class="pseudo-table-header">
+                    <div class="pseudo-table-cell cell-id">ID</div>
+                    <div class="pseudo-table-cell cell-name" style="flex: 2;">Слово</div>
+                    <div class="pseudo-table-cell cell-name">Категорія</div>
+                    <div class="pseudo-table-cell cell-bool">Статус</div>
+                </div>
+                <!-- Рядки додаються динамічно через ui-table-loader.js -->
+            </div>
+        </div>
+
+        <!-- TAB 3+: ПЕРЕВІРКА АРКУШІВ (створюються динамічно) -->
         <div id="sheet-tabs-content-container"></div>
 
         <!-- ФІКСОВАНИЙ ФУТЕР -->
@@ -213,6 +251,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="js/utils/api-client.js"></script>
     <script type="module" src="js/main-banned-words.js"></script>
+    <script type="module" src="js/test-table.js"></script>
 </body>
 
 </html>

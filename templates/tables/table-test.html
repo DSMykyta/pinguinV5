@@ -1,0 +1,37 @@
+<!--
+  TEMPLATE: Test Table
+
+  ПРИЗНАЧЕННЯ:
+  Тестовий шаблон таблиці для демонстрації роботи системи завантаження шаблонів
+
+  СТРУКТУРА:
+  - ID колонка (cell-id)
+  - Назва/Слово колонка (cell-name, flex: 2)
+  - Категорія колонка (cell-name)
+  - Статус колонка (cell-bool)
+
+  ВИКОРИСТАННЯ:
+  const template = await loadTableTemplate('table-test');
+  const row = createTableRow(template, {
+    id: 1,
+    word: 'заборонене',
+    category: 'Категорія 1',
+    statusBadge: '<span class="chip chip-success">Активно</span>'
+  });
+-->
+
+<template id="table-test-template">
+  <div class="pseudo-table-row clickable-row">
+    <!-- ID колонка: фіксована ширина 80px -->
+    <div class="pseudo-table-cell cell-id">{{id}}</div>
+
+    <!-- Слово/Назва колонка: займає в 2 рази більше місця -->
+    <div class="pseudo-table-cell cell-name" style="flex: 2;">{{word}}</div>
+
+    <!-- Категорія колонка: flex: 1 (стандартна ширина) -->
+    <div class="pseudo-table-cell cell-name">{{category}}</div>
+
+    <!-- Статус колонка: фіксована ширина 100px, по центру -->
+    <div class="pseudo-table-cell cell-bool">{{statusBadge}}</div>
+  </div>
+</template>
