@@ -24,22 +24,19 @@ export function initCore() {
     initEventHandlers();
     initSectionNavigator();
 
-    // Ініціалізуємо Custom Auth
-    // Callback викликається після успішної авторизації
-    window.onAuthSuccess = async () => {
-        console.log('✅ Авторизація готова');
-
-        // Завантажити права користувача та приховати недоступні елементи
-        await initPermissions();
-    };
-
     // Слухати події зміни авторизації для оновлення прав
+    // ВАЖЛИВО: event listener має бути ДО initCustomAuth()
     document.addEventListener('auth-state-changed', async (event) => {
+        console.log('🔐 auth-state-changed event:', event.detail);
+
+        // Невелика затримка щоб дати час localStorage оновитись
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         if (event.detail.isAuthorized) {
-            // Користувач увійшов - оновити права
-            await refreshPermissions();
+            // Користувач увійшов - завантажити права
+            await initPermissions();
         } else {
-            // Користувач вийшов - оновити права для guest
+            // Користувач вийшов - завантажити права для guest
             await refreshPermissions();
         }
     });
