@@ -1,0 +1,39 @@
+<div id="permission-modal" class="modal" style="display: none;">
+    <div class="modal-header">
+        <h2 class="modal-title">Редагування права доступу</h2>
+        <button class="btn-icon modal-close" aria-label="Закрити">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
+    <fieldset class="input-group">
+        <!-- Hidden field для permission_key -->
+        <input type="hidden" id="permission-key-hidden">
+
+        <!-- Назва права (readonly) -->
+        <div class="form-group">
+            <label for="permission-label">
+                Назва права
+            </label>
+            <input type="text" id="permission-label" class="input-main" readonly>
+        </div>
+
+        <!-- Ключ права (readonly) -->
+        <div class="form-group">
+            <label for="permission-key">
+                Ключ права
+            </label>
+            <input type="text" id="permission-key" class="input-main" readonly>
+        </div>
+
+        <!-- Мультиселект ролей (заповнюється динамічно) -->
+        <div class="form-group">
+            <label for="permission-roles">
+                🛡️ Ролі які мають доступ
+            </label>
+            <select id="permission-roles" multiple data-custom-select>
+                <!-- Ролі завантажуються динамічно з API -->
+            </select>
+        </div>
+    </fieldset>
+</div>

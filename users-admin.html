@@ -208,21 +208,37 @@
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-roles-matrix">Показано 0 з 0</h3>
+                    <h3 id="tab-stats-permissions">Показано 0 з 0</h3>
+
+                    <!-- Фільтри категорій -->
+                    <div class="tab-controls" style="margin-top: 8px;">
+                        <button class="nav-icon active" data-permission-category="pages">
+                            <span class="material-symbols-outlined">public</span>
+                            <span class="nav-icon-label">Сторінки</span>
+                        </button>
+                        <button class="nav-icon" data-permission-category="panels">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            <span class="nav-icon-label">Панелі</span>
+                        </button>
+                        <button class="nav-icon" data-permission-category="actions">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span class="nav-icon-label">Дії</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="tab-controls">
-                    <button id="refresh-tab-roles-matrix" class="btn-icon" aria-label="Оновити">
+                    <button id="refresh-tab-permissions" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Контейнер для матриці доступів -->
-            <div id="roles-matrix-container" class="pseudo-table-container">
+            <!-- Контейнер для таблиці прав -->
+            <div id="permissions-table-container" class="pseudo-table-container">
                 <div class="loading-state">
-                    <span class="material-symbols-outlined">grid_on</span>
-                    <p>Завантаження матриці доступів...</p>
+                    <span class="material-symbols-outlined">shield</span>
+                    <p>Завантаження прав...</p>
                 </div>
             </div>
 

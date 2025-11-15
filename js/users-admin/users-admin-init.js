@@ -15,8 +15,9 @@ import { renderUsersTable } from './users-admin-manage.js';
 import { initModals } from './users-admin-modals.js';
 import { initPaginationForUsers } from './users-admin-pagination.js';
 import { renderRolesTable } from './users-admin-roles-manage.js';
-import { renderPermissionsMatrix } from './users-admin-roles-matrix.js';
 import { initRolesModals } from './users-admin-roles-modals.js';
+import { loadPermissions, renderPermissionsTable, initCategoryFilters } from './users-admin-permissions-table.js';
+import { initPermissionsModals } from './users-admin-permissions-modal.js';
 
 /**
  * Глобальний state для users admin модуля
@@ -75,12 +76,21 @@ export function initUsersAdmin() {
     // Ініціалізувати модалки ролей
     initRolesModals();
 
+    // Ініціалізувати модалки прав
+    initPermissionsModals();
+
+    // Ініціалізувати фільтри категорій прав
+    initCategoryFilters();
+
     // Ініціалізувати кнопки для табу користувачів
     initRefreshButton();
     initAddUserButton();
 
     // Ініціалізувати кнопки для табу ролей
     initRolesTabButtons();
+
+    // Ініціалізувати кнопки для табу прав
+    initPermissionsTabButtons();
 
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
@@ -99,10 +109,18 @@ export function initUsersAdmin() {
         // Перерендерити поточний активний таб ролей
         if (usersAdminState.currentTab === 'tab-roles-manage') {
             renderRolesTable(usersAdminState.roles);
-        } else if (usersAdminState.currentTab === 'tab-roles-matrix') {
-            if (usersAdminState.permissionsCatalog) {
-                renderPermissionsMatrix(usersAdminState.roles, usersAdminState.permissionsCatalog);
-            }
+        }
+    });
+
+    // Слухати подію оновлення даних прав
+    document.addEventListener('permissions-data-changed', async () => {
+        const success = await loadPermissions();
+
+        // Перерендерити поточний активний таб прав
+        if (success && usersAdminState.currentTab === 'tab-roles-matrix') {
+            const activeFilter = document.querySelector('[data-permission-category].active');
+            const category = activeFilter ? activeFilter.dataset.permissionCategory : 'pages';
+            renderPermissionsTable(category);
         }
     });
 }
@@ -294,23 +312,21 @@ function initTabs() {
             usersAdminState.currentTab = targetTab;
 
             // Завантажити дані для ролей якщо потрібно
-            if ((targetTab === 'tab-roles-manage' || targetTab === 'tab-roles-matrix') && usersAdminState.roles.length === 0) {
+            if (targetTab === 'tab-roles-manage' && usersAdminState.roles.length === 0) {
                 await loadRolesData();
+            }
+
+            // Завантажити дані для прав якщо потрібно
+            if (targetTab === 'tab-roles-matrix') {
+                const success = await loadPermissions();
+                if (success) {
+                    renderPermissionsTable('pages'); // Початкова категорія
+                }
             }
 
             // Рендерити відповідний контент
             if (targetTab === 'tab-roles-manage') {
                 renderRolesTable(usersAdminState.roles);
-            } else if (targetTab === 'tab-roles-matrix') {
-                console.log('🔄 Рендер матриці:', {
-                    rolesCount: usersAdminState.roles.length,
-                    hasCatalog: !!usersAdminState.permissionsCatalog
-                });
-                if (usersAdminState.permissionsCatalog) {
-                    renderPermissionsMatrix(usersAdminState.roles, usersAdminState.permissionsCatalog);
-                } else {
-                    console.warn('⚠️ Каталог прав не завантажено');
-                }
             }
         });
     });
@@ -339,18 +355,28 @@ function initRolesTabButtons() {
         });
     }
 
-    // Кнопка оновлення для табу матриці доступів
-    const refreshMatrixBtn = document.getElementById('refresh-tab-roles-matrix');
-    if (refreshMatrixBtn) {
-        refreshMatrixBtn.addEventListener('click', async () => {
-            await loadRolesData();
-            if (usersAdminState.permissionsCatalog) {
-                renderPermissionsMatrix(usersAdminState.roles, usersAdminState.permissionsCatalog);
+    console.log('✅ Кнопки табів ролей ініціалізовані');
+}
+
+/**
+ * Ініціалізує кнопки для табу прав
+ */
+function initPermissionsTabButtons() {
+    // Кнопка оновлення для табу прав
+    const refreshBtn = document.getElementById('refresh-tab-permissions');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            const success = await loadPermissions();
+            if (success) {
+                // Рендерити поточну активну категорію
+                const activeFilter = document.querySelector('[data-permission-category].active');
+                const category = activeFilter ? activeFilter.dataset.permissionCategory : 'pages';
+                renderPermissionsTable(category);
             }
         });
     }
 
-    console.log('✅ Кнопки табів ролей ініціалізовані');
+    console.log('✅ Кнопки табу прав ініціалізовані');
 }
 
 /**
