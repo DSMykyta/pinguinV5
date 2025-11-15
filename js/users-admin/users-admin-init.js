@@ -371,12 +371,19 @@ async function loadRolesData() {
         }
 
         // Завантажити каталог прав
-        const catalogResponse = await window.apiClient.get('/api/roles', { action: 'get-catalog' });
+        console.log('📥 Запит каталогу прав: /api/roles?action=get-catalog');
+        const catalogResponse = await window.apiClient.get('/api/roles?action=get-catalog');
+        console.log('📦 Відповідь каталогу:', catalogResponse);
 
         if (catalogResponse.success) {
             usersAdminState.permissionsCatalog = catalogResponse.catalog;
-            console.log('✅ Каталог прав завантажено');
+            console.log('✅ Каталог прав завантажено:', {
+                pages: catalogResponse.catalog.pages?.length,
+                panels: catalogResponse.catalog.panels?.length,
+                actionsGroups: Object.keys(catalogResponse.catalog.actions || {})
+            });
         } else {
+            console.error('❌ Помилка в відповіді каталогу:', catalogResponse);
             throw new Error(catalogResponse.error || 'Failed to load permissions catalog');
         }
 

@@ -183,19 +183,60 @@ class CustomSelect {
             return;
         }
 
-        const chips = selectedOptions.map(option => this._createChip(option));
+        // Створити всі чіпи
+        const allChips = selectedOptions.map(option => this._createChip(option));
 
-        // Перевірка на переповнення
-        chips.forEach(chip => this.valueContainer.appendChild(chip));
-        const isOverflowing = this.valueContainer.scrollHeight > this.valueContainer.clientHeight;
+        // Додавати чіпи доки не переповнюється
+        let visibleCount = 0;
+        const containerWidth = this.valueContainer.offsetWidth || 300; // Fallback width
+        let currentWidth = 0;
+        const chipGap = 4; // gap між чіпами
+        const overflowChipWidth = 50; // приблизна ширина +n чіпа
 
-        if (isOverflowing) {
-            this.valueContainer.innerHTML = '';
-            const summaryChip = this._createElement('div', { class: 'custom-select-chip is-summary' });
-            summaryChip.textContent = selectedOptions.length;
-            this.valueContainer.appendChild(summaryChip);
+        // Тимчасовий контейнер для вимірювання
+        const tempContainer = this._createElement('div', { class: 'custom-select-value-container' });
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.visibility = 'hidden';
+        tempContainer.style.whiteSpace = 'nowrap';
+        this.wrapper.appendChild(tempContainer);
 
-            chips.forEach(chip => this.overflowChipContainer.appendChild(chip));
+        for (let i = 0; i < allChips.length; i++) {
+            const chipClone = allChips[i].cloneNode(true);
+            tempContainer.appendChild(chipClone);
+
+            const chipWidth = chipClone.offsetWidth + chipGap;
+
+            // Перевірити чи влізе чіп + можливий overflow indicator
+            if (currentWidth + chipWidth + (i < allChips.length - 1 ? overflowChipWidth : 0) <= containerWidth) {
+                currentWidth += chipWidth;
+                visibleCount++;
+            } else {
+                break;
+            }
+        }
+
+        this.wrapper.removeChild(tempContainer);
+
+        // Якщо всі чіпи влазять, показати всі
+        if (visibleCount >= allChips.length) {
+            allChips.forEach(chip => this.valueContainer.appendChild(chip));
+        } else {
+            // Показати перші N чіпів + overflow indicator
+            for (let i = 0; i < visibleCount; i++) {
+                this.valueContainer.appendChild(allChips[i]);
+            }
+
+            // Додати overflow chip з +n
+            const remainingCount = allChips.length - visibleCount;
+            const overflowChip = this._createElement('div', { class: 'custom-select-chip custom-select-chip--overflow' });
+            overflowChip.textContent = `+${remainingCount}`;
+            this.valueContainer.appendChild(overflowChip);
+
+            // Додати всі чіпи до overflow контейнера
+            allChips.forEach(chip => {
+                const chipClone = this._createChip(selectedOptions[allChips.indexOf(chip)]);
+                this.overflowChipContainer.appendChild(chipClone);
+            });
             this.overflowChipContainer.style.display = 'flex';
         }
     }
