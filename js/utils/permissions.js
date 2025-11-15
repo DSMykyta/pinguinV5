@@ -50,10 +50,41 @@ export function hasRole(roles) {
 }
 
 /**
+ * Кеш прав користувача (завантажується з backend)
+ */
+let cachedPermissions = null;
+
+/**
+ * Завантажує права користувача з backend
+ * @returns {Promise<string[]>} Масив ключів прав які має користувач
+ */
+export async function loadUserPermissions() {
+    try {
+        const user = getCurrentUser();
+
+        // Якщо користувач не авторизований - повертаємо права для guest
+        const roleId = user ? user.role : 'guest';
+
+        console.log(`📥 Завантаження прав для ролі: ${roleId}`);
+
+        const response = await window.apiClient.get(`/api/permissions?action=user-permissions&role=${roleId}`);
+
+        if (response.success) {
+            cachedPermissions = response.permissions || [];
+            console.log(`✅ Завантажено ${cachedPermissions.length} прав для ролі ${roleId}`);
+            return cachedPermissions;
+        } else {
+            console.error('❌ Помилка завантаження прав:', response.error);
+            return [];
+        }
+    } catch (error) {
+        console.error('❌ Помилка завантаження прав:', error);
+        return [];
+    }
+}
+
+/**
  * Перевіряє чи користувач має право доступу
- *
- * УВАГА: Наразі це спрощена версія яка працює на основі ролей.
- * В майбутньому можна додати детальну перевірку прав з backend.
  *
  * @param {string} permissionKey - Ключ права (наприклад: "users:create")
  * @returns {boolean}
@@ -62,48 +93,21 @@ export function hasRole(roles) {
  * hasPermission('page:users-admin') // true якщо користувач має доступ до адмін панелі
  */
 export function hasPermission(permissionKey) {
+    // Якщо права ще не завантажені - повертаємо false
+    if (!cachedPermissions) {
+        console.warn('⚠️ Права ще не завантажені. Викличте loadUserPermissions() спочатку.');
+        return false;
+    }
+
     const user = getCurrentUser();
-    if (!user) return false;
 
     // Admin має всі права
-    if (user.role === 'admin') {
+    if (user && user.role === 'admin') {
         return true;
     }
 
-    // Тимчасова логіка на основі ролей
-    // TODO: В майбутньому можна завантажувати права з backend
-    const rolePermissions = {
-        editor: [
-            // Сторінки
-            'page:index',
-            'page:glossary',
-            'page:entities',
-            'page:banned-words',
-            // Панелі
-            'panel:aside-table',
-            'panel:aside-text',
-            'panel:aside-seo',
-            'panel:aside-translate',
-            'panel:aside-links',
-            // Дії
-            'banned-words:add',
-            'banned-words:edit',
-            'entities:add',
-            'entities:edit',
-            'entities:delete'
-        ],
-        viewer: [
-            // Сторінки
-            'page:index',
-            'page:glossary',
-            'page:entities',
-            // Панелі
-            'panel:aside-table'
-        ]
-    };
-
-    const userPermissions = rolePermissions[user.role] || [];
-    return userPermissions.includes(permissionKey);
+    // Перевірити чи є право в кеші
+    return cachedPermissions.includes(permissionKey);
 }
 
 /**
@@ -141,19 +145,54 @@ export function disableIfNoPermission(element, permissionKey) {
 }
 
 /**
- * Додає атрибут data-permission для автоматичного приховування
+ * Ініціалізує систему прав: завантажує права та приховує елементи
  * Викликайте initPermissions() після завантаження сторінки
  * @example
  * HTML: <button data-permission="users:delete">Видалити</button>
- * JS: initPermissions()
+ * JS: await initPermissions()
  */
-export function initPermissions() {
+export async function initPermissions() {
+    console.log('🔐 Ініціалізація системи прав...');
+
+    // Завантажити права користувача з backend
+    await loadUserPermissions();
+
+    // Приховати всі елементи з data-permission які користувач не має
     document.querySelectorAll('[data-permission]').forEach(el => {
         const permission = el.dataset.permission;
         if (!hasPermission(permission)) {
             el.style.display = 'none';
+            console.log(`🔒 Приховано елемент з правом: ${permission}`);
         }
     });
+
+    console.log('✅ Система прав ініціалізована');
+}
+
+/**
+ * Оновлює видимість елементів після зміни авторизації
+ * Викликайте після входу/виходу користувача
+ */
+export async function refreshPermissions() {
+    console.log('🔄 Оновлення прав...');
+
+    // Скинути кеш
+    cachedPermissions = null;
+
+    // Завантажити права заново
+    await loadUserPermissions();
+
+    // Оновити видимість всіх елементів
+    document.querySelectorAll('[data-permission]').forEach(el => {
+        const permission = el.dataset.permission;
+        if (!hasPermission(permission)) {
+            el.style.display = 'none';
+        } else {
+            el.style.display = ''; // Показати якщо є право
+        }
+    });
+
+    console.log('✅ Права оновлено');
 }
 
 /**

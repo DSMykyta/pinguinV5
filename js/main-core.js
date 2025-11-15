@@ -8,6 +8,7 @@ import { initTabs } from './common/ui-tabs.js';
 import { initEventHandlers } from './utils/event-handlers.js';
 import { initSectionNavigator } from './panel/section-navigator.js';
 import { initCustomAuth } from './auth/custom-auth.js';
+import { initPermissions, refreshPermissions } from './utils/permissions.js';
 
 
 export function initCore() {
@@ -25,9 +26,23 @@ export function initCore() {
 
     // Ініціалізуємо Custom Auth
     // Callback викликається після успішної авторизації
-    window.onAuthSuccess = () => {
+    window.onAuthSuccess = async () => {
         console.log('✅ Авторизація готова');
+
+        // Завантажити права користувача та приховати недоступні елементи
+        await initPermissions();
     };
+
+    // Слухати події зміни авторизації для оновлення прав
+    document.addEventListener('auth-state-changed', async (event) => {
+        if (event.detail.isAuthorized) {
+            // Користувач увійшов - оновити права
+            await refreshPermissions();
+        } else {
+            // Користувач вийшов - оновити права для guest
+            await refreshPermissions();
+        }
+    });
 
     initCustomAuth();
 }

@@ -17,6 +17,9 @@
 // GET    /api/permissions?action=assignments   → список прав з роллями
 // PUT    /api/permissions { action: 'assign' } → призначити право роллям
 //
+// --- USER PERMISSIONS (для фронтенду) ---
+// GET    /api/permissions?action=user-permissions&role=viewer → список прав для ролі (без авторизації)
+//
 // GOOGLE SHEETS ТАБЛИЦІ:
 // - PermissionsCatalog: permission_key | permission_label | category | subcategory | description | created_at
 // - RolePermissions: role_id | permission_key | granted
@@ -32,18 +35,23 @@ const { getValues, updateValues, appendValues } = require('../utils/google-sheet
 
 async function handler(req, res) {
   try {
-    // Перевірка авторизації (тільки admin має доступ)
-    const authCheck = await checkAdminAuth(req);
-    if (!authCheck.authorized) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: authCheck.message
-      });
-    }
-
     // GET requests
     if (req.method === 'GET') {
       const { action } = req.query || {};
+
+      // Публічний endpoint для отримання прав користувача (не потрібна авторизація)
+      if (action === 'user-permissions') {
+        return await handleGetUserPermissions(req, res);
+      }
+
+      // Решта GET endpoints потребують admin права
+      const authCheck = await checkAdminAuth(req);
+      if (!authCheck.authorized) {
+        return res.status(401).json({
+          error: 'Unauthorized',
+          message: authCheck.message
+        });
+      }
 
       if (action === 'assignments') {
         // GET /api/permissions?action=assignments - список прав з роллями
@@ -52,6 +60,15 @@ async function handler(req, res) {
         // GET /api/permissions?action=list - список прав з каталогу (за замовчуванням)
         return await handleListPermissions(req, res);
       }
+    }
+
+    // Перевірка авторизації для POST/PUT/DELETE (тільки admin має доступ)
+    const authCheck = await checkAdminAuth(req);
+    if (!authCheck.authorized) {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: authCheck.message
+      });
     }
 
     // POST requests
@@ -399,6 +416,41 @@ async function handleAssignPermission(req, res) {
   } catch (error) {
     console.error('Error assigning permission:', error);
     return res.status(500).json({ error: 'Failed to assign permission' });
+  }
+}
+
+// =========================================================================
+// HANDLER: GET USER PERMISSIONS (Публічний endpoint)
+// =========================================================================
+
+async function handleGetUserPermissions(req, res) {
+  try {
+    const { role } = req.query || {};
+
+    if (!role) {
+      return res.status(400).json({ error: 'Missing role parameter' });
+    }
+
+    console.log(`📥 Завантаження прав для ролі: ${role}`);
+
+    // Читання таблиці RolePermissions
+    const assignmentsData = await getValues('RolePermissions!A2:C10000', 'users');
+
+    // Фільтрувати права для цієї ролі (де granted=TRUE)
+    const permissions = assignmentsData
+      .filter(row => row[0] === role && row[2] === 'TRUE')
+      .map(row => row[1]); // permission_key
+
+    console.log(`✅ Знайдено ${permissions.length} прав для ролі ${role}`);
+
+    return res.status(200).json({
+      success: true,
+      role,
+      permissions
+    });
+  } catch (error) {
+    console.error('Error getting user permissions:', error);
+    return res.status(500).json({ error: 'Failed to get user permissions' });
   }
 }
 
