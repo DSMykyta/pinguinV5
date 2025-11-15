@@ -67,7 +67,8 @@ export async function loadUserPermissions() {
 
         console.log(`📥 Завантаження прав для ролі: ${roleId}`);
 
-        const response = await window.apiClient.get(`/api/permissions?action=user-permissions&role=${roleId}`);
+        // Викликаємо об'єднаний ендпоінт /api/users замість /api/permissions
+        const response = await window.apiClient.get(`/api/users?action=user-permissions&role=${roleId}`);
 
         if (response.success) {
             cachedPermissions = response.permissions || [];
