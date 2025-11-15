@@ -274,7 +274,7 @@ function initTabs() {
     const tabContents = document.querySelectorAll('[data-tab-content]');
 
     tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const targetTab = button.dataset.tabTarget;
 
             // Оновити активні стани кнопок
@@ -295,15 +295,21 @@ function initTabs() {
 
             // Завантажити дані для ролей якщо потрібно
             if ((targetTab === 'tab-roles-manage' || targetTab === 'tab-roles-matrix') && usersAdminState.roles.length === 0) {
-                loadRolesData();
+                await loadRolesData();
             }
 
             // Рендерити відповідний контент
             if (targetTab === 'tab-roles-manage') {
                 renderRolesTable(usersAdminState.roles);
             } else if (targetTab === 'tab-roles-matrix') {
+                console.log('🔄 Рендер матриці:', {
+                    rolesCount: usersAdminState.roles.length,
+                    hasCatalog: !!usersAdminState.permissionsCatalog
+                });
                 if (usersAdminState.permissionsCatalog) {
                     renderPermissionsMatrix(usersAdminState.roles, usersAdminState.permissionsCatalog);
+                } else {
+                    console.warn('⚠️ Каталог прав не завантажено');
                 }
             }
         });

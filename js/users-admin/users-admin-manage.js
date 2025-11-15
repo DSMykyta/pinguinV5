@@ -44,7 +44,7 @@ export async function renderUsersTable() {
         columns: [
             {
                 id: 'avatar',
-                label: '',
+                label: ' ',
                 sortable: false, // Аватар не сортується
                 className: 'cell-severity',
                 render: (value) => {
