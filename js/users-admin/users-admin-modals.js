@@ -14,62 +14,63 @@ import { renderUsersTable } from './users-admin-manage.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { renderAvatarSelector, getAvailableAvatars } from '../utils/avatar-loader.js';
+import { populateSelect, initCustomSelects } from '../common/ui-select.js';
 
 // =========================================================================
 // HELPER: ЗАВАНТАЖЕННЯ РОЛЕЙ
 // =========================================================================
 
 /**
- * Завантажує доступні ролі (поки хардкод, пізніше буде з API)
+ * Завантажує доступні ролі з API
  * @returns {Array} Масив ролей
  */
 async function loadAvailableRoles() {
-    // TODO: Замінити на API виклик коли буде створено /api/roles
-    // const response = await window.apiClient.get('/api/roles');
-    // return response.roles;
+    try {
+        const response = await window.apiClient.get('/api/roles');
 
-    return [
-        { id: 'admin', name: 'Admin (повний доступ)', description: 'Повний доступ до всіх функцій' },
-        { id: 'editor', name: 'Editor (читання + запис)', description: 'Може читати та редагувати контент' },
-        { id: 'viewer', name: 'Viewer (тільки читання)', description: 'Тільки перегляд контенту' }
-    ];
+        if (response.success && response.roles) {
+            return response.roles.map(role => ({
+                id: role.role_id,
+                name: `${role.role_name}${role.role_description ? ' - ' + role.role_description : ''}`,
+                description: role.role_description
+            }));
+        }
+
+        console.warn('⚠️ Не вдалося завантажити ролі, використовуємо дефолтні');
+        return [
+            { id: 'admin', name: 'Admin (повний доступ)', description: 'Повний доступ до всіх функцій' },
+            { id: 'editor', name: 'Editor (читання + запис)', description: 'Може читати та редагувати контент' },
+            { id: 'viewer', name: 'Viewer (тільки читання)', description: 'Тільки перегляд контенту' }
+        ];
+    } catch (error) {
+        console.error('❌ Помилка завантаження ролей:', error);
+        return [
+            { id: 'admin', name: 'Admin (повний доступ)', description: 'Повний доступ до всіх функцій' },
+            { id: 'editor', name: 'Editor (читання + запис)', description: 'Може читати та редагувати контент' },
+            { id: 'viewer', name: 'Viewer (тільки читання)', description: 'Тільки перегляд контенту' }
+        ];
+    }
 }
 
 /**
- * Рендерить опції ролей в select елемент
+ * Рендерить опції ролей в select елемент використовуючи кастомний селект
  * @param {string} selectId - ID селекту
  * @param {string|null} selectedValue - Поточне вибране значення
  */
 async function renderRoleOptions(selectId, selectedValue = null) {
-    const selectElement = document.getElementById(selectId);
-    if (!selectElement) {
-        console.warn(`⚠️ Select element ${selectId} not found`);
-        return;
-    }
-
     const roles = await loadAvailableRoles();
 
-    // Очистити поточні опції (крім placeholder якщо є)
-    const hasPlaceholder = selectElement.querySelector('option[value=""]');
-    selectElement.innerHTML = '';
+    // Підготувати дані для populateSelect
+    const items = roles.map(role => ({
+        value: role.id,
+        text: role.name
+    }));
 
-    // Додати placeholder якщо потрібно
-    if (hasPlaceholder || !selectedValue) {
-        const placeholderOption = document.createElement('option');
-        placeholderOption.value = '';
-        placeholderOption.textContent = '-- Оберіть роль --';
-        selectElement.appendChild(placeholderOption);
-    }
-
-    // Додати опції ролей
-    roles.forEach(role => {
-        const option = document.createElement('option');
-        option.value = role.id;
-        option.textContent = role.name;
-        if (role.id === selectedValue) {
-            option.selected = true;
-        }
-        selectElement.appendChild(option);
+    // Заповнити селект та реініціалізувати custom select
+    populateSelect(selectId, items, {
+        placeholder: '-- Оберіть роль --',
+        selectedValue: selectedValue,
+        reinit: true
     });
 
     console.log(`✅ Ролі завантажено в #${selectId}:`, roles.map(r => r.id).join(', '));

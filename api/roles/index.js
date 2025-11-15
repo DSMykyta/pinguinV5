@@ -134,10 +134,10 @@ async function checkAdminAuth(req) {
 async function handleListRoles(req, res) {
   try {
     // Читання таблиці Roles (A=role_id, B=role_name, C=role_description, D=is_system, E=created_at)
-    const rolesData = await getValues('Roles!A2:E1000', 'roles');
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
 
     // Читання таблиці RolePermissions (A=role_id, B=permission_key, C=permission_category, D=granted)
-    const permissionsData = await getValues('RolePermissions!A2:D10000', 'roles');
+    const permissionsData = await getValues('RolePermissions!A2:D10000', 'users');
 
     // Побудувати масив ролей з їх правами
     const roles = rolesData
@@ -253,7 +253,7 @@ async function handleCreateRole(req, res) {
     }
 
     // Перевірка чи роль вже існує
-    const rolesData = await getValues('Roles!A2:A1000', 'roles');
+    const rolesData = await getValues('Roles!A2:A1000', 'users');
     const exists = rolesData.some(row => row[0] === roleId);
 
     if (exists) {
@@ -268,7 +268,7 @@ async function handleCreateRole(req, res) {
       roleDescription || '',
       'FALSE', // is_system
       now
-    ]], 'roles');
+    ]], 'users');
 
     // Додати права в таблицю RolePermissions
     if (permissions && Array.isArray(permissions) && permissions.length > 0) {
@@ -279,7 +279,7 @@ async function handleCreateRole(req, res) {
         'TRUE' // granted
       ]);
 
-      await appendValues('RolePermissions!A:D', permissionRows, 'roles');
+      await appendValues('RolePermissions!A:D', permissionRows, 'users');
     }
 
     console.log(`✅ Роль створено: ${roleId}`);
@@ -319,7 +319,7 @@ async function handleUpdateRole(req, res) {
     }
 
     // Знайти роль
-    const rolesData = await getValues('Roles!A2:E1000', 'roles');
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
     const roleIndex = rolesData.findIndex(row => row[0] === roleId);
 
     if (roleIndex === -1) {
@@ -339,7 +339,7 @@ async function handleUpdateRole(req, res) {
     await updateValues(`Roles!B${rowNumber}:C${rowNumber}`, [[
       roleName || roleRow[1],
       roleDescription !== undefined ? roleDescription : roleRow[2]
-    ]], 'roles');
+    ]], 'users');
 
     // Оновити права: видалити всі старі та додати нові
     if (permissions && Array.isArray(permissions)) {
@@ -385,7 +385,7 @@ async function handleDeleteRole(req, res) {
     }
 
     // Знайти роль
-    const rolesData = await getValues('Roles!A2:E1000', 'roles');
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
     const roleIndex = rolesData.findIndex(row => row[0] === roleId);
 
     if (roleIndex === -1) {
@@ -395,7 +395,7 @@ async function handleDeleteRole(req, res) {
     const roleRow = rolesData[roleIndex];
     const isSystem = roleRow[3] === 'TRUE';
 
-    // Заборонити видаленнясистемних ролей
+    // Заборонити видалення системних ролей
     if (isSystem) {
       return res.status(403).json({ error: 'Cannot delete system roles' });
     }
