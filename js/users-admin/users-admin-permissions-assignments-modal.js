@@ -1,11 +1,11 @@
-// js/users-admin/users-admin-permissions-modal.js
+// js/users-admin/users-admin-permissions-assignments-modal.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║         USERS ADMIN - PERMISSIONS MODAL MODULE                           ║
+ * ║      USERS ADMIN - PERMISSIONS ASSIGNMENTS MODAL MODULE                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Відповідає за відображення модального вікна для редагування прав доступу.
+ * Відповідає за модалку призначення прав ролям.
  */
 
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -15,25 +15,25 @@ import { initCustomSelects } from '../common/ui-select.js';
 let currentPermission = null;
 
 /**
- * Ініціалізує систему модалок для прав
+ * Ініціалізує систему модалок для призначень
  */
-export function initPermissionsModals() {
+export function initPermissionAssignmentsModals() {
     // Слухати події відкриття модалки
-    document.addEventListener('open-permission-modal', async (event) => {
+    document.addEventListener('open-permission-assignment-modal', async (event) => {
         const permission = event.detail?.permission || null;
-        await openPermissionModal(permission);
+        await openPermissionAssignmentModal(permission);
     });
 
-    console.log('✅ Модалка прав ініціалізована');
+    console.log('✅ Модалка призначень прав ініціалізована');
 }
 
 /**
- * Відкриває модалку редагування права
+ * Відкриває модалку призначення права
  */
-async function openPermissionModal(permission) {
+async function openPermissionAssignmentModal(permission) {
     currentPermission = permission;
 
-    console.log('🔄 Відкриття модалки редагування права:', permission);
+    console.log('🔄 Відкриття модалки призначення права:', permission);
 
     // Завантажити HTML модалки
     const modalContainer = document.getElementById('modal-container');
@@ -46,9 +46,9 @@ async function openPermissionModal(permission) {
 
     // Заповнити дані
     if (permission) {
-        document.getElementById('permission-key-hidden').value = permission.key;
-        document.getElementById('permission-label').value = permission.label || '';
-        document.getElementById('permission-key').value = permission.key || '';
+        document.getElementById('permission-assignment-key').value = permission.permission_key;
+        document.getElementById('permission-assignment-label').textContent = permission.permission_label || '';
+        document.getElementById('permission-assignment-key-display').textContent = permission.permission_key || '';
 
         // Встановити вибрані ролі
         setSelectedRoles(permission.roles || []);
@@ -58,10 +58,10 @@ async function openPermissionModal(permission) {
     initCustomSelects();
 
     // Ініціалізувати обробники
-    initPermissionModalHandlers();
+    initPermissionAssignmentModalHandlers();
 
     // Показати модалку
-    await showModal('permission-modal');
+    await showModal('permission-assignment-modal');
 }
 
 /**
@@ -72,7 +72,7 @@ async function loadRolesIntoSelect() {
         const rolesResponse = await window.apiClient.get('/api/roles');
 
         if (rolesResponse.success) {
-            const selectEl = document.getElementById('permission-roles');
+            const selectEl = document.getElementById('permission-assignment-roles');
             if (!selectEl) return;
 
             // Очистити селект
@@ -103,7 +103,7 @@ async function loadRolesIntoSelect() {
  * Встановлює вибрані ролі в мультиселекті
  */
 function setSelectedRoles(roles) {
-    const selectEl = document.getElementById('permission-roles');
+    const selectEl = document.getElementById('permission-assignment-roles');
     if (!selectEl) return;
 
     Array.from(selectEl.options).forEach(option => {
@@ -118,7 +118,7 @@ function setSelectedRoles(roles) {
  * Отримує обрані ролі з мультиселекта
  */
 function getSelectedRoles() {
-    const selectEl = document.getElementById('permission-roles');
+    const selectEl = document.getElementById('permission-assignment-roles');
     if (!selectEl) return [];
 
     const selected = [];
@@ -132,69 +132,55 @@ function getSelectedRoles() {
 }
 
 /**
- * Ініціалізує обробники для модалки права
+ * Ініціалізує обробники для модалки
  */
-function initPermissionModalHandlers() {
-    const modal = document.getElementById('permission-modal');
+function initPermissionAssignmentModalHandlers() {
+    const modal = document.getElementById('permission-assignment-modal');
     if (!modal) return;
 
     // Кнопка закриття
     const closeBtns = modal.querySelectorAll('.modal-close');
     closeBtns.forEach(btn => {
-        btn.addEventListener('click', () => closeModal('permission-modal'));
+        btn.addEventListener('click', () => closeModal('permission-assignment-modal'));
     });
 
-    // Форма
-    const form = modal.querySelector('fieldset');
-    if (form) {
-        // Створити кнопку "Зберегти"
-        const existingSaveBtn = modal.querySelector('.modal-save-btn');
-        if (!existingSaveBtn) {
-            const saveBtn = document.createElement('button');
-            saveBtn.type = 'button';
-            saveBtn.className = 'btn-primary modal-save-btn';
-            saveBtn.innerHTML = `
-                <span class="material-symbols-outlined">save</span>
-                <span>Зберегти</span>
-            `;
-            form.appendChild(saveBtn);
-
-            saveBtn.addEventListener('click', handleSavePermission);
-        } else {
-            existingSaveBtn.addEventListener('click', handleSavePermission);
-        }
+    // Кнопка збереження
+    const saveBtn = document.getElementById('save-permission-assignment-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', handleSaveAssignment);
     }
 
-    console.log('✅ Обробники модалки права ініціалізовані');
+    console.log('✅ Обробники модалки призначення ініціалізовані');
 }
 
 /**
- * Обробник збереження права
+ * Обробник збереження призначення
  */
-async function handleSavePermission() {
+async function handleSaveAssignment() {
     try {
-        const permissionKey = document.getElementById('permission-key-hidden').value;
+        const permissionKey = document.getElementById('permission-assignment-key').value;
         const selectedRoles = getSelectedRoles();
 
-        console.log('💾 Збереження права:', permissionKey, selectedRoles);
+        console.log('💾 Збереження призначення:', permissionKey, selectedRoles);
 
         // Відправити запит на сервер
         const response = await window.apiClient.put('/api/permissions', {
+            action: 'assign',
             permission_key: permissionKey,
             roles: selectedRoles
         });
 
         if (response.success) {
-            showToast('Право успішно оновлено', 'success');
-            closeModal('permission-modal');
+            showToast('Призначення успішно оновлено', 'success');
+            closeModal('permission-assignment-modal');
 
             // Сигналізувати про зміни
-            document.dispatchEvent(new CustomEvent('permissions-data-changed'));
+            document.dispatchEvent(new CustomEvent('permissions-assignments-changed'));
         } else {
-            throw new Error(response.error || 'Failed to update permission');
+            throw new Error(response.error || 'Failed to assign permission');
         }
     } catch (error) {
-        console.error('❌ Помилка збереження права:', error);
-        showToast(error.message || 'Не вдалося зберегти право', 'error');
+        console.error('❌ Помилка збереження призначення:', error);
+        showToast(error.message || 'Не вдалося зберегти призначення', 'error');
     }
 }

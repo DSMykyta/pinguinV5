@@ -16,8 +16,10 @@ import { initModals } from './users-admin-modals.js';
 import { initPaginationForUsers } from './users-admin-pagination.js';
 import { renderRolesTable } from './users-admin-roles-manage.js';
 import { initRolesModals } from './users-admin-roles-modals.js';
-import { loadPermissions, renderPermissionsTable, initCategoryFilters } from './users-admin-permissions-table.js';
-import { initPermissionsModals } from './users-admin-permissions-modal.js';
+import { loadPermissionsCatalog, renderPermissionsCatalogTable, initCatalogCategoryFilters } from './users-admin-permissions-catalog-table.js';
+import { initPermissionsCatalogModals } from './users-admin-permissions-catalog-modal.js';
+import { loadPermissionAssignments, renderPermissionAssignmentsTable, initAssignmentCategoryFilters } from './users-admin-permissions-assignments-table.js';
+import { initPermissionAssignmentsModals } from './users-admin-permissions-assignments-modal.js';
 
 /**
  * Глобальний state для users admin модуля
@@ -31,7 +33,7 @@ export const usersAdminState = {
     permissionsCatalog: null,  // Каталог всіх можливих прав
 
     // Поточний таб
-    currentTab: 'tab-users',   // 'tab-users', 'tab-roles-manage', 'tab-roles-matrix'
+    currentTab: 'tab-users',   // 'tab-users', 'tab-roles-manage', 'tab-permissions-catalog', 'tab-permissions-assignments'
 
     // Пошук
     searchQuery: '',           // Пошук в таблиці користувачів
@@ -76,11 +78,17 @@ export function initUsersAdmin() {
     // Ініціалізувати модалки ролей
     initRolesModals();
 
-    // Ініціалізувати модалки прав
-    initPermissionsModals();
+    // Ініціалізувати модалки каталогу прав
+    initPermissionsCatalogModals();
 
-    // Ініціалізувати фільтри категорій прав
-    initCategoryFilters();
+    // Ініціалізувати модалки призначень прав
+    initPermissionAssignmentsModals();
+
+    // Ініціалізувати фільтри категорій для каталогу прав
+    initCatalogCategoryFilters();
+
+    // Ініціалізувати фільтри категорій для призначень
+    initAssignmentCategoryFilters();
 
     // Ініціалізувати кнопки для табу користувачів
     initRefreshButton();
@@ -112,15 +120,27 @@ export function initUsersAdmin() {
         }
     });
 
-    // Слухати подію оновлення даних прав
-    document.addEventListener('permissions-data-changed', async () => {
-        const success = await loadPermissions();
+    // Слухати подію оновлення каталогу прав
+    document.addEventListener('permissions-catalog-changed', async () => {
+        const success = await loadPermissionsCatalog();
 
-        // Перерендерити поточний активний таб прав
-        if (success && usersAdminState.currentTab === 'tab-roles-matrix') {
-            const activeFilter = document.querySelector('[data-permission-category].active');
-            const category = activeFilter ? activeFilter.dataset.permissionCategory : 'pages';
-            renderPermissionsTable(category);
+        // Перерендерити таблицю каталогу прав
+        if (success && usersAdminState.currentTab === 'tab-permissions-catalog') {
+            const activeFilter = document.querySelector('[data-permission-catalog-category].active');
+            const category = activeFilter ? activeFilter.dataset.permissionCatalogCategory : 'pages';
+            renderPermissionsCatalogTable(category);
+        }
+    });
+
+    // Слухати подію оновлення призначень прав
+    document.addEventListener('permissions-assignments-changed', async () => {
+        const success = await loadPermissionAssignments();
+
+        // Перерендерити таблицю призначень прав
+        if (success && usersAdminState.currentTab === 'tab-permissions-assignments') {
+            const activeFilter = document.querySelector('[data-permission-assignment-category].active');
+            const category = activeFilter ? activeFilter.dataset.permissionAssignmentCategory : 'pages';
+            renderPermissionAssignmentsTable(category);
         }
     });
 }
@@ -316,11 +336,19 @@ function initTabs() {
                 await loadRolesData();
             }
 
-            // Завантажити дані для прав якщо потрібно
-            if (targetTab === 'tab-roles-matrix') {
-                const success = await loadPermissions();
+            // Завантажити дані для каталогу прав
+            if (targetTab === 'tab-permissions-catalog') {
+                const success = await loadPermissionsCatalog();
                 if (success) {
-                    renderPermissionsTable('pages'); // Початкова категорія
+                    renderPermissionsCatalogTable('pages'); // Початкова категорія
+                }
+            }
+
+            // Завантажити дані для призначень прав
+            if (targetTab === 'tab-permissions-assignments') {
+                const success = await loadPermissionAssignments();
+                if (success) {
+                    renderPermissionAssignmentsTable('pages'); // Початкова категорія
                 }
             }
 
@@ -359,24 +387,46 @@ function initRolesTabButtons() {
 }
 
 /**
- * Ініціалізує кнопки для табу прав
+ * Ініціалізує кнопки для табів прав
  */
 function initPermissionsTabButtons() {
-    // Кнопка оновлення для табу прав
-    const refreshBtn = document.getElementById('refresh-tab-permissions');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', async () => {
-            const success = await loadPermissions();
+    // Кнопка додавання права (для каталогу)
+    const addPermissionBtn = document.getElementById('add-permission-btn');
+    if (addPermissionBtn) {
+        addPermissionBtn.addEventListener('click', () => {
+            document.dispatchEvent(new CustomEvent('open-permission-catalog-modal', {
+                detail: { permission: null, mode: 'create' }
+            }));
+        });
+    }
+
+    // Кнопка оновлення для табу каталогу прав
+    const refreshCatalogBtn = document.getElementById('refresh-tab-permissions-catalog');
+    if (refreshCatalogBtn) {
+        refreshCatalogBtn.addEventListener('click', async () => {
+            const success = await loadPermissionsCatalog();
             if (success) {
-                // Рендерити поточну активну категорію
-                const activeFilter = document.querySelector('[data-permission-category].active');
-                const category = activeFilter ? activeFilter.dataset.permissionCategory : 'pages';
-                renderPermissionsTable(category);
+                const activeFilter = document.querySelector('[data-permission-catalog-category].active');
+                const category = activeFilter ? activeFilter.dataset.permissionCatalogCategory : 'pages';
+                renderPermissionsCatalogTable(category);
             }
         });
     }
 
-    console.log('✅ Кнопки табу прав ініціалізовані');
+    // Кнопка оновлення для табу призначень
+    const refreshAssignmentsBtn = document.getElementById('refresh-tab-permissions-assignments');
+    if (refreshAssignmentsBtn) {
+        refreshAssignmentsBtn.addEventListener('click', async () => {
+            const success = await loadPermissionAssignments();
+            if (success) {
+                const activeFilter = document.querySelector('[data-permission-assignment-category].active');
+                const category = activeFilter ? activeFilter.dataset.permissionAssignmentCategory : 'pages';
+                renderPermissionAssignmentsTable(category);
+            }
+        });
+    }
+
+    console.log('✅ Кнопки табів прав ініціалізовані');
 }
 
 /**

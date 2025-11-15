@@ -1,78 +1,79 @@
-// js/users-admin/users-admin-permissions-table.js
+// js/users-admin/users-admin-permissions-assignments-table.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║         USERS ADMIN - PERMISSIONS TABLE MODULE                          ║
+ * ║      USERS ADMIN - PERMISSIONS ASSIGNMENTS TABLE MODULE                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Відповідає за рендеринг таблиці прав доступу.
+ * Відповідає за рендеринг таблиці призначень прав (які ролі мають доступ).
+ * Таб "Доступи" - призначення прав ролям.
  */
 
 import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 
-// Поточна активна категорія прав
+// Поточна активна категорія
 let currentCategory = 'pages';
 
-// Всі права (завантажені з API)
-let allPermissions = [];
+// Всі призначення прав
+let allAssignments = [];
 
 /**
- * Завантажує всі права з API
+ * Завантажує всі призначення прав
  */
-export async function loadPermissions() {
+export async function loadPermissionAssignments() {
     try {
-        console.log('📥 Завантаження прав...');
+        console.log('📥 Завантаження призначень прав...');
 
-        const response = await window.apiClient.get('/api/permissions');
+        const response = await window.apiClient.get('/api/permissions?action=assignments');
 
         if (response.success) {
-            allPermissions = response.permissions;
-            console.log(`✅ Завантажено ${allPermissions.length} прав`);
+            allAssignments = response.permissions;
+            console.log(`✅ Завантажено ${allAssignments.length} призначень`);
             return true;
         } else {
-            throw new Error(response.error || 'Failed to load permissions');
+            throw new Error(response.error || 'Failed to load permission assignments');
         }
     } catch (error) {
-        console.error('❌ Помилка завантаження прав:', error);
-        showError('Не вдалося завантажити права');
+        console.error('❌ Помилка завантаження призначень:', error);
+        showError('Не вдалося завантажити призначення прав');
         return false;
     }
 }
 
 /**
- * Рендерить таблицю прав для вибраної категорії
+ * Рендерить таблицю призначень для вибраної категорії
  */
-export function renderPermissionsTable(category = 'pages') {
+export function renderPermissionAssignmentsTable(category = 'pages') {
     currentCategory = category;
 
-    const container = document.getElementById('permissions-table-container');
+    const container = document.getElementById('permissions-assignments-container');
     if (!container) {
-        console.error('❌ Контейнер #permissions-table-container не знайдено');
+        console.error('❌ Контейнер #permissions-assignments-container не знайдено');
         return;
     }
 
-    // Фільтрувати права за категорією
-    const filteredPermissions = allPermissions.filter(p => p.category === category);
+    // Фільтрувати призначення за категорією
+    const filteredAssignments = allAssignments.filter(p => p.category === category);
 
-    console.log(`🔄 Рендер прав категорії "${category}": ${filteredPermissions.length} шт.`);
+    console.log(`🔄 Рендер призначень категорії "${category}": ${filteredAssignments.length} шт.`);
 
     // Оновити статистику
-    updateStats(filteredPermissions.length, allPermissions.length);
+    updateStats(filteredAssignments.length, allAssignments.length);
 
     // Рендеринг таблиці
     renderPseudoTable(container, {
-        data: filteredPermissions,
+        data: filteredAssignments,
         columns: [
             {
-                id: 'label',
+                id: 'permission_label',
                 label: 'Назва права',
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '—')}</strong>`
             },
             {
-                id: 'key',
+                id: 'permission_key',
                 label: 'Ключ',
                 sortable: true,
                 render: (value) => `<code style="font-size: 12px; color: var(--color-on-surface-v);">${escapeHtml(value || '—')}</code>`
@@ -86,14 +87,14 @@ export function renderPermissionsTable(category = 'pages') {
         ],
         rowActionsCustom: (row) => {
             return `
-                <button class="btn-icon btn-edit-permission" data-permission-key="${escapeHtml(row.key)}" data-action="edit" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
+                <button class="btn-icon btn-assign-permission" data-permission-key="${escapeHtml(row.permission_key)}" data-action="assign" title="Призначити доступ">
+                    <span class="material-symbols-outlined">lock_open</span>
                 </button>
             `;
         },
         emptyState: {
-            icon: 'shield_off',
-            message: 'Прав не знайдено'
+            icon: 'lock_person_off',
+            message: 'Призначень не знайдено'
         },
         withContainer: false
     });
@@ -129,7 +130,7 @@ function renderRolesList(roles) {
  * Оновлює статистику
  */
 function updateStats(displayed, total) {
-    const statsElement = document.getElementById('tab-stats-permissions');
+    const statsElement = document.getElementById('tab-stats-permissions-assignments');
     if (statsElement) {
         statsElement.textContent = `Показано ${displayed} з ${total}`;
     }
@@ -139,7 +140,7 @@ function updateStats(displayed, total) {
  * Показує помилку
  */
 function showError(message) {
-    const container = document.getElementById('permissions-table-container');
+    const container = document.getElementById('permissions-assignments-container');
     if (!container) return;
 
     container.innerHTML = `
@@ -154,23 +155,25 @@ function showError(message) {
  * Додає обробники подій до кнопок дій
  */
 function attachEventHandlers() {
-    // Кнопки редагування
-    document.querySelectorAll('.btn-edit-permission').forEach(btn => {
+    // Кнопки призначення
+    document.querySelectorAll('.btn-assign-permission').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const permissionKey = e.currentTarget.dataset.permissionKey;
-            const permission = allPermissions.find(p => p.key === permissionKey);
-            if (permission) {
-                document.dispatchEvent(new CustomEvent('open-permission-modal', { detail: { permission } }));
+            const assignment = allAssignments.find(p => p.permission_key === permissionKey);
+            if (assignment) {
+                document.dispatchEvent(new CustomEvent('open-permission-assignment-modal', {
+                    detail: { permission: assignment }
+                }));
             }
         });
     });
 }
 
 /**
- * Ініціалізує фільтри категорій
+ * Ініціалізує фільтри категорій для призначень
  */
-export function initCategoryFilters() {
-    const filterButtons = document.querySelectorAll('[data-permission-category]');
+export function initAssignmentCategoryFilters() {
+    const filterButtons = document.querySelectorAll('[data-permission-assignment-category]');
 
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -179,10 +182,10 @@ export function initCategoryFilters() {
             btn.classList.add('active');
 
             // Рендерити таблицю для обраної категорії
-            const category = btn.dataset.permissionCategory;
-            renderPermissionsTable(category);
+            const category = btn.dataset.permissionAssignmentCategory;
+            renderPermissionAssignmentsTable(category);
         });
     });
 
-    console.log('✅ Фільтри категорій ініціалізовані');
+    console.log('✅ Фільтри категорій (assignments) ініціалізовані');
 }
