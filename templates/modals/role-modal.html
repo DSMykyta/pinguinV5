@@ -54,207 +54,56 @@
         </div>
 
         <div class="form-group">
-            <label>
-                Права доступу
+            <label for="permissions-pages">
+                🌍 Доступ до Сторінок
             </label>
+            <select id="permissions-pages" multiple data-custom-select>
+                <option value="page:index">Головна</option>
+                <option value="page:glossary">Глосарій</option>
+                <option value="page:entities">Сутності</option>
+                <option value="page:banned-words">Заборонені слова</option>
+                <option value="page:users-admin">Адмін панель</option>
+            </select>
+        </div>
 
-            <!-- Група: Доступ до Сторінок -->
-            <div class="permissions-group">
-                <div class="permissions-group-header">
-                    <span class="material-symbols-outlined">language</span>
-                    <span>Доступ до Сторінок</span>
-                </div>
-                <div class="permissions-group-body">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="page:index" class="checkbox-input">
-                        <span>Головна</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="page:glossary" class="checkbox-input">
-                        <span>Глосарій</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="page:entities" class="checkbox-input">
-                        <span>Сутності</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="page:banned-words" class="checkbox-input">
-                        <span>Заборонені слова</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="page:users-admin" class="checkbox-input">
-                        <span>Адмін панель</span>
-                    </label>
-                </div>
-            </div>
+        <div class="form-group">
+            <label for="permissions-panels">
+                🎨 Доступ до Панелей
+            </label>
+            <select id="permissions-panels" multiple data-custom-select>
+                <option value="panel:aside-table">Панель таблиць</option>
+                <option value="panel:aside-text">Панель тексту</option>
+                <option value="panel:aside-seo">SEO панель</option>
+                <option value="panel:aside-translate">Панель перекладу</option>
+                <option value="panel:aside-links">Панель посилань</option>
+                <option value="panel:aside-image-tool">Панель зображень</option>
+            </select>
+        </div>
 
-            <!-- Група: Доступ до Панелей -->
-            <div class="permissions-group">
-                <div class="permissions-group-header">
-                    <span class="material-symbols-outlined">palette</span>
-                    <span>Доступ до Панелей</span>
-                </div>
-                <div class="permissions-group-body">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-table" class="checkbox-input">
-                        <span>Панель таблиць</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-text" class="checkbox-input">
-                        <span>Панель тексту</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-seo" class="checkbox-input">
-                        <span>SEO панель</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-translate" class="checkbox-input">
-                        <span>Панель перекладу</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-links" class="checkbox-input">
-                        <span>Панель посилань</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="permission" value="panel:aside-image-tool" class="checkbox-input">
-                        <span>Панель зображень</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Група: Доступ до Дій -->
-            <div class="permissions-group">
-                <div class="permissions-group-header">
-                    <span class="material-symbols-outlined">settings</span>
-                    <span>Доступ до Дій</span>
-                </div>
-                <div class="permissions-group-body">
-                    <!-- Підгрупа: Користувачі -->
-                    <div class="permissions-subgroup">
-                        <div class="permissions-subgroup-title">Користувачі</div>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="users:create" class="checkbox-input">
-                            <span>Створення користувача</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="users:edit" class="checkbox-input">
-                            <span>Редагування користувача</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="users:delete" class="checkbox-input">
-                            <span>Видалення користувача</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="users:reset-password" class="checkbox-input">
-                            <span>Зміна пароля</span>
-                        </label>
-                    </div>
-
-                    <!-- Підгрупа: Заборонені слова -->
-                    <div class="permissions-subgroup">
-                        <div class="permissions-subgroup-title">Заборонені слова</div>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="banned-words:add" class="checkbox-input">
-                            <span>Додавання слова</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="banned-words:edit" class="checkbox-input">
-                            <span>Редагування слова</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="banned-words:mark-checked" class="checkbox-input">
-                            <span>Позначення перевіреним</span>
-                        </label>
-                    </div>
-
-                    <!-- Підгрупа: Сутності -->
-                    <div class="permissions-subgroup">
-                        <div class="permissions-subgroup-title">Сутності</div>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="entities:add" class="checkbox-input">
-                            <span>Додавання сутності</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="entities:edit" class="checkbox-input">
-                            <span>Редагування сутності</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="entities:delete" class="checkbox-input">
-                            <span>Видалення сутності</span>
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="permission" value="entities:manage-marketplaces" class="checkbox-input">
-                            <span>Управління маркетплейсами</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
+        <div class="form-group">
+            <label for="permissions-actions">
+                ⚙️ Доступ до Дій
+            </label>
+            <select id="permissions-actions" multiple data-custom-select>
+                <optgroup label="Користувачі">
+                    <option value="users:create">Створення користувача</option>
+                    <option value="users:edit">Редагування користувача</option>
+                    <option value="users:delete">Видалення користувача</option>
+                    <option value="users:reset-password">Зміна пароля</option>
+                </optgroup>
+                <optgroup label="Заборонені слова">
+                    <option value="banned-words:add">Додавання слова</option>
+                    <option value="banned-words:edit">Редагування слова</option>
+                    <option value="banned-words:mark-checked">Позначення перевіреним</option>
+                </optgroup>
+                <optgroup label="Сутності">
+                    <option value="entities:add">Додавання сутності</option>
+                    <option value="entities:edit">Редагування сутності</option>
+                    <option value="entities:delete">Видалення сутності</option>
+                    <option value="entities:manage-marketplaces">Управління маркетплейсами</option>
+                </optgroup>
+            </select>
         </div>
     </fieldset>
 </div>
 
-<style>
-.permissions-group {
-    margin-top: 16px;
-    border: 1px solid var(--color-outline, #ddd);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.permissions-group-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background: var(--color-surface-variant, #f5f5f5);
-    font-weight: 500;
-    color: var(--text-primary, #000);
-}
-
-.permissions-group-header .material-symbols-outlined {
-    font-size: 20px;
-    color: var(--color-primary, #1976d2);
-}
-
-.permissions-group-body {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    padding: 4px 0;
-    font-size: 14px;
-}
-
-.checkbox-input {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.permissions-subgroup {
-    margin-top: 12px;
-    padding-left: 12px;
-    border-left: 3px solid var(--color-primary, #1976d2);
-}
-
-.permissions-subgroup-title {
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--color-primary, #1976d2);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.permissions-subgroup .checkbox-label {
-    padding-left: 8px;
-}
-</style>

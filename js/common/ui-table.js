@@ -66,7 +66,7 @@ export function renderPseudoTable(container, options) {
         <div class="pseudo-table-header">
             ${rowActions.length > 0 || rowActionsCustom ? `
                 <div class="pseudo-table-cell cell-actions header-actions-cell">
-                    ${rowActionsHeader || '<span>Дії</span>'}
+                    ${rowActionsHeader !== undefined ? rowActionsHeader : ''}
                 </div>
             ` : ''}
             ${columns.map(col => {

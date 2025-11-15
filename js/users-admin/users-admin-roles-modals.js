@@ -10,6 +10,7 @@
 
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
+import { initCustomSelects } from '../common/ui-select.js';
 
 let currentEditRole = null;
 
@@ -82,8 +83,8 @@ async function openRoleModal(roleData = null) {
         document.getElementById('role-id').readOnly = true; // ID не можна змінювати
         document.getElementById('role-description').value = roleData.role_description || '';
 
-        // Відзначити чекбокси прав
-        setPermissionCheckboxes(roleData.permissions || []);
+        // Встановити вибрані права
+        setPermissionSelects(roleData.permissions || []);
     } else {
         // Очистити форму
         document.getElementById('role-id-hidden').value = '';
@@ -92,11 +93,12 @@ async function openRoleModal(roleData = null) {
         document.getElementById('role-id').readOnly = false;
         document.getElementById('role-description').value = '';
 
-        // Очистити всі чекбокси
-        document.querySelectorAll('input[name="permission"]').forEach(cb => {
-            cb.checked = false;
-        });
+        // Очистити всі мультиселекти
+        clearPermissionSelects();
     }
+
+    // Ініціалізувати кастомні селекти
+    initCustomSelects();
 
     // Додати auto-generate для ID на основі назви (тільки для створення)
     if (!isEdit) {
@@ -118,31 +120,62 @@ async function openRoleModal(roleData = null) {
 }
 
 /**
- * Встановлює стан чекбоксів прав
+ * Встановлює вибрані права в мультиселектах
  */
-function setPermissionCheckboxes(permissions) {
+function setPermissionSelects(permissions) {
     // Спочатку очистити всі
-    document.querySelectorAll('input[name="permission"]').forEach(cb => {
-        cb.checked = false;
-    });
+    clearPermissionSelects();
 
-    // Відзначити ті що є в ролі
-    permissions.forEach(perm => {
-        const checkbox = document.querySelector(`input[name="permission"][value="${perm.permission_key}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-        }
+    // Згрупувати права за категоріями
+    const permissionKeys = permissions.map(p => p.permission_key);
+
+    // Встановити для кожного селекту
+    ['permissions-pages', 'permissions-panels', 'permissions-actions'].forEach(selectId => {
+        const selectEl = document.getElementById(selectId);
+        if (!selectEl) return;
+
+        Array.from(selectEl.options).forEach(option => {
+            if (permissionKeys.includes(option.value)) {
+                option.selected = true;
+            }
+        });
+
+        // Викликати change для оновлення custom select
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
     });
 }
 
 /**
- * Отримує обрані права з чекбоксів
+ * Очищує всі мультиселекти прав
+ */
+function clearPermissionSelects() {
+    ['permissions-pages', 'permissions-panels', 'permissions-actions'].forEach(selectId => {
+        const selectEl = document.getElementById(selectId);
+        if (!selectEl) return;
+
+        Array.from(selectEl.options).forEach(option => {
+            option.selected = false;
+        });
+    });
+}
+
+/**
+ * Отримує обрані права з усіх мультиселектів
  */
 function getSelectedPermissions() {
     const selected = [];
-    document.querySelectorAll('input[name="permission"]:checked').forEach(cb => {
-        selected.push(cb.value);
+
+    ['permissions-pages', 'permissions-panels', 'permissions-actions'].forEach(selectId => {
+        const selectEl = document.getElementById(selectId);
+        if (!selectEl) return;
+
+        Array.from(selectEl.selectedOptions).forEach(option => {
+            if (option.value) {
+                selected.push(option.value);
+            }
+        });
     });
+
     return selected;
 }
 
