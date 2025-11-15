@@ -23,7 +23,7 @@
  * ВИМОГИ ДО HTML:
  * <div class="panel-box">
  *   <input type="text" id="your-input-id" class="input-main">
- *   <button class="btn-icon clear-search-btn" style="display: none;">
+ *   <button class="btn-icon clear-search-btn u-hidden">
  *     <span class="material-symbols-outlined">close</span>
  *   </button>
  * </div>
@@ -62,16 +62,16 @@ export function initSearchClear(inputIds, onClearCallback = null) {
         // Функція оновлення видимості кнопки
         const updateClearButtonVisibility = () => {
             if (inputElement.value.trim().length > 0) {
-                clearBtn.style.display = 'inline-flex';
+                clearBtn.classList.remove('u-hidden');
             } else {
-                clearBtn.style.display = 'none';
+                clearBtn.classList.add('u-hidden');
             }
         };
 
         // Функція очищення
         const clearSearch = () => {
             inputElement.value = '';
-            clearBtn.style.display = 'none';
+            clearBtn.classList.add('u-hidden');
             inputElement.focus();
 
             // Генеруємо подію input щоб спрацювали існуючі слухачі
@@ -114,7 +114,7 @@ export function destroySearchClear(inputIds) {
 
         // Видаляємо слухачі (потрібно зберігати посилання на функції)
         // В даному випадку просто приховуємо кнопку
-        clearBtn.style.display = 'none';
+        clearBtn.classList.add('u-hidden');
 
         console.log(`🗑️ [search-clear] Знищено для поля "${inputId}"`);
     });

@@ -282,9 +282,9 @@ export function initTabHandlers() {
             const searchFilterBtn = document.querySelector('[data-dropdown-trigger][aria-label="Фільтри пошуку"]');
             if (searchFilterBtn) {
                 if (tabId === 'tab-manage') {
-                    searchFilterBtn.style.display = '';
+                    searchFilterBtn.classList.remove('u-hidden');
                 } else {
-                    searchFilterBtn.style.display = 'none';
+                    searchFilterBtn.classList.add('u-hidden');
                 }
             }
 

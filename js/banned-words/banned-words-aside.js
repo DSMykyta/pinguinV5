@@ -42,7 +42,7 @@ export async function loadAside() {
         if (searchFilterBtn) {
             const activeTab = document.querySelector('.tab-content.active');
             const tabId = activeTab ? activeTab.dataset.tabContent : 'tab-manage';
-            searchFilterBtn.style.display = tabId === 'tab-manage' ? '' : 'none';
+            searchFilterBtn.classList.toggle('u-hidden', !(tabId === 'tab-manage'));
         }
 
         console.log('✅ Aside завантажено');
@@ -175,7 +175,7 @@ export function initManageTabEvents() {
 
             // Показати/сховати кнопку очищення
             if (clearSearchBtn) {
-                clearSearchBtn.style.display = e.target.value ? 'flex' : 'none';
+                clearSearchBtn.classList.toggle('u-hidden', !(e.target.value));
             }
 
             // Знайти активний таб і викликати його renderFn
@@ -196,7 +196,7 @@ export function initManageTabEvents() {
             if (searchInput) {
                 searchInput.value = '';
                 bannedWordsState.searchQuery = '';
-                clearSearchBtn.style.display = 'none';
+                clearSearchBtn.classList.add('u-hidden');
 
                 // Знайти активний таб і викликати його renderFn
                 const activeTab = document.querySelector('.tab-content.active');

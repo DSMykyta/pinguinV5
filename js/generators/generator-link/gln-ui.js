@@ -41,6 +41,6 @@ export function filterLinkButtons() {
 
     buttons.forEach(button => {
         const buttonText = button.dataset.brandLower; // Беремо з data-атрибуту
-        button.style.display = buttonText.includes(searchTerm) ? "" : "none";
+        button.classList.toggle('u-hidden', !(buttonText.includes(searchTerm)));
     });
 }

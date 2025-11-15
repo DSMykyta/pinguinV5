@@ -260,7 +260,7 @@ export function initSeoGenerator() {
     dom.searchTrigerInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         dom.trigerButtonsContainer.querySelectorAll('.chip').forEach(button => {
-            button.style.display = button.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+            button.classList.toggle('u-hidden', !(button.textContent.toLowerCase().includes(searchTerm)));
         });
     });
 

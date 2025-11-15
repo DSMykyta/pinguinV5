@@ -80,7 +80,7 @@ export function initTableSearch(searchInput, options) {
 
         // Показати/сховати кнопку очищення
         if (clearButton) {
-            clearButton.style.display = query ? 'flex' : 'none';
+            clearButton.classList.toggle('u-hidden', !(query));
         }
 
         // Викликати callback
@@ -95,7 +95,7 @@ export function initTableSearch(searchInput, options) {
     if (clearButton) {
         clearButton.addEventListener('click', () => {
             searchInput.value = '';
-            clearButton.style.display = 'none';
+            clearButton.classList.add('u-hidden');
 
             if (onSearch) {
                 onSearch('', selectedColumns);
@@ -126,7 +126,7 @@ export function initTableSearch(searchInput, options) {
         clear: () => {
             searchInput.value = '';
             if (clearButton) {
-                clearButton.style.display = 'none';
+                clearButton.classList.add('u-hidden');
             }
             if (onSearch) {
                 onSearch('', selectedColumns);

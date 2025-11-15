@@ -268,7 +268,7 @@ function toggleColumnVisibility(columnName, visible) {
     const cells = document.querySelectorAll(`[data-column="${columnName}"]`);
     cells.forEach(cell => {
         if (cell.tagName === 'BUTTON') return; // Пропустити кнопки (це ми самі)
-        cell.style.display = visible ? '' : 'none';
+        cell.classList.toggle('u-hidden', !(visible));
     });
 }
 
@@ -326,7 +326,7 @@ function filterTableByQuery(query) {
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const matches = query === '' || text.includes(query);
-        row.style.display = matches ? '' : 'none';
+        row.classList.toggle('u-hidden', !(matches));
         if (matches) visibleCount++;
     });
 

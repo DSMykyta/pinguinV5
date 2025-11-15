@@ -128,7 +128,7 @@ function createNewRow() {
         </div>
         <div class="select">
             <button class="use-attributes lil-btn" tabindex="-1"><span class="material-symbols-outlined">tune</span></button>
-            <div class="attributes-dropdown" style="display: none;">
+            <div class="attributes-dropdown u-hidden">
                 <button class="option-btn option-btn-l active" data-class="td"><span>Звичайний</span></button>
                 <button class="option-btn option-btn-l" data-class="th-strong"><span>Заголовок</span></button>
                 <button class="option-btn option-btn-l" data-class="th"><span>Підзаголовок</span></button>
@@ -159,7 +159,7 @@ function createNewRow() {
     const closeBtn = newRow.querySelector('.lil-btn:last-child');
     const triggerBtn = newRow.querySelector('.use-attributes');
     const closeDropdown = () => {
-        dropdown.style.display = 'none';
+        dropdown.classList.add('u-hidden');
         document.removeEventListener('click', handleClickOutside);
     };
     const handleClickOutside = (event) => {
@@ -169,12 +169,12 @@ function createNewRow() {
     };
     triggerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isVisible = dropdown.style.display === 'flex';
-        document.querySelectorAll('.attributes-dropdown').forEach(d => d.style.display = 'none');
+        const isVisible = !dropdown.classList.contains('u-hidden');
+        document.querySelectorAll('.attributes-dropdown').forEach(d => d.classList.add('u-hidden'));
         if (isVisible) {
             closeDropdown();
         } else {
-            dropdown.style.display = 'flex';
+            dropdown.classList.remove('u-hidden');
             document.addEventListener('click', handleClickOutside);
         }
     });

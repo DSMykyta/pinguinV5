@@ -69,7 +69,7 @@ export function createColumnSelector(containerId, columns, options = {}) {
         filteredColumns.forEach(column => {
             const label = document.createElement('label');
             label.className = 'dropdown-item';
-            label.style.display = 'flex';
+            label.classList.remove('u-hidden');
             label.style.alignItems = 'center';
             label.style.gap = '8px';
             label.style.padding = '8px 16px';

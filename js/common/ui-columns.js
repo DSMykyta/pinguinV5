@@ -103,7 +103,7 @@ export function removeColumnGroup(container, groupLabel) {
 function toggleColumn(tableContainer, columnName, isVisible) {
     const cells = tableContainer.querySelectorAll(`[data-column="${columnName}"]`);
     cells.forEach(cell => {
-        cell.style.display = isVisible ? '' : 'none';
+        cell.classList.toggle('u-hidden', !(isVisible));
     });
 }
 

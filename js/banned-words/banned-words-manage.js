@@ -405,7 +405,7 @@ export async function openBannedWordModal(wordData = null) {
     const markCheckedBtn = document.getElementById('banned-word-mark-checked');
     if (markCheckedBtn) {
         if (isEdit && wordData.cheaked_line !== 'TRUE') {
-            markCheckedBtn.style.display = ''; // Показуємо кнопку
+            markCheckedBtn.classList.remove('u-hidden'); // Показуємо кнопку
             
             // Використовуємо .onclick для простоти (уникаємо накопичення слухачів)
             markCheckedBtn.onclick = async () => {
@@ -413,7 +413,7 @@ export async function openBannedWordModal(wordData = null) {
                 closeModal(); // Закриваємо модал
             };
         } else {
-            markCheckedBtn.style.display = 'none'; // Ховаємо кнопку
+            markCheckedBtn.classList.add('u-hidden'); // Ховаємо кнопку
         }
     }
 

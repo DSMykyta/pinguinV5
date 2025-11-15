@@ -80,7 +80,7 @@ function openEditMarketplaceModal(marketplace) {
 
         // Сховати праву частину з конфігурацією колонок (тільки для редагування)
         const formRight = document.querySelector('.mp-form-right');
-        if (formRight) formRight.style.display = 'none';
+        if (formRight) formRight.classList.add('u-hidden');
 
         // Змінити layout на одноколонковий
         const formLayout = document.querySelector('.mp-form-layout');
@@ -149,13 +149,13 @@ function initMarketplaceAdminEvents(container) {
             const tabContents = tabContainer.querySelectorAll(isSubtab ? '[id^="subtab-"]' : '[id^="tab-"]');
 
             tabLinks.forEach(link => link.classList.remove('active'));
-            tabContents.forEach(content => content.style.display = 'none');
+            tabContents.forEach(content => content.classList.add('u-hidden'));
 
             // Активувати обраний таб
             e.target.classList.add('active');
             const targetContent = tabContainer.querySelector(`#${isSubtab ? 'subtab' : 'tab'}-${tabName}`);
             if (targetContent) {
-                targetContent.style.display = 'block';
+                targetContent.classList.remove('u-hidden');
             }
         });
     });
@@ -278,7 +278,7 @@ function showColumnsConfig(mpId) {
         return;
     }
 
-    container.style.display = 'block';
+    container.classList.remove('u-hidden');
 
     // Завантажити колонки для кожного типу сутності
     ['Categories', 'Characteristics', 'Options'].forEach(entityType => {
@@ -293,7 +293,7 @@ function showColumnsConfig(mpId) {
 function hideColumnsConfig() {
     const container = document.getElementById('columns-config-container');
     if (container) {
-        container.style.display = 'none';
+        container.classList.add('u-hidden');
     }
 }
 
@@ -448,7 +448,7 @@ function initAddMarketplaceEvents(container) {
     const formLayout = container.querySelector('.mp-form-layout');
     const mpIdInput = container.querySelector('#mp-id');
 
-    if (formRight) formRight.style.display = '';
+    if (formRight) formRight.classList.remove('u-hidden');
     if (formLayout) formLayout.style.gridTemplateColumns = '400px 1fr';
     if (mpIdInput) {
         mpIdInput.value = '';
@@ -641,7 +641,7 @@ async function handleCreateMarketplace(e) {
     const progressFill = document.getElementById('progress-bar-fill');
 
     if (progressContainer && progressName && progressStatus && progressFill) {
-        progressContainer.style.display = 'block';
+        progressContainer.classList.remove('u-hidden');
         progressName.textContent = `Створення: ${mpName}`;
         progressFill.classList.add('active');
     }
@@ -711,7 +711,7 @@ async function handleCreateMarketplace(e) {
 
             // Сховати прогрес через 2 секунди
             setTimeout(() => {
-                if (progressContainer) progressContainer.style.display = 'none';
+                if (progressContainer) progressContainer.classList.add('u-hidden');
                 if (progressFill) progressFill.style.width = '0%';
             }, 2000);
         }, 500);
@@ -725,7 +725,7 @@ async function handleCreateMarketplace(e) {
 
         // Сховати прогрес через 3 секунди
         setTimeout(() => {
-            if (progressContainer) progressContainer.style.display = 'none';
+            if (progressContainer) progressContainer.classList.add('u-hidden');
             if (progressFill) {
                 progressFill.style.width = '0%';
                 progressFill.style.background = '';

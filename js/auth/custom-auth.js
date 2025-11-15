@@ -213,9 +213,9 @@ function updateAuthUI(isAuthorized) {
 
   if (isAuthorized) {
     // Показуємо інфо про користувача та кнопку виходу
-    if (loginTriggerButton) loginTriggerButton.style.display = 'none';
-    if (logoutButton) logoutButton.style.display = 'flex';
-    if (userInfo) userInfo.style.display = 'flex';
+    if (loginTriggerButton) loginTriggerButton.classList.add('u-hidden');
+    if (logoutButton) logoutButton.classList.remove('u-hidden');
+    if (userInfo) userInfo.classList.remove('u-hidden');
 
     // Заповнюємо дані користувача
     const user = getUserData();
@@ -239,9 +239,9 @@ function updateAuthUI(isAuthorized) {
     updateUserAvatar(user.avatar);
   } else {
     // Показуємо кнопку логіну
-    if (loginTriggerButton) loginTriggerButton.style.display = 'block';
-    if (logoutButton) logoutButton.style.display = 'none';
-    if (userInfo) userInfo.style.display = 'none';
+    if (loginTriggerButton) loginTriggerButton.classList.remove('u-hidden');
+    if (logoutButton) logoutButton.classList.add('u-hidden');
+    if (userInfo) userInfo.classList.add('u-hidden');
   }
 }
 
@@ -339,7 +339,7 @@ function handleModalOpened(event) {
   // Очищаємо поля
   if (usernameInput) usernameInput.value = '';
   if (passwordInput) passwordInput.value = '';
-  if (loginError) loginError.style.display = 'none';
+  if (loginError) loginError.classList.add('u-hidden');
 
   // Фокус на логін
   setTimeout(() => {
@@ -368,7 +368,7 @@ function handleModalOpened(event) {
       const label = loginButton.querySelector('.label');
       if (label) label.textContent = 'Вхід...';
     }
-    if (loginError) loginError.style.display = 'none';
+    if (loginError) loginError.classList.add('u-hidden');
 
     // Виконуємо вхід
     const result = await handleSignIn(username, password);
@@ -399,7 +399,7 @@ function handleModalOpened(event) {
 function showLoginError(message, loginError) {
   if (loginError) {
     loginError.textContent = message;
-    loginError.style.display = 'block';
+    loginError.classList.remove('u-hidden');
   }
 }
 

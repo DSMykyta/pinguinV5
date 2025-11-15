@@ -188,14 +188,14 @@ function updateAvatarPreview(avatarName, previewId = 'avatar-preview') {
     if (!preview) return;
 
     if (!avatarName) {
-        preview.style.display = 'none';
+        preview.classList.add('u-hidden');
         return;
     }
 
     const avatar = availableAvatars.find(a => a.name === avatarName);
     if (!avatar) return;
 
-    preview.style.display = 'flex';
+    preview.classList.remove('u-hidden');
     preview.innerHTML = `
         <div class="avatar-preview-image">
             <img src="${avatar.calmPath}" alt="${avatar.displayName}">

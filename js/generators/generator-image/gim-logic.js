@@ -290,12 +290,12 @@ function renderThumbnails() {
     
     if (imageState.files.length === 0) {
         dom.thumbnailsArea.appendChild(dom.emptyState);
-        dom.emptyState.style.display = 'flex';
+        dom.emptyState.classList.remove('u-hidden');
         resetCanvasState();
         return;
     }
     
-    dom.emptyState.style.display = 'none';
+    dom.emptyState.classList.add('u-hidden');
 
     imageState.files.forEach(item => {
         const div = document.createElement('div');
@@ -372,7 +372,7 @@ function resetState() {
     dom.thumbnailsArea.innerHTML = '';
     if (dom.emptyState) {
         dom.thumbnailsArea.appendChild(dom.emptyState);
-        dom.emptyState.style.display = 'flex';
+        dom.emptyState.classList.remove('u-hidden');
     }
     resetCanvasState();
 }
@@ -410,8 +410,8 @@ function setupToolHandlers() {
             const input = e.target;
             if (input.name === 'gim-mode-select') {
                 const mode = input.value;
-                dom.modeResizeContent.style.display = mode === 'resize' ? 'block' : 'none';
-                dom.modeCanvasContent.style.display = mode === 'canvas' ? 'block' : 'none';
+                dom.modeResizeContent.classList.toggle('u-hidden', !(mode === 'resize'));
+                dom.modeCanvasContent.classList.toggle('u-hidden', !(mode === 'canvas'));
             }
         });
     }

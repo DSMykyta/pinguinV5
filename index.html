@@ -35,7 +35,7 @@
                 </div>
             </a>
 
-            <a href="entities.html" target="_blank" class="panel-item auth-required" style="display: none;">
+            <a href="entities.html" target="_blank" class="panel-item auth-required u-hidden">
                 <span class="material-symbols-outlined panel-item-icon">label</span>
                 <span class="panel-item-text">Сутності</span>
                 <div class="btn-icon">
@@ -43,7 +43,7 @@
                 </div>
             </a>
 
-            <a href="banned-words.html" target="_blank" class="panel-item auth-required banned-words-link" style="display: none;">
+            <a href="banned-words.html" target="_blank" class="panel-item auth-required banned-words-link u-hidden">
                 <span class="material-symbols-outlined panel-item-icon">block</span>
                 <span class="panel-item-text">Заборонені слова</span>
                 <div class="btn-icon">
@@ -109,7 +109,7 @@
             </button>
 
             <!-- User Info Display (показується коли авторизований) -->
-            <div id="auth-user-info" class="panel-item" style="display: none;">
+            <div id="auth-user-info" class="panel-item u-hidden">
                 <span id="auth-user-avatar-container" class="panel-item-icon">
                     <span class="material-symbols-outlined">person</span>
                 </span>
@@ -120,7 +120,7 @@
             </div>
 
             <!-- Logout Button (показується коли авторизований) -->
-            <button id="auth-logout-btn" class="panel-item" style="display: none;">
+            <button id="auth-logout-btn" class="panel-item u-hidden">
                 <span class="material-symbols-outlined panel-item-icon">logout</span>
                 <span class="panel-item-text">Вийти</span>
             </button>
@@ -393,7 +393,7 @@
                         <canvas id="gim-image-canvas" style="box-shadow: none;"></canvas>
                         <input type="file" id="gim-image-input"
                             accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
-                            style="display: none;" multiple>
+                            class="u-hidden" multiple>
                     </div>
 
                     </div>

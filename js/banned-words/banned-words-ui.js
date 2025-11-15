@@ -25,11 +25,11 @@ export function showTabControls(tabType) {
     const checkControls = document.getElementById('tab-check-controls');
 
     if (tabType === 'tab-manage') {
-        if (manageControls) manageControls.style.display = 'flex';
-        if (checkControls) checkControls.style.display = 'none';
+        if (manageControls) manageControls.classList.remove('u-hidden');
+        if (checkControls) checkControls.classList.add('u-hidden');
     } else {
-        if (manageControls) manageControls.style.display = 'none';
-        if (checkControls) checkControls.style.display = 'flex';
+        if (manageControls) manageControls.classList.add('u-hidden');
+        if (checkControls) checkControls.classList.remove('u-hidden');
     }
 }
 

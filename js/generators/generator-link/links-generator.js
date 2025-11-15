@@ -60,11 +60,8 @@ export function initLinksGenerator() {
         const buttons = buttonsContainer.getElementsByClassName("chip");
         for (let i = 0; i < buttons.length; i++) {
             const buttonText = buttons[i].dataset.brandLower || buttons[i].textContent.toLowerCase();
-            if (buttonText.includes(searchTerm)) {
-                buttons[i].style.display = "";
-            } else {
-                buttons[i].style.display = "none";
-            }
+            const matches = buttonText.includes(searchTerm);
+            buttons[i].classList.toggle('u-hidden', !matches);
         }
     });
 

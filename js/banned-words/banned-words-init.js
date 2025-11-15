@@ -143,7 +143,7 @@ async function initializeUIWithoutData() {
 
     // 3. Показати aside-check-panel (з селектами для перевірки)
     const checkPanel = document.getElementById('aside-check-panel');
-    if (checkPanel) checkPanel.style.display = 'block';
+    if (checkPanel) checkPanel.classList.remove('u-hidden');
 
     // 4. Показати порожню таблицю
     const container = document.getElementById('banned-words-table-container');

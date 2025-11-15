@@ -19,7 +19,7 @@ export function reinitializeCustomSelect(selectElement) {
         }
         existingWrapper.parentNode.insertBefore(selectElement, existingWrapper);
         existingWrapper.remove();
-        selectElement.style.display = '';
+        selectElement.classList.remove('u-hidden');
     }
     new CustomSelect(selectElement);
 }
@@ -121,7 +121,7 @@ class CustomSelect {
 
         this.optionsList = this._createElement('ul', { class: 'custom-select-options', role: 'listbox' });
 
-        this.originalSelect.style.display = 'none';
+        this.originalSelect.classList.add('u-hidden');
         this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect);
 
         this.trigger.appendChild(this.valueContainer);
@@ -176,7 +176,7 @@ class CustomSelect {
         // Логіка для мультиселекту
         this.valueContainer.innerHTML = '';
         this.overflowChipContainer.innerHTML = '';
-        this.overflowChipContainer.style.display = 'none';
+        this.overflowChipContainer.classList.add('u-hidden');
 
         if (selectedOptions.length === 0) {
             this.valueContainer.innerHTML = `<span class="custom-select-placeholder">${this.originalSelect.placeholder || 'Виберіть...'}</span>`;
@@ -237,7 +237,7 @@ class CustomSelect {
                 const chipClone = this._createChip(selectedOptions[allChips.indexOf(chip)]);
                 this.overflowChipContainer.appendChild(chipClone);
             });
-            this.overflowChipContainer.style.display = 'flex';
+            this.overflowChipContainer.classList.remove('u-hidden');
         }
     }
 
@@ -296,7 +296,7 @@ class CustomSelect {
                 const query = e.target.value.toLowerCase();
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
                     const text = optEl.textContent.toLowerCase();
-                    optEl.style.display = text.includes(query) ? '' : 'none';
+                    optEl.classList.toggle('u-hidden', !(text.includes(query)));
                 });
             });
         }
