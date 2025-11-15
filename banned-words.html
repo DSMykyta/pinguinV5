@@ -201,9 +201,24 @@
             <div id="test-table-container" class="pseudo-table-container">
                 <!-- Шапка таблиці -->
                 <div class="pseudo-table-header">
-                    <div class="pseudo-table-cell cell-id">ID</div>
-                    <div class="pseudo-table-cell cell-name" style="flex: 2;">Слово</div>
-                    <div class="pseudo-table-cell cell-name">Категорія</div>
+                    <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="id">
+                        ID
+                        <span class="sort-indicator">
+                            <span class="material-symbols-outlined">arrow_downward</span>
+                        </span>
+                    </div>
+                    <div class="pseudo-table-cell cell-name sortable-header" style="flex: 2;" data-sort-key="word">
+                        Слово
+                        <span class="sort-indicator">
+                            <span class="material-symbols-outlined">arrow_downward</span>
+                        </span>
+                    </div>
+                    <div class="pseudo-table-cell cell-name sortable-header" data-sort-key="category">
+                        Категорія
+                        <span class="sort-indicator">
+                            <span class="material-symbols-outlined">arrow_downward</span>
+                        </span>
+                    </div>
                     <div class="pseudo-table-cell cell-bool">Статус</div>
                 </div>
                 <!-- Рядки додаються динамічно через ui-table-loader.js -->

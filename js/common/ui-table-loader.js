@@ -136,9 +136,9 @@ export function populateTable(container, template, dataArray, options = {}) {
         clearExisting = true
     } = options;
 
-    // Очищуємо існуючі рядки (залишаємо тільки header)
+    // Очищуємо існуючі рядки та стани завантаження (залишаємо тільки header)
     if (clearExisting) {
-        const existingRows = container.querySelectorAll('.pseudo-table-row');
+        const existingRows = container.querySelectorAll('.pseudo-table-row, .loading-row');
         existingRows.forEach(row => row.remove());
     }
 

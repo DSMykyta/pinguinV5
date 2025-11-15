@@ -18,6 +18,14 @@ import {
     showTableEmpty
 } from './common/ui-table-loader.js';
 
+// Стан таблиці
+let tableState = {
+    data: [],
+    template: null,
+    sortKey: 'id',
+    sortDirection: 'asc'
+};
+
 /**
  * Генерує тестові дані для таблиці
  *
@@ -59,6 +67,111 @@ function generateTestData() {
 }
 
 /**
+ * Сортує дані за вказаним ключем
+ *
+ * @param {Array} data - Масив даних
+ * @param {string} key - Ключ для сортування
+ * @param {string} direction - Напрямок ('asc' або 'desc')
+ * @returns {Array} Відсортований масив
+ */
+function sortData(data, key, direction) {
+    return [...data].sort((a, b) => {
+        let aVal = a[key];
+        let bVal = b[key];
+
+        // Для чисел
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return direction === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+
+        // Для рядків
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+
+        if (direction === 'asc') {
+            return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        } else {
+            return bVal < aVal ? -1 : bVal > aVal ? 1 : 0;
+        }
+    });
+}
+
+/**
+ * Оновлює індикатори сортування в header
+ */
+function updateSortIndicators() {
+    const container = document.getElementById('test-table-container');
+    if (!container) return;
+
+    // Скидаємо всі індикатори
+    container.querySelectorAll('.sortable-header').forEach(header => {
+        header.classList.remove('sorted-asc', 'sorted-desc');
+    });
+
+    // Встановлюємо активний індикатор
+    const activeHeader = container.querySelector(`.sortable-header[data-sort-key="${tableState.sortKey}"]`);
+    if (activeHeader) {
+        activeHeader.classList.add(`sorted-${tableState.sortDirection}`);
+    }
+}
+
+/**
+ * Відображає дані в таблиці
+ */
+function renderTable() {
+    const container = document.getElementById('test-table-container');
+    if (!container || !tableState.template) return;
+
+    // Сортуємо дані
+    const sortedData = sortData(tableState.data, tableState.sortKey, tableState.sortDirection);
+
+    // Заповнюємо таблицю
+    populateTable(container, tableState.template, sortedData, {
+        onRowClick: (row, data) => {
+            console.log('Clicked row:', data);
+            alert(`Клік на рядок ID: ${data.id}\nСлово: ${data.word}\nКатегорія: ${data.category}`);
+        },
+        clearExisting: true
+    });
+
+    // Оновлюємо індикатори
+    updateSortIndicators();
+}
+
+/**
+ * Обробник кліку на sortable header
+ */
+function handleSort(sortKey) {
+    if (tableState.sortKey === sortKey) {
+        // Перемикаємо напрямок
+        tableState.sortDirection = tableState.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Нова колонка - починаємо з asc
+        tableState.sortKey = sortKey;
+        tableState.sortDirection = 'asc';
+    }
+
+    renderTable();
+}
+
+/**
+ * Ініціалізує обробники сортування
+ */
+function initSorting() {
+    const container = document.getElementById('test-table-container');
+    if (!container) return;
+
+    container.querySelectorAll('.sortable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const sortKey = header.dataset.sortKey;
+            if (sortKey) {
+                handleSort(sortKey);
+            }
+        });
+    });
+}
+
+/**
  * Завантажує та відображає тестову таблицю
  */
 async function loadTestTable() {
@@ -73,32 +186,33 @@ async function loadTestTable() {
     showTableLoading(container, 'Завантаження шаблону...');
 
     try {
-        // Завантажуємо шаблон
-        const template = await loadTableTemplate('table-test');
+        // Завантажуємо шаблон (якщо ще не завантажено)
+        if (!tableState.template) {
+            const template = await loadTableTemplate('table-test');
 
-        if (!template) {
-            showTableEmpty(container, 'Помилка завантаження шаблону');
-            return;
+            if (!template) {
+                showTableEmpty(container, 'Помилка завантаження шаблону');
+                return;
+            }
+
+            tableState.template = template;
+
+            // Ініціалізуємо сортування після завантаження шаблону
+            initSorting();
         }
 
         // Генеруємо тестові дані
-        const testData = generateTestData();
+        tableState.data = generateTestData();
 
-        if (testData.length === 0) {
+        if (tableState.data.length === 0) {
             showTableEmpty(container, 'Немає даних для відображення');
             return;
         }
 
-        // Заповнюємо таблицю
-        populateTable(container, template, testData, {
-            onRowClick: (row, data) => {
-                console.log('Clicked row:', data);
-                alert(`Клік на рядок ID: ${data.id}\nСлово: ${data.word}\nКатегорія: ${data.category}`);
-            },
-            clearExisting: true
-        });
+        // Відображаємо таблицю
+        renderTable();
 
-        console.log(`Test table loaded: ${testData.length} rows`);
+        console.log(`Test table loaded: ${tableState.data.length} rows`);
 
     } catch (error) {
         console.error('Error loading test table:', error);
