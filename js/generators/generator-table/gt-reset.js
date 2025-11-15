@@ -42,6 +42,7 @@ export function initTableReset() {
 
     // 1. Кнопка "Оновити" просто відкриває модал
     dom.reloadBtn.dataset.modalTrigger = 'confirm-clear-modal';
+    dom.reloadBtn.dataset.modalSize = 'small';
 
     // 2. Слухаємо кнопку "Так, очистити" всередині модалу
     document.body.addEventListener('click', (e) => {

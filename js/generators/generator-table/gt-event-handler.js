@@ -26,6 +26,7 @@ export function setupEventListeners() {
 
     if (dom.reloadBtn) {
         dom.reloadBtn.dataset.modalTrigger = 'confirm-clear-modal';
+        dom.reloadBtn.dataset.modalSize = 'small';
     }
 
     const rightPanel = document.getElementById('panel-right');
