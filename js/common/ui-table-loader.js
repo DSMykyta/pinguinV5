@@ -64,6 +64,7 @@ export async function loadTableTemplate(templateName) {
  *
  * @param {HTMLElement} rowTemplate - Клонований template.content елемент рядка
  * @param {Object} data - Об'єкт з даними для заповнення
+ * @param {Object} renderFunctions - Об'єкт з функціями рендерингу (опціонально)
  * @returns {HTMLElement} Заповнений елемент рядка
  *
  * @example
@@ -73,9 +74,11 @@ export async function loadTableTemplate(templateName) {
  *   word: 'заборонене',
  *   category: 'Категорія 1',
  *   severity: 'high'
+ * }, {
+ *   severity: (value) => renderSeverityBadge(value)
  * });
  */
-export function populateTableRow(rowTemplate, data) {
+export function populateTableRow(rowTemplate, data, renderFunctions = {}) {
     const rowHtml = rowTemplate.innerHTML;
 
     // Замінюємо всі {{key}} на відповідні значення з data
@@ -86,6 +89,21 @@ export function populateTableRow(rowTemplate, data) {
 
     rowTemplate.innerHTML = populatedHtml;
 
+    // Обробляємо комірки з data-render атрибутами для складного рендерингу
+    if (Object.keys(renderFunctions).length > 0) {
+        const cells = rowTemplate.querySelectorAll('[data-render]');
+
+        cells.forEach(cell => {
+            const renderKey = cell.getAttribute('data-render');
+            const fieldName = cell.getAttribute('data-field');
+
+            if (renderFunctions[renderKey] && fieldName && data.hasOwnProperty(fieldName)) {
+                const renderedContent = renderFunctions[renderKey](data[fieldName], data);
+                cell.innerHTML = renderedContent;
+            }
+        });
+    }
+
     return rowTemplate;
 }
 
@@ -94,6 +112,7 @@ export function populateTableRow(rowTemplate, data) {
  *
  * @param {HTMLTemplateElement} template - Template element з loadTableTemplate()
  * @param {Object} data - Об'єкт з даними для заповнення
+ * @param {Object} renderFunctions - Об'єкт з функціями рендерингу (опціонально)
  * @returns {HTMLElement} Готовий елемент рядка для вставки в DOM
  *
  * @example
@@ -101,7 +120,7 @@ export function populateTableRow(rowTemplate, data) {
  * const row = createTableRow(template, {id: 1, word: 'test', category: 'Cat1'});
  * tableContainer.appendChild(row);
  */
-export function createTableRow(template, data) {
+export function createTableRow(template, data, renderFunctions = {}) {
     const rowTemplate = template.content.querySelector('.pseudo-table-row');
 
     if (!rowTemplate) {
@@ -110,7 +129,7 @@ export function createTableRow(template, data) {
     }
 
     const clonedRow = rowTemplate.cloneNode(true);
-    return populateTableRow(clonedRow, data);
+    return populateTableRow(clonedRow, data, renderFunctions);
 }
 
 /**
@@ -122,18 +141,24 @@ export function createTableRow(template, data) {
  * @param {Object} options - Додаткові опції
  * @param {Function} options.onRowClick - Callback при кліку на рядок
  * @param {boolean} options.clearExisting - Очистити існуючі рядки (default: true)
+ * @param {Object} options.renderFunctions - Функції для складного рендерингу комірок
  *
  * @example
  * const template = await loadTableTemplate('table-banned-words');
  * populateTable(container, template, wordsData, {
  *   onRowClick: (row, data) => openModal(data.id),
- *   clearExisting: true
+ *   clearExisting: true,
+ *   renderFunctions: {
+ *     severity: (value) => renderSeverityBadge(value),
+ *     checked: (value, row) => renderBadge(value, 'checked', {clickable: true, id: row.local_id})
+ *   }
  * });
  */
 export function populateTable(container, template, dataArray, options = {}) {
     const {
         onRowClick = null,
-        clearExisting = true
+        clearExisting = true,
+        renderFunctions = {}
     } = options;
 
     // Очищуємо існуючі рядки та стани завантаження (залишаємо тільки header)
@@ -146,13 +171,18 @@ export function populateTable(container, template, dataArray, options = {}) {
     const fragment = document.createDocumentFragment();
 
     dataArray.forEach((data) => {
-        const row = createTableRow(template, data);
+        const row = createTableRow(template, data, renderFunctions);
 
         if (row) {
             // Додаємо клік обробник якщо потрібно
             if (onRowClick) {
                 row.classList.add('clickable-row');
-                row.addEventListener('click', () => onRowClick(row, data));
+                row.addEventListener('click', (e) => {
+                    // Не викликати onRowClick якщо клік був на кнопці чи чекбоксі
+                    if (!e.target.closest('button') && !e.target.closest('input[type="checkbox"]')) {
+                        onRowClick(row, data);
+                    }
+                });
             }
 
             fragment.appendChild(row);

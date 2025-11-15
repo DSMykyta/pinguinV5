@@ -18,6 +18,8 @@ import {
     showTableLoading,
     showTableEmpty
 } from '../common/ui-table-loader.js';
+import { renderBadge, renderSeverityBadge } from '../common/ui-table.js';
+import { openBannedWordModal } from './banned-words-modal.js';
 
 // Стан нового табу
 let newTabState = {
@@ -120,7 +122,7 @@ export async function renderBannedWordsNewTab() {
             return;
         }
 
-        // Підготувати дані для шаблону
+        // Підготувати дані для шаблону (raw values для render functions)
         const preparedData = sortedWords.map(word => ({
             local_id: word.local_id || 'N/A',
             group_name_ua: word.group_name_ua || 'Без назви',
@@ -128,13 +130,22 @@ export async function renderBannedWordsNewTab() {
             name_ru: word.name_ru || '-',
             banned_type: word.banned_type || 'не вказано',
             severity: word.severity || '',
-            cheaked_line: (word.cheaked_line === 'TRUE' || word.cheaked_line === true) ? '✓' : '✗'
+            cheaked_line: word.cheaked_line
         }));
 
         // Заповнити таблицю
         populateTable(container, newTabState.template, preparedData, {
-            onRowClick: null, // Поки без кліка
-            clearExisting: true
+            onRowClick: (row, data) => {
+                openBannedWordModal(data.local_id);
+            },
+            clearExisting: true,
+            renderFunctions: {
+                severity: (value) => renderSeverityBadge(value),
+                checked: (value, rowData) => renderBadge(value, 'checked', {
+                    clickable: true,
+                    id: rowData.local_id
+                })
+            }
         });
 
         // Оновити індикатори сортування

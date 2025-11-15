@@ -13,9 +13,9 @@ export function reinitializeCustomSelect(selectElement) {
     if (!selectElement) return;
     const existingWrapper = selectElement.closest('.custom-select-wrapper');
     if (existingWrapper) {
-        // Зупиняємо спостерігач перед видаленням
-        if (selectElement.customSelect && selectElement.customSelect.observer) {
-            selectElement.customSelect.observer.disconnect();
+        // Викликаємо метод очищення перед видаленням
+        if (selectElement.customSelect) {
+            selectElement.customSelect.destroy();
         }
         existingWrapper.parentNode.insertBefore(selectElement, existingWrapper);
         existingWrapper.remove();
@@ -127,7 +127,8 @@ class CustomSelect {
         this.trigger.appendChild(this.valueContainer);
         this.trigger.appendChild(this.arrow);
         this.wrapper.appendChild(this.trigger);
-        this.wrapper.appendChild(this.panel);
+        // Додаємо панель до body замість wrapper, щоб уникнути проблем з overflow в модалах
+        document.body.appendChild(this.panel);
         this.wrapper.appendChild(this.originalSelect);
 
         this.panel.appendChild(this.overflowChipContainer);
@@ -305,18 +306,32 @@ class CustomSelect {
             }
         });
 
-        // Оновлювати позицію при скролі та ресайзі
-        window.addEventListener('scroll', () => {
-            if (this.wrapper.classList.contains('is-open')) {
-                this._updatePanelPosition();
+        // Закривати селект при закритті модалу
+        this.handleModalClose = () => {
+            // Перевірити чи wrapper все ще в DOM
+            if (!document.body.contains(this.wrapper)) {
+                this.destroy();
+            } else {
+                // Закрити панель якщо вона була відкрита
+                this.wrapper.classList.remove('is-open');
             }
-        }, true);
+        };
+        document.addEventListener('modal-closed', this.handleModalClose);
 
-        window.addEventListener('resize', () => {
+        // Оновлювати позицію при скролі та ресайзі
+        this.handleScroll = () => {
             if (this.wrapper.classList.contains('is-open')) {
                 this._updatePanelPosition();
             }
-        });
+        };
+        window.addEventListener('scroll', this.handleScroll, true);
+
+        this.handleResize = () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                this._updatePanelPosition();
+            }
+        };
+        window.addEventListener('resize', this.handleResize);
 
         if (this.searchInput) {
             this.searchInput.addEventListener('input', (e) => {
@@ -345,5 +360,31 @@ class CustomSelect {
             element.setAttribute(key, value);
         }
         return element;
+    }
+
+    /**
+     * Очищення ресурсів при знищенні селекта
+     */
+    destroy() {
+        // Зупиняємо спостерігач
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+
+        // Видаляємо всі слухачі подій
+        if (this.handleModalClose) {
+            document.removeEventListener('modal-closed', this.handleModalClose);
+        }
+        if (this.handleScroll) {
+            window.removeEventListener('scroll', this.handleScroll, true);
+        }
+        if (this.handleResize) {
+            window.removeEventListener('resize', this.handleResize);
+        }
+
+        // Видаляємо панель з body
+        if (this.panel && this.panel.parentNode) {
+            this.panel.parentNode.removeChild(this.panel);
+        }
     }
 }
