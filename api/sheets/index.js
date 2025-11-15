@@ -5,12 +5,12 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Об'єднаний ендпоінт для всіх операцій з Google Sheets.
-// Підтримує авторизовані операції (proxy) та публічний доступ.
+// ВСІ операції доступні БЕЗ авторизації.
 //
 // ЕНДПОІНТИ:
-// - POST /api/sheets                       → proxy для операцій з авторизацією
+// - POST /api/sheets                       → всі операції з Google Sheets (БЕЗ авторизації)
 // - GET  /api/sheets?type=public&range=... → публічне читання даних
-// - GET  /api/sheets?type=csv&gid=...      → CSV export через proxy
+// - GET  /api/sheets?type=csv&gid=...      → CSV export
 //
 // СТРУКТУРА:
 // Всі handler функції винесені в окремі функції для читабельності.
@@ -18,7 +18,6 @@
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
-const { verifyToken, extractTokenFromHeader } = require('../utils/jwt');
 const {
   getValues,
   batchGetValues,
@@ -79,24 +78,11 @@ async function handler(req, res) {
 // =========================================================================
 
 /**
- * Захищений proxy для операцій з Google Sheets API
+ * Proxy для операцій з Google Sheets API (БЕЗ авторизації)
  * @returns {Promise<Object>} JSON з результатом операції
  */
 async function handleProxy(req, res) {
   try {
-    // Перевірка авторизації
-    const token = extractTokenFromHeader(req.headers.authorization);
-
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
-    }
-
-    const decoded = verifyToken(token);
-
-    if (!decoded) {
-      return res.status(401).json({ error: 'Invalid or expired token' });
-    }
-
     const { action, range, ranges, values, data, requests, spreadsheetType } = req.body;
 
     // Валідація action
@@ -114,12 +100,6 @@ async function handleProxy(req, res) {
       return res.status(400).json({ error: 'Invalid action' });
     }
 
-    // Перевірка прав доступу
-    const permissionCheck = checkPermissions(decoded.role, action, range);
-    if (!permissionCheck.allowed) {
-      return res.status(403).json({ error: permissionCheck.error });
-    }
-
     // Виконання операції
     let result;
 
@@ -134,12 +114,6 @@ async function handleProxy(req, res) {
       case 'batchGet':
         if (!ranges || !Array.isArray(ranges)) {
           return res.status(400).json({ error: 'Ranges array is required for batchGet action' });
-        }
-        if (decoded.role === 'editor') {
-          const hasBannedRange = ranges.some(r => r.includes('Banned') || r.includes('banned'));
-          if (hasBannedRange) {
-            return res.status(403).json({ error: 'Access to banned words is restricted to admins only' });
-          }
         }
         result = await batchGetValues(ranges, spreadsheetType);
         break;
@@ -161,14 +135,6 @@ async function handleProxy(req, res) {
       case 'batchUpdate':
         if (!data || !Array.isArray(data)) {
           return res.status(400).json({ error: 'Data array is required for batchUpdate action' });
-        }
-        if (decoded.role === 'editor') {
-          const hasBannedRange = data.some(item =>
-            item.range && (item.range.includes('Banned') || item.range.includes('banned'))
-          );
-          if (hasBannedRange) {
-            return res.status(403).json({ error: 'Access to banned words is restricted to admins only' });
-          }
         }
         result = await batchUpdate(data, spreadsheetType);
         break;
@@ -306,36 +272,6 @@ async function handleCsvProxy(req, res) {
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
-
-// =========================================================================
-// HELPER: CHECK PERMISSIONS
-// =========================================================================
-
-/**
- * Перевіряє права доступу користувача для конкретної операції
- * @param {string} userRole - Роль користувача
- * @param {string} action - Тип операції
- * @param {string} range - Діапазон комірок
- * @returns {Object} { allowed: boolean, error?: string }
- */
-function checkPermissions(userRole, action, range) {
-  // Viewer може тільки читати
-  if (userRole === 'viewer') {
-    const readOnlyActions = ['get', 'batchGet', 'getSheetNames'];
-    if (!readOnlyActions.includes(action)) {
-      return { allowed: false, error: 'Viewers can only read data' };
-    }
-  }
-
-  // Editor не має доступу до заборонених слів
-  if (userRole === 'editor') {
-    if (range && (range.includes('Banned') || range.includes('banned'))) {
-      return { allowed: false, error: 'Access to banned words is restricted to admins only' };
-    }
-  }
-
-  return { allowed: true };
 }
 
 module.exports = corsMiddleware(handler);
