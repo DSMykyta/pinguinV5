@@ -211,10 +211,6 @@ function updateAuthUI(isAuthorized) {
   const usernameDisplay = document.getElementById('auth-username-display');
   const userRoleDisplay = document.getElementById('auth-user-role-display');
 
-  // Посилання що потребують авторизації
-  const authRequiredLinks = document.querySelectorAll('.auth-required');
-  const bannedWordsLink = document.querySelector('.banned-words-link');
-
   if (isAuthorized) {
     // Показуємо інфо про користувача та кнопку виходу
     if (loginTriggerButton) loginTriggerButton.style.display = 'none';
@@ -241,44 +237,11 @@ function updateAuthUI(isAuthorized) {
 
     // Оновлюємо аватар
     updateUserAvatar(user.avatar);
-
-    // Показуємо посилання що потребують авторизації
-    authRequiredLinks.forEach(link => {
-      // Заборонені слова тільки для admin
-      if (link.classList.contains('banned-words-link')) {
-        if (user.role === 'admin') {
-          link.style.display = 'flex';
-        }
-      } else {
-        // Інші посилання для всіх авторизованих
-        link.style.display = 'flex';
-      }
-    });
   } else {
     // Показуємо кнопку логіну
     if (loginTriggerButton) loginTriggerButton.style.display = 'block';
     if (logoutButton) logoutButton.style.display = 'none';
     if (userInfo) userInfo.style.display = 'none';
-
-    // Приховуємо посилання що потребують авторизації
-    authRequiredLinks.forEach(link => {
-      link.style.display = 'none';
-    });
-  }
-
-  // Оновлюємо кнопки редагування для viewer
-  updateEditButtons(isAuthorized ? getUserData().role : null);
-}
-
-/**
- * Оновлення кнопок редагування в залежності від ролі
- */
-function updateEditButtons(role) {
-  if (role === 'viewer') {
-    const editButtons = document.querySelectorAll('.btn-edit, .btn-delete, .btn-add');
-    editButtons.forEach(btn => {
-      btn.style.display = 'none';
-    });
   }
 }
 
