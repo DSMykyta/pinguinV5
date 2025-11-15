@@ -138,32 +138,9 @@ async function checkAdminAuth(req) {
 // =========================================================================
 
 async function handleListPermissions(req, res) {
-  const startTime = Date.now();
   try {
-    console.log('📥 Завантаження каталогу прав...');
-
     // Читання таблиці PermissionsCatalog (A=key, B=label, C=category, D=subcategory, E=description, F=created_at)
-    console.log('🔍 Спроба читання PermissionsCatalog!A2:F10000 з users spreadsheet...');
-
-    let catalogData;
-    try {
-      catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Отримано ${catalogData?.length || 0} рядків з Google Sheets за ${elapsed}ms`);
-    } catch (sheetsError) {
-      const elapsed = Date.now() - startTime;
-      console.error(`❌ Помилка Google Sheets API (${elapsed}ms):`, sheetsError.message);
-      return res.status(500).json({
-        error: 'Failed to access Google Sheets',
-        details: sheetsError.message,
-        elapsed: `${elapsed}ms`
-      });
-    }
-
-    if (!catalogData || !Array.isArray(catalogData)) {
-      console.error('❌ catalogData не є масивом:', typeof catalogData);
-      return res.status(500).json({ error: 'Invalid data from Google Sheets' });
-    }
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
 
     // Побудувати масив прав
     const permissions = catalogData
@@ -177,20 +154,15 @@ async function handleListPermissions(req, res) {
         created_at: row[5] || ''
       }));
 
-    const totalElapsed = Date.now() - startTime;
-    console.log(`✅ Завантажено ${permissions.length} прав з каталогу за ${totalElapsed}ms`);
-
     return res.status(200).json({
       success: true,
       permissions
     });
   } catch (error) {
-    const elapsed = Date.now() - startTime;
-    console.error(`❌ Error listing permissions (${elapsed}ms):`, error.message);
+    console.error('Error listing permissions:', error);
     return res.status(500).json({
       error: 'Failed to list permissions',
-      details: error.message,
-      elapsed: `${elapsed}ms`
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
@@ -200,53 +172,12 @@ async function handleListPermissions(req, res) {
 // =========================================================================
 
 async function handleListPermissionAssignments(req, res) {
-  const startTime = Date.now();
   try {
-    console.log('📥 Завантаження призначень прав...');
-
     // Читання каталогу прав
-    console.log('🔍 Спроба читання PermissionsCatalog...');
-    let catalogData;
-    try {
-      catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Отримано ${catalogData?.length || 0} прав з каталогу за ${elapsed}ms`);
-    } catch (sheetsError) {
-      const elapsed = Date.now() - startTime;
-      console.error(`❌ Помилка читання PermissionsCatalog (${elapsed}ms):`, sheetsError.message);
-      return res.status(500).json({
-        error: 'Failed to access PermissionsCatalog',
-        details: sheetsError.message,
-        elapsed: `${elapsed}ms`
-      });
-    }
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
 
-    // Читання призначень
-    console.log('🔍 Спроба читання RolePermissions...');
-    let assignmentsData;
-    try {
-      assignmentsData = await getValues('RolePermissions!A2:C10000', 'users');
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Отримано ${assignmentsData?.length || 0} призначень за ${elapsed}ms`);
-    } catch (sheetsError) {
-      const elapsed = Date.now() - startTime;
-      console.error(`❌ Помилка читання RolePermissions (${elapsed}ms):`, sheetsError.message);
-      return res.status(500).json({
-        error: 'Failed to access RolePermissions',
-        details: sheetsError.message,
-        elapsed: `${elapsed}ms`
-      });
-    }
-
-    if (!catalogData || !Array.isArray(catalogData)) {
-      console.error('❌ catalogData не є масивом');
-      return res.status(500).json({ error: 'Invalid catalog data from Google Sheets' });
-    }
-
-    if (!assignmentsData || !Array.isArray(assignmentsData)) {
-      console.error('❌ assignmentsData не є масивом');
-      return res.status(500).json({ error: 'Invalid assignments data from Google Sheets' });
-    }
+    // Читання призначень (A=role_id, B=permission_key, C=granted)
+    const assignmentsData = await getValues('RolePermissions!A2:C1000', 'users');
 
     // Побудувати масив прав з роллями
     const permissions = catalogData
@@ -269,20 +200,15 @@ async function handleListPermissionAssignments(req, res) {
         };
       });
 
-    const totalElapsed = Date.now() - startTime;
-    console.log(`✅ Завантажено ${permissions.length} прав з призначеннями за ${totalElapsed}ms`);
-
     return res.status(200).json({
       success: true,
       permissions
     });
   } catch (error) {
-    const elapsed = Date.now() - startTime;
-    console.error(`❌ Error listing permission assignments (${elapsed}ms):`, error.message);
+    console.error('Error listing permission assignments:', error);
     return res.status(500).json({
       error: 'Failed to list permission assignments',
-      details: error.message,
-      elapsed: `${elapsed}ms`
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
@@ -300,10 +226,8 @@ async function handleCreatePermission(req, res) {
       return res.status(400).json({ error: 'Missing required fields: permission_key, permission_label, category' });
     }
 
-    console.log(`➕ Створення нового права: ${permission_key}`);
-
     // Перевірити чи не існує вже таке право
-    const catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
     const exists = catalogData.some(row => row[0] === permission_key);
 
     if (exists) {
@@ -322,8 +246,6 @@ async function handleCreatePermission(req, res) {
 
     await appendValues('PermissionsCatalog!A2:F2', [newRow], 'users');
 
-    console.log(`✅ Створено право: ${permission_key}`);
-
     return res.status(201).json({
       success: true,
       message: 'Permission created successfully',
@@ -337,7 +259,10 @@ async function handleCreatePermission(req, res) {
     });
   } catch (error) {
     console.error('Error creating permission:', error);
-    return res.status(500).json({ error: 'Failed to create permission' });
+    return res.status(500).json({
+      error: 'Failed to create permission',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 
@@ -353,10 +278,8 @@ async function handleUpdatePermission(req, res) {
       return res.status(400).json({ error: 'Missing permission_key' });
     }
 
-    console.log(`🔄 Оновлення права: ${permission_key}`);
-
     // Читання каталогу
-    const catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
 
     // Знайти індекс права
     const index = catalogData.findIndex(row => row[0] === permission_key);
@@ -376,9 +299,7 @@ async function handleUpdatePermission(req, res) {
     ];
 
     // Записати назад
-    await updateValues('PermissionsCatalog!A2:F10000', catalogData, 'users');
-
-    console.log(`✅ Оновлено право: ${permission_key}`);
+    await updateValues('PermissionsCatalog!A2:F1000', catalogData, 'users');
 
     return res.status(200).json({
       success: true,
@@ -386,7 +307,10 @@ async function handleUpdatePermission(req, res) {
     });
   } catch (error) {
     console.error('Error updating permission:', error);
-    return res.status(500).json({ error: 'Failed to update permission' });
+    return res.status(500).json({
+      error: 'Failed to update permission',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 
@@ -402,10 +326,8 @@ async function handleDeletePermission(req, res) {
       return res.status(400).json({ error: 'Missing permission_key' });
     }
 
-    console.log(`🗑️ Видалення права: ${permission_key}`);
-
     // Читання каталогу
-    const catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
 
     // Видалити право
     const filteredCatalog = catalogData.filter(row => row[0] !== permission_key);
@@ -415,14 +337,12 @@ async function handleDeletePermission(req, res) {
     }
 
     // Також видалити всі призначення цього права
-    const assignmentsData = await getValues('RolePermissions!A2:C10000', 'users');
+    const assignmentsData = await getValues('RolePermissions!A2:C1000', 'users');
     const filteredAssignments = assignmentsData.filter(row => row[1] !== permission_key);
 
     // Записати назад
-    await updateValues('PermissionsCatalog!A2:F10000', filteredCatalog, 'users');
-    await updateValues('RolePermissions!A2:C10000', filteredAssignments, 'users');
-
-    console.log(`✅ Видалено право: ${permission_key}`);
+    await updateValues('PermissionsCatalog!A2:F1000', filteredCatalog, 'users');
+    await updateValues('RolePermissions!A2:C1000', filteredAssignments, 'users');
 
     return res.status(200).json({
       success: true,
@@ -430,7 +350,10 @@ async function handleDeletePermission(req, res) {
     });
   } catch (error) {
     console.error('Error deleting permission:', error);
-    return res.status(500).json({ error: 'Failed to delete permission' });
+    return res.status(500).json({
+      error: 'Failed to delete permission',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 
@@ -450,10 +373,8 @@ async function handleAssignPermission(req, res) {
       return res.status(400).json({ error: 'roles must be an array' });
     }
 
-    console.log(`🔄 Призначення права ${permission_key} роллям:`, roles);
-
     // Перевірити чи існує таке право
-    const catalogData = await getValues('PermissionsCatalog!A2:F10000', 'users');
+    const catalogData = await getValues('PermissionsCatalog!A2:F1000', 'users');
     const permissionExists = catalogData.some(row => row[0] === permission_key);
 
     if (!permissionExists) {
@@ -461,7 +382,7 @@ async function handleAssignPermission(req, res) {
     }
 
     // Читання всіх призначень
-    const assignmentsData = await getValues('RolePermissions!A2:C10000', 'users');
+    const assignmentsData = await getValues('RolePermissions!A2:C1000', 'users');
 
     // Видалити всі рядки для цього permission_key
     const filteredAssignments = assignmentsData.filter(row => row[1] !== permission_key);
@@ -477,9 +398,7 @@ async function handleAssignPermission(req, res) {
     const updatedAssignments = [...filteredAssignments, ...newRows];
 
     // Записати назад
-    await updateValues('RolePermissions!A2:C10000', updatedAssignments, 'users');
-
-    console.log(`✅ Призначено право ${permission_key}`);
+    await updateValues('RolePermissions!A2:C1000', updatedAssignments, 'users');
 
     return res.status(200).json({
       success: true,
@@ -487,7 +406,10 @@ async function handleAssignPermission(req, res) {
     });
   } catch (error) {
     console.error('Error assigning permission:', error);
-    return res.status(500).json({ error: 'Failed to assign permission' });
+    return res.status(500).json({
+      error: 'Failed to assign permission',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 
@@ -496,7 +418,6 @@ async function handleAssignPermission(req, res) {
 // =========================================================================
 
 async function handleGetUserPermissions(req, res) {
-  const startTime = Date.now();
   try {
     const { role } = req.query || {};
 
@@ -504,36 +425,13 @@ async function handleGetUserPermissions(req, res) {
       return res.status(400).json({ error: 'Missing role parameter' });
     }
 
-    console.log(`📥 Завантаження прав для ролі: ${role}`);
-    console.log('🔍 Спроба читання RolePermissions!A2:C10000 з users spreadsheet...');
-
-    let assignmentsData;
-    try {
-      assignmentsData = await getValues('RolePermissions!A2:C10000', 'users');
-      const elapsed = Date.now() - startTime;
-      console.log(`✅ Отримано ${assignmentsData?.length || 0} рядків призначень за ${elapsed}ms`);
-    } catch (sheetsError) {
-      const elapsed = Date.now() - startTime;
-      console.error(`❌ Помилка Google Sheets API (${elapsed}ms):`, sheetsError.message);
-      return res.status(500).json({
-        error: 'Failed to access Google Sheets',
-        details: sheetsError.message,
-        elapsed: `${elapsed}ms`
-      });
-    }
-
-    if (!assignmentsData || !Array.isArray(assignmentsData)) {
-      console.error('❌ assignmentsData не є масивом:', typeof assignmentsData);
-      return res.status(500).json({ error: 'Invalid data from Google Sheets' });
-    }
+    // Читання таблиці RolePermissions (A=role_id, B=permission_key, C=granted)
+    const assignmentsData = await getValues('RolePermissions!A2:C1000', 'users');
 
     // Фільтрувати права для цієї ролі (де granted=TRUE)
     const permissions = assignmentsData
       .filter(row => row[0] === role && row[2] === 'TRUE')
       .map(row => row[1]); // permission_key
-
-    const totalElapsed = Date.now() - startTime;
-    console.log(`✅ Знайдено ${permissions.length} прав для ролі ${role} за ${totalElapsed}ms`);
 
     return res.status(200).json({
       success: true,
@@ -541,12 +439,10 @@ async function handleGetUserPermissions(req, res) {
       permissions
     });
   } catch (error) {
-    const elapsed = Date.now() - startTime;
-    console.error(`❌ Error getting user permissions (${elapsed}ms):`, error.message);
+    console.error('Error getting user permissions:', error);
     return res.status(500).json({
       error: 'Failed to get user permissions',
-      details: error.message,
-      elapsed: `${elapsed}ms`
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
