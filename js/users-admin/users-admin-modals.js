@@ -15,13 +15,72 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { renderAvatarSelector, getAvailableAvatars } from '../utils/avatar-loader.js';
 
+// =========================================================================
+// HELPER: ЗАВАНТАЖЕННЯ РОЛЕЙ
+// =========================================================================
+
+/**
+ * Завантажує доступні ролі (поки хардкод, пізніше буде з API)
+ * @returns {Array} Масив ролей
+ */
+async function loadAvailableRoles() {
+    // TODO: Замінити на API виклик коли буде створено /api/roles
+    // const response = await window.apiClient.get('/api/roles');
+    // return response.roles;
+
+    return [
+        { id: 'admin', name: 'Admin (повний доступ)', description: 'Повний доступ до всіх функцій' },
+        { id: 'editor', name: 'Editor (читання + запис)', description: 'Може читати та редагувати контент' },
+        { id: 'viewer', name: 'Viewer (тільки читання)', description: 'Тільки перегляд контенту' }
+    ];
+}
+
+/**
+ * Рендерить опції ролей в select елемент
+ * @param {string} selectId - ID селекту
+ * @param {string|null} selectedValue - Поточне вибране значення
+ */
+async function renderRoleOptions(selectId, selectedValue = null) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) {
+        console.warn(`⚠️ Select element ${selectId} not found`);
+        return;
+    }
+
+    const roles = await loadAvailableRoles();
+
+    // Очистити поточні опції (крім placeholder якщо є)
+    const hasPlaceholder = selectElement.querySelector('option[value=""]');
+    selectElement.innerHTML = '';
+
+    // Додати placeholder якщо потрібно
+    if (hasPlaceholder || !selectedValue) {
+        const placeholderOption = document.createElement('option');
+        placeholderOption.value = '';
+        placeholderOption.textContent = '-- Оберіть роль --';
+        selectElement.appendChild(placeholderOption);
+    }
+
+    // Додати опції ролей
+    roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.id;
+        option.textContent = role.name;
+        if (role.id === selectedValue) {
+            option.selected = true;
+        }
+        selectElement.appendChild(option);
+    });
+
+    console.log(`✅ Ролі завантажено в #${selectId}:`, roles.map(r => r.id).join(', '));
+}
+
 /**
  * Ініціалізує систему модальних вікон
  */
 export function initModals() {
     // Слухати кастомні події для відкриття модалок
-    document.addEventListener('open-add-user-modal', () => openAddUserModal());
-    document.addEventListener('open-edit-user-modal', (e) => openEditUserModal(e.detail.user));
+    document.addEventListener('open-user-modal', (e) => openUserModal(e.detail?.user || null));
 
     // Слухати подію відкриття модалу для ініціалізації обробників
     document.addEventListener('modal-opened', handleModalOpened);
@@ -35,47 +94,115 @@ export function initModals() {
 function handleModalOpened(event) {
     const { modalId } = event.detail;
 
-    if (modalId === 'user-add') {
-        initAddUserHandlers();
-    } else if (modalId === 'user-edit') {
-        initEditUserHandlers();
+    if (modalId === 'user-modal') {
+        initUserModalHandlers();
     } else if (modalId === 'user-reset-password') {
         initResetPasswordHandlers();
     }
 }
 
 // =========================================================================
-// МОДАЛКА: ДОДАВАННЯ КОРИСТУВАЧА
+// МОДАЛКА: КОРИСТУВАЧ (СТВОРЕННЯ / РЕДАГУВАННЯ)
 // =========================================================================
 
+let currentEditUser = null;
+
 /**
- * Відкриває модалку додавання користувача
+ * Відкриває модалку для створення або редагування користувача
+ * @param {Object|null} userData - Дані користувача для редагування (null для створення)
  */
-async function openAddUserModal() {
-    await showModal('user-add');
+async function openUserModal(userData = null) {
+    const isEdit = !!userData;
+    currentEditUser = userData;
+
+    console.log(isEdit ? '✏️ Редагування користувача' : '➕ Створення користувача');
+
+    // Відкрити модал
+    await showModal('user-modal');
+
+    // Змінити заголовок
+    const modalTitle = document.getElementById('modal-title');
+    if (modalTitle) {
+        modalTitle.textContent = isEdit ? 'Редагувати користувача' : 'Додати користувача';
+    }
+
+    // Змінити текст кнопки збереження
+    const saveBtn = document.getElementById('save-user');
+    if (saveBtn) {
+        saveBtn.querySelector('.label').textContent = isEdit ? 'Зберегти' : 'Створити';
+    }
+
+    // Умовне відображення елементів
+    const passwordField = document.getElementById('password-field-group');
+    const resetPasswordBtn = document.getElementById('reset-user-password');
+    const deleteBtn = document.getElementById('delete-user');
+
+    if (isEdit) {
+        // Режим редагування
+        passwordField.style.display = 'none';
+        resetPasswordBtn.style.display = '';
+        deleteBtn.style.display = '';
+
+        // Заповнити дані
+        document.getElementById('user-id').value = userData.id;
+        document.getElementById('user-display-name').value = userData.display_name || '';
+        document.getElementById('user-username').value = userData.username;
+        document.getElementById('user-role').value = userData.role;
+        document.getElementById('selected-avatar').value = userData.avatar || '';
+    } else {
+        // Режим створення
+        passwordField.style.display = '';
+        resetPasswordBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
+
+        // Очистити форму
+        document.getElementById('user-id').value = '';
+        document.getElementById('user-display-name').value = '';
+        document.getElementById('user-username').value = '';
+        document.getElementById('user-password').value = '';
+        document.getElementById('user-role').value = '';
+        document.getElementById('selected-avatar').value = '';
+    }
 }
 
 /**
- * Ініціалізує обробники для модалки додавання
+ * Ініціалізує обробники для модалки користувача
  */
-function initAddUserHandlers() {
+async function initUserModalHandlers() {
+    const isEdit = !!currentEditUser;
+
     const saveBtn = document.getElementById('save-user');
-    if (!saveBtn) return;
+    const resetPasswordBtn = document.getElementById('reset-user-password');
+    const deleteBtn = document.getElementById('delete-user');
 
-    saveBtn.onclick = handleAddUser;
+    // Головна кнопка збереження
+    if (saveBtn) {
+        saveBtn.onclick = () => isEdit ? handleEditUser() : handleCreateUser();
+    }
 
-    // Ініціалізуємо селектор аватарів
-    renderAvatarSelector(null, 'avatar-selector');
+    // Кнопки тільки для режиму редагування
+    if (isEdit) {
+        if (resetPasswordBtn) resetPasswordBtn.onclick = () => openResetPasswordModal(currentEditUser);
+        if (deleteBtn) deleteBtn.onclick = () => handleDeleteUser(currentEditUser);
+    }
+
+    // Ініціалізувати селектор аватарів
+    const currentAvatar = isEdit ? (currentEditUser.avatar || null) : null;
+    renderAvatarSelector(currentAvatar, 'avatar-selector');
+
+    // Динамічно завантажити опції ролей
+    const currentRole = isEdit ? currentEditUser.role : null;
+    await renderRoleOptions('user-role', currentRole);
 }
 
 /**
  * Обробляє створення нового користувача
  */
-async function handleAddUser() {
-    const username = document.getElementById('add-username').value.trim();
-    const password = document.getElementById('add-password').value;
-    const role = document.getElementById('add-role').value;
-    const displayName = document.getElementById('add-display-name').value.trim();
+async function handleCreateUser() {
+    const username = document.getElementById('user-username').value.trim();
+    const password = document.getElementById('user-password').value;
+    const role = document.getElementById('user-role').value;
+    const displayName = document.getElementById('user-display-name').value.trim();
     const avatar = document.getElementById('selected-avatar').value;
 
     // Валідація
@@ -86,7 +213,6 @@ async function handleAddUser() {
 
     try {
         const saveBtn = document.getElementById('save-user');
-        const originalText = saveBtn.querySelector('.label').textContent;
         saveBtn.disabled = true;
         saveBtn.querySelector('.label').textContent = 'Створення...';
 
@@ -131,53 +257,15 @@ async function handleAddUser() {
     }
 }
 
-// =========================================================================
-// МОДАЛКА: РЕДАГУВАННЯ КОРИСТУВАЧА
-// =========================================================================
-
-let currentEditUser = null;
-
-/**
- * Відкриває модалку редагування користувача
- */
-async function openEditUserModal(user) {
-    currentEditUser = user;
-    await showModal('user-edit');
-
-    // Заповнити поля даними користувача
-    document.getElementById('edit-user-id').value = user.id;
-    document.getElementById('edit-username').value = user.username;
-    document.getElementById('edit-role').value = user.role;
-    document.getElementById('edit-display-name').value = user.display_name || '';
-    document.getElementById('selected-avatar-edit').value = user.avatar || '';
-}
-
-/**
- * Ініціалізує обробники для модалки редагування
- */
-function initEditUserHandlers() {
-    const saveBtn = document.getElementById('save-user-edit');
-    const resetPasswordBtn = document.getElementById('reset-user-password');
-    const deleteBtn = document.getElementById('delete-user');
-
-    if (saveBtn) saveBtn.onclick = handleEditUser;
-    if (resetPasswordBtn) resetPasswordBtn.onclick = () => openResetPasswordModal(currentEditUser);
-    if (deleteBtn) deleteBtn.onclick = () => handleDeleteUser(currentEditUser);
-
-    // Ініціалізуємо селектор аватарів з поточним вибраним аватаром
-    const currentAvatar = document.getElementById('selected-avatar-edit').value;
-    renderAvatarSelector(currentAvatar || null, 'avatar-selector-edit');
-}
-
 /**
  * Обробляє оновлення користувача
  */
 async function handleEditUser() {
-    const id = document.getElementById('edit-user-id').value;
-    const username = document.getElementById('edit-username').value.trim();
-    const role = document.getElementById('edit-role').value;
-    const displayName = document.getElementById('edit-display-name').value.trim();
-    const avatar = document.getElementById('selected-avatar-edit').value;
+    const id = document.getElementById('user-id').value;
+    const username = document.getElementById('user-username').value.trim();
+    const role = document.getElementById('user-role').value;
+    const displayName = document.getElementById('user-display-name').value.trim();
+    const avatar = document.getElementById('selected-avatar').value;
 
     // Валідація
     if (!username || !role) {
@@ -186,7 +274,7 @@ async function handleEditUser() {
     }
 
     try {
-        const saveBtn = document.getElementById('save-user-edit');
+        const saveBtn = document.getElementById('save-user');
         saveBtn.disabled = true;
         saveBtn.querySelector('.label').textContent = 'Збереження...';
 
@@ -225,7 +313,7 @@ async function handleEditUser() {
         console.error('❌ Помилка оновлення користувача:', error);
         showToast(error.message || 'Не вдалося оновити користувача', 'error');
     } finally {
-        const saveBtn = document.getElementById('save-user-edit');
+        const saveBtn = document.getElementById('save-user');
         if (saveBtn) {
             saveBtn.disabled = false;
             saveBtn.querySelector('.label').textContent = 'Зберегти';

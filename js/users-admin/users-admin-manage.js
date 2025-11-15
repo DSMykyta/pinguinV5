@@ -186,7 +186,7 @@ function attachEventHandlers() {
             const userId = e.currentTarget.dataset.userId;
             const user = usersAdminState.users.find(u => u.id === userId);
             if (user) {
-                document.dispatchEvent(new CustomEvent('open-edit-user-modal', { detail: { user } }));
+                document.dispatchEvent(new CustomEvent('open-user-modal', { detail: { user } }));
             }
         });
     });

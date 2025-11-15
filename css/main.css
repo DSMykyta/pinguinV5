@@ -67,6 +67,7 @@
 /* === COMPONENTS - TABLES === */
 @import url('components/tables/pseudo-table.css');
 @import url('components/tables/table-row-inputs.css');
+@import url('components/permissions-matrix.css');
 
 /* === COMPONENTS - OVERLAYS === */
 @import url('components/overlays/modal.css');
