@@ -30,6 +30,8 @@ export async function loadPermissionsCatalog() {
         if (response.success) {
             allPermissions = response.permissions;
             console.log(`✅ Завантажено ${allPermissions.length} прав з каталогу`);
+            console.log('🔍 Перші 3 права:', allPermissions.slice(0, 3));
+            console.log('🔍 Категорії:', [...new Set(allPermissions.map(p => p.category))]);
             return true;
         } else {
             throw new Error(response.error || 'Failed to load permissions catalog');

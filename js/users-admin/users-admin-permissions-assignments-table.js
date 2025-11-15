@@ -30,6 +30,8 @@ export async function loadPermissionAssignments() {
         if (response.success) {
             allAssignments = response.permissions;
             console.log(`✅ Завантажено ${allAssignments.length} призначень`);
+            console.log('🔍 Перші 3 призначення:', allAssignments.slice(0, 3));
+            console.log('🔍 Категорії:', [...new Set(allAssignments.map(p => p.category))]);
             return true;
         } else {
             throw new Error(response.error || 'Failed to load permission assignments');
