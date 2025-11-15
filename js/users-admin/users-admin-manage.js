@@ -46,7 +46,6 @@ export async function renderUsersTable() {
                 id: 'avatar',
                 label: ' ',
                 sortable: false, // Аватар не сортується
-                className: 'cell-severity',
                 render: (value) => {
                     if (value) {
                         const avatarPath = getAvatarPath(value, 'calm');

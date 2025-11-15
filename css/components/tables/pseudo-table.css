@@ -139,6 +139,12 @@
     justify-content: center;
 }
 
+/* Колонка аватарів */
+.pseudo-table-cell[data-column="avatar"] {
+    flex: 0 0 60px;
+    justify-content: center;
+}
+
 /* ============================================ */
 /* SORTABLE HEADERS */
 /* ============================================ */
