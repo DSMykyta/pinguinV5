@@ -269,8 +269,20 @@ class CustomSelect {
         return chip;
     }
 
+    _updatePanelPosition() {
+        const rect = this.trigger.getBoundingClientRect();
+        this.panel.style.top = `${rect.bottom + 4}px`;
+        this.panel.style.left = `${rect.left}px`;
+        this.panel.style.width = `${rect.width}px`;
+    }
+
     _bindEvents() {
-        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
+        this.trigger.addEventListener('click', () => {
+            this.wrapper.classList.toggle('is-open');
+            if (this.wrapper.classList.contains('is-open')) {
+                this._updatePanelPosition();
+            }
+        });
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
@@ -288,7 +300,22 @@ class CustomSelect {
         });
 
         document.addEventListener('click', (e) => {
-            if (!this.wrapper.contains(e.target)) this.wrapper.classList.remove('is-open');
+            if (!this.wrapper.contains(e.target) && !this.panel.contains(e.target)) {
+                this.wrapper.classList.remove('is-open');
+            }
+        });
+
+        // Оновлювати позицію при скролі та ресайзі
+        window.addEventListener('scroll', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                this._updatePanelPosition();
+            }
+        }, true);
+
+        window.addEventListener('resize', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                this._updatePanelPosition();
+            }
         });
 
         if (this.searchInput) {

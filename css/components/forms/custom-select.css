@@ -61,10 +61,7 @@
 
 /* Dropdown Panel */
 .custom-select-panel {
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 0;
-    right: 0;
+    position: fixed; /* Fixed замість absolute щоб виходити за межі overflow: auto */
     z-index: 10000; /* Поверх модалів і інших елементів */
     background-color: var(--color-surface-c-high);
     border-radius: var(--radius-m, 8px);

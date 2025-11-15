@@ -182,6 +182,10 @@ async function updateUIWithData() {
     // 4.5. Ініціалізувати фільтри для табу управління
     initManageTabFilters();
 
+    // 4.6. Ініціалізувати НОВИЙ таб (паралельно зі старим)
+    const { initBannedWordsNewTab } = await import('./banned-words-manage-new.js');
+    initBannedWordsNewTab();
+
     // 5. Ініціалізувати події
     const { initBannedWordsEvents, initBannedWordsSorting } = await import('./banned-words-events.js');
     initBannedWordsEvents();
