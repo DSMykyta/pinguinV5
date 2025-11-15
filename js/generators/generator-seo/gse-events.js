@@ -5,19 +5,7 @@ import { syncTulipsFromProductName, addTulip } from './gse-triggers.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
 import { initSearchClear } from '../../utils/search-clear.js';
-
-// Utility функція для debounce
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+import { debounce } from '../../utils/common-utils.js';
 
 /**
  * Головна функція, яка робить ТІЛЬКИ перерахунок SEO-полів.

@@ -1,5 +1,6 @@
 // js/generators/generator-text/gte-validator.js
 import { getTextDOM } from './gte-dom.js';
+import { debounce } from '../../utils/common-utils.js';
 
 // Список відсортований за алфавітом для відображення в модальному вікні
 let bannedWords = [];
@@ -161,18 +162,6 @@ function displayValidationResults(results) {
         resultsContainer.innerHTML = '';
         resultsContainer.classList.remove('has-errors');
     }
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 // --- НОВИЙ КОД ДЛЯ ОБРОБКИ МОДАЛЬНОГО ВІКНА ---

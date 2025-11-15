@@ -2,8 +2,9 @@
 
 import { getImageDom } from './gim-dom.js';
 import { showToast } from '../../common/ui-toast.js';
-import { initCustomSelects } from '../../common/ui-select.js'; 
+import { initCustomSelects } from '../../common/ui-select.js';
 import { closeModal } from '../../common/ui-modal.js';
+import { debounce } from '../../utils/common-utils.js';
 
 /**
  * Глобальний стан
@@ -631,22 +632,6 @@ async function handleSave() {
     updateSaveButtonText();
 }
 // --- ▲▲▲ КІНЕЦЬ ОНОВЛЕНОЇ ФУНКЦІЇ ▲▲▲ ---
-
-
-/**
- * Utility функція для debounce
- */
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
 
 /**
  * Utility для відмінювання слів

@@ -8,6 +8,8 @@
  * очищення тексту, затримка виконання (debounce).
  */
 
+import { debounce } from '../../utils/common-utils.js';
+
 /**
  * Копіює переданий текст у буфер обміну.
  * @param {string} text - Текст для копіювання.
@@ -42,17 +44,5 @@ export function sanitizeText(text) {
     return text.trim().replace(/МСМ/g, "MSM").replace(/(\d+),(\d+)/g, '$1.$2');
 }
 
-/**
- * Створює версію функції, яка буде викликана лише через певний час 
- * після останнього виклику.
- * @param {Function} func - Функція, яку потрібно викликати.
- * @param {number} delay - Затримка в мілісекундах.
- * @returns {Function} - Нова функція з debounce-логікою.
- */
-export function debounce(func, delay) {
-    let timeoutId;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func.apply(this, args), delay);
-    };
-}
+// Re-export debounce from common utils for backwards compatibility
+export { debounce };
