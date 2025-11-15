@@ -566,6 +566,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 📚 Додаткові ресурси
 
 - [ARCHITECTURE-PRINCIPLES.md](./ARCHITECTURE-PRINCIPLES.md) - Головний документ про архітектуру
+- [PAGES-STRUCTURE-GUIDE.md](./PAGES-STRUCTURE-GUIDE.md) - Гайд по структурі HTML сторінок
 - [ARCHITECTURE-VIOLATIONS-REPORT.md](./ARCHITECTURE-VIOLATIONS-REPORT.md) - Звіт про порушення
 - [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript) - Детальний гайд по JS
 
