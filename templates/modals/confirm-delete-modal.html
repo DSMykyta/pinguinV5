@@ -9,8 +9,18 @@
     <p id="delete-confirmation-message">Ви впевнені, що хочете видалити вибрані елементи?</p>
     <p><strong>Цю дію неможливо скасувати.</strong> Всі пов'язані прив'язки також будуть видалені.</p>
 
-    <div class="modal-footer">
-        <button class="btn" data-modal-close>Скасувати</button>
-        <button id="confirm-delete-btn" class="btn primary">Видалити</button>
+    <div class="connected-button-group-square modal-footer" role="group">
+        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">close</span>
+                <span class="label">Скасувати</span>
+            </div>
+        </button>
+        <button type="button" id="confirm-delete-btn" class="segment" aria-label="Видалити">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">delete</span>
+                <span class="label">Видалити</span>
+            </div>
+        </button>
     </div>
 </div>

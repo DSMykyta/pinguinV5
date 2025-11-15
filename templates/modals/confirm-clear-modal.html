@@ -7,9 +7,19 @@
 
 <div class="modal-body-source">
     <p>Ви впевнені, що хочете очистити таблицю? Всі незбережені дані буде видалено безповоротно.</p>
-    
-    <div class="modal-footer">
-         <button class="btn" data-modal-close>Скасувати</button>
-         <button id="confirm-clear-action" class="btn primary">Так, очистити</button>
+
+    <div class="connected-button-group-square modal-footer" role="group">
+        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">close</span>
+                <span class="label">Скасувати</span>
+            </div>
+        </button>
+        <button type="button" id="confirm-clear-action" class="segment" aria-label="Очистити">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">delete_sweep</span>
+                <span class="label">Так, очистити</span>
+            </div>
+        </button>
     </div>
 </div>

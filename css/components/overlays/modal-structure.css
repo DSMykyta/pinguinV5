@@ -56,3 +56,121 @@
     padding-top: 16px;
     border-top: 1px solid var(--color-outline-v);
 }
+
+/* ============================================
+   MODAL SIZES (data-modal-size="small|medium|large")
+   ============================================ */
+
+.modal-container.modal-small {
+    width: 400px;
+    max-width: 90vw;
+}
+
+.modal-container.modal-medium {
+    width: 60vw;
+    max-width: 90vw;
+}
+
+.modal-container.modal-large {
+    width: 80vw;
+    max-width: 95vw;
+}
+
+/* ============================================
+   MODAL SECTIONS (для організації контенту)
+   ============================================ */
+
+.modal-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-outline-v);
+}
+
+.modal-section-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.modal-section-subtitle {
+    margin: 0;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--color-on-surface-v);
+}
+
+/* ============================================
+   MODAL GRID (для форм з двома колонками)
+   ============================================ */
+
+.modal-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ============================================
+   MODAL STATS (статистика/метрики)
+   ============================================ */
+
+.modal-stats-container {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--color-surface-c-low);
+    border-radius: var(--radius-m);
+}
+
+.modal-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.modal-stat-label {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+}
+
+.modal-stat-value {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ============================================
+   MODAL WARNING/INFO BLOCKS
+   ============================================ */
+
+.modal-warning {
+    padding: 16px;
+    background: var(--color-warning-container);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-m);
+    margin: 16px 0;
+}
+
+.modal-info {
+    padding: 16px;
+    background: var(--color-surface-c-low);
+    border: 1px solid var(--color-outline-v);
+    border-radius: var(--radius-m);
+    margin: 16px 0;
+}
+
+/* ============================================
+   MODAL TABS (для модалів з табами)
+   ============================================ */
+
+.modal-tabs-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-outline-v);
+}

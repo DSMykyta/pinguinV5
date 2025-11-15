@@ -79,6 +79,16 @@ export async function showModal(modalId, triggerElement = null) {
         titleTarget.textContent = titleSource;
         bodyTarget.innerHTML = bodySource?.innerHTML || '<p>Помилка: вміст не знайдено.</p>';
 
+        // Apply modal size based on data-modal-size attribute
+        const modalContainer = modalWrapper.querySelector('.modal-container');
+        const modalSize = triggerElement?.dataset.modalSize || 'medium';
+
+        // Remove existing size classes
+        modalContainer.classList.remove('modal-small', 'modal-medium', 'modal-large');
+
+        // Add new size class
+        modalContainer.classList.add(`modal-${modalSize}`);
+
         // Handle header actions with connected-button-group-square
         const headerActionsContent = headerActionsSource?.innerHTML?.trim() || '';
 

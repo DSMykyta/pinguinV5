@@ -5,11 +5,21 @@
 <div class="modal-header-actions-source u-hidden">
 </div>
 
-<div class="modal-body-source u-hidden">
+<div class="modal-body-source">
     <p>Оновити дані з Google Sheets? Незбережені зміни будуть втрачені.</p>
 
-    <div class="modal-footer">
-         <button class="btn" data-modal-close>Скасувати</button>
-         <button id="confirm-refresh-action" class="btn primary">Так, оновити</button>
+    <div class="connected-button-group-square modal-footer" role="group">
+        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">close</span>
+                <span class="label">Скасувати</span>
+            </div>
+        </button>
+        <button type="button" id="confirm-refresh-action" class="segment" aria-label="Оновити">
+            <div class="state-layer">
+                <span class="material-symbols-outlined">refresh</span>
+                <span class="label">Так, оновити</span>
+            </div>
+        </button>
     </div>
 </div>
