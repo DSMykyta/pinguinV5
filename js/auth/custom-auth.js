@@ -288,29 +288,33 @@ function updateEditButtons(role) {
 function updateUserAvatar(avatarName) {
   console.log('🖼️ updateUserAvatar called with:', avatarName);
 
-  // Знаходимо контейнер для аватара
-  const avatarContainers = document.querySelectorAll('#auth-user-avatar-container');
-  console.log('📦 Found avatar containers:', avatarContainers.length);
+  // Знаходимо контейнер для аватара (це тепер span.panel-item-icon)
+  const avatarContainer = document.getElementById('auth-user-avatar-container');
 
-  avatarContainers.forEach(container => {
-    if (avatarName) {
-      // Є аватар - показуємо його
-      const avatarPath = getAvatarPath(avatarName, 'calm');
-      console.log('🎨 Avatar path:', avatarPath);
+  if (!avatarContainer) {
+    console.warn('⚠️ Avatar container not found');
+    return;
+  }
 
-      container.innerHTML = `
-        <div class="auth-avatar">
-          <img src="${avatarPath}" alt="Avatar" onerror="this.parentElement.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\' style=\\'font-size: 20px; color: var(--text-primary);\\'>person</span>'">
-        </div>
-      `;
-    } else {
-      // Немає аватара - показуємо іконку person
-      console.log('⚠️ No avatar name provided, showing person icon');
-      container.innerHTML = `
-        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-primary);">person</span>
-      `;
-    }
-  });
+  console.log('📦 Found avatar container');
+
+  if (avatarName) {
+    // Є аватар - показуємо його
+    const avatarPath = getAvatarPath(avatarName, 'calm');
+    console.log('🎨 Avatar path:', avatarPath);
+
+    avatarContainer.innerHTML = `
+      <div class="auth-avatar">
+        <img src="${avatarPath}" alt="Avatar" onerror="this.parentElement.parentElement.innerHTML='<span class=\\'material-symbols-outlined\\'>person</span>'">
+      </div>
+    `;
+  } else {
+    // Немає аватара - показуємо іконку person
+    console.log('⚠️ No avatar name provided, showing person icon');
+    avatarContainer.innerHTML = `
+      <span class="material-symbols-outlined">person</span>
+    `;
+  }
 }
 
 /**

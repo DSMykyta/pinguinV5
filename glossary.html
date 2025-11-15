@@ -124,20 +124,13 @@
             </button>
 
             <!-- User Info Display (показується коли авторизований) -->
-            <div id="auth-user-info" class="panel-item"
-                style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 16px;">
-                <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                    <div id="auth-user-avatar-container">
-                        <span class="material-symbols-outlined" style="font-size: 20px; color: var(--text-primary);">person</span>
-                    </div>
-                    <div style="flex: 1; min-width: 0;">
-                        <div id="auth-username-display"
-                            style="font-size: 14px; font-weight: 500; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        </div>
-                        <div id="auth-user-role-display"
-                            style="font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        </div>
-                    </div>
+            <div id="auth-user-info" class="panel-item" style="display: none;">
+                <span id="auth-user-avatar-container" class="panel-item-icon">
+                    <span class="material-symbols-outlined">person</span>
+                </span>
+                <div class="panel-item-text">
+                    <div id="auth-username-display"></div>
+                    <div id="auth-user-role-display"></div>
                 </div>
             </div>
 

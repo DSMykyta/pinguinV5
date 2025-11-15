@@ -72,6 +72,37 @@
     display: block;
 }
 
+/* Auth user info - дві лінії тексту */
+#auth-user-info .panel-item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#auth-username-display {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+#auth-user-role-display {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.2;
+}
+
+/* Аватар контейнер в auth-user-info */
+#auth-user-avatar-container.panel-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#auth-user-avatar-container .auth-avatar {
+    display: block;
+}
+
 /* Аватар в селекторі (модалки) */
 .avatar-selector {
     display: flex;
