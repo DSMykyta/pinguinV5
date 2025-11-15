@@ -219,8 +219,8 @@ async function handleCreateRole() {
         saveBtn.disabled = true;
         saveBtn.querySelector('.label').textContent = 'Створення...';
 
-        const response = await window.apiClient.post('/api/roles', {
-            action: 'create',
+        const response = await window.apiClient.post('/api/users', {
+            action: 'create-role',
             roleId,
             roleName,
             roleDescription,
@@ -270,8 +270,8 @@ async function handleUpdateRole() {
         saveBtn.disabled = true;
         saveBtn.querySelector('.label').textContent = 'Збереження...';
 
-        const response = await window.apiClient.put('/api/roles', {
-            action: 'update',
+        const response = await window.apiClient.put('/api/users', {
+            action: 'update-role',
             roleId,
             roleName,
             roleDescription,
@@ -318,7 +318,8 @@ async function handleDeleteRole(role) {
     if (!confirmed) return;
 
     try {
-        const response = await window.apiClient.delete('/api/roles', {
+        const response = await window.apiClient.delete('/api/users', {
+            action: 'delete-role',
             roleId: role.role_id
         });
 

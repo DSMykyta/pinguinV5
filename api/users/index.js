@@ -94,6 +94,8 @@ async function handler(req, res) {
         return await handleCreate(req, res);
       } else if (action === 'reset-password') {
         return await handleResetPassword(req, res);
+      } else if (action === 'create-role') {
+        return await handleCreateRole(req, res);
       } else if (action === 'create-permission') {
         return await handleCreatePermission(req, res);
       } else if (action === 'assign-permission') {
@@ -108,6 +110,8 @@ async function handler(req, res) {
       // Роутинг PUT запитів за action параметром
       if (!action) {
         return await handleUpdate(req, res);
+      } else if (action === 'update-role') {
+        return await handleUpdateRole(req, res);
       } else if (action === 'update-permission') {
         return await handleUpdatePermission(req, res);
       } else {
@@ -120,6 +124,8 @@ async function handler(req, res) {
       // Роутинг DELETE запитів за action параметром
       if (!action) {
         return await handleDelete(req, res);
+      } else if (action === 'delete-role') {
+        return await handleDeleteRole(req, res);
       } else if (action === 'delete-permission') {
         return await handleDeletePermission(req, res);
       } else {
@@ -535,6 +541,317 @@ async function handleListRoles(req, res) {
     console.error('List roles error:', error);
     return res.status(500).json({
       error: 'Failed to list roles',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}
+
+// =========================================================================
+// HANDLER: CREATE ROLE (POST with action=create-role)
+// =========================================================================
+
+/**
+ * Створює нову роль
+ * @returns {Promise<Object>} JSON з результатом
+ */
+async function handleCreateRole(req, res) {
+  try {
+    const { roleId, roleName, roleDescription, permissions } = req.body;
+
+    // Валідація вхідних даних
+    if (!roleId || !roleName) {
+      return res.status(400).json({
+        error: 'roleId and roleName are required'
+      });
+    }
+
+    // Валідація формату roleId (тільки a-z, 0-9, дефіс)
+    if (!/^[a-z0-9-]+$/.test(roleId)) {
+      return res.status(400).json({
+        error: 'roleId must contain only lowercase letters, numbers, and hyphens'
+      });
+    }
+
+    // Перевірка унікальності roleId
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
+    const existingRole = rolesData.find(row => row[0] === roleId);
+
+    if (existingRole) {
+      return res.status(409).json({
+        error: 'Role ID already exists'
+      });
+    }
+
+    // Додавання нової ролі
+    const createdAt = new Date().toISOString();
+    await appendValues('Roles!A:E', [[
+      roleId,
+      roleName,
+      roleDescription || '',
+      'FALSE', // is_system = FALSE для користувацьких ролей
+      createdAt
+    ]], 'users');
+
+    // Додати permissions для цієї ролі якщо передані
+    if (permissions && Array.isArray(permissions) && permissions.length > 0) {
+      const permissionRows = permissions.map(permKey => [
+        roleId,
+        permKey,
+        'TRUE',
+        createdAt
+      ]);
+
+      for (const row of permissionRows) {
+        await appendValues('RolePermissions!A:D', [row], 'users');
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      role: {
+        role_id: roleId,
+        role_name: roleName,
+        role_description: roleDescription || '',
+        is_system: false,
+        created_at: createdAt,
+        permissions: permissions || []
+      }
+    });
+  } catch (error) {
+    console.error('Create role error:', error);
+    return res.status(500).json({
+      error: 'Failed to create role',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}
+
+// =========================================================================
+// HANDLER: UPDATE ROLE (PUT with action=update-role)
+// =========================================================================
+
+/**
+ * Оновлює роль
+ * @returns {Promise<Object>} JSON з результатом
+ */
+async function handleUpdateRole(req, res) {
+  try {
+    const { roleId, roleName, roleDescription, permissions } = req.body;
+
+    // Валідація вхідних даних
+    if (!roleId) {
+      return res.status(400).json({
+        error: 'roleId is required'
+      });
+    }
+
+    // Пошук ролі
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
+    const roleIndex = rolesData.findIndex(row => row[0] === roleId);
+
+    if (roleIndex === -1) {
+      return res.status(404).json({
+        error: 'Role not found'
+      });
+    }
+
+    const roleRow = rolesData[roleIndex];
+
+    // Перевірити чи це не системна роль
+    if (roleRow[3] === 'TRUE') {
+      return res.status(403).json({
+        error: 'Cannot modify system role'
+      });
+    }
+
+    // Підготовка оновлених даних
+    const updatedName = roleName || roleRow[1];
+    const updatedDescription = roleDescription !== undefined ? roleDescription : (roleRow[2] || '');
+
+    // Оновлення ролі в Roles
+    const rowNumber = roleIndex + 2;
+    await updateValues(`Roles!B${rowNumber}:C${rowNumber}`, [[
+      updatedName,
+      updatedDescription
+    ]], 'users');
+
+    // Оновити permissions якщо передані
+    if (permissions && Array.isArray(permissions)) {
+      // Видалити всі старі permissions для цієї ролі
+      const assignmentsData = await getValues('RolePermissions!A2:D10000', 'users');
+      const assignmentIndicesToDelete = [];
+
+      assignmentsData.forEach((row, index) => {
+        if (row[0] === roleId) {
+          assignmentIndicesToDelete.push(index + 2);
+        }
+      });
+
+      // Видалити старі призначення
+      if (assignmentIndicesToDelete.length > 0) {
+        const sheets = await getSheetNames('users');
+        const assignmentsSheet = sheets.find(sheet => sheet.title === 'RolePermissions');
+        if (assignmentsSheet) {
+          const deleteRequests = assignmentIndicesToDelete.reverse().map(rowNum => ({
+            deleteDimension: {
+              range: {
+                sheetId: assignmentsSheet.sheetId,
+                dimension: 'ROWS',
+                startIndex: rowNum - 1,
+                endIndex: rowNum
+              }
+            }
+          }));
+
+          await batchUpdateSpreadsheet(deleteRequests, 'users');
+        }
+      }
+
+      // Додати нові permissions
+      if (permissions.length > 0) {
+        const createdAt = new Date().toISOString();
+        const permissionRows = permissions.map(permKey => [
+          roleId,
+          permKey,
+          'TRUE',
+          createdAt
+        ]);
+
+        for (const row of permissionRows) {
+          await appendValues('RolePermissions!A:D', [row], 'users');
+        }
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      role: {
+        role_id: roleId,
+        role_name: updatedName,
+        role_description: updatedDescription,
+        permissions: permissions || []
+      }
+    });
+  } catch (error) {
+    console.error('Update role error:', error);
+    return res.status(500).json({
+      error: 'Failed to update role',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}
+
+// =========================================================================
+// HANDLER: DELETE ROLE (DELETE with action=delete-role)
+// =========================================================================
+
+/**
+ * Видаляє роль та всі її призначення
+ * @returns {Promise<Object>} JSON з результатом
+ */
+async function handleDeleteRole(req, res) {
+  try {
+    const { roleId } = req.body;
+
+    // Валідація вхідних даних
+    if (!roleId) {
+      return res.status(400).json({
+        error: 'roleId is required'
+      });
+    }
+
+    // Пошук ролі
+    const rolesData = await getValues('Roles!A2:E1000', 'users');
+    const roleIndex = rolesData.findIndex(row => row[0] === roleId);
+
+    if (roleIndex === -1) {
+      return res.status(404).json({
+        error: 'Role not found'
+      });
+    }
+
+    const roleRow = rolesData[roleIndex];
+
+    // Перевірити чи це не системна роль
+    if (roleRow[3] === 'TRUE') {
+      return res.status(403).json({
+        error: 'Cannot delete system role'
+      });
+    }
+
+    // Перевірити що немає користувачів з цією роллю
+    const usersData = await getValues('Users!A2:H1000', 'users');
+    const usersWithRole = usersData.filter(row => row[3] === roleId);
+
+    if (usersWithRole.length > 0) {
+      return res.status(409).json({
+        error: `Cannot delete role. ${usersWithRole.length} user(s) have this role.`
+      });
+    }
+
+    // Отримання sheetId
+    const sheets = await getSheetNames('users');
+    const rolesSheet = sheets.find(sheet => sheet.title === 'Roles');
+
+    if (!rolesSheet) {
+      return res.status(500).json({
+        error: 'Roles sheet not found'
+      });
+    }
+
+    // Видалення ролі
+    const rowNumber = roleIndex + 2;
+    await batchUpdateSpreadsheet([
+      {
+        deleteDimension: {
+          range: {
+            sheetId: rolesSheet.sheetId,
+            dimension: 'ROWS',
+            startIndex: rowNumber - 1,
+            endIndex: rowNumber
+          }
+        }
+      }
+    ], 'users');
+
+    // Видалити всі permissions для цієї ролі
+    const assignmentsData = await getValues('RolePermissions!A2:D10000', 'users');
+    const assignmentIndicesToDelete = [];
+
+    assignmentsData.forEach((row, index) => {
+      if (row[0] === roleId) {
+        assignmentIndicesToDelete.push(index + 2);
+      }
+    });
+
+    // Видалення призначень (якщо є)
+    if (assignmentIndicesToDelete.length > 0) {
+      const assignmentsSheet = sheets.find(sheet => sheet.title === 'RolePermissions');
+      if (assignmentsSheet) {
+        const deleteRequests = assignmentIndicesToDelete.reverse().map(rowNum => ({
+          deleteDimension: {
+            range: {
+              sheetId: assignmentsSheet.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowNum - 1,
+              endIndex: rowNum
+            }
+          }
+        }));
+
+        await batchUpdateSpreadsheet(deleteRequests, 'users');
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Role and all its assignments deleted successfully',
+      deleted_permissions: assignmentIndicesToDelete.length
+    });
+  } catch (error) {
+    console.error('Delete role error:', error);
+    return res.status(500).json({
+      error: 'Failed to delete role',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

@@ -26,7 +26,7 @@ import { populateSelect, initCustomSelects } from '../common/ui-select.js';
  */
 async function loadAvailableRoles() {
     try {
-        const response = await window.apiClient.get('/api/roles');
+        const response = await window.apiClient.get('/api/users?action=roles');
 
         if (response.success && response.roles) {
             return response.roles.map(role => ({
