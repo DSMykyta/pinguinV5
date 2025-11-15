@@ -543,6 +543,10 @@
 
 #### 2. Кастомний Checkbox
 
+**Є ДВА типи кастомних чекбоксів:**
+
+**A) Checkbox з текстом (для форм, налаштувань):**
+
 ```html
 <label class="checkbox-label">
     <input type="checkbox" id="my-checkbox">
@@ -550,9 +554,93 @@
 </label>
 ```
 
+**Приклад використання:**
+```html
+<div class="form-group">
+    <label class="checkbox-label">
+        <input type="checkbox" id="characteristic-is-global">
+        <span>Глобальна характеристика</span>
+    </label>
+    <p class="form-hint">Глобальні характеристики доступні для всіх категорій</p>
+</div>
+```
+
+**B) Row Checkbox (для таблиць, вибору рядків):**
+
+```html
+<input type="checkbox" class="row-checkbox" data-id="3900">
+```
+
+**Приклад використання в таблиці:**
+```javascript
+// В рендер функції таблиці
+const checkbox = `
+    <input type="checkbox" class="row-checkbox"
+           data-product-id="${productId}"
+           ${isSelected ? 'checked' : ''}>
+`;
+
+// Обробка події
+container.querySelectorAll('.row-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        const id = checkbox.dataset.productId;
+        if (checkbox.checked) {
+            selectedIds.add(id);
+        } else {
+            selectedIds.delete(id);
+        }
+    });
+});
+```
+
+**C) Header Select All (для вибору всіх рядків в таблиці):**
+
+```html
+<!-- В header таблиці -->
+<input type="checkbox" class="header-select-all">
+```
+
+**Приклад використання:**
+```javascript
+// Обробка "Вибрати всі"
+const selectAllCheckbox = document.querySelector('.header-select-all');
+selectAllCheckbox.addEventListener('change', (e) => {
+    const allCheckboxes = container.querySelectorAll('.row-checkbox');
+
+    allCheckboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        // Тригерити change event для синхронізації стану
+        checkbox.dispatchEvent(new Event('change'));
+    });
+});
+
+// Оновлення стану "Select All" при зміні окремих чекбоксів
+function updateSelectAllState() {
+    const allCheckboxes = document.querySelectorAll('.row-checkbox');
+    const checkedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+    const selectAll = document.querySelector('.header-select-all');
+
+    if (allCheckboxes.length === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    } else if (checkedCheckboxes.length === allCheckboxes.length) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else if (checkedCheckboxes.length > 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = true; // Частковий вибір
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+}
+```
+
 **Важливо:**
-- Обгорни в `.checkbox-label`
-- `<span>` для тексту після `<input>`
+- `.checkbox-label` - ТІЛЬКИ для чекбоксів з текстом (форми, налаштування)
+- `.row-checkbox` - ТІЛЬКИ для чекбоксів в таблицях (вибір рядків, БЕЗ label)
+- `.header-select-all` - ТІЛЬКИ для чекбокса "вибрати всі" в header таблиці (БЕЗ label)
+- Всі три типи мають різні стилі та поведінку
 - Стилі застосуються автоматично через CSS
 - Файл стилів: `css/components/inputs/checkbox.css`
 
