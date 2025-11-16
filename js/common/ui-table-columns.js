@@ -70,10 +70,6 @@ export function createColumnSelector(containerId, columns, options = {}) {
             const label = document.createElement('label');
             label.className = 'dropdown-item';
             label.classList.remove('u-hidden');
-            label.style.alignItems = 'center';
-            label.style.gap = '8px';
-            label.style.padding = '8px 16px';
-            label.style.cursor = 'pointer';
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
