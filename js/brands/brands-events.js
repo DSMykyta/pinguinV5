@@ -11,7 +11,9 @@
 import { brandsState } from './brands-init.js';
 import { renderBrandsTable } from './brands-table.js';
 import { loadBrands } from './brands-data.js';
+import { getBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
+import { initTableSorting } from '../common/ui-table-sort.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -22,6 +24,49 @@ export function initBrandsEvents() {
     initRefreshButton();
 
     console.log('✅ Обробники подій ініціалізовано');
+}
+
+/**
+ * Ініціалізувати сортування таблиці брендів
+ * @returns {Object} API сортування
+ */
+export function initBrandsSorting() {
+    const container = document.getElementById('brands-table-container');
+    if (!container) {
+        console.warn('⚠️ brands-table-container не знайдено');
+        return null;
+    }
+
+    const sortAPI = initTableSorting(container, {
+        dataSource: () => getBrands(),
+        onSort: async (sortedData) => {
+            // Оновити масив брендів в state
+            brandsState.brands = sortedData;
+
+            // Перерендерити таблицю
+            await renderBrandsTable();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPI.getState();
+            if (sortState.column && sortState.direction) {
+                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            brand_id: 'id-text',
+            name_uk: 'string',
+            names_alt: 'string',
+            country_name: 'string',
+            brand_text: 'string',
+            brand_site_link: 'string'
+        }
+    });
+
+    brandsState.sortAPI = sortAPI;
+
+    console.log('✅ Сортування ініціалізовано');
+    return sortAPI;
 }
 
 /**

@@ -31,9 +31,6 @@ export function renderBrandsTable() {
     // Застосувати фільтри
     let filteredBrands = applyFilters(brands);
 
-    // Застосувати сортування
-    filteredBrands = applySorting(filteredBrands);
-
     // Застосувати пагінацію
     const { currentPage, pageSize } = brandsState.pagination;
     const start = (currentPage - 1) * pageSize;
@@ -91,7 +88,7 @@ export function renderBrandsTable() {
             },
             {
                 id: 'brand_site_link',
-                label: 'Сайт',
+                label: ' ',
                 sortable: false,
                 render: (value, row) => {
                     if (!value) return '-';
@@ -142,15 +139,6 @@ export function renderBrandsTable() {
         });
     });
 
-    // Додати обробники сортування для заголовків
-    container.querySelectorAll('.sortable-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const sortKey = header.dataset.sortKey;
-            if (sortKey) {
-                updateSorting(sortKey);
-            }
-        });
-    });
 
     // Оновити статистику
     updateStats(filteredBrands.length, brands.length);
@@ -183,37 +171,6 @@ function applyFilters(brands) {
 }
 
 /**
- * Застосувати сортування
- * @param {Array} brands - Масив брендів
- * @returns {Array} Відсортовані бренди
- */
-function applySorting(brands) {
-    if (!brandsState.sortKey) return brands;
-
-    const sorted = [...brands];
-    const key = brandsState.sortKey;
-    const order = brandsState.sortOrder;
-
-    sorted.sort((a, b) => {
-        let aVal = a[key] || '';
-        let bVal = b[key] || '';
-
-        // Числове сортування для ID
-        if (key === 'brand_id') {
-            aVal = parseInt(aVal) || 0;
-            bVal = parseInt(bVal) || 0;
-            return order === 'asc' ? aVal - bVal : bVal - aVal;
-        }
-
-        // Текстове сортування (кирилиця)
-        const comparison = aVal.localeCompare(bVal, 'uk');
-        return order === 'asc' ? comparison : -comparison;
-    });
-
-    return sorted;
-}
-
-/**
  * Відрендерити порожній стан
  */
 function renderEmptyState() {
@@ -242,41 +199,3 @@ function updateStats(visible, total) {
     statsEl.textContent = `Показано ${visible} з ${total}`;
 }
 
-/**
- * Оновити сортування при кліку на заголовок
- * @param {string} sortKey - Ключ сортування
- */
-export function updateSorting(sortKey) {
-    if (brandsState.sortKey === sortKey) {
-        // Toggle order
-        brandsState.sortOrder = brandsState.sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-        brandsState.sortKey = sortKey;
-        brandsState.sortOrder = 'asc';
-    }
-
-    // Оновити індикатори сортування
-    updateSortIndicators();
-
-    // Перерендерити таблицю
-    renderBrandsTable();
-}
-
-/**
- * Оновити візуальні індикатори сортування
- */
-function updateSortIndicators() {
-    const headers = document.querySelectorAll('#tab-brands .sortable-header');
-    headers.forEach(header => {
-        const key = header.dataset.sortKey;
-        const indicator = header.querySelector('.sort-indicator');
-
-        if (key === brandsState.sortKey) {
-            header.classList.add('sorted');
-            indicator.textContent = brandsState.sortOrder === 'asc' ? '▲' : '▼';
-        } else {
-            header.classList.remove('sorted');
-            indicator.textContent = '';
-        }
-    });
-}

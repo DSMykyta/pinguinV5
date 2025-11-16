@@ -10,7 +10,7 @@
 
 import { loadBrands } from './brands-data.js';
 import { renderBrandsTable } from './brands-table.js';
-import { initBrandsEvents, initBrandsSearch } from './brands-events.js';
+import { initBrandsEvents, initBrandsSearch, initBrandsSorting } from './brands-events.js';
 import { showAddBrandModal } from './brands-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
@@ -93,6 +93,9 @@ async function checkAuthAndLoadData() {
 
             // Відрендерити таблицю
             renderBrandsTable();
+
+            // Ініціалізувати сортування
+            initBrandsSorting();
 
             // Ініціалізувати обробники подій
             initBrandsEvents();

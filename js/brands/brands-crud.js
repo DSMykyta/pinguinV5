@@ -17,7 +17,7 @@ import { initCustomSelects } from '../common/ui-select.js';
 
 /**
  * Генерувати новий ID для бренду (для відображення в UI)
- * @returns {string} Новий ID у форматі bran-XXXXXXXXXXXX
+ * @returns {string} Новий ID у форматі bran-XXXXXX (6 цифр)
  */
 function generateBrandIdForUI() {
     const brands = getBrands();
@@ -37,8 +37,8 @@ function generateBrandIdForUI() {
     // Новий номер
     const newNum = maxNum + 1;
 
-    // Форматувати як bran-XXXXXXXXXXXX (12 цифр)
-    return `bran-${String(newNum).padStart(12, '0')}`;
+    // Форматувати як bran-XXXXXX (6 цифр)
+    return `bran-${String(newNum).padStart(6, '0')}`;
 }
 
 /**

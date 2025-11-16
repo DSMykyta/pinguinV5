@@ -138,7 +138,7 @@ export function getCountries() {
 
 /**
  * Генерувати новий ID для бренду
- * @returns {string} Новий ID у форматі bran-XXXXXXXXXXXX
+ * @returns {string} Новий ID у форматі bran-XXXXXX (6 цифр)
  */
 function generateBrandId() {
     // Знайти максимальний номер
@@ -156,8 +156,8 @@ function generateBrandId() {
     // Новий номер
     const newNum = maxNum + 1;
 
-    // Форматувати як bran-XXXXXXXXXXXX (12 цифр)
-    return `bran-${String(newNum).padStart(12, '0')}`;
+    // Форматувати як bran-XXXXXX (6 цифр)
+    return `bran-${String(newNum).padStart(6, '0')}`;
 }
 
 /**
