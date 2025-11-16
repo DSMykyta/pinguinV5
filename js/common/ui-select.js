@@ -13,9 +13,9 @@ export function reinitializeCustomSelect(selectElement) {
     if (!selectElement) return;
     const existingWrapper = selectElement.closest('.custom-select-wrapper');
     if (existingWrapper) {
-        // Викликаємо метод очищення перед видаленням
-        if (selectElement.customSelect) {
-            selectElement.customSelect.destroy();
+        // Зупиняємо спостерігач перед видаленням
+        if (selectElement.customSelect && selectElement.customSelect.observer) {
+            selectElement.customSelect.observer.disconnect();
         }
         existingWrapper.parentNode.insertBefore(selectElement, existingWrapper);
         existingWrapper.remove();
@@ -127,8 +127,7 @@ class CustomSelect {
         this.trigger.appendChild(this.valueContainer);
         this.trigger.appendChild(this.arrow);
         this.wrapper.appendChild(this.trigger);
-        // Додаємо панель до body замість wrapper, щоб уникнути проблем з overflow в модалах
-        document.body.appendChild(this.panel);
+        this.wrapper.appendChild(this.panel);
         this.wrapper.appendChild(this.originalSelect);
 
         this.panel.appendChild(this.overflowChipContainer);
@@ -270,20 +269,8 @@ class CustomSelect {
         return chip;
     }
 
-    _updatePanelPosition() {
-        const rect = this.trigger.getBoundingClientRect();
-        this.panel.style.top = `${rect.bottom + 4}px`;
-        this.panel.style.left = `${rect.left}px`;
-        this.panel.style.width = `${rect.width}px`;
-    }
-
     _bindEvents() {
-        this.trigger.addEventListener('click', () => {
-            this.wrapper.classList.toggle('is-open');
-            if (this.wrapper.classList.contains('is-open')) {
-                this._updatePanelPosition();
-            }
-        });
+        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
@@ -300,40 +287,9 @@ class CustomSelect {
             }
         });
 
-        // Закривати при кліку поза селектом
-        this.handleOutsideClick = (e) => {
-            if (!this.wrapper.contains(e.target) && !this.panel.contains(e.target)) {
-                this.wrapper.classList.remove('is-open');
-            }
-        };
-        document.addEventListener('click', this.handleOutsideClick);
-
-        // Закривати селект при закритті модалу
-        this.handleModalClose = () => {
-            // Перевірити чи wrapper все ще в DOM
-            if (!document.body.contains(this.wrapper)) {
-                this.destroy();
-            } else {
-                // Закрити панель якщо вона була відкрита
-                this.wrapper.classList.remove('is-open');
-            }
-        };
-        document.addEventListener('modal-closed', this.handleModalClose);
-
-        // Оновлювати позицію при скролі та ресайзі
-        this.handleScroll = () => {
-            if (this.wrapper.classList.contains('is-open')) {
-                this._updatePanelPosition();
-            }
-        };
-        window.addEventListener('scroll', this.handleScroll, true);
-
-        this.handleResize = () => {
-            if (this.wrapper.classList.contains('is-open')) {
-                this._updatePanelPosition();
-            }
-        };
-        window.addEventListener('resize', this.handleResize);
+        document.addEventListener('click', (e) => {
+            if (!this.wrapper.contains(e.target)) this.wrapper.classList.remove('is-open');
+        });
 
         if (this.searchInput) {
             this.searchInput.addEventListener('input', (e) => {
@@ -362,34 +318,5 @@ class CustomSelect {
             element.setAttribute(key, value);
         }
         return element;
-    }
-
-    /**
-     * Очищення ресурсів при знищенні селекта
-     */
-    destroy() {
-        // Зупиняємо спостерігач
-        if (this.observer) {
-            this.observer.disconnect();
-        }
-
-        // Видаляємо всі слухачі подій
-        if (this.handleOutsideClick) {
-            document.removeEventListener('click', this.handleOutsideClick);
-        }
-        if (this.handleModalClose) {
-            document.removeEventListener('modal-closed', this.handleModalClose);
-        }
-        if (this.handleScroll) {
-            window.removeEventListener('scroll', this.handleScroll, true);
-        }
-        if (this.handleResize) {
-            window.removeEventListener('resize', this.handleResize);
-        }
-
-        // Видаляємо панель з body
-        if (this.panel && this.panel.parentNode) {
-            this.panel.parentNode.removeChild(this.panel);
-        }
     }
 }
