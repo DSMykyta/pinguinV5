@@ -49,6 +49,11 @@ export function renderBrandsTable() {
         });
     }
 
+    // Визначити які колонки показувати
+    const visibleCols = brandsState.visibleColumns.length > 0
+        ? brandsState.visibleColumns
+        : ['brand_id', 'name_uk', 'country_name'];
+
     // Рендерити таблицю через універсальний компонент
     renderPseudoTable(container, {
         data: paginatedBrands,
@@ -62,7 +67,7 @@ export function renderBrandsTable() {
             },
             {
                 id: 'name_uk',
-                label: 'Назва (UA)',
+                label: 'Назва',
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
@@ -83,28 +88,25 @@ export function renderBrandsTable() {
                 id: 'brand_text',
                 label: 'Опис',
                 sortable: true,
-                render: (value, row) => {
-                    const text = value || '';
-                    const truncated = text.length > 50 ? text.substring(0, 50) + '...' : text;
-                    return text ? `<span title="${escapeHtml(text)}">${escapeHtml(truncated)}</span>` : '-';
-                }
+                render: (value) => value ? escapeHtml(value) : '-'
             },
             {
                 id: 'brand_site_link',
-                label: 'Сайт',
-                sortable: true,
+                label: ' ',
+                sortable: false,
+                className: 'cell-link',
                 render: (value) => {
-                    if (!value) return '-';
-                    return `<a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer">${escapeHtml(value)}</a>`;
+                    if (!value) return '';
+                    return `<button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
+                        <span class="material-symbols-outlined">open_in_new</span>
+                    </button>`;
                 }
             }
         ],
+        visibleColumns: visibleCols,
         rowActionsCustom: (row) => `
             <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="btn-icon btn-delete" data-brand-id="${escapeHtml(row.brand_id)}" title="Видалити">
-                <span class="material-symbols-outlined">delete</span>
             </button>
         `,
         emptyState: {
@@ -112,6 +114,17 @@ export function renderBrandsTable() {
             message: 'Бренди не знайдено'
         },
         withContainer: false
+    });
+
+    // Додати обробники для кнопок відкриття посилань
+    container.querySelectorAll('.btn-link').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const link = button.dataset.link;
+            if (link) {
+                window.open(link, '_blank', 'noopener,noreferrer');
+            }
+        });
     });
 
     // Оновити статистику
@@ -131,14 +144,13 @@ function applyFilters(brands) {
     // Пошук
     if (brandsState.searchQuery) {
         const query = brandsState.searchQuery.toLowerCase();
+        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_name'];
+
         filtered = filtered.filter(brand => {
-            return (
-                brand.name_uk?.toLowerCase().includes(query) ||
-                brand.names_alt?.toLowerCase().includes(query) ||
-                brand.country_name?.toLowerCase().includes(query) ||
-                brand.brand_text?.toLowerCase().includes(query) ||
-                brand.brand_site_link?.toLowerCase().includes(query)
-            );
+            return columns.some(column => {
+                const value = brand[column];
+                return value?.toString().toLowerCase().includes(query);
+            });
         });
     }
 

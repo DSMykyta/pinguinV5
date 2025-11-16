@@ -22,6 +22,10 @@ import { initDropdowns } from '../common/ui-dropdown.js';
 export const brandsState = {
     // Пошук
     searchQuery: '',
+    searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_name'],
+
+    // Видимі колонки
+    visibleColumns: ['brand_id', 'name_uk', 'country_name'],
 
     // Сортування
     sortKey: null,
@@ -30,7 +34,7 @@ export const brandsState = {
     // Пагінація
     pagination: {
         currentPage: 1,
-        pageSize: 25,
+        pageSize: 10,
         totalItems: 0
     },
 
