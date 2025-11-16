@@ -58,7 +58,7 @@ export function renderBrandsTable() {
             {
                 id: 'brand_id',
                 label: 'ID',
-                className: 'cell-main-name',
+                className: 'cell-id',
                 sortable: true,
                 render: (value) => escapeHtml(value || '')
             },
