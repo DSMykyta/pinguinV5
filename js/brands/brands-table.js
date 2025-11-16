@@ -96,7 +96,7 @@ export function renderBrandsTable() {
                         return `<span class="material-symbols-outlined" title="Немає посилання">block</span>`;
                     }
                     return `
-                        <button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
+                        <button class="severity-badge severity-low btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
                             <span class="material-symbols-outlined">open_in_new</span>
                         </button>
                     `;
