@@ -91,6 +91,7 @@ export function renderBrandsTable() {
             }
         ],
         visibleColumns: visibleCols,
+        rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
             let actions = `
                 <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
