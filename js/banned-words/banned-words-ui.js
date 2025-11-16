@@ -40,11 +40,11 @@ export function showAsidePanels() {
     // Заповнити селекти для перевірки
     populateCheckSelects();
 
-    // Заповнити колонки для пошуку
-    populateSearchColumns();
-
-    // Заповнити колонки таблиці
+    // Заповнити колонки таблиці ПЕРЕД колонками пошуку
     populateTableColumns();
+
+    // Заповнити колонки для пошуку (залежать від visibleColumns)
+    populateSearchColumns();
 
     // Ініціалізувати чекбокс приховування
     // initHideCheckedToggle(); Помилка: елемент не знайдено}//
