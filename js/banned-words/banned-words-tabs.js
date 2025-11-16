@@ -60,6 +60,14 @@ async function getCheckTabContentTemplate() {
 export async function createCheckResultsTab(skipAutoActivate = false) {
     const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
 
+    // Перевірка валідності даних - не створювати таб якщо немає вибраних параметрів
+    if (!selectedSheet || !selectedWord || !selectedColumn) {
+        console.warn('⚠️ Неможливо створити таб перевірки - відсутні обов\'язкові параметри:', {
+            selectedSheet, selectedWord, selectedColumn
+        });
+        return;
+    }
+
     // Знайти слово для назви табу
     const word = bannedWordsState.bannedWords.find(w => w.local_id === selectedWord);
     // ЗМІНЕНО: Використовуємо group_name_ua
