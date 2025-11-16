@@ -120,11 +120,13 @@ export function initBannedWordsSorting() {
         },
         columnTypes: {
             local_id: 'id-number',
+            group_name_ua: 'string',  // ДОДАНО: Назва групи
             name_uk: 'string',
             name_ru: 'string',
             banned_type: 'string',
             banned_explaine: 'string',
             banned_hint: 'string',
+            severity: 'string',       // ДОДАНО: Severity
             cheaked_line: 'boolean'
         }
     });

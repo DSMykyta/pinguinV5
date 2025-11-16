@@ -188,13 +188,20 @@ function sortArray(array, column, direction, columnTypes = {}) {
 
             case 'string':
             default:
-                // String сортування (case-insensitive)
-                aVal = (aVal || '').toString().toLowerCase();
-                bVal = (bVal || '').toString().toLowerCase();
+                // String сортування (case-insensitive) - зберігаємо як рядок для localeCompare
+                aVal = (aVal || '').toString();
+                bVal = (bVal || '').toString();
                 break;
         }
 
         // Порівняння
+        // Для рядків використовуємо localeCompare для правильного сортування кирилиці
+        if (columnType === 'string' || columnType === undefined) {
+            const comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
+            return direction === 'asc' ? comparison : -comparison;
+        }
+
+        // Для чисел, бульових, дат - просте порівняння
         if (aVal < bVal) return direction === 'asc' ? -1 : 1;
         if (aVal > bVal) return direction === 'asc' ? 1 : -1;
         return 0;
