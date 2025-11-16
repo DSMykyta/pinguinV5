@@ -380,6 +380,14 @@ export async function restoreSavedTabs() {
     // Відновити кожен таб
     for (const tab of savedState.openTabs) {
         try {
+            // SKIP invalid tabs (tab-manage, tab-manage-new, undefined values)
+            if (!tab.sheetName || !tab.wordId || !tab.columnName ||
+                tab.tabId === 'tab-manage' || tab.tabId === 'tab-manage-new' ||
+                tab.sheetName === 'undefined' || tab.wordId === 'undefined') {
+                console.log(`⏭️ Пропускаємо некоректний таб: ${tab.tabId}`);
+                continue;
+            }
+
             console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
             // Оновити state
