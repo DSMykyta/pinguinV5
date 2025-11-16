@@ -14,7 +14,6 @@ import { initBrandsEvents, initBrandsSearch, initBrandsSorting } from './brands-
 import { showAddBrandModal } from './brands-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
-import { initDropdowns } from '../common/ui-dropdown.js';
 
 /**
  * Глобальний стан для brands модуля
@@ -92,6 +91,7 @@ async function checkAuthAndLoadData() {
             populateTableColumns();
 
             // Реініціалізувати dropdowns після заповнення
+            const { initDropdowns } = await import('../common/ui-dropdown.js');
             initDropdowns();
 
             // Відрендерити таблицю
