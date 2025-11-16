@@ -19,7 +19,7 @@ import {
     showTableEmpty
 } from '../common/ui-table-loader.js';
 import { renderBadge, renderSeverityBadge } from '../common/ui-table.js';
-import { openBannedWordModal } from './banned-words-modal.js';
+import { openBannedWordModal } from './banned-words-product-modal.js';
 
 // Стан нового табу
 let newTabState = {
