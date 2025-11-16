@@ -60,7 +60,7 @@ export function renderBrandsTable() {
                 label: 'ID',
                 className: 'cell-id',
                 sortable: true,
-                render: (value) => escapeHtml(value || '')
+                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
             },
             {
                 id: 'name_uk',
