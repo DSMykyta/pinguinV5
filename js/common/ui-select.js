@@ -19,7 +19,7 @@ export function reinitializeCustomSelect(selectElement) {
         }
         existingWrapper.parentNode.insertBefore(selectElement, existingWrapper);
         existingWrapper.remove();
-        selectElement.classList.remove('u-hidden');
+        selectElement.style.display = '';
     }
     new CustomSelect(selectElement);
 }
@@ -121,7 +121,7 @@ class CustomSelect {
 
         this.optionsList = this._createElement('ul', { class: 'custom-select-options', role: 'listbox' });
 
-        this.originalSelect.classList.add('u-hidden');
+        this.originalSelect.style.display = 'none';
         this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect);
 
         this.trigger.appendChild(this.valueContainer);
@@ -176,68 +176,27 @@ class CustomSelect {
         // Логіка для мультиселекту
         this.valueContainer.innerHTML = '';
         this.overflowChipContainer.innerHTML = '';
-        this.overflowChipContainer.classList.add('u-hidden');
+        this.overflowChipContainer.style.display = 'none';
 
         if (selectedOptions.length === 0) {
             this.valueContainer.innerHTML = `<span class="custom-select-placeholder">${this.originalSelect.placeholder || 'Виберіть...'}</span>`;
             return;
         }
 
-        // Створити всі чіпи
-        const allChips = selectedOptions.map(option => this._createChip(option));
+        const chips = selectedOptions.map(option => this._createChip(option));
 
-        // Додавати чіпи доки не переповнюється
-        let visibleCount = 0;
-        const containerWidth = this.valueContainer.offsetWidth || 300; // Fallback width
-        let currentWidth = 0;
-        const chipGap = 4; // gap між чіпами
-        const overflowChipWidth = 50; // приблизна ширина +n чіпа
+        // Перевірка на переповнення
+        chips.forEach(chip => this.valueContainer.appendChild(chip));
+        const isOverflowing = this.valueContainer.scrollHeight > this.valueContainer.clientHeight;
 
-        // Тимчасовий контейнер для вимірювання
-        const tempContainer = this._createElement('div', { class: 'custom-select-value-container' });
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.visibility = 'hidden';
-        tempContainer.style.whiteSpace = 'nowrap';
-        this.wrapper.appendChild(tempContainer);
+        if (isOverflowing) {
+            this.valueContainer.innerHTML = '';
+            const summaryChip = this._createElement('div', { class: 'custom-select-chip is-summary' });
+            summaryChip.textContent = selectedOptions.length;
+            this.valueContainer.appendChild(summaryChip);
 
-        for (let i = 0; i < allChips.length; i++) {
-            const chipClone = allChips[i].cloneNode(true);
-            tempContainer.appendChild(chipClone);
-
-            const chipWidth = chipClone.offsetWidth + chipGap;
-
-            // Перевірити чи влізе чіп + можливий overflow indicator
-            if (currentWidth + chipWidth + (i < allChips.length - 1 ? overflowChipWidth : 0) <= containerWidth) {
-                currentWidth += chipWidth;
-                visibleCount++;
-            } else {
-                break;
-            }
-        }
-
-        this.wrapper.removeChild(tempContainer);
-
-        // Якщо всі чіпи влазять, показати всі
-        if (visibleCount >= allChips.length) {
-            allChips.forEach(chip => this.valueContainer.appendChild(chip));
-        } else {
-            // Показати перші N чіпів + overflow indicator
-            for (let i = 0; i < visibleCount; i++) {
-                this.valueContainer.appendChild(allChips[i]);
-            }
-
-            // Додати overflow chip з +n
-            const remainingCount = allChips.length - visibleCount;
-            const overflowChip = this._createElement('div', { class: 'custom-select-chip custom-select-chip--overflow' });
-            overflowChip.textContent = `+${remainingCount}`;
-            this.valueContainer.appendChild(overflowChip);
-
-            // Додати всі чіпи до overflow контейнера
-            allChips.forEach(chip => {
-                const chipClone = this._createChip(selectedOptions[allChips.indexOf(chip)]);
-                this.overflowChipContainer.appendChild(chipClone);
-            });
-            this.overflowChipContainer.classList.remove('u-hidden');
+            chips.forEach(chip => this.overflowChipContainer.appendChild(chip));
+            this.overflowChipContainer.style.display = 'flex';
         }
     }
 
@@ -269,24 +228,8 @@ class CustomSelect {
         return chip;
     }
 
-    // === POSITIONING FOR FIXED PANEL (START) ===
-    _positionPanel() {
-        const triggerRect = this.trigger.getBoundingClientRect();
-        this.panel.style.width = `${triggerRect.width}px`;
-        this.panel.style.top = `${triggerRect.bottom + 4}px`;
-        this.panel.style.left = `${triggerRect.left}px`;
-    }
-    // === POSITIONING FOR FIXED PANEL (END) ===
-
     _bindEvents() {
-        this.trigger.addEventListener('click', () => {
-            this.wrapper.classList.toggle('is-open');
-            // === POSITIONING UPDATE (START) ===
-            if (this.wrapper.classList.contains('is-open')) {
-                this._positionPanel();
-            }
-            // === POSITIONING UPDATE (END) ===
-        });
+        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
@@ -307,26 +250,12 @@ class CustomSelect {
             if (!this.wrapper.contains(e.target)) this.wrapper.classList.remove('is-open');
         });
 
-        // === POSITIONING UPDATES ON SCROLL/RESIZE (START) ===
-        window.addEventListener('scroll', () => {
-            if (this.wrapper.classList.contains('is-open')) {
-                this._positionPanel();
-            }
-        }, true);
-
-        window.addEventListener('resize', () => {
-            if (this.wrapper.classList.contains('is-open')) {
-                this._positionPanel();
-            }
-        });
-        // === POSITIONING UPDATES ON SCROLL/RESIZE (END) ===
-
         if (this.searchInput) {
             this.searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
                     const text = optEl.textContent.toLowerCase();
-                    optEl.classList.toggle('u-hidden', !(text.includes(query)));
+                    optEl.style.display = text.includes(query) ? '' : 'none';
                 });
             });
         }
