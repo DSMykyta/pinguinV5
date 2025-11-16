@@ -4,14 +4,16 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║          TABLE GENERATOR - ОБРОБНИК ПОДІЙ (EVENT HANDLER)                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- * * ПРИЗНАЧЕННЯ:
- * Центральний модуль для налаштування всіх глобальних слухачів подій,
- * включаючи логіку для модального вікна підтвердження очищення.
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Центральний модуль для налаштування всіх глобальних слухачів подій.
+ *
+ * ЕКСПОРТОВАНІ ФУНКЦІЇ:
+ * - setupEventListeners() - Налаштовує всі слухачі подій для генератора
  */
 
 import { getTableDOM } from './gt-dom.js';
-import { createAndAppendRow, initializeEmptyRow, resetTableSection } from './gt-row-manager.js';
-import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { createAndAppendRow, resetTableSection } from './gt-row-manager.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
 import { closeModal } from '../../common/ui-modal.js';
 import { calculatePercentages, checkForEmptyNutritionFacts } from './gt-calculator.js';
@@ -20,6 +22,7 @@ import { generateBrText } from './gt-br-builder.js';
 import { processAndFillInputs } from './gt-magic-parser.js';
 import { copyToClipboard, debounce } from './gt-utils.js';
 import { autoSaveSession } from './gt-session-manager.js';
+import { addSampleList, addSampleTemplate } from './gt-template-helpers.js';
 
 export function setupEventListeners() {
     const dom = getTableDOM();
@@ -37,7 +40,7 @@ export function setupEventListeners() {
             if (!target) return;
             const actions = {
                 'add-input-btn': () => createAndAppendRow(),
-                'add-empty-line-btn': () => initializeEmptyRow(),
+                'add-empty-line-btn': () => resetTableSection(),
                 'add-ingredients-btn': () => addSampleTemplate('ingredients'),
                 'add-warning-btn': () => addSampleTemplate('warning'),
                 'add-composition-btn': () => addSampleTemplate('composition'),
@@ -65,8 +68,6 @@ export function setupEventListeners() {
         const magicApplyBtn = event.target.closest('#magic-apply-btn');
         if (magicApplyBtn) handleMagicApply();
 
-        // ВИДАЛЕНО старий handlePreview
-
         const confirmClearBtn = event.target.closest('#confirm-clear-action');
         if (confirmClearBtn) {
             resetTableSection();
@@ -79,9 +80,9 @@ export function setupEventListeners() {
         }
     });
 
-    // ДОДАНО: Слухаємо modal-opened event
+    // Слухаємо modal-opened event для preview
     document.addEventListener('modal-opened', handleTablePreview);
-    
+
     const debouncedCalculateAndSave = debounce(() => {
         calculatePercentages();
         autoSaveSession();
@@ -102,8 +103,8 @@ function handleMagicApply() {
 }
 
 /**
- * Обробляє запит на попередній перегляд.
- * @param {HTMLElement} trigger - Кнопка, що викликала подію.
+ * Обробляє запит на попередній перегляд таблиці
+ * @param {CustomEvent} event - Подія modal-opened
  */
 function handleTablePreview(event) {
     const { modalId, trigger } = event.detail;
@@ -138,36 +139,4 @@ function handleTablePreview(event) {
 
         contentTarget.innerHTML = generatedContent || '<p>Нічого для відображення.</p>';
     }, 50);
-}
-
-function addSampleList(items) {
-    items.forEach(item => {
-        createAndAppendRow().then(row => {
-            row.classList.add('added');
-            row.querySelector('.input-left').value = item;
-        });
-    });
-}
-
-async function addSampleTemplate(type) {
-    await initializeEmptyRow();
-
-    if (type === 'ingredients') {
-        const headerRow = await createAndAppendRow();
-        headerRow.classList.remove('td');
-        headerRow.classList.add('th-strong', 'single');
-        headerRow.querySelector('.input-left').value = 'Ингредиенты';
-    }
-
-    const fieldRow = await createAndAppendRow();
-    handleInputTypeSwitch(fieldRow, 'field');
-    fieldRow.classList.remove('td');
-    fieldRow.classList.add('single');
-
-    if (type === 'warning' || type === 'composition') {
-        fieldRow.classList.add('bold');
-    }
-    if (type === 'composition') {
-        fieldRow.querySelector('.input-left').value = 'Состав может незначительно отличаться в зависимости от вкуса';
-    }
 }

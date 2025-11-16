@@ -1,6 +1,8 @@
 // js/generators/generator-seo/gse-events.js
 import { getSeoDOM } from './gse-dom.js';
-import * as logic from './gse-logic.js';
+import { updateBrandAndProductFromText } from './gse-parser.js';
+import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from './gse-generators.js';
+import { checkSafety } from './gse-helpers.js';
 import { syncTulipsFromProductName, addTulip } from './gse-triggers.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
@@ -20,11 +22,11 @@ export function runCalculations() {
     const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip-active'))
                               .map(t => t.dataset.title);
 
-    dom.seoTitleInput.value = logic.generateSeoTitle(brand, product, packaging);
-    dom.seoDescriptionInput.value = logic.generateSeoDescription(mainText);
-    dom.seoKeywordsInput.value = logic.generateSeoKeywords(brand, product, packaging, activeTulips);
-    
-    dom.commonWarning.textContent = logic.checkSafety(product);
+    dom.seoTitleInput.value = generateSeoTitle(brand, product, packaging);
+    dom.seoDescriptionInput.value = generateSeoDescription(mainText);
+    dom.seoKeywordsInput.value = generateSeoKeywords(brand, product, packaging, activeTulips);
+
+    dom.commonWarning.textContent = checkSafety(product);
     updateCountryDisplay();
     updateCounters();
 }
@@ -36,7 +38,7 @@ export function initEventListeners() {
     const dom = getSeoDOM();
 
     dom.inputTextMarkup.addEventListener('input', debounce(() => {
-        const { brand, product } = logic.updateBrandAndProductFromText(dom.inputTextMarkup.value);
+        const { brand, product } = updateBrandAndProductFromText(dom.inputTextMarkup.value);
         dom.brandNameInput.value = brand;
         dom.productNameInput.value = product;
         syncTulipsFromProductName();
