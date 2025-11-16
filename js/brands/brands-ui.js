@@ -27,6 +27,7 @@ export function populateSearchColumns() {
 
     createColumnSelector('search-columns-list-brands', allSearchColumns, {
         checkboxPrefix: 'search-col-brands',
+        filterBy: brandsState.visibleColumns,
         onChange: (selectedIds) => {
             brandsState.searchColumns = selectedIds;
             console.log('🔍 Колонки пошуку:', brandsState.searchColumns);
@@ -54,6 +55,9 @@ export function populateTableColumns() {
         onChange: async (selectedIds) => {
             brandsState.visibleColumns = selectedIds;
             console.log('📋 Видимі колонки:', brandsState.visibleColumns);
+
+            // Оновити колонки пошуку (фільтруються по видимих)
+            populateSearchColumns();
 
             // Перемальовати таблицю
             renderBrandsTable();
