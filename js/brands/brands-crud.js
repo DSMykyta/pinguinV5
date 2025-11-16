@@ -262,7 +262,7 @@ async function fillBrandForm(brand) {
 async function highlightBrandText(viewer, text) {
     try {
         // Завантажити всі заборонені слова
-        const { loadAllBannedWords } = await import('./banned-words/banned-words-data.js');
+        const { loadAllBannedWords } = await import('../banned-words/banned-words-data.js');
         const allBannedWords = await loadAllBannedWords();
 
         if (!allBannedWords || allBannedWords.length === 0) {
