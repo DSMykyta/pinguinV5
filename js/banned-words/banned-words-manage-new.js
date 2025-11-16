@@ -20,7 +20,7 @@ import {
 } from '../common/ui-table-loader.js';
 import { renderBadge, renderSeverityBadge } from '../common/ui-table.js';
 import { openBannedWordModal } from './banned-words-manage.js';
-import { createColumnSelector } from '../common/ui-column-selector.js';
+import { createColumnSelector } from '../common/ui-table-columns.js';
 
 // Стан нового табу
 let newTabState = {
