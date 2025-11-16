@@ -20,6 +20,9 @@ import { initDropdowns } from '../common/ui-dropdown.js';
  * Глобальний стан для brands модуля
  */
 export const brandsState = {
+    // Дані
+    brands: [],
+
     // Пошук
     searchQuery: '',
     searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_name'],

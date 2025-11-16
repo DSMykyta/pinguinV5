@@ -10,11 +10,9 @@
  * Backend автоматично працює з spreadsheet з конфігурації.
  */
 
-const SHEET_NAME = 'Brands';
+import { brandsState } from './brands-init.js';
 
-// Кеш для даних
-let brandsCache = null;
-let countriesCache = null;
+const SHEET_NAME = 'Brands';
 
 /**
  * Завантажити всі бренди з Google Sheets
@@ -29,75 +27,18 @@ export async function loadBrands() {
         const values = response.result?.values || response.data || [];
         if (!values || values.length === 0) {
             console.warn('⚠️ Немає даних в Brands');
-            brandsCache = [];
-            return brandsCache;
+            brandsState.brands = [];
+            return brandsState.brands;
         }
 
-        brandsCache = parseSheetData(values);
-        console.log(`✅ Завантажено ${brandsCache.length} брендів`);
+        brandsState.brands = parseSheetData(values);
+        console.log(`✅ Завантажено ${brandsState.brands.length} брендів`);
 
-        // Також завантажити країни для відображення
-        await loadCountries();
-
-        // Збагатити бренди назвами країн
-        enrichBrandsWithCountryNames();
-
-        return brandsCache;
+        return brandsState.brands;
     } catch (error) {
         console.error('❌ Помилка завантаження брендів:', error);
         throw error;
     }
-}
-
-/**
- * Завантажити країни (Options з характеристикою "Країна")
- * @returns {Promise<Array>} Масив країн
- */
-async function loadCountries() {
-    console.log('📥 Завантаження країн...');
-
-    try {
-        const response = await window.apiClient.sheets.get('Options');
-
-        const values = response.result?.values || response.data || [];
-        if (!values || values.length === 0) {
-            console.warn('⚠️ Немає даних в Options');
-            countriesCache = [];
-            return countriesCache;
-        }
-
-        const allOptions = parseSheetData(values);
-
-        // Фільтруємо тільки країни (якщо є char_id або інша ознака)
-        // Припускаємо, що всі опції з характеристикою "Країна" мають певний char_id
-        // Для простоти зараз беремо всі опції
-        countriesCache = allOptions;
-
-        console.log(`✅ Завантажено ${countriesCache.length} опцій (країн)`);
-        return countriesCache;
-    } catch (error) {
-        console.error('❌ Помилка завантаження країн:', error);
-        countriesCache = [];
-        return countriesCache;
-    }
-}
-
-/**
- * Збагатити бренди назвами країн
- */
-function enrichBrandsWithCountryNames() {
-    if (!brandsCache || !countriesCache) return;
-
-    brandsCache.forEach(brand => {
-        if (brand.country_option_id) {
-            const country = countriesCache.find(c => c.local_id === brand.country_option_id);
-            brand.country_name = country ? country.name_uk : '';
-        } else {
-            brand.country_name = '';
-        }
-    });
-
-    console.log('✅ Бренди збагачено назвами країн');
 }
 
 /**
@@ -121,19 +62,11 @@ function parseSheetData(values) {
 }
 
 /**
- * Отримати бренди з кешу
+ * Отримати бренди з state
  * @returns {Array} Масив брендів
  */
 export function getBrands() {
-    return brandsCache || [];
-}
-
-/**
- * Отримати країни з кешу
- * @returns {Array} Масив країн
- */
-export function getCountries() {
-    return countriesCache || [];
+    return brandsState.brands || [];
 }
 
 /**
@@ -144,7 +77,7 @@ function generateBrandId() {
     // Знайти максимальний номер
     let maxNum = 0;
 
-    brandsCache.forEach(brand => {
+    brandsState.brands.forEach(brand => {
         if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
             const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
             if (!isNaN(num) && num > maxNum) {
@@ -185,25 +118,18 @@ export async function addBrand(brandData) {
         // Додаємо через API
         await window.apiClient.sheets.append(SHEET_NAME, [newRow]);
 
-        // Оновлюємо кеш
+        // Оновлюємо state
         const newBrand = {
-            _rowIndex: brandsCache.length + 2,
+            _rowIndex: brandsState.brands.length + 2,
             brand_id: newId,
             name_uk: brandData.name_uk || '',
             names_alt: brandData.names_alt || '',
             country_option_id: brandData.country_option_id || '',
             brand_text: brandData.brand_text || '',
-            brand_site_link: brandData.brand_site_link || '',
-            country_name: ''
+            brand_site_link: brandData.brand_site_link || ''
         };
 
-        // Знайти назву країни
-        if (newBrand.country_option_id && countriesCache) {
-            const country = countriesCache.find(c => c.local_id === newBrand.country_option_id);
-            newBrand.country_name = country ? country.name_uk : '';
-        }
-
-        brandsCache.push(newBrand);
+        brandsState.brands.push(newBrand);
 
         console.log('✅ Бренд додано:', newBrand);
         return newBrand;
@@ -223,8 +149,8 @@ export async function updateBrand(brandId, updates) {
     console.log(`📝 Оновлення бренду ${brandId}:`, updates);
 
     try {
-        // Знайти бренд в кеші
-        const brand = brandsCache.find(b => b.brand_id === brandId);
+        // Знайти бренд в state
+        const brand = brandsState.brands.find(b => b.brand_id === brandId);
         if (!brand) {
             throw new Error(`Бренд ${brandId} не знайдено`);
         }
@@ -242,16 +168,8 @@ export async function updateBrand(brandId, updates) {
 
         await window.apiClient.sheets.update(range, [updatedRow]);
 
-        // Оновити кеш
+        // Оновити state
         Object.assign(brand, updates);
-
-        // Оновити назву країни
-        if (brand.country_option_id && countriesCache) {
-            const country = countriesCache.find(c => c.local_id === brand.country_option_id);
-            brand.country_name = country ? country.name_uk : '';
-        } else {
-            brand.country_name = '';
-        }
 
         console.log('✅ Бренд оновлено:', brand);
         return brand;
@@ -270,20 +188,20 @@ export async function deleteBrand(brandId) {
     console.log(`🗑️ Видалення бренду ${brandId}`);
 
     try {
-        // Знайти бренд в кеші
-        const brandIndex = brandsCache.findIndex(b => b.brand_id === brandId);
+        // Знайти бренд в state
+        const brandIndex = brandsState.brands.findIndex(b => b.brand_id === brandId);
         if (brandIndex === -1) {
             throw new Error(`Бренд ${brandId} не знайдено`);
         }
 
-        const brand = brandsCache[brandIndex];
+        const brand = brandsState.brands[brandIndex];
 
         // Видалити рядок (очистити дані)
         const range = `${SHEET_NAME}!A${brand._rowIndex}:F${brand._rowIndex}`;
         await window.apiClient.sheets.update(range, [['', '', '', '', '', '']]);
 
-        // Видалити з кешу
-        brandsCache.splice(brandIndex, 1);
+        // Видалити з state
+        brandsState.brands.splice(brandIndex, 1);
 
         console.log('✅ Бренд видалено');
     } catch (error) {
@@ -292,38 +210,3 @@ export async function deleteBrand(brandId) {
     }
 }
 
-/**
- * Batch оновлення чекбоксів для вибраних брендів
- * @param {Array<string>} brandIds - Масив ID брендів
- * @param {boolean} checked - Значення чекбоксу
- * @returns {Promise<void>}
- */
-export async function batchUpdateChecked(brandIds, checked) {
-    console.log(`📦 Batch оновлення чекбоксів для ${brandIds.length} брендів`);
-
-    try {
-        const updates = [];
-
-        brandIds.forEach(brandId => {
-            const brand = brandsCache.find(b => b.brand_id === brandId);
-            if (!brand) return;
-
-            // Припускаємо, що колонка G це checked (потрібно додати в Google Sheets)
-            updates.push({
-                range: `${SHEET_NAME}!G${brand._rowIndex}`,
-                values: [[checked ? 'TRUE' : 'FALSE']]
-            });
-
-            // Оновити кеш
-            brand.checked = checked;
-        });
-
-        if (updates.length > 0) {
-            await window.apiClient.sheets.batchUpdate(updates);
-            console.log('✅ Batch оновлення виконано');
-        }
-    } catch (error) {
-        console.error('❌ Помилка batch оновлення:', error);
-        throw error;
-    }
-}
