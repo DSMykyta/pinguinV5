@@ -7,9 +7,9 @@
  *
  * Робота з Google Sheets API для брендів через backend API.
  * Використовує механізми з GOOGLE-SHEETS-GUIDE.md
+ * Backend автоматично працює з spreadsheet з конфігурації.
  */
 
-const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
 const SHEET_NAME = 'Brands';
 
 // Кеш для даних
@@ -24,18 +24,16 @@ export async function loadBrands() {
     console.log('📥 Завантаження брендів з Google Sheets...');
 
     try {
-        const response = await window.apiClient.sheets.getRange(
-            SPREADSHEET_ID,
-            SHEET_NAME
-        );
+        const response = await window.apiClient.sheets.get(SHEET_NAME);
 
-        if (!response || !response.values || response.values.length === 0) {
+        const values = response.result?.values || response.data || [];
+        if (!values || values.length === 0) {
             console.warn('⚠️ Немає даних в Brands');
             brandsCache = [];
             return brandsCache;
         }
 
-        brandsCache = parseSheetData(response.values);
+        brandsCache = parseSheetData(values);
         console.log(`✅ Завантажено ${brandsCache.length} брендів`);
 
         // Також завантажити країни для відображення
@@ -59,18 +57,16 @@ async function loadCountries() {
     console.log('📥 Завантаження країн...');
 
     try {
-        const response = await window.apiClient.sheets.getRange(
-            SPREADSHEET_ID,
-            'Options'
-        );
+        const response = await window.apiClient.sheets.get('Options');
 
-        if (!response || !response.values || response.values.length === 0) {
+        const values = response.result?.values || response.data || [];
+        if (!values || values.length === 0) {
             console.warn('⚠️ Немає даних в Options');
             countriesCache = [];
             return countriesCache;
         }
 
-        const allOptions = parseSheetData(response.values);
+        const allOptions = parseSheetData(values);
 
         // Фільтруємо тільки країни (якщо є char_id або інша ознака)
         // Припускаємо, що всі опції з характеристикою "Країна" мають певний char_id
@@ -167,11 +163,7 @@ export async function addBrand(brandData) {
         ];
 
         // Додаємо через API
-        await window.apiClient.sheets.appendRow(
-            SPREADSHEET_ID,
-            SHEET_NAME,
-            [newRow]
-        );
+        await window.apiClient.sheets.append(SHEET_NAME, [newRow]);
 
         // Оновлюємо кеш
         const newBrand = {
@@ -228,11 +220,7 @@ export async function updateBrand(brandId, updates) {
             updates.brand_site_link !== undefined ? updates.brand_site_link : brand.brand_site_link
         ];
 
-        await window.apiClient.sheets.updateRange(
-            SPREADSHEET_ID,
-            range,
-            [updatedRow]
-        );
+        await window.apiClient.sheets.update(range, [updatedRow]);
 
         // Оновити кеш
         Object.assign(brand, updates);
@@ -272,10 +260,7 @@ export async function deleteBrand(brandId) {
 
         // Видалити рядок (очистити дані)
         const range = `${SHEET_NAME}!A${brand._rowIndex}:F${brand._rowIndex}`;
-        await window.apiClient.sheets.clearRange(
-            SPREADSHEET_ID,
-            range
-        );
+        await window.apiClient.sheets.update(range, [['', '', '', '', '', '']]);
 
         // Видалити з кешу
         brandsCache.splice(brandIndex, 1);
@@ -314,7 +299,7 @@ export async function batchUpdateChecked(brandIds, checked) {
         });
 
         if (updates.length > 0) {
-            await window.apiClient.sheets.batchUpdate(SPREADSHEET_ID, updates);
+            await window.apiClient.sheets.batchUpdate(updates);
             console.log('✅ Batch оновлення виконано');
         }
     } catch (error) {
