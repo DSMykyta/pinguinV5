@@ -266,3 +266,35 @@ body.is-modal-open {
     font-size: 12px;
     white-space: nowrap;
 }
+
+/* ============================================ */
+/* CONFIRM MODAL */
+/* ============================================ */
+
+/**
+ * Тіло модалу підтвердження
+ * Центроване відображення з відступами
+ */
+.modal-confirm-body {
+    padding: 24px;
+    text-align: center;
+}
+
+/**
+ * Повідомлення в confirm modal
+ */
+.modal-confirm-message {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    color: var(--color-on-surface);
+}
+
+/**
+ * Контейнер для кнопок дій в confirm modal
+ * Центровані кнопки з проміжком
+ */
+.modal-confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}

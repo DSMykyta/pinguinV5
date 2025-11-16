@@ -175,8 +175,8 @@ export function initTabHandlers() {
 
         console.log(`🗑️ Спроба закрити таб: ${tabId}`);
 
-        // Використовуємо showConfirmModal з ui-modal.js
-        const { showConfirmModal } = await import('../common/ui-modal.js');
+        // Використовуємо showConfirmModal з ui-modal-confirm.js
+        const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
         const confirmed = await showConfirmModal({
             title: 'Закрити таб?',
             message: 'Всі незбережені дані будуть втрачені. Продовжити?',
