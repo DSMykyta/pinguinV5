@@ -377,17 +377,9 @@ export async function restoreSavedTabs() {
 
     console.log(`🔄 Відновлення ${savedState.openTabs.length} збережених табів...`);
 
-    // Відновити кожен таб
+    // Відновити кожен таб (некоректні таби вже відфільтровані в loadTabsState)
     for (const tab of savedState.openTabs) {
         try {
-            // SKIP invalid tabs (tab-manage, tab-manage-new, undefined values)
-            if (!tab.sheetName || !tab.wordId || !tab.columnName ||
-                tab.tabId === 'tab-manage' || tab.tabId === 'tab-manage-new' ||
-                tab.sheetName === 'undefined' || tab.wordId === 'undefined') {
-                console.log(`⏭️ Пропускаємо некоректний таб: ${tab.tabId}`);
-                continue;
-            }
-
             console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
             // Оновити state
