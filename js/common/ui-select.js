@@ -300,11 +300,13 @@ class CustomSelect {
             }
         });
 
-        document.addEventListener('click', (e) => {
+        // Закривати при кліку поза селектом
+        this.handleOutsideClick = (e) => {
             if (!this.wrapper.contains(e.target) && !this.panel.contains(e.target)) {
                 this.wrapper.classList.remove('is-open');
             }
-        });
+        };
+        document.addEventListener('click', this.handleOutsideClick);
 
         // Закривати селект при закритті модалу
         this.handleModalClose = () => {
@@ -372,6 +374,9 @@ class CustomSelect {
         }
 
         // Видаляємо всі слухачі подій
+        if (this.handleOutsideClick) {
+            document.removeEventListener('click', this.handleOutsideClick);
+        }
         if (this.handleModalClose) {
             document.removeEventListener('modal-closed', this.handleModalClose);
         }
