@@ -90,17 +90,13 @@ export function renderBrandsTable() {
                 id: 'brand_site_link',
                 label: ' ',
                 sortable: false,
-                className: 'cell-severity',
+                className: 'cell-bool',
                 render: (value, row) => {
                     if (!value) {
-                        return `
-                            <button class="severity-badge severity-high" disabled title="Немає посилання">
-                                <span class="material-symbols-outlined">block</span>
-                            </button>
-                        `;
+                        return `<span class="material-symbols-outlined" style="color: var(--color-on-surface-v);" title="Немає посилання">block</span>`;
                     }
                     return `
-                        <button class="severity-badge severity-low btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
+                        <button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
                             <span class="material-symbols-outlined">open_in_new</span>
                         </button>
                     `;
