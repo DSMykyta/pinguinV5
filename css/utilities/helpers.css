@@ -68,3 +68,50 @@
 .u-p-8 {
     padding: 8px;
 }
+
+/* ============================================ */
+/* FLEX LAYOUTS */
+/* ============================================ */
+
+/**
+ * Flex row з gap 8px та вирівнюванням по центру
+ * Часто використовується для груп кнопок та контролів
+ */
+.u-flex-row-8 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/**
+ * Inline flex з центруванням контенту
+ * Використовується для іконок-кнопок
+ */
+.u-flex-center {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/**
+ * Flex wrapper для dropdown
+ * Включає position: relative для правильного позиціонування випадаючого списку
+ */
+.u-dropdown-flex {
+    display: flex;
+    position: relative;
+}
+
+/**
+ * Align items до нижнього краю
+ */
+.u-align-end {
+    align-items: flex-end;
+}
+
+/**
+ * Margin top 8px
+ */
+.u-mt-8 {
+    margin-top: 8px;
+}
