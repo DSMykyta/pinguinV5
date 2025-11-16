@@ -90,6 +90,7 @@ export function renderBrandsTable() {
                 id: 'brand_site_link',
                 label: ' ',
                 sortable: false,
+                className: 'cell-actions',
                 render: (value, row) => {
                     if (!value) return '-';
                     return `
