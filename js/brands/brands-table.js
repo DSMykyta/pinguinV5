@@ -62,7 +62,6 @@ export function renderBrandsTable() {
                 id: 'brand_id',
                 label: 'ID',
                 sortable: true,
-                className: 'cell-id',
                 render: (value) => escapeHtml(value || '')
             },
             {
@@ -89,26 +88,27 @@ export function renderBrandsTable() {
                 label: 'Опис',
                 sortable: true,
                 render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'brand_site_link',
-                label: ' ',
-                sortable: false,
-                className: 'cell-link',
-                render: (value) => {
-                    if (!value) return '';
-                    return `<button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
-                        <span class="material-symbols-outlined">open_in_new</span>
-                    </button>`;
-                }
             }
         ],
         visibleColumns: visibleCols,
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
+        rowActionsCustom: (row) => {
+            let actions = `
+                <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+
+            // Додати кнопку посилання якщо є сайт
+            if (row.brand_site_link) {
+                actions += `
+                    <button class="btn-icon btn-link" data-link="${escapeHtml(row.brand_site_link)}" title="Відкрити сайт">
+                        <span class="material-symbols-outlined">open_in_new</span>
+                    </button>
+                `;
+            }
+
+            return actions;
+        },
         emptyState: {
             icon: 'shopping_bag',
             message: 'Бренди не знайдено'
@@ -129,11 +129,22 @@ export function renderBrandsTable() {
 
     // Додати обробники для кнопок редагування
     container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async () => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
             const brandId = button.dataset.brandId;
             if (brandId) {
                 const { showEditBrandModal } = await import('./brands-crud.js');
-                showEditBrandModal(brandId);
+                await showEditBrandModal(brandId);
+            }
+        });
+    });
+
+    // Додати обробники сортування для заголовків
+    container.querySelectorAll('.sortable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const sortKey = header.dataset.sortKey;
+            if (sortKey) {
+                updateSorting(sortKey);
             }
         });
     });

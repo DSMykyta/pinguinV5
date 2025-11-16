@@ -9,8 +9,7 @@
  */
 
 import { brandsState } from './brands-init.js';
-import { renderBrandsTable, updateSorting } from './brands-table.js';
-import { showEditBrandModal, showDeleteBrandConfirm } from './brands-crud.js';
+import { renderBrandsTable } from './brands-table.js';
 import { loadBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
 
@@ -21,8 +20,6 @@ export function initBrandsEvents() {
     console.log('🎯 Ініціалізація обробників подій для брендів...');
 
     initRefreshButton();
-    initSortingHeaders();
-    initTableActions();
 
     console.log('✅ Обробники подій ініціалізовано');
 }
@@ -51,52 +48,6 @@ function initRefreshButton() {
                 refreshBtn.disabled = false;
                 icon?.classList.remove('is-spinning');
             }, 500);
-        }
-    });
-}
-
-/**
- * Ініціалізувати заголовки для сортування
- */
-function initSortingHeaders() {
-    const headers = document.querySelectorAll('#tab-brands .sortable-header');
-
-    headers.forEach(header => {
-        header.addEventListener('click', () => {
-            const sortKey = header.dataset.sortKey;
-            if (sortKey) {
-                updateSorting(sortKey);
-            }
-        });
-    });
-}
-
-/**
- * Ініціалізувати дії в таблиці (редагування, видалення)
- */
-function initTableActions() {
-    const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
-    if (!tableBody) return;
-
-    tableBody.addEventListener('click', (e) => {
-        // Редагування
-        const editBtn = e.target.closest('.btn-edit');
-        if (editBtn) {
-            const brandId = editBtn.dataset.brandId;
-            if (brandId) {
-                showEditBrandModal(brandId);
-            }
-            return;
-        }
-
-        // Видалення
-        const deleteBtn = e.target.closest('.btn-delete');
-        if (deleteBtn) {
-            const brandId = deleteBtn.dataset.brandId;
-            if (brandId) {
-                showDeleteBrandConfirm(brandId);
-            }
-            return;
         }
     });
 }
