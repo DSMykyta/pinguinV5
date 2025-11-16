@@ -13,6 +13,7 @@ import { renderBrandsTable } from './brands-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
+import { highlightText, checkTextForBannedWords } from '../utils/text-utils.js';
 
 /**
  * Генерувати новий ID для бренду (для відображення в UI)
@@ -221,7 +222,7 @@ function getBrandFormData() {
         name_uk: document.getElementById('brand-name-uk')?.value.trim() || '',
         names_alt: document.getElementById('brand-names-alt')?.value.trim() || '',
         country_option_id: document.getElementById('brand-country')?.value || '',
-        brand_text: document.getElementById('brand-text')?.value.trim() || '',
+        brand_text: document.getElementById('brand-text')?.textContent.trim() || '',
         brand_site_link: document.getElementById('brand-site-link')?.value.trim() || ''
     };
 }
@@ -230,20 +231,60 @@ function getBrandFormData() {
  * Заповнити форму даними бренду
  * @param {Object} brand - Бренд
  */
-function fillBrandForm(brand) {
+async function fillBrandForm(brand) {
     const idField = document.getElementById('brand-id');
     const nameField = document.getElementById('brand-name-uk');
     const namesAltField = document.getElementById('brand-names-alt');
     const countryField = document.getElementById('brand-country');
-    const textField = document.getElementById('brand-text');
+    const textViewer = document.getElementById('brand-text');
     const siteField = document.getElementById('brand-site-link');
 
     if (idField) idField.value = brand.brand_id || '';
     if (nameField) nameField.value = brand.name_uk || '';
     if (namesAltField) namesAltField.value = brand.names_alt || '';
     if (countryField) countryField.value = brand.country_option_id || '';
-    if (textField) textField.value = brand.brand_text || '';
+
+    // Виділити заборонені слова в описі
+    if (textViewer && brand.brand_text) {
+        await highlightBrandText(textViewer, brand.brand_text);
+    } else if (textViewer) {
+        textViewer.textContent = '';
+    }
+
     if (siteField) siteField.value = brand.brand_site_link || '';
+}
+
+/**
+ * Виділити заборонені слова в тексті бренду
+ * @param {HTMLElement} viewer - Елемент для відображення
+ * @param {string} text - Текст для перевірки
+ */
+async function highlightBrandText(viewer, text) {
+    try {
+        // Завантажити всі заборонені слова
+        const { loadAllBannedWords } = await import('./banned-words/banned-words-data.js');
+        const allBannedWords = await loadAllBannedWords();
+
+        if (!allBannedWords || allBannedWords.length === 0) {
+            viewer.textContent = text;
+            return;
+        }
+
+        // Перевірити текст на заборонені слова
+        const foundWords = checkTextForBannedWords(text, allBannedWords);
+
+        if (foundWords.length > 0) {
+            // Виділити знайдені слова
+            const wordsToHighlight = foundWords.map(f => f.word);
+            const highlightedText = highlightText(text, wordsToHighlight, 'highlight-banned-word');
+            viewer.innerHTML = highlightedText;
+        } else {
+            viewer.textContent = text;
+        }
+    } catch (error) {
+        console.error('❌ Помилка виділення заборонених слів:', error);
+        viewer.textContent = text;
+    }
 }
 
 /**
@@ -254,14 +295,14 @@ function clearBrandForm() {
     const nameField = document.getElementById('brand-name-uk');
     const namesAltField = document.getElementById('brand-names-alt');
     const countryField = document.getElementById('brand-country');
-    const textField = document.getElementById('brand-text');
+    const textViewer = document.getElementById('brand-text');
     const siteField = document.getElementById('brand-site-link');
 
     if (idField) idField.value = '';
     if (nameField) nameField.value = '';
     if (namesAltField) namesAltField.value = '';
     if (countryField) countryField.value = '';
-    if (textField) textField.value = '';
+    if (textViewer) textViewer.textContent = '';
     if (siteField) siteField.value = '';
 }
 
