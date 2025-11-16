@@ -20,6 +20,7 @@ import {
 } from '../common/ui-table-loader.js';
 import { renderBadge, renderSeverityBadge } from '../common/ui-table.js';
 import { openBannedWordModal } from './banned-words-manage.js';
+import { createColumnSelector } from '../common/ui-column-selector.js';
 
 // Стан нового табу
 let newTabState = {
@@ -114,8 +115,21 @@ export async function renderBannedWordsNewTab() {
         // Сортувати
         const sortedWords = sortData(filteredWords, newTabState.sortKey, newTabState.sortDirection);
 
+        // Оновити totalItems для пагінації
+        const tabPagination = bannedWordsState.tabPaginations['tab-manage-new'];
+        if (tabPagination) {
+            tabPagination.totalItems = sortedWords.length;
+        }
+
+        // Застосувати пагінацію
+        const pageSize = tabPagination?.pageSize || 10;
+        const currentPage = tabPagination?.currentPage || 1;
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedWords = sortedWords.slice(startIndex, endIndex);
+
         // Оновити лічильники
-        updateCounters(sortedWords.length, bannedWordsState.bannedWords.length);
+        updateCounters(paginatedWords.length, sortedWords.length);
 
         if (sortedWords.length === 0) {
             showTableEmpty(container, 'Немає даних');
@@ -123,21 +137,20 @@ export async function renderBannedWordsNewTab() {
         }
 
         // Підготувати дані для шаблону (raw values для render functions)
-        const preparedData = sortedWords.map(word => ({
+        const preparedData = paginatedWords.map(word => ({
             local_id: word.local_id || 'N/A',
             group_name_ua: word.group_name_ua || 'Без назви',
             name_uk: word.name_uk || '-',
             name_ru: word.name_ru || '-',
             banned_type: word.banned_type || 'не вказано',
             severity: word.severity || '',
-            cheaked_line: word.cheaked_line
+            cheaked_line: word.cheaked_line,
+            _originalWord: word  // Зберігаємо оригінальний об'єкт для edit кнопки
         }));
 
         // Заповнити таблицю
         populateTable(container, newTabState.template, preparedData, {
-            onRowClick: (row, data) => {
-                openBannedWordModal(data.local_id);
-            },
+            onRowClick: null,  // Модал відкривається тільки через edit кнопку
             clearExisting: true,
             renderFunctions: {
                 severity: (value) => renderSeverityBadge(value),
@@ -150,6 +163,18 @@ export async function renderBannedWordsNewTab() {
 
         // Оновити індикатори сортування
         updateSortIndicators();
+
+        // Додати event delegation для edit кнопок
+        container.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const wordId = btn.dataset.rowId;
+                const word = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
+                if (word) {
+                    openBannedWordModal(word);
+                }
+            });
+        });
 
         console.log(`✅ NEW Tab rendered: ${preparedData.length} rows`);
 
@@ -193,6 +218,15 @@ function handleFilter(filter) {
 export function initBannedWordsNewTab() {
     console.log('🔧 Initializing NEW tab...');
 
+    // Зареєструвати пагінацію для нового табу
+    bannedWordsState.tabPaginations['tab-manage-new'] = {
+        currentPage: 1,
+        pageSize: 10,
+        totalItems: bannedWordsState.bannedWords.length,
+        renderFn: renderBannedWordsNewTab
+    };
+    console.log('✅ tab-manage-new зареєстровано в tabPaginations');
+
     const container = document.getElementById('banned-words-table-new-container');
     if (!container) {
         console.error('❌ NEW tab container not found');
@@ -223,6 +257,25 @@ export function initBannedWordsNewTab() {
             renderBannedWordsNewTab();
         });
     }
+
+    // Ініціалізувати селектор колонок
+    const tableColumns = [
+        { id: 'local_id', label: 'ID', enabled: true },
+        { id: 'group_name_ua', label: 'Назва групи', enabled: true },
+        { id: 'name_uk', label: 'Слова UA', enabled: true },
+        { id: 'name_ru', label: 'Слова RU', enabled: true },
+        { id: 'banned_type', label: 'Тип', enabled: true },
+        { id: 'severity', label: 'Severity', enabled: true },
+        { id: 'cheaked_line', label: 'Перевірено', enabled: true }
+    ];
+
+    createColumnSelector('table-columns-list-new', tableColumns, {
+        checkboxPrefix: 'table-col-new',
+        onChange: async (selectedIds) => {
+            console.log('📋 Видимі колонки (NEW):', selectedIds);
+            // TODO: Implement column hiding logic
+        }
+    });
 
     // Початковий рендер
     renderBannedWordsNewTab();

@@ -113,10 +113,6 @@
                 <span class="material-symbols-outlined">block</span>
                 <span class="nav-icon-label">Заборонені слова</span>
             </button>
-            <button class="nav-icon" data-tab-target="tab-test">
-                <span class="material-symbols-outlined">science</span>
-                <span class="nav-icon-label">Тест</span>
-            </button>
             <button class="nav-icon" data-tab-target="tab-manage-new">
                 <span class="material-symbols-outlined">new_releases</span>
                 <span class="nav-icon-label">NEW Система</span>
@@ -180,56 +176,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: ТЕСТОВА ТАБЛИЦЯ -->
-        <div class="tab-content" data-tab-content="tab-test" id="tab-test">
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Тестова таблиця</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3>Демонстрація системи завантаження шаблонів</h3>
-                </div>
-
-                <div class="tab-controls">
-                    <button id="refresh-tab-test" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Table Container -->
-            <div id="test-table-container" class="pseudo-table-container">
-                <!-- Шапка таблиці -->
-                <div class="pseudo-table-header">
-                    <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="id">
-                        ID
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <div class="pseudo-table-cell cell-name sortable-header" style="flex: 2;" data-sort-key="word">
-                        Слово
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <div class="pseudo-table-cell cell-name sortable-header" data-sort-key="category">
-                        Категорія
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <div class="pseudo-table-cell cell-bool">Статус</div>
-                </div>
-                <!-- Рядки додаються динамічно через ui-table-loader.js -->
-            </div>
-        </div>
-
-        <!-- TAB NEW: ЗАБОРОНЕНІ СЛОВА (НОВА СИСТЕМА) -->
+        <!-- TAB 2: ЗАБОРОНЕНІ СЛОВА (НОВА СИСТЕМА) -->
         <div class="tab-content" data-tab-content="tab-manage-new" id="tab-manage-new">
 
             <div class="section-header" style="align-items: flex-end;">
