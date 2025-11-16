@@ -25,7 +25,7 @@ export const brandsState = {
     searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_name'],
 
     // Видимі колонки
-    visibleColumns: ['brand_id', 'name_uk', 'country_name'],
+    visibleColumns: ['brand_id', 'name_uk', 'country_name', 'brand_site_link'],
 
     // Сортування
     sortKey: null,

@@ -21,33 +21,32 @@ import { initCustomSelects } from '../common/ui-select.js';
 export async function showAddBrandModal() {
     console.log('➕ Відкриття модального вікна для додавання бренду');
 
-    await showModal('brand-edit', null, {
-        onOpen: () => {
-            // Оновити заголовок
-            const title = document.querySelector('#global-modal-wrapper #modal-title');
-            if (title) title.textContent = 'Додати бренд';
+    // Відкрити модал
+    await showModal('brand-edit', null);
 
-            // Приховати кнопку видалення (тільки для нових брендів)
-            const deleteBtn = document.getElementById('delete-brand');
-            if (deleteBtn) deleteBtn.classList.add('u-hidden');
+    // Оновити заголовок
+    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    if (title) title.textContent = 'Додати бренд';
 
-            // Очистити форму
-            clearBrandForm();
+    // Приховати кнопку видалення (тільки для нових брендів)
+    const deleteBtn = document.getElementById('delete-brand');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
-            // Заповнити dropdown країн
-            populateCountryDropdown();
+    // Очистити форму
+    clearBrandForm();
 
-            // Реініціалізувати custom selects
-            const modal = document.getElementById('global-modal-wrapper');
-            if (modal) initCustomSelects(modal);
+    // Заповнити dropdown країн
+    populateCountryDropdown();
 
-            // Обробник збереження
-            const saveBtn = document.getElementById('save-brand');
-            if (saveBtn) {
-                saveBtn.onclick = handleSaveNewBrand;
-            }
-        }
-    });
+    // Реініціалізувати custom selects
+    const modal = document.getElementById('global-modal-wrapper');
+    if (modal) initCustomSelects(modal);
+
+    // Обробник збереження
+    const saveBtn = document.getElementById('save-brand');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveNewBrand;
+    }
 }
 
 /**
@@ -66,39 +65,38 @@ export async function showEditBrandModal(brandId) {
         return;
     }
 
-    await showModal('brand-edit', null, {
-        onOpen: () => {
-            // Оновити заголовок
-            const title = document.querySelector('#global-modal-wrapper #modal-title');
-            if (title) title.textContent = 'Редагувати бренд';
+    // Відкрити модал
+    await showModal('brand-edit', null);
 
-            // Показати кнопку видалення
-            const deleteBtn = document.getElementById('delete-brand');
-            if (deleteBtn) {
-                deleteBtn.classList.remove('u-hidden');
-                deleteBtn.onclick = () => {
-                    closeModal();
-                    showDeleteBrandConfirm(brandId);
-                };
-            }
+    // Оновити заголовок
+    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    if (title) title.textContent = 'Редагувати бренд';
 
-            // Заповнити форму даними
-            fillBrandForm(brand);
+    // Показати кнопку видалення
+    const deleteBtn = document.getElementById('delete-brand');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => {
+            closeModal();
+            showDeleteBrandConfirm(brandId);
+        };
+    }
 
-            // Заповнити dropdown країн
-            populateCountryDropdown();
+    // Заповнити форму даними
+    fillBrandForm(brand);
 
-            // Реініціалізувати custom selects
-            const modal = document.getElementById('global-modal-wrapper');
-            if (modal) initCustomSelects(modal);
+    // Заповнити dropdown країн
+    populateCountryDropdown();
 
-            // Обробник збереження
-            const saveBtn = document.getElementById('save-brand');
-            if (saveBtn) {
-                saveBtn.onclick = () => handleUpdateBrand(brandId);
-            }
-        }
-    });
+    // Реініціалізувати custom selects
+    const modal = document.getElementById('global-modal-wrapper');
+    if (modal) initCustomSelects(modal);
+
+    // Обробник збереження
+    const saveBtn = document.getElementById('save-brand');
+    if (saveBtn) {
+        saveBtn.onclick = () => handleUpdateBrand(brandId);
+    }
 }
 
 /**

@@ -44,7 +44,7 @@ export function populateTableColumns() {
         { id: 'names_alt', label: 'Альтернативні назви', checked: false },
         { id: 'country_name', label: 'Країна', checked: true },
         { id: 'brand_text', label: 'Опис', checked: false },
-        { id: 'brand_site_link', label: 'Сайт', checked: false }
+        { id: 'brand_site_link', label: 'Сайт', checked: true }
     ];
 
     const columnSelector = createColumnSelector('table-columns-list-brands', tableColumns, {

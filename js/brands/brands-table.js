@@ -88,27 +88,29 @@ export function renderBrandsTable() {
                 label: 'Опис',
                 sortable: true,
                 render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'brand_site_link',
+                label: 'Сайт',
+                sortable: false,
+                render: (value, row) => {
+                    if (!value) return '-';
+                    return `
+                        <button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                        </button>
+                    `;
+                }
             }
         ],
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
-            let actions = `
+            return `
                 <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             `;
-
-            // Додати кнопку посилання якщо є сайт
-            if (row.brand_site_link) {
-                actions += `
-                    <button class="btn-icon btn-link" data-link="${escapeHtml(row.brand_site_link)}" title="Відкрити сайт">
-                        <span class="material-symbols-outlined">open_in_new</span>
-                    </button>
-                `;
-            }
-
-            return actions;
         },
         emptyState: {
             icon: 'shopping_bag',
