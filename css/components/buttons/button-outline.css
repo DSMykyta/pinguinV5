@@ -5,18 +5,16 @@
  * Контурна кнопка для дій що потребують менше уваги ніж primary але більше ніж secondary.
  *
  * ВИКОРИСТАННЯ:
- * Зазвичай для альтернативних дій або зовнішніх посилань.
+ * Використовуйте разом з .btn-base. Зазвичай для альтернативних дій або зовнішніх посилань.
  *
  * HTML ПРИКЛАД:
- * <button class="btn-outline">
+ * <button class="btn-base btn-outline">
  *   <span class="material-symbols-outlined">storefront</span>
  *   <span>Маркетплейси</span>
  * </button>
  *
- * КЛАСИ:
- * - .btn-outline - базовий клас (прозорий фон, border)
- *
  * ЗАЛЕЖНОСТІ:
+ * - button-base.css (базові стилі кнопок)
  * - root.css (--color-outline, --color-on-surface)
  *
  * ЗАСТОСУВАННЯ:
@@ -25,31 +23,12 @@
  */
 
 .btn-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
     background: transparent;
     border: 1px solid var(--color-outline);
     color: var(--color-on-surface);
 }
 
-.btn-outline:hover {
+.btn-outline:hover:not(:disabled) {
     background: var(--color-surface-c-low);
     border-color: var(--color-on-surface-v);
-}
-
-.btn-outline:active {
-    transform: scale(0.98);
-}
-
-.btn-outline .material-symbols-outlined {
-    font-size: 18px;
 }

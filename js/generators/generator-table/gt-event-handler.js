@@ -13,6 +13,7 @@ import { getTableDOM } from './gt-dom.js';
 import { createAndAppendRow, initializeEmptyRow, resetTableSection } from './gt-row-manager.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
+import { closeModal } from '../../common/ui-modal.js';
 import { calculatePercentages, checkForEmptyNutritionFacts } from './gt-calculator.js';
 import { generateHtmlTable } from './gt-html-builder.js';
 import { generateBrText } from './gt-br-builder.js';
@@ -69,12 +70,12 @@ export function setupEventListeners() {
         const confirmClearBtn = event.target.closest('#confirm-clear-action');
         if (confirmClearBtn) {
             resetTableSection();
-            document.querySelector('#global-modal-wrapper .modal-close-btn')?.click();
+            closeModal();
         }
 
         const modalCloseBtn = event.target.closest('[data-modal-close]');
         if (modalCloseBtn) {
-             document.querySelector('#global-modal-wrapper .modal-close-btn')?.click();
+             closeModal();
         }
     });
 
@@ -97,7 +98,7 @@ function handleMagicApply() {
         processAndFillInputs(magicTextEl.value);
         magicTextEl.value = '';
     }
-    document.querySelector('#global-modal-wrapper .modal-close-btn')?.click();
+    closeModal();
 }
 
 /**

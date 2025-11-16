@@ -1,0 +1,71 @@
+/**
+ * COMPONENT: Button Base
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Базові стилі для всіх кнопок. Використовується як фундамент для btn-primary, btn-secondary, btn-outline.
+ *
+ * ВИКОРИСТАННЯ:
+ * Застосовуйте клас .btn-base разом з модифікатором (.btn-primary, .btn-secondary, .btn-outline).
+ * Ніколи не використовуйте .btn-base окремо.
+ *
+ * HTML ПРИКЛАД:
+ * <button class="btn-base btn-primary">Зберегти</button>
+ * <button class="btn-base btn-secondary">Скасувати</button>
+ * <button class="btn-base btn-outline">Опції</button>
+ *
+ * ЩО МІСТИТЬ:
+ * - Flexbox layout (display, align, justify, gap)
+ * - Розміри (padding, border-radius)
+ * - Типографіка (font-family, font-weight, font-size)
+ * - Інтерактивність (cursor, transition)
+ * - Стани (:active, :disabled)
+ * - Іконки Material Symbols
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--text-disabled для disabled стану)
+ * - Material Symbols шрифт для іконок
+ *
+ * ПРИМІТКИ:
+ * - Конкретні кольори (background, color, border) визначаються в модифікаторах
+ * - Всі кнопки мають однакову анімацію scale(0.98) при натисканні
+ * - Disabled стан зменшує opacity до 0.38 (Material Design guideline)
+ */
+
+.btn-base {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    /* Size */
+    padding: 8px 16px;
+    border-radius: 20px;
+
+    /* Typography */
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+
+    /* Interaction */
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    /* Reset */
+    border: none;
+}
+
+/* Стани кнопки */
+.btn-base:active {
+    transform: scale(0.98);
+}
+
+.btn-base:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+/* Іконки Material Symbols */
+.btn-base .material-symbols-outlined {
+    font-size: 18px;
+}

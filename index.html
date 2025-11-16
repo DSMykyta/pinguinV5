@@ -169,8 +169,7 @@
                     </div>
                     <h3>Налаштування таблиць</h3>
                 </div>
-                <button id="reload-section-tablet" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);">
+                <button id="reload-section-tablet" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -191,8 +190,7 @@
                     <h3>Налаштування тексту</h3>
                 </div>
 
-                <button id="reload-section-text" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);">
+                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
 
@@ -200,10 +198,8 @@
 
             <div class="section-content section-content-full-height">
                 <!-- Панель форматування -->
-                <div
-                    style="display: flex;justify-content: space-between;border-bottom: 1px solid var(--color-outline);padding: 8px;height: 48px;align-items: center;">
-                    <div id="text-format-toolbar" class="format-toolbar"
-                        style="display: flex; gap: 4px; flex-wrap: nowrap;">
+                <div class="toolbar-wrapper">
+                    <div id="text-format-toolbar" class="format-toolbar">
                         <button id="format-bold" class="btn-icon" title="Жирний" aria-label="Жирний">
                             <span class="material-symbols-outlined">format_bold</span>
                         </button>
@@ -250,8 +246,7 @@
                     </div>
                     <h3>Налаштування сео</h3>
                 </div>
-                <button id="reload-section-seo" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);">
+                <button id="reload-section-seo" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -313,14 +308,13 @@
                     </div>
                     <h3>Інструменти перекладу</h3>
                 </div>
-                <button id="reload-section-translate" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);">
+                <button id="reload-section-translate" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
             <div class="section-content section-content-full-height">
 
-                <iframe style="border: none; width: 100%; height: 100%; border-radius: 12px;"
+                <iframe class="image-tool-iframe"
                     src="https://semi-shop.com.ua/5tLKV0FnOo.php?all" title="Інструмент перекладу"
                     sandbox="allow-scripts allow-same-origin allow-forms" loading="lazy">
                 </iframe>
@@ -340,8 +334,7 @@
                     </div>
                     <h3>Список посилань на сайти виробників</h3>
                 </div>
-                <button id="reload-section-links" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);">
+                <button id="reload-section-links" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -363,17 +356,16 @@
                     </div>
                     <h3>Зміна розміру, полотна та формату</h3>
                 </div>
-                <button id="reload-section-image" class="btn-icon btn-reload" aria-label="Перезавантажити"
-                    style="color: var(--text-disabled);" data-modal-trigger="confirm-clear-modal" data-modal-size="small">
+                <button id="reload-section-image" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити" data-modal-trigger="confirm-clear-modal" data-modal-size="small">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
 
-            <div class="section-content section-content-full-height" style="padding: 8px;">
+            <div class="section-content section-content-full-height u-p-8">
 
                 <div class="image-tool-container">
-            <div style="display: flex;flex-direction: column;width: 100%;">
-                    <div class="panel-box" style="background: transparent;padding: 0;padding-left: 8px;height: 32px;min-height: 32px;">
+            <div class="image-tool-wrapper">
+                    <div class="panel-box panel-box--transparent">
                         <span class="material-symbols-outlined panel-box-icon">link</span>
                         <input type="text" id="gim-image-url" class="input-main"
                             placeholder="Вставте URL зображення...">
@@ -386,11 +378,11 @@
                         <div id="gim-drag-drop-overlay" class="drag-drop-overlay visible">
                             <span class="material-symbols-outlined">upload_file</span>
                             <p>Перетягніть файли сюди або</p>
-                            <button id="gim-select-file-btn" class="btn-outline" style="pointer-events: auto;">Виберіть
+                            <button id="gim-select-file-btn" class="btn-base btn-outline" style="pointer-events: auto;">Виберіть
                                 файл</button>
                         </div>
 
-                        <canvas id="gim-image-canvas" style="box-shadow: none;"></canvas>
+                        <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
                         <input type="file" id="gim-image-input"
                             accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
                             class="u-hidden" multiple>

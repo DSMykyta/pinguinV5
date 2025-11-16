@@ -34,6 +34,7 @@
 @import url('layout/layout-tabbed-page.css');
 
 /* === COMPONENTS - BUTTONS === */
+@import url('components/buttons/button-base.css');
 @import url('components/buttons/button-icon.css');
 @import url('components/buttons/button-primary.css');
 @import url('components/buttons/button-secondary.css');
