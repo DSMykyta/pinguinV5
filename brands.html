@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Перевірка заборонених слів</title>
+    <title>Управління брендами</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -13,7 +13,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
         rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 
 <body>
@@ -39,13 +38,13 @@
 
             </a>
 
-            <a href="banned-words.html" target="_blank" class="panel-item is-active">
+            <a href="banned-words.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">block</span>
                 <span class="panel-item-text">Заборонені слова</span>
 
             </a>
 
-            <a href="brands.html" target="_blank" class="panel-item">
+            <a href="brands.html" target="_blank" class="panel-item is-active">
                 <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
                 <span class="panel-item-text">Бренди</span>
 
@@ -59,19 +58,10 @@
 
             <div class="panel-separator"></div>
 
-            <a href="https://docs.google.com/spreadsheets/d/1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM/edit"
+            <a href="https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/edit?gid=653695455#gid=653695455"
                 target="_blank" rel="noopener noreferrer" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">table_chart</span>
-                <span class="panel-item-text">Тексти товарів</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/edit?gid=1742878044#gid=1742878044"
-                target="_blank" rel="noopener noreferrer" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">block</span>
-                <span class="panel-item-text">Заборонені</span>
+                <span class="panel-item-text">Brands Sheet</span>
                 <div class="btn-icon">
                     <span class="material-symbols-outlined">open_in_new</span>
                 </div>
@@ -108,84 +98,100 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
-        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="tabs-head-container">
-            <button class="nav-icon active" data-tab-target="tab-manage">
-                <span class="material-symbols-outlined">block</span>
-                <span class="nav-icon-label">Заборонені слова</span>
-            </button>
-            <!-- Динамічні check таби додаються тут -->
-        </nav>
-        <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
-        <div class="tab-content active" data-tab-content="tab-manage" id="tab-manage">
 
-            <div class="section-header u-align-end">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Заборонені слова</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3 id="tab-stats-manage">Показано 0 з 0</h3>
-                    <div class="tab-controls u-mt-8">
-                        <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">list</span>
-                            <span class="nav-icon-label">Всі</span>
-                        </button>
-                        <button class="nav-icon" data-filter="unchecked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">radio_button_unchecked</span>
-                            <span class="nav-icon-label">Не перевірені</span>
-                        </button>
-                        <button class="nav-icon" data-filter="checked" data-tab-id="tab-manage">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            <span class="nav-icon-label">Перевірені</span>
-                        </button>
-                    </div>
+        <!-- TAB: BRANDS -->
+        <div class="tab-content active" data-tab-content="tab-brands" id="tab-brands">
+
+            <!-- Tab Header -->
+            <div class="tab-header">
+                <div class="tab-title-block">
+                    <h2 class="tab-title">Бренди</h2>
+                    <span class="tab-stats" id="tab-stats-brands">Показано 0 з 0</span>
                 </div>
-
-
-                <div class="tab-controls">
-                    <button id="refresh-tab-manage" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вібір колонок">
+                <div class="u-flex-row-8">
+                    <div class="filter-pills-container" id="filter-pills-tab-brands">
+                        <button class="filter-pill active" data-filter="all" data-tab-id="tab-brands">
+                            <span class="material-symbols-outlined">list</span>
+                            Всі
+                        </button>
+                        <button class="filter-pill" data-filter="unchecked" data-tab-id="tab-brands">
+                            <span class="material-symbols-outlined">radio_button_unchecked</span>
+                            Не перевірені
+                        </button>
+                        <button class="filter-pill" data-filter="checked" data-tab-id="tab-brands">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Перевірені
+                        </button>
+                    </div>
+                    <div class="dropdown-wrapper u-dropdown-flex">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
+                            class="u-flex-center">
                             <span class="material-symbols-outlined">view_column</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
+                            <div id="table-columns-list-brands" class="dropdown-body"></div>
                         </div>
                     </div>
+                    <button id="refresh-tab-brands" class="btn-icon" aria-label="Оновити таб"
+                        class="u-flex-center">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                    <button id="btn-add-brand" class="btn-base btn-primary">
+                        <span class="material-symbols-outlined">add</span>
+                        <span>Додати бренд</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Table Container -->
-            <div id="banned-words-table-container" class="pseudo-table-container">
-                <div class="loading-state">
-                    <span class="material-symbols-outlined">key</span>
-                    <p>Авторизуйтесь для завантаження даних</p>
+            <div class="pseudo-table-container">
+                <div class="pseudo-table">
+                    <div class="pseudo-table-header">
+                        <div class="pseudo-table-cell cell-actions header-actions-cell">
+                            <input type="checkbox" class="header-select-all" aria-label="Вибрати всі">
+                        </div>
+                        <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="brand_id"
+                            data-column="brand_id">
+                            <span>ID</span><span class="sort-indicator"></span>
+                        </div>
+                        <div class="pseudo-table-cell cell-main-name sortable-header" data-sort-key="name_uk"
+                            data-column="name_uk">
+                            <span>Назва UA</span><span class="sort-indicator"></span>
+                        </div>
+                        <div class="pseudo-table-cell sortable-header" data-sort-key="names_alt"
+                            data-column="names_alt">
+                            <span>Альтернативні назви</span><span class="sort-indicator"></span>
+                        </div>
+                        <div class="pseudo-table-cell sortable-header" data-sort-key="country_name"
+                            data-column="country_name">
+                            <span>Країна</span><span class="sort-indicator"></span>
+                        </div>
+                        <div class="pseudo-table-cell sortable-header" data-sort-key="brand_text"
+                            data-column="brand_text">
+                            <span>Опис</span><span class="sort-indicator"></span>
+                        </div>
+                        <div class="pseudo-table-cell sortable-header" data-sort-key="brand_site_link"
+                            data-column="brand_site_link">
+                            <span>Сайт</span><span class="sort-indicator"></span>
+                        </div>
+                    </div>
+                    <div class="pseudo-table-body">
+                        <!-- Рядки додаються через JS -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3+: ПЕРЕВІРКА АРКУШІВ (створюються динамічно) -->
-        <div id="sheet-tabs-content-container"></div>
-
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="fixed-footer">
             <div></div>
-
-
             <div class="pagination-container">
                 <div id="pagination-nav-container" class="pagination-nav"></div>
 
                 <div class="page-size-selector" id="page-size-selector">
                     <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="page-size-label">10</span>
+                        <span id="page-size-label">25</span>
                     </button>
                     <div class="page-size-menu">
                         <button class="page-size-option" data-page-size="10">10</button>
@@ -207,12 +213,16 @@
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
             </button>
         </div>
-        <div id="panel-right-content" class="panel-content"></div>
+        <div id="panel-right-content" class="panel-content">
+            <!-- aside-brands.html завантажується через JS -->
+        </div>
     </aside>
+
+    <div id="modal-placeholder"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="js/utils/api-client.js"></script>
-    <script type="module" src="js/main-banned-words.js"></script>
+    <script type="module" src="js/main-brands.js"></script>
 </body>
 
 </html>

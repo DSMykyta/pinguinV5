@@ -1,0 +1,168 @@
+// js/brands/brands-init.js
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    BRANDS - INITIALIZATION                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Головний файл ініціалізації модуля управління брендами.
+ */
+
+import { loadBrands } from './brands-data.js';
+import { renderBrandsTable } from './brands-table.js';
+import { initBrandsEvents } from './brands-events.js';
+import { initPagination } from '../common/ui-pagination.js';
+import { initTooltips } from '../common/ui-tooltip.js';
+import { initDropdowns } from '../common/ui-dropdown.js';
+
+/**
+ * Глобальний стан для brands модуля
+ */
+export const brandsState = {
+    // Фільтри
+    filter: 'all', // all | checked | unchecked
+    searchQuery: '',
+
+    // Сортування
+    sortKey: null,
+    sortOrder: 'asc', // asc | desc
+
+    // Вибрані рядки
+    selectedIds: new Set(),
+
+    // Пагінація
+    pagination: {
+        currentPage: 1,
+        pageSize: 25,
+        totalItems: 0
+    },
+
+    // API пагінації
+    paginationAPI: null
+};
+
+/**
+ * Головна функція ініціалізації модуля Brands
+ */
+export function initBrands() {
+    console.log('📋 Ініціалізація Brands...');
+
+    // Ініціалізувати tooltip систему
+    initTooltips();
+
+    // Ініціалізувати dropdowns
+    initDropdowns();
+
+    // Ініціалізувати пагінацію
+    initBrandsPagination();
+
+    // Перевірити авторизацію та завантажити дані
+    checkAuthAndLoadData();
+
+    // Слухати події зміни авторизації
+    document.addEventListener('auth-state-changed', (event) => {
+        console.log('🔐 Подія auth-state-changed:', event.detail);
+        if (event.detail.isAuthorized) {
+            checkAuthAndLoadData();
+        }
+    });
+}
+
+/**
+ * Перевірити авторизацію та завантажити дані
+ */
+async function checkAuthAndLoadData() {
+    console.log('🔐 Перевірка авторизації...');
+
+    // Перевіряємо глобальний стан авторизації
+    if (window.isAuthorized) {
+        console.log('✅ Користувач авторизований, завантажуємо дані...');
+
+        try {
+            // Завантажити бренди
+            await loadBrands();
+
+            // Відрендерити таблицю
+            renderBrandsTable();
+
+            // Ініціалізувати обробники подій
+            initBrandsEvents();
+
+            console.log('✅ Brands готовий до роботи');
+        } catch (error) {
+            console.error('❌ Помилка завантаження даних:', error);
+            renderErrorState();
+        }
+    } else {
+        console.log('⚠️ Користувач не авторизований');
+        renderAuthRequiredState();
+    }
+}
+
+/**
+ * Ініціалізувати пагінацію
+ */
+function initBrandsPagination() {
+    const footer = document.querySelector('.fixed-footer');
+    if (!footer) {
+        console.warn('⚠️ Footer не знайдено');
+        return;
+    }
+
+    const paginationAPI = initPagination(footer, {
+        currentPage: brandsState.pagination.currentPage,
+        pageSize: brandsState.pagination.pageSize,
+        totalItems: brandsState.pagination.totalItems,
+        onPageChange: (page, pageSize) => {
+            brandsState.pagination.currentPage = page;
+            brandsState.pagination.pageSize = pageSize;
+            renderBrandsTable();
+        }
+    });
+
+    brandsState.paginationAPI = paginationAPI;
+
+    console.log('✅ Пагінація ініціалізована');
+}
+
+/**
+ * Відрендерити стан "Потрібна авторизація"
+ */
+function renderAuthRequiredState() {
+    const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <div class="loading-state">
+            <span class="material-symbols-outlined">key</span>
+            <p>Авторизуйтесь для завантаження даних</p>
+        </div>
+    `;
+}
+
+/**
+ * Відрендерити стан помилки
+ */
+function renderErrorState() {
+    const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <div class="loading-state">
+            <span class="material-symbols-outlined">error</span>
+            <p>Помилка завантаження даних</p>
+            <button id="retry-load-brands" class="btn-base btn-primary">
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Спробувати знову</span>
+            </button>
+        </div>
+    `;
+
+    // Обробник кнопки повтору
+    const retryBtn = document.getElementById('retry-load-brands');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            checkAuthAndLoadData();
+        });
+    }
+}

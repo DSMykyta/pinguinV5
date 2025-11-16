@@ -1,0 +1,59 @@
+<div class="modal-title-source u-hidden">
+    <span id="modal-title">Додати бренд</span>
+</div>
+
+<div class="modal-header-actions-source u-hidden">
+    <button id="save-brand" class="segment" aria-label="Зберегти">
+        <div class="state-layer">
+            <span class="label">Зберегти</span>
+        </div>
+    </button>
+    <button class="segment modal-close-btn" aria-label="Закрити">
+        <div class="state-layer">
+            <span class="material-symbols-outlined">close</span>
+        </div>
+    </button>
+</div>
+
+<div class="modal-body-source">
+
+    <fieldset class="form-fieldset">
+
+        <input type="hidden" id="brand-id">
+
+        <div class="form-group">
+            <label for="brand-name-uk">
+                Назва бренду (UA)
+                <span class="required">*</span>
+            </label>
+            <input type="text" id="brand-name-uk" class="input-main" placeholder="Наприклад: Optimum Nutrition" required>
+        </div>
+
+        <div class="form-group">
+            <label for="brand-names-alt">Альтернативні назви</label>
+            <input type="text" id="brand-names-alt" class="input-main"
+                placeholder="Введіть альтернативні назви через кому (наприклад: ON, Оптимум, Оптімум)">
+            <small class="form-hint">Використовується для пошуку та розпізнавання бренду</small>
+        </div>
+
+        <div class="form-group">
+            <label for="brand-country">Країна</label>
+            <select id="brand-country" data-custom-select placeholder="Оберіть країну...">
+                <option value="">-- Оберіть країну --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="brand-text">Опис бренду</label>
+            <textarea id="brand-text" class="input-main" rows="4"
+                placeholder="Опис бренду для використання в текстах..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="brand-site-link">Сайт бренду</label>
+            <input type="url" id="brand-site-link" class="input-main"
+                placeholder="https://example.com">
+        </div>
+
+    </fieldset>
+</div>
