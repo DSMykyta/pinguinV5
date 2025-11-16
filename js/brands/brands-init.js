@@ -57,9 +57,6 @@ export function initBrands() {
     // Завантажити aside
     loadAsideBrands();
 
-    // Ініціалізувати dropdowns
-    initDropdowns();
-
     // Ініціалізувати пагінацію
     initBrandsPagination();
 
@@ -93,6 +90,9 @@ async function checkAuthAndLoadData() {
             const { populateSearchColumns, populateTableColumns } = await import('./brands-ui.js');
             populateSearchColumns();
             populateTableColumns();
+
+            // Реініціалізувати dropdowns після заповнення
+            initDropdowns();
 
             // Відрендерити таблицю
             renderBrandsTable();
