@@ -98,87 +98,44 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
-
-        <!-- TAB: BRANDS -->
+        <!-- TAB: УПРАВЛІННЯ БРЕНДАМИ -->
         <div class="tab-content active" data-tab-content="tab-brands" id="tab-brands">
 
-            <!-- Tab Header -->
-            <div class="tab-header">
-                <div class="tab-title-block">
-                    <h2 class="tab-title">Бренди</h2>
-                    <span class="tab-stats" id="tab-stats-brands">Показано 0 з 0</span>
-                </div>
-                <div class="u-flex-row-8">
-                    <div class="filter-pills-container" id="filter-pills-tab-brands">
-                        <button class="filter-pill active" data-filter="all" data-tab-id="tab-brands">
-                            <span class="material-symbols-outlined">list</span>
-                            Всі
-                        </button>
-                        <button class="filter-pill" data-filter="unchecked" data-tab-id="tab-brands">
-                            <span class="material-symbols-outlined">radio_button_unchecked</span>
-                            Не перевірені
-                        </button>
-                        <button class="filter-pill" data-filter="checked" data-tab-id="tab-brands">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            Перевірені
+            <div class="section-header u-align-end">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Бренди</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <div class="dropdown-wrapper u-dropdown-flex">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
-                            class="u-flex-center">
+                    <h3 id="tab-stats-brands">Показано 0 з 0</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-brands" class="btn-icon" aria-label="Оновити таб">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+
+                    <div class="dropdown-wrapper">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
                             <span class="material-symbols-outlined">view_column</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
                             <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-brands" class="dropdown-body"></div>
+                            <div id="table-columns-list-brands" class="dropdown-body">
+                                <!-- Чекбокси додаються динамічно -->
+                            </div>
                         </div>
                     </div>
-                    <button id="refresh-tab-brands" class="btn-icon" aria-label="Оновити таб"
-                        class="u-flex-center">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                    <button id="btn-add-brand" class="btn-base btn-primary">
-                        <span class="material-symbols-outlined">add</span>
-                        <span>Додати бренд</span>
-                    </button>
                 </div>
             </div>
 
             <!-- Table Container -->
-            <div class="pseudo-table-container">
-                <div class="pseudo-table">
-                    <div class="pseudo-table-header">
-                        <div class="pseudo-table-cell cell-actions header-actions-cell">
-                            <input type="checkbox" class="header-select-all" aria-label="Вибрати всі">
-                        </div>
-                        <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="brand_id"
-                            data-column="brand_id">
-                            <span>ID</span><span class="sort-indicator"></span>
-                        </div>
-                        <div class="pseudo-table-cell cell-main-name sortable-header" data-sort-key="name_uk"
-                            data-column="name_uk">
-                            <span>Назва UA</span><span class="sort-indicator"></span>
-                        </div>
-                        <div class="pseudo-table-cell sortable-header" data-sort-key="names_alt"
-                            data-column="names_alt">
-                            <span>Альтернативні назви</span><span class="sort-indicator"></span>
-                        </div>
-                        <div class="pseudo-table-cell sortable-header" data-sort-key="country_name"
-                            data-column="country_name">
-                            <span>Країна</span><span class="sort-indicator"></span>
-                        </div>
-                        <div class="pseudo-table-cell sortable-header" data-sort-key="brand_text"
-                            data-column="brand_text">
-                            <span>Опис</span><span class="sort-indicator"></span>
-                        </div>
-                        <div class="pseudo-table-cell sortable-header" data-sort-key="brand_site_link"
-                            data-column="brand_site_link">
-                            <span>Сайт</span><span class="sort-indicator"></span>
-                        </div>
-                    </div>
-                    <div class="pseudo-table-body">
-                        <!-- Рядки додаються через JS -->
-                    </div>
+            <div id="brands-table-container" class="pseudo-table-container">
+                <div class="loading-state">
+                    <span class="material-symbols-outlined">key</span>
+                    <p>Авторизуйтесь для завантаження даних</p>
                 </div>
             </div>
         </div>
@@ -186,6 +143,7 @@
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="fixed-footer">
             <div></div>
+
             <div class="pagination-container">
                 <div id="pagination-nav-container" class="pagination-nav"></div>
 

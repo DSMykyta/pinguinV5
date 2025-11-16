@@ -10,7 +10,7 @@
 
 import { brandsState } from './brands-init.js';
 import { renderBrandsTable, updateSorting } from './brands-table.js';
-import { showAddBrandModal, showEditBrandModal, showDeleteBrandConfirm } from './brands-crud.js';
+import { showEditBrandModal, showDeleteBrandConfirm } from './brands-crud.js';
 import { loadBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
 
@@ -20,26 +20,11 @@ import { showToast } from '../common/ui-toast.js';
 export function initBrandsEvents() {
     console.log('🎯 Ініціалізація обробників подій для брендів...');
 
-    initAddButton();
     initRefreshButton();
-    initFilterButtons();
     initSortingHeaders();
     initTableActions();
-    initSelectAll();
 
     console.log('✅ Обробники подій ініціалізовано');
-}
-
-/**
- * Ініціалізувати кнопку додавання
- */
-function initAddButton() {
-    const addBtn = document.getElementById('btn-add-brand');
-    if (!addBtn) return;
-
-    addBtn.addEventListener('click', () => {
-        showAddBrandModal();
-    });
 }
 
 /**
@@ -67,33 +52,6 @@ function initRefreshButton() {
                 icon?.classList.remove('is-spinning');
             }, 500);
         }
-    });
-}
-
-/**
- * Ініціалізувати кнопки фільтрів
- */
-function initFilterButtons() {
-    const filterContainer = document.getElementById('filter-pills-tab-brands');
-    if (!filterContainer) return;
-
-    filterContainer.addEventListener('click', (e) => {
-        const filterBtn = e.target.closest('.filter-pill');
-        if (!filterBtn) return;
-
-        const filter = filterBtn.dataset.filter;
-
-        // Оновити активний стан кнопок
-        filterContainer.querySelectorAll('.filter-pill').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        filterBtn.classList.add('active');
-
-        // Застосувати фільтр
-        brandsState.filter = filter;
-        brandsState.pagination.currentPage = 1; // Скинути на першу сторінку
-
-        renderBrandsTable();
     });
 }
 
@@ -140,59 +98,7 @@ function initTableActions() {
             }
             return;
         }
-
-        // Чекбокс рядка
-        const checkbox = e.target.closest('.row-checkbox');
-        if (checkbox) {
-            const brandId = checkbox.dataset.brandId;
-            if (brandId) {
-                toggleRowSelection(brandId, checkbox.checked);
-            }
-            return;
-        }
     });
-}
-
-/**
- * Ініціалізувати чекбокс "Вибрати всі"
- */
-function initSelectAll() {
-    const selectAllCheckbox = document.querySelector('#tab-brands .header-select-all');
-    if (!selectAllCheckbox) return;
-
-    selectAllCheckbox.addEventListener('change', (e) => {
-        const checked = e.target.checked;
-        const checkboxes = document.querySelectorAll('#tab-brands .row-checkbox');
-
-        checkboxes.forEach(checkbox => {
-            checkbox.checked = checked;
-            const brandId = checkbox.dataset.brandId;
-            if (brandId) {
-                if (checked) {
-                    brandsState.selectedIds.add(brandId);
-                } else {
-                    brandsState.selectedIds.delete(brandId);
-                }
-            }
-        });
-
-        renderBrandsTable();
-    });
-}
-
-/**
- * Перемкнути вибір рядка
- * @param {string} brandId - ID бренду
- * @param {boolean} selected - Вибрано чи ні
- */
-function toggleRowSelection(brandId, selected) {
-    if (selected) {
-        brandsState.selectedIds.add(brandId);
-    } else {
-        brandsState.selectedIds.delete(brandId);
-    }
-
-    renderBrandsTable();
 }
 
 /**

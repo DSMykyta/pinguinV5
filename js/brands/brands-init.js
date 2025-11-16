@@ -10,7 +10,8 @@
 
 import { loadBrands } from './brands-data.js';
 import { renderBrandsTable } from './brands-table.js';
-import { initBrandsEvents } from './brands-events.js';
+import { initBrandsEvents, initBrandsSearch } from './brands-events.js';
+import { showAddBrandModal } from './brands-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
@@ -19,16 +20,12 @@ import { initDropdowns } from '../common/ui-dropdown.js';
  * Глобальний стан для brands модуля
  */
 export const brandsState = {
-    // Фільтри
-    filter: 'all', // all | checked | unchecked
+    // Пошук
     searchQuery: '',
 
     // Сортування
     sortKey: null,
     sortOrder: 'asc', // asc | desc
-
-    // Вибрані рядки
-    selectedIds: new Set(),
 
     // Пагінація
     pagination: {
@@ -49,6 +46,9 @@ export function initBrands() {
 
     // Ініціалізувати tooltip систему
     initTooltips();
+
+    // Завантажити aside
+    loadAsideBrands();
 
     // Ініціалізувати dropdowns
     initDropdowns();
@@ -151,18 +151,61 @@ function renderErrorState() {
         <div class="loading-state">
             <span class="material-symbols-outlined">error</span>
             <p>Помилка завантаження даних</p>
-            <button id="retry-load-brands" class="btn-base btn-primary">
-                <span class="material-symbols-outlined">refresh</span>
-                <span>Спробувати знову</span>
-            </button>
         </div>
     `;
+}
 
-    // Обробник кнопки повтору
-    const retryBtn = document.getElementById('retry-load-brands');
-    if (retryBtn) {
-        retryBtn.addEventListener('click', () => {
-            checkAuthAndLoadData();
-        });
+/**
+ * Завантажити aside панель
+ */
+async function loadAsideBrands() {
+    const panelRightContent = document.getElementById('panel-right-content');
+    if (!panelRightContent) return;
+
+    try {
+        const response = await fetch('templates/aside/aside-brands.html');
+        if (!response.ok) throw new Error('Failed to load aside-brands.html');
+
+        const html = await response.text();
+        panelRightContent.innerHTML = html;
+
+        console.log('✅ aside-brands.html завантажено');
+
+        // Ініціалізувати пошук
+        const searchInput = document.getElementById('search-brands');
+        if (searchInput) {
+            initBrandsSearch(searchInput);
+        }
+
+        // Ініціалізувати кнопку "Додати бренд"
+        const addBtn = document.getElementById('btn-add-brand-aside');
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                showAddBrandModal();
+            });
+        }
+
+        // Ініціалізувати кнопку очистки пошуку
+        const clearSearchBtn = document.getElementById('clear-search-brands');
+        if (clearSearchBtn && searchInput) {
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                brandsState.searchQuery = '';
+                brandsState.pagination.currentPage = 1;
+                clearSearchBtn.classList.add('u-hidden');
+                renderBrandsTable();
+            });
+
+            // Показати/сховати кнопку очистки при введенні
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.trim()) {
+                    clearSearchBtn.classList.remove('u-hidden');
+                } else {
+                    clearSearchBtn.classList.add('u-hidden');
+                }
+            });
+        }
+    } catch (error) {
+        console.error('❌ Помилка завантаження aside-brands.html:', error);
     }
 }

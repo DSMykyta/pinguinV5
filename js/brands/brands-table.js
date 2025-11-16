@@ -10,12 +10,17 @@
 
 import { getBrands } from './brands-data.js';
 import { brandsState } from './brands-init.js';
+import { renderPseudoTable } from '../common/ui-table.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 /**
  * Рендерити таблицю брендів
  */
 export function renderBrandsTable() {
     console.log('🎨 Рендеринг таблиці брендів...');
+
+    const container = document.getElementById('brands-table-container');
+    if (!container) return;
 
     const brands = getBrands();
     if (!brands || brands.length === 0) {
@@ -37,25 +42,76 @@ export function renderBrandsTable() {
 
     // Оновити пагінацію
     if (brandsState.paginationAPI) {
-        brandsState.paginationAPI.updatePagination({
+        brandsState.paginationAPI.update({
             currentPage,
             pageSize,
             totalItems: filteredBrands.length
         });
     }
 
-    // Рендерити рядки
-    const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
-    if (!tableBody) {
-        console.error('❌ Не знайдено .pseudo-table-body');
-        return;
-    }
-
-    tableBody.innerHTML = '';
-
-    paginatedBrands.forEach(brand => {
-        const row = createBrandRow(brand);
-        tableBody.appendChild(row);
+    // Рендерити таблицю через універсальний компонент
+    renderPseudoTable(container, {
+        data: paginatedBrands,
+        columns: [
+            {
+                id: 'brand_id',
+                label: 'ID',
+                sortable: true,
+                className: 'cell-id',
+                render: (value) => escapeHtml(value || '')
+            },
+            {
+                id: 'name_uk',
+                label: 'Назва (UA)',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+            },
+            {
+                id: 'names_alt',
+                label: 'Альтернативні назви',
+                sortable: true,
+                render: (value) => escapeHtml(value || '-')
+            },
+            {
+                id: 'country_name',
+                label: 'Країна',
+                sortable: true,
+                render: (value) => escapeHtml(value || '-')
+            },
+            {
+                id: 'brand_text',
+                label: 'Опис',
+                sortable: true,
+                render: (value, row) => {
+                    const text = value || '';
+                    const truncated = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                    return text ? `<span title="${escapeHtml(text)}">${escapeHtml(truncated)}</span>` : '-';
+                }
+            },
+            {
+                id: 'brand_site_link',
+                label: 'Сайт',
+                sortable: true,
+                render: (value) => {
+                    if (!value) return '-';
+                    return `<a href="${escapeHtml(value)}" target="_blank" rel="noopener noreferrer">${escapeHtml(value)}</a>`;
+                }
+            }
+        ],
+        rowActionsCustom: (row) => `
+            <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="btn-icon btn-delete" data-brand-id="${escapeHtml(row.brand_id)}" title="Видалити">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
+        `,
+        emptyState: {
+            icon: 'shopping_bag',
+            message: 'Бренди не знайдено'
+        },
+        withContainer: false
     });
 
     // Оновити статистику
@@ -65,57 +121,12 @@ export function renderBrandsTable() {
 }
 
 /**
- * Створити рядок для бренду
- * @param {Object} brand - Бренд
- * @returns {HTMLElement} Рядок таблиці
- */
-function createBrandRow(brand) {
-    const row = document.createElement('div');
-    row.className = 'pseudo-table-row';
-    row.dataset.brandId = brand.brand_id;
-
-    const isChecked = brand.checked === 'TRUE' || brand.checked === true;
-    const isSelected = brandsState.selectedIds.has(brand.brand_id);
-
-    row.innerHTML = `
-        <div class="pseudo-table-cell cell-actions" data-column="actions">
-            <input type="checkbox" class="row-checkbox" data-brand-id="${brand.brand_id}" ${isSelected ? 'checked' : ''}>
-            <button class="btn-icon btn-edit" data-brand-id="${brand.brand_id}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="btn-icon btn-delete" data-brand-id="${brand.brand_id}" title="Видалити">
-                <span class="material-symbols-outlined">delete</span>
-            </button>
-        </div>
-        <div class="pseudo-table-cell cell-id ${isChecked ? 'cell-checked' : ''}" data-column="brand_id">${brand.brand_id}</div>
-        <div class="pseudo-table-cell cell-main-name" data-column="name_uk">${brand.name_uk}</div>
-        <div class="pseudo-table-cell" data-column="names_alt">${brand.names_alt || '-'}</div>
-        <div class="pseudo-table-cell" data-column="country_name">${brand.country_name || '-'}</div>
-        <div class="pseudo-table-cell" data-column="brand_text" title="${brand.brand_text || ''}">
-            ${brand.brand_text ? (brand.brand_text.substring(0, 50) + (brand.brand_text.length > 50 ? '...' : '')) : '-'}
-        </div>
-        <div class="pseudo-table-cell" data-column="brand_site_link">
-            ${brand.brand_site_link ? `<a href="${brand.brand_site_link}" target="_blank" rel="noopener noreferrer">${brand.brand_site_link}</a>` : '-'}
-        </div>
-    `;
-
-    return row;
-}
-
-/**
  * Застосувати фільтри
  * @param {Array} brands - Масив брендів
  * @returns {Array} Відфільтровані бренди
  */
 function applyFilters(brands) {
     let filtered = [...brands];
-
-    // Фільтр за статусом перевірки
-    if (brandsState.filter === 'checked') {
-        filtered = filtered.filter(b => b.checked === 'TRUE' || b.checked === true);
-    } else if (brandsState.filter === 'unchecked') {
-        filtered = filtered.filter(b => !b.checked || b.checked === 'FALSE' || b.checked === false);
-    }
 
     // Пошук
     if (brandsState.searchQuery) {
@@ -169,10 +180,10 @@ function applySorting(brands) {
  * Відрендерити порожній стан
  */
 function renderEmptyState() {
-    const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
-    if (!tableBody) return;
+    const container = document.getElementById('brands-table-container');
+    if (!container) return;
 
-    tableBody.innerHTML = `
+    container.innerHTML = `
         <div class="empty-state">
             <span class="material-symbols-outlined">shopping_bag</span>
             <p>Немає брендів</p>
@@ -191,13 +202,7 @@ function updateStats(visible, total) {
     const statsEl = document.getElementById('tab-stats-brands');
     if (!statsEl) return;
 
-    const selectedCount = brandsState.selectedIds.size;
-    let text = `Показано ${visible} з ${total}`;
-    if (selectedCount > 0) {
-        text += ` • Вибрано ${selectedCount}`;
-    }
-
-    statsEl.textContent = text;
+    statsEl.textContent = `Показано ${visible} з ${total}`;
 }
 
 /**
