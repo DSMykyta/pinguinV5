@@ -113,10 +113,6 @@
                 <span class="material-symbols-outlined">block</span>
                 <span class="nav-icon-label">Заборонені слова</span>
             </button>
-            <button class="nav-icon" data-tab-target="tab-manage-new">
-                <span class="material-symbols-outlined">new_releases</span>
-                <span class="nav-icon-label">NEW Система</span>
-            </button>
             <!-- Динамічні check таби додаються тут -->
         </nav>
         <!-- TAB 1: УПРАВЛІННЯ ЗАБОРОНЕНИМИ СЛОВАМИ -->
@@ -173,115 +169,6 @@
                     <span class="material-symbols-outlined">key</span>
                     <p>Авторизуйтесь для завантаження даних</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: ЗАБОРОНЕНІ СЛОВА (НОВА СИСТЕМА) -->
-        <div class="tab-content" data-tab-content="tab-manage-new" id="tab-manage-new">
-
-            <div class="section-header" style="align-items: flex-end;">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Заборонені слова (NEW)</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3 id="tab-stats-manage-new">Показано 0 з 0</h3>
-                    <div class="tab-controls" style="margin-top: 8px;">
-                        <button class="nav-icon active" data-filter="all" data-tab-id="tab-manage-new">
-                            <span class="material-symbols-outlined">list</span>
-                            <span class="nav-icon-label">Всі</span>
-                        </button>
-                        <button class="nav-icon" data-filter="unchecked" data-tab-id="tab-manage-new">
-                            <span class="material-symbols-outlined">radio_button_unchecked</span>
-                            <span class="nav-icon-label">Не перевірені</span>
-                        </button>
-                        <button class="nav-icon" data-filter="checked" data-tab-id="tab-manage-new">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            <span class="nav-icon-label">Перевірені</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="tab-controls">
-                    <button id="refresh-tab-manage-new" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вібір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-new" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Container -->
-            <div id="banned-words-table-new-container" class="pseudo-table-container">
-                <!-- Шапка таблиці -->
-                <div class="pseudo-table-header">
-                    <!-- Дії -->
-                    <div class="pseudo-table-cell cell-actions header-actions-cell">
-                        <input type="checkbox" class="header-select-all">
-                    </div>
-                    <!-- ID -->
-                    <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="local_id">
-                        ID
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Назва групи -->
-                    <div class="pseudo-table-cell cell-main-name sortable-header" data-sort-key="group_name_ua">
-                        Назва Групи
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Слова UA -->
-                    <div class="pseudo-table-cell cell-name sortable-header" data-sort-key="name_uk">
-                        Слова (UA)
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Слова RU -->
-                    <div class="pseudo-table-cell cell-name sortable-header" data-sort-key="name_ru">
-                        Слова (RU)
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Тип -->
-                    <div class="pseudo-table-cell sortable-header" data-sort-key="banned_type">
-                        Тип
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Severity -->
-                    <div class="pseudo-table-cell cell-severity sortable-header" data-sort-key="severity">
-                        <span class="material-symbols-outlined">priority_high</span>
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                    <!-- Перевірено -->
-                    <div class="pseudo-table-cell cell-bool sortable-header" data-sort-key="cheaked_line">
-                        Перевірено
-                        <span class="sort-indicator">
-                            <span class="material-symbols-outlined">arrow_downward</span>
-                        </span>
-                    </div>
-                </div>
-                <!-- Рядки додаються динамічно через ui-table-loader.js -->
             </div>
         </div>
 
