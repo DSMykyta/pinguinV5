@@ -8,7 +8,7 @@
  * Модальні вікна для додавання, редагування та видалення брендів.
  */
 
-import { addBrand, updateBrand, deleteBrand, getCountries, getBrands } from './brands-data.js';
+import { addBrand, updateBrand, deleteBrand, getBrands } from './brands-data.js';
 import { renderBrandsTable } from './brands-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
@@ -66,9 +66,6 @@ export async function showAddBrandModal() {
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = newId;
 
-    // Заповнити dropdown країн
-    populateCountryDropdown();
-
     // Реініціалізувати custom selects
     const modal = document.getElementById('global-modal-wrapper');
     if (modal) initCustomSelects(modal);
@@ -115,9 +112,6 @@ export async function showEditBrandModal(brandId) {
 
     // Заповнити форму даними
     fillBrandForm(brand);
-
-    // Заповнити dropdown країн
-    populateCountryDropdown();
 
     // Реініціалізувати custom selects
     const modal = document.getElementById('global-modal-wrapper');
@@ -280,25 +274,3 @@ function clearBrandForm() {
     if (siteField) siteField.value = '';
 }
 
-/**
- * Заповнити dropdown країн
- */
-function populateCountryDropdown() {
-    const select = document.getElementById('brand-country');
-    if (!select) return;
-
-    const countries = getCountries();
-
-    // Очистити існуючі опції (крім першої)
-    while (select.options.length > 1) {
-        select.remove(1);
-    }
-
-    // Додати опції країн
-    countries.forEach(country => {
-        const option = document.createElement('option');
-        option.value = country.local_id;
-        option.textContent = country.name_uk;
-        select.appendChild(option);
-    });
-}

@@ -25,10 +25,10 @@ export const brandsState = {
 
     // Пошук
     searchQuery: '',
-    searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_name'],
+    searchColumns: ['brand_id', 'name_uk', 'names_alt', 'country_option_id'],
 
     // Видимі колонки
-    visibleColumns: ['brand_id', 'name_uk', 'country_name', 'brand_site_link'],
+    visibleColumns: ['brand_id', 'name_uk', 'country_option_id', 'brand_site_link'],
 
     // Сортування
     sortKey: null,

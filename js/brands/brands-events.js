@@ -57,7 +57,7 @@ export function initBrandsSorting() {
             brand_id: 'id-text',
             name_uk: 'string',
             names_alt: 'string',
-            country_name: 'string',
+            country_option_id: 'string',
             brand_text: 'string',
             brand_site_link: 'string'
         }

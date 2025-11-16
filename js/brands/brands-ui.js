@@ -20,7 +20,7 @@ export function populateSearchColumns() {
         { id: 'brand_id', label: 'ID', checked: true },
         { id: 'name_uk', label: 'Назва', checked: true },
         { id: 'names_alt', label: 'Альтернативні назви', checked: true },
-        { id: 'country_name', label: 'Країна', checked: true }
+        { id: 'country_option_id', label: 'Країна', checked: true }
     ];
 
     createColumnSelector('search-columns-list-brands', allSearchColumns, {
@@ -42,7 +42,7 @@ export function populateTableColumns() {
         { id: 'brand_id', label: 'ID', checked: true },
         { id: 'name_uk', label: 'Назва', checked: true },
         { id: 'names_alt', label: 'Альтернативні назви', checked: false },
-        { id: 'country_name', label: 'Країна', checked: true },
+        { id: 'country_option_id', label: 'Країна', checked: true },
         { id: 'brand_text', label: 'Опис', checked: false },
         { id: 'brand_site_link', label: 'Сайт', checked: true }
     ];

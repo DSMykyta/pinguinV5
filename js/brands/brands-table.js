@@ -49,7 +49,7 @@ export function renderBrandsTable() {
     // Визначити які колонки показувати
     const visibleCols = brandsState.visibleColumns.length > 0
         ? brandsState.visibleColumns
-        : ['brand_id', 'name_uk', 'country_name'];
+        : ['brand_id', 'name_uk', 'country_option_id'];
 
     // Рендерити таблицю через універсальний компонент
     renderPseudoTable(container, {
@@ -75,7 +75,7 @@ export function renderBrandsTable() {
                 render: (value) => escapeHtml(value || '-')
             },
             {
-                id: 'country_name',
+                id: 'country_option_id',
                 label: 'Країна',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
@@ -157,7 +157,7 @@ function applyFilters(brands) {
     // Пошук
     if (brandsState.searchQuery) {
         const query = brandsState.searchQuery.toLowerCase();
-        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_name'];
+        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
 
         filtered = filtered.filter(brand => {
             return columns.some(column => {
