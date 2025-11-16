@@ -86,6 +86,11 @@ async function checkAuthAndLoadData() {
             // Завантажити бренди
             await loadBrands();
 
+            // Заповнити UI компоненти (чекбокси пошуку та колонок)
+            const { populateSearchColumns, populateTableColumns } = await import('./brands-ui.js');
+            populateSearchColumns();
+            populateTableColumns();
+
             // Відрендерити таблицю
             renderBrandsTable();
 

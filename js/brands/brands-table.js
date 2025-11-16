@@ -127,6 +127,17 @@ export function renderBrandsTable() {
         });
     });
 
+    // Додати обробники для кнопок редагування
+    container.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', async () => {
+            const brandId = button.dataset.brandId;
+            if (brandId) {
+                const { showEditBrandModal } = await import('./brands-crud.js');
+                showEditBrandModal(brandId);
+            }
+        });
+    });
+
     // Оновити статистику
     updateStats(filteredBrands.length, brands.length);
 

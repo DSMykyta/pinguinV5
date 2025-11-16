@@ -27,6 +27,10 @@ export async function showAddBrandModal() {
             const title = document.querySelector('#global-modal-wrapper #modal-title');
             if (title) title.textContent = 'Додати бренд';
 
+            // Приховати кнопку видалення (тільки для нових брендів)
+            const deleteBtn = document.getElementById('delete-brand');
+            if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
             // Очистити форму
             clearBrandForm();
 
@@ -67,6 +71,16 @@ export async function showEditBrandModal(brandId) {
             // Оновити заголовок
             const title = document.querySelector('#global-modal-wrapper #modal-title');
             if (title) title.textContent = 'Редагувати бренд';
+
+            // Показати кнопку видалення
+            const deleteBtn = document.getElementById('delete-brand');
+            if (deleteBtn) {
+                deleteBtn.classList.remove('u-hidden');
+                deleteBtn.onclick = () => {
+                    closeModal();
+                    showDeleteBrandConfirm(brandId);
+                };
+            }
 
             // Заповнити форму даними
             fillBrandForm(brand);
