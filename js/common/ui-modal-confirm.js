@@ -72,8 +72,8 @@ export function showConfirmModal(options = {}) {
             <div class="modal-confirm-body">
                 <p class="modal-confirm-message">${message}</p>
                 <div class="modal-confirm-actions">
-                    <button class="btn-base btn-secondary" data-confirm-action="cancel">${cancelText}</button>
-                    <button class="btn-base btn-primary ${confirmClass}" data-confirm-action="confirm">${confirmText}</button>
+                    <button class="btn-secondary" data-confirm-action="cancel">${cancelText}</button>
+                    <button class="btn-primary ${confirmClass}" data-confirm-action="confirm">${confirmText}</button>
                 </div>
             </div>
         `;

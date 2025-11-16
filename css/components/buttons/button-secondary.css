@@ -5,14 +5,14 @@
  * Вторинна кнопка для менш важливих дій (Скасувати, Назад, Закрити).
  *
  * ВИКОРИСТАННЯ:
- * Використовуйте разом з .btn-base. Використовується разом з primary button або для окремих дій без великого акценту.
+ * Додайте клас .btn-secondary до елемента <button>. Використовується разом з primary button або для окремих дій без великого акценту.
  *
  * HTML ПРИКЛАД:
- * <button class="btn-base btn-secondary">Скасувати</button>
- * <button class="btn-base btn-secondary btn-add">Додати</button>
+ * <button class="btn-secondary">Скасувати</button>
+ * <button class="btn-secondary">Додати</button>
  *
  * ЗАЛЕЖНОСТІ:
- * - button-base.css (базові стилі кнопок)
+ * - button-base.css (базові стилі для <button>)
  * - root.css (--color-surface-c-high, --color-on-surface)
  *
  * ЗАСТОСУВАННЯ:

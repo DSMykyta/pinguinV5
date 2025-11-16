@@ -93,7 +93,7 @@ export function renderBrandsTable() {
                 className: 'cell-bool',
                 render: (value, row) => {
                     if (!value) {
-                        return `<span class="material-symbols-outlined u-color-muted" title="Немає посилання">block</span>`;
+                        return `<span class="material-symbols-outlined" title="Немає посилання">block</span>`;
                     }
                     return `
                         <button class="btn-icon btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">

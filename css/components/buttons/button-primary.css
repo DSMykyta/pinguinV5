@@ -6,18 +6,18 @@
  * Виділяється брендовим кольором для привернення уваги.
  *
  * ВИКОРИСТАННЯ:
- * Використовуйте разом з .btn-base. Тільки для головної дії на екрані. Не більше однієї на секцію.
+ * Додайте клас .btn-primary до елемента <button>. Тільки для головної дії на екрані. Не більше однієї на секцію.
  *
  * HTML ПРИКЛАД:
- * <button class="btn-base btn-primary">
+ * <button class="btn-primary">
  *   <span class="material-symbols-outlined">add</span>
  *   <span>Додати</span>
  * </button>
  *
- * <button class="btn-base btn-primary">Зберегти</button>
+ * <button class="btn-primary">Зберегти</button>
  *
  * ЗАЛЕЖНОСТІ:
- * - button-base.css (базові стилі кнопок)
+ * - button-base.css (базові стилі для <button>)
  * - root.css (--color-main, --color-on-main, --color-secondary)
  *
  * ЗАСТОСУВАННЯ:
