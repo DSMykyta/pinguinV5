@@ -8,12 +8,38 @@
  * Модальні вікна для додавання, редагування та видалення брендів.
  */
 
-import { addBrand, updateBrand, deleteBrand, getCountries } from './brands-data.js';
+import { addBrand, updateBrand, deleteBrand, getCountries, getBrands } from './brands-data.js';
 import { renderBrandsTable } from './brands-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects } from '../common/ui-select.js';
+
+/**
+ * Генерувати новий ID для бренду (для відображення в UI)
+ * @returns {string} Новий ID у форматі bran-XXXXXXXXXXXX
+ */
+function generateBrandIdForUI() {
+    const brands = getBrands();
+
+    // Знайти максимальний номер
+    let maxNum = 0;
+
+    brands.forEach(brand => {
+        if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
+            const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
+            if (!isNaN(num) && num > maxNum) {
+                maxNum = num;
+            }
+        }
+    });
+
+    // Новий номер
+    const newNum = maxNum + 1;
+
+    // Форматувати як bran-XXXXXXXXXXXX (12 цифр)
+    return `bran-${String(newNum).padStart(12, '0')}`;
+}
 
 /**
  * Показати модальне вікно для додавання бренду
@@ -34,6 +60,11 @@ export async function showAddBrandModal() {
 
     // Очистити форму
     clearBrandForm();
+
+    // Генерувати і показати новий ID
+    const newId = generateBrandIdForUI();
+    const idField = document.getElementById('brand-id');
+    if (idField) idField.value = newId;
 
     // Заповнити dropdown країн
     populateCountryDropdown();

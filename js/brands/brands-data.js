@@ -137,6 +137,30 @@ export function getCountries() {
 }
 
 /**
+ * Генерувати новий ID для бренду
+ * @returns {string} Новий ID у форматі bran-XXXXXXXXXXXX
+ */
+function generateBrandId() {
+    // Знайти максимальний номер
+    let maxNum = 0;
+
+    brandsCache.forEach(brand => {
+        if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
+            const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
+            if (!isNaN(num) && num > maxNum) {
+                maxNum = num;
+            }
+        }
+    });
+
+    // Новий номер
+    const newNum = maxNum + 1;
+
+    // Форматувати як bran-XXXXXXXXXXXX (12 цифр)
+    return `bran-${String(newNum).padStart(12, '0')}`;
+}
+
+/**
  * Додати новий бренд
  * @param {Object} brandData - Дані бренду
  * @returns {Promise<Object>} Доданий бренд
@@ -145,16 +169,12 @@ export async function addBrand(brandData) {
     console.log('➕ Додавання нового бренду:', brandData);
 
     try {
-        // Генеруємо новий ID (беремо максимальний + 1)
-        const maxId = brandsCache.reduce((max, b) => {
-            const id = parseInt(b.brand_id) || 0;
-            return id > max ? id : max;
-        }, 0);
-        const newId = maxId + 1;
+        // Генеруємо новий ID
+        const newId = generateBrandId();
 
         // Формуємо новий рядок
         const newRow = [
-            newId.toString(),
+            newId,
             brandData.name_uk || '',
             brandData.names_alt || '',
             brandData.country_option_id || '',
@@ -168,7 +188,7 @@ export async function addBrand(brandData) {
         // Оновлюємо кеш
         const newBrand = {
             _rowIndex: brandsCache.length + 2,
-            brand_id: newId.toString(),
+            brand_id: newId,
             name_uk: brandData.name_uk || '',
             names_alt: brandData.names_alt || '',
             country_option_id: brandData.country_option_id || '',
