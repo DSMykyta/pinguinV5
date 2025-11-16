@@ -269,8 +269,24 @@ class CustomSelect {
         return chip;
     }
 
+    // === POSITIONING FOR FIXED PANEL (START) ===
+    _positionPanel() {
+        const triggerRect = this.trigger.getBoundingClientRect();
+        this.panel.style.width = `${triggerRect.width}px`;
+        this.panel.style.top = `${triggerRect.bottom + 4}px`;
+        this.panel.style.left = `${triggerRect.left}px`;
+    }
+    // === POSITIONING FOR FIXED PANEL (END) ===
+
     _bindEvents() {
-        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
+        this.trigger.addEventListener('click', () => {
+            this.wrapper.classList.toggle('is-open');
+            // === POSITIONING UPDATE (START) ===
+            if (this.wrapper.classList.contains('is-open')) {
+                this._positionPanel();
+            }
+            // === POSITIONING UPDATE (END) ===
+        });
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
@@ -290,6 +306,20 @@ class CustomSelect {
         document.addEventListener('click', (e) => {
             if (!this.wrapper.contains(e.target)) this.wrapper.classList.remove('is-open');
         });
+
+        // === POSITIONING UPDATES ON SCROLL/RESIZE (START) ===
+        window.addEventListener('scroll', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                this._positionPanel();
+            }
+        }, true);
+
+        window.addEventListener('resize', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                this._positionPanel();
+            }
+        });
+        // === POSITIONING UPDATES ON SCROLL/RESIZE (END) ===
 
         if (this.searchInput) {
             this.searchInput.addEventListener('input', (e) => {
