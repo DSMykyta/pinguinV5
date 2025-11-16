@@ -13,7 +13,6 @@ import { renderBrandsTable } from './brands-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { initCustomSelects } from '../common/ui-select.js';
 
 /**
  * Генерувати новий ID для бренду (для відображення в UI)
@@ -66,10 +65,6 @@ export async function showAddBrandModal() {
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = newId;
 
-    // Реініціалізувати custom selects
-    const modal = document.getElementById('global-modal-wrapper');
-    if (modal) initCustomSelects(modal);
-
     // Обробник збереження
     const saveBtn = document.getElementById('save-brand');
     if (saveBtn) {
@@ -112,10 +107,6 @@ export async function showEditBrandModal(brandId) {
 
     // Заповнити форму даними
     fillBrandForm(brand);
-
-    // Реініціалізувати custom selects
-    const modal = document.getElementById('global-modal-wrapper');
-    if (modal) initCustomSelects(modal);
 
     // Обробник збереження
     const saveBtn = document.getElementById('save-brand');
