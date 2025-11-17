@@ -58,6 +58,11 @@ export async function showEditKeywordModal(localId) {
         };
     }
 
+    // Ініціалізувати dropdowns та заповнити селекти
+    initModalDropdowns();
+    await populateParentLocalIdDropdown();
+
+    // Заповнити форму даними
     fillKeywordForm(keyword);
 
     const saveBtn = document.getElementById('save-keyword');
