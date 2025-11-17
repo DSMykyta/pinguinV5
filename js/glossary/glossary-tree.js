@@ -1,6 +1,7 @@
-// js/generators/generator-glossary/ggl-tree.js
-import { getGlossaryDOM } from './ggl-dom.js';
-import { getGlossaryTree, getGlossaryMap } from './ggl-data.js';
+// js/glossary/glossary-tree.js
+
+import { getGlossaryDOM } from './glossary-events.js';
+import { getGlossaryTree } from './glossary-data.js';
 
 /**
  * Рекурсивна функція для побудови HTML-списку дерева.

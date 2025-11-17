@@ -1,4 +1,4 @@
-// js/generators/generator-glossary/ggl-dom.js
+// js/glossary/glossary-events.js
 
 let domCache = null;
 

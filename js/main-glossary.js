@@ -1,6 +1,6 @@
-// js/main-instruments.js
+// js/main-glossary.js
 import { initCore } from './main-core.js';
-import './generators/generator-glossary/ggl-main.js';
+import './glossary/glossary-init.js';
 
 
 async function initializeApp() {

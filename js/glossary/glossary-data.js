@@ -1,4 +1,4 @@
-// js/generators/generator-glossary/ggl-data.js
+// js/glossary/glossary-data.js
 
 let glossaryData = []; // Масив усіх рядків з таблиці
 let glossaryTree = {}; // Об'єкт для побудови дерева { parentId: [child1, child2] }
@@ -34,9 +34,12 @@ export async function fetchGlossaryData() {
                 parentId: (row.parent_local_id || '').trim(),
                 name: (row.name_uk || '').trim(),
                 text: (row.glossary_text || '').trim(),
-                // Додай інші потрібні поля: name_ru, name_en, keywords_ru і т.д.
-                // name_ru: (row.name_ru || '').trim(),
-                // keywords_ru: (row.keywords_ru || '').split(',').map(k => k.trim()).filter(Boolean),
+                // Додаткові поля для майбутнього використання
+                name_ru: (row.name_ru || '').trim(),
+                name_en: (row.name_en || '').trim(),
+                keywords_ua: (row.keywords_ua || '').trim(),
+                keywords_ru: (row.keywords_ru || '').trim(),
+                trigers: (row.trigers || '').trim(),
                 children: [] // Масив для дочірніх елементів
             };
 

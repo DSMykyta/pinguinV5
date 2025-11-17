@@ -124,3 +124,108 @@
 .glossary-article.is-highlighted {
     box-shadow: 0 0 0 2px var(--color-main);
 }
+
+/* ========== Sidebar Layout (25% + 75%) ========== */
+
+.glos-block {
+    display: flex;
+    gap: 0;
+    width: 100%;
+}
+
+.glos-sidebar {
+    width: 25%;
+    min-width: 200px;
+    flex-shrink: 0;
+    padding-right: 1.5rem;
+}
+
+.sidebar-sticky {
+    position: sticky;
+    top: 20px;
+}
+
+.glos-sidebar dl {
+    margin: 0;
+    font-size: 13px;
+}
+
+.glos-sidebar dt {
+    color: var(--color-on-surface-v);
+    font-weight: 400;
+    margin-top: 0.75em;
+    margin-bottom: 0.25em;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.glos-sidebar dd {
+    margin: 0;
+    color: var(--color-on-surface);
+    margin-bottom: 0.5em;
+}
+
+.line-v {
+    width: 1px;
+    background-color: var(--color-outline-v);
+    flex-shrink: 0;
+}
+
+.glos-content {
+    flex-grow: 1;
+    padding-left: 1.5rem;
+}
+
+.glos-content h2 {
+    font-weight: 600;
+    font-size: 1.875rem;
+    color: var(--color-on-surface);
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.article-text {
+    line-height: 1.7;
+    color: var(--color-on-surface);
+    font-size: 14px;
+    margin-bottom: 2rem;
+}
+
+/* ========== Keywords Block ========== */
+
+.keywords-content {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--color-outline-v);
+    border-radius: 8px;
+    background-color: var(--color-surface-c-lowest);
+}
+
+.keywords-content h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.keywords-section {
+    margin-bottom: 1rem;
+}
+
+.keywords-section:last-child {
+    margin-bottom: 0;
+}
+
+.keywords-section strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 13px;
+    color: var(--color-on-surface-v);
+}
+
+.keywords-section .cell-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
