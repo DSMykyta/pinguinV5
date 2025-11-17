@@ -145,43 +145,119 @@ async function handleDeleteKeyword(localId) {
 function getFormData() {
     return {
         local_id: document.getElementById('keyword-local-id')?.value.trim() || '',
+        param_type: document.getElementById('keyword-param-type')?.value || '',
+        parent_local_id: document.getElementById('keyword-parent-local-id')?.value || '',
+        characteristics_local_id: document.getElementById('keyword-characteristics-local-id')?.value.trim() || '',
         name_uk: document.getElementById('keyword-name-uk')?.value.trim() || '',
-        param_type: document.getElementById('keyword-param-type')?.value.trim() || '',
+        name_ru: document.getElementById('keyword-name-ru')?.value.trim() || '',
+        name_en: document.getElementById('keyword-name-en')?.value.trim() || '',
+        name_lat: document.getElementById('keyword-name-lat')?.value.trim() || '',
+        name_alt: document.getElementById('keyword-name-alt')?.value.trim() || '',
         trigers: document.getElementById('keyword-trigers')?.value.trim() || '',
-        keywords_ua: document.getElementById('keyword-keywords-ua')?.value.trim() || ''
+        keywords_ua: document.getElementById('keyword-keywords-ua')?.value.trim() || '',
+        keywords_ru: document.getElementById('keyword-keywords-ru')?.value.trim() || '',
+        glossary_text: '' // Поки що порожнє
     };
 }
 
 function fillKeywordForm(keyword) {
-    const localIdField = document.getElementById('keyword-local-id');
-    const nameUkField = document.getElementById('keyword-name-uk');
-    const paramTypeField = document.getElementById('keyword-param-type');
-    const trigersField = document.getElementById('keyword-trigers');
-    const keywordsUaField = document.getElementById('keyword-keywords-ua');
+    // Заповнити всі поля
+    document.getElementById('keyword-local-id').value = keyword.local_id || '';
+    document.getElementById('keyword-param-type').value = keyword.param_type || '';
+    document.getElementById('keyword-parent-local-id').value = keyword.parent_local_id || '';
+    document.getElementById('keyword-characteristics-local-id').value = keyword.characteristics_local_id || '';
+    document.getElementById('keyword-name-uk').value = keyword.name_uk || '';
+    document.getElementById('keyword-name-ru').value = keyword.name_ru || '';
+    document.getElementById('keyword-name-en').value = keyword.name_en || '';
+    document.getElementById('keyword-name-lat').value = keyword.name_lat || '';
+    document.getElementById('keyword-name-alt').value = keyword.name_alt || '';
+    document.getElementById('keyword-trigers').value = keyword.trigers || '';
+    document.getElementById('keyword-keywords-ua').value = keyword.keywords_ua || '';
+    document.getElementById('keyword-keywords-ru').value = keyword.keywords_ru || '';
 
-    if (localIdField) {
-        localIdField.value = keyword.local_id || '';
-        localIdField.readOnly = true;
-    }
-    if (nameUkField) nameUkField.value = keyword.name_uk || '';
-    if (paramTypeField) paramTypeField.value = keyword.param_type || '';
-    if (trigersField) trigersField.value = keyword.trigers || '';
-    if (keywordsUaField) keywordsUaField.value = keyword.keywords_ua || '';
+    // Оновити іконку param_type
+    updateParamTypeIcon(keyword.param_type || '');
 }
 
 function clearKeywordForm() {
-    const localIdField = document.getElementById('keyword-local-id');
-    const nameUkField = document.getElementById('keyword-name-uk');
-    const paramTypeField = document.getElementById('keyword-param-type');
-    const trigersField = document.getElementById('keyword-trigers');
-    const keywordsUaField = document.getElementById('keyword-keywords-ua');
+    // Очистити всі поля
+    document.getElementById('keyword-local-id').value = '';
+    document.getElementById('keyword-param-type').value = '';
+    document.getElementById('keyword-parent-local-id').value = '';
+    document.getElementById('keyword-characteristics-local-id').value = '';
+    document.getElementById('keyword-name-uk').value = '';
+    document.getElementById('keyword-name-ru').value = '';
+    document.getElementById('keyword-name-en').value = '';
+    document.getElementById('keyword-name-lat').value = '';
+    document.getElementById('keyword-name-alt').value = '';
+    document.getElementById('keyword-trigers').value = '';
+    document.getElementById('keyword-keywords-ua').value = '';
+    document.getElementById('keyword-keywords-ru').value = '';
 
-    if (localIdField) {
-        localIdField.value = '';
-        localIdField.readOnly = false;
+    // Скинути іконку param_type
+    updateParamTypeIcon('');
+}
+
+/**
+ * Ініціалізувати dropdowns в модальному вікні
+ */
+function initModalDropdowns() {
+    // Ініціалізувати dropdown для param_type
+    const paramTypeDropdown = document.getElementById('param-type-dropdown-trigger');
+    if (paramTypeDropdown) {
+        const items = document.querySelectorAll('[data-param-type-value]');
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                const value = item.dataset.paramTypeValue;
+                document.getElementById('keyword-param-type').value = value;
+                updateParamTypeIcon(value);
+            });
+        });
     }
-    if (nameUkField) nameUkField.value = '';
-    if (paramTypeField) paramTypeField.value = '';
-    if (trigersField) trigersField.value = '';
-    if (keywordsUaField) keywordsUaField.value = '';
+}
+
+/**
+ * Заповнити кастомний селект parent_local_id всіма keywords
+ */
+async function populateParentLocalIdDropdown() {
+    const select = document.getElementById('keyword-parent-local-id');
+    if (!select) return;
+
+    const keywords = getKeywords();
+
+    // Очистити попередні опції (крім першої)
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    // Додати всі keywords як опції
+    keywords.forEach(keyword => {
+        const option = document.createElement('option');
+        option.value = keyword.local_id;
+        option.textContent = `${keyword.local_id} - ${keyword.name_uk}`;
+        select.appendChild(option);
+    });
+
+    // Реініціалізувати кастомний селект
+    const { reinitCustomSelect } = await import('../common/ui-custom-select.js');
+    reinitCustomSelect(select);
+}
+
+/**
+ * Оновити іконку param_type
+ */
+function updateParamTypeIcon(paramType) {
+    const icon = document.getElementById('param-type-trigger-icon');
+    if (!icon) return;
+
+    const iconMap = {
+        'ingredient': 'science',
+        'flavor': 'restaurant',
+        'brand': 'shopping_bag',
+        'category': 'category',
+        'form': 'package_2',
+        'other': 'more_horiz'
+    };
+
+    icon.textContent = iconMap[paramType] || 'label';
 }

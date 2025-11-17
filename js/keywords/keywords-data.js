@@ -54,12 +54,40 @@ export function getKeywords() {
     return keywordsState.keywords || [];
 }
 
+/**
+ * Генерувати унікальний local_id у форматі glo + 6 цифр
+ */
+function generateLocalId() {
+    const existingIds = keywordsState.keywords.map(k => k.local_id).filter(id => id && id.startsWith('glo'));
+
+    // Знайти максимальний номер
+    let maxNum = 0;
+    existingIds.forEach(id => {
+        const num = parseInt(id.substring(3), 10);
+        if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+        }
+    });
+
+    // Новий номер
+    const newNum = maxNum + 1;
+
+    // Форматувати з нулями на початку (6 цифр)
+    const localId = 'glo' + String(newNum).padStart(6, '0');
+
+    console.log(`📝 Згенеровано local_id: ${localId}`);
+    return localId;
+}
+
 export async function addKeyword(keywordData) {
     console.log('➕ Додавання нового ключового слова:', keywordData);
 
     try {
+        // Генерувати local_id автоматично
+        const local_id = generateLocalId();
+
         const newRow = [
-            keywordData.local_id || '',
+            local_id,
             keywordData.param_type || '',
             keywordData.parent_local_id || '',
             keywordData.characteristics_local_id || '',
@@ -78,6 +106,7 @@ export async function addKeyword(keywordData) {
 
         const newEntry = {
             _rowIndex: keywordsState.keywords.length + 2,
+            local_id,
             ...keywordData
         };
 
@@ -102,7 +131,7 @@ export async function updateKeyword(localId, updates) {
 
         const range = `${SHEET_NAME}!A${entry._rowIndex}:M${entry._rowIndex}`;
         const updatedRow = [
-            entry.local_id,
+            entry.local_id, // ID не змінюється
             updates.param_type !== undefined ? updates.param_type : entry.param_type,
             updates.parent_local_id !== undefined ? updates.parent_local_id : entry.parent_local_id,
             updates.characteristics_local_id !== undefined ? updates.characteristics_local_id : entry.characteristics_local_id,
@@ -119,6 +148,7 @@ export async function updateKeyword(localId, updates) {
 
         await window.apiClient.sheets.update(range, [updatedRow]);
 
+        // Оновити локальні дані
         Object.assign(entry, updates);
 
         console.log('✅ Ключове слово оновлено:', entry);
