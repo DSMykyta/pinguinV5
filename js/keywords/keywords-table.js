@@ -62,9 +62,13 @@ export function renderKeywordsTable() {
             {
                 id: 'parent_local_id',
                 label: 'Батьківський елемент',
-                className: 'cell-id',
+                className: 'cell-main-name',
                 sortable: true,
-                render: (value) => value ? escapeHtml(value) : '-'
+                render: (value) => {
+                    if (!value) return '-';
+                    const parent = keywords.find(k => k.local_id === value);
+                    return parent ? escapeHtml(parent.name_uk || value) : escapeHtml(value);
+                }
             },
             {
                 id: 'characteristics_local_id',
