@@ -82,8 +82,8 @@ export async function renderGlossaryArticles() {
  * Initializes the article display logic.
  * Adds smooth scroll navigation and highlighting.
  */
-export function initGlossaryArticles() {
-    renderGlossaryArticles();
+export async function initGlossaryArticles() {
+    await renderGlossaryArticles();
 
     // Add event listener to handle clicks on tree links and scroll to article
     const treeDom = getGlossaryDOM().treeContainer;

@@ -12,7 +12,7 @@ async function initGlossaryGenerator() {
     await fetchGlossaryData();
     renderGlossaryTree();
     initTreeToggles();
-    initGlossaryArticles();
+    await initGlossaryArticles();
 
     // Ініціалізація кнопки очищення пошуку
     initSearchClear('glossary-search-input');
