@@ -254,9 +254,29 @@ async function initModalSelects() {
         reinitializeCustomSelect(parentSelect);
     }
 
-    // Ініціалізувати param_type селект
+    // Заповнити param_type селект унікальними типами з даних
     const paramTypeSelect = document.getElementById('keyword-param-type-select');
     if (paramTypeSelect) {
+        const keywords = getKeywords();
+
+        // Очистити попередні опції (крім першої)
+        while (paramTypeSelect.options.length > 1) {
+            paramTypeSelect.remove(1);
+        }
+
+        // Отримати унікальні типи з даних
+        const uniqueTypes = [...new Set(keywords.map(k => k.param_type).filter(Boolean))];
+        uniqueTypes.sort();
+
+        // Додати типи як опції
+        uniqueTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            paramTypeSelect.appendChild(option);
+        });
+
+        // Ініціалізувати кастомний селект
         reinitializeCustomSelect(paramTypeSelect);
     }
 }

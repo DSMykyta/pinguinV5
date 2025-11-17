@@ -92,16 +92,6 @@ export function initParamTypeFilters() {
     console.log('🔍 Унікальні типи в даних:', uniqueTypes);
     console.log('🔍 Кількість типів:', uniqueTypes.length);
 
-    // Іконки для типів
-    const typeIcons = {
-        'ingredient': 'science',
-        'flavor': 'restaurant',
-        'brand': 'shopping_bag',
-        'category': 'category',
-        'form': 'package_2',
-        'other': 'more_horiz'
-    };
-
     // Створити HTML для кнопок
     let buttonsHTML = `
         <button class="nav-icon active" data-filter="all" data-filter-type="param_type">
@@ -111,11 +101,10 @@ export function initParamTypeFilters() {
     `;
 
     uniqueTypes.sort().forEach(type => {
-        const icon = typeIcons[type] || 'label';
         const label = type.charAt(0).toUpperCase() + type.slice(1);
         buttonsHTML += `
             <button class="nav-icon" data-filter="${type}" data-filter-type="param_type">
-                <span class="material-symbols-outlined">${icon}</span>
+                <span class="material-symbols-outlined">label</span>
                 <span class="nav-icon-label">${label}</span>
             </button>
         `;
