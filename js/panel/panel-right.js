@@ -41,7 +41,7 @@ function showActivePanel(templateName) {
  */
 async function preloadAllPanels() {
     const contentContainer = document.getElementById('panel-right-content');
-    const sections = document.querySelectorAll('.content-main section[data-panel-template]');
+    const sections = document.querySelectorAll('[data-panel-template]');
     if (!sections.length || !contentContainer) return;
 
     // Збираємо унікальні назви шаблонів
@@ -74,7 +74,7 @@ async function preloadAllPanels() {
  * Налаштовує спостерігач, який перемикає панелі при скролі.
  */
 function initSectionObserver() {
-    const sections = document.querySelectorAll('.content-main section[data-panel-template]');
+    const sections = document.querySelectorAll('[data-panel-template]');
     if (!sections.length) return;
 
     const observer = new IntersectionObserver((entries) => {
