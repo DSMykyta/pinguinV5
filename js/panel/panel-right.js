@@ -40,16 +40,26 @@ function showActivePanel(templateName) {
  * Сканує сторінку, знаходить всі потрібні панелі і завантажує їх у фоні.
  */
 async function preloadAllPanels() {
+    console.log('🔍 preloadAllPanels: початок завантаження панелей');
     const contentContainer = document.getElementById('panel-right-content');
     const sections = document.querySelectorAll('[data-panel-template]');
-    if (!sections.length || !contentContainer) return;
+
+    console.log('📦 Знайдено елементів з data-panel-template:', sections.length);
+    console.log('📦 contentContainer:', contentContainer);
+
+    if (!sections.length || !contentContainer) {
+        console.error('❌ preloadAllPanels: не знайдено sections або contentContainer');
+        return;
+    }
 
     // Збираємо унікальні назви шаблонів
     const templateNames = new Set();
     sections.forEach(section => templateNames.add(section.dataset.panelTemplate));
+    console.log('📋 Унікальні шаблони для завантаження:', Array.from(templateNames));
 
     // Створюємо масив промісів для паралельного завантаження
     const loadingPromises = Array.from(templateNames).map(async (name) => {
+        console.log(`🔄 Завантаження панелі: ${name}`);
         const wrapper = document.createElement('div');
         wrapper.id = name; // Використовуємо назву як ID для легкого доступу
         wrapper.className = 'panel-fragment'; // Клас для стилізації (ховаємо за замовчуванням)
@@ -58,10 +68,14 @@ async function preloadAllPanels() {
         // Завантажуємо HTML у цей контейнер
         const templateUrl = `templates/aside/${name}.html`;
         await loadHTML(templateUrl, wrapper);
+        console.log(`✅ Завантажено HTML для: ${name}`);
 
         // Після завантаження HTML, викликаємо відповідний ініціалізатор з "реєстру"
         if (panelInitializers[name]) {
+            console.log(`🚀 Викликаємо ініціалізатор для: ${name}`);
             panelInitializers[name]();
+        } else {
+            console.warn(`⚠️ Ініціалізатор не знайдено для: ${name}`);
         }
     });
 
