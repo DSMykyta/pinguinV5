@@ -69,30 +69,32 @@ export function renderKeywordsTable() {
             {
                 id: 'trigers',
                 label: 'Тригери',
+                className: 'cell-id',
                 sortable: true,
                 render: (value) => {
                     if (!value) return '-';
                     const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
-                    return triggers.map(t => `<span class="word-chip word-chip-primary">${escapeHtml(t)}</span>`).join(' ');
+                    const chipsHtml = triggers.map(t => `<span class="word-chip word-chip-primary">${escapeHtml(t)}</span>`).join(' ');
+                    return `<div class="cell-words-list">${chipsHtml}</div>`;
                 }
             },
             {
                 id: 'keywords_ua',
                 label: 'Ключові слова',
                 sortable: true,
-                render: (value) => {
-                    if (!value) return '-';
-                    const keywords = value.split(',').map(k => k.trim()).filter(Boolean);
-                    if (keywords.length === 0) return '-';
-                    const chipsHtml = keywords.map(k => `<span class="word-chip">${escapeHtml(k)}</span>`).join('');
-                    return `<div class="cell-words-list">${chipsHtml}</div>`;
-                }
+                render: (value) => escapeHtml(value || '-')
             }
         ],
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
+            const hasGlossary = row.glossary_text && row.glossary_text.trim();
+            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
+
             return `
+                <button class="btn-icon btn-view-glossary ${eyeClass}" data-keyword-id="${escapeHtml(row.local_id)}" title="Переглянути глосарій">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
                 <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
@@ -105,6 +107,7 @@ export function renderKeywordsTable() {
         withContainer: false
     });
 
+    // Обробник кнопки редагування
     container.querySelectorAll('.btn-edit').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -112,6 +115,18 @@ export function renderKeywordsTable() {
             if (keywordId) {
                 const { showEditKeywordModal } = await import('./keywords-crud.js');
                 await showEditKeywordModal(keywordId);
+            }
+        });
+    });
+
+    // Обробник кнопки перегляду глосарію
+    container.querySelectorAll('.btn-view-glossary').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const keywordId = button.dataset.keywordId;
+            if (keywordId) {
+                const { showGlossaryModal } = await import('./keywords-crud.js');
+                await showGlossaryModal(keywordId);
             }
         });
     });
@@ -124,6 +139,12 @@ export function renderKeywordsTable() {
 function applyFilters(keywords) {
     let filtered = [...keywords];
 
+    // Застосувати фільтр типів
+    if (keywordsState.paramTypeFilter && keywordsState.paramTypeFilter !== 'all') {
+        filtered = filtered.filter(entry => entry.param_type === keywordsState.paramTypeFilter);
+    }
+
+    // Застосувати пошук
     if (keywordsState.searchQuery) {
         const query = keywordsState.searchQuery.toLowerCase();
         const columns = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers', 'keywords_ua'];

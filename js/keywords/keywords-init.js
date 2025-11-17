@@ -18,6 +18,7 @@ export const keywordsState = {
     searchQuery: '',
     searchColumns: ['local_id', 'name_uk', 'param_type', 'trigers', 'keywords_ua'],
     visibleColumns: ['local_id', 'name_uk', 'param_type', 'trigers', 'keywords_ua'],
+    paramTypeFilter: 'all',
     sortKey: null,
     sortOrder: 'asc',
     pagination: {
@@ -53,9 +54,10 @@ async function checkAuthAndLoadData() {
         try {
             await loadKeywords();
 
-            const { populateSearchColumns, populateTableColumns } = await import('./keywords-ui.js');
+            const { populateSearchColumns, populateTableColumns, initParamTypeFilters } = await import('./keywords-ui.js');
             populateTableColumns();
             populateSearchColumns();
+            initParamTypeFilters();
 
             const { initDropdowns } = await import('../common/ui-dropdown.js');
             initDropdowns();

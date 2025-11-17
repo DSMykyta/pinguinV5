@@ -93,6 +93,37 @@ export async function showDeleteKeywordConfirm(localId) {
     }
 }
 
+export async function showGlossaryModal(localId) {
+    console.log(`👁️ Відкриття модального вікна глосарію для ${localId}`);
+
+    const keywords = getKeywords();
+    const keyword = keywords.find(k => k.local_id === localId);
+
+    if (!keyword) {
+        showToast('Ключове слово не знайдено', 'error');
+        return;
+    }
+
+    await showModal('glossary-view', null);
+
+    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    if (title) title.textContent = `Глосарій: ${keyword.name_uk}`;
+
+    const contentEl = document.getElementById('glossary-content');
+    if (contentEl) {
+        if (keyword.glossary_text && keyword.glossary_text.trim()) {
+            contentEl.innerHTML = keyword.glossary_text;
+        } else {
+            contentEl.innerHTML = `
+                <div class="empty-state">
+                    <span class="material-symbols-outlined">description</span>
+                    <p>Текст глосарію відсутній</p>
+                </div>
+            `;
+        }
+    }
+}
+
 async function handleSaveNewKeyword() {
     try {
         const keywordData = getFormData();
