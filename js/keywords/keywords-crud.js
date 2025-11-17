@@ -1,9 +1,9 @@
 // js/keywords/keywords-crud.js
 
 /**
- * TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPW
- * Q                    KEYWORDS - CRUD OPERATIONS                            Q
- * ZPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    KEYWORDS - CRUD OPERATIONS                            ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { addKeyword, updateKeyword, deleteKeyword, getKeywords } from './keywords-data.js';
@@ -13,12 +13,12 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 
 export async function showAddKeywordModal() {
-    console.log('� V4:@8BBO <>40;L=>3> 2V:=0 4;O 4>4020==O :;NG>2>3> A;>20');
+    console.log('➕ Відкриття модального вікна для додавання ключового слова');
 
     await showModal('keywords-edit', null);
 
     const title = document.querySelector('#global-modal-wrapper #modal-title');
-    if (title) title.textContent = '>40B8 :;NG>25 A;>2>';
+    if (title) title.textContent = 'Додати ключове слово';
 
     const deleteBtn = document.getElementById('delete-keyword');
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
@@ -32,20 +32,20 @@ export async function showAddKeywordModal() {
 }
 
 export async function showEditKeywordModal(localId) {
-    console.log(` V4:@8BBO <>40;L=>3> 2V:=0 4;O @5403C20==O :;NG>2>3> A;>20 ${localId}`);
+    console.log(`✏️ Відкриття модального вікна для редагування ключового слова ${localId}`);
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);
 
     if (!keyword) {
-        showToast(';NG>25 A;>2> =5 7=0945=>', 'error');
+        showToast('Ключове слово не знайдено', 'error');
         return;
     }
 
     await showModal('keywords-edit', null);
 
     const title = document.querySelector('#global-modal-wrapper #modal-title');
-    if (title) title.textContent = ' 5403C20B8 :;NG>25 A;>2>';
+    if (title) title.textContent = 'Редагувати ключове слово';
 
     const deleteBtn = document.getElementById('delete-keyword');
     if (deleteBtn) {
@@ -65,21 +65,21 @@ export async function showEditKeywordModal(localId) {
 }
 
 export async function showDeleteKeywordConfirm(localId) {
-    console.log(`=� V4B25@465==O 2840;5==O :;NG>2>3> A;>20 ${localId}`);
+    console.log(`🗑️ Підтвердження видалення ключового слова ${localId}`);
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);
 
     if (!keyword) {
-        showToast(';NG>25 A;>2> =5 7=0945=>', 'error');
+        showToast('Ключове слово не знайдено', 'error');
         return;
     }
 
     const confirmed = await showConfirmModal({
-        title: '840;8B8 :;NG>25 A;>2>?',
-        message: `8 2?52=5=V, I> E>G5B5 2840;8B8 "${keyword.name_uk}"?`,
-        confirmText: '840;8B8',
-        cancelText: '!:0AC20B8',
+        title: 'Видалити ключове слово?',
+        message: `Ви впевнені, що хочете видалити "${keyword.name_uk}"?`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
         confirmClass: 'btn-danger'
     });
 
@@ -93,18 +93,18 @@ async function handleSaveNewKeyword() {
         const keywordData = getFormData();
 
         if (!keywordData.local_id || !keywordData.name_uk) {
-            showToast('0?>2=VBL >1>2\'O7:>2V ?>;O (ID B0 0720)', 'error');
+            showToast('Заповніть обов\'язкові поля (ID та Назва)', 'error');
             return;
         }
 
         await addKeyword(keywordData);
 
-        showToast(';NG>25 A;>2> 4>40=>', 'success');
+        showToast('Ключове слово додано', 'success');
         closeModal();
         renderKeywordsTable();
     } catch (error) {
-        console.error('L ><8;:0 4>4020==O:', error);
-        showToast('><8;:0 4>4020==O :;NG>2>3> A;>20', 'error');
+        console.error('❌ Помилка додавання:', error);
+        showToast('Помилка додавання ключового слова', 'error');
     }
 }
 
@@ -113,18 +113,18 @@ async function handleUpdateKeyword(localId) {
         const keywordData = getFormData();
 
         if (!keywordData.name_uk) {
-            showToast('0?>2=VBL >1>2\'O7:>2V ?>;O (0720)', 'error');
+            showToast('Заповніть обов\'язкові поля (Назва)', 'error');
             return;
         }
 
         await updateKeyword(localId, keywordData);
 
-        showToast(';NG>25 A;>2> >=>2;5=>', 'success');
+        showToast('Ключове слово оновлено', 'success');
         closeModal();
         renderKeywordsTable();
     } catch (error) {
-        console.error('L ><8;:0 >=>2;5==O:', error);
-        showToast('><8;:0 >=>2;5==O :;NG>2>3> A;>20', 'error');
+        console.error('❌ Помилка оновлення:', error);
+        showToast('Помилка оновлення ключового слова', 'error');
     }
 }
 
@@ -132,11 +132,11 @@ async function handleDeleteKeyword(localId) {
     try {
         await deleteKeyword(localId);
 
-        showToast(';NG>25 A;>2> 2840;5=>', 'success');
+        showToast('Ключове слово видалено', 'success');
         renderKeywordsTable();
     } catch (error) {
-        console.error('L ><8;:0 2840;5==O:', error);
-        showToast('><8;:0 2840;5==O :;NG>2>3> A;>20', 'error');
+        console.error('❌ Помилка видалення:', error);
+        showToast('Помилка видалення ключового слова', 'error');
     }
 }
 

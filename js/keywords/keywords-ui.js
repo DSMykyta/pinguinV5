@@ -1,9 +1,9 @@
 // js/keywords/keywords-ui.js
 
 /**
- * TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPW
- * Q                    KEYWORDS - UI MANAGEMENT                              Q
- * ZPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    KEYWORDS - UI MANAGEMENT                              ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { keywordsState } from './keywords-init.js';
@@ -13,10 +13,10 @@ import { renderKeywordsTable } from './keywords-table.js';
 export function populateSearchColumns() {
     const allSearchColumns = [
         { id: 'local_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: '0720', checked: true },
-        { id: 'param_type', label: '"8?', checked: true },
-        { id: 'trigers', label: '"@835@8', checked: true },
-        { id: 'keywords_ua', label: ';NG>2V A;>20', checked: true }
+        { id: 'name_uk', label: 'Назва', checked: true },
+        { id: 'param_type', label: 'Тип', checked: true },
+        { id: 'trigers', label: 'Тригери', checked: true },
+        { id: 'keywords_ua', label: 'Ключові слова', checked: true }
     ];
 
     createColumnSelector('search-columns-list-keywords', allSearchColumns, {
@@ -24,27 +24,27 @@ export function populateSearchColumns() {
         filterBy: keywordsState.visibleColumns,
         onChange: (selectedIds) => {
             keywordsState.searchColumns = selectedIds;
-            console.log('= >;>=:8 ?>HC:C:', keywordsState.searchColumns);
+            console.log('🔍 Колонки пошуку:', keywordsState.searchColumns);
         }
     });
 
-    console.log(' >;>=:8 ?>HC:C 70?>2=5=>');
+    console.log('✅ Колонки пошуку заповнено');
 }
 
 export function populateTableColumns() {
     const tableColumns = [
         { id: 'local_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: '0720', checked: true },
-        { id: 'param_type', label: '"8?', checked: true },
-        { id: 'trigers', label: '"@835@8', checked: true },
-        { id: 'keywords_ua', label: ';NG>2V A;>20', checked: true }
+        { id: 'name_uk', label: 'Назва', checked: true },
+        { id: 'param_type', label: 'Тип', checked: true },
+        { id: 'trigers', label: 'Тригери', checked: true },
+        { id: 'keywords_ua', label: 'Ключові слова', checked: true }
     ];
 
     const columnSelector = createColumnSelector('table-columns-list-keywords', tableColumns, {
         checkboxPrefix: 'table-col-keywords',
         onChange: async (selectedIds) => {
             keywordsState.visibleColumns = selectedIds;
-            console.log('=� 848<V :>;>=:8:', keywordsState.visibleColumns);
+            console.log('📋 Видимі колонки:', keywordsState.visibleColumns);
 
             populateSearchColumns();
 
@@ -56,5 +56,5 @@ export function populateTableColumns() {
         keywordsState.visibleColumns = columnSelector.getSelected();
     }
 
-    console.log(' >;>=:8 B01;8FV 70?>2=5=>');
+    console.log('✅ Колонки таблиці заповнено');
 }

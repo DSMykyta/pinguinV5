@@ -1,9 +1,9 @@
 // js/keywords/keywords-table.js
 
 /**
- * TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPW
- * Q                    KEYWORDS - TABLE RENDERING                            Q
- * ZPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    KEYWORDS - TABLE RENDERING                            ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { getKeywords } from './keywords-data.js';
@@ -12,7 +12,7 @@ import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 
 export function renderKeywordsTable() {
-    console.log('<�  5=45@8=3 B01;8FV :;NG>28E A;V2...');
+    console.log('🎨 Рендеринг таблиці ключових слів...');
 
     const container = document.getElementById('keywords-table-container');
     if (!container) return;
@@ -54,26 +54,26 @@ export function renderKeywordsTable() {
             },
             {
                 id: 'name_uk',
-                label: '0720',
+                label: 'Назва',
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
             },
             {
                 id: 'param_type',
-                label: '"8?',
+                label: 'Тип',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
             },
             {
                 id: 'trigers',
-                label: '"@835@8',
+                label: 'Тригери',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
             },
             {
                 id: 'keywords_ua',
-                label: ';NG>2V A;>20',
+                label: 'Ключові слова',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
             }
@@ -82,14 +82,14 @@ export function renderKeywordsTable() {
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
             return `
-                <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title=" 5403C20B8">
+                <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             `;
         },
         emptyState: {
             icon: 'key',
-            message: ';NG>2V A;>20 =5 7=0945=>'
+            message: 'Ключові слова не знайдено'
         },
         withContainer: false
     });
@@ -107,7 +107,7 @@ export function renderKeywordsTable() {
 
     updateStats(filteredKeywords.length, keywords.length);
 
-    console.log(` V4@5=45@5=> ${paginatedKeywords.length} 7 ${filteredKeywords.length} :;NG>28E A;V2`);
+    console.log(`✅ Відрендерено ${paginatedKeywords.length} з ${filteredKeywords.length} ключових слів`);
 }
 
 function applyFilters(keywords) {
@@ -135,7 +135,7 @@ function renderEmptyState() {
     container.innerHTML = `
         <div class="empty-state">
             <span class="material-symbols-outlined">key</span>
-            <p>5<0T :;NG>28E A;V2</p>
+            <p>Немає ключових слів</p>
         </div>
     `;
 
@@ -146,5 +146,5 @@ function updateStats(visible, total) {
     const statsEl = document.getElementById('tab-stats-keywords');
     if (!statsEl) return;
 
-    statsEl.textContent = `>:070=> ${visible} 7 ${total}`;
+    statsEl.textContent = `Показано ${visible} з ${total}`;
 }
