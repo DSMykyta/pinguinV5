@@ -27,6 +27,62 @@
     <!-- СКРОЛЬНА ЧАСТИНА (SCROLLABLE) -->
     <div class="panel-content-scroll">
 
+        <!-- ФІЛЬТРИ ТИПІВ -->
+        <div class="panel-box">
+            <div class="panel-box-header">
+                <span class="material-symbols-outlined panel-box-icon">label</span>
+                <span class="panel-box-title">Фільтр за типом</span>
+            </div>
+
+            <div class="tab-controls u-mt-8">
+                <button class="nav-icon active" data-filter="all" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">list</span>
+                    <span class="nav-icon-label">Всі</span>
+                </button>
+                <button class="nav-icon" data-filter="ingredient" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">science</span>
+                    <span class="nav-icon-label">Інгредієнт</span>
+                </button>
+                <button class="nav-icon" data-filter="flavor" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">restaurant</span>
+                    <span class="nav-icon-label">Смак</span>
+                </button>
+                <button class="nav-icon" data-filter="brand" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <span class="nav-icon-label">Бренд</span>
+                </button>
+                <button class="nav-icon" data-filter="category" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">category</span>
+                    <span class="nav-icon-label">Категорія</span>
+                </button>
+                <button class="nav-icon" data-filter="form" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">package_2</span>
+                    <span class="nav-icon-label">Форма</span>
+                </button>
+                <button class="nav-icon" data-filter="other" data-filter-type="param_type">
+                    <span class="material-symbols-outlined">more_horiz</span>
+                    <span class="nav-icon-label">Інше</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ПОКАЗАТИ КОЛОНКИ -->
+        <div class="panel-box">
+            <div class="panel-box-header dropdown-wrapper">
+                <span class="material-symbols-outlined panel-box-icon">view_column</span>
+                <span class="panel-box-title">Показати колонки</span>
+                <button class="btn-icon" data-dropdown-trigger aria-label="Розгорнути">
+                    <span class="material-symbols-outlined">expand_more</span>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-full">
+                    <div id="table-columns-list-keywords-aside" class="dropdown-body">
+                        <!-- Чекбокси додаються динамічно -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="panel-separator"></div>

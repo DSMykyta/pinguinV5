@@ -199,7 +199,7 @@ function clearKeywordForm() {
  * Ініціалізувати всі кастомні селекти в модальному вікні
  */
 async function initModalSelects() {
-    const { reinitCustomSelect } = await import('../common/ui-custom-select.js');
+    const { reinitializeCustomSelect } = await import('../common/ui-select.js');
 
     // Заповнити parent_local_id селект
     const parentSelect = document.getElementById('keyword-parent-local-id');
@@ -220,12 +220,12 @@ async function initModalSelects() {
         });
 
         // Ініціалізувати кастомний селект
-        reinitCustomSelect(parentSelect);
+        reinitializeCustomSelect(parentSelect);
     }
 
     // Ініціалізувати param_type селект
     const paramTypeSelect = document.getElementById('keyword-param-type-select');
     if (paramTypeSelect) {
-        reinitCustomSelect(paramTypeSelect);
+        reinitializeCustomSelect(paramTypeSelect);
     }
 }
