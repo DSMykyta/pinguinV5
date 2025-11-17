@@ -23,7 +23,7 @@
                 <span class="panel-item-text">Сутності</span>
                  <div class="btn-icon"><span class="material-symbols-outlined">open_in_new</span></div>
             </a>
-            <a href="brands.html" target="_blank" class="panel-item">
+            <a href="#" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
                 <span class="panel-item-text">Бренди</span>
                  <div class="btn-icon"><span class="material-symbols-outlined">open_in_new</span></div>
@@ -59,7 +59,7 @@
                 </div>
             </a>
 
-            <a href="brands.html" target="_blank" class="panel-item">
+            <a href="#" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
                 <span class="panel-item-text">Бренди</span>
                 <div class="btn-icon">
@@ -110,25 +110,11 @@
         </div>
 
         <div class="panel-content-footer">
-            <!-- Login Button (показується коли НЕ авторизований) -->
-            <button id="auth-login-trigger-btn" class="panel-item">
+            <button id="auth-btn" class="panel-item" style="display: none;">
                 <span class="material-symbols-outlined panel-item-icon">login</span>
-                <span class="panel-item-text">Увійти</span>
+                <span class="panel-item-text">Авторизація</span>
             </button>
-
-            <!-- User Info Display (показується коли авторизований) -->
-            <div id="auth-user-info" class="panel-item u-hidden">
-                <span id="auth-user-avatar-container" class="panel-item-icon">
-                    <span class="material-symbols-outlined">person</span>
-                </span>
-                <div class="panel-item-text">
-                    <div id="auth-username-display"></div>
-                    <div id="auth-user-role-display"></div>
-                </div>
-            </div>
-
-            <!-- Logout Button (показується коли авторизований) -->
-            <button id="auth-logout-btn" class="panel-item u-hidden">
+            <button id="signout-btn" class="panel-item" style="display: none;">
                 <span class="material-symbols-outlined panel-item-icon">logout</span>
                 <span class="panel-item-text">Вийти</span>
             </button>
