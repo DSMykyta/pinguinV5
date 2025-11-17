@@ -77,8 +77,6 @@ export function populateTableColumns() {
  * Ініціалізувати фільтри за типами (динамічно з даних)
  */
 export function initParamTypeFilters() {
-    console.log('🎬 initParamTypeFilters() викликана');
-
     const container = document.getElementById('param-type-filters-header');
 
     if (!container) {
@@ -88,9 +86,6 @@ export function initParamTypeFilters() {
 
     // Отримати унікальні типи з даних
     const uniqueTypes = [...new Set(keywordsState.keywords.map(k => k.param_type).filter(Boolean))];
-
-    console.log('🔍 Унікальні типи в даних:', uniqueTypes);
-    console.log('🔍 Кількість типів:', uniqueTypes.length);
 
     // Створити HTML для кнопок
     let buttonsHTML = `
@@ -113,8 +108,6 @@ export function initParamTypeFilters() {
     // Заповнити контейнер
     container.innerHTML = buttonsHTML;
 
-    console.log('🔍 Згенеровано кнопок фільтрів:', uniqueTypes.length + 1); // +1 для кнопки "Всі"
-
     // Встановити початковий фільтр
     if (!keywordsState.paramTypeFilter) {
         keywordsState.paramTypeFilter = 'all';
@@ -122,7 +115,6 @@ export function initParamTypeFilters() {
 
     // Додати обробники подій для всіх кнопок
     const filterButtons = container.querySelectorAll('[data-filter-type="param_type"]');
-    console.log('🔍 Знайдено кнопок в контейнері:', filterButtons.length);
 
     filterButtons.forEach(button => {
         button.addEventListener('click', () => {

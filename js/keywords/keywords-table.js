@@ -40,7 +40,7 @@ export function renderKeywordsTable() {
 
     const visibleCols = keywordsState.visibleColumns.length > 0
         ? keywordsState.visibleColumns
-        : ['local_id', 'name_uk', 'param_type', 'trigers', 'keywords_ua'];
+        : ['local_id', 'param_type', 'name_uk', 'trigers', 'keywords_ua'];
 
     renderPseudoTable(container, {
         data: paginatedKeywords,
@@ -53,18 +53,60 @@ export function renderKeywordsTable() {
                 render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
             },
             {
-                id: 'name_uk',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
                 id: 'param_type',
                 label: 'Тип',
                 className: 'cell-id',
                 sortable: true,
                 render: (value) => value ? `<span class="word-chip">${escapeHtml(value)}</span>` : '-'
+            },
+            {
+                id: 'parent_local_id',
+                label: 'Батьківський елемент',
+                className: 'cell-id',
+                sortable: true,
+                render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'characteristics_local_id',
+                label: 'Характеристика',
+                className: 'cell-id',
+                sortable: true,
+                render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'name_uk',
+                label: 'Назва (UA)',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+            },
+            {
+                id: 'name_ru',
+                label: 'Назва (RU)',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'name_en',
+                label: 'Назва (EN)',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'name_lat',
+                label: 'Назва (LAT)',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => value ? escapeHtml(value) : '-'
+            },
+            {
+                id: 'name_alt',
+                label: 'Альтернативні назви',
+                sortable: true,
+                className: 'cell-context',
+                render: (value) => value ? escapeHtml(value) : '-'
             },
             {
                 id: 'trigers',
@@ -80,7 +122,17 @@ export function renderKeywordsTable() {
             },
             {
                 id: 'keywords_ua',
-                label: 'Ключові слова',
+                label: 'Ключові слова (UA)',
+                className: 'cell-context',
+                sortable: true,
+                render: (value) => {
+                    if (!value) return '<span class="text-muted">—</span>';
+                    return `<div class="context-fragment">${escapeHtml(value)}</div>`;
+                }
+            },
+            {
+                id: 'keywords_ru',
+                label: 'Ключові слова (RU)',
                 className: 'cell-context',
                 sortable: true,
                 render: (value) => {
