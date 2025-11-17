@@ -3,6 +3,34 @@
 </div>
 
 <div class="modal-header-actions-source u-hidden">
+    <!-- Тип параметра (кастомний селект в шапці) -->
+    <div class="dropdown-wrapper">
+        <button type="button" class="segment" id="param-type-dropdown-trigger" data-dropdown-trigger aria-label="Тип параметра">
+            <span class="material-symbols-outlined" id="param-type-trigger-icon">label</span>
+        </button>
+
+        <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
+            <button class="dropdown-item" data-param-type-value="ingredient" title="Інгредієнт" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">science</span>
+            </button>
+            <button class="dropdown-item" data-param-type-value="flavor" title="Смак" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">restaurant</span>
+            </button>
+            <button class="dropdown-item" data-param-type-value="brand" title="Бренд" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">shopping_bag</span>
+            </button>
+            <button class="dropdown-item" data-param-type-value="category" title="Категорія" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">category</span>
+            </button>
+            <button class="dropdown-item" data-param-type-value="form" title="Форма" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">package_2</span>
+            </button>
+            <button class="dropdown-item" data-param-type-value="other" title="Інше" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                <span class="material-symbols-outlined">more_horiz</span>
+            </button>
+        </div>
+    </div>
+
     <button id="delete-keyword" class="segment u-hidden" aria-label="Видалити">
         <div class="state-layer">
             <span class="material-symbols-outlined">delete</span>
@@ -25,37 +53,95 @@
 
     <fieldset class="form-fieldset">
 
-        <div class="form-group">
-            <label for="keyword-local-id">
-                Local ID
-                <span class="required">*</span>
-            </label>
-            <input type="text" id="keyword-local-id" class="input-main" placeholder="Наприклад: protein" required>
-        </div>
+        <input type="hidden" id="keyword-local-id">
+        <input type="hidden" id="keyword-param-type" value="">
 
-        <div class="form-group">
-            <label for="keyword-name-uk">
-                Назва (UA)
-                <span class="required">*</span>
-            </label>
-            <input type="text" id="keyword-name-uk" class="input-main" placeholder="Наприклад: Протеїн" required>
-        </div>
-
-        <div class="form-group">
-            <label for="keyword-param-type">Тип параметра</label>
-            <input type="text" id="keyword-param-type" class="input-main" placeholder="Наприклад: ingredient">
-        </div>
-
+        <!-- Тригери -->
         <div class="form-group">
             <label for="keyword-trigers">Тригери</label>
-            <textarea id="keyword-trigers" class="input-main" rows="3" placeholder="Введіть тригери через кому"></textarea>
+            <input type="text" id="keyword-trigers" class="input-main" placeholder="Введіть тригери через кому">
             <small class="form-hint">Використовуються для автоматичного розпізнавання</small>
         </div>
 
+        <!-- Parent Local ID та Characteristics Local ID -->
+        <div class="grid2">
+            <div class="form-group">
+                <label for="keyword-parent-local-id">Батьківський елемент</label>
+                <select id="keyword-parent-local-id" data-custom-select placeholder="Оберіть...">
+                    <option value="">-- Не обрано --</option>
+                    <!-- Динамічно заповнюється через JS -->
+                </select>
+                <small class="form-hint">До якого елемента прив'язати</small>
+            </div>
+
+            <div class="form-group">
+                <label for="keyword-characteristics-local-id">
+                    Характеристика
+                    <small class="form-hint">(в розробці)</small>
+                </label>
+                <input type="text" id="keyword-characteristics-local-id" class="input-main" placeholder="Буде доступно після entities.html" disabled>
+                <small class="form-hint">Буде реалізовано після сторінки Сутності</small>
+            </div>
+        </div>
+
+        <!-- Назва UA та RU -->
+        <div class="grid2">
+            <div class="form-group">
+                <label for="keyword-name-uk">
+                    Назва (UA)
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="keyword-name-uk" class="input-main" placeholder="Наприклад: Протеїн" required lang="uk">
+            </div>
+
+            <div class="form-group">
+                <label for="keyword-name-ru">
+                    Назва (RU)
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="keyword-name-ru" class="input-main" placeholder="Например: Протеин" required lang="ru">
+            </div>
+        </div>
+
+        <!-- Назва EN та LAT -->
+        <div class="grid2">
+            <div class="form-group">
+                <label for="keyword-name-en">Назва (EN)</label>
+                <input type="text" id="keyword-name-en" class="input-main" placeholder="Example: Protein" lang="en">
+            </div>
+
+            <div class="form-group">
+                <label for="keyword-name-lat">Назва (LAT)</label>
+                <input type="text" id="keyword-name-lat" class="input-main" placeholder="Exemplum: Proteinum" lang="la">
+            </div>
+        </div>
+
+        <!-- Альтернативні назви -->
         <div class="form-group">
-            <label for="keyword-keywords-ua">Ключові слова (UA)</label>
-            <textarea id="keyword-keywords-ua" class="input-main" rows="3" placeholder="Введіть ключові слова через кому"></textarea>
-            <small class="form-hint">Використовуються для пошуку та SEO</small>
+            <label for="keyword-name-alt">Альтернативні назви</label>
+            <textarea id="keyword-name-alt" class="input-main" rows="2" placeholder="Введіть альтернативні назви через кому"></textarea>
+            <small class="form-hint">Додаткові варіанти написання</small>
+        </div>
+
+        <!-- Ключові слова UA та RU -->
+        <div class="grid2">
+            <div class="form-group">
+                <label for="keyword-keywords-ua">
+                    Ключові слова (UA)
+                    <span class="required">*</span>
+                </label>
+                <textarea id="keyword-keywords-ua" class="input-main" rows="3" placeholder="Введіть ключові слова через кому" required lang="uk"></textarea>
+                <small class="form-hint">Використовуються для пошуку та SEO</small>
+            </div>
+
+            <div class="form-group">
+                <label for="keyword-keywords-ru">
+                    Ключові слова (RU)
+                    <span class="required">*</span>
+                </label>
+                <textarea id="keyword-keywords-ru" class="input-main" rows="3" placeholder="Введите ключевые слова через запятую" required lang="ru"></textarea>
+                <small class="form-hint">Використовуються для пошуку та SEO</small>
+            </div>
         </div>
 
     </fieldset>

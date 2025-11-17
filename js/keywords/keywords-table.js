@@ -62,18 +62,24 @@ export function renderKeywordsTable() {
             {
                 id: 'param_type',
                 label: 'Тип',
+                className: 'cell-id',
                 sortable: true,
-                render: (value) => escapeHtml(value || '-')
+                render: (value) => value ? `<span class="word-chip">${escapeHtml(value)}</span>` : '-'
             },
             {
                 id: 'trigers',
                 label: 'Тригери',
                 sortable: true,
-                render: (value) => escapeHtml(value || '-')
+                render: (value) => {
+                    if (!value) return '-';
+                    const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
+                    return triggers.map(t => `<span class="word-chip word-chip-primary">${escapeHtml(t)}</span>`).join(' ');
+                }
             },
             {
                 id: 'keywords_ua',
                 label: 'Ключові слова',
+                className: 'cell-keywords',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
             }

@@ -24,6 +24,8 @@ export async function showAddKeywordModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearKeywordForm();
+    initModalDropdowns();
+    populateParentLocalIdDropdown();
 
     const saveBtn = document.getElementById('save-keyword');
     if (saveBtn) {
