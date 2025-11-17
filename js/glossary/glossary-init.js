@@ -6,7 +6,7 @@ import { renderGlossaryTree, initTreeToggles } from './glossary-tree.js';
 import { initGlossaryArticles } from './glossary-articles.js';
 import { initSearchClear } from '../utils/search-clear.js';
 
-export async function initGlossaryGenerator() {
+async function initGlossaryGenerator() {
     if (!document.getElementById('glossary-content-container')) return;
 
     await fetchGlossaryData();
@@ -20,4 +20,4 @@ export async function initGlossaryGenerator() {
     console.log('Глосарій успішно ініціалізовано.');
 }
 
-// registerPanelInitializer('aside-glossary', initGlossaryGenerator);
+registerPanelInitializer('aside-glossary', initGlossaryGenerator);
