@@ -74,13 +74,14 @@ export function renderKeywordsTable() {
                 render: (value) => {
                     if (!value) return '-';
                     const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
-                    const chipsHtml = triggers.map(t => `<span class="word-chip word-chip-primary">${escapeHtml(t)}</span>`).join(' ');
+                    const chipsHtml = triggers.map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`).join(' ');
                     return `<div class="cell-words-list">${chipsHtml}</div>`;
                 }
             },
             {
                 id: 'keywords_ua',
                 label: 'Ключові слова',
+                className: 'cell-context',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
             }
