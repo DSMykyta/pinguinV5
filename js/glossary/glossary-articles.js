@@ -2,24 +2,11 @@
 
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
-import { loadTemplate, renderTemplate } from '../utils/template-loader.js';
-
-let articleTemplate = null;
 
 /**
- * Завантажує шаблон статті з partials
+ * Створює HTML статті
  */
-async function loadArticleTemplate() {
-    if (!articleTemplate) {
-        articleTemplate = await loadTemplate('glossary-article');
-    }
-    return articleTemplate;
-}
-
-/**
- * Підготовка даних для шаблону
- */
-function prepareTemplateData(item) {
+function createArticleHtml(item) {
     const trigersArray = item.trigers
         ? item.trigers.split(',').map(t => t.trim()).filter(Boolean)
         : [];
@@ -36,31 +23,59 @@ function prepareTemplateData(item) {
         ? keywordsUaArray.map(kw => `<span class="word-chip">${kw}</span>`).join(' ')
         : '';
 
-    return {
-        id: item.id,
-        name: item.name,
-        text: item.text || '<p><i>(Опис відсутній)</i></p>',
-        hasTriggers: trigersArray.length > 0,
-        triggersHtml: triggersHtml,
-        hasKeywordsUa: keywordsUaArray.length > 0,
-        keywordsUaHtml: keywordsUaHtml,
-        hasKeywords: trigersArray.length > 0 || keywordsUaArray.length > 0
-    };
-}
+    const hasKeywords = trigersArray.length > 0 || keywordsUaArray.length > 0;
 
-/**
- * Створює HTML статті з шаблону
- */
-async function createArticleHtml(item) {
-    const template = await loadArticleTemplate();
-    const data = prepareTemplateData(item);
-    return renderTemplate(template, data);
+    return `
+        <div class="glossary-article" id="${item.id}">
+            <div class="glos-block">
+                <!-- Sidebar (25%) - Sticky -->
+                <div class="glos-sidebar">
+                    <div class="sidebar-sticky">
+                        <h2 class="sidebar-title">${item.name}</h2>
+                        <p class="sidebar-id">${item.id}</p>
+                    </div>
+                </div>
+
+                <!-- Vertical line separator -->
+                <div class="line-v"></div>
+
+                <!-- Content (75%) -->
+                <div class="glos-content">
+                    <div class="article-text">
+                        ${item.text || '<p><i>(Опис відсутній)</i></p>'}
+                    </div>
+
+                    ${hasKeywords ? `
+                    <div class="keywords-content">
+                        ${trigersArray.length > 0 ? `
+                        <div class="keywords-section">
+                            <strong>Тригери:</strong>
+                            <div class="cell-words-list">
+                                ${triggersHtml}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${keywordsUaArray.length > 0 ? `
+                        <div class="keywords-section">
+                            <strong>Ключові слова:</strong>
+                            <div class="cell-words-list">
+                                ${keywordsUaHtml}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 /**
  * Renders all glossary articles into the main content area.
  */
-export async function renderGlossaryArticles() {
+export function renderGlossaryArticles() {
     const dom = getGlossaryDOM();
     const data = getGlossaryData();
 
@@ -72,8 +87,7 @@ export async function renderGlossaryArticles() {
     }
 
     // Generate HTML for all articles
-    const articlesHtmlPromises = data.map(item => createArticleHtml(item));
-    const articlesHtml = await Promise.all(articlesHtmlPromises);
+    const articlesHtml = data.map(item => createArticleHtml(item));
 
     dom.contentContainer.innerHTML = articlesHtml.join('');
 }
@@ -82,8 +96,8 @@ export async function renderGlossaryArticles() {
  * Initializes the article display logic.
  * Adds smooth scroll navigation and highlighting.
  */
-export async function initGlossaryArticles() {
-    await renderGlossaryArticles();
+export function initGlossaryArticles() {
+    renderGlossaryArticles();
 
     // Add event listener to handle clicks on tree links and scroll to article
     const treeDom = getGlossaryDOM().treeContainer;
