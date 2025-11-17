@@ -83,7 +83,10 @@ export function renderKeywordsTable() {
                 label: 'Ключові слова',
                 className: 'cell-context',
                 sortable: true,
-                render: (value) => escapeHtml(value || '-')
+                render: (value) => {
+                    if (!value) return '<span class="text-muted">—</span>';
+                    return `<div class="context-fragment">${escapeHtml(value)}</div>`;
+                }
             }
         ],
         visibleColumns: visibleCols,

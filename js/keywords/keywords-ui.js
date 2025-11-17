@@ -77,13 +77,10 @@ export function populateTableColumns() {
  * Ініціалізувати фільтри за типами (динамічно з даних)
  */
 export function initParamTypeFilters() {
-    const containers = [
-        document.getElementById('param-type-filters'), // В aside
-        document.getElementById('param-type-filters-header') // В header
-    ].filter(Boolean);
+    const container = document.getElementById('param-type-filters-header');
 
-    if (containers.length === 0) {
-        console.warn('⚠️ Контейнери фільтрів типів не знайдено');
+    if (!container) {
+        console.warn('⚠️ Контейнер фільтрів типів не знайдено');
         return;
     }
 
@@ -119,10 +116,8 @@ export function initParamTypeFilters() {
         `;
     });
 
-    // Заповнити всі контейнери
-    containers.forEach(container => {
-        container.innerHTML = buttonsHTML;
-    });
+    // Заповнити контейнер
+    container.innerHTML = buttonsHTML;
 
     // Встановити початковий фільтр
     if (!keywordsState.paramTypeFilter) {
@@ -130,19 +125,17 @@ export function initParamTypeFilters() {
     }
 
     // Додати обробники подій для всіх кнопок
-    const allFilterButtons = document.querySelectorAll('[data-filter-type="param_type"]');
-    allFilterButtons.forEach(button => {
+    const filterButtons = container.querySelectorAll('[data-filter-type="param_type"]');
+    filterButtons.forEach(button => {
         button.addEventListener('click', () => {
             const filter = button.dataset.filter;
 
             // Оновити стан фільтру
             keywordsState.paramTypeFilter = filter;
 
-            // Оновити UI активних кнопок у ВСІХ контейнерах
-            allFilterButtons.forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll(`[data-filter-type="param_type"][data-filter="${filter}"]`).forEach(btn => {
-                btn.classList.add('active');
-            });
+            // Оновити UI активних кнопок
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
 
             // Скинути сторінку на першу
             keywordsState.pagination.currentPage = 1;

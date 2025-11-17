@@ -128,8 +128,8 @@ async function handleSaveNewKeyword() {
     try {
         const keywordData = getFormData();
 
-        if (!keywordData.local_id || !keywordData.name_uk) {
-            showToast('Заповніть обов\'язкові поля (ID та Назва)', 'error');
+        if (!keywordData.name_uk) {
+            showToast('Заповніть обов\'язкові поля (Назва)', 'error');
             return;
         }
 

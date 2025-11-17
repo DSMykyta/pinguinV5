@@ -1,6 +1,6 @@
 <div class="panel-fragment is-active" id="aside-keywords">
 
-    <!-- ПОШУК (ФІКСОВАНА ЧАСТИНА) -->
+    <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
     <div class="panel-content-fix">
         <div class="panel-box dropdown-wrapper">
             <span class="material-symbols-outlined panel-box-icon">search</span>
@@ -24,47 +24,18 @@
 
     <div class="panel-separator"></div>
 
-    <!-- СКРОЛЬНА ЧАСТИНА (SCROLLABLE) -->
+    <!-- ІНФОРМАЦІЯ (SCROLLABLE) -->
     <div class="panel-content-scroll">
-
-        <!-- ФІЛЬТРИ ТИПІВ -->
-        <div class="panel-box">
-            <div class="panel-box-header">
-                <span class="material-symbols-outlined panel-box-icon">label</span>
-                <span class="panel-box-title">Фільтр за типом</span>
-            </div>
-
-            <div id="param-type-filters" class="tab-controls u-mt-8">
-                <!-- Динамічно заповнюється через JS -->
-            </div>
-        </div>
-
-        <!-- ПОКАЗАТИ КОЛОНКИ -->
-        <div class="panel-box">
-            <div class="panel-box-header dropdown-wrapper">
-                <span class="material-symbols-outlined panel-box-icon">view_column</span>
-                <span class="panel-box-title">Показати колонки</span>
-                <button class="btn-icon" data-dropdown-trigger aria-label="Розгорнути">
-                    <span class="material-symbols-outlined">expand_more</span>
-                </button>
-
-                <div class="dropdown-menu dropdown-menu-full">
-                    <div id="table-columns-list-keywords-aside" class="dropdown-body">
-                        <!-- Чекбокси додаються динамічно -->
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 
     <div class="panel-separator"></div>
 
-    <!-- FOOTER ЧАСТИНА (ФІКСОВАНА ВНИЗУ) -->
+    <!-- FOOTER З КНОПКОЮ ДОДАТИ (ФІКСОВАНИЙ ЗНИЗУ) -->
     <div class="panel-content-footer">
         <button id="btn-add-keyword-aside" class="panel-item">
             <span class="material-symbols-outlined panel-item-icon">add</span>
-            <span class="panel-item-text">Додати запис</span>
+            <span class="panel-item-text">Додати ключове слово</span>
         </button>
     </div>
 
