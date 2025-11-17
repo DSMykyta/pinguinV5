@@ -1,0 +1,45 @@
+<div class="glossary-article" id="{{id}}">
+    <div class="glos-block">
+
+        <!-- Sidebar (25%) - Sticky -->
+        <div class="glos-sidebar">
+            <div class="sidebar-sticky">
+                <h2 class="sidebar-title">{{name}}</h2>
+                <p class="sidebar-id">{{id}}</p>
+            </div>
+        </div>
+
+        <!-- Vertical line separator -->
+        <div class="line-v"></div>
+
+        <!-- Content (75%) -->
+        <div class="glos-content">
+            <div class="article-text">
+                {{text}}
+            </div>
+
+            {{#hasKeywords}}
+            <div class="keywords-content">
+                {{#hasTriggers}}
+                <div class="keywords-section">
+                    <strong>Тригери:</strong>
+                    <div class="cell-words-list">
+                        {{triggersHtml}}
+                    </div>
+                </div>
+                {{/hasTriggers}}
+
+                {{#hasKeywordsUa}}
+                <div class="keywords-section">
+                    <strong>Ключові слова:</strong>
+                    <div class="cell-words-list">
+                        {{keywordsUaHtml}}
+                    </div>
+                </div>
+                {{/hasKeywordsUa}}
+            </div>
+            {{/hasKeywords}}
+        </div>
+
+    </div>
+</div>

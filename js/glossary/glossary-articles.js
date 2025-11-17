@@ -2,100 +2,65 @@
 
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
+import { loadTemplate, renderTemplate } from '../utils/template-loader.js';
+
+let articleTemplate = null;
 
 /**
- * Generates the HTML for a single glossary article with sidebar layout.
- * Based on old pin-guin-v1.txt structure: 25% sidebar + 75% content with vertical line separator.
- * @param {object} item - The glossary item data.
- * @returns {string} - HTML string for the article.
+ * Завантажує шаблон статті з partials
  */
-function createArticleHtml(item) {
-    // Розбиваємо keywords на масив чіпів
-    const keywordsArray = item.keywords_ua
-        ? item.keywords_ua.split(',').map(k => k.trim()).filter(Boolean)
-        : [];
+async function loadArticleTemplate() {
+    if (!articleTemplate) {
+        articleTemplate = await loadTemplate('glossary-article');
+    }
+    return articleTemplate;
+}
 
+/**
+ * Підготовка даних для шаблону
+ */
+function prepareTemplateData(item) {
     const trigersArray = item.trigers
         ? item.trigers.split(',').map(t => t.trim()).filter(Boolean)
         : [];
 
-    const keywordsHtml = keywordsArray.length > 0
-        ? keywordsArray.map(kw => `<span class="word-chip">${kw}</span>`).join(' ')
-        : '<span class="text-muted">—</span>';
+    const keywordsUaArray = item.keywords_ua
+        ? item.keywords_ua.split(',').map(k => k.trim()).filter(Boolean)
+        : [];
 
-    const trigersHtml = trigersArray.length > 0
+    const triggersHtml = trigersArray.length > 0
         ? trigersArray.map(tr => `<span class="word-chip primary">${tr}</span>`).join(' ')
-        : '<span class="text-muted">—</span>';
+        : '';
 
-    return `
-        <div class="glossary-article" id="${item.id}">
-            <div class="glos-block">
+    const keywordsUaHtml = keywordsUaArray.length > 0
+        ? keywordsUaArray.map(kw => `<span class="word-chip">${kw}</span>`).join(' ')
+        : '';
 
-                <!-- Sidebar (25%) - Sticky -->
-                <div class="glos-sidebar">
-                    <div class="sidebar-sticky">
-                        <dl>
-                            <dt>ID:</dt>
-                            <dd>${item.id}</dd>
+    return {
+        id: item.id,
+        name: item.name,
+        text: item.text || '<p><i>(Опис відсутній)</i></p>',
+        hasTriggers: trigersArray.length > 0,
+        triggersHtml: triggersHtml,
+        hasKeywordsUa: keywordsUaArray.length > 0,
+        keywordsUaHtml: keywordsUaHtml,
+        hasKeywords: trigersArray.length > 0 || keywordsUaArray.length > 0
+    };
+}
 
-                            <dt>Назва (UA):</dt>
-                            <dd><strong>${item.name}</strong></dd>
-
-                            ${item.name_ru ? `<dt>Назва (RU):</dt><dd>${item.name_ru}</dd>` : ''}
-                            ${item.name_en ? `<dt>Назва (EN):</dt><dd>${item.name_en}</dd>` : ''}
-                        </dl>
-                    </div>
-                </div>
-
-                <!-- Vertical line separator -->
-                <div class="line-v"></div>
-
-                <!-- Content (75%) -->
-                <div class="glos-content">
-                    <h2>${item.name}</h2>
-
-                    <div class="article-text">
-                        ${item.text || '<p><i>(Опис відсутній)</i></p>'}
-                    </div>
-
-                    <!-- Keywords block -->
-                    <div class="keywords-content">
-                        <h3>Ключові слова та тригери</h3>
-
-                        <div class="keywords-section">
-                            <strong>Тригери:</strong>
-                            <div class="cell-words-list">
-                                ${trigersHtml}
-                            </div>
-                        </div>
-
-                        <div class="keywords-section">
-                            <strong>Ключові слова (UA):</strong>
-                            <div class="cell-words-list">
-                                ${keywordsHtml}
-                            </div>
-                        </div>
-
-                        ${item.keywords_ru ? `
-                        <div class="keywords-section">
-                            <strong>Ключові слова (RU):</strong>
-                            <div class="cell-words-list">
-                                ${item.keywords_ru.split(',').map(k => k.trim()).filter(Boolean).map(kw => `<span class="word-chip">${kw}</span>`).join(' ') || '<span class="text-muted">—</span>'}
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    `;
+/**
+ * Створює HTML статті з шаблону
+ */
+async function createArticleHtml(item) {
+    const template = await loadArticleTemplate();
+    const data = prepareTemplateData(item);
+    return renderTemplate(template, data);
 }
 
 /**
  * Renders all glossary articles into the main content area.
  */
-export function renderGlossaryArticles() {
+export async function renderGlossaryArticles() {
     const dom = getGlossaryDOM();
     const data = getGlossaryData();
 
@@ -107,9 +72,10 @@ export function renderGlossaryArticles() {
     }
 
     // Generate HTML for all articles
-    let allArticlesHtml = data.map(item => createArticleHtml(item)).join('');
+    const articlesHtmlPromises = data.map(item => createArticleHtml(item));
+    const articlesHtml = await Promise.all(articlesHtmlPromises);
 
-    dom.contentContainer.innerHTML = allArticlesHtml;
+    dom.contentContainer.innerHTML = articlesHtml.join('');
 }
 
 /**

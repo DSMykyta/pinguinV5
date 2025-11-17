@@ -46,3 +46,13 @@ section {
     border: 1px solid var(--color-outline);
     border-radius: 12px;
 }
+
+/* Глосарій - безкінечний скрол без секцій */
+.glossary-main-content {
+    padding: 24px;
+}
+
+.glossary-main-content .glossary-articles-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}

@@ -12,8 +12,7 @@ export function getGlossaryDOM() {
         createBtn: document.getElementById('glossary-create-btn'), // Кнопка "Створити"
 
         // --- Головний контент ---
-        contentContainer: document.getElementById('glossary-content-container'), // Куди вставляти статті
-        reloadBtn: document.getElementById('reload-section-glossary') // Кнопка оновлення даних
+        contentContainer: document.getElementById('glossary-content-container') // Куди вставляти статті
     };
     return domCache;
 }
