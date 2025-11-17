@@ -44,7 +44,9 @@ function parseSheetData(values) {
     return rows.map((row, index) => {
         const obj = { _rowIndex: index + 2 };
         headers.forEach((header, colIndex) => {
-            obj[header] = row[colIndex] || '';
+            // Видалити зайві пробіли з даних
+            const value = row[colIndex] || '';
+            obj[header] = typeof value === 'string' ? value.trim() : value;
         });
         return obj;
     });
