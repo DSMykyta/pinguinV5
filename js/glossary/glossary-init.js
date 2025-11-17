@@ -20,4 +20,3 @@ async function initGlossaryGenerator() {
     console.log('Глосарій успішно ініціалізовано.');
 }
 
-registerPanelInitializer('aside-glossary', initGlossaryGenerator);
