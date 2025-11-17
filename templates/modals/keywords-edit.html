@@ -3,34 +3,6 @@
 </div>
 
 <div class="modal-header-actions-source u-hidden">
-    <!-- Тип параметра (кастомний селект в шапці) -->
-    <div class="dropdown-wrapper">
-        <button type="button" class="segment" id="param-type-dropdown-trigger" data-dropdown-trigger aria-label="Тип параметра">
-            <span class="material-symbols-outlined" id="param-type-trigger-icon">label</span>
-        </button>
-
-        <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
-            <button class="dropdown-item" data-param-type-value="ingredient" title="Інгредієнт" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">science</span>
-            </button>
-            <button class="dropdown-item" data-param-type-value="flavor" title="Смак" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">restaurant</span>
-            </button>
-            <button class="dropdown-item" data-param-type-value="brand" title="Бренд" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">shopping_bag</span>
-            </button>
-            <button class="dropdown-item" data-param-type-value="category" title="Категорія" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">category</span>
-            </button>
-            <button class="dropdown-item" data-param-type-value="form" title="Форма" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">package_2</span>
-            </button>
-            <button class="dropdown-item" data-param-type-value="other" title="Інше" style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="material-symbols-outlined">more_horiz</span>
-            </button>
-        </div>
-    </div>
-
     <button id="delete-keyword" class="segment u-hidden" aria-label="Видалити">
         <div class="state-layer">
             <span class="material-symbols-outlined">delete</span>
@@ -56,11 +28,27 @@
         <input type="hidden" id="keyword-local-id">
         <input type="hidden" id="keyword-param-type" value="">
 
-        <!-- Тригери -->
-        <div class="form-group">
-            <label for="keyword-trigers">Тригери</label>
-            <input type="text" id="keyword-trigers" class="input-main" placeholder="Введіть тригери через кому">
-            <small class="form-hint">Використовуються для автоматичного розпізнавання</small>
+        <!-- Тригери та Тип параметра -->
+        <div class="grid2">
+            <div class="form-group">
+                <label for="keyword-trigers">Тригери</label>
+                <input type="text" id="keyword-trigers" class="input-main" placeholder="Введіть тригери через кому">
+                <small class="form-hint">Використовуються для автоматичного розпізнавання</small>
+            </div>
+
+            <div class="form-group">
+                <label for="keyword-param-type">Тип параметра</label>
+                <select id="keyword-param-type-select" data-custom-select placeholder="Оберіть тип...">
+                    <option value="">-- Оберіть тип --</option>
+                    <option value="ingredient">Інгредієнт</option>
+                    <option value="flavor">Смак</option>
+                    <option value="brand">Бренд</option>
+                    <option value="category">Категорія</option>
+                    <option value="form">Форма</option>
+                    <option value="other">Інше</option>
+                </select>
+                <small class="form-hint">Категорія ключового слова</small>
+            </div>
         </div>
 
         <!-- Parent Local ID та Characteristics Local ID -->

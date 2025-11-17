@@ -24,8 +24,7 @@ export async function showAddKeywordModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearKeywordForm();
-    initModalDropdowns();
-    populateParentLocalIdDropdown();
+    await initModalSelects();
 
     const saveBtn = document.getElementById('save-keyword');
     if (saveBtn) {
@@ -58,9 +57,8 @@ export async function showEditKeywordModal(localId) {
         };
     }
 
-    // Ініціалізувати dropdowns та заповнити селекти
-    initModalDropdowns();
-    await populateParentLocalIdDropdown();
+    // Ініціалізувати селекти та заповнити їх
+    await initModalSelects();
 
     // Заповнити форму даними
     fillKeywordForm(keyword);
@@ -150,7 +148,7 @@ async function handleDeleteKeyword(localId) {
 function getFormData() {
     return {
         local_id: document.getElementById('keyword-local-id')?.value.trim() || '',
-        param_type: document.getElementById('keyword-param-type')?.value || '',
+        param_type: document.getElementById('keyword-param-type-select')?.value || '',
         parent_local_id: document.getElementById('keyword-parent-local-id')?.value || '',
         characteristics_local_id: document.getElementById('keyword-characteristics-local-id')?.value.trim() || '',
         name_uk: document.getElementById('keyword-name-uk')?.value.trim() || '',
@@ -168,7 +166,7 @@ function getFormData() {
 function fillKeywordForm(keyword) {
     // Заповнити всі поля
     document.getElementById('keyword-local-id').value = keyword.local_id || '';
-    document.getElementById('keyword-param-type').value = keyword.param_type || '';
+    document.getElementById('keyword-param-type-select').value = keyword.param_type || '';
     document.getElementById('keyword-parent-local-id').value = keyword.parent_local_id || '';
     document.getElementById('keyword-characteristics-local-id').value = keyword.characteristics_local_id || '';
     document.getElementById('keyword-name-uk').value = keyword.name_uk || '';
@@ -179,15 +177,12 @@ function fillKeywordForm(keyword) {
     document.getElementById('keyword-trigers').value = keyword.trigers || '';
     document.getElementById('keyword-keywords-ua').value = keyword.keywords_ua || '';
     document.getElementById('keyword-keywords-ru').value = keyword.keywords_ru || '';
-
-    // Оновити іконку param_type
-    updateParamTypeIcon(keyword.param_type || '');
 }
 
 function clearKeywordForm() {
     // Очистити всі поля
     document.getElementById('keyword-local-id').value = '';
-    document.getElementById('keyword-param-type').value = '';
+    document.getElementById('keyword-param-type-select').value = '';
     document.getElementById('keyword-parent-local-id').value = '';
     document.getElementById('keyword-characteristics-local-id').value = '';
     document.getElementById('keyword-name-uk').value = '';
@@ -198,71 +193,39 @@ function clearKeywordForm() {
     document.getElementById('keyword-trigers').value = '';
     document.getElementById('keyword-keywords-ua').value = '';
     document.getElementById('keyword-keywords-ru').value = '';
-
-    // Скинути іконку param_type
-    updateParamTypeIcon('');
 }
 
 /**
- * Ініціалізувати dropdowns в модальному вікні
+ * Ініціалізувати всі кастомні селекти в модальному вікні
  */
-function initModalDropdowns() {
-    // Ініціалізувати dropdown для param_type
-    const paramTypeDropdown = document.getElementById('param-type-dropdown-trigger');
-    if (paramTypeDropdown) {
-        const items = document.querySelectorAll('[data-param-type-value]');
-        items.forEach(item => {
-            item.addEventListener('click', () => {
-                const value = item.dataset.paramTypeValue;
-                document.getElementById('keyword-param-type').value = value;
-                updateParamTypeIcon(value);
-            });
-        });
-    }
-}
-
-/**
- * Заповнити кастомний селект parent_local_id всіма keywords
- */
-async function populateParentLocalIdDropdown() {
-    const select = document.getElementById('keyword-parent-local-id');
-    if (!select) return;
-
-    const keywords = getKeywords();
-
-    // Очистити попередні опції (крім першої)
-    while (select.options.length > 1) {
-        select.remove(1);
-    }
-
-    // Додати всі keywords як опції
-    keywords.forEach(keyword => {
-        const option = document.createElement('option');
-        option.value = keyword.local_id;
-        option.textContent = `${keyword.local_id} - ${keyword.name_uk}`;
-        select.appendChild(option);
-    });
-
-    // Реініціалізувати кастомний селект
+async function initModalSelects() {
     const { reinitCustomSelect } = await import('../common/ui-custom-select.js');
-    reinitCustomSelect(select);
-}
 
-/**
- * Оновити іконку param_type
- */
-function updateParamTypeIcon(paramType) {
-    const icon = document.getElementById('param-type-trigger-icon');
-    if (!icon) return;
+    // Заповнити parent_local_id селект
+    const parentSelect = document.getElementById('keyword-parent-local-id');
+    if (parentSelect) {
+        const keywords = getKeywords();
 
-    const iconMap = {
-        'ingredient': 'science',
-        'flavor': 'restaurant',
-        'brand': 'shopping_bag',
-        'category': 'category',
-        'form': 'package_2',
-        'other': 'more_horiz'
-    };
+        // Очистити попередні опції (крім першої)
+        while (parentSelect.options.length > 1) {
+            parentSelect.remove(1);
+        }
 
-    icon.textContent = iconMap[paramType] || 'label';
+        // Додати всі keywords як опції
+        keywords.forEach(keyword => {
+            const option = document.createElement('option');
+            option.value = keyword.local_id;
+            option.textContent = `${keyword.local_id} - ${keyword.name_uk}`;
+            parentSelect.appendChild(option);
+        });
+
+        // Ініціалізувати кастомний селект
+        reinitCustomSelect(parentSelect);
+    }
+
+    // Ініціалізувати param_type селект
+    const paramTypeSelect = document.getElementById('keyword-param-type-select');
+    if (paramTypeSelect) {
+        reinitCustomSelect(paramTypeSelect);
+    }
 }

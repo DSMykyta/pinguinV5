@@ -79,9 +79,14 @@ export function renderKeywordsTable() {
             {
                 id: 'keywords_ua',
                 label: 'Ключові слова',
-                className: 'cell-keywords',
                 sortable: true,
-                render: (value) => escapeHtml(value || '-')
+                render: (value) => {
+                    if (!value) return '-';
+                    const keywords = value.split(',').map(k => k.trim()).filter(Boolean);
+                    if (keywords.length === 0) return '-';
+                    const chipsHtml = keywords.map(k => `<span class="word-chip">${escapeHtml(k)}</span>`).join('');
+                    return `<div class="cell-words-list">${chipsHtml}</div>`;
+                }
             }
         ],
         visibleColumns: visibleCols,
