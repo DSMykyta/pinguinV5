@@ -40,7 +40,7 @@ export function renderKeywordsTable() {
 
     const visibleCols = keywordsState.visibleColumns.length > 0
         ? keywordsState.visibleColumns
-        : ['local_id', 'param_type', 'name_uk', 'trigers', 'keywords_ua'];
+        : ['local_id', 'name_uk', 'trigers', 'keywords_ua'];
 
     renderPseudoTable(container, {
         data: paginatedKeywords,

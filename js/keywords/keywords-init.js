@@ -16,8 +16,8 @@ import { initTooltips } from '../common/ui-tooltip.js';
 export const keywordsState = {
     keywords: [],
     searchQuery: '',
-    searchColumns: ['local_id', 'param_type', 'name_uk', 'trigers', 'keywords_ua'],
-    visibleColumns: ['local_id', 'param_type', 'name_uk', 'trigers', 'keywords_ua'],
+    searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
+    visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     paramTypeFilter: 'all',
     sortKey: null,
     sortOrder: 'asc',

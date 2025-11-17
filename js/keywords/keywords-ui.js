@@ -13,11 +13,11 @@ import { renderKeywordsTable } from './keywords-table.js';
 export function populateSearchColumns() {
     const allSearchColumns = [
         { id: 'local_id', label: 'ID', checked: true },
-        { id: 'param_type', label: 'Тип', checked: true },
+        { id: 'param_type', label: 'Тип', checked: false },
         { id: 'parent_local_id', label: 'Батьківський елемент', checked: false },
         { id: 'characteristics_local_id', label: 'Характеристика', checked: false },
         { id: 'name_uk', label: 'Назва (UA)', checked: true },
-        { id: 'name_ru', label: 'Назва (RU)', checked: true },
+        { id: 'name_ru', label: 'Назва (RU)', checked: false },
         { id: 'name_en', label: 'Назва (EN)', checked: false },
         { id: 'name_lat', label: 'Назва (LAT)', checked: false },
         { id: 'name_alt', label: 'Альтернативні назви', checked: false },
@@ -41,7 +41,7 @@ export function populateSearchColumns() {
 export function populateTableColumns() {
     const tableColumns = [
         { id: 'local_id', label: 'ID', checked: true },
-        { id: 'param_type', label: 'Тип', checked: true },
+        { id: 'param_type', label: 'Тип', checked: false },
         { id: 'parent_local_id', label: 'Батьківський елемент', checked: false },
         { id: 'characteristics_local_id', label: 'Характеристика', checked: false },
         { id: 'name_uk', label: 'Назва (UA)', checked: true },
