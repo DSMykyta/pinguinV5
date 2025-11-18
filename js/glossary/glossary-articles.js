@@ -28,20 +28,28 @@ function createArticleHtml(item) {
 
     // Важливо: використовуємо ID для навігації (href="#id")
     return `
-        <section id="${item.id}">
+        <section id="${item.id}" data-panel-template="aside-glossary">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>${item.name}</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
                     </div>
                     <h3>ID: ${item.id}</h3>
                 </div>
+
+                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
             </div>
 
-            <div class="section-content">
+            <div class="section-content section-content-full-height">
                 <div class="article-text">
                     ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
+            </div>
 
                 ${hasKeywords ? `
                 <div class="keywords-content">
@@ -64,7 +72,6 @@ function createArticleHtml(item) {
                     ` : ''}
                 </div>
                 ` : ''}
-            </div>
         </section>
     `;
 }
