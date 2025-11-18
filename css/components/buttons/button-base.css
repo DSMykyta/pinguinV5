@@ -55,7 +55,8 @@ button {
 }
 
 /* Стани кнопки */
-button:active:not(.tab-close-btn) {
+button:active:not(.tab-close-btn),
+.nav-icon {
     transform: scale(0.98);
 }
 
