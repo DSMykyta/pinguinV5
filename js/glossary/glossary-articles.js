@@ -4,7 +4,7 @@ import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
 
 /**
- * Створює HTML статті у вигляді повноцінної секції (як в index.html)
+ * Створює HTML статті, використовуючи СТАНДАРТНІ класи розмітки (як в index.html).
  */
 function createArticleHtml(item) {
     const trigersArray = item.trigers
@@ -25,19 +25,22 @@ function createArticleHtml(item) {
 
     const hasKeywords = trigersArray.length > 0 || keywordsUaArray.length > 0;
 
-    // Використовуємо структуру section, щоб підтягнути глобальні стилі
+    // Використовуємо стандартний тег <section> та класи .section-header / .section-content
     return `
-        <section class="glossary-section" id="${item.id}">
+        <section id="${item.id}" data-panel-template="aside-glossary">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>${item.name}</h2>
                     </div>
-                    <h3>ID: ${item.id}</h3>
+                    <h3>${item.id}</h3>
                 </div>
+                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
             </div>
 
-            <div class="section-content glossary-scrollable-content">
+            <div class="section-content">
                 <div class="article-text">
                     ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
@@ -68,9 +71,6 @@ function createArticleHtml(item) {
     `;
 }
 
-/**
- * Рендерить усі статті глосарію.
- */
 export function renderGlossaryArticles() {
     const dom = getGlossaryDOM();
     const data = getGlossaryData();
@@ -86,14 +86,10 @@ export function renderGlossaryArticles() {
     dom.contentContainer.innerHTML = articlesHtml.join('');
 }
 
-/**
- * Ініціалізація та навігація.
- */
 export function initGlossaryArticles() {
     renderGlossaryArticles();
 
     const treeDom = getGlossaryDOM().treeContainer;
-    
     if (treeDom) {
         treeDom.addEventListener('click', (event) => {
             const link = event.target.closest('.tree-item-link');
