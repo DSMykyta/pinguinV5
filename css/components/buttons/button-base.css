@@ -55,7 +55,7 @@ button {
 }
 
 /* Стани кнопки */
-button:active {
+button:active:not(.tab-close-btn) {
     transform: scale(0.98);
 }
 
