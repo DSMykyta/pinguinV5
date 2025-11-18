@@ -4,7 +4,8 @@ import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
 
 /**
- * Створює HTML статті, використовуючи СТАНДАРТНІ класи розмітки (як в index.html).
+ * Створює HTML статті. 
+ * Використовує стандартні класи: section, section-header, section-content.
  */
 function createArticleHtml(item) {
     const trigersArray = item.trigers
@@ -25,19 +26,16 @@ function createArticleHtml(item) {
 
     const hasKeywords = trigersArray.length > 0 || keywordsUaArray.length > 0;
 
-    // Використовуємо стандартний тег <section> та класи .section-header / .section-content
+    // Важливо: використовуємо ID для навігації (href="#id")
     return `
-        <section id="${item.id}" data-panel-template="aside-glossary">
+        <section id="${item.id}">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>${item.name}</h2>
                     </div>
-                    <h3>${item.id}</h3>
+                    <h3>ID: ${item.id}</h3>
                 </div>
-                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
             </div>
 
             <div class="section-content">
@@ -89,7 +87,11 @@ export function renderGlossaryArticles() {
 export function initGlossaryArticles() {
     renderGlossaryArticles();
 
+    // Навігація з лівої панелі (tree) до секції
     const treeDom = getGlossaryDOM().treeContainer;
+    // Важливо: скролити потрібно контейнер, а не вікно, оскільки ми змінили overflow
+    const scrollContainer = document.getElementById('glossary-content-container');
+
     if (treeDom) {
         treeDom.addEventListener('click', (event) => {
             const link = event.target.closest('.tree-item-link');
@@ -99,6 +101,7 @@ export function initGlossaryArticles() {
                 const targetArticle = document.getElementById(targetId);
 
                 if (targetArticle) {
+                    // Використовуємо native scrollIntoView, він працює і для вкладених контейнерів
                     targetArticle.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }

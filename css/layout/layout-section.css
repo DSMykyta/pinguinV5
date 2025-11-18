@@ -47,12 +47,124 @@ section {
     border-radius: 12px;
 }
 
-/* Глосарій - безкінечний скрол без секцій */
+/* css/components/content/glossary-article.css */
+
+/* === 1. ВИПРАВЛЕННЯ СІТКИ ТА КОНТЕЙНЕРА === */
+
+/* Головний контейнер має поводитися як звичайний main у index.html,
+   але без зайвих паддінгів, щоб скрол працював на всю висоту */
 .glossary-main-content {
-    padding: 24px;
+    position: relative;
+    height: 100vh; /* Висота на весь екран */
+    overflow: hidden; /* Скролить лише внутрішній контейнер */
+    padding: 0 !important; /* Прибираємо відступи main, щоб секції прилипали */
+    
+    /* Важливо: не задаємо width: 100vw, щоб не перекрити Right Panel */
+    width: 100%; 
 }
 
-.glossary-main-content .glossary-articles-container {
-    max-width: 1400px;
-    margin: 0 auto;
+/* Контейнер, куди JS вставляє статті. Він стає головним скролом */
+#glossary-content-container {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto; /* Головний скрол сторінки */
+    scroll-snap-type: y mandatory; /* Прилипання секцій */
+    scroll-behavior: smooth;
+}
+
+/* === 2. СТРУКТУРА СЕКЦІЇ (Як в Index) === */
+
+/* Секція займає весь екран і використовує Flexbox для розміщення заголовка і контенту */
+#glossary-content-container section {
+    height: 100%;
+    width: 100%;
+    scroll-snap-align: start; /* Примагнічування */
+    
+    display: flex;
+    flex-direction: column;
+    
+    /* Відступи як в layout-section.css, щоб виглядало ідентично іншим інструментам */
+    padding: 8px 24px 24px 24px; 
+    box-sizing: border-box;
+}
+
+/* Хедер секції (Заголовок + ID) - не скролиться */
+#glossary-content-container .section-header {
+    flex: 0 0 auto; /* Фіксована висота */
+    margin-bottom: 0; /* Відступи контролюються загальними стилями */
+    padding-bottom: 16px;
+}
+
+/* === 3. ВНУТРІШНІЙ СКРОЛ КОНТЕНТУ (Біла картка) === */
+
+/* Оверрайд стандартного .section-content, щоб додати скрол всередині */
+#glossary-content-container .section-content {
+    flex: 1 1 auto; /* Займає весь доступний простір, що залишився */
+    overflow-y: auto; /* ВНУТРІШНІЙ СКРОЛ ТЕКСТУ */
+    min-height: 0; /* Критично для роботи скролу у Flexbox */
+    
+    /* Стилі "білої картки" вже є в main.css, тут лише коригуємо поведінку */
+    margin: 0; 
+    display: block; /* Скидаємо можливі flex/grid */
+}
+
+/* === 4. ОФОРМЛЕННЯ ТЕКСТУ === */
+
+.article-text {
+    max-width: 1100px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-on-surface);
+    padding-bottom: 40px; /* Місце знизу для зручності */
+}
+
+.article-text p { margin-bottom: 1em; }
+.article-text ul { margin: 0.5em 0 0.5em 1.5em; list-style-type: disc; }
+.article-text li { margin-bottom: 0.3em; }
+
+.article-text code {
+    font-family: 'Roboto Mono', monospace;
+    padding: 2px 6px;
+    background-color: var(--color-surface-c-low);
+    border: 1px solid var(--color-outline-v);
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* === 5. KEYWORDS BLOCK === */
+
+.keywords-content {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--color-surface-c-lowest);
+    border: 1px dashed var(--color-outline-v);
+    border-radius: 8px;
+}
+
+.keywords-section strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.cell-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.word-chip {
+    padding: 4px 10px;
+    border-radius: 16px;
+    background-color: var(--color-surface-c-high);
+    border: 1px solid var(--color-outline);
+    font-size: 13px;
+}
+
+.word-chip.primary {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+    border: none;
 }
