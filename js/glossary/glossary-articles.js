@@ -4,7 +4,7 @@ import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
 
 /**
- * Створює HTML статті
+ * Створює HTML статті у вигляді повноцінної секції (як в index.html)
  */
 function createArticleHtml(item) {
     const trigersArray = item.trigers
@@ -25,55 +25,51 @@ function createArticleHtml(item) {
 
     const hasKeywords = trigersArray.length > 0 || keywordsUaArray.length > 0;
 
+    // Використовуємо структуру section, щоб підтягнути глобальні стилі
     return `
-        <div class="glossary-article" id="${item.id}">
-            <div class="glos-block">
-                <!-- Sidebar (25%) - Sticky -->
-                <div class="glos-sidebar">
-                    <div class="sidebar-sticky">
-                        <h2 class="sidebar-title">${item.name}</h2>
-                        <p class="sidebar-id">${item.id}</p>
+        <section class="glossary-section" id="${item.id}">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>${item.name}</h2>
                     </div>
+                    <h3>ID: ${item.id}</h3>
+                </div>
+            </div>
+
+            <div class="section-content glossary-scrollable-content">
+                <div class="article-text">
+                    ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
 
-                <!-- Vertical line separator -->
-                <div class="line-v"></div>
-
-                <!-- Content (75%) -->
-                <div class="glos-content">
-                    <div class="article-text">
-                        ${item.text || '<p><i>(Опис відсутній)</i></p>'}
+                ${hasKeywords ? `
+                <div class="keywords-content">
+                    ${trigersArray.length > 0 ? `
+                    <div class="keywords-section">
+                        <strong>Тригери:</strong>
+                        <div class="cell-words-list">
+                            ${triggersHtml}
+                        </div>
                     </div>
+                    ` : ''}
 
-                    ${hasKeywords ? `
-                    <div class="keywords-content">
-                        ${trigersArray.length > 0 ? `
-                        <div class="keywords-section">
-                            <strong>Тригери:</strong>
-                            <div class="cell-words-list">
-                                ${triggersHtml}
-                            </div>
+                    ${keywordsUaArray.length > 0 ? `
+                    <div class="keywords-section">
+                        <strong>Ключові слова:</strong>
+                        <div class="cell-words-list">
+                            ${keywordsUaHtml}
                         </div>
-                        ` : ''}
-
-                        ${keywordsUaArray.length > 0 ? `
-                        <div class="keywords-section">
-                            <strong>Ключові слова:</strong>
-                            <div class="cell-words-list">
-                                ${keywordsUaHtml}
-                            </div>
-                        </div>
-                        ` : ''}
                     </div>
                     ` : ''}
                 </div>
+                ` : ''}
             </div>
-        </div>
+        </section>
     `;
 }
 
 /**
- * Renders all glossary articles into the main content area.
+ * Рендерить усі статті глосарію.
  */
 export function renderGlossaryArticles() {
     const dom = getGlossaryDOM();
@@ -82,48 +78,32 @@ export function renderGlossaryArticles() {
     if (!dom.contentContainer) return;
 
     if (data.length === 0) {
-        dom.contentContainer.innerHTML = '<p>Немає статей для відображення.</p>';
+        dom.contentContainer.innerHTML = '<p style="padding: 24px;">Немає статей для відображення.</p>';
         return;
     }
 
-    // Generate HTML for all articles
     const articlesHtml = data.map(item => createArticleHtml(item));
-
     dom.contentContainer.innerHTML = articlesHtml.join('');
 }
 
 /**
- * Initializes the article display logic.
- * Adds smooth scroll navigation and highlighting.
+ * Ініціалізація та навігація.
  */
 export function initGlossaryArticles() {
     renderGlossaryArticles();
 
-    // Add event listener to handle clicks on tree links and scroll to article
     const treeDom = getGlossaryDOM().treeContainer;
-    const contentDom = getGlossaryDOM().contentContainer;
-
-    if (treeDom && contentDom) {
+    
+    if (treeDom) {
         treeDom.addEventListener('click', (event) => {
             const link = event.target.closest('.tree-item-link');
             if (link && link.hash) {
-                event.preventDefault(); // Prevent default jump
-                const targetId = link.hash.substring(1); // Get ID from href="#some-id"
+                event.preventDefault();
+                const targetId = link.hash.substring(1);
                 const targetArticle = document.getElementById(targetId);
 
                 if (targetArticle) {
                     targetArticle.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                    // Optional: Add highlighting to the article
-                    // Remove highlight from others
-                    contentDom.querySelectorAll('.glossary-article.is-highlighted')
-                        .forEach(el => el.classList.remove('is-highlighted'));
-                    // Add highlight to the target
-                    targetArticle.classList.add('is-highlighted');
-                    // Remove highlight after a delay
-                    setTimeout(() => {
-                        targetArticle.classList.remove('is-highlighted');
-                    }, 1500); // Highlight for 1.5 seconds
                 }
             }
         });
