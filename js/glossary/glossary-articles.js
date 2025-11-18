@@ -96,8 +96,6 @@ export function initGlossaryArticles() {
 
     // Навігація з лівої панелі (tree) до секції
     const treeDom = getGlossaryDOM().treeContainer;
-    // Важливо: скролити потрібно контейнер, а не вікно, оскільки ми змінили overflow
-    const scrollContainer = document.getElementById('glossary-content-container');
 
     if (treeDom) {
         treeDom.addEventListener('click', (event) => {
