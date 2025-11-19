@@ -108,7 +108,13 @@ export function renderBrandsTable() {
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
+            const hasGlossary = row.glossary_text && row.glossary_text.trim();
+            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
+
             return `
+                <button class="btn-icon btn-view-glossary ${eyeClass}" data-brand-id="${escapeHtml(row.brand_id)}" title="Переглянути глосарій">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
                 <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
@@ -140,6 +146,18 @@ export function renderBrandsTable() {
             if (brandId) {
                 const { showEditBrandModal } = await import('./brands-crud.js');
                 await showEditBrandModal(brandId);
+            }
+        });
+    });
+
+    // Додати обробники для кнопок перегляду глосарію
+    container.querySelectorAll('.btn-view-glossary').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const brandId = button.dataset.brandId;
+            if (brandId) {
+                const { showGlossaryModal } = await import('./brands-crud.js');
+                await showGlossaryModal(brandId);
             }
         });
     });

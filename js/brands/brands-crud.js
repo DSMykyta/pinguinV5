@@ -14,6 +14,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { highlightText, checkTextForBannedWords } from '../utils/text-utils.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Генерувати новий ID для бренду (для відображення в UI)
@@ -113,6 +114,43 @@ export async function showEditBrandModal(brandId) {
     const saveBtn = document.getElementById('save-brand');
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateBrand(brandId);
+    }
+}
+
+/**
+ * Показати модальне вікно глосарію для бренду
+ * @param {string} brandId - ID бренду
+ */
+export async function showGlossaryModal(brandId) {
+    console.log(`👁️ Відкриття модального вікна глосарію для ${brandId}`);
+
+    const brands = getBrands();
+    const brand = brands.find(b => b.brand_id === brandId);
+
+    if (!brand) {
+        showToast('Бренд не знайдено', 'error');
+        return;
+    }
+
+    await showModal('glossary-view', null);
+
+    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    if (title) title.textContent = `Глосарій: ${brand.name_uk}`;
+
+    const contentEl = document.getElementById('glossary-content');
+    if (contentEl) {
+        if (brand.glossary_text && brand.glossary_text.trim()) {
+            contentEl.innerHTML = brand.glossary_text;
+        } else {
+            contentEl.innerHTML = renderAvatarState('empty', {
+                message: 'Текст глосарію відсутній',
+                size: 'medium',
+                containerClass: 'empty-state-container',
+                avatarClass: 'empty-state-avatar',
+                messageClass: 'avatar-state-message',
+                showMessage: true
+            });
+        }
     }
 }
 

@@ -68,7 +68,10 @@ function createArticleHtml(item) {
 
             <div class="section-content">
                 <div class="article-text">
-                    ${item.text ? item.text : createEmptyStateHtml(item.id)}
+                    ${(() => {
+                        console.log(`[ГЛОСАРІЙ] item.id=${item.id}, item.text="${item.text}", довжина=${item.text?.length || 0}`);
+                        return item.text ? item.text : createEmptyStateHtml(item.id);
+                    })()}
                 </div>
 
                 <div class="glossary-article-footer">
@@ -97,12 +100,14 @@ export function renderGlossaryArticles() {
     if (!dom.contentContainer) return;
 
     if (data.length === 0) {
-        dom.contentContainer.innerHTML = `
-            <div class="loading-state">
-                <span class="material-symbols-outlined">info</span>
-                <p>Немає статей для відображення.</p>
-            </div>
-        `;
+        dom.contentContainer.innerHTML = renderAvatarState('empty', {
+            message: 'Немає статей для відображення',
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
         return;
     }
 
