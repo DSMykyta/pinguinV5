@@ -42,6 +42,22 @@ function showActivePanel(templateName) {
 async function preloadAllPanels() {
     console.log('🔍 preloadAllPanels: початок завантаження панелей');
 
+    const contentContainer = document.getElementById('panel-right-content');
+    if (!contentContainer) {
+        console.error('❌ panel-right-content не знайдено');
+        return;
+    }
+
+    // Збираємо всі унікальні назви шаблонів зі сторінки
+    const sections = document.querySelectorAll('[data-panel-template]');
+    const templateNames = new Set();
+    sections.forEach(section => {
+        const templateName = section.dataset.panelTemplate;
+        if (templateName) templateNames.add(templateName);
+    });
+
+    console.log('📋 Знайдені шаблони:', Array.from(templateNames));
+
     // Створюємо масив промісів для паралельного завантаження
     const loadingPromises = Array.from(templateNames).map(async (name) => {
         console.log(`🔄 Завантаження панелі: ${name}`);
