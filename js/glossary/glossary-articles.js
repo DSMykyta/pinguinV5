@@ -43,7 +43,7 @@ function createArticleHtml(item) {
 
             <div class="section-content">
                 <div class="article-text">
-                    ${item.glossary_text || '<p><i>(Опис відсутній)</i></p>'}
+                    ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
 
                 <div class="glossary-article-footer">
