@@ -18,51 +18,51 @@ function createArticleHtml(item) {
 
     const triggersHtml = trigersArray.length > 0
         ? trigersArray.map(tr => `<span class="word-chip primary">${tr}</span>`).join(' ')
-        : '';
+        : '<span class="text-muted">Немає тригерів</span>';
 
     const keywordsUaHtml = keywordsUaArray.length > 0
         ? keywordsUaArray.map(kw => `<span class="word-chip">${kw}</span>`).join(' ')
+        : '<span class="text-muted">Немає ключових слів</span>';
+
+    // Badge for param_type
+    const paramTypeHtml = item.param_type
+        ? `<span class="badge badge-param-type">${item.param_type}</span>`
         : '';
 
-    const hasKeywords = trigersArray.length > 0 || keywordsUaArray.length > 0;
-
-    // Важливо: використовуємо ID для навігації (href="#id")
     return `
         <article id="${item.id}" class="glossary-article">
             <div class="article-header">
                 <div class="article-title-row">
-                    <h2>${item.name}</h2>
-                    <span class="article-id">ID: ${item.id}</span>
+                    <div class="title-group">
+                        <h2>${item.name}</h2>
+                        <span class="article-id">${item.id}</span>
+                    </div>
+                    <div class="article-actions">
+                        ${paramTypeHtml}
+                    </div>
                 </div>
             </div>
 
-            <div class="article-content">
+            <div class="article-content scrollable-content">
                 <div class="article-text">
                     ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
             </div>
 
-            ${hasKeywords ? `
-            <div class="keywords-content">
-                ${trigersArray.length > 0 ? `
-                <div class="keywords-section">
+            <div class="article-footer">
+                <div class="footer-column">
                     <strong>Тригери:</strong>
                     <div class="cell-words-list">
                         ${triggersHtml}
                     </div>
                 </div>
-                ` : ''}
-
-                ${keywordsUaArray.length > 0 ? `
-                <div class="keywords-section">
-                    <strong>Ключові слова:</strong>
+                <div class="footer-column">
+                    <strong>Keywords UA:</strong>
                     <div class="cell-words-list">
                         ${keywordsUaHtml}
                     </div>
                 </div>
-                ` : ''}
             </div>
-            ` : ''}
         </article>
     `;
 }

@@ -6,7 +6,8 @@
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
-    padding-bottom: 100px; /* Space for footer */
+    padding-bottom: 100px;
+    /* Space for footer */
 }
 
 .glossary-article {
@@ -14,19 +15,26 @@
     border: 1px solid var(--color-outline-v);
     border-radius: 12px;
     margin-bottom: 24px;
-    padding: 24px;
-    scroll-margin-top: 80px; /* Account for fixed header */
+    padding: 0;
+    /* Padding handled by inner elements */
+    scroll-margin-top: 80px;
+    /* Account for fixed header */
     transition: box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* For rounded corners */
 }
 
 .glossary-article:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* HEADER */
 .article-header {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--color-outline-v);
+    background-color: var(--color-surface-c-lowest);
 }
 
 .article-title-row {
@@ -35,26 +43,62 @@
     align-items: center;
 }
 
+.title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .article-header h2 {
     font-weight: 600;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--color-on-surface);
     margin: 0;
 }
 
 .article-id {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--color-on-surface-v);
     font-family: monospace;
-    background: var(--color-surface-c-low);
-    padding: 2px 6px;
-    border-radius: 4px;
 }
 
+.badge-param-type {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* CONTENT */
 .article-content {
+    padding: 24px;
     line-height: 1.6;
     color: var(--color-on-surface);
     font-size: 15px;
+}
+
+.scrollable-content {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-outline-v) transparent;
+}
+
+.scrollable-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+    background-color: var(--color-outline-v);
+    border-radius: 3px;
 }
 
 .article-text p {
@@ -99,47 +143,46 @@
     font-weight: 500;
 }
 
-/* ========== Keywords Block ========== */
-
-.keywords-content {
-    margin-top: 20px;
-    padding: 16px;
-    border: 1px dashed var(--color-outline-v);
-    border-radius: 8px;
+/* FOOTER */
+.article-footer {
+    display: flex;
+    border-top: 1px solid var(--color-outline-v);
     background-color: var(--color-surface-c-lowest);
 }
 
-.keywords-section {
-    margin-bottom: 12px;
+.footer-column {
+    flex: 1;
+    padding: 16px 24px;
+    border-right: 1px solid var(--color-outline-v);
 }
 
-.keywords-section:last-child {
-    margin-bottom: 0;
+.footer-column:last-child {
+    border-right: none;
 }
 
-.keywords-section strong {
+.footer-column strong {
     display: block;
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--color-on-surface-v);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.keywords-section .cell-words-list {
+.cell-words-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .word-chip {
     display: inline-flex;
     align-items: center;
-    padding: 4px 10px;
+    padding: 2px 8px;
     background-color: var(--color-surface);
     border: 1px solid var(--color-outline-v);
-    border-radius: 16px;
-    font-size: 13px;
+    border-radius: 12px;
+    font-size: 12px;
     color: var(--color-on-surface);
 }
 
@@ -147,6 +190,12 @@
     background-color: var(--color-surface-c-low);
     border-color: var(--color-main-container);
     color: var(--color-main);
+}
+
+.text-muted {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    font-style: italic;
 }
 
 .glossary-article.is-highlighted {

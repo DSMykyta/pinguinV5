@@ -40,6 +40,7 @@ export async function fetchGlossaryData() {
                 keywords_ua: (row.keywords_ua || '').trim(),
                 keywords_ru: (row.keywords_ru || '').trim(),
                 trigers: (row.trigers || '').trim(),
+                param_type: (row.param_type || '').trim(),
                 children: [] // Масив для дочірніх елементів
             };
 
@@ -61,11 +62,11 @@ export async function fetchGlossaryData() {
 
             // Зберігаємо посилання на батьківський елемент (для зручності)
             if (item.parentId && glossaryMap[item.parentId]) {
-                 // Додаємо поточний елемент до дітей батьківського
-                 if (!glossaryMap[item.parentId].children) {
-                     glossaryMap[item.parentId].children = [];
-                 }
-                 glossaryMap[item.parentId].children.push(item);
+                // Додаємо поточний елемент до дітей батьківського
+                if (!glossaryMap[item.parentId].children) {
+                    glossaryMap[item.parentId].children = [];
+                }
+                glossaryMap[item.parentId].children.push(item);
             } else if (!item.parentId) {
                 rootItems.push(item); // Додаємо до кореневих елементів
             }

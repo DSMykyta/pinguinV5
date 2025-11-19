@@ -130,3 +130,36 @@ export async function initPanelRight() {
         console.error("Не знайдено panel-right, btn-panel-right-toggle або content-main");
     }
 }
+
+/**
+ * Завантажує конкретний шаблон в асайд панель.
+ * @param {string} templateName - Назва шаблону (напр. 'aside-glossary').
+ */
+export async function loadAsideTemplate(templateName) {
+    const contentContainer = document.getElementById('panel-right-content');
+    if (!contentContainer) return;
+
+    // Перевіряємо, чи вже завантажено
+    if (document.getElementById(templateName)) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.id = templateName;
+    wrapper.className = 'panel-fragment is-active'; // Одразу активний
+    contentContainer.appendChild(wrapper);
+
+    const templateUrl = `templates/aside/${templateName}.html`;
+
+    try {
+        await loadHTML(templateUrl, wrapper);
+        console.log(`✅ Завантажено HTML для: ${templateName}`);
+
+        if (panelInitializers[templateName]) {
+            console.log(`🚀 Викликаємо ініціалізатор для: ${templateName}`);
+            panelInitializers[templateName]();
+        }
+
+        initDropdowns();
+    } catch (error) {
+        console.error(`❌ Помилка завантаження шаблону ${templateName}:`, error);
+    }
+}
