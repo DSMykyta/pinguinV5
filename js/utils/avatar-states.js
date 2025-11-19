@@ -59,7 +59,7 @@ const AVATAR_STATES = {
 
     // Помилка
     error: {
-        emotion: 'angry',
+        emotion: 'anger',
         messages: [
             'Щось пішло не так',
             'Помилка!',
@@ -81,7 +81,7 @@ const AVATAR_STATES = {
 
     // Підтвердження закриття
     confirmClose: {
-        emotion: 'suspicious',
+        emotion: 'suspicion',
         messages: [
             'Точно закрити?',
             'Ти впевнений?',
@@ -105,7 +105,7 @@ const AVATAR_STATES = {
 
     // Підтвердження скидання
     confirmReset: {
-        emotion: 'angry',
+        emotion: 'anger',
         messages: [
             'Скинути все?',
             'Видалити зміни?',
@@ -117,7 +117,7 @@ const AVATAR_STATES = {
 
     // Авторизація/вхід
     authLogin: {
-        emotion: 'suspicious',
+        emotion: 'suspicion',
         messages: [
             'Хто ти такий?',
             'Ти точно маєш доступ?',
