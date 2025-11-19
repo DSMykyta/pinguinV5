@@ -154,6 +154,13 @@
     min-height: 200px;
 }
 
+.empty-state-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+
 .empty-state-icon {
     font-size: 64px;
     color: var(--color-on-surface-v);

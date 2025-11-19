@@ -2,9 +2,33 @@
 
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
+import { getUserData } from '../auth/custom-auth.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
- * Створює HTML статті. 
+ * Створює HTML для empty state з аватаром користувача
+ */
+function createEmptyStateHtml(itemId) {
+    // Отримуємо дані користувача
+    const userData = getUserData();
+    const avatarAnimal = userData?.avatar || 'penguin'; // Дефолт - penguin
+    const avatarPath = getAvatarPath(avatarAnimal, 'sad');
+
+    return `
+        <div class="empty-state-container">
+            <img src="${avatarPath}" alt="Sad ${avatarAnimal}" class="empty-state-avatar"
+                 onerror="this.src='resources/avatars/penguin-sad.png'">
+            <p class="empty-state-text">Поки про це нічого не відомо</p>
+            <button class="btn-primary btn-add-glossary-text" data-item-id="${itemId}">
+                <span class="material-symbols-outlined">add</span>
+                <span>Додати</span>
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * Створює HTML статті.
  * Використовує простішу структуру без data-panel-template
  */
 function createArticleHtml(item) {
@@ -43,16 +67,7 @@ function createArticleHtml(item) {
 
             <div class="section-content">
                 <div class="article-text">
-                    ${item.text ? item.text : `
-                        <div class="empty-state-container">
-                            <span class="material-symbols-outlined empty-state-icon">sentiment_sad</span>
-                            <p class="empty-state-text">Поки про це нічого не відомо</p>
-                            <button class="btn-primary btn-add-glossary-text" data-item-id="${item.id}">
-                                <span class="material-symbols-outlined">add</span>
-                                <span>Додати</span>
-                            </button>
-                        </div>
-                    `}
+                    ${item.text ? item.text : createEmptyStateHtml(item.id)}
                 </div>
 
                 <div class="glossary-article-footer">

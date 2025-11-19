@@ -7,7 +7,7 @@
 
 <div class="modal-body-source">
     <div class="success-state-container">
-        <span class="material-symbols-outlined success-state-icon">sentiment_satisfied</span>
+        <div id="success-avatar-container"></div>
         <h3 class="success-state-title">Тепер ясно що це!</h3>
         <p class="success-state-text">Після оновлення сторінки ми зможемо читати новий опис</p>
         <button class="btn-primary" data-modal-close id="reload-page-btn">
@@ -31,6 +31,13 @@
 .success-state-icon {
     font-size: 96px;
     color: var(--color-success, #4caf50);
+    animation: scaleIn 0.3s ease-out;
+}
+
+#success-avatar-container img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
     animation: scaleIn 0.3s ease-out;
 }
 
