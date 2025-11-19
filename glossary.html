@@ -124,26 +124,13 @@
             <!-- Logout Button (показується коли авторизований) -->
             <button id="auth-logout-btn" class="panel-item u-hidden">
                 <span class="material-symbols-outlined panel-item-icon">logout</span>
-                <span class="panel-item-text">Вийти</span>
             </button>
         </div>
 
     </nav>
 
-    <main id="content-main" class="content-main tabbed-page">
-
-        <!-- Tab Content -->
-        <div class="tab-content active" data-tab-content="tab-glossary" id="tab-glossary">
-
-            <!-- Articles Container -->
-            <div id="glossary-articles-container" class="glossary-articles-container">
-                <div class="loading-state">
-                    <span class="material-symbols-outlined">import_contacts</span>
-                    <p>Завантаження глосарію...</p>
-                </div>
-            </div>
-        </div>
-
+    <main id="content-main" class="content-main">
+        <!-- Articles will be rendered here by glossary-articles.js -->
     </main>
 
     <aside id="panel-right" class="panel panel-right">
@@ -152,15 +139,12 @@
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
             </button>
         </div>
-        <div id="panel-right-content" class="panel-content">
-            <!-- Aside content loaded here -->
-        </div>
+        <div id="panel-right-content" class="panel-content"></div>
     </aside>
 
     <div id="modal-placeholder"></div>
 
     <script type="module" src="js/main-glossary.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 

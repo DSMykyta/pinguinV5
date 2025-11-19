@@ -30,7 +30,7 @@ function createArticleHtml(item) {
         : '';
 
     return `
-        <article id="${item.id}" class="glossary-article">
+        <section id="${item.id}" data-panel-template="aside-glossary">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -41,7 +41,7 @@ function createArticleHtml(item) {
                 ${paramTypeHtml}
             </div>
 
-            <div class="section-content glossary-content-scroll">
+            <div class="section-content">
                 <div class="article-text">
                     ${item.glossary_text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
@@ -61,7 +61,7 @@ function createArticleHtml(item) {
                     </div>
                 </div>
             </div>
-        </article>
+        </section>
     `;
 }
 
