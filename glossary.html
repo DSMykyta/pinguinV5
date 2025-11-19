@@ -4,29 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Інструменти</title>
+    <title>Глосарій</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <!DOCTYPE html>
-    <html lang="uk">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Інструменти</title>
-        <link rel="icon" href="data:,">
-        <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;display=swap"
-            rel="stylesheet">
-    </head>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/components/content/glossary-article.css">
+    <link rel="stylesheet" href="css/components/content/glossary-tree.css">
+</head>
 
 <body class="panel-left-closed">
 
@@ -138,6 +128,25 @@
             </button>
         </div>
 
+    </nav>
+
+    <main id="content-main" class="content-main tabbed-page">
+
+        <!-- Tab Content -->
+        <div class="tab-content active" data-tab-content="tab-glossary" id="tab-glossary">
+
+            <!-- Articles Container -->
+            <div id="glossary-articles-container" class="glossary-articles-container">
+                <div class="loading-state">
+                    <span class="material-symbols-outlined">import_contacts</span>
+                    <p>Завантаження глосарію...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <aside id="panel-right" class="panel panel-right">
         <div class="panel-header">
             <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
@@ -146,14 +155,14 @@
         <div id="panel-right-content" class="panel-content">
             <!-- Aside content loaded here -->
         </div>
-        </aside>
+    </aside>
 
-        <div id="modal-placeholder"></div>
+    <div id="modal-placeholder"></div>
 
-        <script type="module" src="js/main-glossary.js"></script>
+    <script type="module" src="js/main-glossary.js"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 </body>
 
