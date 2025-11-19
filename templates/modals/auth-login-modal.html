@@ -12,40 +12,31 @@
         <!-- Avatar container -->
         <div id="auth-login-avatar-container" class="auth-login-avatar"></div>
 
+        <!-- Випадковий текст від аватара -->
+        <p id="auth-login-avatar-message" class="auth-login-avatar-message"></p>
+
         <!-- Повідомлення про помилку -->
         <div id="auth-login-error" class="auth-login-error u-hidden"></div>
 
         <!-- Форма входу -->
         <form id="auth-login-form" class="auth-login-form">
-            <fieldset class="form-fieldset">
-                <legend>Дані для входу</legend>
+            <div class="form-group">
+                <label for="auth-username">Логін <span class="required">*</span></label>
+                <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін" autocomplete="username" required autofocus>
+            </div>
 
-                <div class="form-group">
-                    <label for="auth-username">Логін <span class="required">*</span></label>
-                    <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін" autocomplete="username" required autofocus>
-                </div>
-
-                <div class="form-group">
-                    <label for="auth-password">Пароль <span class="required">*</span></label>
-                    <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
-                </div>
-            </fieldset>
+            <div class="form-group">
+                <label for="auth-password">Пароль <span class="required">*</span></label>
+                <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
+            </div>
 
             <div class="auth-login-hint">
                 Для отримання доступу зверніться до адміністратора
             </div>
 
-            <div class="connected-button-group-round modal-footer" role="group">
-                <button type="button" id="auth-modal-cancel" class="segment" data-modal-close aria-label="Скасувати">
-                    <div class="state-layer">
-                        <span class="label">Скасувати</span>
-                    </div>
-                </button>
-                <button type="submit" id="auth-login-btn" class="segment" aria-label="Увійти">
-                    <div class="state-layer">
-                        <span class="label">Увійти</span>
-                    </div>
-                </button>
+            <div class="auth-login-actions">
+                <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
+                <button type="submit" class="btn-primary" id="auth-login-btn">Увійти</button>
             </div>
         </form>
     </div>
@@ -56,14 +47,15 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    align-items: center;
+    padding: 24px;
+    gap: 16px;
 }
 
 .auth-login-avatar {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 8px;
 }
 
 .auth-login-avatar img {
@@ -71,6 +63,14 @@
     height: 100px;
     object-fit: contain;
     opacity: 0.9;
+}
+
+.auth-login-avatar-message {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    text-align: center;
 }
 
 .auth-login-error {
@@ -87,7 +87,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .auth-login-hint {
@@ -95,5 +95,16 @@
     color: var(--text-secondary);
     text-align: center;
     line-height: 1.4;
+}
+
+.auth-login-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.auth-login-actions button {
+    min-width: 100px;
 }
 </style>

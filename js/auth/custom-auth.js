@@ -6,7 +6,7 @@
 
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState, getAvatarState } from '../utils/avatar-states.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -295,8 +295,12 @@ function setupLoginTrigger() {
       console.log('🖱️ КЛІК на кнопку "Увійти"!');
       e.preventDefault();
 
+      // Створюємо тригер елемент з розміром small
+      const triggerElement = document.createElement('div');
+      triggerElement.dataset.modalSize = 'small';
+
       // Використовуємо існуючу систему модалів
-      showModal('auth-login-modal');
+      showModal('auth-login-modal', triggerElement);
     });
   } else {
     console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
@@ -324,6 +328,7 @@ function handleModalOpened(event) {
   const loginButton = bodyTarget.querySelector('#auth-login-btn');
   const loginError = bodyTarget.querySelector('#auth-login-error');
   const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
+  const avatarMessage = bodyTarget.querySelector('#auth-login-avatar-message');
 
   console.log('🔍 Елементи форми в модалі:', {
     loginForm: !!loginForm,
@@ -331,7 +336,8 @@ function handleModalOpened(event) {
     passwordInput: !!passwordInput,
     loginButton: !!loginButton,
     loginError: !!loginError,
-    avatarContainer: !!avatarContainer
+    avatarContainer: !!avatarContainer,
+    avatarMessage: !!avatarMessage
   });
 
   if (!loginForm) {
@@ -339,13 +345,19 @@ function handleModalOpened(event) {
     return;
   }
 
-  // Вставляємо аватар з недовірливою емоцією (suspicious)
+  // Вставляємо аватар з недовірливою емоцією
   if (avatarContainer) {
     avatarContainer.innerHTML = renderAvatarState('authLogin', {
       size: 'medium',
       animal: 'penguin', // Завжди пінгвін для логіну (не персоналізований)
       showMessage: false
     });
+  }
+
+  // Показуємо випадкове повідомлення
+  if (avatarMessage) {
+    const state = getAvatarState('authLogin', { animal: 'penguin' });
+    avatarMessage.textContent = state.message;
   }
 
   // Очищаємо поля
