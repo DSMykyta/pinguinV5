@@ -15,6 +15,7 @@ import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
 import { initPaginationForBannedWords } from './banned-words-pagination.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Глобальний state для banned words модуля
@@ -145,15 +146,17 @@ async function initializeUIWithoutData() {
     const checkPanel = document.getElementById('aside-check-panel');
     if (checkPanel) checkPanel.classList.remove('u-hidden');
 
-    // 4. Показати порожню таблицю
+    // 4. Показати порожню таблицю з аватаром
     const container = document.getElementById('banned-words-table-container');
     if (container) {
-        container.innerHTML = `
-            <div class="loading-state">
-                <span class="material-symbols-outlined">key</span>
-                <p>Авторизуйтесь для завантаження даних</p>
-            </div>
-        `;
+        container.innerHTML = renderAvatarState('authLogin', {
+            message: 'Авторизуйтесь для завантаження даних',
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
     }
 
     console.log('✅ UI ініціалізовано без даних');

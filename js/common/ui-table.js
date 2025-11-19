@@ -2,6 +2,7 @@
 // Універсальний компонент для рендерингу таблиць
 
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Відрендерити псевдо-таблицю з даними
@@ -50,14 +51,16 @@ export function renderPseudoTable(container, options) {
     // Клас для прихованих колонок
     const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
 
-    // Якщо немає даних - показати empty state
+    // Якщо немає даних - показати empty state з аватаром
     if (data.length === 0 && emptyState) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <span class="material-symbols-outlined">${emptyState.icon || 'inbox'}</span>
-                <p>${emptyState.message || 'Немає даних для відображення'}</p>
-            </div>
-        `;
+        container.innerHTML = renderAvatarState('empty', {
+            message: emptyState.message || 'Немає даних для відображення',
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
         return;
     }
 

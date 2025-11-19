@@ -11,6 +11,7 @@ import { renderKeywordsTable } from './keywords-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 export async function showAddKeywordModal() {
     console.log('➕ Відкриття модального вікна для додавання ключового слова');
@@ -114,12 +115,14 @@ export async function showGlossaryModal(localId) {
         if (keyword.glossary_text && keyword.glossary_text.trim()) {
             contentEl.innerHTML = keyword.glossary_text;
         } else {
-            contentEl.innerHTML = `
-                <div class="empty-state">
-                    <span class="material-symbols-outlined">description</span>
-                    <p>Текст глосарію відсутній</p>
-                </div>
-            `;
+            contentEl.innerHTML = renderAvatarState('empty', {
+                message: 'Текст глосарію відсутній',
+                size: 'medium',
+                containerClass: 'empty-state-container',
+                avatarClass: 'empty-state-avatar',
+                messageClass: 'avatar-state-message',
+                showMessage: true
+            });
         }
     }
 }
