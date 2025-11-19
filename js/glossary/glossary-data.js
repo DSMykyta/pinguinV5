@@ -21,6 +21,8 @@ export async function fetchGlossaryData() {
         const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
         console.log('[ГЛОСАРІЙ]: Перший рядок з таблиці:', parsedData[0]);
+        console.log('[ГЛОСАРІЙ]: Назви всіх колонок:', Object.keys(parsedData[0] || {}));
+        console.log('[ГЛОСАРІЙ]: Значення glossary_text першого рядка:', parsedData[0]?.glossary_text);
 
         // Очищаємо перед заповненням
         glossaryData = [];
