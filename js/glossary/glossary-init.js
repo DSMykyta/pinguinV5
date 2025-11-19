@@ -5,6 +5,7 @@ import { renderGlossaryTree, initTreeToggles } from './glossary-tree.js';
 import { initGlossaryArticles } from './glossary-articles.js';
 import { initSearchClear } from '../utils/search-clear.js';
 import { initGlossaryModals } from './glossary-modals.js';
+import { initGlossarySearch } from './glossary-search.js';
 
 export async function initGlossaryPage() {
     console.log('Ініціалізація сторінки глосарію...');
@@ -24,6 +25,7 @@ export async function initGlossaryPage() {
 
     // 5. Ініціалізація пошуку
     initSearchClear('glossary-search-input');
+    initGlossarySearch();
 
     console.log('Глосарій успішно ініціалізовано.');
 }
