@@ -11,8 +11,11 @@ import { getAvatarPath } from '../utils/avatar-loader.js';
 function createEmptyStateHtml(itemId) {
     // Отримуємо дані користувача
     const userData = getUserData();
+    console.log('🎨 [Empty State] User data:', userData);
+    console.log('🎨 [Empty State] Avatar animal:', userData?.avatar);
     const avatarAnimal = userData?.avatar || 'penguin'; // Дефолт - penguin
     const avatarPath = getAvatarPath(avatarAnimal, 'sad');
+    console.log('🎨 [Empty State] Avatar path:', avatarPath);
 
     return `
         <div class="empty-state-container">
