@@ -43,7 +43,16 @@ function createArticleHtml(item) {
 
             <div class="section-content">
                 <div class="article-text">
-                    ${item.text || '<p><i>(Опис відсутній)</i></p>'}
+                    ${item.text ? item.text : `
+                        <div class="empty-state-container">
+                            <span class="material-symbols-outlined empty-state-icon">sentiment_sad</span>
+                            <p class="empty-state-text">Поки про це нічого не відомо</p>
+                            <button class="btn-primary btn-add-glossary-text" data-item-id="${item.id}">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Додати</span>
+                            </button>
+                        </div>
+                    `}
                 </div>
 
                 <div class="glossary-article-footer">
