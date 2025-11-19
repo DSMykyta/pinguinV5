@@ -14,9 +14,10 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - ui-modal.js (базові функції модалів)
+ * - templates/modals/modal-confirm.html
  */
 
-import { createModalStructure, getModalWrapper, closeModal } from './ui-modal.js';
+import { showModal, closeModal } from './ui-modal.js';
 
 /**
  * Показати просте підтвердження з кнопками Так/Ні
@@ -43,7 +44,7 @@ import { createModalStructure, getModalWrapper, closeModal } from './ui-modal.js
  *   // Виконати дію
  * }
  */
-export function showConfirmModal(options = {}) {
+export async function showConfirmModal(options = {}) {
     const {
         title = 'Підтвердження',
         message = 'Ви впевнені?',
@@ -52,48 +53,38 @@ export function showConfirmModal(options = {}) {
         confirmClass = 'btn-danger'
     } = options;
 
-    return new Promise((resolve) => {
-        // Створити структуру модалу якщо її немає
-        let modalWrapper = getModalWrapper();
-        if (!modalWrapper) {
-            createModalStructure();
-            modalWrapper = getModalWrapper();
+    return new Promise(async (resolve) => {
+        // Створюємо тригер елемент з атрибутом data-modal-size
+        const triggerElement = document.createElement('div');
+        triggerElement.dataset.modalSize = 'small';
+
+        // Відкриваємо модал з шаблону
+        await showModal('modal-confirm', triggerElement);
+
+        // Після відкриття оновлюємо контент
+        const modalTitle = document.querySelector('.modal-title');
+        const messageElement = document.getElementById('modal-confirm-message-text');
+        const cancelBtn = document.getElementById('modal-confirm-cancel-btn');
+        const confirmBtn = document.getElementById('modal-confirm-confirm-btn');
+
+        if (modalTitle) {
+            modalTitle.textContent = title;
         }
 
-        // Заповнити контент
-        const titleTarget = modalWrapper.querySelector('.modal-title');
-        const headerActionsTarget = modalWrapper.querySelector('#modal-header-actions');
-        const bodyTarget = modalWrapper.querySelector('.modal-body');
+        if (messageElement) {
+            messageElement.textContent = message;
+        }
 
-        titleTarget.textContent = title;
+        if (cancelBtn) {
+            cancelBtn.textContent = cancelText;
+        }
 
-        // Створити тіло модалу з повідомленням (використовуємо CSS класи замість inline стилів)
-        bodyTarget.innerHTML = `
-            <div class="modal-confirm-body">
-                <p class="modal-confirm-message">${message}</p>
-                <div class="modal-confirm-actions">
-                    <button class="btn-secondary" data-confirm-action="cancel">${cancelText}</button>
-                    <button class="btn-primary ${confirmClass}" data-confirm-action="confirm">${confirmText}</button>
-                </div>
-            </div>
-        `;
-
-        // Додати кнопку закриття в header
-        headerActionsTarget.innerHTML = '';
-        const group = document.createElement('div');
-        group.className = 'connected-button-group-square';
-
-        const closeButton = document.createElement('button');
-        closeButton.className = 'segment modal-close-btn';
-        closeButton.setAttribute('aria-label', 'Закрити');
-        closeButton.innerHTML = `<div class="state-layer"><span class="material-symbols-outlined">close</span></div>`;
-        group.appendChild(closeButton);
-
-        headerActionsTarget.appendChild(group);
-
-        // Показати модал
-        document.body.classList.add('is-modal-open');
-        modalWrapper.classList.add('is-open');
+        if (confirmBtn) {
+            confirmBtn.textContent = confirmText;
+            // Додаємо/замінюємо клас
+            confirmBtn.className = `btn-primary ${confirmClass}`;
+            confirmBtn.dataset.confirmAction = 'confirm';
+        }
 
         // Обробник кліків на кнопки
         const handleClick = (e) => {
@@ -110,38 +101,20 @@ export function showConfirmModal(options = {}) {
             }
         };
 
-        // Обробник закриття (ESC або клік поза модалом)
-        const handleClose = () => {
+        // Обробник закриття модалу
+        const handleModalClose = () => {
             cleanup();
             resolve(false);
         };
 
         // Cleanup функція
         const cleanup = () => {
-            bodyTarget.removeEventListener('click', handleClick);
-            modalWrapper.removeEventListener('click', handleModalWrapperClick);
-            document.removeEventListener('modal-closed', handleClose);
-        };
-
-        // Обробник кліку на overlay
-        const handleModalWrapperClick = (e) => {
-            if (e.target === modalWrapper) {
-                closeModal();
-                handleClose();
-            }
+            document.removeEventListener('click', handleClick);
+            document.removeEventListener('modal-closed', handleModalClose);
         };
 
         // Додати слухачі
-        bodyTarget.addEventListener('click', handleClick);
-        modalWrapper.addEventListener('click', handleModalWrapperClick);
-
-        // Слухаємо подію закриття модалу (ESC або кнопка X)
-        const modalCloseHandler = () => {
-            if (!modalWrapper.classList.contains('is-open')) {
-                handleClose();
-                document.removeEventListener('modal-closed', modalCloseHandler);
-            }
-        };
-        document.addEventListener('modal-closed', modalCloseHandler);
+        document.addEventListener('click', handleClick);
+        document.addEventListener('modal-closed', handleModalClose);
     });
 }

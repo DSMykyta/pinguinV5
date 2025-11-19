@@ -61,7 +61,7 @@ button:active:not(.tab-close-btn),
 }
 
 button:disabled {
-    opacity: 0.38;
+    opacity: 0;
     cursor: not-allowed;
 }
 
