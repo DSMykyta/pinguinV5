@@ -31,35 +31,33 @@ function createArticleHtml(item) {
 
     return `
         <article id="${item.id}" class="glossary-article">
-            <div class="article-header">
-                <div class="article-title-row">
-                    <div class="title-group">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
                         <h2>${item.name}</h2>
-                        <span class="article-id">${item.id}</span>
                     </div>
-                    <div class="article-actions">
-                        ${paramTypeHtml}
-                    </div>
+                    <h3>${item.id}</h3>
                 </div>
+                ${paramTypeHtml}
             </div>
 
-            <div class="article-content scrollable-content">
+            <div class="section-content glossary-content-scroll">
                 <div class="article-text">
-                    ${item.text || '<p><i>(Опис відсутній)</i></p>'}
+                    ${item.glossary_text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
-            </div>
 
-            <div class="article-footer">
-                <div class="footer-column">
-                    <strong>Тригери:</strong>
-                    <div class="cell-words-list">
-                        ${triggersHtml}
+                <div class="glossary-article-footer">
+                    <div class="footer-column">
+                        <strong>Тригери:</strong>
+                        <div class="cell-words-list">
+                            ${triggersHtml}
+                        </div>
                     </div>
-                </div>
-                <div class="footer-column">
-                    <strong>Keywords UA:</strong>
-                    <div class="cell-words-list">
-                        ${keywordsUaHtml}
+                    <div class="footer-column">
+                        <strong>Keywords UA:</strong>
+                        <div class="cell-words-list">
+                            ${keywordsUaHtml}
+                        </div>
                     </div>
                 </div>
             </div>
