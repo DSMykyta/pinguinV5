@@ -14,6 +14,7 @@ import { initBrandsEvents, initBrandsSearch, initBrandsSorting } from './brands-
 import { showAddBrandModal } from './brands-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Глобальний стан для brands модуля
@@ -147,12 +148,17 @@ function renderAuthRequiredState() {
     const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `
-        <div class="loading-state">
-            <span class="material-symbols-outlined">key</span>
-            <p>Авторизуйтесь для завантаження даних</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів для вимоги авторизації
+    const avatarHtml = renderAvatarState('authLogin', {
+        message: 'Авторизуйтесь для завантаження даних',
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
+
+    tableBody.innerHTML = avatarHtml;
 }
 
 /**
@@ -162,12 +168,17 @@ function renderErrorState() {
     const tableBody = document.querySelector('#tab-brands .pseudo-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `
-        <div class="loading-state">
-            <span class="material-symbols-outlined">error</span>
-            <p>Помилка завантаження даних</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів для помилок
+    const avatarHtml = renderAvatarState('error', {
+        message: 'Помилка завантаження даних',
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
+
+    tableBody.innerHTML = avatarHtml;
 }
 
 /**

@@ -10,6 +10,7 @@ import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 export function renderKeywordsTable() {
     console.log('🎨 Рендеринг таблиці ключових слів...');
@@ -224,13 +225,16 @@ function renderEmptyState() {
     const container = document.getElementById('keywords-table-container');
     if (!container) return;
 
-    container.innerHTML = `
-        <div class="empty-state">
-            <span class="material-symbols-outlined">key</span>
-            <p>Немає ключових слів</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів
+    const avatarHtml = renderAvatarState('empty', {
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
 
+    container.innerHTML = avatarHtml;
     updateStats(0, 0);
 }
 

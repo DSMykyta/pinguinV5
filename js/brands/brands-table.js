@@ -12,6 +12,7 @@ import { getBrands } from './brands-data.js';
 import { brandsState } from './brands-init.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Рендерити таблицю брендів
@@ -181,13 +182,16 @@ function renderEmptyState() {
     const container = document.getElementById('brands-table-container');
     if (!container) return;
 
-    container.innerHTML = `
-        <div class="empty-state">
-            <span class="material-symbols-outlined">shopping_bag</span>
-            <p>Немає брендів</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів
+    const avatarHtml = renderAvatarState('empty', {
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
 
+    container.innerHTML = avatarHtml;
     updateStats(0, 0);
 }
 

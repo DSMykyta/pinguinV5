@@ -12,6 +12,7 @@ import { initKeywordsEvents, initKeywordsSearch, initKeywordsSorting } from './k
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 export const keywordsState = {
     keywords: [],
@@ -104,24 +105,34 @@ function renderAuthRequiredState() {
     const tableBody = document.querySelector('#tab-keywords .pseudo-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `
-        <div class="loading-state">
-            <span class="material-symbols-outlined">key</span>
-            <p>Авторизуйтесь для завантаження даних</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів для вимоги авторизації
+    const avatarHtml = renderAvatarState('authLogin', {
+        message: 'Авторизуйтесь для завантаження даних',
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
+
+    tableBody.innerHTML = avatarHtml;
 }
 
 function renderErrorState() {
     const tableBody = document.querySelector('#tab-keywords .pseudo-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = `
-        <div class="loading-state">
-            <span class="material-symbols-outlined">error</span>
-            <p>Помилка завантаження даних</p>
-        </div>
-    `;
+    // Використовуємо глобальну систему аватарів для помилок
+    const avatarHtml = renderAvatarState('error', {
+        message: 'Помилка завантаження даних',
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message',
+        showMessage: true
+    });
+
+    tableBody.innerHTML = avatarHtml;
 }
 
 async function loadAsideKeywords() {
