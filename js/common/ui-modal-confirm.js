@@ -95,13 +95,15 @@ export async function showConfirmModal(options = {}) {
 
         // Вставляємо аватар якщо вказано
         if (avatarContainer && avatarState) {
-            avatarContainer.innerHTML = renderAvatarState(avatarState, {
+            const html = renderAvatarState(avatarState, {
                 size: avatarSize,
                 containerClass: 'modal-confirm-avatar',
                 avatarClass: 'modal-confirm-avatar-image',
                 messageClass: 'modal-confirm-avatar-message',
                 showMessage: false // Не показуємо текст з аватара, бо є окреме повідомлення
             });
+            avatarContainer.innerHTML = html;
+            console.log('🎨 Avatar rendered for confirmation:', avatarState);
         }
 
         if (cancelBtn) {
