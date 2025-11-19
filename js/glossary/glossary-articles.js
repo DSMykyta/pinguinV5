@@ -85,12 +85,6 @@ export function renderGlossaryArticles() {
 
     const articlesHtml = data.map(item => createArticleHtml(item));
     dom.contentContainer.innerHTML = articlesHtml.join('');
-
-    // Оновлюємо лічильник
-    const statsElement = document.getElementById('tab-stats-glossary');
-    if (statsElement) {
-        statsElement.textContent = `Показано ${data.length} з ${data.length}`;
-    }
 }
 
 export function initGlossaryArticles() {

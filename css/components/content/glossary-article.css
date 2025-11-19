@@ -8,6 +8,8 @@
     margin: 0 auto;
     padding-bottom: 100px;
     /* Space for footer */
+    padding-top: 24px;
+    /* Ensure top padding since header is gone */
 }
 
 .glossary-article {
