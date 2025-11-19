@@ -1,23 +1,25 @@
 // js/glossary/glossary-init.js
 
-import { registerPanelInitializer } from '../panel/panel-right.js';
 import { fetchGlossaryData } from './glossary-data.js';
 import { renderGlossaryTree, initTreeToggles } from './glossary-tree.js';
 import { initGlossaryArticles } from './glossary-articles.js';
 import { initSearchClear } from '../utils/search-clear.js';
 
-async function initGlossaryGenerator() {
-    if (!document.getElementById('glossary-content-container')) return;
+export async function initGlossaryPage() {
+    console.log('Ініціалізація сторінки глосарію...');
 
+    // 1. Завантажуємо дані
     await fetchGlossaryData();
+
+    // 2. Рендеримо дерево в асайді
     renderGlossaryTree();
     initTreeToggles();
+
+    // 3. Рендеримо статті в основному контенті
     initGlossaryArticles();
 
-    // Ініціалізація кнопки очищення пошуку
+    // 4. Ініціалізація пошуку
     initSearchClear('glossary-search-input');
 
     console.log('Глосарій успішно ініціалізовано.');
 }
-
-registerPanelInitializer('aside-glossary', initGlossaryGenerator);

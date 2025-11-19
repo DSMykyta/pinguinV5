@@ -5,7 +5,7 @@ import { getGlossaryData } from './glossary-data.js';
 
 /**
  * Створює HTML статті. 
- * Використовує стандартні класи: section, section-header, section-content.
+ * Використовує простішу структуру без data-panel-template
  */
 function createArticleHtml(item) {
     const trigersArray = item.trigers
@@ -28,51 +28,42 @@ function createArticleHtml(item) {
 
     // Важливо: використовуємо ID для навігації (href="#id")
     return `
-        <section id="${item.id}" data-panel-template="aside-glossary">
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>${item.name}</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3>ID: ${item.id}</h3>
+        <article id="${item.id}" class="glossary-article">
+            <div class="article-header">
+                <div class="article-title-row">
+                    <h2>${item.name}</h2>
+                    <span class="article-id">ID: ${item.id}</span>
                 </div>
-
-                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
             </div>
 
-            <div class="section-content section-content-full-height">
+            <div class="article-content">
                 <div class="article-text">
                     ${item.text || '<p><i>(Опис відсутній)</i></p>'}
                 </div>
             </div>
 
-                ${hasKeywords ? `
-                <div class="keywords-content">
-                    ${trigersArray.length > 0 ? `
-                    <div class="keywords-section">
-                        <strong>Тригери:</strong>
-                        <div class="cell-words-list">
-                            ${triggersHtml}
-                        </div>
+            ${hasKeywords ? `
+            <div class="keywords-content">
+                ${trigersArray.length > 0 ? `
+                <div class="keywords-section">
+                    <strong>Тригери:</strong>
+                    <div class="cell-words-list">
+                        ${triggersHtml}
                     </div>
-                    ` : ''}
-
-                    ${keywordsUaArray.length > 0 ? `
-                    <div class="keywords-section">
-                        <strong>Ключові слова:</strong>
-                        <div class="cell-words-list">
-                            ${keywordsUaHtml}
-                        </div>
-                    </div>
-                    ` : ''}
                 </div>
                 ` : ''}
-        </section>
+
+                ${keywordsUaArray.length > 0 ? `
+                <div class="keywords-section">
+                    <strong>Ключові слова:</strong>
+                    <div class="cell-words-list">
+                        ${keywordsUaHtml}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+            ` : ''}
+        </article>
     `;
 }
 
@@ -83,12 +74,23 @@ export function renderGlossaryArticles() {
     if (!dom.contentContainer) return;
 
     if (data.length === 0) {
-        dom.contentContainer.innerHTML = '<p style="padding: 24px;">Немає статей для відображення.</p>';
+        dom.contentContainer.innerHTML = `
+            <div class="loading-state">
+                <span class="material-symbols-outlined">info</span>
+                <p>Немає статей для відображення.</p>
+            </div>
+        `;
         return;
     }
 
     const articlesHtml = data.map(item => createArticleHtml(item));
     dom.contentContainer.innerHTML = articlesHtml.join('');
+
+    // Оновлюємо лічильник
+    const statsElement = document.getElementById('tab-stats-glossary');
+    if (statsElement) {
+        statsElement.textContent = `Показано ${data.length} з ${data.length}`;
+    }
 }
 
 export function initGlossaryArticles() {
@@ -106,7 +108,8 @@ export function initGlossaryArticles() {
                 const targetArticle = document.getElementById(targetId);
 
                 if (targetArticle) {
-                    // Використовуємо native scrollIntoView, він працює і для вкладених контейнерів
+                    // Використовуємо native scrollIntoView with offset
+                    // Оскільки у нас фіксований хедер, потрібно трохи зміщення
                     targetArticle.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }
