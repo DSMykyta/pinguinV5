@@ -47,49 +47,25 @@ section {
     border-radius: 12px;
 }
 
-/* css/components/content/glossary-article.css */
-
-/* === 1. ВИПРАВЛЕННЯ СІТКИ ТА КОНТЕЙНЕРА === */
-
-/* Головний контейнер має поводитися як звичайний main у index.html,
-   але без зайвих паддінгів, щоб скрол працював на всю висоту */
-.glossary-main-content {
-    position: relative;
-    height: 100vh; /* Висота на весь екран */
-    overflow: hidden; /* Скролить лише внутрішній контейнер */
-    padding: 0 !important; /* Прибираємо відступи main, щоб секції прилипали */
-    
-    /* Важливо: не задаємо width: 100vw, щоб не перекрити Right Panel */
-    width: 100%; 
-}
-
-/* Контейнер, куди JS вставляє статті. Він стає головним скролом */
-#glossary-content-container {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto; /* Головний скрол сторінки */
-    scroll-snap-type: y mandatory; /* Прилипання секцій */
-    scroll-behavior: smooth;
-}
+/* === GLOSSARY SECTIONS === */
 
 /* === 2. СТРУКТУРА СЕКЦІЇ (Як в Index) === */
 
 /* Секція займає весь екран і використовує Flexbox для розміщення заголовка і контенту */
-#glossary-content-container section {
-    height: 100%;
-    width: 100%;
+.content-main section[data-panel-template="aside-glossary"] {
+    height: 100vh;
     scroll-snap-align: start; /* Примагнічування */
-    
+
     display: flex;
     flex-direction: column;
-    
+
     /* Відступи як в layout-section.css, щоб виглядало ідентично іншим інструментам */
-    padding: 8px 24px 24px 24px; 
+    padding: 8px 24px 24px 24px;
     box-sizing: border-box;
 }
 
 /* Хедер секції (Заголовок + ID) - не скролиться */
-#glossary-content-container .section-header {
+.content-main section[data-panel-template="aside-glossary"] .section-header {
     flex: 0 0 auto; /* Фіксована висота */
     margin-bottom: 0; /* Відступи контролюються загальними стилями */
     padding-bottom: 16px;
@@ -98,14 +74,15 @@ section {
 /* === 3. ВНУТРІШНІЙ СКРОЛ КОНТЕНТУ (Біла картка) === */
 
 /* Оверрайд стандартного .section-content, щоб додати скрол всередині */
-#glossary-content-container .section-content {
+.content-main section[data-panel-template="aside-glossary"] .section-content {
     flex: 1 1 auto; /* Займає весь доступний простір, що залишився */
     overflow-y: auto; /* ВНУТРІШНІЙ СКРОЛ ТЕКСТУ */
     min-height: 0; /* Критично для роботи скролу у Flexbox */
-    
+
     /* Стилі "білої картки" вже є в main.css, тут лише коригуємо поведінку */
-    margin: 0; 
-    display: block; /* Скидаємо можливі flex/grid */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* === 4. ОФОРМЛЕННЯ ТЕКСТУ === */
@@ -115,7 +92,18 @@ section {
     font-size: 15px;
     line-height: 1.7;
     color: var(--color-on-surface);
-    padding-bottom: 40px; /* Місце знизу для зручності */
+    padding: 24px 16px;
+    flex: 1 1 auto; /* Займає весь доступний простір */
+    overflow-y: auto; /* Прокручується */
+    min-height: 0; /* Критично для flex */
+}
+
+/* Footer - фіксований внизу, не прокручується */
+.glossary-article-footer {
+    flex: 0 0 auto; /* Фіксована висота */
+    display: flex;
+    border-top: 1px solid var(--color-outline-v);
+    background-color: var(--color-surface-c-lowest);
 }
 
 .article-text p { margin-bottom: 1em; }
