@@ -8,40 +8,92 @@
 </div>
 
 <div class="modal-body-source">
-    <!-- Повідомлення про помилку -->
-    <div id="auth-login-error" class="u-hidden" style="width: 100%; padding: 12px; background: var(--color-error-container); color: var(--color-on-error-container); border-radius: 8px; font-size: 14px; text-align: center; margin-bottom: 16px;"></div>
+    <div class="auth-login-container">
+        <!-- Avatar container -->
+        <div id="auth-login-avatar-container" class="auth-login-avatar"></div>
 
-    <!-- Форма входу -->
-    <form id="auth-login-form" style="width: 100%; display: flex; flex-direction: column; gap: 20px;">
-        <fieldset class="form-fieldset">
-            <legend>Дані для входу</legend>
+        <!-- Повідомлення про помилку -->
+        <div id="auth-login-error" class="auth-login-error u-hidden"></div>
 
-            <div class="form-group">
-                <label for="auth-username">Логін <span class="required">*</span></label>
-                <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін" autocomplete="username" required autofocus>
+        <!-- Форма входу -->
+        <form id="auth-login-form" class="auth-login-form">
+            <fieldset class="form-fieldset">
+                <legend>Дані для входу</legend>
+
+                <div class="form-group">
+                    <label for="auth-username">Логін <span class="required">*</span></label>
+                    <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін" autocomplete="username" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-password">Пароль <span class="required">*</span></label>
+                    <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
+                </div>
+            </fieldset>
+
+            <div class="auth-login-hint">
+                Для отримання доступу зверніться до адміністратора
             </div>
 
-            <div class="form-group">
-                <label for="auth-password">Пароль <span class="required">*</span></label>
-                <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
+            <div class="connected-button-group-round modal-footer" role="group">
+                <button type="button" id="auth-modal-cancel" class="segment" data-modal-close aria-label="Скасувати">
+                    <div class="state-layer">
+                        <span class="label">Скасувати</span>
+                    </div>
+                </button>
+                <button type="submit" id="auth-login-btn" class="segment" aria-label="Увійти">
+                    <div class="state-layer">
+                        <span class="label">Увійти</span>
+                    </div>
+                </button>
             </div>
-        </fieldset>
-
-        <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">
-            Для отримання доступу зверніться до адміністратора
-        </div>
-
-        <div class="connected-button-group-round modal-footer" role="group">
-            <button type="button" id="auth-modal-cancel" class="segment" data-modal-close aria-label="Скасувати">
-                <div class="state-layer">
-                    <span class="label">Скасувати</span>
-                </div>
-            </button>
-            <button type="submit" id="auth-login-btn" class="segment" aria-label="Увійти">
-                <div class="state-layer">
-                    <span class="label">Увійти</span>
-                </div>
-            </button>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
+
+<style>
+.auth-login-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.auth-login-avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.auth-login-avatar img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.auth-login-error {
+    width: 100%;
+    padding: 12px;
+    background: var(--color-error-container);
+    color: var(--color-on-error-container);
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.auth-login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.auth-login-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.4;
+}
+</style>

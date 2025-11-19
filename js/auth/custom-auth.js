@@ -6,6 +6,7 @@
 
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';
@@ -322,18 +323,29 @@ function handleModalOpened(event) {
   const passwordInput = bodyTarget.querySelector('#auth-password');
   const loginButton = bodyTarget.querySelector('#auth-login-btn');
   const loginError = bodyTarget.querySelector('#auth-login-error');
+  const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
 
   console.log('🔍 Елементи форми в модалі:', {
     loginForm: !!loginForm,
     usernameInput: !!usernameInput,
     passwordInput: !!passwordInput,
     loginButton: !!loginButton,
-    loginError: !!loginError
+    loginError: !!loginError,
+    avatarContainer: !!avatarContainer
   });
 
   if (!loginForm) {
     console.error('❌ Форма входу НЕ ЗНАЙДЕНА в модалі!');
     return;
+  }
+
+  // Вставляємо аватар з недовірливою емоцією (suspicious)
+  if (avatarContainer) {
+    avatarContainer.innerHTML = renderAvatarState('authLogin', {
+      size: 'medium',
+      animal: 'penguin', // Завжди пінгвін для логіну (не персоналізований)
+      showMessage: false
+    });
   }
 
   // Очищаємо поля
