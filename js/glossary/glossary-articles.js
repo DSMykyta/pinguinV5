@@ -2,32 +2,30 @@
 
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
-import { getUserData } from '../auth/custom-auth.js';
-import { getAvatarPath } from '../utils/avatar-loader.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Створює HTML для empty state з аватаром користувача
  */
 function createEmptyStateHtml(itemId) {
-    // Отримуємо дані користувача
-    const userData = getUserData();
-    console.log('🎨 [Empty State] User data:', userData);
-    console.log('🎨 [Empty State] Avatar animal:', userData?.avatar);
-    const avatarAnimal = userData?.avatar || 'penguin'; // Дефолт - penguin
-    const avatarPath = `resources/avatars/1056/${avatarAnimal}-sad.png`;
-    console.log('🎨 [Empty State] Avatar path:', avatarPath);
+    // Використовуємо глобальну систему аватарів
+    const avatarHtml = renderAvatarState('empty', {
+        size: 'medium',
+        containerClass: 'empty-state-container',
+        avatarClass: 'empty-state-avatar',
+        messageClass: 'empty-state-text',
+        showMessage: true
+    });
 
-    return `
-        <div class="empty-state-container">
-            <img src="${avatarPath}" alt="Sad ${avatarAnimal}" class="empty-state-avatar"
-                 onerror="this.src='resources/avatars/1056/penguin-sad.png'">
-            <p class="empty-state-text">Поки про це нічого не відомо</p>
-            <button class="btn-primary btn-add-glossary-text" data-item-id="${itemId}">
-                <span class="material-symbols-outlined">add</span>
-                <span>Додати</span>
-            </button>
-        </div>
-    `;
+    // Додаємо кнопку після аватара
+    return avatarHtml.replace(
+        '</div>',
+        `<button class="btn-primary btn-add-glossary-text" data-item-id="${itemId}">
+            <span class="material-symbols-outlined">add</span>
+            <span>Додати</span>
+        </button>
+        </div>`
+    );
 }
 
 /**

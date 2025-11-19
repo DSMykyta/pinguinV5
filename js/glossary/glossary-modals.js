@@ -2,8 +2,7 @@
 
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { getGlossaryMap } from './glossary-data.js';
-import { getUserData } from '../auth/custom-auth.js';
-import { getAvatarPath } from '../utils/avatar-loader.js';
+import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
  * Ініціалізує обробники для модалів глосарію
@@ -171,20 +170,13 @@ async function saveGlossaryText(itemId, glossaryText) {
  */
 function showSuccessModal() {
     showModal('modal-glossary-success').then(() => {
-        // Додаємо аватар користувача з happy емоцією
+        // Використовуємо глобальну систему аватарів
         const avatarContainer = document.getElementById('success-avatar-container');
         if (avatarContainer) {
-            const userData = getUserData();
-            console.log('🎉 [Success Modal] User data:', userData);
-            console.log('🎉 [Success Modal] Avatar animal:', userData?.avatar);
-            const avatarAnimal = userData?.avatar || 'penguin';
-            const avatarPath = `resources/avatars/1056/${avatarAnimal}-happy.png`;
-            console.log('🎉 [Success Modal] Avatar path:', avatarPath);
-
-            avatarContainer.innerHTML = `
-                <img src="${avatarPath}" alt="Happy ${avatarAnimal}"
-                     onerror="this.src='resources/avatars/1056/penguin-happy.png'">
-            `;
+            avatarContainer.innerHTML = renderAvatarState('success', {
+                size: 'large',
+                showMessage: false
+            });
         }
 
         const reloadButton = document.getElementById('reload-page-btn');

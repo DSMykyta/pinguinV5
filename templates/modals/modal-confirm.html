@@ -7,6 +7,9 @@
 
 <div class="modal-body-source">
     <div class="modal-confirm-body">
+        <!-- Avatar container -->
+        <div id="modal-confirm-avatar-container"></div>
+
         <p class="modal-confirm-message" id="modal-confirm-message-text">
             <!-- Message inserted by JS -->
         </p>
@@ -25,6 +28,22 @@
 .modal-confirm-body {
     padding: 24px;
     text-align: center;
+}
+
+/* Avatar container */
+#modal-confirm-avatar-container {
+    margin-bottom: 16px;
+}
+
+.modal-confirm-avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-confirm-avatar-image {
+    object-fit: contain;
+    opacity: 0.9;
 }
 
 .modal-confirm-message {

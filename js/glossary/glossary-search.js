@@ -1,15 +1,6 @@
 // js/glossary/glossary-search.js
 
-import { getUserData } from '../auth/custom-auth.js';
-
-// Рандомні повідомлення для стану "нічого не знайдено"
-const NO_RESULTS_MESSAGES = [
-    "Ти взагалі про що?",
-    "Вперше про таке чую",
-    "Я не певен що таке існує",
-    "Я такого тобі не покажу",
-    "Я нічого не зрозумів"
-];
+import { renderAvatarState, getRandomMessage } from '../utils/avatar-states.js';
 
 /**
  * Ініціалізує пошук по секціях глосарію
@@ -86,20 +77,20 @@ function showNoResultsState(container, query) {
     // Перевіряємо чи вже є no-results state
     if (document.getElementById('glossary-no-results')) return;
 
-    const userData = getUserData();
-    const avatarAnimal = userData?.avatar || 'penguin';
-    const avatarPath = `resources/avatars/1056/${avatarAnimal}-confused.png`;
-
-    // Вибираємо рандомне повідомлення
-    const randomMessage = NO_RESULTS_MESSAGES[Math.floor(Math.random() * NO_RESULTS_MESSAGES.length)];
+    // Використовуємо глобальну систему аватарів
+    const randomMessage = getRandomMessage('noResults');
+    const avatarHtml = renderAvatarState('noResults', {
+        message: randomMessage,
+        size: 'large',
+        containerClass: 'no-results-state-avatar',
+        avatarClass: 'no-results-avatar',
+        messageClass: 'no-results-title',
+        showMessage: true
+    });
 
     const noResultsHtml = `
         <div id="glossary-no-results" class="no-results-state">
-            <img src="${avatarPath}"
-                 alt="Confused ${avatarAnimal}"
-                 class="no-results-avatar"
-                 onerror="this.src='resources/avatars/1056/penguin-confused.png'">
-            <h3 class="no-results-title">${randomMessage}</h3>
+            ${avatarHtml}
             <p class="no-results-text">Не знайдено жодного терміну за запитом "<strong>${escapeHtml(query)}</strong>"</p>
         </div>
     `;
