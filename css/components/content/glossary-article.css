@@ -143,32 +143,22 @@
     box-shadow: 0 0 0 2px var(--color-main);
 }
 
-/* Empty State */
-.empty-state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 48px 24px;
-    min-height: 200px;
-}
-
-/* Avatar state container (from global avatar system) */
-.avatar-state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-}
-
-.empty-state-avatar {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    opacity: 0.8;
-}
+/**
+ * EMPTY STATES & AVATAR STATES
+ *
+ * Всі стилі для empty states, no-results та avatar states
+ * перенесені в глобальний файл: css/components/avatar-states.css
+ *
+ * Використовуйте:
+ * - .avatar-state-container - основний контейнер
+ * - .avatar-state-title - великий заголовок (24px, жирний)
+ * - .avatar-state-message - звичайне повідомлення (16px)
+ * - .empty-state-container, .no-results-state - готові стани
+ *
+ * Застарілі класи (залишені для зворотної сумісності):
+ * - .no-results-title → використовуйте .avatar-state-title
+ * - .no-results-text → використовуйте .avatar-state-message
+ */
 
 .empty-state-icon {
     font-size: 64px;
@@ -180,58 +170,4 @@
     font-size: 16px;
     color: var(--color-on-surface-v);
     margin: 0;
-}
-
-/* No Results State */
-.no-results-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 80px 24px;
-    min-height: 100vh;
-}
-
-.no-results-state-avatar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.no-results-avatar {
-    width: 160px;
-    height: 160px;
-    object-fit: contain;
-    opacity: 0.9;
-    animation: shake 0.5s ease-in-out;
-}
-
-.no-results-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-    margin: 0;
-    text-align: center;
-}
-
-.no-results-text {
-    font-size: 16px;
-    color: var(--color-on-surface-v);
-    margin: 0;
-    text-align: center;
-    max-width: 400px;
-}
-
-.no-results-text strong {
-    color: var(--color-on-surface);
-    font-weight: 600;
-}
-
-@keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
 }

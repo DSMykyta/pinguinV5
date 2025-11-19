@@ -1,0 +1,175 @@
+/**
+ * AVATAR STATES COMPONENT
+ *
+ * Глобальні стилі для відображення аватарів з емоціями та повідомленнями
+ * Використовується в empty states, модалках підтвердження, заглушках тощо
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - js/utils/avatar-states.js (логіка генерації HTML)
+ *
+ * ВИКОРИСТАННЯ:
+ * Використовуйте класи .avatar-state-title та .avatar-state-message для
+ * текстів, які мають відповідати стилю повідомлень від аватарів
+ */
+
+/* ============================================================================
+   ОСНОВНИЙ КОНТЕЙНЕР СТАНУ АВАТАРА
+   ============================================================================ */
+
+.avatar-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+/* ============================================================================
+   ЗОБРАЖЕННЯ АВАТАРА
+   ============================================================================ */
+
+.avatar-state-image {
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+/* ============================================================================
+   ТЕКСТОВІ СТИЛІ ДЛЯ ПОВІДОМЛЕНЬ АВАТАРІВ
+   ============================================================================ */
+
+/**
+ * .avatar-state-title
+ * Великий заголовок-повідомлення від аватара (24px, жирний)
+ * Використовується для основного тексту від аватара
+ */
+.avatar-state-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    text-align: center;
+    margin: 0;
+}
+
+/**
+ * .avatar-state-message
+ * Звичайне повідомлення (16px)
+ * Використовується для додаткових пояснень, інструкцій
+ */
+.avatar-state-message {
+    font-size: 16px;
+    color: var(--color-on-surface-v);
+    text-align: center;
+    margin: 0;
+    max-width: 400px;
+}
+
+.avatar-state-message strong {
+    color: var(--color-on-surface);
+    font-weight: 600;
+}
+
+/* ============================================================================
+   EMPTY STATE (ПОРОЖНІЙ СТАН)
+   ============================================================================ */
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 24px;
+    min-height: 200px;
+}
+
+.empty-state-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+
+/* ============================================================================
+   NO RESULTS STATE (РЕЗУЛЬТАТІВ НЕМАЄ)
+   ============================================================================ */
+
+.no-results-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 24px;
+    min-height: 100vh;
+}
+
+.no-results-state-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.no-results-avatar {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    opacity: 0.9;
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Анімація для no-results аватара */
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* Застарілі класи (для зворотної сумісності) - використовуйте нові класи вище */
+.no-results-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    text-align: center;
+    margin: 0;
+}
+
+.no-results-text {
+    font-size: 16px;
+    color: var(--color-on-surface-v);
+    text-align: center;
+    margin: 0;
+    max-width: 400px;
+}
+
+.no-results-text strong {
+    color: var(--color-on-surface);
+    font-weight: 600;
+}
+
+/* ============================================================================
+   МОДАЛЬНІ ВІКНА З АВАТАРАМИ
+   ============================================================================ */
+
+/* Аватар в модалі підтвердження */
+.modal-confirm-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.modal-confirm-avatar-image {
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+.modal-confirm-avatar-message {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-on-surface);
+    text-align: center;
+    margin: 0;
+}

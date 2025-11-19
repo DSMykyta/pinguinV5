@@ -46,6 +46,7 @@
 
 /* === COMPONENTS - AVATAR === */
 @import url('components/avatar.css');
+@import url('components/avatar-states.css');
 
 /* === COMPONENTS - FORMS === */
 @import url('components/forms/input.css');

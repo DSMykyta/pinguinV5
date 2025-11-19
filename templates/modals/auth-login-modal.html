@@ -13,7 +13,7 @@
         <div id="auth-login-avatar-container" class="auth-login-avatar"></div>
 
         <!-- Випадковий текст від аватара -->
-        <p id="auth-login-avatar-message" class="auth-login-avatar-message"></p>
+        <p id="auth-login-avatar-message" class="avatar-state-title"></p>
 
         <!-- Повідомлення про помилку -->
         <div id="auth-login-error" class="auth-login-error u-hidden"></div>
@@ -30,7 +30,7 @@
                 <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
             </div>
 
-            <div class="auth-login-hint">
+            <div class="avatar-state-message">
                 Для отримання доступу зверніться до адміністратора
             </div>
 
@@ -43,6 +43,7 @@
 </div>
 
 <style>
+/* Контейнер форми логіну */
 .auth-login-container {
     width: 100%;
     display: flex;
@@ -52,6 +53,7 @@
     gap: 16px;
 }
 
+/* Контейнер для аватара */
 .auth-login-avatar {
     display: flex;
     justify-content: center;
@@ -65,14 +67,7 @@
     opacity: 0.9;
 }
 
-.auth-login-avatar-message {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--color-on-surface);
-    text-align: center;
-}
-
+/* Блок помилки */
 .auth-login-error {
     width: 100%;
     padding: 12px;
@@ -83,6 +78,7 @@
     text-align: center;
 }
 
+/* Форма */
 .auth-login-form {
     width: 100%;
     display: flex;
@@ -90,18 +86,12 @@
     gap: 16px;
 }
 
-.auth-login-hint {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-align: center;
-    line-height: 1.4;
-}
-
+/* Кнопки дій */
 .auth-login-actions {
     display: flex;
     gap: 12px;
     justify-content: center;
-    margin-top: 8px;
+    margin-top: 20px;
 }
 
 .auth-login-actions button {
