@@ -14,13 +14,13 @@ function createEmptyStateHtml(itemId) {
     console.log('🎨 [Empty State] User data:', userData);
     console.log('🎨 [Empty State] Avatar animal:', userData?.avatar);
     const avatarAnimal = userData?.avatar || 'penguin'; // Дефолт - penguin
-    const avatarPath = getAvatarPath(avatarAnimal, 'sad');
+    const avatarPath = `resources/avatars/1056/${avatarAnimal}-sad.png`;
     console.log('🎨 [Empty State] Avatar path:', avatarPath);
 
     return `
         <div class="empty-state-container">
             <img src="${avatarPath}" alt="Sad ${avatarAnimal}" class="empty-state-avatar"
-                 onerror="this.src='resources/avatars/penguin-sad.png'">
+                 onerror="this.src='resources/avatars/1056/penguin-sad.png'">
             <p class="empty-state-text">Поки про це нічого не відомо</p>
             <button class="btn-primary btn-add-glossary-text" data-item-id="${itemId}">
                 <span class="material-symbols-outlined">add</span>

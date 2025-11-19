@@ -178,12 +178,12 @@ function showSuccessModal() {
             console.log('🎉 [Success Modal] User data:', userData);
             console.log('🎉 [Success Modal] Avatar animal:', userData?.avatar);
             const avatarAnimal = userData?.avatar || 'penguin';
-            const avatarPath = getAvatarPath(avatarAnimal, 'happy');
+            const avatarPath = `resources/avatars/1056/${avatarAnimal}-happy.png`;
             console.log('🎉 [Success Modal] Avatar path:', avatarPath);
 
             avatarContainer.innerHTML = `
                 <img src="${avatarPath}" alt="Happy ${avatarAnimal}"
-                     onerror="this.src='resources/avatars/penguin-happy.png'">
+                     onerror="this.src='resources/avatars/1056/penguin-happy.png'">
             `;
         }
 
