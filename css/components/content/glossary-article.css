@@ -154,6 +154,15 @@
     min-height: 200px;
 }
 
+/* Avatar state container (from global avatar system) */
+.avatar-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
 .empty-state-avatar {
     width: 120px;
     height: 120px;
@@ -182,6 +191,14 @@
     gap: 16px;
     padding: 80px 24px;
     min-height: 100vh;
+}
+
+.no-results-state-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 .no-results-avatar {
