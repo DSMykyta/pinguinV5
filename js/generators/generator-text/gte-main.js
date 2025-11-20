@@ -18,8 +18,23 @@ function initTextGenerator() {
     initStats();
     initTextReset();
     initValidator();
+    initAsideButtons();
 
     console.log('Генератор тексту успішно ініціалізовано.');
+}
+
+/**
+ * Ініціалізація кнопки додавання забороненого слова у footer aside
+ */
+function initAsideButtons() {
+    const addButton = document.getElementById('btn-add-banned-word');
+    if (addButton) {
+        addButton.addEventListener('click', async () => {
+            console.log('🆕 Відкриття модалу додавання забороненого слова');
+            const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
+            await openBannedWordModal();
+        });
+    }
 }
 
 // Реєструємо наш запускач в системі правої панелі
