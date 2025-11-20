@@ -520,11 +520,16 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
 
         closeModal(); // Закрити модал (використовуючи функцію)
 
+        // Показати toast повідомлення
+        const { showToast } = await import('../common/ui-toast.js');
+        showToast(isEdit ? 'Заборонене слово оновлено' : 'Заборонене слово додано', 'success');
+
         console.log('✅ Заборонене слово збережено');
 
     } catch (error) {
         console.error('❌ Помилка збереження:', error);
-        alert('Помилка при збереженні: ' + error.message);
+        const { showToast } = await import('../common/ui-toast.js');
+        showToast('Помилка при збереженні: ' + error.message, 'error');
     }
 }
 

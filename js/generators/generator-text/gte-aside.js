@@ -8,6 +8,11 @@ export function initAsideButtons() {
     if (addButton) {
         addButton.addEventListener('click', async () => {
             console.log('🆕 Відкриття модалу додавання забороненого слова');
+
+            // Завантажити дані перед відкриттям модалу
+            const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+            await loadBannedWords();
+
             const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
             await openBannedWordModal();
         });

@@ -15,6 +15,33 @@ import { brandsState } from './brands-init.js';
 const SHEET_NAME = 'Brands';
 
 /**
+ * Виклик Sheets API через backend
+ */
+async function callSheetsAPI(action, params = {}) {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+        throw new Error('Authorization required. Please login first.');
+    }
+
+    const response = await fetch(`${window.location.origin}/api/sheets`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action, ...params })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'API request failed');
+    }
+
+    const result = await response.json();
+    return result.data;
+}
+
+/**
  * Завантажити всі бренди з Google Sheets
  * @returns {Promise<Array>} Масив брендів
  */
@@ -22,9 +49,11 @@ export async function loadBrands() {
     console.log('📥 Завантаження брендів з Google Sheets...');
 
     try {
-        const response = await window.apiClient.sheets.get(SHEET_NAME);
+        const values = await callSheetsAPI('get', {
+            range: SHEET_NAME,
+            spreadsheetType: 'main'
+        });
 
-        const values = response.result?.values || response.data || [];
         if (!values || values.length === 0) {
             console.warn('⚠️ Немає даних в Brands');
             brandsState.brands = [];
@@ -116,7 +145,11 @@ export async function addBrand(brandData) {
         ];
 
         // Додаємо через API
-        await window.apiClient.sheets.append(SHEET_NAME, [newRow]);
+        await callSheetsAPI('append', {
+            range: `${SHEET_NAME}!A:G`,
+            values: [newRow],
+            spreadsheetType: 'main'
+        });
 
         // Оновлюємо state
         const newBrand = {
@@ -166,7 +199,11 @@ export async function updateBrand(brandId, updates) {
             updates.brand_site_link !== undefined ? updates.brand_site_link : brand.brand_site_link
         ];
 
-        await window.apiClient.sheets.update(range, [updatedRow]);
+        await callSheetsAPI('update', {
+            range: range,
+            values: [updatedRow],
+            spreadsheetType: 'main'
+        });
 
         // Оновити state
         Object.assign(brand, updates);
@@ -197,8 +234,12 @@ export async function deleteBrand(brandId) {
         const brand = brandsState.brands[brandIndex];
 
         // Видалити рядок (очистити дані)
-        const range = `${SHEET_NAME}!A${brand._rowIndex}:F${brand._rowIndex}`;
-        await window.apiClient.sheets.update(range, [['', '', '', '', '', '']]);
+        const range = `${SHEET_NAME}!A${brand._rowIndex}:G${brand._rowIndex}`;
+        await callSheetsAPI('update', {
+            range: range,
+            values: [['', '', '', '', '', '', '']],
+            spreadsheetType: 'main'
+        });
 
         // Видалити з state
         brandsState.brands.splice(brandIndex, 1);

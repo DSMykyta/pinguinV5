@@ -8,6 +8,11 @@ export function initAsideButtons() {
     if (addKeywordBtn) {
         addKeywordBtn.addEventListener('click', async () => {
             console.log('🆕 Відкриття модалу додавання ключового слова з SEO');
+
+            // Завантажити дані перед відкриттям модалу
+            const { loadKeywords } = await import('../../keywords/keywords-data.js');
+            await loadKeywords();
+
             const { showAddKeywordModal } = await import('../../keywords/keywords-crud.js');
             await showAddKeywordModal();
         });
