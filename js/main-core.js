@@ -9,6 +9,7 @@ import { initTabs } from './common/ui-tabs.js';
 import { initEventHandlers } from './utils/event-handlers.js';
 import { initSectionNavigator } from './panel/section-navigator.js';
 import { initCustomAuth } from './auth/custom-auth.js';
+import { initChipTooltips } from './common/chip-tooltip.js';
 
 
 export function initCore() {
@@ -24,4 +25,5 @@ export function initCore() {
     initEventHandlers();
     initSectionNavigator();
     initCustomAuth();
+    initChipTooltips();
 }

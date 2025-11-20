@@ -42,7 +42,6 @@
     align-content: flex-start;
     gap: 8px;
     padding: 8px;
-    padding-bottom: 120px; /* Додатковий простір для tooltip */
     overflow-y: auto;
 }
 
@@ -143,9 +142,7 @@
 }
 
 .chip-tooltip-content {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
+    position: fixed;
     padding: 8px 12px;
     background: var(--color-on-surface);
     color: var(--color-surface);
@@ -164,6 +161,12 @@
 
 .chip-tooltip:hover .chip-tooltip-content {
     opacity: 1;
+}
+
+/* Позиціонування через JS - встановлюємо CSS змінні */
+.chip-tooltip-content {
+    top: var(--tooltip-top, 0);
+    left: var(--tooltip-left, 0);
 }
 
 /* ============================================ */
