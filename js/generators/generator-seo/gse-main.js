@@ -7,6 +7,7 @@ import { renderTriggerButtons } from './gse-triggers.js';
 import { initEventListeners, runCalculations } from './gse-events.js';
 import { initResetButton } from './gse-reset.js';
 import { initCopyListeners } from './gse-copy.js';
+import { initAsideButtons } from './gse-aside.js';
 
 async function initSeoGenerator() {
     // Перевірка, чи ми взагалі на сторінці, де є SEO-блок
@@ -26,20 +27,6 @@ async function initSeoGenerator() {
     runCalculations();
 
     console.log('Генератор SEO успішно ініціалізовано за НОВОЮ ЧИСТОЮ СХЕМОЮ.');
-}
-
-/**
- * Ініціалізація кнопки додавання у footer aside
- */
-function initAsideButtons() {
-    const addKeywordBtn = document.getElementById('btn-add-keyword-seo');
-    if (addKeywordBtn) {
-        addKeywordBtn.addEventListener('click', async () => {
-            console.log('🆕 Відкриття модалу додавання ключового слова з SEO');
-            const { showAddKeywordModal } = await import('../../keywords/keywords-crud.js');
-            await showAddKeywordModal();
-        });
-    }
 }
 
 // Реєструємо наш запускач в системі правої панелі

@@ -7,6 +7,7 @@ import { initFindAndReplace } from './gte-find-replace.js';
 import { initStats } from './gte-stats.js';
 import { initTextReset } from './gte-reset.js';
 import { initValidator } from './gte-validator.js';
+import { initAsideButtons } from './gte-aside.js';
 
 function initTextGenerator() {
     const dom = getTextDOM();
@@ -21,20 +22,6 @@ function initTextGenerator() {
     initAsideButtons();
 
     console.log('Генератор тексту успішно ініціалізовано.');
-}
-
-/**
- * Ініціалізація кнопки додавання забороненого слова у footer aside
- */
-function initAsideButtons() {
-    const addButton = document.getElementById('btn-add-banned-word');
-    if (addButton) {
-        addButton.addEventListener('click', async () => {
-            console.log('🆕 Відкриття модалу додавання забороненого слова');
-            const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
-            await openBannedWordModal();
-        });
-    }
 }
 
 // Реєструємо наш запускач в системі правої панелі
