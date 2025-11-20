@@ -57,7 +57,13 @@ export function syncTulipsFromProductName() {
 
     // Додаємо тільки ті, що відповідають поточній назві продукту
     triggersData.forEach(trigger => {
-        if (trigger.triggers.some(t => productName.includes(t))) {
+        if (trigger.triggers.some(t => {
+            // Використовуємо word boundary для точного співставлення
+            // Екрануємо спецсимволи в тригері
+            const escapedTrigger = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escapedTrigger}\\b`, 'i');
+            return regex.test(productName);
+        })) {
             addTulip(trigger.title, true);
         }
     });

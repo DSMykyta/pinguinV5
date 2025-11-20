@@ -15,12 +15,25 @@
 import { getBrandsData } from './gse-data.js';
 
 /**
+ * Очищає HTML теги з тексту
+ * @param {string} html - Текст з HTML тегами
+ * @returns {string} Чистий текст без HTML
+ */
+function stripHtml(html) {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+/**
  * Розпізнає бренд та назву продукту з тексту
  * @param {string} mainText - Вхідний текст для парсингу
  * @returns {{ brand: string, product: string }} Об'єкт з брендом та продуктом
  */
 export function updateBrandAndProductFromText(mainText) {
-    const text = (mainText || '').trim();
+    // Спочатку очищаємо HTML теги
+    const cleanText = stripHtml(mainText || '');
+    const text = cleanText.trim();
     const textLower = text.toLowerCase();
     const brands = getBrandsData();
 
