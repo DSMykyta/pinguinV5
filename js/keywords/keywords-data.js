@@ -12,13 +12,42 @@ import { keywordsState } from './keywords-init.js';
 
 const SHEET_NAME = 'Glossary';
 
+/**
+ * Виклик Sheets API через backend
+ */
+async function callSheetsAPI(action, params = {}) {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+        throw new Error('Authorization required. Please login first.');
+    }
+
+    const response = await fetch(`${window.location.origin}/api/sheets`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ action, ...params })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'API request failed');
+    }
+
+    const result = await response.json();
+    return result.data;
+}
+
 export async function loadKeywords() {
     console.log('📥 Завантаження ключових слів з Google Sheets (Glossary)...');
 
     try {
-        const response = await window.apiClient.sheets.get(SHEET_NAME);
+        const values = await callSheetsAPI('get', {
+            range: SHEET_NAME,
+            spreadsheetType: 'main'
+        });
 
-        const values = response.result?.values || response.data || [];
         if (!values || values.length === 0) {
             console.warn('⚠️ Немає даних в Glossary');
             keywordsState.keywords = [];
@@ -104,7 +133,11 @@ export async function addKeyword(keywordData) {
             keywordData.glossary_text || ''
         ];
 
-        await window.apiClient.sheets.append(SHEET_NAME, [newRow]);
+        await callSheetsAPI('append', {
+            range: `${SHEET_NAME}!A:M`,
+            values: [newRow],
+            spreadsheetType: 'main'
+        });
 
         const newEntry = {
             _rowIndex: keywordsState.keywords.length + 2,
@@ -148,7 +181,11 @@ export async function updateKeyword(localId, updates) {
             updates.glossary_text !== undefined ? updates.glossary_text : entry.glossary_text
         ];
 
-        await window.apiClient.sheets.update(range, [updatedRow]);
+        await callSheetsAPI('update', {
+            range: range,
+            values: [updatedRow],
+            spreadsheetType: 'main'
+        });
 
         // Оновити локальні дані
         Object.assign(entry, updates);
@@ -173,7 +210,11 @@ export async function deleteKeyword(localId) {
         const entry = keywordsState.keywords[entryIndex];
 
         const range = `${SHEET_NAME}!A${entry._rowIndex}:M${entry._rowIndex}`;
-        await window.apiClient.sheets.update(range, [['', '', '', '', '', '', '', '', '', '', '', '', '']]);
+        await callSheetsAPI('update', {
+            range: range,
+            values: [['', '', '', '', '', '', '', '', '', '', '', '', '']],
+            spreadsheetType: 'main'
+        });
 
         keywordsState.keywords.splice(entryIndex, 1);
 
