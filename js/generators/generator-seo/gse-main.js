@@ -14,17 +14,42 @@ async function initSeoGenerator() {
 
     // 1. Завантажуємо дані
     await fetchData();
-    
+
     // 2. Ініціалізуємо кожен модуль
     renderTriggerButtons(); // Малюємо кнопки в асайді
     initEventListeners();   // Включаємо всі "слухачі"
     initResetButton(runCalculations); // Включаємо кнопку очищення
     initCopyListeners();    // Включаємо копіювання результатів
+    initAsideButtons();     // Кнопки додавання та глосарію
 
     // 3. Робимо перший запуск, щоб заповнити поля
-    runCalculations(); 
-    
+    runCalculations();
+
     console.log('Генератор SEO успішно ініціалізовано за НОВОЮ ЧИСТОЮ СХЕМОЮ.');
+}
+
+/**
+ * Ініціалізація кнопок у footer aside (додавання та глосарій)
+ */
+function initAsideButtons() {
+    // Кнопка "Додати ключове слово"
+    const addKeywordBtn = document.getElementById('btn-add-keyword-seo');
+    if (addKeywordBtn) {
+        addKeywordBtn.addEventListener('click', async () => {
+            console.log('🆕 Відкриття модалу додавання ключового слова з SEO');
+            const { showAddKeywordModal } = await import('../../keywords/keywords-crud.js');
+            await showAddKeywordModal();
+        });
+    }
+
+    // Кнопка "Глосарій"
+    const glossaryBtn = document.getElementById('btn-glossary-seo');
+    if (glossaryBtn) {
+        glossaryBtn.addEventListener('click', () => {
+            console.log('📖 Перехід до глосарію');
+            window.location.href = 'glossary.html';
+        });
+    }
 }
 
 // Реєструємо наш запускач в системі правої панелі
