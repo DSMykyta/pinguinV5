@@ -29,25 +29,15 @@ async function initSeoGenerator() {
 }
 
 /**
- * Ініціалізація кнопок у footer aside (додавання та глосарій)
+ * Ініціалізація кнопки додавання у footer aside
  */
 function initAsideButtons() {
-    // Кнопка "Додати ключове слово"
     const addKeywordBtn = document.getElementById('btn-add-keyword-seo');
     if (addKeywordBtn) {
         addKeywordBtn.addEventListener('click', async () => {
             console.log('🆕 Відкриття модалу додавання ключового слова з SEO');
             const { showAddKeywordModal } = await import('../../keywords/keywords-crud.js');
             await showAddKeywordModal();
-        });
-    }
-
-    // Кнопка "Глосарій"
-    const glossaryBtn = document.getElementById('btn-glossary-seo');
-    if (glossaryBtn) {
-        glossaryBtn.addEventListener('click', () => {
-            console.log('📖 Перехід до глосарію');
-            window.location.href = 'glossary.html';
         });
     }
 }
