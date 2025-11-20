@@ -20,13 +20,23 @@ export function initGlossaryModals() {
     // Обробник для кнопки "Додати ключове слово" в панелі
     const addKeywordBtn = document.getElementById('btn-add-keyword-aside');
     if (addKeywordBtn) {
-        addKeywordBtn.addEventListener('click', () => {
+        addKeywordBtn.addEventListener('click', async () => {
             console.log('🆕 Клік на "Додати ключове слово" в глосарії');
-            // TODO: Відкрити модал для створення нового елемента глосарію
-            // Поки що показуємо заглушку
-            alert('Функція додавання нового ключового слова в розробці');
+            const { showAddKeywordModal } = await import('../keywords/keywords-crud.js');
+            await showAddKeywordModal();
         });
     }
+
+    // Обробник для кнопок редагування елементів глосарію
+    document.addEventListener('click', async (event) => {
+        const editButton = event.target.closest('.btn-edit-glossary-item');
+        if (editButton) {
+            const itemId = editButton.dataset.itemId;
+            console.log(`✏️ Редагування елемента глосарію: ${itemId}`);
+            const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
+            await showEditKeywordModal(itemId);
+        }
+    });
 
     // Слухаємо відкриття модалу для ініціалізації форми
     document.addEventListener('modal-opened', (event) => {

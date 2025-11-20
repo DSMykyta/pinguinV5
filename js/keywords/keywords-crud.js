@@ -193,7 +193,7 @@ function getFormData() {
         trigers: document.getElementById('keyword-trigers')?.value.trim() || '',
         keywords_ua: document.getElementById('keyword-keywords-ua')?.value.trim() || '',
         keywords_ru: document.getElementById('keyword-keywords-ru')?.value.trim() || '',
-        glossary_text: '' // Поки що порожнє
+        glossary_text: document.getElementById('keyword-glossary-text')?.value.trim() || ''
     };
 }
 
@@ -211,6 +211,7 @@ function fillKeywordForm(keyword) {
     document.getElementById('keyword-trigers').value = keyword.trigers || '';
     document.getElementById('keyword-keywords-ua').value = keyword.keywords_ua || '';
     document.getElementById('keyword-keywords-ru').value = keyword.keywords_ru || '';
+    document.getElementById('keyword-glossary-text').value = keyword.glossary_text || '';
 }
 
 function clearKeywordForm() {
@@ -227,6 +228,7 @@ function clearKeywordForm() {
     document.getElementById('keyword-trigers').value = '';
     document.getElementById('keyword-keywords-ua').value = '';
     document.getElementById('keyword-keywords-ru').value = '';
+    document.getElementById('keyword-glossary-text').value = '';
 }
 
 /**

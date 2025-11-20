@@ -63,7 +63,12 @@ function createArticleHtml(item) {
                     </div>
                     <h3>${item.id}</h3>
                 </div>
-                ${paramTypeHtml}
+                <div class="section-header-actions">
+                    ${paramTypeHtml}
+                    <button class="btn-icon btn-edit-glossary-item" data-item-id="${item.id}" title="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>
             </div>
 
             <div class="section-content">

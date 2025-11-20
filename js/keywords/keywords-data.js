@@ -60,12 +60,12 @@ export function getKeywords() {
  * Генерувати унікальний local_id у форматі glo + 6 цифр
  */
 function generateLocalId() {
-    const existingIds = keywordsState.keywords.map(k => k.local_id).filter(id => id && id.startsWith('glo'));
+    const existingIds = keywordsState.keywords.map(k => k.local_id).filter(id => id && id.startsWith('glo-'));
 
     // Знайти максимальний номер
     let maxNum = 0;
     existingIds.forEach(id => {
-        const num = parseInt(id.substring(3), 10);
+        const num = parseInt(id.substring(4), 10); // glo-000001 -> 4 символи до числа
         if (!isNaN(num) && num > maxNum) {
             maxNum = num;
         }
@@ -74,8 +74,8 @@ function generateLocalId() {
     // Новий номер
     const newNum = maxNum + 1;
 
-    // Форматувати з нулями на початку (6 цифр)
-    const localId = 'glo' + String(newNum).padStart(6, '0');
+    // Форматувати з нулями на початку (6 цифр) та дефісом
+    const localId = 'glo-' + String(newNum).padStart(6, '0');
 
     console.log(`📝 Згенеровано local_id: ${localId}`);
     return localId;
