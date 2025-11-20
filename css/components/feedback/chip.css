@@ -42,12 +42,8 @@
     align-content: flex-start;
     gap: 8px;
     padding: 8px;
+    padding-bottom: 120px; /* Додатковий простір для tooltip */
     overflow-y: auto;
-}
-
-/* Коли є tooltip всередині - дозволити йому виходити за межі */
-.chip-container:has(.chip-tooltip:hover) {
-    overflow: visible;
 }
 
 /* Список chips - горизонтальний scroll */
@@ -148,7 +144,7 @@
 
 .chip-tooltip-content {
     position: absolute;
-    bottom: calc(100% + 8px);
+    top: calc(100% + 8px);
     left: 0;
     padding: 8px 12px;
     background: var(--color-on-surface);
