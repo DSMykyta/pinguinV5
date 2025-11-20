@@ -60,15 +60,13 @@ function createArticleHtml(item) {
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>${item.name}</h2>
+                        <button class="btn-icon btn-edit-glossary-item" data-item-id="${item.id}" title="Редагувати">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
                     </div>
                     <h3>${item.id}</h3>
                 </div>
-                <div class="section-header-actions">
-                    ${paramTypeHtml}
-                    <button class="btn-icon btn-edit-glossary-item" data-item-id="${item.id}" title="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                </div>
+                ${paramTypeHtml ? `<div class="section-header-actions">${paramTypeHtml}</div>` : ''}
             </div>
 
             <div class="section-content">

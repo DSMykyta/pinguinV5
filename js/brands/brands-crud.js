@@ -67,6 +67,20 @@ export async function showAddBrandModal() {
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = newId;
 
+    // Обробник кнопки відкриття сайту
+    const openSiteBtn = document.getElementById('open-brand-site');
+    const siteInput = document.getElementById('brand-site-link');
+    if (openSiteBtn && siteInput) {
+        openSiteBtn.onclick = () => {
+            const url = siteInput.value.trim();
+            if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                showToast('Введіть URL сайту', 'error');
+            }
+        };
+    }
+
     // Обробник збереження
     const saveBtn = document.getElementById('save-brand');
     if (saveBtn) {
@@ -109,6 +123,20 @@ export async function showEditBrandModal(brandId) {
 
     // Заповнити форму даними
     fillBrandForm(brand);
+
+    // Обробник кнопки відкриття сайту
+    const openSiteBtn = document.getElementById('open-brand-site');
+    const siteInput = document.getElementById('brand-site-link');
+    if (openSiteBtn && siteInput) {
+        openSiteBtn.onclick = () => {
+            const url = siteInput.value.trim();
+            if (url) {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+                showToast('Введіть URL сайту', 'error');
+            }
+        };
+    }
 
     // Обробник збереження
     const saveBtn = document.getElementById('save-brand');
