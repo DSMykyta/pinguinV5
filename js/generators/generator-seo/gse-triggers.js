@@ -45,12 +45,17 @@ export function addTulip(title, isActive = true) {
 
 /**
  * Автоматично додає "тюльпани" на основі назви продукту.
+ * Спочатку очищає всі існуючі тюльпани, потім додає нові.
  */
 export function syncTulipsFromProductName() {
     const dom = getSeoDOM();
     const triggersData = getTriggersData();
     const productName = dom.productNameInput.value.toLowerCase();
-    
+
+    // Очищуємо всі існуючі тюльпани
+    dom.triggerTitlesContainer.innerHTML = '';
+
+    // Додаємо тільки ті, що відповідають поточній назві продукту
     triggersData.forEach(trigger => {
         if (trigger.triggers.some(t => productName.includes(t))) {
             addTulip(trigger.title, true);
