@@ -5,6 +5,7 @@ import { renderLinkButtons } from './gln-ui.js';
 // === ІМПОРТУЄМО ПРАВИЛЬНИЙ ОНОВЛЮВАЧ ===
 import { initLinksEventListeners, updateLinksUI } from './gln-events.js';
 import { initLinksReset } from './gln-reset.js';
+import { initAsideButtons } from './gln-aside.js';
 
 async function initLinksGenerator() {
     if (!document.getElementById('links-buttons-container')) return;
@@ -13,6 +14,7 @@ async function initLinksGenerator() {
     renderLinkButtons();
     initLinksEventListeners();
     initLinksReset(); // Викликаємо без параметрів
+    initAsideButtons(); // Ініціалізуємо кнопки в footer aside
 
     // === ВИКЛИКАЄМО ПРАВИЛЬНИЙ ОНОВЛЮВАЧ ===
     updateLinksUI(); // Початкове оновлення UI

@@ -1,0 +1,20 @@
+// js/generators/generator-link/gln-aside.js
+
+/**
+ * Ініціалізація обробників кнопок у footer aside
+ */
+export function initAsideButtons() {
+    const addButton = document.getElementById('btn-add-brand-links');
+    if (addButton) {
+        addButton.addEventListener('click', async () => {
+            console.log('🆕 Відкриття модалу додавання бренду');
+
+            // Завантажити дані перед відкриттям модалу
+            const { loadBrands } = await import('../../brands/brands-data.js');
+            await loadBrands();
+
+            const { showAddBrandModal } = await import('../../brands/brands-crud.js');
+            await showAddBrandModal();
+        });
+    }
+}
