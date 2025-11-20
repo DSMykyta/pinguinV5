@@ -33,6 +33,11 @@ export function initGlossaryModals() {
         if (editButton) {
             const itemId = editButton.dataset.itemId;
             console.log(`✏️ Редагування елемента глосарію: ${itemId}`);
+
+            // Завантажити дані перед відкриттям модалу
+            const { loadKeywords } = await import('../keywords/keywords-data.js');
+            await loadKeywords();
+
             const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
             await showEditKeywordModal(itemId);
         }
