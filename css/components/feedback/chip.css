@@ -50,10 +50,14 @@
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
-    padding: 8px 0;
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
+}
+
+/* Якщо chip-list не порожній - додаємо padding */
+.chip-list:not(:empty) {
+    padding: 8px 0;
 }
 
 /* ============================================ */
