@@ -8,93 +8,50 @@
 </div>
 
 <div class="modal-body-source">
-    <div class="auth-login-container">
-        <!-- Avatar container -->
-        <div id="auth-login-avatar-container" class="auth-login-avatar"></div>
 
-        <!-- Випадковий текст від аватара -->
-        <p id="auth-login-avatar-message" class="avatar-state-title"></p>
+    <!-- Avatar та повідомлення -->
+    <div id="auth-login-avatar-container"></div>
+    <p id="auth-login-avatar-message" class="avatar-state-title"></p>
 
-        <!-- Повідомлення про помилку -->
-        <div id="auth-login-error" class="auth-login-error u-hidden"></div>
+    <!-- Повідомлення про помилку -->
+    <div id="auth-login-error" class="modal-warning u-hidden"></div>
 
-        <!-- Форма входу -->
-        <form id="auth-login-form" class="auth-login-form">
+    <form id="auth-login-form">
+        <fieldset class="form-fieldset">
+
             <div class="form-group">
-                <label for="auth-username">Логін <span class="required">*</span></label>
-                <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін" autocomplete="username" required autofocus>
+                <label for="auth-username">
+                    Логін
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="auth-username" class="input-main"
+                       placeholder="Введіть логін"
+                       autocomplete="username"
+                       required
+                       autofocus>
             </div>
 
             <div class="form-group">
-                <label for="auth-password">Пароль <span class="required">*</span></label>
-                <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
+                <label for="auth-password">
+                    Пароль
+                    <span class="required">*</span>
+                </label>
+                <input type="password" id="auth-password" class="input-main"
+                       placeholder="Введіть пароль"
+                       autocomplete="current-password"
+                       required>
             </div>
 
-            <div class="avatar-state-message">
+            <div class="modal-info">
                 Для отримання доступу зверніться до адміністратора
             </div>
 
-            <div class="auth-login-actions">
-                <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
-                <button type="submit" class="btn-primary" id="auth-login-btn">Увійти</button>
-            </div>
-        </form>
-    </div>
+        </fieldset>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
+            <button type="submit" class="btn-primary" id="auth-login-btn">Увійти</button>
+        </div>
+    </form>
+
 </div>
-
-<style>
-/* Контейнер форми логіну */
-.auth-login-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-    gap: 16px;
-}
-
-/* Контейнер для аватара */
-.auth-login-avatar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.auth-login-avatar img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    opacity: 0.9;
-}
-
-/* Блок помилки */
-.auth-login-error {
-    width: 100%;
-    padding: 12px;
-    background: var(--color-error-container);
-    color: var(--color-on-error-container);
-    border-radius: 8px;
-    font-size: 14px;
-    text-align: center;
-}
-
-/* Форма */
-.auth-login-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-/* Кнопки дій */
-.auth-login-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.auth-login-actions button {
-    min-width: 100px;
-}
-</style>
