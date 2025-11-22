@@ -295,12 +295,8 @@ function setupLoginTrigger() {
       console.log('🖱️ КЛІК на кнопку "Увійти"!');
       e.preventDefault();
 
-      // Створюємо тригер елемент з розміром small
-      const triggerElement = document.createElement('div');
-      triggerElement.dataset.modalSize = 'small';
-
-      // Використовуємо існуючу систему модалів
-      showModal('auth-login-modal', triggerElement);
+      // Відкриваємо модал (розмір вже вказаний в шаблоні)
+      showModal('auth-login-modal');
     });
   } else {
     console.warn('⚠️ Кнопка "Увійти" (#auth-login-trigger-btn) НЕ ЗНАЙДЕНА!');
@@ -345,20 +341,8 @@ function handleModalOpened(event) {
     return;
   }
 
-  // Вставляємо аватар з недовірливою емоцією
-  if (avatarContainer) {
-    avatarContainer.innerHTML = renderAvatarState('authLogin', {
-      size: 'medium',
-      animal: 'penguin', // Завжди пінгвін для логіну (не персоналізований)
-      showMessage: false
-    });
-  }
-
-  // Показуємо випадкове повідомлення
-  if (avatarMessage) {
-    const state = getAvatarState('authLogin', { animal: 'penguin' });
-    avatarMessage.textContent = state.message;
-  }
+  // Аватар та повідомлення рендеряться автоматично через ui-modal-avatars.js
+  // (див. MODAL_AVATAR_MAPPING в js/common/ui-modal-avatars.js)
 
   // Очищаємо поля
   if (usernameInput) usernameInput.value = '';

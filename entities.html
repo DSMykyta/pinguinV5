@@ -101,24 +101,24 @@
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
 
-           <!--  <div class="section-navigator tabs-head" id="section-navigator" role="group" aria-label="Таби" id="tabs-head-container"> -->
-            <nav class="section-navigator" id="section-navigator">
-                <button class="nav-icon active" aria-label="Категорії" data-tab-target="tab-categories">
-                    <span class="material-symbols-outlined">pentagon</span>
-                    <span class="nav-icon-label">Категорії</span>
-                </button>
+        <!--  <div class="section-navigator tabs-head" id="section-navigator" role="group" aria-label="Таби" id="tabs-head-container"> -->
+        <nav class="section-navigator" id="section-navigator">
+            <button class="nav-icon active" aria-label="Категорії" data-tab-target="tab-categories">
+                <span class="material-symbols-outlined">pentagon</span>
+                <span class="nav-icon-label">Категорії</span>
+            </button>
 
-                <button class="nav-icon" aria-label="Характеристики" data-tab-target="tab-characteristics">
-                    <span class="material-symbols-outlined">square</span>
-                    <span class="nav-icon-label">Характеристики</span>
-                </button>
+            <button class="nav-icon" aria-label="Характеристики" data-tab-target="tab-characteristics">
+                <span class="material-symbols-outlined">square</span>
+                <span class="nav-icon-label">Характеристики</span>
+            </button>
 
-                <button class="nav-icon" aria-label="Опції" data-tab-target="tab-options">
-                    <span class="material-symbols-outlined">change_history</span>
-                    <span class="nav-icon-label">Опції</span>
-                </button>
+            <button class="nav-icon" aria-label="Опції" data-tab-target="tab-options">
+                <span class="material-symbols-outlined">change_history</span>
+                <span class="nav-icon-label">Опції</span>
+            </button>
 
-            </nav>
+        </nav>
 
         <!-- TAB: CATEGORIES -->
         <div class="tab-content active" data-tab-content="tab-categories" id="tab-categories">
@@ -145,8 +145,7 @@
                         </button>
                     </div>
                     <div class="dropdown-wrapper u-dropdown-flex">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
-                            class="u-flex-center">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок" class="u-flex-center">
                             <span class="material-symbols-outlined">view_column</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -154,8 +153,7 @@
                             <div id="table-columns-list-categories" class="dropdown-body"></div>
                         </div>
                     </div>
-                    <button id="refresh-tab-categories" class="btn-icon" aria-label="Оновити таб"
-                        class="u-flex-center">
+                    <button id="refresh-tab-categories" class="btn-icon" aria-label="Оновити таб" class="u-flex-center">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
                     <button id="btn-marketplace-admin" class="btn-outline">
@@ -229,8 +227,7 @@
                         </button>
                     </div>
                     <div class="dropdown-wrapper u-dropdown-flex">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
-                            class="u-flex-center">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок" class="u-flex-center">
                             <span class="material-symbols-outlined">view_column</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -308,8 +305,7 @@
                         </button>
                     </div>
                     <div class="dropdown-wrapper u-dropdown-flex">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок"
-                            class="u-flex-center">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок" class="u-flex-center">
                             <span class="material-symbols-outlined">view_column</span>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
@@ -317,8 +313,7 @@
                             <div id="table-columns-list-options" class="dropdown-body"></div>
                         </div>
                     </div>
-                    <button id="refresh-tab-options" class="btn-icon" aria-label="Оновити таб"
-                        class="u-flex-center">
+                    <button id="refresh-tab-options" class="btn-icon" aria-label="Оновити таб" class="u-flex-center">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
                     <button id="btn-add-option" class="btn-primary">
@@ -377,6 +372,198 @@
                 </div>
             </div>
         </footer>
+
+    </main>
+
+    <!-- ПРАВА ПАНЕЛЬ -->
+    <aside id="panel-right" class="panel panel-right">
+        <div class="panel-header">
+            <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
+                <span class="material-symbols-outlined">keyboard_arrow_left</span>
+            </button>
+        </div>
+        <div id="panel-right-content" class="panel-content">
+            <!-- aside-entities.html завантажується через JS -->
+        </div>
+    </aside>
+
+    <div id="modal-placeholder"></div>
+
+    </div>
+    <div class="pseudo-table-body">
+        <!-- Рядки додаються через JS -->
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- TAB: CHARACTERISTICS -->
+    <div class="tab-content" data-tab-content="tab-characteristics" id="tab-characteristics">
+
+        <!-- Tab Header -->
+        <div class="tab-header">
+            <div class="tab-title-block">
+                <h2 class="tab-title">Характеристики</h2>
+                <span class="tab-stats" id="tab-stats-characteristics">Показано 0 з 0</span>
+            </div>
+            <div class="u-flex-row-8">
+                <div class="filter-pills-container" id="filter-pills-tab-characteristics">
+                    <button class="filter-pill active" data-filter="all" data-tab-id="tab-characteristics">
+                        <span class="material-symbols-outlined">list</span>
+                        Всі
+                    </button>
+                    <button class="filter-pill" data-filter="unchecked" data-tab-id="tab-characteristics">
+                        <span class="material-symbols-outlined">radio_button_unchecked</span>
+                        Не перевірені
+                    </button>
+                    <button class="filter-pill" data-filter="checked" data-tab-id="tab-characteristics">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Перевірені
+                    </button>
+                </div>
+                <div class="dropdown-wrapper u-dropdown-flex">
+                    <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок" class="u-flex-center">
+                        <span class="material-symbols-outlined">view_column</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-header">Показати колонки</div>
+                        <div id="table-columns-list-characteristics" class="dropdown-body"></div>
+                    </div>
+                </div>
+                <button id="refresh-tab-characteristics" class="btn-icon" aria-label="Оновити таб"
+                    class="u-flex-center">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+                <button id="btn-add-characteristic" class="btn-primary">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Додати</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="pseudo-table-container">
+            <div class="pseudo-table">
+                <div class="pseudo-table-header">
+                    <div class="pseudo-table-cell cell-actions header-actions-cell">
+                        <input type="checkbox" class="header-select-all">
+                    </div>
+                    <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="local_id"
+                        data-column="local_id">
+                        <span>ID</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell cell-main-name sortable-header" data-sort-key="name_uk"
+                        data-column="name_uk">
+                        <span>Назва UA</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell sortable-header" data-sort-key="category_names"
+                        data-column="category_names">
+                        <span>Категорії</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell sortable-header" data-sort-key="param_type" data-column="param_type">
+                        <span>Тип параметра</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell sortable-header" data-sort-key="is_global" data-column="is_global">
+                        <span>Глобальна</span><span class="sort-indicator"></span>
+                    </div>
+                    <!-- Динамічні колонки маркетплейсів -->
+                </div>
+                <div class="pseudo-table-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB: OPTIONS -->
+    <div class="tab-content" data-tab-content="tab-options" id="tab-options">
+
+        <!-- Tab Header -->
+        <div class="tab-header">
+            <div class="tab-title-block">
+                <h2 class="tab-title">Опції</h2>
+                <span class="tab-stats" id="tab-stats-options">Показано 0 з 0</span>
+            </div>
+            <div class="u-flex-row-8">
+                <div class="filter-pills-container" id="filter-pills-tab-options">
+                    <button class="filter-pill active" data-filter="all" data-tab-id="tab-options">
+                        <span class="material-symbols-outlined">list</span>
+                        Всі
+                    </button>
+                    <button class="filter-pill" data-filter="unchecked" data-tab-id="tab-options">
+                        <span class="material-symbols-outlined">radio_button_unchecked</span>
+                        Не перевірені
+                    </button>
+                    <button class="filter-pill" data-filter="checked" data-tab-id="tab-options">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Перевірені
+                    </button>
+                </div>
+                <div class="dropdown-wrapper u-dropdown-flex">
+                    <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок" class="u-flex-center">
+                        <span class="material-symbols-outlined">view_column</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-header">Показати колонки</div>
+                        <div id="table-columns-list-options" class="dropdown-body"></div>
+                    </div>
+                </div>
+                <button id="refresh-tab-options" class="btn-icon" aria-label="Оновити таб" class="u-flex-center">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+                <button id="btn-add-option" class="btn-primary">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Додати</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="pseudo-table-container">
+            <div class="pseudo-table">
+                <div class="pseudo-table-header">
+                    <div class="pseudo-table-cell cell-actions header-actions-cell">
+                        <input type="checkbox" class="header-select-all">
+                    </div>
+                    <div class="pseudo-table-cell cell-id sortable-header" data-sort-key="local_id"
+                        data-column="local_id">
+                        <span>ID</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell sortable-header" data-sort-key="char_name" data-column="char_name">
+                        <span>Характеристика</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell cell-main-name sortable-header" data-sort-key="name_uk"
+                        data-column="name_uk">
+                        <span>Назва UA</span><span class="sort-indicator"></span>
+                    </div>
+                    <div class="pseudo-table-cell sortable-header" data-sort-key="name_ru" data-column="name_ru">
+                        <span>Назва RU</span><span class="sort-indicator"></span>
+                    </div>
+                    <!-- Динамічні колонки маркетплейсів -->
+                </div>
+                <div class="pseudo-table-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФІКСОВАНИЙ ФУТЕР -->
+    <footer class="fixed-footer">
+        <div></div>
+        <div class="pagination-container">
+            <div id="pagination-nav-container" class="pagination-nav"></div>
+
+            <div class="page-size-selector" id="page-size-selector">
+                <button class="page-size-trigger" aria-label="Кількість на сторінці">
+                    <span id="page-size-label">25</span>
+                </button>
+                <div class="page-size-menu">
+                    <button class="page-size-option" data-page-size="10">10</button>
+                    <button class="page-size-option" data-page-size="25">25</button>
+                    <button class="page-size-option" data-page-size="50">50</button>
+                    <button class="page-size-option" data-page-size="100">100</button>
+                    <button class="page-size-option" data-page-size="999999">Всі</button>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     </main>
 

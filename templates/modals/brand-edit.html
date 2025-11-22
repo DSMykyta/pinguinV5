@@ -1,27 +1,30 @@
-<div class="modal-title-source u-hidden">
-    <span id="modal-title">Додати бренд</span>
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="modal-title">Додати бренд</span></h2>
+            <div class="modal-header-actions">
+                <button id="delete-brand" class="segment u-hidden" aria-label="Видалити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="label">Видалити</span>
+                    </div>
+                </button>
+                <button id="save-brand" class="segment" aria-label="Зберегти">
+                    <div class="state-layer">
+                        <span class="label">Зберегти</span>
+                    </div>
+                </button>
+                <button class="segment modal-close-btn" aria-label="Закрити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
+            </div>
+        </div>
 
-<div class="modal-header-actions-source u-hidden">
-    <button id="delete-brand" class="segment u-hidden" aria-label="Видалити">
-        <div class="state-layer">
-            <span class="material-symbols-outlined">delete</span>
-            <span class="label">Видалити</span>
-        </div>
-    </button>
-    <button id="save-brand" class="segment" aria-label="Зберегти">
-        <div class="state-layer">
-            <span class="label">Зберегти</span>
-        </div>
-    </button>
-    <button class="segment modal-close-btn" aria-label="Закрити">
-        <div class="state-layer">
-            <span class="material-symbols-outlined">close</span>
-        </div>
-    </button>
-</div>
-
-<div class="modal-body-source">
+        <!-- Body -->
+        <div class="modal-body">
 
     <fieldset class="form-fieldset">
 
@@ -67,4 +70,6 @@
         </div>
 
     </fieldset>
+        </div>
+    </div>
 </div>

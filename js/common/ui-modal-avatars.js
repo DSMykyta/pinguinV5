@@ -38,6 +38,11 @@ const MODAL_AVATAR_MAPPING = {
         stateType: 'confirmReload',
         avatarContainerId: 'confirm-refresh-avatar-container',
         messageContainerId: 'confirm-refresh-avatar-message'
+    },
+    'auth-login-modal': {
+        stateType: 'authLogin',
+        avatarContainerId: 'auth-login-avatar-container',
+        messageContainerId: 'auth-login-avatar-message'
     }
 };
 
@@ -55,7 +60,7 @@ export function initModalAvatars() {
  * Обробник події відкриття модалу
  */
 function handleModalOpened(event) {
-    const { modalId, bodyTarget } = event.detail;
+    const { modalId, modalElement } = event.detail;
 
     // Перевіряємо чи це модал з аватаром
     const mapping = MODAL_AVATAR_MAPPING[modalId];
@@ -65,9 +70,9 @@ function handleModalOpened(event) {
 
     console.log(`🎨 Рендеринг аватара для модалу: ${modalId}`);
 
-    // Знаходимо контейнери
-    const avatarContainer = bodyTarget.querySelector(`#${mapping.avatarContainerId}`);
-    const messageContainer = bodyTarget.querySelector(`#${mapping.messageContainerId}`);
+    // Знаходимо контейнери в повній структурі модалу
+    const avatarContainer = modalElement.querySelector(`#${mapping.avatarContainerId}`);
+    const messageContainer = modalElement.querySelector(`#${mapping.messageContainerId}`);
 
     if (!avatarContainer) {
         console.warn(`⚠️ Контейнер аватара не знайдено: ${mapping.avatarContainerId}`);

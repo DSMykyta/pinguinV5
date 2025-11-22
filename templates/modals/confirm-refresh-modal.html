@@ -1,69 +1,47 @@
 <!-- templates/modals/confirm-refresh-modal.html -->
 
-<div class="modal-title-source u-hidden">
-    Підтвердження оновлення
-</div>
-
-<div class="modal-header-actions-source u-hidden">
-</div>
-
-<div class="modal-body-source">
-    <div class="confirm-modal-container">
-        <!-- Avatar container -->
-        <div id="confirm-refresh-avatar-container" class="confirm-modal-avatar"></div>
-
-        <!-- Випадковий текст від аватара -->
-        <p id="confirm-refresh-avatar-message" class="avatar-state-title"></p>
-
-        <!-- Повідомлення підтвердження -->
-        <div class="avatar-state-message">
-            Оновити дані з Google Sheets?
-            <br>
-            <strong>Незбережені зміни будуть втрачені.</strong>
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Підтвердження оновлення</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
 
-        <!-- Кнопки дій -->
-        <div class="confirm-modal-actions">
-            <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
-            <button type="button" class="btn-primary" id="confirm-refresh-action">Так, оновити</button>
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="confirm-modal-container">
+                <!-- Avatar container -->
+                <div id="confirm-refresh-avatar-container" class="confirm-modal-avatar"></div>
+
+                <!-- Випадковий текст від аватара -->
+                <p id="confirm-refresh-avatar-message" class="avatar-state-title"></p>
+
+                <!-- Повідомлення підтвердження -->
+                <div class="avatar-state-message">
+                    Оновити дані з Google Sheets?
+                    <br>
+                    <strong>Незбережені зміни будуть втрачені.</strong>
+                </div>
+
+                <!-- Кнопки дій -->
+                <div class="connected-button-group-square modal-footer grid2" role="group">
+                    <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                            <span class="label">Скасувати</span>
+                        </div>
+                    </button>
+                    <button type="button" class="segment" id="confirm-refresh-action" aria-label="Оновити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">refresh</span>
+                            <span class="label">Так, оновити</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-/* Контейнер модалу підтвердження */
-.confirm-modal-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-    gap: 16px;
-}
-
-/* Контейнер для аватара */
-.confirm-modal-avatar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.confirm-modal-avatar img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    opacity: 0.9;
-}
-
-/* Кнопки дій */
-.confirm-modal-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.confirm-modal-actions button {
-    min-width: 100px;
-}
-</style>

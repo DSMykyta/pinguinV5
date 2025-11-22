@@ -18,7 +18,7 @@ export async function showAddKeywordModal() {
 
     await showModal('keywords-edit', null);
 
-    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати ключове слово';
 
     const deleteBtn = document.getElementById('delete-keyword');
@@ -46,7 +46,7 @@ export async function showEditKeywordModal(localId) {
 
     await showModal('keywords-edit', null);
 
-    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати ключове слово';
 
     const deleteBtn = document.getElementById('delete-keyword');

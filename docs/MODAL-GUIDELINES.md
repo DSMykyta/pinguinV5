@@ -63,36 +63,47 @@
 Модальні вікна мають **3 розміри**:
 
 ### Small (400px)
-**Призначення:** Підтвердження, прості повідомлення
-**Атрибут:** `data-modal-size="small"`
-**Приклад:** confirm-delete-modal, confirm-clear-modal
+**Призначення:** Підтвердження, прості повідомлення, логін
+**CSS Клас:** `.modal-small` на `.modal-container`
+**Приклад:** confirm-delete-modal, confirm-clear-modal, auth-login-modal
 
 ### Medium (60vw) - ЗА ЗАМОВЧУВАННЯМ
 **Призначення:** Форми додавання/редагування
-**Атрибут:** `data-modal-size="medium"` або без атрибута
-**Приклад:** entity-add-category, auth-login-modal
+**CSS Клас:** `.modal-medium` на `.modal-container` (або без класу - default width: 70vw)
+**Приклад:** brand-edit, keywords-edit
 
 ### Large (80vw)
 **Призначення:** Складні інтерфейси з табами, великі таблиці
-**Атрибут:** `data-modal-size="large"`
+**CSS Клас:** `.modal-large` на `.modal-container`
 **Приклад:** modal-marketplace-admin, product-text-view
 
 ### Використання:
 
+Розмір вказується **безпосередньо в HTML шаблоні модалу**:
+
 ```html
 <!-- Small modal -->
-<button data-modal-trigger="confirm-delete-modal" data-modal-size="small">
-    Видалити
-</button>
+<div class="modal-container modal-small">
+    ...
+</div>
 
-<!-- Medium modal (за замовчуванням) -->
-<button data-modal-trigger="entity-add-category">
-    Додати категорію
-</button>
+<!-- Medium modal -->
+<div class="modal-container modal-medium">
+    ...
+</div>
 
 <!-- Large modal -->
-<button data-modal-trigger="modal-marketplace-admin" data-modal-size="large">
-    Управління маркетплейсами
+<div class="modal-container modal-large">
+    ...
+</div>
+```
+
+Тригер кнопка НЕ визначає розмір:
+
+```html
+<!-- Правильно - розмір вже в templates/modals/confirm-delete-modal.html -->
+<button data-modal-trigger="confirm-delete-modal">
+    Видалити
 </button>
 ```
 
@@ -102,84 +113,138 @@
 
 ### Базовий Шаблон
 
+Кожен модал - це **ПОВНОЦІННИЙ HTML елемент**, який завантажується через fetch.
+
 ```html
-<!-- 1. Назва модалу (приховано) -->
-<div class="modal-title-source u-hidden">
-    Назва Вашого Модалу
-</div>
+<!-- templates/modals/your-modal.html -->
 
-<!-- 2. Додаткові кнопки в header (опціонально) -->
-<div class="modal-header-actions-source u-hidden">
-    <!-- Кнопка закриття додається автоматично -->
-    <!-- Тут можна додати інші кнопки якщо потрібно -->
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
 
-<!-- 3. Тіло модалу -->
-<div class="modal-body-source">
-
-    <!-- Контент модалу -->
-    <p>Ваш контент тут...</p>
-
-    <!-- Footer з кнопками -->
-    <div class="connected-button-group-square modal-footer" role="group">
-        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-            <div class="state-layer">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Назва Вашого Модалу</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
                 <span class="material-symbols-outlined">close</span>
-                <span class="label">Скасувати</span>
-            </div>
-        </button>
-        <button type="submit" class="segment" aria-label="Зберегти">
-            <div class="state-layer">
-                <span class="material-symbols-outlined">save</span>
-                <span class="label">Зберегти</span>
-            </div>
-        </button>
-    </div>
+            </button>
+        </div>
 
+        <!-- Body -->
+        <div class="modal-body">
+
+            <!-- Контент модалу -->
+            <p>Ваш контент тут...</p>
+
+            <!-- Footer з кнопками -->
+            <div class="connected-button-group-square modal-footer" role="group">
+                <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                        <span class="label">Скасувати</span>
+                    </div>
+                </button>
+                <button type="submit" class="segment" aria-label="Зберегти">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">save</span>
+                        <span class="label">Зберегти</span>
+                    </div>
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 ```
 
 ### Шаблон з Формою
 
 ```html
-<div class="modal-title-source u-hidden">
-    Додати Елемент
-</div>
+<!-- templates/modals/entity-add-element.html -->
 
-<div class="modal-header-actions-source u-hidden">
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
 
-<div class="modal-body-source">
-    <form id="form-add-element" class="modal-form">
-
-        <!-- Form groups -->
-        <div class="form-group">
-            <label for="element-name">Назва <span class="required">*</span></label>
-            <input type="text" id="element-name" class="input-main" required>
-        </div>
-
-        <div class="form-group">
-            <label for="element-description">Опис</label>
-            <textarea id="element-description" class="input-main" rows="4"></textarea>
-        </div>
-
-        <!-- Footer -->
-        <div class="connected-button-group-square modal-footer" role="group">
-            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                <div class="state-layer">
-                    <span class="material-symbols-outlined">close</span>
-                    <span class="label">Скасувати</span>
-                </div>
-            </button>
-            <button type="submit" class="segment" aria-label="Створити">
-                <div class="state-layer">
-                    <span class="material-symbols-outlined">add</span>
-                    <span class="label">Створити</span>
-                </div>
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Додати Елемент</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
             </button>
         </div>
 
-    </form>
+        <!-- Body -->
+        <div class="modal-body">
+            <form id="form-add-element" class="modal-form">
+
+                <!-- Form groups -->
+                <div class="form-group">
+                    <label for="element-name">Назва <span class="required">*</span></label>
+                    <input type="text" id="element-name" class="input-main" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="element-description">Опис</label>
+                    <textarea id="element-description" class="input-main" rows="4"></textarea>
+                </div>
+
+                <!-- Footer -->
+                <div class="connected-button-group-square modal-footer" role="group">
+                    <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                            <span class="label">Скасувати</span>
+                        </div>
+                    </button>
+                    <button type="submit" class="segment" aria-label="Створити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">add</span>
+                            <span class="label">Створити</span>
+                        </div>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+```
+
+### Шаблон з Header Actions (Save/Delete в header)
+
+```html
+<!-- templates/modals/brand-edit.html -->
+
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+
+        <!-- Header з кнопками дій -->
+        <div class="modal-header">
+            <h2 class="modal-title">Редагувати Бренд</h2>
+            <div class="modal-header-actions">
+                <button id="delete-brand" class="segment u-hidden" aria-label="Видалити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="label">Видалити</span>
+                    </div>
+                </button>
+                <button id="save-brand" class="segment" aria-label="Зберегти">
+                    <div class="state-layer">
+                        <span class="label">Зберегти</span>
+                    </div>
+                </button>
+                <button class="segment modal-close-btn" aria-label="Закрити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Контент форми -->
+        </div>
+    </div>
 </div>
 ```
 
@@ -389,9 +454,9 @@
 ### Відкрити Модал
 
 ```html
-<!-- Через data-атрибут -->
-<button data-modal-trigger="modal-id" data-modal-size="medium">
-    Відкрити
+<!-- Через data-атрибут на кнопці -->
+<button data-modal-trigger="confirm-delete-modal">
+    Видалити
 </button>
 ```
 
@@ -399,8 +464,14 @@
 // Програмно
 import { showModal } from './js/common/ui-modal.js';
 
-showModal('modal-id', triggerElement);
+// Просто вказуємо ID модалу (без .html розширення)
+showModal('confirm-delete-modal');
+
+// Або з triggerElement (опціонально)
+showModal('confirm-delete-modal', buttonElement);
 ```
+
+**ВАЖЛИВО:** Розмір модалу вказується в самому HTML шаблоні, а НЕ при виклику `showModal()`.
 
 ### Закрити Модал
 
@@ -410,10 +481,17 @@ showModal('modal-id', triggerElement);
 ```
 
 ```javascript
-// Програмно
+// Програмно - закриває верхній модал зі стеку
 import { closeModal } from './js/common/ui-modal.js';
 
 closeModal();
+
+// Або закрити конкретний модал по ID
+closeModal('confirm-delete-modal');
+
+// Закрити всі модалі
+import { closeAllModals } from './js/common/ui-modal.js';
+closeAllModals();
 ```
 
 ### Події
@@ -423,13 +501,30 @@ closeModal();
 document.addEventListener('modal-opened', (e) => {
     console.log('Modal ID:', e.detail.modalId);
     console.log('Trigger element:', e.detail.trigger);
-    console.log('Body target:', e.detail.bodyTarget);
+    console.log('Modal element:', e.detail.modalElement); // Повний DOM елемент модалу
+    console.log('Body target:', e.detail.bodyTarget); // Shortcut для .modal-body
 });
 
 // Модал закрився
-document.addEventListener('modal-closed', () => {
-    console.log('Modal closed');
+document.addEventListener('modal-closed', (e) => {
+    console.log('Modal ID:', e.detail.modalId);
 });
+```
+
+### Стек Модалів
+
+Система підтримує **відкриття модалу поверх модалу**:
+
+```javascript
+import { showModal, getOpenModals } from './js/common/ui-modal.js';
+
+showModal('first-modal');
+showModal('second-modal'); // Відкриється поверх першого
+
+console.log(getOpenModals()); // ['first-modal', 'second-modal']
+
+closeModal(); // Закриє 'second-modal'
+closeModal(); // Закриє 'first-modal'
 ```
 
 ---
@@ -582,37 +677,49 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 ### Приклад 1: Простий Confirm Modal
 
 ```html
-<div class="modal-title-source u-hidden">
-    Підтвердження видалення
-</div>
+<!-- templates/modals/confirm-delete-modal.html -->
 
-<div class="modal-header-actions-source u-hidden">
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
 
-<div class="modal-body-source">
-    <p>Ви впевнені, що хочете видалити цей елемент?</p>
-    <p><strong>Цю дію неможливо скасувати.</strong></p>
-
-    <div class="connected-button-group-square modal-footer" role="group">
-        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-            <div class="state-layer">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Підтвердження видалення</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
                 <span class="material-symbols-outlined">close</span>
-                <span class="label">Скасувати</span>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="confirm-modal-container">
+                <p>Ви впевнені, що хочете видалити цей елемент?</p>
+                <p><strong>Цю дію неможливо скасувати.</strong></p>
+
+                <div class="connected-button-group-square modal-footer" role="group">
+                    <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                            <span class="label">Скасувати</span>
+                        </div>
+                    </button>
+                    <button type="button" id="confirm-delete-btn" class="segment" aria-label="Видалити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">delete</span>
+                            <span class="label">Видалити</span>
+                        </div>
+                    </button>
+                </div>
             </div>
-        </button>
-        <button type="button" id="confirm-delete-btn" class="segment" aria-label="Видалити">
-            <div class="state-layer">
-                <span class="material-symbols-outlined">delete</span>
-                <span class="label">Видалити</span>
-            </div>
-        </button>
+        </div>
     </div>
 </div>
 ```
 
 **Відкриття:**
 ```html
-<button data-modal-trigger="confirm-delete-modal" data-modal-size="small">
+<!-- Розмір вказано в самому шаблоні (.modal-small) -->
+<button data-modal-trigger="confirm-delete-modal">
     Видалити
 </button>
 ```
@@ -620,53 +727,62 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 ### Приклад 2: Модал з Формою
 
 ```html
-<div class="modal-title-source u-hidden">
-    Додати Користувача
-</div>
+<!-- templates/modals/user-add.html -->
 
-<div class="modal-header-actions-source u-hidden">
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
 
-<div class="modal-body-source">
-    <form id="form-add-user" class="modal-form">
-
-        <div class="modal-grid-2">
-            <div class="form-group">
-                <label for="user-firstname">Ім'я <span class="required">*</span></label>
-                <input type="text" id="user-firstname" class="input-main" required>
-            </div>
-
-            <div class="form-group">
-                <label for="user-lastname">Прізвище <span class="required">*</span></label>
-                <input type="text" id="user-lastname" class="input-main" required>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="user-email">Email <span class="required">*</span></label>
-            <input type="email" id="user-email" class="input-main" required>
-        </div>
-
-        <div class="modal-info">
-            Користувач отримає email з інструкціями для активації акаунту.
-        </div>
-
-        <div class="connected-button-group-square modal-footer" role="group">
-            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                <div class="state-layer">
-                    <span class="material-symbols-outlined">close</span>
-                    <span class="label">Скасувати</span>
-                </div>
-            </button>
-            <button type="submit" class="segment" aria-label="Створити">
-                <div class="state-layer">
-                    <span class="material-symbols-outlined">person_add</span>
-                    <span class="label">Створити</span>
-                </div>
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Додати Користувача</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
             </button>
         </div>
 
-    </form>
+        <!-- Body -->
+        <div class="modal-body">
+            <form id="form-add-user" class="modal-form">
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="user-firstname">Ім'я <span class="required">*</span></label>
+                        <input type="text" id="user-firstname" class="input-main" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="user-lastname">Прізвище <span class="required">*</span></label>
+                        <input type="text" id="user-lastname" class="input-main" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="user-email">Email <span class="required">*</span></label>
+                    <input type="email" id="user-email" class="input-main" required>
+                </div>
+
+                <div class="modal-info">
+                    Користувач отримає email з інструкціями для активації акаунту.
+                </div>
+
+                <div class="connected-button-group-square modal-footer" role="group">
+                    <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                            <span class="label">Скасувати</span>
+                        </div>
+                    </button>
+                    <button type="submit" class="segment" aria-label="Створити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">person_add</span>
+                            <span class="label">Створити</span>
+                        </div>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
 </div>
 ```
 
@@ -726,7 +842,58 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 
 ## 🚫 Поширені Помилки
 
-### ❌ Стара система кнопок
+### ❌ ПОМИЛКА: Стара структура з -source
+```html
+<!-- ЗАСТАРІЛА СТРУКТУРА - НЕ ВИКОРИСТОВУВАТИ -->
+<div class="modal-title-source u-hidden">
+    Назва
+</div>
+<div class="modal-header-actions-source u-hidden">
+</div>
+<div class="modal-body-source">
+    Контент
+</div>
+```
+
+### ✅ ПРАВИЛЬНО: Повноцінна структура
+```html
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
+        <div class="modal-header">
+            <h2 class="modal-title">Назва</h2>
+            <button class="btn-icon modal-close" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            Контент
+        </div>
+    </div>
+</div>
+```
+
+### ❌ ПОМИЛКА: Розмір на кнопці тригері
+```html
+<!-- НЕПРАВИЛЬНО -->
+<button data-modal-trigger="my-modal" data-modal-size="small">
+    Відкрити
+</button>
+```
+
+### ✅ ПРАВИЛЬНО: Розмір в шаблоні модалу
+```html
+<!-- Розмір вказано в templates/modals/my-modal.html -->
+<div class="modal-container modal-small">
+    ...
+</div>
+
+<!-- Кнопка тригер без data-modal-size -->
+<button data-modal-trigger="my-modal">
+    Відкрити
+</button>
+```
+
+### ❌ ПОМИЛКА: Стара система кнопок
 ```html
 <!-- НЕПРАВИЛЬНО -->
 <div class="modal-footer">
@@ -735,7 +902,7 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 </div>
 ```
 
-### ✅ Правильно
+### ✅ ПРАВИЛЬНО: Нова система
 ```html
 <div class="connected-button-group-square modal-footer" role="group">
     <button type="button" data-modal-close class="segment" aria-label="Скасувати">
@@ -785,16 +952,18 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 
 ## 📋 Чек-лист Перед Коммітом
 
-- [ ] Модал має правильну структуру (title-source, header-actions-source, body-source)
+- [ ] Модал має повноцінну структуру: `.modal-overlay > .modal-container > .modal-header + .modal-body`
+- [ ] Розмір вказано через клас на `.modal-container` (`.modal-small`, `.modal-medium`, або `.modal-large`)
+- [ ] Header має `.modal-title` та кнопку `.btn-icon.modal-close` з `data-modal-close`
 - [ ] Footer використовує `connected-button-group-square modal-footer`
 - [ ] Всі кнопки мають структуру `.segment > .state-layer > .label`
 - [ ] Всі кнопки мають `aria-label`
-- [ ] Немає inline стилів
+- [ ] Немає inline стилів (всі стилі в CSS файлах)
 - [ ] Використовуються універсальні CSS класи де можливо
 - [ ] Форми мають `id` та `class="modal-form"`
 - [ ] Всі input мають відповідні label
 - [ ] Required поля позначені `<span class="required">*</span>`
-- [ ] Модал має правильний розмір через `data-modal-size`
+- [ ] Модал зберігається як окремий файл в `templates/modals/`
 
 ---
 
@@ -806,6 +975,23 @@ document.getElementById('form-category').addEventListener('submit', async (e) =>
 
 ---
 
+## 🔄 Історія Змін
+
+### Версія 2.0 (2025-01-20)
+- **BREAKING CHANGE**: Повністю нова система модалів
+- Модалі тепер окремі HTML елементи (не копіюються в єдиний контейнер)
+- Розмір модалу вказується в самому шаблоні через CSS клас
+- Підтримка стеку модалів (модал поверх модалу)
+- Lazy loading модалів через fetch
+- Автоматичне видалення з DOM після закриття
+- Видалено `-source` систему
+
+### Версія 1.0 (2025-01-15)
+- Початкова версія документації
+- Стара система з `-source` контейнерами
+
+---
+
 **Автор:** Claude Code
-**Дата:** 2025-01-15
-**Версія:** 1.0
+**Дата оновлення:** 2025-01-20
+**Версія:** 2.0

@@ -298,3 +298,104 @@ body.is-modal-open {
     gap: 12px;
     justify-content: center;
 }
+
+/* ============================================ */
+/* MODAL SIZES */
+/* ============================================ */
+
+/* Small - для підтверджень, логіну */
+.modal-container.modal-small {
+    width: 400px;
+    max-width: 90vw;
+}
+
+/* Medium - за замовчуванням, для форм */
+.modal-container.modal-medium {
+    width: 60vw;
+    max-width: 90vw;
+}
+
+/* Large - для складних інтерфейсів, таблиць */
+.modal-container.modal-large {
+    width: 80vw;
+    max-width: 95vw;
+}
+
+/* ============================================ */
+/* MODAL HEADER ACTIONS */
+/* ============================================ */
+
+/**
+ * Контейнер для кнопок в header (замість close button)
+ * Використовується для Save/Delete/Close кнопок
+ */
+.modal-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.modal-header-actions .segment {
+    height: 32px;
+}
+
+.modal-header-actions .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* ============================================ */
+/* SUCCESS STATE MODAL */
+/* ============================================ */
+
+/**
+ * Контейнер для success модалів
+ * Центроване відображення з аватаром
+ */
+.success-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 24px;
+    min-height: 300px;
+}
+
+.success-state-icon {
+    font-size: 96px;
+    color: var(--color-success, #4caf50);
+    animation: scaleIn 0.3s ease-out;
+}
+
+#success-avatar-container img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    animation: scaleIn 0.3s ease-out;
+}
+
+.success-state-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin: 0;
+}
+
+.success-state-text {
+    font-size: 16px;
+    color: var(--color-on-surface-v);
+    margin: 0;
+    text-align: center;
+    max-width: 400px;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

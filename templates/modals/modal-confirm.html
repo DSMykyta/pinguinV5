@@ -1,65 +1,31 @@
-<div class="modal-title-source u-hidden">
-    Підтвердження
-</div>
-
-<div class="modal-header-actions-source u-hidden">
-</div>
-
-<div class="modal-body-source">
-    <div class="modal-confirm-body">
-        <!-- Avatar container -->
-        <div id="modal-confirm-avatar-container"></div>
-
-        <p class="modal-confirm-message" id="modal-confirm-message-text">
-            <!-- Message inserted by JS -->
-        </p>
-        <div class="modal-confirm-actions">
-            <button class="btn-secondary" data-confirm-action="cancel" id="modal-confirm-cancel-btn">
-                Скасувати
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Підтвердження</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
             </button>
-            <button class="btn-primary btn-danger" data-confirm-action="confirm" id="modal-confirm-confirm-btn">
-                Підтвердити
-            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="modal-confirm-body">
+                <!-- Avatar container -->
+                <div id="modal-confirm-avatar-container"></div>
+
+                <p class="modal-confirm-message" id="modal-confirm-message-text">
+                    <!-- Message inserted by JS -->
+                </p>
+                <div class="modal-confirm-actions grid2">
+                    <button class="btn-secondary" data-confirm-action="cancel" id="modal-confirm-cancel-btn">
+                        Скасувати
+                    </button>
+                    <button class="btn-primary btn-danger" data-confirm-action="confirm" id="modal-confirm-confirm-btn">
+                        Підтвердити
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-.modal-confirm-body {
-    padding: 24px;
-    text-align: center;
-}
-
-/* Avatar container */
-#modal-confirm-avatar-container {
-    margin-bottom: 16px;
-}
-
-.modal-confirm-avatar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-confirm-avatar-image {
-    object-fit: contain;
-    opacity: 0.9;
-}
-
-.modal-confirm-message {
-    margin: 0 0 24px 0;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--color-on-surface);
-}
-
-.modal-confirm-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-}
-
-.modal-confirm-actions button {
-    min-width: 100px;
-}
-</style>

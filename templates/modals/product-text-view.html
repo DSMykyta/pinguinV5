@@ -1,63 +1,72 @@
 <!-- templates/modals/product-text-view.html -->
 <!-- Модальне вікно для перегляду повного тексту товару з підсвіченими забороненими словами -->
 
-<div class="modal-title-source u-hidden">
-    Перегляд тексту товару
-</div>
-
-<div class="modal-header-actions-source u-hidden">
-    <button id="product-modal-mark-checked" class="segment" aria-label="Позначити перевіреним">
-        <span class="label">Перевірено</span>
-    </button>
-    <button class="segment modal-close-btn" aria-label="Закрити">
-        <span class="material-symbols-outlined">close</span>
-    </button>
-</div>
-
-<div class="modal-body-source">
-    <!-- Метадані (приховані для JS) -->
-    <input type="hidden" id="product-modal-product-id">
-    <input type="hidden" id="product-modal-sheet-name">
-    <input type="hidden" id="product-modal-row-index">
-
-    <!-- Заголовок товару -->
-    <div
-        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-outline-v);">
-        <h3 id="product-modal-title" style="margin: 0; font-size: 18px; font-weight: 600;">Завантаження...</h3>
-        <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v);">ID: ...</p>
-    </div>
-
-    <!-- Таби для вибору поля та кнопка копіювання -->
-    <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
-        <div class="filter-pills-container" id="product-text-field-pills" style="flex: 1;">
-            <!-- Піли будуть динамічно створені на основі перевірених колонок -->
-        </div>
-        <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
-            <span class="material-symbols-outlined">content_copy</span>
-        </button>
-    </div>
-
-    <!-- Контент табів (динамічно створюється в JS) -->
-    <div class="product-text-content">
-        <!-- Панелі будуть динамічно створені на основі перевірених колонок -->
-    </div>
-
-    <!-- Статистика знайдених слів -->
-    <div class="product-text-stats">
-        <div style="display: flex; gap: 16px;">
-            <div class="stat-item">
-                <span class="material-symbols-outlined">policy</span>
-                <span id="product-modal-banned-count">0</span>
-                <span class="stat-label">заборонених слів</span>
-            </div>
-            <div class="stat-item">
-                <span class="material-symbols-outlined">match_word</span>
-                <span id="product-modal-match-count">0</span>
-                <span class="stat-label">входжень</span>
+<div class="modal-overlay">
+    <div class="modal-container modal-large">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Перегляд тексту товару</h2>
+            <div class="modal-header-actions">
+                <button id="product-modal-mark-checked" class="segment" aria-label="Позначити перевіреним">
+                    <div class="state-layer">
+                        <span class="label">Перевірено</span>
+                    </div>
+                </button>
+                <button class="segment modal-close-btn" aria-label="Закрити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
             </div>
         </div>
-        <div id="product-modal-banned-chips" class="chip-list">
-            <!-- Chip для кожного забороненого слова -->
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Метадані (приховані для JS) -->
+            <input type="hidden" id="product-modal-product-id">
+            <input type="hidden" id="product-modal-sheet-name">
+            <input type="hidden" id="product-modal-row-index">
+
+            <!-- Заголовок товару -->
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-outline-v);">
+                <h3 id="product-modal-title" style="margin: 0; font-size: 18px; font-weight: 600;">Завантаження...</h3>
+                <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v);">ID: ...</p>
+            </div>
+
+            <!-- Таби для вибору поля та кнопка копіювання -->
+            <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
+                <div class="filter-pills-container" id="product-text-field-pills" style="flex: 1;">
+                    <!-- Піли будуть динамічно створені на основі перевірених колонок -->
+                </div>
+                <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
+                    <span class="material-symbols-outlined">content_copy</span>
+                </button>
+            </div>
+
+            <!-- Контент табів (динамічно створюється в JS) -->
+            <div class="product-text-content">
+                <!-- Панелі будуть динамічно створені на основі перевірених колонок -->
+            </div>
+
+            <!-- Статистика знайдених слів -->
+            <div class="product-text-stats">
+                <div style="display: flex; gap: 16px;">
+                    <div class="stat-item">
+                        <span class="material-symbols-outlined">policy</span>
+                        <span id="product-modal-banned-count">0</span>
+                        <span class="stat-label">заборонених слів</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="material-symbols-outlined">match_word</span>
+                        <span id="product-modal-match-count">0</span>
+                        <span class="stat-label">входжень</span>
+                    </div>
+                </div>
+                <div id="product-modal-banned-chips" class="chip-list">
+                    <!-- Chip для кожного забороненого слова -->
+                </div>
+            </div>
         </div>
     </div>
 </div>

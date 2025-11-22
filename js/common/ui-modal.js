@@ -2,25 +2,25 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                  БАЗОВЕ УПРАВЛІННЯ МОДАЛЬНИМИ ВІКНАМИ                    ║
+ * ║                  УПРАВЛІННЯ МОДАЛЬНИМИ ВІКНАМИ V2                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * ПРИЗНАЧЕННЯ:
- * Базові функції для керування модальними вікнами: відкриття, закриття,
- * завантаження шаблонів.
+ * Проста система модалів з повноцінними HTML шаблонами.
+ * Кожен модал - це окремий елемент в DOM з повною структурою.
  *
  * ЯК ЦЕ ПРАЦЮЄ:
- * 1. Кнопка-тригер повинна мати атрибут `data-modal-trigger="modal-id"`.
- * 2. Скрипт завантажує HTML-контент з `/templates/modals/modal-id.html`.
- * 3. З шаблону витягуються три частини: заголовок, кнопки для шапки та тіло.
- * 4. Скрипт будує оболонку модального вікна та вставляє в неї отриманий контент.
- * 5. Після побудови автоматично ініціалізується логіка вкладок (табів).
+ * 1. Кнопка-тригер має атрибут `data-modal-trigger="modal-id"`
+ * 2. Скрипт завантажує повний HTML з `/templates/modals/modal-id.html`
+ * 3. HTML вставляється в DOM як окремий елемент
+ * 4. Модал показується (додається клас is-open)
+ * 5. Підтримка стеку модалів - можна відкрити модал поверх модалу
  *
  * ЕКСПОРТОВАНІ ФУНКЦІЇ:
  * - showModal(modalId, triggerElement) - Відкрити модальне вікно
- * - closeModal() - Закрити модальне вікно
- * - getModalWrapper() - Отримати DOM елемент wrapper модалу
- * - createModalStructure() - Створити базову структуру модалу
+ * - closeModal(modalId) - Закрити модальне вікно (або верхній якщо без ID)
+ * - closeAllModals() - Закрити всі модалі
+ * - getOpenModals() - Отримати список відкритих модалів
  *
  * ЗАЛЕЖНОСТІ:
  * - ui-tabs.js (для ініціалізації вкладок)
@@ -28,60 +28,42 @@
 
 import { initTabs } from './ui-tabs.js';
 
-// Спільні змінні для всіх модулів модальних вікон
-let modalWrapper = null;
+// Кеш завантажених шаблонів
 const modalTemplateCache = new Map();
 
-/**
- * Створює базову структуру модального вікна
- * Викликається автоматично при першому показі модалу
- */
-export function createModalStructure() {
-    if (document.getElementById('global-modal-wrapper')) return;
-
-    modalWrapper = document.createElement('div');
-    modalWrapper.id = 'global-modal-wrapper';
-    modalWrapper.className = 'modal-overlay';
-    modalWrapper.innerHTML = `
-        <div class="modal-container" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h2 class="modal-title"></h2>
-                <div id="modal-header-actions"></div>
-            </div>
-            <div class="modal-body"></div>
-        </div>
-    `;
-    document.body.appendChild(modalWrapper);
-
-    modalWrapper.addEventListener('click', (e) => {
-        if (e.target === modalWrapper) {
-            closeModal();
-        }
-    });
-}
-
-/**
- * Повертає DOM елемент wrapper модалу
- * Використовується іншими модулями для доступу до модалу
- * @returns {HTMLElement|null} Wrapper element або null
- */
-export function getModalWrapper() {
-    return modalWrapper;
-}
+// Стек відкритих модалів
+const openModalsStack = [];
 
 /**
  * Завантажує та відображає модальне вікно
  *
  * @param {string} modalId - Ідентифікатор модального вікна (назва файлу без розширення)
- * @param {HTMLElement} triggerElement - Елемент що викликав modal (для отримання налаштувань)
+ * @param {HTMLElement} triggerElement - Елемент що викликав modal (опціонально)
  *
  * @example
+ * showModal('auth-login-modal');
  * showModal('confirm-delete', triggerButton);
  */
 export async function showModal(modalId, triggerElement = null) {
-    if (!modalWrapper) createModalStructure();
-
     try {
+        // Перевірка чи модал вже відкритий
+        let existingModal = document.getElementById(`modal-${modalId}`);
+
+        if (existingModal) {
+            // Модал вже в DOM, просто показуємо
+            existingModal.classList.add('is-open');
+            document.body.classList.add('is-modal-open');
+
+            // Додаємо до стеку якщо його там немає
+            if (!openModalsStack.includes(modalId)) {
+                openModalsStack.push(modalId);
+            }
+
+            dispatchModalEvent('modal-opened', modalId, triggerElement, existingModal);
+            return;
+        }
+
+        // Завантаження шаблону (з кешу або fetch)
         let templateHtml;
         if (modalTemplateCache.has(modalId)) {
             templateHtml = modalTemplateCache.get(modalId);
@@ -92,87 +74,146 @@ export async function showModal(modalId, triggerElement = null) {
             modalTemplateCache.set(modalId, templateHtml);
         }
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(templateHtml, 'text/html');
+        // Вставка HTML в DOM
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = templateHtml.trim();
+        const modalElement = tempDiv.firstElementChild; // firstElementChild пропускає коментарі
 
-        const titleSource = doc.querySelector('.modal-title-source')?.textContent || 'Заголовок';
-        const headerActionsSource = doc.querySelector('.modal-header-actions-source');
-        const bodySource = doc.querySelector('.modal-body-source');
+        // Додаємо унікальний ID
+        modalElement.id = `modal-${modalId}`;
+        modalElement.dataset.modalId = modalId;
 
-        const titleTarget = modalWrapper.querySelector('.modal-title');
-        const headerActionsTarget = modalWrapper.querySelector('#modal-header-actions');
-        const bodyTarget = modalWrapper.querySelector('.modal-body');
+        // Додаємо в body
+        document.body.appendChild(modalElement);
 
-        titleTarget.textContent = titleSource;
-        bodyTarget.innerHTML = bodySource?.innerHTML || '<p>Помилка: вміст не знайдено.</p>';
-
-        // Apply modal size based on data-modal-size attribute
-        const modalContainer = modalWrapper.querySelector('.modal-container');
-        const modalSize = triggerElement?.dataset.modalSize || 'medium';
-
-        // Remove existing size classes
-        modalContainer.classList.remove('modal-small', 'modal-medium', 'modal-large');
-
-        // Add new size class
-        modalContainer.classList.add(`modal-${modalSize}`);
-
-        // Handle header actions with connected-button-group-square
-        const headerActionsContent = headerActionsSource?.innerHTML?.trim() || '';
-
-        // Add class to the target container itself
-        headerActionsTarget.className = 'connected-button-group-square';
-
-        if (headerActionsContent) {
-            // Insert buttons directly into target
-            headerActionsTarget.innerHTML = headerActionsContent;
-
-            // Add close button only if it doesn't exist
-            if (!headerActionsTarget.querySelector('.modal-close-btn')) {
-                const closeButton = document.createElement('button');
-                closeButton.className = 'segment modal-close-btn';
-                closeButton.setAttribute('aria-label', 'Закрити');
-                closeButton.innerHTML = `<div class="state-layer"><span class="material-symbols-outlined">close</span></div>`;
-                headerActionsTarget.appendChild(closeButton);
-            }
-        } else {
-            // No content, just add close button
-            const closeButton = document.createElement('button');
-            closeButton.className = 'segment modal-close-btn';
-            closeButton.setAttribute('aria-label', 'Закрити');
-            closeButton.innerHTML = `<div class="state-layer"><span class="material-symbols-outlined">close</span></div>`;
-            headerActionsTarget.innerHTML = '';
-            headerActionsTarget.appendChild(closeButton);
-        }
-
-        document.body.classList.add('is-modal-open');
-        modalWrapper.classList.add('is-open');
-
-        initTabs(bodyTarget);
-
-        // Диспатчимо custom event після відкриття модалу
-        const modalOpenEvent = new CustomEvent('modal-opened', {
-            detail: {
-                modalId: modalId,
-                trigger: triggerElement,
-                bodyTarget: bodyTarget
+        // Обробник кліку на overlay (закриття при кліку поза модалом)
+        modalElement.addEventListener('click', (e) => {
+            if (e.target === modalElement) {
+                closeModal(modalId);
             }
         });
-        document.dispatchEvent(modalOpenEvent);
+
+        // Показуємо модал
+        document.body.classList.add('is-modal-open');
+
+        // Невелика затримка для анімації (щоб CSS transition спрацював)
+        requestAnimationFrame(() => {
+            modalElement.classList.add('is-open');
+        });
+
+        // Додаємо в стек
+        openModalsStack.push(modalId);
+
+        // Ініціалізація табів (якщо є)
+        const modalBody = modalElement.querySelector('.modal-body');
+        if (modalBody) {
+            initTabs(modalBody);
+        }
+
+        // Диспатч події відкриття
+        dispatchModalEvent('modal-opened', modalId, triggerElement, modalElement);
 
     } catch (error) {
         console.error('Помилка при відображенні модального вікна:', error);
+        // Показуємо повідомлення користувачу
+        alert(`Помилка: не вдалося відкрити модальне вікно "${modalId}"`);
     }
 }
 
 /**
  * Закриває модальне вікно
- * Видаляє класи відкритого стану, але не видаляє DOM елемент
+ *
+ * @param {string} modalId - ID модалу для закриття. Якщо не вказано - закриває верхній
  *
  * @example
- * closeModal();
+ * closeModal(); // Закриває верхній модал
+ * closeModal('auth-login-modal'); // Закриває конкретний модал
  */
-export function closeModal() {
-    if (!modalWrapper) return;
-    document.body.classList.remove('is-modal-open');
-    modalWrapper.classList.remove('is-open');
+export function closeModal(modalId = null) {
+    // Якщо ID не вказано - беремо верхній зі стеку
+    if (!modalId && openModalsStack.length > 0) {
+        modalId = openModalsStack[openModalsStack.length - 1];
+    }
+
+    if (!modalId) return;
+
+    const modalElement = document.getElementById(`modal-${modalId}`);
+    if (!modalElement) return;
+
+    // Ховаємо модал
+    modalElement.classList.remove('is-open');
+
+    // Видаляємо зі стеку
+    const index = openModalsStack.indexOf(modalId);
+    if (index > -1) {
+        openModalsStack.splice(index, 1);
+    }
+
+    // Якщо це останній модал - прибираємо блокування body
+    if (openModalsStack.length === 0) {
+        document.body.classList.remove('is-modal-open');
+    }
+
+    // Диспатч події закриття
+    dispatchModalEvent('modal-closed', modalId, null, modalElement);
+
+    // Опціонально: видалити з DOM через затримку (для анімації)
+    // Якщо не потрібно - закоментуйте цей блок
+    setTimeout(() => {
+        if (modalElement && !modalElement.classList.contains('is-open')) {
+            modalElement.remove();
+        }
+    }, 300); // 300ms = час анімації
+}
+
+/**
+ * Закриває всі відкриті модалі
+ */
+export function closeAllModals() {
+    while (openModalsStack.length > 0) {
+        closeModal();
+    }
+}
+
+/**
+ * Повертає список відкритих модалів
+ * @returns {Array<string>} Масив ID відкритих модалів
+ */
+export function getOpenModals() {
+    return [...openModalsStack];
+}
+
+/**
+ * Диспатчить custom event для модалу
+ * @private
+ */
+function dispatchModalEvent(eventName, modalId, triggerElement, modalElement) {
+    const event = new CustomEvent(eventName, {
+        detail: {
+            modalId: modalId,
+            trigger: triggerElement,
+            modalElement: modalElement,
+            bodyTarget: modalElement?.querySelector('.modal-body') // Для зворотної сумісності
+        }
+    });
+    document.dispatchEvent(event);
+}
+
+/**
+ * Очищає кеш шаблонів
+ * Корисно під час розробки
+ */
+export function clearModalCache() {
+    modalTemplateCache.clear();
+    console.log('✅ Кеш модальних вікон очищено');
+}
+
+// Експорт для backward compatibility
+export function getModalWrapper() {
+    console.warn('getModalWrapper() deprecated - модалі тепер окремі елементи');
+    return null;
+}
+
+export function createModalStructure() {
+    console.warn('createModalStructure() deprecated - структура в шаблонах');
 }

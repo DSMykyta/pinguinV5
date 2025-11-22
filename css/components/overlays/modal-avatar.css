@@ -1,0 +1,124 @@
+/**
+ * MODAL AVATAR COMPONENT
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Стилі для модалів з аватарами (auth-login, confirm-delete, confirm-clear тощо)
+ * Централізовані стилі замість inline <style> в кожному модалі
+ *
+ * ВИКОРИСТАННЯ:
+ * Використовується автоматично в модалах з аватарами
+ * Аватари рендеряться через js/common/ui-modal-avatars.js
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - avatar-states.css (базові класи аватарів)
+ * - modal.css (структура модалів)
+ */
+
+/* ============================================================================
+   КОНТЕЙНЕР МОДАЛУ З АВАТАРОМ
+   ============================================================================ */
+
+/**
+ * Основний контейнер для модалів з аватарами
+ * Використовується в confirm-delete, confirm-clear, auth-login тощо
+ */
+.modal-avatar-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    gap: 16px;
+}
+
+/* Старі назви класів (для зворотної сумісності) */
+.confirm-modal-container,
+.auth-login-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px;
+    gap: 16px;
+}
+
+/* ============================================================================
+   КОНТЕЙНЕР АВАТАРА
+   ============================================================================ */
+
+/**
+ * Контейнер для зображення аватара в модалі
+ */
+.modal-avatar,
+.confirm-modal-avatar,
+.auth-login-avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-avatar img,
+.confirm-modal-avatar img,
+.auth-login-avatar img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    opacity: 0.9;
+}
+
+/* ============================================================================
+   БЛОК ПОМИЛКИ В МОДАЛІ
+   ============================================================================ */
+
+/**
+ * Блок помилки (для auth-login та інших форм)
+ */
+.modal-error,
+.auth-login-error {
+    width: 100%;
+    padding: 12px;
+    background: var(--color-error-container);
+    color: var(--color-on-error-container);
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* ============================================================================
+   ФОРМА В МОДАЛІ З АВАТАРОМ
+   ============================================================================ */
+
+/**
+ * Форма всередині модалу з аватаром
+ */
+.modal-avatar-form,
+.auth-login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ============================================================================
+   КНОПКИ ДІЙ (СТАРИЙ СТИЛЬ - ДЛЯ ЗВОРОТНОЇ СУМІСНОСТІ)
+   ============================================================================ */
+
+/**
+ * ВАЖЛИВО: Ці стилі для старого стилю кнопок
+ * Нові модали мають використовувати .connected-button-group-square
+ * Ці стилі залишені для зворотної сумісності
+ */
+.modal-avatar-actions,
+.confirm-modal-actions,
+.auth-login-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.modal-avatar-actions button,
+.confirm-modal-actions button,
+.auth-login-actions button {
+    min-width: 100px;
+}

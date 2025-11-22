@@ -1,117 +1,121 @@
-<div class="modal-title-source u-hidden">
-    <span id="modal-title">Редагування слова</span>
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="modal-title">Редагування слова</span></h2>
+            <div class="modal-header-actions">
+                <div class="dropdown-wrapper">
 
-<div class="modal-header-actions-source u-hidden">
-    <div class="dropdown-wrapper">
+                    <button type="button" class="segment" id="severity-dropdown-trigger" data-dropdown-trigger
+                        aria-label="Змінити рівень небезпеки">
+                        <span class="material-symbols-outlined" id="severity-trigger-icon">brightness_alert</span>
+                    </button>
 
-        <button type="button" class="segment" id="severity-dropdown-trigger" data-dropdown-trigger
-            aria-label="Змінити рівень небезпеки">
-            <span class="material-symbols-outlined" id="severity-trigger-icon">brightness_alert</span>
-        </button>
+                    <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
+                        <button class="dropdown-item" data-severity-value="high" title="Критично"
+                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                            <span class="severity-badge severity-high">
+                                <span class="material-symbols-outlined">brightness_alert</span>
+                            </span>
+                        </button>
+                        <button class="dropdown-item" data-severity-value="medium" title="Несуттєво"
+                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                            <span class="severity-badge severity-medium">
+                                <span class="material-symbols-outlined">error</span>
+                            </span>
+                        </button>
+                        <button class="dropdown-item" data-severity-value="low" title="Перевірити"
+                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                            <span class="severity-badge severity-low">
+                                <span class="material-symbols-outlined">exclamation</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <span class="label">Перевірено</span>
+                    </div>
+                </button>
 
-        <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
-            <button class="dropdown-item" data-severity-value="high" title="Критично"
-                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="severity-badge severity-high">
-                    <span class="material-symbols-outlined">brightness_alert</span>
-                </span>
-            </button>
-            <button class="dropdown-item" data-severity-value="medium" title="Несуттєво"
-                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="severity-badge severity-medium">
-                    <span class="material-symbols-outlined">error</span>
-                </span>
-            </button>
-            <button class="dropdown-item" data-severity-value="low" title="Перевірити"
-                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                <span class="severity-badge severity-low">
-                    <span class="material-symbols-outlined">exclamation</span>
-                </span>
-            </button>
+                <button id="save-banned-word" class="segment" aria-label="Зберегти">
+                    <div class="state-layer">
+                        <span class="label">Зберегти</span>
+                    </div>
+                </button>
+                <button class="segment modal-close-btn" aria-label="Закрити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <fieldset class="form-fieldset">
+
+                <input type="hidden" id="banned-word-local-id">
+                <input type="hidden" id="banned-word-severity" value="high">
+
+                <div class="grid2">
+                    <div class="form-grid">
+                        <div class="form-group" style="width: 100%;">
+                            <label for="banned-word-group-name">
+                                Назва Групи
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="banned-word-group-name" class="input-main" placeholder="Наприклад: Лікує"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="banned-word-type">Тип порушення</label>
+                        <select id="banned-word-type" data-custom-select placeholder="Оберіть тип...">
+                            <option value="">-- Оберіть тип --</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="banned-word-name-uk">
+                            Українське слово (ключові слова)
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="banned-word-name-uk" class="input-main"
+                            placeholder="Введіть заборонене слово українською (можна через кому)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="banned-word-name-ru">
+                            Російське слово (ключові слова)
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="banned-word-name-ru" class="input-main"
+                            placeholder="Введіть заборонене слово російською (можна через кому)" required>
+                    </div>
+                </div>
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="banned-word-explaine">Пояснення порушення</label>
+                        <textarea id="banned-word-explaine" class="input-main" rows="6"
+                            placeholder="Опишіть чому це слово заборонене..." style="height: 600px;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="banned-word-hint">Підказка для заміни</label>
+                        <textarea id="banned-word-hint" class="input-main" rows="4"
+                            placeholder="Запропонуйте альтернативне формулювання..." style="height: 600px;"></textarea>
+                    </div>
+
+                </div>
+
+            </fieldset>
         </div>
     </div>
-    <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
-        <div class="state-layer">
-            <span class="material-symbols-outlined">check_circle</span>
-            <span class="label">Перевірено</span>
-        </div>
-    </button>
-
-    <button id="save-banned-word" class="segment" aria-label="Зберегти">
-        <div class="state-layer">
-            <span class="label">Зберегти</span>
-        </div>
-    </button>
-    <button class="segment modal-close-btn" aria-label="Закрити">
-        <div class="state-layer">
-            <span class="material-symbols-outlined">close</span>
-        </div>
-    </button>
-</div>
-
-<div class="modal-body-source">
-
-    <fieldset class="form-fieldset">
-
-        <input type="hidden" id="banned-word-local-id">
-        <input type="hidden" id="banned-word-severity" value="high">
-
-        <div class="grid2">
-            <div class="form-grid">
-                <div class="form-group" style="width: 100%;">
-                    <label for="banned-word-group-name">
-                        Назва Групи
-                        <span class="required">*</span>
-                    </label>
-                    <input type="text" id="banned-word-group-name" class="input-main" placeholder="Наприклад: Лікує"
-                        required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="banned-word-type">Тип порушення</label>
-                <select id="banned-word-type" data-custom-select placeholder="Оберіть тип...">
-                    <option value="">-- Оберіть тип --</option>
-                </select>
-            </div>
-
-        </div>
-
-        <div class="grid2">
-            <div class="form-group">
-                <label for="banned-word-name-uk">
-                    Українське слово (ключові слова)
-                    <span class="required">*</span>
-                </label>
-                <input type="text" id="banned-word-name-uk" class="input-main"
-                    placeholder="Введіть заборонене слово українською (можна через кому)" required>
-            </div>
-
-            <div class="form-group">
-                <label for="banned-word-name-ru">
-                    Російське слово (ключові слова)
-                    <span class="required">*</span>
-                </label>
-                <input type="text" id="banned-word-name-ru" class="input-main"
-                    placeholder="Введіть заборонене слово російською (можна через кому)" required>
-            </div>
-        </div>
-
-        <div class="grid2">
-            <div class="form-group">
-                <label for="banned-word-explaine">Пояснення порушення</label>
-                <textarea id="banned-word-explaine" class="input-main" rows="6"
-                    placeholder="Опишіть чому це слово заборонене..." style="height: 600px;"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="banned-word-hint">Підказка для заміни</label>
-                <textarea id="banned-word-hint" class="input-main" rows="4"
-                    placeholder="Запропонуйте альтернативне формулювання..." style="height: 600px;"></textarea>
-            </div>
-
-        </div>
-
-    </fieldset>
 </div>

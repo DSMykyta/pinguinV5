@@ -1,69 +1,24 @@
-<div class="modal-title-source u-hidden">
-    Успішно збережено!
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Успішно збережено!</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
 
-<div class="modal-header-actions-source u-hidden">
-</div>
-
-<div class="modal-body-source">
-    <div class="success-state-container">
-        <div id="success-avatar-container"></div>
-        <h3 class="success-state-title">Тепер ясно що це!</h3>
-        <p class="success-state-text">Після оновлення сторінки ми зможемо читати новий опис</p>
-        <button class="btn-primary" data-modal-close id="reload-page-btn">
-            <span class="material-symbols-outlined">refresh</span>
-            <span>Оновити сторінку</span>
-        </button>
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="success-state-container">
+                <div id="success-avatar-container"></div>
+                <h3 class="success-state-title">Тепер ясно що це!</h3>
+                <p class="success-state-text">Після оновлення сторінки ми зможемо читати новий опис</p>
+                <button class="btn-primary" data-modal-close id="reload-page-btn">
+                    <span class="material-symbols-outlined">refresh</span>
+                    <span>Оновити сторінку</span>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
-
-<style>
-.success-state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 48px 24px;
-    min-height: 300px;
-}
-
-.success-state-icon {
-    font-size: 96px;
-    color: var(--color-success, #4caf50);
-    animation: scaleIn 0.3s ease-out;
-}
-
-#success-avatar-container img {
-    width: 140px;
-    height: 140px;
-    object-fit: contain;
-    animation: scaleIn 0.3s ease-out;
-}
-
-.success-state-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-    margin: 0;
-}
-
-.success-state-text {
-    font-size: 16px;
-    color: var(--color-on-surface-v);
-    margin: 0;
-    text-align: center;
-    max-width: 400px;
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-</style>

@@ -1,74 +1,87 @@
-<div class="modal-title-source u-hidden">
-    Додати опис терміну
-</div>
-
-<div class="modal-header-actions-source u-hidden">
-    <button class="segment" id="modal-glossary-info-tab-btn" aria-label="Інформація про шаблон">
-        <div class="state-layer">
-            <span class="material-symbols-outlined">info</span>
-        </div>
-    </button>
-</div>
-
-<div class="modal-body-source">
-    <div class="tabs-container">
-        <!-- Tab Navigation -->
-        <nav class="tabs-nav" role="tablist">
-            <button class="tab-button is-active" data-tab="tab-edit-text" role="tab">
-                <span class="material-symbols-outlined">edit_note</span>
-                <span>Редагувати</span>
-            </button>
-            <button class="tab-button" data-tab="tab-template-info" role="tab" id="tab-info-button">
-                <span class="material-symbols-outlined">info</span>
-                <span>Шаблон тексту</span>
-            </button>
-        </nav>
-
-        <!-- Tab Content -->
-        <div class="tabs-content">
-            <!-- Редагування тексту -->
-            <div class="tab-pane is-active" data-tab-content="tab-edit-text">
-                <form id="add-glossary-text-form">
-                    <input type="hidden" id="glossary-item-id" name="item_id">
-
-                    <div class="form-group">
-                        <label for="glossary-text-input">Текст опису *</label>
-                        <textarea id="glossary-text-input"
-                                  name="glossary_text"
-                                  rows="24"
-                                  placeholder="Введіть опис терміну (підтримується HTML)"
-                                  required></textarea>
-                        <small>Можна використовувати HTML теги: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt; тощо</small>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Додати опис терміну</h2>
+            <div class="modal-header-actions">
+                <button class="segment" id="modal-glossary-info-tab-btn" aria-label="Інформація про шаблон">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">info</span>
                     </div>
-                </form>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
-                    <button type="submit" form="add-glossary-text-form" class="btn-primary" id="save-glossary-text-btn">
-                        <span class="material-symbols-outlined">save</span>
-                        <span>Зберегти</span>
-                    </button>
-                </div>
+                </button>
+                <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
+        </div>
 
-            <!-- Інформація про шаблон -->
-            <div class="tab-pane" data-tab-content="tab-template-info">
-                <div class="info-content">
-                    <h3>Правила оформлення тексту глосарію</h3>
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="tabs-container">
+                <!-- Tab Navigation -->
+                <nav class="tabs-nav" role="tablist">
+                    <button class="tab-button is-active" data-tab="tab-edit-text" role="tab">
+                        <span class="material-symbols-outlined">edit_note</span>
+                        <span>Редагувати</span>
+                    </button>
+                    <button class="tab-button" data-tab="tab-template-info" role="tab" id="tab-info-button">
+                        <span class="material-symbols-outlined">info</span>
+                        <span>Шаблон тексту</span>
+                    </button>
+                </nav>
 
-                    <div class="info-section">
-                        <h4>Структура тексту</h4>
-                        <ul>
-                            <li>Використовуйте <code>&lt;p&gt;</code> для параграфів</li>
-                            <li>Використовуйте <code>&lt;ul&gt;</code> та <code>&lt;li&gt;</code> для списків</li>
-                            <li>Виділяйте важливі терміни за допомогою <code>&lt;strong&gt;</code></li>
-                            <li>Код та технічні терміни огортайте в <code>&lt;code&gt;</code></li>
-                        </ul>
+                <!-- Tab Content -->
+                <div class="tabs-content">
+                    <!-- Редагування тексту -->
+                    <div class="tab-pane is-active" data-tab-content="tab-edit-text">
+                        <form id="add-glossary-text-form">
+                            <input type="hidden" id="glossary-item-id" name="item_id">
+
+                            <div class="form-group">
+                                <label for="glossary-text-input">Текст опису *</label>
+                                <textarea id="glossary-text-input"
+                                          name="glossary_text"
+                                          rows="24"
+                                          placeholder="Введіть опис терміну (підтримується HTML)"
+                                          required></textarea>
+                                <small>Можна використовувати HTML теги: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt; тощо</small>
+                            </div>
+                        </form>
+
+                        <div class="connected-button-group-square modal-footer" role="group">
+                            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
+                                <div class="state-layer">
+                                    <span class="material-symbols-outlined">close</span>
+                                    <span class="label">Скасувати</span>
+                                </div>
+                            </button>
+                            <button type="submit" form="add-glossary-text-form" class="segment" id="save-glossary-text-btn" aria-label="Зберегти">
+                                <div class="state-layer">
+                                    <span class="material-symbols-outlined">save</span>
+                                    <span class="label">Зберегти</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="info-section">
-                        <h4>Приклад оформлення</h4>
-                        <pre><code>&lt;p&gt;<strong>Білок</strong> - це складна органічна речовина, що складається з амінокислот.&lt;/p&gt;
+                    <!-- Інформація про шаблон -->
+                    <div class="tab-pane" data-tab-content="tab-template-info">
+                        <div class="info-content">
+                            <h3>Правила оформлення тексту глосарію</h3>
+
+                            <div class="info-section">
+                                <h4>Структура тексту</h4>
+                                <ul>
+                                    <li>Використовуйте <code>&lt;p&gt;</code> для параграфів</li>
+                                    <li>Використовуйте <code>&lt;ul&gt;</code> та <code>&lt;li&gt;</code> для списків</li>
+                                    <li>Виділяйте важливі терміни за допомогою <code>&lt;strong&gt;</code></li>
+                                    <li>Код та технічні терміни огортайте в <code>&lt;code&gt;</code></li>
+                                </ul>
+                            </div>
+
+                            <div class="info-section">
+                                <h4>Приклад оформлення</h4>
+                                <pre><code>&lt;p&gt;<strong>Білок</strong> - це складна органічна речовина, що складається з амінокислот.&lt;/p&gt;
 
 &lt;p&gt;Основні функції білків:&lt;/p&gt;
 &lt;ul&gt;
@@ -78,16 +91,18 @@
 &lt;/ul&gt;
 
 &lt;p&gt;Приклад: альбумін, казеїн, колаген.&lt;/p&gt;</code></pre>
-                    </div>
+                            </div>
 
-                    <div class="info-section">
-                        <h4>Рекомендації</h4>
-                        <ul>
-                            <li>Пишіть коротко та зрозуміло</li>
-                            <li>Починайте з визначення терміну</li>
-                            <li>Додавайте приклади для кращого розуміння</li>
-                            <li>Уникайте занадто складних конструкцій</li>
-                        </ul>
+                            <div class="info-section">
+                                <h4>Рекомендації</h4>
+                                <ul>
+                                    <li>Пишіть коротко та зрозуміло</li>
+                                    <li>Починайте з визначення терміну</li>
+                                    <li>Додавайте приклади для кращого розуміння</li>
+                                    <li>Уникайте занадто складних конструкцій</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

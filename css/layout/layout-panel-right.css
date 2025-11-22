@@ -58,7 +58,8 @@
 .panel-right.is-collapsed .panel-box .panel-item-text,
 .panel-right.is-collapsed .panel-box .panel-item-action-wrapper,
 .panel-right.is-collapsed .panel-box input,
-.panel-right.is-collapsed #triger-buttons-container {
+.panel-right.is-collapsed #triger-buttons-container,
+.panel-right.is-collapsed .right-hidden {
     display: none;
 }
 

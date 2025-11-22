@@ -52,7 +52,7 @@ export async function showAddBrandModal() {
     await showModal('brand-edit', null);
 
     // Оновити заголовок
-    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати бренд';
 
     // Приховати кнопку видалення (тільки для нових брендів)
@@ -108,7 +108,7 @@ export async function showEditBrandModal(brandId) {
     await showModal('brand-edit', null);
 
     // Оновити заголовок
-    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати бренд';
 
     // Показати кнопку видалення
@@ -162,7 +162,7 @@ export async function showGlossaryModal(brandId) {
 
     await showModal('glossary-view', null);
 
-    const title = document.querySelector('#global-modal-wrapper #modal-title');
+    const title = document.getElementById('modal-title');
     if (title) title.textContent = `Глосарій: ${brand.name_uk}`;
 
     const contentEl = document.getElementById('glossary-content');

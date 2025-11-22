@@ -1,18 +1,32 @@
-<div class="modal-title-source u-hidden">
-    Магічний парсинг
-</div>
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Магічний парсинг</h2>
+            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
 
-<div class="modal-header-actions-source u-hidden">
-</div>
-
-<div class="modal-body-source">
-    <p>Вставте скопійований текст складу продукту. Система автоматично спробує розділити назви та значення.</p>
-    <textarea id="magic-text" class="modal-textarea" placeholder="Наприклад:
+        <!-- Body -->
+        <div class="modal-body">
+            <p class="form-hint">Вставте скопійований текст складу продукту. Система автоматично спробує розділити назви та значення.</p>
+            
+            <textarea style="height: 50vh;" id="magic-text" class="modal-textarea" placeholder="
 Білок 25 г
-Жири 10 г (з них насичені 2 г)
-..."></textarea>
-    
-    <div class="modal-footer">
-         <button id="magic-apply-btn" class="btn primary">Застосувати</button>
+Жири 10 г
+...">
+            </textarea>
+
+            <div class="connected-button-group-square modal-footer" role="group">
+
+                <button type="button" id="magic-apply-btn" class="segment" aria-label="Застосувати">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">auto_fix</span>
+                        <span class="label">Застосувати</span>
+                    </div>
+                </button>
+            </div>
+        </div>
     </div>
 </div>
