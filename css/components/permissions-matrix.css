@@ -12,9 +12,9 @@
 .permissions-matrix {
     width: 100%;
     overflow-x: auto;
-    border: 1px solid var(--color-outline, #ddd);
+    border: 1px solid var(--color-outline);
     border-radius: 8px;
-    background: var(--color-surface, #fff);
+    background: var(--color-surface);
 }
 
 .matrix-table {
@@ -29,7 +29,7 @@
    ========================================================================= */
 
 .matrix-table thead {
-    background: var(--color-surface-variant, #f5f5f5);
+    background: var(--color-surface-c-low);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -39,8 +39,8 @@
     padding: 12px 16px;
     text-align: left;
     font-weight: 500;
-    color: var(--text-primary, #000);
-    border-bottom: 2px solid var(--color-outline, #ddd);
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--color-outline);
     white-space: nowrap;
 }
 
@@ -48,18 +48,18 @@
     min-width: 180px;
     position: sticky;
     left: 0;
-    background: var(--color-surface-variant, #f5f5f5);
+    background: var(--color-surface-c-low);
     z-index: 11;
-    border-right: 2px solid var(--color-outline, #ddd);
+    border-right: 2px solid var(--color-outline);
 }
 
 .matrix-header-permission {
     min-width: 300px;
     position: sticky;
     left: 180px;
-    background: var(--color-surface-variant, #f5f5f5);
+    background: var(--color-surface-c-low);
     z-index: 11;
-    border-right: 2px solid var(--color-outline, #ddd);
+    border-right: 2px solid var(--color-outline);
 }
 
 .matrix-header-role {
@@ -73,12 +73,12 @@
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 4px;
-    color: var(--color-primary, #1976d2);
+    color: var(--color-main);
 }
 
 .matrix-role-id {
     font-size: 11px;
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
     font-family: 'Courier New', monospace;
 }
 
@@ -87,15 +87,15 @@
    ========================================================================= */
 
 .matrix-table tbody tr {
-    border-bottom: 1px solid var(--color-outline-variant, #e0e0e0);
+    border-bottom: 1px solid var(--color-outline-v);
 }
 
 .matrix-table tbody tr:hover {
-    background: var(--color-surface-container-highest, #f9f9f9);
+    background: var(--color-surface-c-low);
 }
 
 .matrix-table tbody tr.matrix-category-start {
-    border-top: 2px solid var(--color-primary, #1976d2);
+    border-top: 2px solid var(--color-main);
 }
 
 .matrix-table td {
@@ -107,12 +107,12 @@
    ========================================================================= */
 
 .matrix-cell-category {
-    background: var(--color-surface-container, #f0f0f0);
+    background: var(--color-surface-c);
     font-weight: 500;
     position: sticky;
     left: 0;
     z-index: 5;
-    border-right: 2px solid var(--color-outline, #ddd);
+    border-right: 2px solid var(--color-outline);
     vertical-align: top;
 }
 
@@ -120,7 +120,7 @@
     display: inline-block;
     vertical-align: middle;
     margin-right: 8px;
-    color: var(--color-primary, #1976d2);
+    color: var(--color-main);
     font-size: 20px;
 }
 
@@ -132,21 +132,21 @@
     position: sticky;
     left: 180px;
     z-index: 5;
-    background: var(--color-surface, #fff);
-    border-right: 2px solid var(--color-outline, #ddd);
+    background: var(--color-surface);
+    border-right: 2px solid var(--color-outline);
 }
 
 .matrix-table tbody tr:hover .matrix-cell-label {
-    background: var(--color-surface-container-highest, #f9f9f9);
+    background: var(--color-surface-c-low);
 }
 
 .matrix-cell-label code {
     display: block;
     font-size: 11px;
     font-family: 'Courier New', monospace;
-    color: var(--text-secondary, #666);
+    color: var(--text-secondary);
     margin-bottom: 4px;
-    background: var(--color-surface-variant, #f5f5f5);
+    background: var(--color-surface-c-low);
     padding: 2px 6px;
     border-radius: 3px;
     display: inline-block;
@@ -155,18 +155,18 @@
 .matrix-label-text {
     display: block;
     font-size: 13px;
-    color: var(--text-primary, #000);
+    color: var(--text-primary);
 }
 
 .matrix-subgroup-label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--color-primary, #1976d2);
+    color: var(--color-main);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 6px;
     padding-left: 12px;
-    border-left: 3px solid var(--color-primary, #1976d2);
+    border-left: 3px solid var(--color-main);
 }
 
 /* =========================================================================
@@ -177,22 +177,22 @@
     text-align: center;
     vertical-align: middle;
     padding: 8px;
-    background: var(--color-surface, #fff);
+    background: var(--color-surface);
 }
 
 .matrix-table tbody tr:hover .matrix-cell-permission {
-    background: var(--color-surface-container-highest, #f9f9f9);
+    background: var(--color-surface-c-low);
 }
 
 .matrix-icon-granted {
     font-size: 20px;
-    color: #4caf50; /* Green */
+    color: var(--color-success);
     display: inline-block;
 }
 
 .matrix-icon-denied {
     font-size: 20px;
-    color: #f44336; /* Red */
+    color: var(--color-error);
     opacity: 0.4;
     display: inline-block;
 }

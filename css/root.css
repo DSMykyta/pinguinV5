@@ -1,67 +1,66 @@
 /* /css/root.css */
 :root {
-    /* --- КОЛЬОРИ (Палітра pin-guin, структура pin-map) --- */
-    /*--color-main: rgb(103, 80, 164);*/
-    --color-main: rgb(0, 57, 66);
+    /* --- КОЛЬОРИ (Свіжа мінімалістична палітра) --- */
+    --color-main: rgb(242, 51, 13);
     --color-on-main: #ffffff;
 
-    --color-main-c: rgba(103, 80, 164, 0.1);
-    --color-main-c: rgb(216, 236, 238);
-    --color-on-main-c: rgb(103, 80, 164);
+    --color-main-c: rgba(242, 51, 13, 0.08);
+    --color-on-main-c: rgb(242, 51, 13);
 
-    --color-main-t-1: #6750a41a;
-    --color-main-t-2: #6750a433;
-
-    --color-main-t-1: rgb(216, 236, 238, 0.5);
-    --color-main-t-2: rgb(216, 236, 238);
+    --color-main-t-1: rgba(242, 51, 13, 0.1);
+    --color-main-t-2: rgba(242, 51, 13, 0.2);
 
 
-    --color-secondary: rgb(98, 0, 238);
+    --color-secondary: rgb(242, 51, 13);
     --color-on-secondary: #ffffff;
 
-    --color-secondary-c: rgba(98, 0, 238, 0.1);
-    --color-on-secondary-c: rgb(98, 0, 238);
+    --color-secondary-c: rgba(242, 51, 13, 0.08);
+    --color-on-secondary-c: rgb(242, 51, 13);
 
 
-    --color-tertiary: rgb(125, 82, 96);
+    --color-tertiary: rgb(240, 80, 50);
     --color-on-tertiary: #ffffff;
 
-    --color-tertiary-c: rgba(125, 82, 96, 0.1);
-    --color-on-tertiary-c: rgb(125, 82, 96);
+    --color-tertiary-c: rgba(240, 80, 50, 0.08);
+    --color-on-tertiary-c: rgb(240, 80, 50);
 
 
-    --color-error: rgb(179, 38, 30);
+    --color-error: rgb(239, 68, 68);
     --color-on-error: #ffffff;
 
-    --color-error-c: rgba(179, 38, 30, 0.1);
-    --color-on-error-c: rgb(179, 38, 30);
+    --color-error-c: rgba(239, 68, 68, 0.1);
+    --color-on-error-c: rgb(239, 68, 68);
 
-    --color-warning: rgb(191, 64, 0);
+    --color-warning: rgb(245, 158, 11);
     --color-on-warning: #ffffff;
 
-    --color-warning-c: rgba(191, 64, 0, 0.1);
-    --color-on-warning-c: rgb(191, 64, 0);
+    --color-warning-c: rgba(245, 158, 11, 0.1);
+    --color-on-warning-c: rgb(245, 158, 11);
 
+    --color-success: rgb(16, 185, 129);
+    --color-on-success: #ffffff;
 
-    --color-info: rgb(0, 98, 151);
+    --color-success-c: rgba(16, 185, 129, 0.1);
+    --color-on-success-c: rgb(16, 185, 129);
+
+    --color-info: rgb(59, 130, 246);
     --color-on-info: #ffffff;
 
-    --color-info-c: rgba(0, 98, 151, 0.1);
-    --color-on-info-c: rgb(0, 98, 151);
+    --color-info-c: rgba(59, 130, 246, 0.1);
+    --color-on-info-c: rgb(59, 130, 246);
 
-    --color-surface: #f8f8fa;
-    --color-on-surface: rgb(29, 27, 32);
-    --color-on-surface-v: rgba(29, 27, 32, 0.65);
+    --color-surface: #fafafa;
+    --color-on-surface: #171717;
+    --color-on-surface-v: #737373;
 
+    --color-background: #fafafa;
 
-    --color-surface-c-lowest: #ffffff;
-    --color-surface-c-low: #f2ecee;
+    --color-surface-c-low: #f5f5f5;
     --color-surface-c: #e5e5e5;
-    --color-surface-c-high: #d9d9d9;
-    --color-surface-c-highest: #cecece;
+    --color-surface-c-high: #d4d4d4;
 
-    --color-outline: #e5e5e5;
-    --color-outline-v: #d3d3d3;
+    --color-outline: #d4d4d4;
+    --color-outline-v: #a3a3a3;
 
     /* --- РОЗМІРИ ТА ВІДСТУПИ --- */
     --radius-s: 8px;
@@ -78,10 +77,10 @@
     --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
 
     /* --- СТИЛІ ТЕКСТУ --- */
-    --text-primary: #444746;
+    --text-primary: #171717;
     --text-secondary: var(--color-on-surface-v);
-    --text-disabled: rgba(29, 27, 32, 0.38);
-    --text-hint: rgba(29, 27, 32, 0.6);
+    --text-disabled: rgba(23, 23, 23, 0.38);
+    --text-hint: rgba(23, 23, 23, 0.6);
     --text-on-surface: var(--color-on-surface);
     --text-on-surface-variant: var(--color-on-surface-v);
     --text-color: var(--color-main);
@@ -93,10 +92,10 @@
     --transition-speed: 0.2s;
 
 
-    --affinity-main: #A8F276;
-    --affinity-vector: #05CDE5;
-    --affinity-pixel: #E380F9;
-    --affinity-layout: #F88E78;
-    --affinity-canvas: #7FA3FF;
+    --affinity-main: #86efac;
+    --affinity-vector: #06b6d4;
+    --affinity-pixel: #d946ef;
+    --affinity-layout: #fb923c;
+    --affinity-canvas: #60a5fa;
 
 }

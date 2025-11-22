@@ -53,21 +53,18 @@
 }
 
 .severity-badge.severity-low {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    /*border: 1px solid #66bb6a;*/
+    background-color: var(--color-success-c);
+    color: var(--color-success);
 }
 
 .severity-badge.severity-medium {
-    background-color: #fff3e0;
-    color: #e65100;
-    /*border: 1px solid #ffa726;*/
+    background-color: var(--color-warning-c);
+    color: var(--color-warning);
 }
 
 .severity-badge.severity-high {
-    background-color: #ffebee;
-    color: #c62828;
-    /*border: 1px solid #ef5350;*/
+    background-color: var(--color-error-c);
+    color: var(--color-error);
 }
 
 .severity-badge .material-symbols-outlined {

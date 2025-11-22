@@ -229,7 +229,7 @@ body.is-modal-open {
 
 .text-viewer .highlight-banned-word:hover {
     background: var(--color-error);
-    color: #fff;
+    color: var(--color-on-error);
     border-color: var(--color-error);
 }
 

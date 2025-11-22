@@ -31,7 +31,7 @@
     padding: 8px;
     gap: 8px;
     height: 32px;
-    background: #e7e9e8;
+    background: var(--color-surface-c);
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -54,7 +54,7 @@
     font-size: 14px;
     line-height: 20px;
     letter-spacing: 0.1px;
-    color: #404947;
+    color: var(--color-on-surface);
 }
 
 /* Square variant - базове заокруглення 4px для всіх */
@@ -78,12 +78,12 @@
 /* Активний стан та стан наведення */
 .segment.active,
 .segment:hover {
-    background: #4c635d;
+    background: var(--color-main);
 }
 
 .segment.active .label,
 .segment:hover .label {
-    color: #FFFFFF;
+    color: var(--color-on-main);
 }
 
 /* Розширення border-radius тільки для табів з кнопкою закриття */
@@ -98,7 +98,7 @@
 }
 
 .segment:disabled .label {
-    color: #191c1c;
+    color: var(--color-on-surface);
     opacity: 0.38;
 }
 
