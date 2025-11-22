@@ -45,7 +45,7 @@ body.is-modal-open {
 
 /* Контейнер модального вікна */
 .modal-container {
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface-c-low);
     border-radius: var(--radius-l);
     box-shadow: var(--shadow-2);
     width: 70vw;
