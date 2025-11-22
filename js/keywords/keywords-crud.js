@@ -251,7 +251,7 @@ async function initModalSelects() {
         keywords.forEach(keyword => {
             const option = document.createElement('option');
             option.value = keyword.local_id;
-            option.textContent = `${keyword.local_id} - ${keyword.name_uk}`;
+            option.textContent = keyword.name_uk;
             parentSelect.appendChild(option);
         });
 
