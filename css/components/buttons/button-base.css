@@ -68,4 +68,5 @@ button:disabled {
 /* Іконки Material Symbols */
 button .material-symbols-outlined {
     font-size: 18px;
+    color: inherit;
 }

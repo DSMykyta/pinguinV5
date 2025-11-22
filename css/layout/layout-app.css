@@ -67,4 +67,6 @@ body.right-panel-collapsed .content-main {
 /* Базовий розмір іконок Material Symbols */
 .material-symbols-outlined {
     font-size: 16px !important;
+    color: inherit;
+    transition: color 0.2s ease;
 }

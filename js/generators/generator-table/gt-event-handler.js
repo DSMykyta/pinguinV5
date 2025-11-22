@@ -13,7 +13,7 @@
  */
 
 import { getTableDOM } from './gt-dom.js';
-import { createAndAppendRow, resetTableSection } from './gt-row-manager.js';
+import { createAndAppendRow, initializeEmptyRow, resetTableSection } from './gt-row-manager.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
 import { closeModal } from '../../common/ui-modal.js';
 import { calculatePercentages, checkForEmptyNutritionFacts } from './gt-calculator.js';
@@ -40,7 +40,7 @@ export function setupEventListeners() {
             if (!target) return;
             const actions = {
                 'add-input-btn': () => createAndAppendRow(),
-                'add-empty-line-btn': () => resetTableSection(),
+                'add-empty-line-btn': () => initializeEmptyRow(),
                 'add-ingredients-btn': () => addSampleTemplate('ingredients'),
                 'add-warning-btn': () => addSampleTemplate('warning'),
                 'add-composition-btn': () => addSampleTemplate('composition'),

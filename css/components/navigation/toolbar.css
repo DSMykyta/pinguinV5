@@ -65,7 +65,12 @@
     position: relative;
     overflow: hidden;
     text-decoration: none;
-    color: inherit;
+    color: var(--color-on-surface-v);
+    transition: color 0.2s ease;
+}
+
+.toolbar-button:hover {
+    color: var(--color-on-surface);
 }
 
 .toolbar-button .state-layer {
@@ -88,7 +93,6 @@
 
 .toolbar-button .material-symbols-outlined {
     font-size: 24px;
-    color: var(--color-on-surface-v);
 }
 
 .toolbar-button:disabled {
