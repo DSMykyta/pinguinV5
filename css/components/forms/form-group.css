@@ -1,5 +1,5 @@
 /**
- * COMPONENT: Form Group - Liquid Glass Style
+ * COMPONENT: Form Group
  *
  * ПРИЗНАЧЕННЯ:
  * Група елементів форми з label, input/select/textarea та підказкою.
@@ -45,13 +45,9 @@
  * - Форми в aside панелях
  */
 
- /* ========================================
-   СТАРІ СТИЛІ (ЗАКОМЕНТОВАНО)
-   ======================================== */
-
  /* --- Загальні елементи форм --- */
 
-/* .form-fieldset {
+.form-fieldset {
     border: 1px solid var(--color-outline-v);
     border-radius: var(--radius-m);
     padding: var(--space-m);
@@ -78,15 +74,15 @@
     box-sizing: border-box;
     min-width: 0;
     margin-bottom: 12px;
-} */
+}
 
-/* .form-group {
+.form-group {
     display: flex;
     flex-direction: column;
-} */
+}
 
 /* Універсальне правило для всіх полів вводу та кастомних селектів всередині .form-group */
-/* .form-group input[type="text"],
+.form-group input[type="text"],
 .form-group input[type="search"],
 .form-group textarea {
     display: flex;
@@ -101,9 +97,9 @@
     max-height: 40px;
     background-color: var(--color-surface);
     color: var(--color-on-surface);
-} */
+}
 
-/* .form-group label {
+.form-group label {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -120,10 +116,10 @@
 
 .form-group .custom-select-wrapper {
     width: 100%;
-} */
+}
 
 /* Remove borders from custom-select search input */
-/* .form-group .custom-select-search {
+.form-group .custom-select-search {
     border: none !important;
     padding: 8px 0;
 }
@@ -131,9 +127,9 @@
 .form-group .custom-select-search:hover,
 .form-group .custom-select-search:focus {
     border: none !important;
-} */
+}
 
-/* .form-group input[type="text"]:hover,
+.form-group input[type="text"]:hover,
 .form-group input[type="search"]:hover {
     border-color: var(--color-on-surface);
 }
@@ -144,23 +140,23 @@
     border-width: 2px;
     outline: none;
     padding: 7px 15px;
-} */
+}
 
-/* .form-hint {
+.form-hint {
     font-size: 12px;
     color: var(--color-on-surface-v);
     margin: 0;
-} */
+}
 
 /* Form group column */
-/* .form-group-column {
+.form-group-column {
     display: flex;
     flex-direction: column;
     gap: 8px;
-} */
+}
 
 /* Form group with result (readonly fields) */
-/* .form-group-result {
+.form-group-result {
     position: relative;
     flex-direction: row;
     align-items: center;
@@ -203,327 +199,38 @@
 .form-group-icon {
     color: var(--color-on-surface-v);
     font-size: 20px;
-} */
+}
 
 /* Select styling */
-/* .form-group select {
-    padding: 8px 12px;
-    border: 1px solid var(--color-outline);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-on-surface);
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.form-group select:focus {
-    outline: none;
-    border-color: var(--color-main);
-} */
-
-/* Textarea styling */
-/* .form-group textarea {
-    padding: 8px 12px;
-    border: 1px solid var(--color-outline);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-on-surface);
-    font-size: 14px;
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-}
-
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--color-main);
-} */
-
-
-/* ========================================
-   НОВІ СТИЛІ - LIQUID GLASS
-   ======================================== */
-
-/* --- Загальні елементи форм --- */
-
-.form-fieldset {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-m);
-    padding: var(--space-m);
-    margin-bottom: var(--space-m);
-
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-.form-fieldset legend {
-    padding: 0 8px;
-    font-weight: 500;
-    font-size: 16px;
-    color: var(--color-on-surface);
-}
-
-.form-fieldset {
-    min-width: 0;
-    box-sizing: border-box;
-    max-width: 100%;
-}
-
-.form-fieldset input[type="text"],
-.form-fieldset input[type="number"],
-.form-fieldset select {
-    width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
-    margin-bottom: 12px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-/* Універсальне правило для всіх полів вводу всередині .form-group - Liquid Glass */
-.form-group input[type="text"],
-.form-group input[type="search"],
-.form-group input[type="number"] {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 16px;
-    min-height: 40px;
-    font-size: 14px;
-    color: var(--color-on-surface);
-
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-xs, 4px);
-
-    /* Subtle gradient overlay */
-    background-image: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.form-group input[type="text"]:hover,
-.form-group input[type="search"]:hover,
-.form-group input[type="number"]:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.3);
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.form-group input[type="text"]:focus,
-.form-group input[type="search"]:focus,
-.form-group input[type="number"]:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.5);
-    border-width: 1px;
-    padding: 8px 16px;
-    box-shadow:
-        0 0 0 1px rgba(var(--primary-rgb, 99, 102, 241), 0.3),
-        0 4px 16px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.form-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 4px;
-}
-
-.form-group .required {
-    color: var(--color-error);
-}
-
-.form-group .custom-select-wrapper {
-    width: 100%;
-}
-
-/* Remove borders from custom-select search input */
-.form-group .custom-select-search {
-    border: none !important;
-    padding: 8px 0;
-}
-
-.form-group .custom-select-search:hover,
-.form-group .custom-select-search:focus {
-    border: none !important;
-}
-
-.form-hint {
-    font-size: 12px;
-    color: var(--color-on-surface-v);
-    margin: 0;
-    opacity: 0.8;
-}
-
-/* Form group column */
-.form-group-column {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* Form group with result (readonly fields) - Liquid Glass */
-.form-group-result {
-    position: relative;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-
-    transition: all 200ms ease-in-out;
-}
-
-.form-group-result:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.form-group-result-copied {
-    background: rgba(var(--primary-rgb, 99, 102, 241), 0.15) !important;
-    border: 1px solid rgba(var(--primary-rgb, 99, 102, 241), 0.4);
-    box-shadow: 0 4px 12px rgba(var(--primary-rgb, 99, 102, 241), 0.2);
-}
-
-.form-group-result-copied .input-main {
-    background: rgba(var(--primary-rgb, 99, 102, 241), 0.1);
-    color: var(--color-main);
-}
-
-.form-group-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-}
-
-.form-group-counter {
-    font-size: 12px;
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-    margin-left: auto;
-    opacity: 0.7;
-}
-
-.form-group-icon {
-    color: var(--color-on-surface-v);
-    font-size: 20px;
-    opacity: 0.7;
-}
-
-/* Select styling - Liquid Glass */
 .form-group select {
     padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
     font-size: 14px;
     cursor: pointer;
-    color: var(--color-on-surface);
-
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-    transition: all 200ms ease-in-out;
-}
-
-.form-group select:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.3);
 }
 
 .form-group select:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.5);
-    box-shadow:
-        0 0 0 1px rgba(var(--primary-rgb, 99, 102, 241), 0.3),
-        0 4px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--color-main);
 }
 
-/* Textarea styling - Liquid Glass */
+/* Textarea styling */
 .form-group textarea {
     padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
     font-size: 14px;
     font-family: inherit;
     resize: vertical;
     min-height: 80px;
-    color: var(--color-on-surface);
-
-    /* Liquid Glass Effect */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-
-    /* Subtle gradient overlay */
-    background-image: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.02) 100%
-    );
-
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-
-    transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.form-group textarea:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.3);
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .form-group textarea:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(var(--primary-rgb, 99, 102, 241), 0.5);
-    box-shadow:
-        0 0 0 1px rgba(var(--primary-rgb, 99, 102, 241), 0.3),
-        0 4px 16px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: var(--color-main);
 }
