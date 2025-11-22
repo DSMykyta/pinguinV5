@@ -10,10 +10,55 @@
 
 import { keywordsState } from './keywords-init.js';
 
+const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
 const SHEET_NAME = 'Glossary';
+const SHEET_GID = '90240383'; // GID для Glossary
 
 /**
- * Виклик Sheets API через backend
+ * Завантажити ключові слова через CSV export (без авторизації)
+ */
+export async function loadKeywords() {
+    console.log('📥 Завантаження ключових слів з Google Sheets (Glossary)...');
+
+    try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        const response = await fetch(csvUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+
+        // Перевіряємо чи завантажено PapaParse
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library is not loaded');
+        }
+
+        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = parsedData.data;
+
+        if (!rows || rows.length === 0) {
+            console.warn('⚠️ Немає даних в Glossary');
+            keywordsState.keywords = [];
+            return keywordsState.keywords;
+        }
+
+        keywordsState.keywords = rows.map((row, index) => ({
+            ...row,
+            _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
+        }));
+
+        console.log(`✅ Завантажено ${keywordsState.keywords.length} ключових слів`);
+        return keywordsState.keywords;
+    } catch (error) {
+        console.error('❌ Помилка завантаження ключових слів:', error);
+        throw error;
+    }
+}
+
+/**
+ * Виклик Sheets API через backend (для збереження)
  */
 async function callSheetsAPI(action, params = {}) {
     const token = localStorage.getItem('auth_token');
@@ -37,48 +82,6 @@ async function callSheetsAPI(action, params = {}) {
 
     const result = await response.json();
     return result.data;
-}
-
-export async function loadKeywords() {
-    console.log('📥 Завантаження ключових слів з Google Sheets (Glossary)...');
-
-    try {
-        const values = await callSheetsAPI('get', {
-            range: SHEET_NAME,
-            spreadsheetType: 'main'
-        });
-
-        if (!values || values.length === 0) {
-            console.warn('⚠️ Немає даних в Glossary');
-            keywordsState.keywords = [];
-            return keywordsState.keywords;
-        }
-
-        keywordsState.keywords = parseSheetData(values);
-        console.log(`✅ Завантажено ${keywordsState.keywords.length} ключових слів`);
-
-        return keywordsState.keywords;
-    } catch (error) {
-        console.error('❌ Помилка завантаження ключових слів:', error);
-        throw error;
-    }
-}
-
-function parseSheetData(values) {
-    if (!values || values.length === 0) return [];
-
-    const headers = values[0];
-    const rows = values.slice(1);
-
-    return rows.map((row, index) => {
-        const obj = { _rowIndex: index + 2 };
-        headers.forEach((header, colIndex) => {
-            // Видалити зайві пробіли з даних
-            const value = row[colIndex] || '';
-            obj[header] = typeof value === 'string' ? value.trim() : value;
-        });
-        return obj;
-    });
 }
 
 export function getKeywords() {

@@ -12,10 +12,56 @@
 
 import { brandsState } from './brands-init.js';
 
+const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
 const SHEET_NAME = 'Brands';
+const SHEET_GID = '653695455'; // GID для Brands
 
 /**
- * Виклик Sheets API через backend
+ * Завантажити всі бренди через CSV export (без авторизації)
+ * @returns {Promise<Array>} Масив брендів
+ */
+export async function loadBrands() {
+    console.log('📥 Завантаження брендів з Google Sheets...');
+
+    try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        const response = await fetch(csvUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+
+        // Перевіряємо чи завантажено PapaParse
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library is not loaded');
+        }
+
+        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = parsedData.data;
+
+        if (!rows || rows.length === 0) {
+            console.warn('⚠️ Немає даних в Brands');
+            brandsState.brands = [];
+            return brandsState.brands;
+        }
+
+        brandsState.brands = rows.map((row, index) => ({
+            ...row,
+            _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
+        }));
+
+        console.log(`✅ Завантажено ${brandsState.brands.length} брендів`);
+        return brandsState.brands;
+    } catch (error) {
+        console.error('❌ Помилка завантаження брендів:', error);
+        throw error;
+    }
+}
+
+/**
+ * Виклик Sheets API через backend (для збереження)
  */
 async function callSheetsAPI(action, params = {}) {
     const token = localStorage.getItem('auth_token');
@@ -39,55 +85,6 @@ async function callSheetsAPI(action, params = {}) {
 
     const result = await response.json();
     return result.data;
-}
-
-/**
- * Завантажити всі бренди з Google Sheets
- * @returns {Promise<Array>} Масив брендів
- */
-export async function loadBrands() {
-    console.log('📥 Завантаження брендів з Google Sheets...');
-
-    try {
-        const values = await callSheetsAPI('get', {
-            range: SHEET_NAME,
-            spreadsheetType: 'main'
-        });
-
-        if (!values || values.length === 0) {
-            console.warn('⚠️ Немає даних в Brands');
-            brandsState.brands = [];
-            return brandsState.brands;
-        }
-
-        brandsState.brands = parseSheetData(values);
-        console.log(`✅ Завантажено ${brandsState.brands.length} брендів`);
-
-        return brandsState.brands;
-    } catch (error) {
-        console.error('❌ Помилка завантаження брендів:', error);
-        throw error;
-    }
-}
-
-/**
- * Парсить дані з аркуша (перший рядок - заголовки)
- * @param {Array<Array<string>>} values - Дані з Google Sheets
- * @returns {Array<Object>} Масив об'єктів
- */
-function parseSheetData(values) {
-    if (!values || values.length === 0) return [];
-
-    const headers = values[0];
-    const rows = values.slice(1);
-
-    return rows.map((row, index) => {
-        const obj = { _rowIndex: index + 2 }; // +2 бо рядок 1 це заголовки, а рядки починаються з 2
-        headers.forEach((header, colIndex) => {
-            obj[header] = row[colIndex] || '';
-        });
-        return obj;
-    });
 }
 
 /**
