@@ -1,5 +1,5 @@
 /**
- * COMPONENT: Input
+ * COMPONENT: Input - Liquid Glass Style
  *
  * ПРИЗНАЧЕННЯ:
  * Універсальне текстове поле вводу для форм та панелей інструментів.
@@ -26,7 +26,11 @@
  * - Поля пошуку
  */
 
-.input-main {
+/* ========================================
+   СТАРІ СТИЛІ (ЗАКОМЕНТОВАНО)
+   ======================================== */
+
+/* .input-main {
     width: 100%;
     background-color: transparent;
     border: none;
@@ -49,6 +53,40 @@
 .input-main::placeholder {
     color: var(--color-on-surface-v);
     opacity: 0.6;
+} */
+
+/* ========================================
+   НОВІ СТИЛІ - LIQUID GLASS
+   ======================================== */
+
+.input-main {
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.5;
+    height: 32px;
+    padding: 0 8px;
+    border: none;
+
+    /* Liquid Glass Effect */
+    background: transparent;
+    color: var(--color-on-surface);
+
+    transition: all 200ms ease-in-out;
+}
+
+.input-main:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.input-main:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.input-main::placeholder {
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
 }
 
 /* ContentEditable placeholder */
@@ -59,16 +97,20 @@
     pointer-events: none;
 }
 
-/* Підсвічування заборонених слів */
+/* Підсвічування заборонених слів - Liquid Glass */
 .banned-word-highlight {
-    background-color: var(--color-error-c);
+    background: rgba(var(--error-rgb, 239, 68, 68), 0.15);
     color: var(--color-error);
     padding: 2px 8px;
     border-radius: 8px;
+    border: 1px solid rgba(var(--error-rgb, 239, 68, 68), 0.3);
     cursor: help;
-    transition: background-color 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 200ms ease-in-out;
 }
 
 .banned-word-highlight:hover {
-    background-color: var(--color-error-h);
+    background: rgba(var(--error-rgb, 239, 68, 68), 0.25);
+    border-color: rgba(var(--error-rgb, 239, 68, 68), 0.5);
 }
