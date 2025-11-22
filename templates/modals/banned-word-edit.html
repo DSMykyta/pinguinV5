@@ -4,51 +4,53 @@
         <div class="modal-header">
             <h2 class="modal-title"><span id="modal-title">Редагування слова</span></h2>
             <div class="modal-header-actions">
-                <div class="dropdown-wrapper">
+                <div class="connected-button-group-square">
+                    <div class="dropdown-wrapper">
 
-                    <button type="button" class="segment" id="severity-dropdown-trigger" data-dropdown-trigger
-                        aria-label="Змінити рівень небезпеки">
-                        <span class="material-symbols-outlined" id="severity-trigger-icon">brightness_alert</span>
+                        <button type="button" class="segment" id="severity-dropdown-trigger" data-dropdown-trigger
+                            aria-label="Змінити рівень небезпеки">
+                            <span class="material-symbols-outlined" id="severity-trigger-icon">brightness_alert</span>
+                        </button>
+
+                        <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
+                            <button class="dropdown-item" data-severity-value="high" title="Критично"
+                                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                                <span class="severity-badge severity-high">
+                                    <span class="material-symbols-outlined">brightness_alert</span>
+                                </span>
+                            </button>
+                            <button class="dropdown-item" data-severity-value="medium" title="Несуттєво"
+                                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                                <span class="severity-badge severity-medium">
+                                    <span class="material-symbols-outlined">error</span>
+                                </span>
+                            </button>
+                            <button class="dropdown-item" data-severity-value="low" title="Перевірити"
+                                style="display: flex; justify-content: center; align-items: center; padding: 4px;">
+                                <span class="severity-badge severity-low">
+                                    <span class="material-symbols-outlined">exclamation</span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span class="label">Перевірено</span>
+                        </div>
                     </button>
 
-                    <div class="dropdown-menu" style="min-width: min-content;background-color: white;left: -20%;">
-                        <button class="dropdown-item" data-severity-value="high" title="Критично"
-                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                            <span class="severity-badge severity-high">
-                                <span class="material-symbols-outlined">brightness_alert</span>
-                            </span>
-                        </button>
-                        <button class="dropdown-item" data-severity-value="medium" title="Несуттєво"
-                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                            <span class="severity-badge severity-medium">
-                                <span class="material-symbols-outlined">error</span>
-                            </span>
-                        </button>
-                        <button class="dropdown-item" data-severity-value="low" title="Перевірити"
-                            style="display: flex; justify-content: center; align-items: center; padding: 4px;">
-                            <span class="severity-badge severity-low">
-                                <span class="material-symbols-outlined">exclamation</span>
-                            </span>
-                        </button>
-                    </div>
+                    <button id="save-banned-word" class="segment" aria-label="Зберегти">
+                        <div class="state-layer">
+                            <span class="label">Зберегти</span>
+                        </div>
+                    </button>
+                    <button class="segment modal-close-btn" aria-label="Закрити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
                 </div>
-                <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">check_circle</span>
-                        <span class="label">Перевірено</span>
-                    </div>
-                </button>
-
-                <button id="save-banned-word" class="segment" aria-label="Зберегти">
-                    <div class="state-layer">
-                        <span class="label">Зберегти</span>
-                    </div>
-                </button>
-                <button class="segment modal-close-btn" aria-label="Закрити">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">close</span>
-                    </div>
-                </button>
             </div>
         </div>
 
