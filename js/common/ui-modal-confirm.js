@@ -119,16 +119,25 @@ export async function showConfirmModal(options = {}) {
 
         // Обробник кліків на кнопки
         const handleClick = (e) => {
-            const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
+            const target = e.target.closest('[data-confirm-action]');
+            const action = target?.dataset.confirmAction;
+
+            console.log(`🎯 modal-confirm: Клік в модалі, target:`, e.target);
+            console.log(`🎯 modal-confirm: Знайдено елемент з action:`, target);
+            console.log(`🎯 modal-confirm: Action:`, action);
 
             if (action === 'confirm') {
+                console.log(`✅ modal-confirm: Підтверджено! Закриваємо модал...`);
                 closeModal();
                 cleanup();
                 resolve(true);
+                console.log(`✅ modal-confirm: resolve(true) викликано`);
             } else if (action === 'cancel') {
+                console.log(`❌ modal-confirm: Скасовано! Закриваємо модал...`);
                 closeModal();
                 cleanup();
                 resolve(false);
+                console.log(`❌ modal-confirm: resolve(false) викликано`);
             }
         };
 
