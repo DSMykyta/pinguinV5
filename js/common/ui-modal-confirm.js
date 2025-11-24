@@ -71,6 +71,9 @@ export async function showConfirmModal(options = {}) {
     } = options;
 
     return new Promise(async (resolve) => {
+        // Прапорець для запобігання повторного resolve
+        let resolved = false;
+
         // Створюємо тригер елемент з атрибутом data-modal-size
         const triggerElement = document.createElement('div');
         triggerElement.dataset.modalSize = 'small';
@@ -119,30 +122,27 @@ export async function showConfirmModal(options = {}) {
 
         // Обробник кліків на кнопки
         const handleClick = (e) => {
-            const target = e.target.closest('[data-confirm-action]');
-            const action = target?.dataset.confirmAction;
-
-            console.log(`🎯 modal-confirm: Клік в модалі, target:`, e.target);
-            console.log(`🎯 modal-confirm: Знайдено елемент з action:`, target);
-            console.log(`🎯 modal-confirm: Action:`, action);
+            const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
 
             if (action === 'confirm') {
-                console.log(`✅ modal-confirm: Підтверджено! Закриваємо модал...`);
-                closeModal();
+                if (resolved) return;
+                resolved = true;
                 cleanup();
+                closeModal();
                 resolve(true);
-                console.log(`✅ modal-confirm: resolve(true) викликано`);
             } else if (action === 'cancel') {
-                console.log(`❌ modal-confirm: Скасовано! Закриваємо модал...`);
-                closeModal();
+                if (resolved) return;
+                resolved = true;
                 cleanup();
+                closeModal();
                 resolve(false);
-                console.log(`❌ modal-confirm: resolve(false) викликано`);
             }
         };
 
         // Обробник закриття модалу
         const handleModalClose = () => {
+            if (resolved) return;
+            resolved = true;
             cleanup();
             resolve(false);
         };

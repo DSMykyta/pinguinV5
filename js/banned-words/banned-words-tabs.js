@@ -159,37 +159,38 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     }
 }
 
+// Прапорець для запобігання повторної ініціалізації
+let handlersInitialized = false;
+
 /**
  * Ініціалізувати обробники для всіх табів
  * Використовує делегування подій на document
  */
 export function initTabHandlers() {
+    if (handlersInitialized) {
+        console.log('⚠️ Обробники табів вже ініціалізовані, пропускаємо...');
+        return;
+    }
+
     console.log('🎯 Ініціалізація обробників табів...');
+    handlersInitialized = true;
 
     // Обробник для кнопки закриття табу (ПЕРШИЙ, щоб запобігти активації табу)
     document.addEventListener('click', async (e) => {
         const closeButton = e.target.closest('.tab-close-btn');
         if (!closeButton) return;
 
-        console.log(`🎯 Обробник закриття: Клік на кнопці закриття табу`);
-
         e.preventDefault();
         e.stopPropagation();
 
         // Знайти батьківську кнопку табу
         const tabButton = closeButton.closest('.nav-icon');
-        if (!tabButton) {
-            console.log(`⚠️ Не знайдено батьківську кнопку табу`);
-            return;
-        }
+        if (!tabButton) return;
 
         const tabId = tabButton.dataset.tabTarget;
-        if (!tabId || tabId === 'tab-manage') {
-            console.log(`⚠️ Неможливо закрити таб: ${tabId}`);
-            return; // Не дозволяємо закрити головний таб
-        }
+        if (!tabId || tabId === 'tab-manage') return; // Не дозволяємо закрити головний таб
 
-        console.log(`🗑️ Обробник закриття: Спроба закрити таб ${tabId}`);
+        console.log(`🗑️ Спроба закрити таб: ${tabId}`);
 
         // Використовуємо showConfirmModal з ui-modal-confirm.js
         const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
@@ -201,24 +202,15 @@ export function initTabHandlers() {
             confirmClass: 'btn-danger'
         });
 
-        console.log(`✅ Результат підтвердження:`, confirmed);
-
         if (confirmed) {
-            console.log(`🗑️ Підтверджено! Викликаємо removeCheckTab...`);
             removeCheckTab(tabId);
-        } else {
-            console.log(`❌ Закриття скасовано користувачем`);
         }
     });
 
     // Використовуємо делегування подій на document для надійності
     document.addEventListener('click', async (e) => {
         // Ігноруємо кліки на кнопці закриття табу
-        const closeBtn = e.target.closest('.tab-close-btn');
-        if (closeBtn) {
-            console.log(`⛔ Обробник перемикання табів: ігноруємо клік на кнопці закриття`);
-            return;
-        }
+        if (e.target.closest('.tab-close-btn')) return;
 
         // Шукаємо клікнуту кнопку табу
         const tabButton = e.target.closest('.nav-icon');
@@ -235,7 +227,7 @@ export function initTabHandlers() {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log(`🔄 Обробник перемикання: Перемикання на таб "${tabId}"`);
+        console.log(`🔄 Перемикання на таб: "${tabId}"`);
 
         // Знімаємо active з ВСІХ кнопок
         tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
@@ -348,59 +340,47 @@ export function initTabHandlers() {
  * @param {string} tabId - ID табу для видалення
  */
 export function removeCheckTab(tabId) {
-    console.log(`🗑️ removeCheckTab: ПОЧАТОК видалення табу ${tabId}`);
+    console.log(`🗑️ Видалення табу: ${tabId}`);
 
     // Знайти кнопку табу
     const tabButton = document.querySelector(`[data-tab-target="${tabId}"]`);
     const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
 
-    console.log(`🔍 removeCheckTab: Кнопка табу знайдена:`, !!tabButton);
-    console.log(`🔍 removeCheckTab: Контент табу знайдено:`, !!tabContent);
-
     // Перевірити чи таб активний
     const wasActive = tabButton?.classList.contains('active');
-    console.log(`🔍 removeCheckTab: Таб був активним:`, wasActive);
 
     // Видалити з DOM
     if (tabButton) {
         tabButton.remove();
-        console.log(`✅ removeCheckTab: Кнопка табу видалена`);
-    } else {
-        console.log(`⚠️ removeCheckTab: Кнопка табу не знайдена`);
+        console.log(`✅ Кнопка табу видалена`);
     }
 
     if (tabContent) {
         tabContent.remove();
-        console.log(`✅ removeCheckTab: Контент табу видалений`);
-    } else {
-        console.log(`⚠️ removeCheckTab: Контент табу не знайдено`);
+        console.log(`✅ Контент табу видалений`);
     }
 
     // Видалити пагінацію з state
     if (bannedWordsState.tabPaginations[tabId]) {
         delete bannedWordsState.tabPaginations[tabId];
-        console.log(`✅ removeCheckTab: Пагінація табу видалена`);
+        console.log(`✅ Пагінація табу видалена`);
     }
 
     // Видалити таб зі збереженого стану
-    console.log(`🗑️ removeCheckTab: Видалення табу зі збереженого стану...`);
     removeTabFromState(tabId);
-    console.log(`✅ removeCheckTab: Таб видалено зі стану`);
 
     // Якщо таб був активним, переключитись на tab-manage
     if (wasActive) {
         const manageTab = document.querySelector('[data-tab-target="tab-manage"]');
-        console.log(`🔍 removeCheckTab: Таб manage знайдено:`, !!manageTab);
         if (manageTab) {
             setTimeout(() => {
-                console.log(`🔄 removeCheckTab: Кліку на таб управління...`);
                 manageTab.click();
-                console.log(`✅ removeCheckTab: Переключено на таб управління`);
+                console.log(`🔄 Переключено на таб управління`);
             }, 100);
         }
     }
 
-    console.log(`✅ removeCheckTab: ЗАВЕРШЕНО видалення табу ${tabId}`);
+    console.log(`✅ Таб ${tabId} успішно видалено`);
 }
 
 /**
