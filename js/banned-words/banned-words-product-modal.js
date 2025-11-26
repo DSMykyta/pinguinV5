@@ -59,9 +59,9 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         allSheetsData = {};
         fieldStats = {};
 
-        // Зберегти доступні аркуші та колонки
-        availableSheets = allSheets.length > 0 ? allSheets : [sheetName];
-        availableColumns = allColumns.length > 0 ? allColumns : (Array.isArray(columnName) ? columnName : [columnName]);
+        // Зберегти доступні аркуші та колонки (фільтруємо пусті значення)
+        availableSheets = (allSheets.length > 0 ? allSheets : [sheetName]).filter(s => s && s.trim());
+        availableColumns = (allColumns.length > 0 ? allColumns : (Array.isArray(columnName) ? columnName : [columnName])).filter(c => c && c.trim());
 
         // Встановити активний аркуш та колонку
         activeSheet = sheetName;
@@ -146,6 +146,12 @@ function setupSheetTabs() {
     console.log(`📊 Створюємо ${availableSheets.length} табів аркушів`);
 
     availableSheets.forEach((sheet, index) => {
+        // Пропустити пусті назви аркушів
+        if (!sheet || !sheet.trim()) {
+            console.warn(`⚠️ Пропускаємо пустий аркуш на позиції ${index}`);
+            return;
+        }
+
         const button = document.createElement('button');
         button.className = 'filter-pill';
         button.dataset.sheet = sheet;
@@ -498,6 +504,12 @@ function initModalHandlers() {
  */
 async function handleSheetTabClick(button) {
     const newSheet = button.dataset.sheet;
+
+    // Перевірити чи назва аркуша валідна
+    if (!newSheet || !newSheet.trim()) {
+        console.error('❌ Назва аркуша пуста або невалідна');
+        return;
+    }
 
     if (newSheet === activeSheet) {
         console.log(`📊 Аркуш "${newSheet}" вже активний`);

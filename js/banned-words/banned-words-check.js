@@ -103,6 +103,12 @@ export async function performCheck(sheetName, wordId, columnName) {
                         }
                     });
                 } catch (error) {
+                    // Якщо колонка не існує в цьому аркуші - пропускаємо, це нормально
+                    if (error.message && error.message.includes('не знайдена')) {
+                        console.log(`⏭️ Пропускаємо ${sheet}/${col} - колонка не існує в цьому аркуші`);
+                        continue;
+                    }
+                    // Інші помилки - логуємо
                     console.error(`❌ Помилка перевірки ${sheet}/${col}:`, error);
                 }
             }
@@ -133,9 +139,12 @@ export async function performCheck(sheetName, wordId, columnName) {
         loader.updateProgress(80, 'Підготовка результатів...');
         await renderCheckResults(sheetName, bannedWord);
 
+        // Обчислити загальну кількість входжень
+        const totalMatchCount = aggregatedResults.reduce((sum, r) => sum + (r.matchCount || 0), 0);
+
         // Ініціалізувати пагінацію для цього табу
         loader.updateProgress(90, 'Налаштування пагінації...');
-        registerCheckTabPagination(tabId, results.length, async () => {
+        registerCheckTabPagination(tabId, aggregatedResults.length, async () => {
             const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
             await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
         });
@@ -150,14 +159,14 @@ export async function performCheck(sheetName, wordId, columnName) {
         initCheckTabFilters(tabId);
 
         // Оновити aside статистику
-        updateAsideStats(results.length, foundCount);
+        updateAsideStats(aggregatedResults.length, totalMatchCount);
 
         // Завершити
         loader.updateProgress(100, 'Готово!');
         setTimeout(() => {
             loader.hide();
-            const toastType = foundCount > 0 ? 'info' : 'success';
-            showToast(`Знайдено ${foundCount} входжень у ${results.length} товарах`, toastType, 3000);
+            const toastType = totalMatchCount > 0 ? 'info' : 'success';
+            showToast(`Знайдено ${totalMatchCount} входжень у ${aggregatedResults.length} товарах`, toastType, 3000);
         }, 300);
 
     } catch (error) {
