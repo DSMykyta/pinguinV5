@@ -46,29 +46,21 @@ export function checkTextForBannedWords(text, bannedWords) {
 
     if (uniqueWords.length === 0) return found;
 
-    // Сортування за довжиною (спадне) - довші слова мають знаходитись першими
-    const sortedWords = uniqueWords
-        .map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо
-        .sort((a, b) => b.length - a.length);
-
-    const regexBody = sortedWords.join('|');
-
-    // ОДИН regex для всіх слів (швидко!)
-    // Використовуємо простий fallback без Unicode Property Escapes
-    // ВИПРАВЛЕНО: додано великі літери в boundaries для підтримки "Препарат", "ЛІКУЄ" тощо
-    const wordRegex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${regexBody})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
-
-    // Підрахунок входжень - ВИПРАВЛЕНО для правильного підрахунку множинних входжень
+    // Підрахунок входжень - надійний метод без "з'їдання" границь
     const wordCounts = new Map();
 
-    // Використовуємо matchAll() для надійного знаходження ВСІХ входжень
-    const matches = cleanText.matchAll(wordRegex);
+    // Приводимо текст до нижнього регістру для пошуку
+    const lowerText = cleanText.toLowerCase();
 
-    for (const match of matches) {
-        if (match[2]) {
-            const word = match[2].toLowerCase();
-            const currentCount = wordCounts.get(word) || 0;
-            wordCounts.set(word, currentCount + 1);
+    // Рахуємо кожне слово окремо (надійніше ніж один regex)
+    for (const word of uniqueWords) {
+        // Екрануємо спецсимволи
+        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Використовуємо lookahead/lookbehind для границь слова (не з'їдає символи)
+        const wordRegex = new RegExp(`(?<![а-яїієґёa-z])${escapedWord}(?![а-яїієґёa-z])`, 'gi');
+        const matches = lowerText.match(wordRegex);
+        if (matches && matches.length > 0) {
+            wordCounts.set(word, matches.length);
         }
     }
 

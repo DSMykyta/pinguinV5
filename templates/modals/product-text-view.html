@@ -30,16 +30,16 @@
             <input type="hidden" id="product-modal-sheet-name">
             <input type="hidden" id="product-modal-row-index">
 
-            <!-- Заголовок товару -->
-            <div
-                style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-outline-v);">
-                <h3 id="product-modal-title" style="margin: 0; font-size: 18px; font-weight: 600;">Завантаження...</h3>
-                <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v);">ID: ...</p>
-            </div>
-
-            <!-- Таби аркушів (якщо обрано > 1 аркуша) -->
-            <div class="filter-pills-container u-hidden" id="product-sheet-pills" style="margin-bottom: 12px;">
-                <!-- Піли аркушів будуть динамічно створені -->
+            <!-- Заголовок товару з табами аркушів -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-outline-v); gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                    <h3 id="product-modal-title" style="margin: 0; font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Завантаження...</h3>
+                    <!-- Таби аркушів (якщо > 1 аркуша) - компактні -->
+                    <div class="filter-pills-container u-hidden" id="product-sheet-pills" style="gap: 4px;">
+                        <!-- Піли аркушів будуть динамічно створені -->
+                    </div>
+                </div>
+                <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v); white-space: nowrap;">ID: ...</p>
             </div>
 
             <!-- Таби для вибору колонки та кнопка копіювання -->

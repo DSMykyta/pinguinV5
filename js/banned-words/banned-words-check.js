@@ -50,16 +50,14 @@ export async function performCheck(sheetName, wordId, columnName) {
 
         // Результати з усіх комбінацій аркуш/колонка
         const allResults = [];
-        let totalChecked = 0;
-        const totalCombinations = selectedSheets.length * selectedColumns.length;
+        let validCombinations = 0;
+
+        // Показати початковий прогрес
+        loader.updateProgress(10, 'Визначення доступних колонок...');
 
         // Перевірити кожну комбінацію аркуш + колонка
         for (const sheet of selectedSheets) {
             for (const col of selectedColumns) {
-                totalChecked++;
-                const progressPercent = Math.round(10 + (totalChecked / totalCombinations) * 70);
-                loader.updateProgress(progressPercent, `Перевірка ${sheet}: ${col}...`);
-
                 // Визначити мову колонки
                 let searchWordsArray;
                 if (col.includes('Ukr')) {
@@ -67,7 +65,7 @@ export async function performCheck(sheetName, wordId, columnName) {
                 } else if (col.includes('Ros') || col.includes('Rus')) {
                     searchWordsArray = bannedWord.name_ru_array;
                 } else {
-                    console.warn(`⚠️ Пропускаємо колонку "${col}" - невідома мова`);
+                    console.log(`⏭️ Пропускаємо ${col} - невідома мова`);
                     continue;
                 }
 
@@ -77,8 +75,14 @@ export async function performCheck(sheetName, wordId, columnName) {
                 }
 
                 try {
-                    // Завантажити дані для цієї комбінації
+                    // Спочатку перевіряємо чи колонка існує (завантаження даних)
                     const sheetData = await loadSheetDataForCheck(sheet, col);
+
+                    // Колонка існує - тепер показуємо прогрес
+                    validCombinations++;
+                    const progressPercent = Math.round(10 + (validCombinations * 10));
+                    loader.updateProgress(Math.min(progressPercent, 80), `Перевірка ${sheet}: ${col}...`);
+
                     console.log(`📥 ${sheet}/${col}: завантажено ${sheetData.length} рядків`);
 
                     // Перевірити кожен рядок
@@ -103,7 +107,7 @@ export async function performCheck(sheetName, wordId, columnName) {
                         }
                     });
                 } catch (error) {
-                    // Якщо колонка не існує в цьому аркуші - пропускаємо, це нормально
+                    // Якщо колонка не існує в цьому аркуші - пропускаємо БЕЗ повідомлення
                     if (error.message && error.message.includes('не знайдена')) {
                         console.log(`⏭️ Пропускаємо ${sheet}/${col} - колонка не існує в цьому аркуші`);
                         continue;
@@ -113,6 +117,8 @@ export async function performCheck(sheetName, wordId, columnName) {
                 }
             }
         }
+
+        console.log(`✅ Перевірено ${validCombinations} валідних комбінацій аркуш/колонка`);
 
         // Агрегувати результати - якщо один товар знайдено в кількох колонках
         loader.updateProgress(85, 'Агрегація результатів...');

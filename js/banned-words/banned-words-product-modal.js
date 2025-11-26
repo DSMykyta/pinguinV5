@@ -59,9 +59,17 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         allSheetsData = {};
         fieldStats = {};
 
-        // Зберегти доступні аркуші та колонки (фільтруємо пусті значення)
-        availableSheets = (allSheets.length > 0 ? allSheets : [sheetName]).filter(s => s && s.trim());
+        // Фільтруємо аркуші - тільки ті де цей товар має результати
+        const productResults = bannedWordsState.checkResults?.filter(r => r.id === productId) || [];
+        const sheetsWithResults = [...new Set(productResults.map(r => r.sheetName))].filter(s => s && s.trim());
+
+        // Якщо є результати - використовуємо тільки аркуші з результатами, інакше поточний
+        availableSheets = sheetsWithResults.length > 0 ? sheetsWithResults : [sheetName];
+
+        // Колонки - фільтруємо пусті значення
         availableColumns = (allColumns.length > 0 ? allColumns : (Array.isArray(columnName) ? columnName : [columnName])).filter(c => c && c.trim());
+
+        console.log(`📊 Аркуші з результатами для ${productId}:`, availableSheets);
 
         // Встановити активний аркуш та колонку
         activeSheet = sheetName;
@@ -703,9 +711,8 @@ function getTooltipElement() {
         tooltipElement.style.cssText = `
             position: fixed;
             z-index: 10000;
-            background: var(--color-surface-c-highest);
-            color: var(--color-on-surface);
-            border: 1px solid var(--color-outline);
+            background: var(--color-on-surface);
+            color: var(--color-surface);
             border-radius: 8px;
             padding: 12px 16px;
             font-size: 13px;
