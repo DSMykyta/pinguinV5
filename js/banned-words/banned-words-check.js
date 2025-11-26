@@ -5,7 +5,7 @@ import { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalid
 import { loadSheetDataForCheck, checkTextForBannedWords, getTextFragment, updateProductStatus } from './banned-words-data.js';
 import { showLoader, hideLoader, showErrorDetails } from '../common/ui-loading.js';
 import { showToast } from '../common/ui-toast.js';
-import { escapeHtml, highlightText, extractContextWithHighlight } from '../utils/text-utils.js';
+import { escapeHtml, highlightText } from '../utils/text-utils.js';
 import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 import { registerCheckTabPagination } from './banned-words-pagination.js';
 
@@ -130,10 +130,6 @@ export async function performCheck(sheetName, wordId, columnName) {
  
              if (foundWords.length > 0) {
                  foundCount++;
- 
-                // Отримати фрагмент тексту з ПЕРШИМ знайденим словом
-                 const firstMatch = foundWords[0];
-                const fragment = extractContextWithHighlight(item.targetValue, firstMatch.word, 50);
                 const totalMatchCount = foundWords.reduce((sum, f) => sum + f.count, 0);
  
                  results.push({
@@ -141,8 +137,10 @@ export async function performCheck(sheetName, wordId, columnName) {
                     title: item.title,
                     cheaked_line: item.cheaked_line,
                     _rowIndex: item._rowIndex,
+                    // Інформація про джерело
+                    sheetName: sheetName,
+                    columnName: columnName,
                     // Додаємо контекстуальну інформацію
-                     context: fragment, // Вже з HTML підсвічуванням
                      fullText: item.targetValue,
                     searchWords: searchWordsArray, // Зберігаємо масив слів, які шукали
                     matchCount: totalMatchCount, // Загальна кількість входжень
@@ -257,57 +255,83 @@ export async function renderCheckResults(sheetName, bannedWord) {
         tabStats.textContent = `Показано ${paginatedResults.length} з ${allResults.length}`;
     }
 
+    // Визначити чи показувати колонки Аркуш/Колонка
+    const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
+    const selectedColumns = bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn];
+    const showSheetColumn = selectedSheets.length > 1;
+    const showColumnColumn = selectedColumns.length > 1;
+
+    // Динамічно будуємо колонки
+    const columns = [];
+
+    // Колонка "Аркуш" - тільки якщо обрано > 1 аркуша
+    if (showSheetColumn) {
+        columns.push({
+            id: 'sheetName',
+            label: 'Аркуш',
+            sortable: true,
+            className: 'cell-sheet',
+            render: (value) => `<span class="text-muted">${escapeHtml(value || '')}</span>`
+        });
+    }
+
+    // ID
+    columns.push({
+        id: 'id',
+        label: 'ID',
+        sortable: true,
+        className: 'cell-id',
+        render: (value) => `<span class="badge">${escapeHtml(value)}</span>`
+    });
+
+    // Назва
+    columns.push({
+        id: 'title',
+        label: 'Назва',
+        sortable: true,
+        className: 'cell-name',
+        render: (value) => `<strong>${escapeHtml(value)}</strong>`
+    });
+
+    // Колонка "Колонка" - тільки якщо обрано > 1 колонки
+    if (showColumnColumn) {
+        columns.push({
+            id: 'columnName',
+            label: 'Колонка',
+            sortable: true,
+            className: 'cell-column',
+            render: (value) => `<span class="text-muted">${escapeHtml(value || '')}</span>`
+        });
+    }
+
+    // Кількість входжень
+    columns.push({
+        id: 'matchCount',
+        label: 'Кількість',
+        sortable: true,
+        className: 'cell-count',
+        render: (value) => {
+            if (!value || value <= 1) return '<span class="text-muted">1</span>';
+            return `<span class="match-count-badge">${value}×</span>`;
+        }
+    });
+
+    // Статус перевірки
+    columns.push({
+        id: 'cheaked_line',
+        label: 'Статус',
+        sortable: true,
+        className: 'cell-bool',
+        render: (value, row) => renderBadge(value, 'checked', {
+            clickable: true,
+            id: row.id
+        })
+    });
+
     // Рендеринг таблиці через універсальний компонент
     renderPseudoTable(container, {
         data: paginatedResults,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="badge">${escapeHtml(value)}</span>`
-            },
-            {
-                id: 'title',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-name',
-                render: (value) => `<strong>${escapeHtml(value)}</strong>`
-             },
-             {
-                 id: 'context',
-                label: 'Фрагмент',
-                sortable: false,
-                className: 'cell-context',
-                render: (value, row) => {
-                    if (!value) return '<span class="text-muted">—</span>';
-
-                    // Context вже містить HTML з підсвічуванням від extractContextWithHighlight()
-                    return `<div class="context-fragment">${value}</div>`;
-                }
-            },
-            {
-                id: 'matchCount',
-                label: ' ',
-                sortable: true,
-                className: 'cell-count',
-                render: (value) => {
-                    if (!value || value <= 1) return '';
-                    return `<span class="match-count-badge">${value}×</span>`;
-                }
-            },
-            {
-                id: 'cheaked_line',
-                label: 'Перевірено',
-                sortable: true,
-                className: 'cell-bool',
-                render: (value, row) => renderBadge(value, 'checked', {
-                    clickable: true,
-                    id: row.id
-                })
-            }
-        ],
+        columns,
         rowActionsCustom: (row) => {
             const selectedSet = bannedWordsState.selectedProducts[tabId] || new Set();
             const isChecked = selectedSet.has(row.id);
