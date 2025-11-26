@@ -217,3 +217,24 @@
     color: var(--color-on-surface-v);
     font-size: 14px;
 }
+
+/* Select All option */
+.custom-select-option-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--color-outline-v);
+    font-weight: 500;
+}
+
+.custom-select-option-all .select-all-checkbox {
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+/* "Всі" text in value container */
+.custom-select-all-text {
+    color: var(--color-on-surface);
+    font-weight: 500;
+}

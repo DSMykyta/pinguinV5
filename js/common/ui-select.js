@@ -106,6 +106,7 @@ class CustomSelect {
         this.originalSelect = originalSelect;
         this.originalSelect.customSelect = this;
         this.isMultiSelect = originalSelect.multiple;
+        this.hasSelectAll = originalSelect.dataset.selectAll === 'true';
 
         this._buildDOM();
         this._populateOptions();
@@ -155,6 +156,18 @@ class CustomSelect {
 
     _populateOptions() {
         this.optionsList.innerHTML = '';
+
+        // Додати опцію "Всі" на початок для мультиселекту з data-select-all
+        if (this.isMultiSelect && this.hasSelectAll) {
+            const selectAllEl = this._createElement('li', {
+                class: 'custom-select-option custom-select-option-all',
+                'data-value': '__select_all__',
+                role: 'option'
+            });
+            selectAllEl.innerHTML = '<input type="checkbox" class="select-all-checkbox"> Всі';
+            this.optionsList.appendChild(selectAllEl);
+        }
+
         Array.from(this.originalSelect.options).forEach(option => {
             if (!option.value && this.isMultiSelect) return; // Пропускаємо порожні опції в мультиселекті
 
@@ -169,12 +182,21 @@ class CustomSelect {
     }
 
     _updateSelection() {
-        const selectedOptions = Array.from(this.originalSelect.options).filter(opt => opt.selected && opt.value);
+        const allOptions = Array.from(this.originalSelect.options).filter(opt => opt.value);
+        const selectedOptions = allOptions.filter(opt => opt.selected);
+        const isAllSelected = allOptions.length > 0 && selectedOptions.length === allOptions.length;
 
         // Оновлюємо стан is-selected для списку
         this.optionsList.querySelectorAll('.custom-select-option').forEach(customOpt => {
-            const isSelected = selectedOptions.some(selOpt => selOpt.value === customOpt.dataset.value);
-            customOpt.classList.toggle('is-selected', isSelected);
+            if (customOpt.dataset.value === '__select_all__') {
+                // Оновити чекбокс "Всі"
+                const checkbox = customOpt.querySelector('.select-all-checkbox');
+                if (checkbox) checkbox.checked = isAllSelected;
+                customOpt.classList.toggle('is-selected', isAllSelected);
+            } else {
+                const isSelected = selectedOptions.some(selOpt => selOpt.value === customOpt.dataset.value);
+                customOpt.classList.toggle('is-selected', isSelected);
+            }
         });
 
         if (!this.isMultiSelect) {
@@ -191,6 +213,12 @@ class CustomSelect {
 
         if (selectedOptions.length === 0) {
             this.valueContainer.innerHTML = `<span class="custom-select-placeholder">${this.originalSelect.placeholder || 'Виберіть...'}</span>`;
+            return;
+        }
+
+        // Якщо всі вибрані і є data-select-all - показати "Всі"
+        if (isAllSelected && this.hasSelectAll) {
+            this.valueContainer.innerHTML = '<span class="custom-select-all-text">Всі</span>';
             return;
         }
 
@@ -245,7 +273,21 @@ class CustomSelect {
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
             if (optionEl && 'value' in optionEl.dataset) {
-                const option = Array.from(this.originalSelect.options).find(opt => opt.value === optionEl.dataset.value);
+                const value = optionEl.dataset.value;
+
+                // Обробка кліку на "Всі"
+                if (value === '__select_all__') {
+                    const allOptions = Array.from(this.originalSelect.options).filter(opt => opt.value);
+                    const selectedCount = allOptions.filter(opt => opt.selected).length;
+                    const shouldSelectAll = selectedCount < allOptions.length;
+
+                    allOptions.forEach(opt => opt.selected = shouldSelectAll);
+                    this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    this._updateSelection();
+                    return;
+                }
+
+                const option = Array.from(this.originalSelect.options).find(opt => opt.value === value);
                 if (this.isMultiSelect) {
                     option.selected = !option.selected;
                 } else {
@@ -265,6 +307,8 @@ class CustomSelect {
             this.searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
+                    // Не ховати опцію "Всі" при пошуку
+                    if (optEl.dataset.value === '__select_all__') return;
                     const text = optEl.textContent.toLowerCase();
                     optEl.style.display = text.includes(query) ? '' : 'none';
                 });

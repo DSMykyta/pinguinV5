@@ -69,11 +69,6 @@ export function initCheckPanelEvents() {
     const columnSelect = document.getElementById('aside-select-column');
     const checkButton = document.getElementById('aside-btn-check');
 
-    // Чекбокси "Обрати все"
-    const selectAllSheets = document.getElementById('select-all-sheets');
-    const selectAllWords = document.getElementById('select-all-words');
-    const selectAllColumns = document.getElementById('select-all-columns');
-
     if (!sheetSelect || !wordSelect || !columnSelect || !checkButton) return;
 
     // Уникнути дублювання обробників
@@ -100,54 +95,7 @@ export function initCheckPanelEvents() {
 
         // Кнопка активна якщо є хоча б по одному вибраному елементу
         checkButton.disabled = !(selectedSheets.length > 0 && selectedWords.length > 0 && selectedColumns.length > 0);
-
-        // Оновити стан чекбоксів "Обрати все"
-        if (selectAllSheets) {
-            selectAllSheets.checked = selectedSheets.length === sheetSelect.options.length;
-        }
-        if (selectAllWords) {
-            selectAllWords.checked = selectedWords.length === wordSelect.options.length;
-        }
-        if (selectAllColumns) {
-            selectAllColumns.checked = selectedColumns.length === columnSelect.options.length;
-        }
     };
-
-    /**
-     * Обрати/зняти всі опції в select
-     */
-    const toggleSelectAll = (selectEl, checked) => {
-        Array.from(selectEl.options).forEach(opt => {
-            if (opt.value) opt.selected = checked;
-        });
-        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-
-        // Оновити custom select UI
-        if (selectEl.customSelect) {
-            selectEl.customSelect._updateSelection();
-        }
-    };
-
-    // Обробники "Обрати все"
-    if (selectAllSheets) {
-        selectAllSheets.addEventListener('change', async (e) => {
-            toggleSelectAll(sheetSelect, e.target.checked);
-            // Завантажити колонки для всіх обраних аркушів
-            await loadColumnsForSelectedSheets();
-        });
-    }
-
-    if (selectAllWords) {
-        selectAllWords.addEventListener('change', (e) => {
-            toggleSelectAll(wordSelect, e.target.checked);
-        });
-    }
-
-    if (selectAllColumns) {
-        selectAllColumns.addEventListener('change', (e) => {
-            toggleSelectAll(columnSelect, e.target.checked);
-        });
-    }
 
     // При виборі аркуша - завантажити поля динамічно зі ВСІХ обраних аркушів
     sheetSelect.addEventListener('change', async () => {
