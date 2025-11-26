@@ -12,6 +12,18 @@ let currentProductData = null;
 // Статистика для кожного поля: { fieldName: { wordCountsMap, totalMatches } }
 let fieldStats = {};
 
+// Дані для всіх аркушів (для перемикання між табами)
+// Структура: { sheetName: { productData, loaded } }
+let allSheetsData = {};
+
+// Поточний активний аркуш та колонка
+let activeSheet = null;
+let activeColumn = null;
+
+// Всі доступні аркуші та колонки (передаються при відкритті модалу)
+let availableSheets = [];
+let availableColumns = [];
+
 /**
  * Отримати іконку для поля на основі його назви
  */
@@ -26,19 +38,34 @@ function getFieldIcon(columnName) {
  *
  * FLOW:
  * 1. Завантажити шаблон модалу (з порожніми контейнерами)
- * 2. ДИНАМІЧНО створити піли та панелі на основі перевірених колонок
+ * 2. ДИНАМІЧНО створити піли аркушів (якщо > 1) та піли колонок
  * 3. Завантажити повні дані товару з Google Sheets
  * 4. Заповнити панелі текстом з підсвічуванням ВСІХ заборонених слів
  * 5. Додати event listeners на динамічно створені піли
  *
  * @param {string} productId - ID товару
- * @param {string} sheetName - Назва аркуша
+ * @param {string} sheetName - Назва аркуша (поточний)
  * @param {number} rowIndex - Індекс рядка в Google Sheets
- * @param {string|string[]} columnName - Назва колонки або масив назв (для майбутніх комплексних перевірок)
+ * @param {string|string[]} columnName - Назва колонки або масив назв
+ * @param {string[]} allSheets - Всі обрані аркуші для перевірки
+ * @param {string[]} allColumns - Всі обрані колонки для перевірки
  */
-export async function showProductTextModal(productId, sheetName, rowIndex, columnName) {
+export async function showProductTextModal(productId, sheetName, rowIndex, columnName, allSheets = [], allColumns = []) {
     try {
         console.log(`📄 Відкриття модалу для товару: ${productId} (${sheetName}), колонка:`, columnName);
+        console.log(`📊 Всі аркуші: ${allSheets.join(', ')}, всі колонки: ${allColumns.join(', ')}`);
+
+        // Скинути стан
+        allSheetsData = {};
+        fieldStats = {};
+
+        // Зберегти доступні аркуші та колонки
+        availableSheets = allSheets.length > 0 ? allSheets : [sheetName];
+        availableColumns = allColumns.length > 0 ? allColumns : (Array.isArray(columnName) ? columnName : [columnName]);
+
+        // Встановити активний аркуш та колонку
+        activeSheet = sheetName;
+        activeColumn = Array.isArray(columnName) ? columnName[0] : columnName;
 
         // 1. Відкрити модал з шаблону (порожні контейнери)
         await showModal('product-text-view');
@@ -59,25 +86,31 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         // Зберігаємо як JSON якщо масив, або просто строку
         columnInput.value = Array.isArray(columnName) ? JSON.stringify(columnName) : columnName;
 
-        // 2. ДИНАМІЧНО створити піли та панелі для перевірених колонок
-        setupFieldTabs(columnName);
+        // 2. Налаштувати таби аркушів (якщо > 1 аркуша)
+        setupSheetTabs();
+
+        // 3. ДИНАМІЧНО створити піли колонок та панелі для перевірених колонок
+        setupFieldTabs(availableColumns);
 
         // Показати loader
         showModalLoader();
 
-        // 3. Завантажити повні дані товару
+        // 4. Завантажити повні дані товару для поточного аркуша
         const productData = await loadProductFullData(sheetName, rowIndex);
         currentProductData = productData;
 
+        // Зберегти в кеш аркушів
+        allSheetsData[sheetName] = { productData, loaded: true, rowIndex };
+
         console.log('✅ Дані товару завантажені:', productData);
 
-        // 4. Відрендерити модал з даними
-        renderProductModal(productData, columnName);
+        // 5. Відрендерити модал з даними
+        renderProductModal(productData, availableColumns);
 
-        // 5. Встановити статус badge на основі даних з checkResults
+        // 6. Встановити статус badge на основі даних з checkResults
         updateModalBadge(productId);
 
-        // 6. Ініціалізувати обробники для динамічних елементів
+        // 7. Ініціалізувати обробники для динамічних елементів
         initModalHandlers();
 
     } catch (error) {
@@ -85,6 +118,47 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         showToast('Помилка завантаження даних товару', 'error');
         closeModal();
     }
+}
+
+/**
+ * Налаштувати таби аркушів - показати якщо обрано > 1 аркуша
+ */
+function setupSheetTabs() {
+    const sheetPillsContainer = document.getElementById('product-sheet-pills');
+    if (!sheetPillsContainer) {
+        console.warn('⚠️ Контейнер табів аркушів не знайдено');
+        return;
+    }
+
+    // Очистити контейнер
+    sheetPillsContainer.innerHTML = '';
+
+    // Якщо тільки 1 аркуш - приховати контейнер
+    if (availableSheets.length <= 1) {
+        sheetPillsContainer.classList.add('u-hidden');
+        console.log('📊 Тільки 1 аркуш - таби аркушів приховано');
+        return;
+    }
+
+    // Показати контейнер і створити таби
+    sheetPillsContainer.classList.remove('u-hidden');
+
+    console.log(`📊 Створюємо ${availableSheets.length} табів аркушів`);
+
+    availableSheets.forEach((sheet, index) => {
+        const button = document.createElement('button');
+        button.className = 'filter-pill';
+        button.dataset.sheet = sheet;
+        button.textContent = sheet;
+
+        // Активний таб - поточний аркуш
+        if (sheet === activeSheet) {
+            button.classList.add('active');
+        }
+
+        sheetPillsContainer.appendChild(button);
+        console.log(`✅ Створено таб аркуша: ${sheet}`);
+    });
 }
 
 /**
@@ -262,6 +336,9 @@ function renderProductModal(productData, columnNames) {
     // Показати статистику для ПЕРШОГО (активного) поля
     const firstField = columnsArray[0];
     updateModalStats(firstField);
+
+    // Ініціалізувати tooltip для підсвічених слів
+    initBannedWordTooltips();
 }
 
 /**
@@ -299,6 +376,18 @@ function updateModalStats(fieldName) {
                 const chip = document.createElement('span');
                 chip.className = 'chip chip-error';
                 chip.textContent = `${word} (${count})`;
+
+                // Додати tooltip обробники для кожного чіпа
+                chip.addEventListener('mouseenter', (e) => {
+                    const wordInfo = findBannedWordInfo(word);
+                    if (wordInfo) {
+                        showBannedWordTooltip(e.target, wordInfo);
+                    }
+                });
+                chip.addEventListener('mouseleave', () => {
+                    hideBannedWordTooltip();
+                });
+
                 chipsContainer.appendChild(chip);
             });
         }
@@ -358,27 +447,35 @@ function syncTableBadge(productId, isChecked) {
  * Ініціалізувати обробники подій модалу
  */
 function initModalHandlers() {
-    // Перемикання табів (використовуємо nav-icon)
-    const buttons = document.querySelectorAll('#product-text-field-pills .nav-icon');
+    // Перемикання табів колонок (використовуємо nav-icon)
+    const columnButtons = document.querySelectorAll('#product-text-field-pills .nav-icon');
     const panels = document.querySelectorAll('.product-text-panel');
 
-    buttons.forEach(button => {
+    columnButtons.forEach(button => {
         button.addEventListener('click', () => {
             const field = button.dataset.field;
 
+            // Зберегти активну колонку
+            activeColumn = field;
+
             // Оновити активний таб
-            buttons.forEach(btn => btn.classList.remove('active'));
+            columnButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
             // Показати відповідну панель
-            // ВИПРАВЛЕНО: уточнено selector для пошуку тільки панелей, не кнопок
             panels.forEach(p => p.classList.remove('active'));
-            const activePanel = document.querySelector(`.product-text-panel[data-field="${field}"]`);
-            if (activePanel) activePanel.classList.add('active');
+            const activePanelEl = document.querySelector(`.product-text-panel[data-field="${field}"]`);
+            if (activePanelEl) activePanelEl.classList.add('active');
 
             // Оновити статистику для цього поля
             updateModalStats(field);
         });
+    });
+
+    // Перемикання табів аркушів
+    const sheetButtons = document.querySelectorAll('#product-sheet-pills .filter-pill');
+    sheetButtons.forEach(button => {
+        button.addEventListener('click', () => handleSheetTabClick(button));
     });
 
     // Badge статусу - клік для зміни
@@ -391,6 +488,80 @@ function initModalHandlers() {
     const copyBtn = document.getElementById('product-modal-copy-btn');
     if (copyBtn) {
         copyBtn.addEventListener('click', handleCopyText);
+    }
+}
+
+/**
+ * Обробник кліку на таб аркуша
+ * Завантажує дані з іншого аркуша якщо потрібно
+ * @param {HTMLElement} button - Кнопка табу
+ */
+async function handleSheetTabClick(button) {
+    const newSheet = button.dataset.sheet;
+
+    if (newSheet === activeSheet) {
+        console.log(`📊 Аркуш "${newSheet}" вже активний`);
+        return;
+    }
+
+    console.log(`🔄 Перемикання на аркуш: ${newSheet}`);
+
+    // Оновити активний таб
+    const sheetButtons = document.querySelectorAll('#product-sheet-pills .filter-pill');
+    sheetButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+
+    // Оновити активний аркуш
+    activeSheet = newSheet;
+
+    // Оновити метадані
+    document.getElementById('product-modal-sheet-name').value = newSheet;
+
+    // Перевірити чи є кешовані дані для цього аркуша
+    if (allSheetsData[newSheet]?.loaded) {
+        console.log(`📦 Використовуємо кешовані дані для аркуша "${newSheet}"`);
+        currentProductData = allSheetsData[newSheet].productData;
+        renderProductModal(currentProductData, availableColumns);
+        return;
+    }
+
+    // Завантажити дані для нового аркуша
+    try {
+        // Показати loader
+        showModalLoader();
+
+        // Потрібно знайти rowIndex для цього товару в новому аркуші
+        // Використовуємо productId для пошуку
+        const productId = document.getElementById('product-modal-product-id').value;
+
+        // Знайти результат для цього товару в цьому аркуші
+        const result = bannedWordsState.checkResults?.find(
+            r => r.id === productId && r.sheetName === newSheet
+        );
+
+        if (!result) {
+            console.warn(`⚠️ Результат для товару ${productId} в аркуші ${newSheet} не знайдено`);
+            showToast(`Дані для аркуша "${newSheet}" не знайдено`, 'warning');
+            return;
+        }
+
+        const rowIndex = parseInt(result.rowIndex);
+        console.log(`📥 Завантаження даних з аркуша "${newSheet}", рядок ${rowIndex}`);
+
+        const productData = await loadProductFullData(newSheet, rowIndex);
+        currentProductData = productData;
+
+        // Зберегти в кеш
+        allSheetsData[newSheet] = { productData, loaded: true, rowIndex };
+
+        // Відрендерити
+        renderProductModal(productData, availableColumns);
+
+        console.log(`✅ Дані для аркуша "${newSheet}" завантажені`);
+
+    } catch (error) {
+        console.error(`❌ Помилка завантаження даних аркуша "${newSheet}":`, error);
+        showToast(`Помилка завантаження даних з аркуша "${newSheet}"`, 'error');
     }
 }
 
@@ -501,4 +672,170 @@ function handleCopyText() {
             console.error('❌ Помилка копіювання:', err);
             showToast('Помилка копіювання тексту', 'error');
         });
+}
+
+// ============================================
+// ІНТЕРАКТИВНІ TOOLTIP ДЛЯ ЗАБОРОНЕНИХ СЛІВ
+// ============================================
+
+// Глобальний tooltip елемент
+let tooltipElement = null;
+
+/**
+ * Створити або отримати tooltip елемент
+ */
+function getTooltipElement() {
+    if (!tooltipElement) {
+        tooltipElement = document.createElement('div');
+        tooltipElement.className = 'banned-word-tooltip';
+        tooltipElement.style.cssText = `
+            position: fixed;
+            z-index: 10000;
+            background: var(--color-surface-c-highest);
+            color: var(--color-on-surface);
+            border: 1px solid var(--color-outline);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            max-width: 350px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        `;
+        document.body.appendChild(tooltipElement);
+    }
+    return tooltipElement;
+}
+
+/**
+ * Знайти інформацію про заборонене слово за його текстом
+ * @param {string} wordText - Текст забороненого слова
+ * @returns {Object|null} - Об'єкт з інформацією про слово або null
+ */
+function findBannedWordInfo(wordText) {
+    if (!wordText || !bannedWordsState.bannedWords) return null;
+
+    const searchWord = wordText.toLowerCase().trim();
+
+    // Шукаємо слово в усіх записах bannedWords
+    for (const bannedWord of bannedWordsState.bannedWords) {
+        // Перевірити в українських словах
+        if (bannedWord.name_uk_array?.some(w => w === searchWord)) {
+            return bannedWord;
+        }
+        // Перевірити в російських словах
+        if (bannedWord.name_ru_array?.some(w => w === searchWord)) {
+            return bannedWord;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Показати tooltip для забороненого слова
+ * @param {HTMLElement} targetElement - Елемент над яким показати tooltip
+ * @param {Object} wordInfo - Інформація про заборонене слово
+ */
+function showBannedWordTooltip(targetElement, wordInfo) {
+    const tooltip = getTooltipElement();
+
+    // Сформувати контент tooltip
+    let content = '';
+
+    // Назва групи
+    if (wordInfo.group_name_ua) {
+        content += `<div style="font-weight: 600; margin-bottom: 8px; color: var(--color-error);">${wordInfo.group_name_ua}</div>`;
+    }
+
+    // Українські слова
+    if (wordInfo.name_uk && wordInfo.name_uk.trim()) {
+        content += `<div style="margin-bottom: 4px;"><strong>UA:</strong> ${wordInfo.name_uk}</div>`;
+    }
+
+    // Російські слова
+    if (wordInfo.name_ru && wordInfo.name_ru.trim()) {
+        content += `<div style="margin-bottom: 4px;"><strong>RU:</strong> ${wordInfo.name_ru}</div>`;
+    }
+
+    // Пояснення
+    if (wordInfo.explain && wordInfo.explain.trim()) {
+        content += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-outline-v);"><em>${wordInfo.explain}</em></div>`;
+    }
+
+    // Підказка
+    if (wordInfo.hint && wordInfo.hint.trim()) {
+        content += `<div style="margin-top: 4px; color: var(--color-success);"><strong>Підказка:</strong> ${wordInfo.hint}</div>`;
+    }
+
+    tooltip.innerHTML = content;
+
+    // Позиціонувати tooltip
+    const rect = targetElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    let top = rect.bottom + 8;
+    let left = rect.left;
+
+    // Перевірити чи tooltip не виходить за межі екрану
+    if (left + 350 > window.innerWidth) {
+        left = window.innerWidth - 360;
+    }
+    if (top + 200 > window.innerHeight) {
+        top = rect.top - 200 - 8;
+    }
+
+    tooltip.style.top = `${top}px`;
+    tooltip.style.left = `${left}px`;
+    tooltip.style.opacity = '1';
+}
+
+/**
+ * Приховати tooltip
+ */
+function hideBannedWordTooltip() {
+    const tooltip = getTooltipElement();
+    tooltip.style.opacity = '0';
+}
+
+/**
+ * Ініціалізувати tooltip обробники для підсвічених слів та чіпів
+ */
+function initBannedWordTooltips() {
+    // Обробники для highlight-banned-word елементів
+    const highlightedWords = document.querySelectorAll('.text-viewer .highlight-banned-word');
+    highlightedWords.forEach(element => {
+        element.addEventListener('mouseenter', (e) => {
+            const wordText = e.target.textContent;
+            const wordInfo = findBannedWordInfo(wordText);
+            if (wordInfo) {
+                showBannedWordTooltip(e.target, wordInfo);
+            }
+        });
+
+        element.addEventListener('mouseleave', () => {
+            hideBannedWordTooltip();
+        });
+    });
+
+    // Обробники для chip-error елементів (статистика)
+    const chipErrors = document.querySelectorAll('#product-modal-banned-chips .chip-error');
+    chipErrors.forEach(element => {
+        element.addEventListener('mouseenter', (e) => {
+            // Витягти слово з тексту чіпа (формат: "слово (N)")
+            const chipText = e.target.textContent;
+            const wordText = chipText.replace(/\s*\(\d+\)\s*$/, '').trim();
+            const wordInfo = findBannedWordInfo(wordText);
+            if (wordInfo) {
+                showBannedWordTooltip(e.target, wordInfo);
+            }
+        });
+
+        element.addEventListener('mouseleave', () => {
+            hideBannedWordTooltip();
+        });
+    });
+
+    console.log(`✅ Tooltip ініціалізовано для ${highlightedWords.length} слів та ${chipErrors.length} чіпів`);
 }

@@ -37,10 +37,15 @@
                 <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v);">ID: ...</p>
             </div>
 
-            <!-- Таби для вибору поля та кнопка копіювання -->
+            <!-- Таби аркушів (якщо обрано > 1 аркуша) -->
+            <div class="filter-pills-container u-hidden" id="product-sheet-pills" style="margin-bottom: 12px;">
+                <!-- Піли аркушів будуть динамічно створені -->
+            </div>
+
+            <!-- Таби для вибору колонки та кнопка копіювання -->
             <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
                 <div class="filter-pills-container" id="product-text-field-pills" style="flex: 1;">
-                    <!-- Піли будуть динамічно створені на основі перевірених колонок -->
+                    <!-- Піли колонок будуть динамічно створені на основі перевірених колонок -->
                 </div>
                 <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
                     <span class="material-symbols-outlined">content_copy</span>

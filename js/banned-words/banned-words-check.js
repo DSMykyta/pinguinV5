@@ -422,12 +422,20 @@ export async function renderCheckResults(sheetName, bannedWord) {
             // Імпортувати модал (динамічно)
             const { showProductTextModal } = await import('./banned-words-product-modal.js');
 
+            // Отримати інформацію про джерело з результатів
+            const result = bannedWordsState.checkResults.find(r => r.id === productId);
+            const sheetName = result?.sheetName || bannedWordsState.selectedSheet;
+            const columnName = result?.columnName || bannedWordsState.selectedColumn;
+
             // Відкрити модал з повним текстом товару
             await showProductTextModal(
                 productId,
-                bannedWordsState.selectedSheet,
+                sheetName,
                 parseInt(rowIndex),
-                bannedWordsState.selectedColumn
+                columnName,
+                // Передаємо всі обрані аркуші та колонки для табів
+                bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet],
+                bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn]
             );
         });
     });

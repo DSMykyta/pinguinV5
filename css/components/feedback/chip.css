@@ -108,6 +108,7 @@
     background: var(--color-error-c);
     color: var(--color-error);
     border-color: var(--color-error);
+    cursor: help;
 }
 
 .chip-error:hover {
@@ -213,7 +214,45 @@
 
 
 /* ============================================ */
-/* FILTER PILLS - DEPRECATED */
+/* FILTER PILLS */
 /* ============================================ */
-/* Використовується nav-icon з layout-section-navigator.css */
+/* Простий компонент для фільтрів/табів */
+
+.filter-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--color-outline-v);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-on-surface);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.filter-pill:hover {
+    background: var(--color-surface-c-high);
+    border-color: var(--color-outline);
+}
+
+.filter-pill.active {
+    background: var(--color-main);
+    color: var(--color-on-main);
+    border-color: var(--color-main);
+}
+
+.filter-pill .material-symbols-outlined {
+    font-size: 16px;
+}
 
