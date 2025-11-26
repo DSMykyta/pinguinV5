@@ -7,11 +7,14 @@
         <div class="modal-header">
             <h2 class="modal-title">Перегляд тексту товару</h2>
             <div class="modal-header-actions">
-                <button id="product-modal-mark-checked" class="segment" aria-label="Позначити перевіреним">
-                    <div class="state-layer">
-                        <span class="label">Перевірено</span>
-                    </div>
-                </button>
+                <span class="badge badge-neutral clickable"
+                      id="product-modal-status-badge"
+                      data-badge-id=""
+                      data-status="FALSE"
+                      style="cursor: pointer;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
+                    Ні
+                </span>
                 <button class="segment modal-close-btn" aria-label="Закрити">
                     <div class="state-layer">
                         <span class="material-symbols-outlined">close</span>

@@ -52,7 +52,16 @@ export async function loadAside() {
 }
 
 /**
- * Обробники для aside панелі перевірки
+ * Отримати вибрані значення з мультиселекту
+ * @param {HTMLSelectElement} selectEl - Елемент select
+ * @returns {string[]} - Масив вибраних значень
+ */
+function getSelectedValues(selectEl) {
+    return Array.from(selectEl.selectedOptions).map(opt => opt.value).filter(v => v);
+}
+
+/**
+ * Обробники для aside панелі перевірки (МУЛЬТИСЕЛЕКТ)
  */
 export function initCheckPanelEvents() {
     const sheetSelect = document.getElementById('aside-select-sheet');
@@ -60,46 +69,178 @@ export function initCheckPanelEvents() {
     const columnSelect = document.getElementById('aside-select-column');
     const checkButton = document.getElementById('aside-btn-check');
 
+    // Чекбокси "Обрати все"
+    const selectAllSheets = document.getElementById('select-all-sheets');
+    const selectAllWords = document.getElementById('select-all-words');
+    const selectAllColumns = document.getElementById('select-all-columns');
+
     if (!sheetSelect || !wordSelect || !columnSelect || !checkButton) return;
 
     // Уникнути дублювання обробників
     if (sheetSelect.dataset.eventsInit) return;
     sheetSelect.dataset.eventsInit = 'true';
 
+    /**
+     * Оновити стан кнопки перевірки та state
+     */
     const updateCheckButton = () => {
-        const sheetSelected = sheetSelect.value !== '';
-        const wordSelected = wordSelect.value !== '';
-        const columnSelected = columnSelect.value !== '';
+        const selectedSheets = getSelectedValues(sheetSelect);
+        const selectedWords = getSelectedValues(wordSelect);
+        const selectedColumns = getSelectedValues(columnSelect);
 
-        bannedWordsState.selectedSheet = sheetSelect.value || null;
-        bannedWordsState.selectedWord = wordSelect.value || null;
-        bannedWordsState.selectedColumn = columnSelect.value || null;
+        // Оновити state (тепер масиви)
+        bannedWordsState.selectedSheets = selectedSheets;
+        bannedWordsState.selectedWords = selectedWords;
+        bannedWordsState.selectedColumns = selectedColumns;
 
-        checkButton.disabled = !(sheetSelected && wordSelected && columnSelected);
+        // Для зворотної сумісності зберігаємо перше значення
+        bannedWordsState.selectedSheet = selectedSheets[0] || null;
+        bannedWordsState.selectedWord = selectedWords[0] || null;
+        bannedWordsState.selectedColumn = selectedColumns[0] || null;
+
+        // Кнопка активна якщо є хоча б по одному вибраному елементу
+        checkButton.disabled = !(selectedSheets.length > 0 && selectedWords.length > 0 && selectedColumns.length > 0);
+
+        // Оновити стан чекбоксів "Обрати все"
+        if (selectAllSheets) {
+            selectAllSheets.checked = selectedSheets.length === sheetSelect.options.length;
+        }
+        if (selectAllWords) {
+            selectAllWords.checked = selectedWords.length === wordSelect.options.length;
+        }
+        if (selectAllColumns) {
+            selectAllColumns.checked = selectedColumns.length === columnSelect.options.length;
+        }
     };
 
-    // При виборі аркуша - завантажити поля динамічно
+    /**
+     * Обрати/зняти всі опції в select
+     */
+    const toggleSelectAll = (selectEl, checked) => {
+        Array.from(selectEl.options).forEach(opt => {
+            if (opt.value) opt.selected = checked;
+        });
+        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+
+        // Оновити custom select UI
+        if (selectEl.customSelect) {
+            selectEl.customSelect._updateSelection();
+        }
+    };
+
+    // Обробники "Обрати все"
+    if (selectAllSheets) {
+        selectAllSheets.addEventListener('change', async (e) => {
+            toggleSelectAll(sheetSelect, e.target.checked);
+            // Завантажити колонки для всіх обраних аркушів
+            await loadColumnsForSelectedSheets();
+        });
+    }
+
+    if (selectAllWords) {
+        selectAllWords.addEventListener('change', (e) => {
+            toggleSelectAll(wordSelect, e.target.checked);
+        });
+    }
+
+    if (selectAllColumns) {
+        selectAllColumns.addEventListener('change', (e) => {
+            toggleSelectAll(columnSelect, e.target.checked);
+        });
+    }
+
+    // При виборі аркуша - завантажити поля динамічно зі ВСІХ обраних аркушів
     sheetSelect.addEventListener('change', async () => {
         updateCheckButton();
-
-        if (sheetSelect.value) {
-            await loadSheetColumns(sheetSelect.value);
-        } else {
-            columnSelect.innerHTML = '<option value="">-- Оберіть аркуш спочатку --</option>';
-        }
+        await loadColumnsForSelectedSheets();
     });
 
     wordSelect.addEventListener('change', updateCheckButton);
     columnSelect.addEventListener('change', updateCheckButton);
 
     checkButton.addEventListener('click', async () => {
-        if (!bannedWordsState.selectedSheet || !bannedWordsState.selectedWord || !bannedWordsState.selectedColumn) return;
+        const selectedSheets = getSelectedValues(sheetSelect);
+        const selectedWords = getSelectedValues(wordSelect);
+        const selectedColumns = getSelectedValues(columnSelect);
+
+        if (selectedSheets.length === 0 || selectedWords.length === 0 || selectedColumns.length === 0) return;
 
         // Створити новий таб для результатів
         // Таб автоматично завантажить дані при першій активації
         const { createCheckResultsTab } = await import('./banned-words-tabs.js');
         await createCheckResultsTab();
     });
+}
+
+/**
+ * Завантажити колонки для всіх обраних аркушів
+ */
+async function loadColumnsForSelectedSheets() {
+    const sheetSelect = document.getElementById('aside-select-sheet');
+    const columnSelect = document.getElementById('aside-select-column');
+
+    if (!sheetSelect || !columnSelect) return;
+
+    const selectedSheets = getSelectedValues(sheetSelect);
+
+    if (selectedSheets.length === 0) {
+        columnSelect.innerHTML = '';
+        reinitializeCustomSelect(columnSelect);
+        return;
+    }
+
+    try {
+        // Показати loader
+        columnSelect.innerHTML = '';
+        columnSelect.disabled = true;
+
+        // Завантажити заголовки з усіх обраних аркушів
+        const { getSheetHeaders } = await import('./banned-words-data.js');
+
+        // Збираємо всі унікальні колонки з усіх аркушів
+        const allColumnsSet = new Set();
+
+        for (const sheetName of selectedSheets) {
+            const headers = await getSheetHeaders(sheetName);
+            if (headers && headers.length > 0) {
+                // Фільтрувати тільки текстові поля
+                headers.filter(header => {
+                    const h = header.toLowerCase();
+                    return h.includes('description') || h.includes('ukr') || h.includes('ros') || h.includes('text');
+                }).forEach(col => allColumnsSet.add(col));
+            }
+        }
+
+        const textColumns = Array.from(allColumnsSet).sort();
+
+        if (textColumns.length === 0) {
+            columnSelect.innerHTML = '';
+            reinitializeCustomSelect(columnSelect);
+            columnSelect.disabled = false;
+            return;
+        }
+
+        // Заповнити select
+        columnSelect.innerHTML = '';
+        textColumns.forEach(column => {
+            const option = document.createElement('option');
+            option.value = column;
+            option.textContent = column;
+            columnSelect.appendChild(option);
+        });
+
+        // Reinit custom select після заповнення
+        reinitializeCustomSelect(columnSelect);
+
+        columnSelect.disabled = false;
+
+        console.log(`✅ Завантажено ${textColumns.length} унікальних текстових колонок з ${selectedSheets.length} аркушів`);
+    } catch (error) {
+        console.error('❌ Помилка завантаження колонок:', error);
+        columnSelect.innerHTML = '';
+        reinitializeCustomSelect(columnSelect);
+        columnSelect.disabled = false;
+    }
 }
 
 /**

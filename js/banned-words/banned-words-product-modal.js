@@ -1,7 +1,7 @@
 // js/banned-words/banned-words-product-modal.js
 // Модальне вікно для перегляду повного тексту товару з підсвіченими забороненими словами
 
-import { bannedWordsState } from './banned-words-init.js';
+import { bannedWordsState, invalidateCheckCache } from './banned-words-init.js';
 import { loadProductFullData, updateProductStatus } from './banned-words-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { highlightText, checkTextForBannedWords } from '../utils/text-utils.js';
@@ -74,7 +74,10 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         // 4. Відрендерити модал з даними
         renderProductModal(productData, columnName);
 
-        // 5. Ініціалізувати обробники для динамічних елементів
+        // 5. Встановити статус badge на основі даних з checkResults
+        updateModalBadge(productId);
+
+        // 6. Ініціалізувати обробники для динамічних елементів
         initModalHandlers();
 
     } catch (error) {
@@ -303,6 +306,55 @@ function updateModalStats(fieldName) {
 }
 
 /**
+ * Оновити badge статусу в модалі на основі даних з checkResults
+ * @param {string} productId - ID товару
+ */
+function updateModalBadge(productId) {
+    const badge = document.getElementById('product-modal-status-badge');
+    if (!badge) return;
+
+    // Знайти результат перевірки для цього товару
+    const result = bannedWordsState.checkResults?.find(r => r.id === productId);
+    const isChecked = result?.cheaked_line === 'TRUE' || result?.cheaked_line === true;
+
+    // Встановити data-атрибути
+    badge.dataset.badgeId = productId;
+    badge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
+
+    // Оновити вигляд badge
+    setBadgeAppearance(badge, isChecked);
+}
+
+/**
+ * Встановити вигляд badge
+ * @param {HTMLElement} badge - Badge елемент
+ * @param {boolean} isChecked - Чи перевірено
+ */
+function setBadgeAppearance(badge, isChecked) {
+    badge.classList.remove('badge-success', 'badge-neutral');
+    badge.classList.add(isChecked ? 'badge-success' : 'badge-neutral');
+    badge.innerHTML = `
+        <span class="material-symbols-outlined" style="font-size: 16px;">${isChecked ? 'check_circle' : 'cancel'}</span>
+        ${isChecked ? 'Так' : 'Ні'}
+    `;
+}
+
+/**
+ * Синхронізувати badge в таблиці з badge в модалі
+ * @param {string} productId - ID товару
+ * @param {boolean} isChecked - Новий статус
+ */
+function syncTableBadge(productId, isChecked) {
+    // Знайти badge в таблиці по data-badge-id
+    const tableBadge = document.querySelector(`.badge.clickable[data-badge-id="${productId}"]`);
+    if (tableBadge) {
+        tableBadge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
+        setBadgeAppearance(tableBadge, isChecked);
+        console.log(`✅ Badge в таблиці синхронізовано для ${productId}`);
+    }
+}
+
+/**
  * Ініціалізувати обробники подій модалу
  */
 function initModalHandlers() {
@@ -329,10 +381,10 @@ function initModalHandlers() {
         });
     });
 
-    // Кнопка "Позначити перевіреним"
-    const markCheckedBtn = document.getElementById('product-modal-mark-checked');
-    if (markCheckedBtn) {
-        markCheckedBtn.addEventListener('click', handleMarkChecked);
+    // Badge статусу - клік для зміни
+    const statusBadge = document.getElementById('product-modal-status-badge');
+    if (statusBadge) {
+        statusBadge.addEventListener('click', handleModalBadgeClick);
     }
 
     // Кнопка "Копіювати текст"
@@ -343,10 +395,18 @@ function initModalHandlers() {
 }
 
 /**
- * Обробник кнопки "Позначити перевіреним"
+ * Обробник кліку на badge статусу в модалі
+ * Перемикає статус і синхронізує з таблицею
  */
-async function handleMarkChecked() {
-    const productId = document.getElementById('product-modal-product-id').value;
+async function handleModalBadgeClick() {
+    const badge = document.getElementById('product-modal-status-badge');
+    if (!badge) return;
+
+    const productId = badge.dataset.badgeId;
+    const currentStatus = badge.dataset.status;
+    const newStatus = currentStatus === 'TRUE' ? 'FALSE' : 'TRUE';
+    const isChecked = newStatus === 'TRUE';
+
     const sheetName = document.getElementById('product-modal-sheet-name').value;
     const columnNameRaw = document.getElementById('product-modal-column-name').value;
 
@@ -367,27 +427,40 @@ async function handleMarkChecked() {
             columnsArray = [columnNameRaw];
         }
 
-        console.log(`✅ Позначаємо колонки [${columnsArray.join(', ')}] товару ${productId} як перевірені`);
+        console.log(`🔄 Зміна статусу для ${productId}: ${currentStatus} → ${newStatus}`);
 
         // Оновити статус в Google Sheets для всіх перевірених колонок
         for (const columnName of columnsArray) {
-            await updateProductStatus(sheetName, productId, columnName, 'TRUE');
+            await updateProductStatus(sheetName, productId, columnName, newStatus);
         }
 
-        const message = columnsArray.length === 1
-            ? `Колонку "${columnsArray[0]}" позначено як перевірену`
-            : `Колонки ${columnsArray.map(c => `"${c}"`).join(', ')} позначено як перевірені`;
+        // Інвалідувати кеш
+        invalidateCheckCache(
+            bannedWordsState.selectedSheet,
+            bannedWordsState.selectedWord,
+            bannedWordsState.selectedColumn
+        );
 
-        showToast(message, 'success');
+        // Оновити локальний стейт
+        const result = bannedWordsState.checkResults?.find(r => r.id === productId);
+        if (result) {
+            result.cheaked_line = newStatus;
+        }
 
-        // Закрити модал
-        closeModal();
+        // Оновити badge в модалі
+        badge.dataset.status = newStatus;
+        setBadgeAppearance(badge, isChecked);
 
-        // Оновити таблицю (якщо потрібно)
-        // TODO: Додати колбек для оновлення таблиці
+        // Синхронізувати badge в таблиці
+        syncTableBadge(productId, isChecked);
+
+        const statusText = isChecked ? 'перевіреним' : 'неперевіреним';
+        showToast(`Товар позначено як ${statusText}`, 'success');
+
+        console.log('✅ Статус оновлено');
 
     } catch (error) {
-        console.error('❌ Помилка позначення товару:', error);
+        console.error('❌ Помилка оновлення статусу:', error);
         showToast('Помилка при оновленні статусу', 'error');
     }
 }

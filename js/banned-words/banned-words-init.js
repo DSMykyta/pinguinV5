@@ -28,7 +28,11 @@ export const bannedWordsState = {
     // Поточний таб
     currentTab: 'tab-manage',  // tab-manage | sheet-{name}
 
-    // Для табу перевірки
+    // Для табу перевірки (мультиселект)
+    selectedSheets: [],        // Масив обраних аркушів для перевірки
+    selectedWords: [],         // Масив обраних заборонених слів для перевірки
+    selectedColumns: [],       // Масив обраних колонок для перевірки
+    // Зворотна сумісність (перше вибране значення)
     selectedSheet: null,       // Обраний аркуш для перевірки
     selectedWord: null,        // Обране заборонене слово для перевірки
     selectedColumn: null,      // Обрана колонка для перевірки

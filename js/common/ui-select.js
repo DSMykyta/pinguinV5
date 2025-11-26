@@ -47,7 +47,8 @@ export function populateSelect(selectElement, items, options = {}) {
     const {
         placeholder = '-- Оберіть --',
         reinit = true,
-        selectedValue = null
+        selectedValue = null,
+        selectedValues = null // Для мультиселекту - масив значень
     } = options;
 
     // Отримати елемент select
@@ -60,8 +61,13 @@ export function populateSelect(selectElement, items, options = {}) {
         return;
     }
 
-    // Очистити select і додати placeholder
-    selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+    // Очистити select
+    selectEl.innerHTML = '';
+
+    // Додати placeholder тільки для звичайного (не multiple) select
+    if (!selectEl.multiple) {
+        selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+    }
 
     // Додати всі елементи
     items.forEach(item => {
@@ -76,11 +82,16 @@ export function populateSelect(selectElement, items, options = {}) {
             });
         }
 
+        // Для мультиселекту перевірити чи значення в масиві вибраних
+        if (selectEl.multiple && selectedValues && selectedValues.includes(item.value)) {
+            option.selected = true;
+        }
+
         selectEl.appendChild(option);
     });
 
-    // Встановити вибране значення якщо задано
-    if (selectedValue !== null) {
+    // Встановити вибране значення якщо задано (для single select)
+    if (selectedValue !== null && !selectEl.multiple) {
         selectEl.value = selectedValue;
     }
 
