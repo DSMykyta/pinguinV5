@@ -1,28 +1,28 @@
 /* /css/root.css */
 :root {
     /* --- КОЛЬОРИ (Свіжа мінімалістична палітра) --- */
-    --color-main: rgb(242, 51, 13);
+    --color-main: rgb(9, 63, 69);
     --color-on-main: #ffffff;
 
-    --color-main-c: rgba(242, 51, 13, 0.08);
-    --color-on-main-c: rgb(242, 51, 13);
+    --color-main-c: rgba(9, 63, 69, 0.08);
+    --color-on-main-c: rgb(9, 63, 69);
 
-    --color-main-t-1: rgba(242, 51, 13, 0.1);
-    --color-main-t-2: rgba(242, 51, 13, 0.2);
+    --color-main-t-1: rgba(9, 63, 69, 0.1);
+    --color-main-t-2: rgba(9, 63, 69, 0.2);
 
 
-    --color-secondary: rgb(242, 51, 13);
+    --color-secondary: rgb(9, 63, 69);
     --color-on-secondary: #ffffff;
 
-    --color-secondary-c: rgba(242, 51, 13, 0.08);
-    --color-on-secondary-c: rgb(242, 51, 13);
+    --color-secondary-c: rgba(9, 63, 69, 0.08);
+    --color-on-secondary-c: rgb(9, 63, 69);
 
 
-    --color-tertiary: rgb(240, 80, 50);
+    --color-tertiary: rgb(39, 93, 99);
     --color-on-tertiary: #ffffff;
 
-    --color-tertiary-c: rgba(240, 80, 50, 0.08);
-    --color-on-tertiary-c: rgb(240, 80, 50);
+    --color-tertiary-c: rgba(39, 93, 99, 0.08);
+    --color-on-tertiary-c: rgb(39, 93, 99);
 
 
     --color-error: rgb(239, 68, 68);
