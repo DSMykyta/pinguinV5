@@ -29,7 +29,7 @@
     overflow-x: hidden;
     border: 1px solid var(--color-outline-v);
     border-radius: var(--radius-m);
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface-c-low);
 }
 
 /* ============================================ */
@@ -41,7 +41,7 @@
     top: 0;
     z-index: 1;
     display: flex;
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface-c-low);
     font-weight: 500;
     font-size: 14px;
     color: var(--color-on-surface);
@@ -49,6 +49,7 @@
 }
 
 .pseudo-table-header .pseudo-table-cell {
+    background: var(--color-surface);
     padding: 12px 16px;
     font-weight: 500;
 }

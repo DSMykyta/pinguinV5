@@ -42,7 +42,7 @@
 }
 
 .page-btn:hover {
-    background-color: var(--color-surface-c-low);
+    background-color: var(--color-surface-c);
 }
 
 .page-btn.active {
@@ -109,7 +109,7 @@
     white-space: nowrap;
     padding: 12px 24px;
     border-radius: var(--radius-full);
-    background-color: var(--color-secondary-c);
+    background-color: var(--color-tertiary);
     color: var(--color-on-secondary);
     border: none;
     cursor: pointer;

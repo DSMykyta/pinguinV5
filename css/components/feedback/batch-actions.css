@@ -10,7 +10,7 @@
     align-items: center;
     gap: 16px;
     padding: 8px 20px;    
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface-c-low);
     border-radius: var(--radius-full);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -67,11 +67,11 @@
 }
 
 .batch-actions-bar .batch-btn:hover {
-    background: var(--color-secondary-c);
+    background: var(--color-secondary);
 }
 
 .batch-actions-bar .batch-btn:active {
-    background: var(--color-secondary-c-2);
+    background: var(--color-on-secondary-c);
 }
 
 .batch-actions-bar .batch-btn.primary {
@@ -80,11 +80,11 @@
 }
 
 .batch-actions-bar .batch-btn.primary:hover {
-    background: var(--color-secondary-d);
+    background: var(--color-secondary);
 }
 
 .batch-actions-bar .batch-btn.primary:active {
-    background: var(--color-secondary-d-2);
+    background: var(--color-on-secondary-c);
 }
 
 .batch-actions-bar .batch-btn .material-symbols-outlined {
