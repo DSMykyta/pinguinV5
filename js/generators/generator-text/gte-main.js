@@ -20,8 +20,6 @@ function initTextGenerator() {
     initTextReset();
     initValidator();
     initAsideButtons();
-
-    console.log('Генератор тексту успішно ініціалізовано.');
 }
 
 // Реєструємо наш запускач в системі правої панелі

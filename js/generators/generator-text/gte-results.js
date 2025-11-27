@@ -62,24 +62,19 @@ function handleModalOpened(event) {
         if (!contentTarget) return;
 
         let generatedContent = '';
-        let displayAsHtml = false; // Чи відображати як HTML (рендерити), чи як текст
 
         switch (previewType) {
             case 'html':
                 generatedContent = generateTextHtml(textToProcess);
-                displayAsHtml = true;
                 break;
             case 'br':
                 generatedContent = generateTextBr(textToProcess);
-                displayAsHtml = true;
                 break;
             case 'clean':
                 generatedContent = generateTextClean(textToProcess);
-                displayAsHtml = false;
                 break;
             case 'keep-tags':
                 generatedContent = generateTextKeepTags(textToProcess);
-                displayAsHtml = true;
                 break;
         }
 
@@ -93,21 +88,6 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-
-// Очищає HTML від підсвічування (mark теги)
-function cleanHighlights(html) {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-
-    // Видаляємо всі mark теги
-    const marks = tempDiv.querySelectorAll('mark.banned-word-highlight');
-    marks.forEach(mark => {
-        const textNode = document.createTextNode(mark.textContent);
-        mark.parentNode.replaceChild(textNode, mark);
-    });
-
-    return tempDiv.innerHTML;
 }
 
 export function initResultCards() {

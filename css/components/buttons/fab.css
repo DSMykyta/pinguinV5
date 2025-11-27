@@ -8,12 +8,12 @@
     justify-content: center;
     width: 56px;
     height: 56px;
-    background: var(--color-main-c, #b0f1eb);
-    color: var(--color-on-main-c, #00201d);
+    background: var(--color-main-c);
+    color: var(--color-on-main-c);
     border: none;
     border-radius: 16px;
     cursor: pointer;
-    box-shadow: var(--shadow-2, 0px 2px 6px 2px rgba(0, 0, 0, 0.15));
+    box-shadow: var(--shadow-2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
 }
@@ -28,7 +28,7 @@
 }
 
 .fab:hover {
-    box-shadow: var(--shadow-3, 0px 4px 8px 3px rgba(0, 0, 0, 0.15));
+    box-shadow: var(--shadow-3);
     transform: translateY(-2px);
 }
 
@@ -38,7 +38,7 @@
 
 .fab:active {
     transform: translateY(0);
-    box-shadow: var(--shadow-1, 0px 1px 3px 1px rgba(0, 0, 0, 0.15));
+    box-shadow: var(--shadow-1);
 }
 
 .fab:active::before {
@@ -52,8 +52,8 @@
 }
 
 .fab:disabled {
-    background: var(--color-surface-c, #eceeed);
-    color: var(--color-on-surface, #191c1c);
+    background: var(--color-surface-c);
+    color: var(--color-on-surface);
     opacity: 0.38;
     cursor: not-allowed;
     box-shadow: none;

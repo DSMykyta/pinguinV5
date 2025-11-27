@@ -16,10 +16,8 @@ async function initLinksGenerator() {
     initLinksReset(); // Викликаємо без параметрів
     initAsideButtons(); // Ініціалізуємо кнопки в footer aside
 
-    // === ВИКЛИКАЄМО ПРАВИЛЬНИЙ ОНОВЛЮВАЧ ===
-    updateLinksUI(); // Початкове оновлення UI
-
-    console.log('Генератор Посилань ініціалізовано.');
+    // Початкове оновлення UI
+    updateLinksUI();
 }
 
 registerPanelInitializer('aside-links', initLinksGenerator);

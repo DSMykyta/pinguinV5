@@ -32,8 +32,6 @@ export async function fetchData() {
 
         const parsedBrands = Papa.parse(brandsCsv, { header: true, skipEmptyLines: true }).data;
 
-        console.log('[АНАЛІЗ ТАБЛИЦІ БРЕНДІВ]: Ось як виглядає перший рядок:', parsedBrands[0]);
-
         brandsData = parsedBrands.reduce((acc, row) => {
             // Збираємо ВСІ можливі назви бренду
             const nameUk = (row.name_uk || '').trim();
@@ -65,9 +63,7 @@ export async function fetchData() {
             keywords: row.keywords_ru ? row.keywords_ru.split(',').map(k => k.trim()).filter(Boolean) : []
         })).filter(t => t.title);
 
-        console.log('Дані для SEO (бренди і тригери) успішно завантажено.');
-
     } catch (error) {
-        console.error("Помилка при завантаженні SEO-даних:", error);
+        // Помилка завантаження SEO-даних - тихо ігноруємо
     }
 }

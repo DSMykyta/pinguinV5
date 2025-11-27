@@ -83,8 +83,6 @@ export const bannedWordsState = {
  * Головна функція ініціалізації модуля Banned Words
  */
 export function initBannedWords() {
-    console.log('📋 Ініціалізація Banned Words...');
-
     // Ініціалізувати tooltip систему
     initTooltips();
 
@@ -96,7 +94,6 @@ export function initBannedWords() {
 
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
-        console.log('🔐 Подія auth-state-changed:', event.detail);
         if (event.detail.isAuthorized) {
             checkAuthAndLoadData();
         }
@@ -107,11 +104,8 @@ export function initBannedWords() {
  * Перевірити авторизацію та завантажити дані
  */
 async function checkAuthAndLoadData() {
-    console.log('🔐 Перевірка авторизації...');
-
     // Перевіряємо глобальний стан авторизації з custom-auth.js
     if (window.isAuthorized) {
-        console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         // Завантажити ТІЛЬКИ заборонені слова
         const { loadBannedWords } = await import('./banned-words-data.js');
@@ -127,10 +121,6 @@ async function checkAuthAndLoadData() {
         // Відновити збережені таби після перезавантаження
         const { restoreSavedTabs } = await import('./banned-words-tabs.js');
         await restoreSavedTabs();
-
-        console.log('✅ Banned Words готовий до роботи');
-    } else {
-        console.log('⚠️ Користувач не авторизований');
     }
 }
 
@@ -138,8 +128,6 @@ async function checkAuthAndLoadData() {
  * Ініціалізація UI без даних (показати aside, порожні таблиці)
  */
 async function initializeUIWithoutData() {
-    console.log('🎨 Ініціалізація UI без даних...');
-
     // 1. Завантажити aside
     await loadAside();
 
@@ -162,16 +150,12 @@ async function initializeUIWithoutData() {
             showMessage: true
         });
     }
-
-    console.log('✅ UI ініціалізовано без даних');
 }
 
 /**
  * Оновити UI після завантаження даних
  */
 async function updateUIWithData() {
-    console.log('🎨 Оновлення UI з даними...');
-
     // 1. Показати панелі з даними (заповнює dropdowns)
     showAsidePanels();
 
@@ -198,8 +182,6 @@ async function updateUIWithData() {
     initManageTabEvents();
     initRefreshButton();
     initCheckPanelEvents();
-
-    console.log('✅ UI оновлено з даними');
 }
 
 /**
@@ -220,7 +202,6 @@ export function getCachedCheckResults(sheetName, wordId, columnName) {
     const cached = bannedWordsState.checkCache[cacheKey];
 
     if (!cached) {
-        console.log('📦 Кеш не знайдено для:', cacheKey);
         return null;
     }
 
@@ -228,12 +209,10 @@ export function getCachedCheckResults(sheetName, wordId, columnName) {
     const age = now - cached.timestamp;
 
     if (age > bannedWordsState.cacheTTL) {
-        console.log(`⏰ Кеш застарів (${Math.round(age / 1000)}с), видаляємо:`, cacheKey);
         delete bannedWordsState.checkCache[cacheKey];
         return null;
     }
 
-    console.log(`✅ Використовуємо кеш (вік: ${Math.round(age / 1000)}с):`, cacheKey);
     return cached.data;
 }
 
@@ -251,8 +230,6 @@ export function setCachedCheckResults(sheetName, wordId, columnName, results) {
         data: results,
         timestamp: Date.now()
     };
-
-    console.log(`💾 Результати збережені в кеш:`, cacheKey, `(${results.length} результатів)`);
 }
 
 /**
@@ -266,7 +243,6 @@ export function invalidateCheckCache(sheetName, wordId, columnName) {
 
     if (bannedWordsState.checkCache[cacheKey]) {
         delete bannedWordsState.checkCache[cacheKey];
-        console.log(`🗑️ Кеш інвалідовано:`, cacheKey);
     }
 }
 
@@ -274,7 +250,5 @@ export function invalidateCheckCache(sheetName, wordId, columnName) {
  * Очистити весь кеш перевірок
  */
 export function clearAllCheckCache() {
-    const count = Object.keys(bannedWordsState.checkCache).length;
     bannedWordsState.checkCache = {};
-    console.log(`🗑️ Весь кеш очищено (${count} записів)`);
 }

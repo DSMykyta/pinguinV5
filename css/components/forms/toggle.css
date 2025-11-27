@@ -22,8 +22,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--surface-variant);
-    border: 2px solid var(--outline);
+    background-color: var(--color-surface-c);
+    border: 2px solid var(--color-outline);
     transition: background-color 0.3s ease, border-color 0.3s ease;
     border-radius: 12px;
 }
@@ -35,19 +35,19 @@
     width: 16px;
     left: 2px;
     bottom: 2px;
-    background-color: var(--outline);
+    background-color: var(--color-outline);
     transition: transform 0.3s ease, background-color 0.3s ease;
     border-radius: 50%;
 }
 
 .toggle-switch input[type="checkbox"]:checked + .slider {
-    background-color: var(--primary);
-    border-color: var(--primary);
+    background-color: var(--color-main);
+    border-color: var(--color-main);
 }
 
 .toggle-switch input[type="checkbox"]:checked + .slider:before {
     transform: translateX(24px);
-    background-color: var(--on-primary);
+    background-color: var(--color-on-main);
 }
 
 .toggle-switch input[type="checkbox"]:disabled + .slider {
@@ -56,7 +56,7 @@
 }
 
 .toggle-switch input[type="checkbox"]:focus + .slider {
-    box-shadow: 0 0 0 2px var(--primary-container);
+    box-shadow: 0 0 0 2px var(--color-main-c);
 }
 
 /* Toggle with labels (segmented style) */
@@ -81,12 +81,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 1px solid var(--outline);
+    border: 1px solid var(--color-outline);
     border-radius: 20px;
     overflow: hidden;
     display: flex;
     align-items: center;
-    background-color: var(--surface);
+    background-color: var(--color-surface);
 }
 
 .toggle-switch-segmented .slider:before {
@@ -95,7 +95,7 @@
     height: 100%;
     width: 50%;
     left: 0;
-    background-color: var(--secondary);
+    background-color: var(--color-secondary);
     transition: transform 0.3s ease;
     z-index: 1;
     border-radius: 20px;
@@ -119,19 +119,19 @@
 }
 
 .toggle-switch-segmented .text-off {
-    color: var(--on-surface);
+    color: var(--color-on-surface);
 }
 
 .toggle-switch-segmented .text-on {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 .toggle-switch-segmented input[type="checkbox"]:checked + .slider .text-off {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 .toggle-switch-segmented input[type="checkbox"]:checked + .slider .text-on {
-    color: var(--on-secondary);
+    color: var(--color-on-secondary);
 }
 
 /* Form group with toggle */
