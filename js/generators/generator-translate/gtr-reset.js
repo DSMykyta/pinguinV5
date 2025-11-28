@@ -15,7 +15,6 @@ export function initTranslateReset() {
             return;
         }
 
-        console.log('Оновлення секції перекладу (через заміну iframe)...');
         const icon = reloadBtn.querySelector('span'); // Знаходимо іконку
 
         // === Анімація СТАРТ: Додаємо клас ===
@@ -29,8 +28,6 @@ export function initTranslateReset() {
             let cleanSrc = initialSrc.split('&_=')[0].split('?_=')[0];
             const separator = cleanSrc.includes('?') ? '&' : '?';
             const newSrc = `${cleanSrc}${separator}_=${Date.now()}`;
-
-            console.log('Створення нового iframe з src:', newSrc);
 
             const newIframe = document.createElement('iframe');
             newIframe.style.cssText = oldIframe.style.cssText;
@@ -51,8 +48,7 @@ export function initTranslateReset() {
 
             // Слухаємо 'load' на НОВОМУ iframe
             newIframe.onload = () => {
-                console.log('Новий iframe перекладу успішно завантажено.');
-                stopAnimation(); // Зупиняємо анімацію
+                stopAnimation();
                 newIframe.onload = null;
             };
 

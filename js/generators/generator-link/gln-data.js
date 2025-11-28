@@ -23,8 +23,6 @@ export async function fetchLinksData() {
         const csvText = await response.text();
         const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
-        console.log('[АНАЛІЗ ТАБЛИЦІ ПОСИЛАНЬ]: Ось як виглядає перший рядок:', parsedData[0]);
-
         // === ВИПРАВЛЕННЯ: Використовуємо ПРАВИЛЬНІ назви колонок ===
         linksData = parsedData
             .filter(row => row.name_uk && row.brand_site_link) // Фільтруємо за name_uk та brand_site_link
@@ -36,10 +34,8 @@ export async function fetchLinksData() {
         // ========================================================
 
         // Перевіряємо, чи щось завантажилось
-        if (linksData.length > 0) {
-            console.log('[ПЕРЕВІРКА]: Перше оброблене посилання:', linksData[0]);
-        } else {
-            console.warn('[ПОПЕРЕДЖЕННЯ]: Список посилань порожній після обробки!');
+        if (linksData.length === 0) {
+            console.warn('[gln-data] Список посилань порожній після обробки');
         }
 
 
@@ -51,8 +47,6 @@ export async function fetchLinksData() {
             }
             return acc;
         }, {});
-
-        console.log('Дані для Посилань завантажено та оброблено.');
 
     } catch (error) {
         console.error('Помилка при завантаженні даних Посилань:', error);

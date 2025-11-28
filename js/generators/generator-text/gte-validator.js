@@ -81,7 +81,6 @@ async function fetchBannedWords() {
         
         // ОПТИМІЗАЦІЯ: Сортуємо унікальний список за алфавітом ОДИН РАЗ тут для відображення в модальному вікні
         bannedWords = [...new Set(wordsFromSheet)].sort((a, b) => a.localeCompare(b));
-        console.log(`[Validator] Успішно завантажено ${bannedWords.length} унікальних слів.`);
 
     } catch (error) {
         console.error("[Validator] Помилка завантаження:", error.message);
@@ -263,5 +262,4 @@ export async function initValidator() {
     document.addEventListener('modal-opened', handleModalOpened);
 
     validateText();
-    console.log('[Validator] Валідатор ініціалізовано.');
 }

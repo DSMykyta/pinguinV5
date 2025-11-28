@@ -270,9 +270,9 @@ box-shadow: var(--shadow-3, 0px 4px 8px...);
 3. ~~Refactor ui-tooltip.js~~ ✅ (не потрібно - одиничний tooltip для курсора є правильним дизайном)
 
 ### Пріоритет 3 - Планове покращення
-1. Видалити всі залишкові console.log (596 в 83 файлах - потребує окремої сесії)
-2. Додати responsive CSS
-3. Консолідувати анімації refresh
+1. ~~Консолідувати анімації refresh~~ ✅ (видалено дублікат @keyframes spin з loading.css)
+2. Видалено 22+ console.log з generators/ (залишок: 23 - переважно console.error для помилок)
+3. Додати responsive CSS (потребує окремої сесії)
 
 ### Пріоритет 4 - Технічний борг
 1. ~~Уніфікувати naming conventions (chip-container vs tulip-container)~~ ✅ (видалено невикористаний .tulip-container)
@@ -314,6 +314,8 @@ css/
 - [x] Stub функція showConfirmCloseModal (реалізовано з ui-modal-confirm.js)
 - [x] Event listener cleanup в search-clear.js (додано збереження handlers)
 - [x] Дублювання regex в text-utils.js (винесено в helper функції)
+- [x] Консолідовано анімації refresh (видалено дублікат @keyframes spin)
+- [x] Видалено 22+ console.log з generators/ (gt-magic-parser, gte-validator, gtr-reset, gln-reset, gse-reset, gln-data)
 - [ ] Responsive CSS (потребує додавання)
 
 ---

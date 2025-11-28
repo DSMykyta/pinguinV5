@@ -12,7 +12,6 @@ export function initLinksReset() {
     if (!reloadBtn) return;
 
     reloadBtn.addEventListener('click', async () => {
-        console.log('Оновлення секції посилань...');
         const icon = reloadBtn.querySelector('span');
 
         // --- Анімація СТАРТ ---
@@ -26,8 +25,6 @@ export function initLinksReset() {
             renderLinkButtons(); // Перемальовуємо кнопки
             updateLinksUI(); // Оновлюємо UI
 
-        } catch (error) {
-            console.error("Помилка під час перезавантаження посилань:", error);
         } finally {
             // --- Анімація СТОП (після завершення) ---
             reloadBtn.disabled = false;

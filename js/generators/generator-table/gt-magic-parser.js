@@ -17,7 +17,6 @@ import { handleInputTypeSwitch } from './gt-row-renderer.js';
 export async function processAndFillInputs(text) {
     if (!text) return;
     const entries = parseText(text);
-    console.log('📋 Оброблені записи:', entries);
     const dom = getTableDOM();
 
     for (let i = 0; i < entries.length; i++) {
@@ -35,9 +34,7 @@ export async function processAndFillInputs(text) {
 
         // Якщо це заголовок секції - перевіряємо чи вже не існує такого заголовка
         if (entry.isHeader) {
-            console.log('🔍 Перевірка заголовка:', entry.left);
             const existingRows = dom.rowsContainer.querySelectorAll('.inputs-bloc');
-            console.log('📊 Існуючих рядків:', existingRows.length);
 
             // Шукаємо ПЕРШИЙ заголовок th-strong (це може бути не останній рядок!)
             const firstHeader = Array.from(existingRows).find(row =>
@@ -47,17 +44,13 @@ export async function processAndFillInputs(text) {
             if (firstHeader) {
                 const firstLeftInput = firstHeader.querySelector('.input-left');
                 const firstRightInput = firstHeader.querySelector('.input-right');
-                console.log('📝 Перший заголовок містить:', firstLeftInput.value);
 
                 // Перевіряємо чи це той самий заголовок (Пищевая ценность = Харчова цінність)
                 // АБО якщо перший рядок порожній (початковий стан)
                 const isEmptyHeader = !firstLeftInput.value.trim();
                 const isSameHeaderValue = isSameHeader(firstLeftInput.value, entry.left);
 
-                console.log('🧪 isEmptyHeader:', isEmptyHeader, 'isSameHeaderValue:', isSameHeaderValue);
-
                 if (isEmptyHeader || isSameHeaderValue) {
-                    console.log('✅ Оновлюємо існуючий заголовок');
                     // Оновлюємо текст заголовка на поточну мову
                     firstLeftInput.value = entry.left;
                     firstRightInput.value = '';
@@ -76,11 +69,7 @@ export async function processAndFillInputs(text) {
                         }
                     }
                     continue; // Пропускаємо створення нового рядка
-                } else {
-                    console.log('⚠️ Заголовок не співпадає, створюємо новий');
                 }
-            } else {
-                console.log('⚠️ Не знайдено жодного заголовка');
             }
         }
 
@@ -96,7 +85,6 @@ export async function processAndFillInputs(text) {
 
         // Додаємо клас single (одна колонка) та перемикаємо на textarea
         if (entry.isSingle) {
-            console.log('🔧 Застосовую single до рядка:', entry.left);
             newRow.classList.add(ROW_CLASSES.SINGLE);
             const singleBtn = newRow.querySelector(`[data-class="${ROW_CLASSES.SINGLE}"]`);
             singleBtn?.classList.add('active');
@@ -106,9 +94,6 @@ export async function processAndFillInputs(text) {
             if (fieldRadio) {
                 fieldRadio.checked = true;
                 handleInputTypeSwitch(newRow, 'field');
-                console.log('✅ Single застосовано до:', entry.left);
-            } else {
-                console.warn('⚠️ fieldRadio не знайдено для:', entry.left);
             }
         }
 

@@ -12,7 +12,6 @@ export function initResetButton(onResetCallback) {
     if (!reloadBtn) return;
 
     reloadBtn.addEventListener('click', async () => {
-        console.log('Очищення SEO-секції...');
         const dom = getSeoDOM();
         const icon = reloadBtn.querySelector('span');
 
