@@ -19,11 +19,15 @@ let currentAbortController = null;
  * @param {string} columnName - Назва колонки (або перша з обраних) - для зворотної сумісності
  */
 export async function performCheck(sheetName, wordId, columnName) {
-    const { selectedSheet, selectedWord, selectedColumn, selectedSheets, selectedColumns } = bannedWordsState;
+    const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
+
+    // Отримати масиви з fallback на одиничні значення
+    const selectedSheets = bannedWordsState.selectedSheets || [selectedSheet || sheetName];
+    const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn || columnName];
 
     // Розрахувати tabId так само як в createCheckResultsTab
-    const sheetsKey = (selectedSheets || [selectedSheet]).sort().join('-');
-    const columnsKey = (selectedColumns || [selectedColumn]).sort().join('-');
+    const sheetsKey = selectedSheets.sort().join('-');
+    const columnsKey = selectedColumns.sort().join('-');
     const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
 
     const container = document.getElementById(`check-results-${tabId}`);
@@ -34,10 +38,6 @@ export async function performCheck(sheetName, wordId, columnName) {
         showToast('Помилка: контейнер для результатів не знайдено', 'error');
         return;
     }
-
-    // Отримати ВСІ обрані аркуші та колонки
-    const selectedSheets = bannedWordsState.selectedSheets || [sheetName];
-    const selectedColumns = bannedWordsState.selectedColumns || [columnName];
 
     // Показати loader з прогресом
     const loader = showLoader(container, {
