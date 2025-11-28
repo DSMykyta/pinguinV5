@@ -34,7 +34,6 @@ async function copyFieldToClipboard(inputElement, fieldName) {
         showToast(`${fieldName} скопійовано`, 'success', 2000);
 
     } catch (err) {
-        console.error('Помилка копіювання:', err);
         showToast('Помилка копіювання', 'error');
     }
 }
@@ -71,6 +70,4 @@ export function initCopyListeners() {
             });
         }
     });
-
-    console.log('✅ Ініціалізовано копіювання для SEO полів');
 }

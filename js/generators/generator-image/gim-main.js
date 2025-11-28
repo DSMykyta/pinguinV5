@@ -8,8 +8,6 @@ async function initImageToolGenerator() {
 
     // Ініціалізація логіки
     initImageToolLogic();
-
-    console.log('✅ Генератор зображень успішно ініціалізовано.');
 }
 
 // Реєструємо наш запускач

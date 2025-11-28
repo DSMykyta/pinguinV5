@@ -12,8 +12,7 @@ body.is-modal-open {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(29, 27, 32, 0.5);
-    /* Трохи змінив колір для кращого ефекту */
+    background-color: var(--color-modal-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -203,7 +202,7 @@ body.is-modal-open {
 /* Вьюер тексту */
 .text-viewer {
     padding: 16px;
-    background: var(--color-surface-c-lowest);
+    background: var(--color-surface);
     border: 1px solid var(--color-outline-v);
     border-radius: var(--radius-m);
     min-height: 300px;

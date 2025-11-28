@@ -27,7 +27,6 @@ function saveSession() {
         });
     });
     localStorage.setItem(SESSION_KEY, JSON.stringify(rowsData));
-    console.log('Сесію збережено.');
 }
 
 export async function loadSession() {
@@ -43,16 +42,14 @@ export async function loadSession() {
         newRow.className = '';
         data.classes.forEach(cls => newRow.classList.add(cls));
     }
-    console.log('Сесію відновлено.');
     return true;
 }
 
 /**
  * Повністю видаляє збережену сесію з localStorage.
  */
-export function clearSession() { // <-- ОСЬ ФУНКЦІЯ, ЯКОЇ НЕ ВИСТАЧАЛО
+export function clearSession() {
     localStorage.removeItem(SESSION_KEY);
-    console.log('Сесію очищено.');
 }
 
 export const autoSaveSession = debounce(saveSession, 700);

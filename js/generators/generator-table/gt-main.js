@@ -37,7 +37,6 @@ async function initTableGenerator() {
             onEnd: () => autoSaveSession(),
         });
     }
-    console.log('Генератор таблиць успішно ініціалізовано.');
 }
 
 // Реєструємо наш запускач
