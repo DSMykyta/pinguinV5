@@ -259,13 +259,13 @@ box-shadow: var(--shadow-3, 0px 4px 8px...);
 
 ## РЕКОМЕНДАЦІЇ
 
-### Пріоритет 1 - Виправити негайно
-1. Memory leak в avatar-loader.js
-2. Реалізувати showConfirmCloseModal()
-3. Виправити cleanup в search-clear.js
+### Пріоритет 1 - Виправити негайно ✅
+1. ~~Memory leak в avatar-loader.js~~ ✅
+2. ~~Реалізувати showConfirmCloseModal()~~ ✅
+3. ~~Виправити cleanup в search-clear.js~~ ✅
 
 ### Пріоритет 2 - Виправити найближчим часом
-1. Винести дублюючу логіку regex в text-utils.js
+1. ~~Винести дублюючу логіку regex в text-utils.js~~ ✅
 2. Перенести Spreadsheet IDs в конфігурацію
 3. Refactor ui-tooltip.js для підтримки множинних tooltip
 
@@ -275,9 +275,9 @@ box-shadow: var(--shadow-3, 0px 4px 8px...);
 3. Консолідувати анімації refresh
 
 ### Пріоритет 4 - Технічний борг
-1. Уніфікувати naming conventions (chip-container vs tulip-container)
-2. Створити систему spacing (документувати gap values)
-3. Створити систему icon sizing
+1. ~~Уніфікувати naming conventions (chip-container vs tulip-container)~~ ✅ (видалено невикористаний .tulip-container)
+2. ~~Створити систему spacing~~ ✅ (вже використовується 8-point grid: 2, 4, 8, 12, 16, 24px)
+3. ~~Створити систему icon sizing~~ ✅ (16px default, контекстні розміри 18-20px)
 
 ---
 

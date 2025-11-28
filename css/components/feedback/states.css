@@ -22,8 +22,8 @@
  *   <p>Перейдіть на таб щоб завантажити дані</p>
  * </div>
  *
- * <!-- Chip container -->
- * <div class="tulip-container">
+ * <!-- Chip container (див. chip.css) -->
+ * <div class="chip-container">
  *   <span class="chip chip-active">Протеїн</span>
  *   <button class="chip chip-clickable">BCAA</button>
  * </div>
@@ -32,7 +32,6 @@
  * - .warning-text - текст попередження (червоний background)
  * - .loading-state - стан завантаження з іконкою та текстом
  * - .empty-state - порожній стан (для таблиць, списків)
- * - .tulip-container - контейнер для множинних chips
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-error-c, --color-error, --color-on-surface-v)
@@ -112,13 +111,4 @@
     opacity: 0.7;
 }
 
-/* ============================================ */
-/* CHIP/TULIP CONTAINER */
-/* ============================================ */
-
-.tulip-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-}
+/* Примітка: .chip-container визначено в chip.css */
