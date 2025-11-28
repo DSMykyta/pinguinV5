@@ -272,7 +272,7 @@ box-shadow: var(--shadow-3, 0px 4px 8px...);
 ### Пріоритет 3 - Планове покращення
 1. ~~Консолідувати анімації refresh~~ ✅ (видалено дублікат @keyframes spin з loading.css)
 2. Видалено 22+ console.log з generators/ (залишок: 23 - переважно console.error для помилок)
-3. Додати responsive CSS (потребує окремої сесії)
+3. Responsive CSS ⏸️ (потребує дизайн-рішень: 3-панельний лейаут, колапс панелей)
 
 ### Пріоритет 4 - Технічний борг
 1. ~~Уніфікувати naming conventions (chip-container vs tulip-container)~~ ✅ (видалено невикористаний .tulip-container)
@@ -316,7 +316,7 @@ css/
 - [x] Дублювання regex в text-utils.js (винесено в helper функції)
 - [x] Консолідовано анімації refresh (видалено дублікат @keyframes spin)
 - [x] Видалено 22+ console.log з generators/ (gt-magic-parser, gte-validator, gtr-reset, gln-reset, gse-reset, gln-data)
-- [ ] Responsive CSS (потребує додавання)
+- [ ] Responsive CSS (потребує дизайн-рішень для 3-панельного лейауту)
 
 ---
 
