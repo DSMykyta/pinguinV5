@@ -1,6 +1,39 @@
 // js/utils/text-utils.js
 // Утиліти для роботи з текстом
 
+// Константи для word boundaries (кирилиця + латиниця)
+const WORD_BOUNDARY_CHARS_LOWER = 'а-яїієґёa-z';
+const WORD_BOUNDARY_CHARS_ALL = 'а-яїієґёa-zА-ЯЇІЄҐЁA-Z';
+
+/**
+ * Створити regex для пошуку слова з word boundaries (не захоплює boundaries)
+ * @param {string} escapedWord - Екранований термін для пошуку
+ * @param {string} flags - Прапорці regex (за замовчуванням 'gi')
+ * @returns {RegExp} Регулярний вираз
+ */
+function createWordBoundaryRegex(escapedWord, flags = 'gi') {
+    return new RegExp(`(?<![${WORD_BOUNDARY_CHARS_LOWER}])${escapedWord}(?![${WORD_BOUNDARY_CHARS_LOWER}])`, flags);
+}
+
+/**
+ * Створити regex для пошуку слова з word boundaries (захоплює boundaries для заміни)
+ * @param {string} escapedWord - Екранований термін для пошуку
+ * @param {string} flags - Прапорці regex (за замовчуванням 'gi')
+ * @returns {RegExp} Регулярний вираз з групами захоплення $1 (prefix), $2 (word), $3 (suffix)
+ */
+function createWordBoundaryRegexWithCapture(escapedWord, flags = 'gi') {
+    return new RegExp(`(^|[^${WORD_BOUNDARY_CHARS_ALL}])(${escapedWord})($|[^${WORD_BOUNDARY_CHARS_ALL}])`, flags);
+}
+
+/**
+ * Екранувати спецсимволи для regex
+ * @param {string} str - Рядок для екранування
+ * @returns {string} Екранований рядок
+ */
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * Екранувати HTML символи для безпечного відображення
  * @param {string|number} text - Текст для екранування
@@ -54,10 +87,8 @@ export function checkTextForBannedWords(text, bannedWords) {
 
     // Рахуємо кожне слово окремо (надійніше ніж один regex)
     for (const word of uniqueWords) {
-        // Екрануємо спецсимволи
-        const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        // Використовуємо lookahead/lookbehind для границь слова (не з'їдає символи)
-        const wordRegex = new RegExp(`(?<![а-яїієґёa-z])${escapedWord}(?![а-яїієґёa-z])`, 'gi');
+        const escapedWord = escapeRegex(word);
+        const wordRegex = createWordBoundaryRegex(escapedWord);
         const matches = lowerText.match(wordRegex);
         if (matches && matches.length > 0) {
             wordCounts.set(word, matches.length);
@@ -127,11 +158,10 @@ export function highlightText(text, searchTerms, highlightClass = 'highlight') {
 
     // 3. Створюємо єдиний RegExp з word boundaries (як в checkTextForBannedWords)
     const regexBody = uniqueTerms
-        .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Екрануємо кожен термін
-        .join('|'); // Об'єднуємо через АБО
+        .map(term => escapeRegex(term))
+        .join('|');
 
-    // ВИПРАВЛЕНО: Додано word boundaries для точного збігу слів
-    const regex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${regexBody})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
+    const regex = createWordBoundaryRegexWithCapture(regexBody);
 
     // 4. Екрануємо HTML в оригінальному тексті
     const escapedText = escapeHtml(text);
@@ -209,9 +239,8 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
     const lowerWord = bannedWord.toLowerCase();
 
     // Знайти позицію слова (з урахуванням меж слів)
-    const escapedWord = lowerWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // ВИПРАВЛЕНО: додано великі літери в boundaries
-    const regex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${escapedWord})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'i');
+    const escapedWord = escapeRegex(lowerWord);
+    const regex = createWordBoundaryRegexWithCapture(escapedWord, 'i');
     const match = lowerText.match(regex);
 
     if (!match) return null;
@@ -250,8 +279,7 @@ export function extractContextWithHighlight(text, bannedWord, contextLength = 40
     fragment = escapeHtml(fragment);
 
     // Підсвітити заборонене слово з word boundaries
-    // ВИПРАВЛЕНО: додано boundaries для точного збігу
-    const fragmentRegex = new RegExp(`(^|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])(${escapedWord})($|[^а-яїієґёa-zА-ЯЇІЄҐЁA-Z])`, 'gi');
+    const fragmentRegex = createWordBoundaryRegexWithCapture(escapedWord);
     fragment = fragment.replace(fragmentRegex, '$1<span class="highlight-banned-word">$2</span>$3');
 
     return prefix + fragment + suffix;

@@ -152,32 +152,41 @@ export function renderAvatarSelector(selectedAvatar = null, containerId = 'avata
         updateAvatarPreview(selectedAvatar, previewId);
     }
 
-    // Додаємо обробники кліків
-    container.querySelectorAll('.avatar-option').forEach(option => {
-        option.addEventListener('click', function() {
+    // Використовуємо event delegation замість додавання listeners до кожного елемента
+    // Це запобігає memory leak при повторних викликах renderAvatarSelector
+    if (!container._avatarClickHandler) {
+        container._avatarClickHandler = function(e) {
+            const option = e.target.closest('.avatar-option');
+            if (!option) return;
+
             // Знімаємо виділення з усіх
             container.querySelectorAll('.avatar-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
 
             // Виділяємо обраний
-            this.classList.add('selected');
+            option.classList.add('selected');
+
+            // Визначаємо правильні ID на основі containerId
+            const currentInputId = container.id === 'avatar-selector' ? 'selected-avatar' : 'selected-avatar-edit';
+            const currentPreviewId = container.id === 'avatar-selector' ? 'avatar-preview' : 'avatar-preview-edit';
 
             // Оновлюємо прихований input
-            const avatarInput = document.getElementById(inputId);
+            const avatarInput = document.getElementById(currentInputId);
             if (avatarInput) {
-                avatarInput.value = this.dataset.avatarName;
+                avatarInput.value = option.dataset.avatarName;
             }
 
             // Оновлюємо превью
-            updateAvatarPreview(this.dataset.avatarName, previewId);
+            updateAvatarPreview(option.dataset.avatarName, currentPreviewId);
 
             // Генеруємо подію зміни
             container.dispatchEvent(new CustomEvent('avatar-changed', {
-                detail: { avatar: this.dataset.avatarName }
+                detail: { avatar: option.dataset.avatarName }
             }));
-        });
-    });
+        };
+        container.addEventListener('click', container._avatarClickHandler);
+    }
 }
 
 /**

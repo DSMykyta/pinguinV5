@@ -83,6 +83,12 @@ export function initSearchClear(inputIds, onClearCallback = null) {
             }
         };
 
+        // Зберігаємо посилання на функції для можливості їх видалення
+        inputElement._searchClearHandlers = {
+            updateVisibility: updateClearButtonVisibility,
+            clearSearch: clearSearch
+        };
+
         // Слухачі подій
         inputElement.addEventListener('input', updateClearButtonVisibility);
         clearBtn.addEventListener('click', clearSearch);
@@ -112,8 +118,14 @@ export function destroySearchClear(inputIds) {
         const clearBtn = panelBox.querySelector('.clear-search-btn');
         if (!clearBtn) return;
 
-        // Видаляємо слухачі (потрібно зберігати посилання на функції)
-        // В даному випадку просто приховуємо кнопку
+        // Видаляємо слухачі якщо є збережені посилання
+        if (inputElement._searchClearHandlers) {
+            inputElement.removeEventListener('input', inputElement._searchClearHandlers.updateVisibility);
+            clearBtn.removeEventListener('click', inputElement._searchClearHandlers.clearSearch);
+            delete inputElement._searchClearHandlers;
+        }
+
+        // Приховуємо кнопку
         clearBtn.classList.add('u-hidden');
 
         console.log(`🗑️ [search-clear] Знищено для поля "${inputId}"`);

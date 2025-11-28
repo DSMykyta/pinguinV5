@@ -310,11 +310,13 @@ css/
 - [x] Додано відсутні CSS змінні
 - [x] Видалено hardcoded fallbacks в fab.css
 - [x] Видалено 25+ console.log з основних файлів
-- [ ] Memory leak в avatar-loader.js (потребує виправлення)
-- [ ] Stub функція showConfirmCloseModal (потребує реалізації)
+- [x] Memory leak в avatar-loader.js (виправлено event delegation)
+- [x] Stub функція showConfirmCloseModal (реалізовано з ui-modal-confirm.js)
+- [x] Event listener cleanup в search-clear.js (додано збереження handlers)
+- [x] Дублювання regex в text-utils.js (винесено в helper функції)
 - [ ] Responsive CSS (потребує додавання)
 
 ---
 
 **Документ створено:** Claude Code
-**Останнє оновлення:** 2025-11-27
+**Останнє оновлення:** 2025-11-28

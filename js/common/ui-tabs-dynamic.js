@@ -1,6 +1,8 @@
 // js/common/ui-tabs-dynamic.js
 // Універсальна система динамічних табів
 
+import { showConfirmModal } from './ui-modal-confirm.js';
+
 /**
  * Ініціалізувати систему динамічних табів
  * @param {HTMLElement} tabsContainer - Контейнер для кнопок табів
@@ -166,7 +168,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
 
         // Підтвердження через модал якщо потрібно
         if (confirmCloseModal && !skipConfirmation) {
-            const confirmed = await showConfirmCloseModal(confirmCloseModal, tabId);
+            const confirmed = await showConfirmCloseModalInternal(confirmCloseModal, tabId);
             if (!confirmed) {
                 return false;
             }
@@ -238,13 +240,19 @@ export function initDynamicTabs(tabsContainer, options = {}) {
     /**
      * Показати модал підтвердження закриття
      */
-    async function showConfirmCloseModal(modalId, tabId) {
-        // Тут має бути інтеграція з вашою системою модалів
-        // Повертає Promise<boolean>
-        return new Promise((resolve) => {
-            // Заглушка - в реальності треба показати модал
-            // і чекати на відповідь користувача
-            resolve(true);
+    async function showConfirmCloseModalInternal(modalId, tabId) {
+        // Отримати назву табу для повідомлення
+        const tabButton = tabsContainer.querySelector(`[data-tab-target="${tabId}"]`);
+        const tabLabel = tabButton?.querySelector('.label')?.textContent || tabId;
+
+        return showConfirmModal({
+            title: 'Закрити таб?',
+            message: `Ви впевнені, що хочете закрити "${tabLabel}"?`,
+            confirmText: 'Закрити',
+            cancelText: 'Скасувати',
+            confirmClass: 'btn-danger',
+            avatarState: 'confirmClose',
+            avatarSize: 'small'
         });
     }
 
