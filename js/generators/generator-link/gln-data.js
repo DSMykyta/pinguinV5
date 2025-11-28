@@ -1,4 +1,7 @@
 // js/generators/generator-link/gln-data.js
+
+import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+
 let linksData = [];
 let countriesData = {};
 
@@ -7,7 +10,7 @@ export function getCountriesData() { return countriesData; }
 
 export async function fetchLinksData() {
     // === ВИКОРИСТОВУЄМО ПРАВИЛЬНИЙ GID для таблиці брендів ===
-    const sheetId = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+    const sheetId = MAIN_SPREADSHEET_ID;
     const sheetGid = '653695455'; // GID для Brands
     const csvUrlLinksBase = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${sheetGid}`;
     // =======================================================

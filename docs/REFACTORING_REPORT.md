@@ -264,13 +264,13 @@ box-shadow: var(--shadow-3, 0px 4px 8px...);
 2. ~~Реалізувати showConfirmCloseModal()~~ ✅
 3. ~~Виправити cleanup в search-clear.js~~ ✅
 
-### Пріоритет 2 - Виправити найближчим часом
+### Пріоритет 2 - Виправити найближчим часом ✅
 1. ~~Винести дублюючу логіку regex в text-utils.js~~ ✅
-2. Перенести Spreadsheet IDs в конфігурацію
-3. Refactor ui-tooltip.js для підтримки множинних tooltip
+2. ~~Перенести Spreadsheet IDs в конфігурацію~~ ✅ (створено js/config/spreadsheet-config.js)
+3. ~~Refactor ui-tooltip.js~~ ✅ (не потрібно - одиничний tooltip для курсора є правильним дизайном)
 
 ### Пріоритет 3 - Планове покращення
-1. Видалити всі залишкові console.log
+1. Видалити всі залишкові console.log (596 в 83 файлах - потребує окремої сесії)
 2. Додати responsive CSS
 3. Консолідувати анімації refresh
 

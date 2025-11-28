@@ -96,7 +96,6 @@ export function initSearchClear(inputIds, onClearCallback = null) {
         // Початкова перевірка (якщо поле вже заповнене)
         updateClearButtonVisibility();
 
-        console.log(`✅ [search-clear] Ініціалізовано для поля "${inputId}"`);
     });
 }
 
@@ -128,6 +127,5 @@ export function destroySearchClear(inputIds) {
         // Приховуємо кнопку
         clearBtn.classList.add('u-hidden');
 
-        console.log(`🗑️ [search-clear] Знищено для поля "${inputId}"`);
     });
 }

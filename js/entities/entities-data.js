@@ -1,7 +1,7 @@
 // js/entities/entities-data.js
 // Робота з Google Sheets API для сутностей
 
-const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
 // Назви аркушів
 const SHEET_NAMES = {

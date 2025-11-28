@@ -3,6 +3,7 @@
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { getGlossaryMap } from './glossary-data.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import { MAIN_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
 /**
  * Ініціалізує обробники для модалів глосарію
@@ -155,7 +156,7 @@ function initAddTextModalForm(modalBody) {
  * @param {string} glossaryText - Текст опису
  */
 async function saveGlossaryText(itemId, glossaryText) {
-    const SHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+    const SHEET_ID = MAIN_SPREADSHEET_ID;
     const SHEET_GID = '90240383'; // GID для Головна
 
     // Формуємо дані для відправки

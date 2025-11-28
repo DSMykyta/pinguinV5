@@ -1,5 +1,7 @@
 // js/glossary/glossary-data.js
 
+import { MAIN_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
+
 let glossaryData = []; // Масив усіх рядків з таблиці
 let glossaryTree = {}; // Об'єкт для побудови дерева { parentId: [child1, child2] }
 let glossaryMap = {};  // Об'єкт для швидкого доступу до елемента по ID { id: itemData }
@@ -9,7 +11,7 @@ export function getGlossaryTree() { return glossaryTree; }
 export function getGlossaryMap() { return glossaryMap; }
 
 export async function fetchGlossaryData() {
-    const sheetId = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+    const sheetId = MAIN_SPREADSHEET_ID;
     const sheetGid = '90240383'; // GID для Головна
     const csvUrlBase = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${sheetGid}`;
     const csvUrl = `${csvUrlBase}&_=${Date.now()}`; // Проти кешу

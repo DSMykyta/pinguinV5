@@ -2,6 +2,8 @@
 // Універсальна утиліта для пакетних операцій з Google Sheets API
 // ОНОВЛЕНО: використовує api-client.js замість прямих викликів gapi
 
+import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID, getSpreadsheetType } from '../config/spreadsheet-config.js';
+
 /**
  * ВИКОРИСТАННЯ:
  *
@@ -22,26 +24,6 @@
  *   ]
  * });
  */
-
-// ID таблиць (потрібні для визначення spreadsheetType)
-const TEXTS_SPREADSHEET_ID = '1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM';
-const BANNED_SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
-
-/**
- * Визначити тип таблиці на основі spreadsheetId
- * @param {string} spreadsheetId - ID таблиці
- * @returns {string} Тип таблиці ('main' | 'texts')
- */
-function getSpreadsheetType(spreadsheetId) {
-    if (spreadsheetId === TEXTS_SPREADSHEET_ID) {
-        return 'texts';
-    }
-    if (spreadsheetId === BANNED_SPREADSHEET_ID) {
-        return 'main';
-    }
-    // За замовчуванням - main
-    return 'main';
-}
 
 /**
  * Конвертувати назву колонки (A, B, C, ..., AA, AB) в індекс (0, 1, 2, ...)

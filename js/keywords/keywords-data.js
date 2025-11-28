@@ -9,8 +9,7 @@
  */
 
 import { keywordsState } from './keywords-init.js';
-
-const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 const SHEET_NAME = 'Glossary';
 const SHEET_GID = '90240383'; // GID для Glossary
 

@@ -1,5 +1,7 @@
 // js/generators/generator-seo/gse-data.js
 
+import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+
 let triggersData = [];
 let brandsData = {};
 
@@ -12,8 +14,8 @@ export function getBrandsData() {
 }
 
 export async function fetchData() {
-    const triggersSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=90240383';
-    const brandsSheetUrl = 'https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/export?format=csv&gid=653695455';
+    const triggersSheetUrl = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=90240383`;
+    const brandsSheetUrl = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=653695455`;
 
     try {
         const [triggersResponse, brandsResponse] = await Promise.all([

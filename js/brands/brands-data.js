@@ -11,8 +11,7 @@
  */
 
 import { brandsState } from './brands-init.js';
-
-const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 const SHEET_NAME = 'Brands';
 const SHEET_GID = '653695455'; // GID для Brands
 

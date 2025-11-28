@@ -2,8 +2,7 @@
 // Управління аркушами маркетплейсів в Google Sheets
 
 import { getSheetMetadata } from './entities-data.js';
-
-const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
 /**
  * Створити 3 аркуші для маркетплейсу

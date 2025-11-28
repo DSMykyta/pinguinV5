@@ -11,7 +11,6 @@ export function initTooltips() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
     document.addEventListener('mousemove', handleMouseMove);
-    console.log('✅ Tooltip система ініціалізована');
 }
 
 function handleMouseOver(event) {

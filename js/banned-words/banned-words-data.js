@@ -3,13 +3,13 @@
 
 import { bannedWordsState } from './banned-words-init.js';
 import { checkTextForBannedWords as checkText, getTextFragment as getFragment } from '../utils/text-utils.js';
+import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID as BANNED_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
 // Re-export text utilities for backward compatibility
 export { checkText as checkTextForBannedWords, getFragment as getTextFragment };
 
-// ID таблиць
-export const TEXTS_SPREADSHEET_ID = '1qQ2ob8zsgSfE1G64SorpdbW0xYLOdPfw_cbAH23xUhM';
-export const BANNED_SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
+// Re-export IDs for backward compatibility
+export { TEXTS_SPREADSHEET_ID, BANNED_SPREADSHEET_ID };
 const BANNED_SHEET_NAME = 'Banned';
 const BANNED_SHEET_GID = '1742878044'; // GID для аркуша Banned
 
