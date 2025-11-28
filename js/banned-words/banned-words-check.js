@@ -19,9 +19,21 @@ let currentAbortController = null;
  * @param {string} columnName - Назва колонки (або перша з обраних) - для зворотної сумісності
  */
 export async function performCheck(sheetName, wordId, columnName) {
-    const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
-    const tabId = `check-${selectedSheet}-${selectedWord}-${selectedColumn}`;
+    const { selectedSheet, selectedWord, selectedColumn, selectedSheets, selectedColumns } = bannedWordsState;
+
+    // Розрахувати tabId так само як в createCheckResultsTab
+    const sheetsKey = (selectedSheets || [selectedSheet]).sort().join('-');
+    const columnsKey = (selectedColumns || [selectedColumn]).sort().join('-');
+    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+
     const container = document.getElementById(`check-results-${tabId}`);
+
+    // Перевірити чи контейнер існує
+    if (!container) {
+        console.error(`❌ Контейнер check-results-${tabId} не знайдено`);
+        showToast('Помилка: контейнер для результатів не знайдено', 'error');
+        return;
+    }
 
     // Отримати ВСІ обрані аркуші та колонки
     const selectedSheets = bannedWordsState.selectedSheets || [sheetName];
@@ -33,6 +45,12 @@ export async function performCheck(sheetName, wordId, columnName) {
         message: 'Підготовка до перевірки...',
         overlay: true
     });
+
+    // Перевірити чи loader створено
+    if (!loader) {
+        console.error('❌ Не вдалося створити loader');
+        return;
+    }
 
     try {
         console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слово="${wordId}", колонки=${selectedColumns.join(', ')}`);

@@ -409,10 +409,13 @@ export async function restoreSavedTabs() {
         try {
             console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
-            // Оновити state
+            // Оновити state (встановити і одиничні і масивні значення)
             bannedWordsState.selectedSheet = tab.sheetName;
             bannedWordsState.selectedWord = tab.wordId;
             bannedWordsState.selectedColumn = tab.columnName;
+            // Для сумісності з новим форматом tabId
+            bannedWordsState.selectedSheets = [tab.sheetName];
+            bannedWordsState.selectedColumns = [tab.columnName];
 
             // Відновити фільтр
             if (tab.filter) {
