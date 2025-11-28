@@ -20,12 +20,24 @@ let currentAbortController = null;
  */
 export async function performCheck(sheetName, wordId, columnName) {
     const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
-    const tabId = `check-${selectedSheet}-${selectedWord}-${selectedColumn}`;
+
+    // Отримати масиви з fallback на одиничні значення
+    const selectedSheets = bannedWordsState.selectedSheets || [selectedSheet || sheetName];
+    const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn || columnName];
+
+    // Розрахувати tabId так само як в createCheckResultsTab
+    const sheetsKey = selectedSheets.sort().join('-');
+    const columnsKey = selectedColumns.sort().join('-');
+    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+
     const container = document.getElementById(`check-results-${tabId}`);
 
-    // Отримати ВСІ обрані аркуші та колонки
-    const selectedSheets = bannedWordsState.selectedSheets || [sheetName];
-    const selectedColumns = bannedWordsState.selectedColumns || [columnName];
+    // Перевірити чи контейнер існує
+    if (!container) {
+        console.error(`❌ Контейнер check-results-${tabId} не знайдено`);
+        showToast('Помилка: контейнер для результатів не знайдено', 'error');
+        return;
+    }
 
     // Показати loader з прогресом
     const loader = showLoader(container, {
@@ -33,6 +45,12 @@ export async function performCheck(sheetName, wordId, columnName) {
         message: 'Підготовка до перевірки...',
         overlay: true
     });
+
+    // Перевірити чи loader створено
+    if (!loader) {
+        console.error('❌ Не вдалося створити loader');
+        return;
+    }
 
     try {
         console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слово="${wordId}", колонки=${selectedColumns.join(', ')}`);
@@ -107,9 +125,14 @@ export async function performCheck(sheetName, wordId, columnName) {
                         }
                     });
                 } catch (error) {
-                    // Якщо колонка не існує в цьому аркуші - пропускаємо БЕЗ повідомлення
+                    // Якщо колонка не існує в цьому аркуші - пропускаємо тихо
                     if (error.message && error.message.includes('не знайдена')) {
-                        console.log(`⏭️ Пропускаємо ${sheet}/${col} - колонка не існує в цьому аркуші`);
+                        // Тихо пропускаємо - це очікувана ситуація
+                        continue;
+                    }
+                    // Internal server error - пропускаємо без спаму (API rate limit)
+                    if (error.message && error.message.includes('Internal server error')) {
+                        console.warn(`⚠️ API помилка для ${sheet}/${col} - пропускаємо`);
                         continue;
                     }
                     // Інші помилки - логуємо

@@ -58,7 +58,7 @@ async function getCheckTabContentTemplate() {
  * @param {boolean} skipAutoActivate - Чи пропустити автоматичну активацію (для відновлення)
  */
 export async function createCheckResultsTab(skipAutoActivate = false) {
-    const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
+    const { selectedSheet, selectedWord, selectedColumn, selectedSheets, selectedColumns } = bannedWordsState;
 
     // Перевірка валідності даних - не створювати таб якщо немає вибраних параметрів
     if (!selectedSheet || !selectedWord || !selectedColumn) {
@@ -73,13 +73,20 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     // ЗМІНЕНО: Використовуємо group_name_ua
     const wordName = word ? (word.group_name_ua || 'Слово') : 'Слово';
 
-    const tabId = `check-${selectedSheet}-${selectedWord}-${selectedColumn}`;
+    // Створюємо унікальний tabId який враховує ВСІ обрані аркуші та колонки
+    const sheetsKey = (selectedSheets || [selectedSheet]).sort().join('-');
+    const columnsKey = (selectedColumns || [selectedColumn]).sort().join('-');
+    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
 
     // Перевірити чи таб вже існує
     let existingTab = document.querySelector(`[data-tab-target="${tabId}"]`);
     if (existingTab) {
-        // Активувати існуючий таб
+        // Активувати існуючий таб і перезапустити перевірку
         existingTab.click();
+
+        // Перезапустити перевірку з поточними параметрами
+        const { performCheck } = await import('./banned-words-check.js');
+        await performCheck(selectedSheet, selectedWord, selectedColumn);
         return;
     }
 
@@ -402,10 +409,13 @@ export async function restoreSavedTabs() {
         try {
             console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
-            // Оновити state
+            // Оновити state (встановити і одиничні і масивні значення)
             bannedWordsState.selectedSheet = tab.sheetName;
             bannedWordsState.selectedWord = tab.wordId;
             bannedWordsState.selectedColumn = tab.columnName;
+            // Для сумісності з новим форматом tabId
+            bannedWordsState.selectedSheets = [tab.sheetName];
+            bannedWordsState.selectedColumns = [tab.columnName];
 
             // Відновити фільтр
             if (tab.filter) {
