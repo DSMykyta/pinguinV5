@@ -107,9 +107,14 @@ export async function performCheck(sheetName, wordId, columnName) {
                         }
                     });
                 } catch (error) {
-                    // Якщо колонка не існує в цьому аркуші - пропускаємо БЕЗ повідомлення
+                    // Якщо колонка не існує в цьому аркуші - пропускаємо тихо
                     if (error.message && error.message.includes('не знайдена')) {
-                        console.log(`⏭️ Пропускаємо ${sheet}/${col} - колонка не існує в цьому аркуші`);
+                        // Тихо пропускаємо - це очікувана ситуація
+                        continue;
+                    }
+                    // Internal server error - пропускаємо без спаму (API rate limit)
+                    if (error.message && error.message.includes('Internal server error')) {
+                        console.warn(`⚠️ API помилка для ${sheet}/${col} - пропускаємо`);
                         continue;
                     }
                     // Інші помилки - логуємо

@@ -358,7 +358,10 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
         return data;
 
     } catch (error) {
-        console.error('❌ Помилка завантаження даних для перевірки:', error);
+        // Не логуємо помилки "колонка не знайдена" - це очікувана ситуація при перевірці всіх комбінацій
+        if (!error.message?.includes('не знайдена')) {
+            console.error('❌ Помилка завантаження даних для перевірки:', error);
+        }
         throw error;
     }
 }
