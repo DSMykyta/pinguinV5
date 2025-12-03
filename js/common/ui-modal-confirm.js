@@ -125,12 +125,16 @@ export async function showConfirmModal(options = {}) {
             const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
 
             if (action === 'confirm') {
+                e.stopPropagation(); // Запобігаємо поширенню до інших обробників
+                e.preventDefault();
                 if (resolved) return;
                 resolved = true;
                 cleanup();
                 closeModal();
                 resolve(true);
             } else if (action === 'cancel') {
+                e.stopPropagation(); // Запобігаємо поширенню до інших обробників
+                e.preventDefault();
                 if (resolved) return;
                 resolved = true;
                 cleanup();
