@@ -117,7 +117,7 @@ export function createBatchActionsBar(config) {
 function getBatchBarAPI(tabId) {
     const data = batchBars[tabId];
     if (!data) {
-        console.error(`❌ Batch bar для ${tabId} не знайдено`);
+        // Не логуємо помилку - це очікувана поведінка при першій ініціалізації
         return null;
     }
 
