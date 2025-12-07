@@ -180,12 +180,13 @@ export function getTabState(tabId) {
 /**
  * Додати новий таб до збереженого стану
  * @param {string} tabId - ID табу
- * @param {string} sheetName - Назва аркуша
- * @param {string} wordId - ID забороненого слова
- * @param {string} columnName - Назва колонки
+ * @param {string} sheetName - Назва аркуша (перша з масиву)
+ * @param {string} wordId - ID забороненого слова (перший з масиву)
+ * @param {string} columnName - Назва колонки (перша з масиву)
  * @param {boolean} setActive - Чи зробити цей таб активним
+ * @param {Object} multiselect - Масиви для мультиселекту { sheets, words, columns }
  */
-export function addTabToState(tabId, sheetName, wordId, columnName, setActive = true) {
+export function addTabToState(tabId, sheetName, wordId, columnName, setActive = true, multiselect = null) {
     try {
         const state = loadTabsState() || { openTabs: [], activeTabId: null };
 
@@ -217,7 +218,11 @@ export function addTabToState(tabId, sheetName, wordId, columnName, setActive = 
             filter: 'all',
             currentPage: 1,
             pageSize: 10,
-            createdAt: Date.now()
+            createdAt: Date.now(),
+            // Масиви для мультиселекту
+            sheets: multiselect?.sheets || [sheetName],
+            words: multiselect?.words || [wordId],
+            columns: multiselect?.columns || [columnName]
         };
 
         state.openTabs.push(newTab);

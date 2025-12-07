@@ -13,9 +13,9 @@ import { registerCheckTabPagination } from './banned-words-pagination.js';
 let currentAbortController = null;
 
 /**
- * Виконати перевірку вибраного заборонного слова в УСІХ обраних колонках
- * @param {string} sheetName - Назва аркуша (або перший з обраних)
- * @param {string} wordId - ID заборонного слова (local_id)
+ * Виконати перевірку ВСІХ обраних заборонених слів в УСІХ обраних колонках
+ * @param {string} sheetName - Назва аркуша (або перший з обраних) - для зворотної сумісності
+ * @param {string} wordId - ID заборонного слова (або перший з обраних) - для зворотної сумісності
  * @param {string} columnName - Назва колонки (або перша з обраних) - для зворотної сумісності
  */
 export async function performCheck(sheetName, wordId, columnName) {
@@ -24,11 +24,14 @@ export async function performCheck(sheetName, wordId, columnName) {
     // Отримати масиви з fallback на одиничні значення
     const selectedSheets = bannedWordsState.selectedSheets || [selectedSheet || sheetName];
     const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn || columnName];
+    // НОВЕ: Підтримка мультиселекту слів
+    const selectedWords = bannedWordsState.selectedWords || [selectedWord || wordId];
 
-    // Розрахувати tabId так само як в createCheckResultsTab
+    // Розрахувати tabId так само як в createCheckResultsTab (враховує всі слова)
     const sheetsKey = [...selectedSheets].sort().join('-');
     const columnsKey = [...selectedColumns].sort().join('-');
-    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+    const wordsKey = [...selectedWords].sort().join('-');
+    const tabId = `check-${sheetsKey}-${wordsKey}-${columnsKey}`;
 
     const container = document.getElementById(`check-results-${tabId}`);
 
@@ -53,33 +56,30 @@ export async function performCheck(sheetName, wordId, columnName) {
     }
 
     try {
-        console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слово="${wordId}", колонки=${selectedColumns.join(', ')}`);
+        console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слова=[${selectedWords.join(', ')}], колонки=${selectedColumns.join(', ')}`);
 
-        // Перевірити кеш (ключ враховує всі обрані аркуші та колонки)
+        // Перевірити кеш (ключ враховує всі обрані аркуші, слова та колонки)
         loader.updateProgress(5, 'Перевірка кешу...');
-        const cachedResults = getCachedCheckResults(sheetsKey, wordId, columnsKey);
+        const cachedResults = getCachedCheckResults(sheetsKey, wordsKey, columnsKey);
 
         if (cachedResults) {
             console.log(`📦 Використовуємо кешовані результати (${cachedResults.length} записів)`);
             loader.updateProgress(50, 'Використання кешованих результатів...');
 
-            const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
-
             // Зберегти результати в state
             bannedWordsState.checkResults = cachedResults;
             bannedWordsState.selectedSheet = sheetName;
-            bannedWordsState.selectedWord = wordId;
+            bannedWordsState.selectedWord = selectedWords[0];
             bannedWordsState.selectedColumn = columnName;
 
-            // Відрендерити результати
+            // Відрендерити результати (передаємо null для bannedWord - буде використано selectedWords)
             loader.updateProgress(70, 'Підготовка результатів...');
-            await renderCheckResults(sheetName, bannedWord);
+            await renderCheckResults(sheetName, null);
 
             // Ініціалізувати пагінацію
             loader.updateProgress(85, 'Налаштування пагінації...');
             registerCheckTabPagination(tabId, cachedResults.length, async () => {
-                const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
-                await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
+                await renderCheckResults(bannedWordsState.selectedSheet, null);
             });
 
             // Ініціалізувати сортування
@@ -105,53 +105,75 @@ export async function performCheck(sheetName, wordId, columnName) {
             return;
         }
 
-        // Знайти заборонене слово в state
-        loader.updateProgress(10, 'Пошук заборонного слова...');
-        const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
-        if (!bannedWord) {
+        // НОВЕ: Отримати всі обрані заборонені слова та об'єднати їх масиви фраз
+        loader.updateProgress(10, 'Підготовка слів для пошуку...');
+        const bannedWordObjects = selectedWords
+            .map(wId => bannedWordsState.bannedWords.find(w => w.local_id === wId))
+            .filter(Boolean);
+
+        if (bannedWordObjects.length === 0) {
             loader.hide();
-            showToast('Заборонене слово не знайдено', 'error');
+            showToast('Заборонені слова не знайдено', 'error');
             return;
         }
 
-        console.log('📝 Заборонене слово:', bannedWord);
+        // Об'єднати масиви фраз з усіх обраних слів
+        const allUkrWords = [];
+        const allRusWords = [];
+        bannedWordObjects.forEach(word => {
+            if (word.name_uk_array) allUkrWords.push(...word.name_uk_array);
+            if (word.name_ru_array) allRusWords.push(...word.name_ru_array);
+        });
+
+        // Видалити дублікати
+        const uniqueUkrWords = [...new Set(allUkrWords)];
+        const uniqueRusWords = [...new Set(allRusWords)];
+
+        console.log(`📝 Об'єднано ${bannedWordObjects.length} слів: ${uniqueUkrWords.length} UA фраз, ${uniqueRusWords.length} RU фраз`);
 
         // Результати з усіх комбінацій аркуш/колонка
         const allResults = [];
         let validCombinations = 0;
-
-        // Показати початковий прогрес
-        loader.updateProgress(10, 'Визначення доступних колонок...');
+        let currentStep = 0;
+        const totalSteps = selectedSheets.length * selectedColumns.length;
 
         // Перевірити кожну комбінацію аркуш + колонка
         for (const sheet of selectedSheets) {
             for (const col of selectedColumns) {
-                // Визначити мову колонки
+                currentStep++;
+
+                // Визначити мову колонки та відповідний масив слів
                 let searchWordsArray;
+                let langLabel;
                 if (col.includes('Ukr')) {
-                    searchWordsArray = bannedWord.name_uk_array;
+                    searchWordsArray = uniqueUkrWords;
+                    langLabel = 'UA';
                 } else if (col.includes('Ros') || col.includes('Rus')) {
-                    searchWordsArray = bannedWord.name_ru_array;
+                    searchWordsArray = uniqueRusWords;
+                    langLabel = 'RU';
                 } else {
                     console.log(`⏭️ Пропускаємо ${col} - невідома мова`);
                     continue;
                 }
 
                 if (!searchWordsArray || searchWordsArray.length === 0) {
-                    console.log(`⏭️ Пропускаємо ${col} - немає слів для цієї мови`);
+                    console.log(`⏭️ Пропускаємо ${col} - немає слів для мови ${langLabel}`);
                     continue;
                 }
 
                 try {
-                    // Спочатку перевіряємо чи колонка існує (завантаження даних)
+                    // Детальний прогрес: аркуш → колонка → кількість слів
+                    const progressPercent = Math.round(10 + (currentStep / totalSteps) * 70);
+                    loader.updateProgress(
+                        Math.min(progressPercent, 80),
+                        `📋 ${sheet}\n📄 ${col}\n🔍 ${searchWordsArray.length} ${langLabel} слів`
+                    );
+
+                    // Завантажити дані з аркуша
                     const sheetData = await loadSheetDataForCheck(sheet, col);
-
-                    // Колонка існує - тепер показуємо прогрес
                     validCombinations++;
-                    const progressPercent = Math.round(10 + (validCombinations * 10));
-                    loader.updateProgress(Math.min(progressPercent, 80), `Перевірка ${sheet}: ${col}...`);
 
-                    console.log(`📥 ${sheet}/${col}: завантажено ${sheetData.length} рядків`);
+                    console.log(`📥 ${sheet}/${col}: завантажено ${sheetData.length} рядків, шукаємо ${searchWordsArray.length} слів`);
 
                     // Перевірити кожен рядок
                     sheetData.forEach(item => {
@@ -177,7 +199,6 @@ export async function performCheck(sheetName, wordId, columnName) {
                 } catch (error) {
                     // Якщо колонка не існує в цьому аркуші - пропускаємо тихо
                     if (error.message && error.message.includes('не знайдена')) {
-                        // Тихо пропускаємо - це очікувана ситуація
                         continue;
                     }
                     // Internal server error - пропускаємо без спаму (API rate limit)
@@ -202,7 +223,7 @@ export async function performCheck(sheetName, wordId, columnName) {
         // Зберегти результати в state
         bannedWordsState.checkResults = aggregatedResults;
         bannedWordsState.selectedSheet = sheetName;
-        bannedWordsState.selectedWord = wordId;
+        bannedWordsState.selectedWord = selectedWords[0]; // Зворотна сумісність
         bannedWordsState.selectedColumn = columnName;
 
         // Визначити колонки з помилками (для показу в UI)
@@ -210,12 +231,12 @@ export async function performCheck(sheetName, wordId, columnName) {
         bannedWordsState.columnsWithErrors = columnsWithErrors;
         console.log(`📊 Колонки з помилками: ${columnsWithErrors.join(', ')}`);
 
-        // Зберегти результати в кеш (ключ має співпадати з getCachedCheckResults)
-        setCachedCheckResults(sheetsKey, wordId, columnsKey, aggregatedResults);
+        // Зберегти результати в кеш (ключ використовує wordsKey для всіх слів)
+        setCachedCheckResults(sheetsKey, wordsKey, columnsKey, aggregatedResults);
 
         // Відрендерити результати
         loader.updateProgress(80, 'Підготовка результатів...');
-        await renderCheckResults(sheetName, bannedWord);
+        await renderCheckResults(sheetName, null);
 
         // Обчислити загальну кількість входжень
         const totalMatchCount = aggregatedResults.reduce((sum, r) => sum + (r.matchCount || 0), 0);
@@ -223,8 +244,7 @@ export async function performCheck(sheetName, wordId, columnName) {
         // Ініціалізувати пагінацію для цього табу
         loader.updateProgress(90, 'Налаштування пагінації...');
         registerCheckTabPagination(tabId, aggregatedResults.length, async () => {
-            const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
-            await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
+            await renderCheckResults(bannedWordsState.selectedSheet, null);
         });
 
         // Ініціалізувати сортування для цього табу
@@ -264,48 +284,50 @@ function aggregateResultsByProduct(results) {
     // Групувати за комбінацією id + sheetName
     const productMap = new Map();
 
-    results.forEach(result => {
+    for (const result of results) {
         const key = `${result.sheetName}-${result.id}`;
+        const resultMatchCount = result.matchCount || 0;
 
-        if (productMap.has(key)) {
-            // Товар вже є - додати інформацію про колонку
-            const existing = productMap.get(key);
-            existing.columns.push({
-                columnName: result.columnName,
-                matchCount: result.matchCount,
-                foundWordsList: result.foundWordsList,
-                fullText: result.fullText
-            });
-            existing.totalMatchCount += result.matchCount;
-            // Додати колонку до списку
-            if (!existing.columnNames.includes(result.columnName)) {
-                existing.columnNames.push(result.columnName);
-            }
-        } else {
-            // Новий товар
+        if (!productMap.has(key)) {
+            // Новий товар - ініціалізуємо з 0
             productMap.set(key, {
                 id: result.id,
                 title: result.title,
                 cheaked_line: result.cheaked_line,
                 _rowIndex: result._rowIndex,
                 sheetName: result.sheetName,
-                // Для відображення в таблиці
                 columnName: result.columnName,
-                columnNames: [result.columnName],
-                matchCount: result.matchCount,
-                totalMatchCount: result.matchCount,
-                // Деталі по колонках
-                columns: [{
-                    columnName: result.columnName,
-                    matchCount: result.matchCount,
-                    foundWordsList: result.foundWordsList,
-                    fullText: result.fullText
-                }],
+                columnNames: [],
+                matchCount: 0, // Починаємо з 0, будемо додавати
+                columns: [],
                 searchWords: result.searchWords,
-                foundWordsList: result.foundWordsList
+                foundWordsList: []
             });
         }
-    });
+
+        const existing = productMap.get(key);
+
+        // Додати дані колонки
+        existing.columns.push({
+            columnName: result.columnName,
+            matchCount: resultMatchCount,
+            foundWordsList: result.foundWordsList || [],
+            fullText: result.fullText
+        });
+
+        // ГОЛОВНЕ: Додати кількість входжень до загальної суми
+        existing.matchCount += resultMatchCount;
+
+        // Додати колонку до списку (якщо ще немає)
+        if (!existing.columnNames.includes(result.columnName)) {
+            existing.columnNames.push(result.columnName);
+        }
+
+        // Об'єднати знайдені слова
+        if (result.foundWordsList && result.foundWordsList.length > 0) {
+            existing.foundWordsList.push(...result.foundWordsList);
+        }
+    }
 
     // Конвертувати Map у масив та оновити columnName для відображення
     return Array.from(productMap.values()).map(item => {
@@ -314,8 +336,10 @@ function aggregateResultsByProduct(results) {
             item.columnName = `${item.columnNames.length} колонки`;
             item.multipleColumns = true;
         }
-        // Загальна кількість входжень
-        item.matchCount = item.totalMatchCount;
+        // Дедуплікація знайдених слів
+        item.foundWordsList = [...new Set(item.foundWordsList)];
+
+        console.log(`📊 Товар ${item.id}: ${item.columnNames.length} колонок, ${item.matchCount} входжень`);
         return item;
     });
 }
@@ -327,12 +351,14 @@ function aggregateResultsByProduct(results) {
 export async function renderCheckResults(sheetName, bannedWord) {
     const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
 
-    // Генеруємо tabId так само як в createCheckResultsTab та performCheck
+    // Генеруємо tabId так само як в createCheckResultsTab та performCheck (з wordsKey)
     const selectedSheets = bannedWordsState.selectedSheets || [selectedSheet];
     const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn];
+    const selectedWords = bannedWordsState.selectedWords || [selectedWord];
     const sheetsKey = [...selectedSheets].sort().join('-');
     const columnsKey = [...selectedColumns].sort().join('-');
-    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+    const wordsKey = [...selectedWords].sort().join('-');
+    const tabId = `check-${sheetsKey}-${wordsKey}-${columnsKey}`;
 
     const container = document.getElementById(`check-results-${tabId}`);
     if (!container) {
@@ -371,14 +397,20 @@ export async function renderCheckResults(sheetName, bannedWord) {
     const endIndex = startIndex + tabPagination.pageSize;
     const paginatedResults = allResults.slice(startIndex, endIndex);
 
-    // Оновити заголовок табу
+    // Оновити заголовок табу (формат: N аркушів × N колонок × N слів)
     const tabTitle = document.getElementById(`check-tab-title-${tabId}`);
     const tabStats = document.getElementById(`check-tab-stats-${tabId}`);
     if (tabTitle) {
-        // ЗМІНЕНО: Використовуємо group_name_ua
-        const wordName = bannedWord ? (bannedWord.group_name_ua || 'Слово') : 'Слово';
-        const shortColumn = selectedColumn.replace(/Ukr$|Ros$/, '');
-        tabTitle.textContent = `${selectedSheet}: ${shortColumn}: ${wordName}`;
+        // Формуємо зрозумілу назву
+        const sheetsLabel = selectedSheets.length === 1 ? selectedSheets[0] : `${selectedSheets.length} аркушів`;
+        const columnsLabel = selectedColumns.length === 1
+            ? selectedColumns[0].replace(/Ukr$|Ros$/, '')
+            : `${selectedColumns.length} колонок`;
+        const wordsLabel = selectedWords.length === 1
+            ? (bannedWordsState.bannedWords.find(w => w.local_id === selectedWords[0])?.group_name_ua || 'Слово')
+            : `${selectedWords.length} слів`;
+
+        tabTitle.textContent = `${sheetsLabel} × ${columnsLabel} × ${wordsLabel}`;
     }
     if (tabStats) {
         tabStats.textContent = `Показано ${paginatedResults.length} з ${allResults.length}`;
@@ -518,9 +550,11 @@ export async function renderCheckResults(sheetName, bannedWord) {
                 // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
                 const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
                 const selectedColumns = bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn];
+                const selectedWords = bannedWordsState.selectedWords || [bannedWordsState.selectedWord];
                 const sheetsKey = [...selectedSheets].sort().join('-');
                 const columnsKey = [...selectedColumns].sort().join('-');
-                invalidateCheckCache(sheetsKey, bannedWordsState.selectedWord, columnsKey);
+                const wordsKey = [...selectedWords].sort().join('-');
+                invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
 
                 // Оновити локальний стейт
                 const result = bannedWordsState.checkResults.find(r => r.id === productId);

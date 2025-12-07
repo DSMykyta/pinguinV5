@@ -267,9 +267,16 @@ function renderProductModal(productData, columnNames) {
         return;
     }
 
-    const displayTitle = productData.titleRos || productData.titleUkr || 'Товар';
+    // Знайти заголовок в даних (може бути під різними назвами колонок)
+    const displayTitle = productData.titleRos || productData.titleUkr ||
+                         productData.title || productData.Title ||
+                         productData.name || productData.Name || 'Товар';
     titleElement.textContent = displayTitle;
-    idElement.textContent = `ID: ${productData.id}`;
+
+    // Отримати ID з productData або з метаданих модалу
+    const displayId = productData.id || productData.ID || productData.Id ||
+                      document.getElementById('product-modal-product-id')?.value || 'undefined';
+    idElement.textContent = `ID: ${displayId}`;
 
     // Отримати ВСІ заборонені слова (обидві мови) для підсвічування
     const allBannedWordsRaw = bannedWordsState.bannedWords.flatMap(w =>
@@ -300,7 +307,8 @@ function renderProductModal(productData, columnNames) {
 
     // Рендеримо ТІЛЬКИ ті поля що в columnsArray
     columnsArray.forEach(field => {
-        const text = fieldMapping[field] || '';
+        // Спробувати знайти текст: спочатку в mapping, потім напряму в productData
+        const text = fieldMapping[field] || productData[field] || '';
         const viewer = document.getElementById(`text-viewer-${field}`);
 
         if (!viewer) {
@@ -753,6 +761,19 @@ function findBannedWordInfo(wordText) {
 }
 
 /**
+ * Обмежити текст до максимальної кількості слів
+ * @param {string} text - Оригінальний текст
+ * @param {number} maxWords - Максимальна кількість слів
+ * @returns {string} Обрізаний текст з "..." якщо було обрізано
+ */
+function limitWords(text, maxWords = 15) {
+    if (!text) return '';
+    const words = text.split(/[,\s]+/).filter(Boolean);
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(', ') + '...';
+}
+
+/**
  * Показати tooltip для забороненого слова
  * @param {HTMLElement} targetElement - Елемент над яким показати tooltip
  * @param {Object} wordInfo - Інформація про заборонене слово
@@ -768,14 +789,16 @@ function showBannedWordTooltip(targetElement, wordInfo) {
         content += `<div style="font-weight: 600; margin-bottom: 8px; color: var(--color-error);">${wordInfo.group_name_ua}</div>`;
     }
 
-    // Українські слова
+    // Українські слова (обмежено до 15 слів)
     if (wordInfo.name_uk && wordInfo.name_uk.trim()) {
-        content += `<div style="margin-bottom: 4px;"><strong>UA:</strong> ${wordInfo.name_uk}</div>`;
+        const limitedUk = limitWords(wordInfo.name_uk, 15);
+        content += `<div style="margin-bottom: 4px;"><strong>UA:</strong> ${limitedUk}</div>`;
     }
 
-    // Російські слова
+    // Російські слова (обмежено до 15 слів)
     if (wordInfo.name_ru && wordInfo.name_ru.trim()) {
-        content += `<div style="margin-bottom: 4px;"><strong>RU:</strong> ${wordInfo.name_ru}</div>`;
+        const limitedRu = limitWords(wordInfo.name_ru, 15);
+        content += `<div style="margin-bottom: 4px;"><strong>RU:</strong> ${limitedRu}</div>`;
     }
 
     // Пояснення

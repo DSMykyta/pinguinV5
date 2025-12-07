@@ -32,7 +32,7 @@ async function getCheckTabTemplate() {
         return checkTabTemplate;
     } catch (e) {
         console.error("Не вдалося завантажити шаблон check-tab.html:", e);
-        return '<div class="state-layer"><span class="label">{{selectedSheet}}: {{wordName}}</span></div>';
+        return '<span class="material-symbols-outlined">search</span><span class="nav-icon-label">{{tabLabel}}</span><span class="tab-close-btn" role="button" tabindex="0" aria-label="Закрити таб"><span class="material-symbols-outlined">close</span></span>';
     }
 }
 
@@ -58,7 +58,7 @@ async function getCheckTabContentTemplate() {
  * @param {boolean} skipAutoActivate - Чи пропустити автоматичну активацію (для відновлення)
  */
 export async function createCheckResultsTab(skipAutoActivate = false) {
-    const { selectedSheet, selectedWord, selectedColumn, selectedSheets, selectedColumns } = bannedWordsState;
+    const { selectedSheet, selectedWord, selectedColumn, selectedSheets, selectedColumns, selectedWords } = bannedWordsState;
 
     // Перевірка валідності даних - не створювати таб якщо немає вибраних параметрів
     if (!selectedSheet || !selectedWord || !selectedColumn) {
@@ -68,15 +68,26 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
         return;
     }
 
-    // Знайти слово для назви табу
-    const word = bannedWordsState.bannedWords.find(w => w.local_id === selectedWord);
-    // ЗМІНЕНО: Використовуємо group_name_ua
-    const wordName = word ? (word.group_name_ua || 'Слово') : 'Слово';
+    // Отримати масиви (з fallback на одиничні значення)
+    const sheetsArr = selectedSheets || [selectedSheet];
+    const columnsArr = selectedColumns || [selectedColumn];
+    const wordsArr = selectedWords || [selectedWord];
 
-    // Створюємо унікальний tabId який враховує ВСІ обрані аркуші та колонки
-    const sheetsKey = [...(selectedSheets || [selectedSheet])].sort().join('-');
-    const columnsKey = [...(selectedColumns || [selectedColumn])].sort().join('-');
-    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+    // Формуємо назву табу (формат: N аркушів × N колонок × N слів)
+    const sheetsLabel = sheetsArr.length === 1 ? sheetsArr[0] : `${sheetsArr.length} аркушів`;
+    const columnsLabel = columnsArr.length === 1
+        ? columnsArr[0].replace(/Ukr$|Ros$/, '')
+        : `${columnsArr.length} колонок`;
+    const wordsLabel = wordsArr.length === 1
+        ? (bannedWordsState.bannedWords.find(w => w.local_id === wordsArr[0])?.group_name_ua || 'Слово')
+        : `${wordsArr.length} слів`;
+    const tabLabel = `${sheetsLabel} × ${columnsLabel} × ${wordsLabel}`;
+
+    // Створюємо унікальний tabId який враховує ВСІ обрані аркуші, слова та колонки
+    const sheetsKey = [...sheetsArr].sort().join('-');
+    const columnsKey = [...columnsArr].sort().join('-');
+    const wordsKey = [...wordsArr].sort().join('-');
+    const tabId = `check-${sheetsKey}-${wordsKey}-${columnsKey}`;
 
     // Перевірити чи таб вже існує
     let existingTab = document.querySelector(`[data-tab-target="${tabId}"]`);
@@ -97,9 +108,7 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     tabButton.dataset.tabTarget = tabId;
 
     const tabTemplate = await getCheckTabTemplate();
-    const tabHtml = tabTemplate
-        .replace(/{{selectedSheet}}/g, selectedSheet)
-        .replace(/{{wordName}}/g, wordName);
+    const tabHtml = tabTemplate.replace(/{{tabLabel}}/g, tabLabel);
     tabButton.innerHTML = tabHtml;
 
     tabsContainer.appendChild(tabButton);
@@ -116,10 +125,14 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
 
     contentContainer.appendChild(tabContent);
 
-    // Зберегти параметри перевірки для цього табу
+    // Зберегти параметри перевірки для цього табу (одиничні для зворотної сумісності)
     tabButton.dataset.checkSheet = selectedSheet;
     tabButton.dataset.checkWord = selectedWord;
     tabButton.dataset.checkColumn = selectedColumn;
+    // Зберегти масиви для мультиселекту
+    tabButton.dataset.checkSheets = JSON.stringify(sheetsArr);
+    tabButton.dataset.checkWords = JSON.stringify(wordsArr);
+    tabButton.dataset.checkColumns = JSON.stringify(columnsArr);
 
     // Додати обробник для кнопки refresh цього check табу
     const refreshButton = tabContent.querySelector(`#refresh-check-${tabId}`);
@@ -131,20 +144,25 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
             const sheet = tabButton.dataset.checkSheet;
             const word = tabButton.dataset.checkWord;
             const column = tabButton.dataset.checkColumn;
+            // Масиви для мультиселекту
+            const savedSheets = JSON.parse(tabButton.dataset.checkSheets || '[]');
+            const savedWords = JSON.parse(tabButton.dataset.checkWords || '[]');
+            const savedColumns = JSON.parse(tabButton.dataset.checkColumns || '[]');
 
             // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
-            // tabId має формат: check-{sheetsKey}-{word}-{columnsKey}
             const { invalidateCheckCache } = await import('./banned-words-init.js');
-            const selectedSheets = bannedWordsState.selectedSheets || [sheet];
-            const selectedColumns = bannedWordsState.selectedColumns || [column];
-            const sheetsKey = [...selectedSheets].sort().join('-');
-            const columnsKey = [...selectedColumns].sort().join('-');
-            invalidateCheckCache(sheetsKey, word, columnsKey);
+            const sheetsKey = [...savedSheets].sort().join('-');
+            const columnsKey = [...savedColumns].sort().join('-');
+            const wordsKey = [...savedWords].sort().join('-');
+            invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
 
-            // Оновити state перед перевіркою
+            // Оновити state перед перевіркою (включно з масивами)
             bannedWordsState.selectedSheet = sheet;
             bannedWordsState.selectedWord = word;
             bannedWordsState.selectedColumn = column;
+            bannedWordsState.selectedSheets = savedSheets;
+            bannedWordsState.selectedWords = savedWords;
+            bannedWordsState.selectedColumns = savedColumns;
 
             // Повторно виконати перевірку для цього табу
             const { performCheck } = await import('./banned-words-check.js');
@@ -156,8 +174,12 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     console.log(`📋 Кнопка додана до DOM:`, tabsContainer.contains(tabButton));
     console.log(`📋 Контент додано до DOM:`, contentContainer.contains(tabContent));
 
-    // Зберегти стан табу для відновлення після перезавантаження
-    addTabToState(tabId, selectedSheet, selectedWord, selectedColumn, true);
+    // Зберегти стан табу для відновлення після перезавантаження (з масивами для мультиселекту)
+    addTabToState(tabId, selectedSheet, selectedWord, selectedColumn, true, {
+        sheets: sheetsArr,
+        words: wordsArr,
+        columns: columnsArr
+    });
 
     // Активувати новий таб через клік (затримка для оновлення DOM)
     // ВИПРАВЛЕНО: Пропустити автоактивацію при відновленні табів
@@ -445,13 +467,19 @@ export async function restoreSavedTabs() {
         try {
             console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
+            // Відновити масиви (з fallback на одиничні значення для старих збережень)
+            const sheets = tab.sheets || [tab.sheetName];
+            const words = tab.words || [tab.wordId];
+            const columns = tab.columns || [tab.columnName];
+
             // Оновити state (встановити і одиничні і масивні значення)
             bannedWordsState.selectedSheet = tab.sheetName;
             bannedWordsState.selectedWord = tab.wordId;
             bannedWordsState.selectedColumn = tab.columnName;
-            // Для сумісності з новим форматом tabId
-            bannedWordsState.selectedSheets = [tab.sheetName];
-            bannedWordsState.selectedColumns = [tab.columnName];
+            // Масиви для мультиселекту
+            bannedWordsState.selectedSheets = sheets;
+            bannedWordsState.selectedWords = words;
+            bannedWordsState.selectedColumns = columns;
 
             // Відновити фільтр
             if (tab.filter) {
