@@ -8,8 +8,9 @@ import { initTableSorting } from '../common/ui-table-sort.js';
  * Ініціалізація всіх обробників подій
  */
 export function initBannedWordsEvents() {
-    // Слухаємо кліки на чекбоксах
-    initCheckboxEvents();
+    // DEPRECATED: initCheckboxEvents() більше не потрібен
+    // Обробка чекбоксів тепер виконується через batch actions system в banned-words-manage.js
+    // initCheckboxEvents();
 
     // ПРИМІТКА: Сортування ініціалізується окремо через initBannedWordsSorting() та initCheckTabSorting()
     // ПРИМІТКА: Фільтри і пошук обробляються в banned-words-aside.js

@@ -565,7 +565,7 @@ async function handleSheetTabClick(button) {
             return;
         }
 
-        const rowIndex = parseInt(result.rowIndex);
+        const rowIndex = parseInt(result._rowIndex);
         console.log(`📥 Завантаження даних з аркуша "${newSheet}", рядок ${rowIndex}`);
 
         const productData = await loadProductFullData(newSheet, rowIndex);
@@ -625,12 +625,12 @@ async function handleModalBadgeClick() {
             await updateProductStatus(sheetName, productId, columnName, newStatus);
         }
 
-        // Інвалідувати кеш
-        invalidateCheckCache(
-            bannedWordsState.selectedSheet,
-            bannedWordsState.selectedWord,
-            bannedWordsState.selectedColumn
-        );
+        // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
+        const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
+        const selectedColumns = bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn];
+        const sheetsKey = [...selectedSheets].sort().join('-');
+        const columnsKey = [...selectedColumns].sort().join('-');
+        invalidateCheckCache(sheetsKey, bannedWordsState.selectedWord, columnsKey);
 
         // Оновити локальний стейт
         const result = bannedWordsState.checkResults?.find(r => r.id === productId);
@@ -779,13 +779,13 @@ function showBannedWordTooltip(targetElement, wordInfo) {
     }
 
     // Пояснення
-    if (wordInfo.explain && wordInfo.explain.trim()) {
-        content += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-outline-v);"><em>${wordInfo.explain}</em></div>`;
+    if (wordInfo.banned_explaine && wordInfo.banned_explaine.trim()) {
+        content += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-outline-v);"><em>${wordInfo.banned_explaine}</em></div>`;
     }
 
     // Підказка
-    if (wordInfo.hint && wordInfo.hint.trim()) {
-        content += `<div style="margin-top: 4px; color: var(--color-success);"><strong>Підказка:</strong> ${wordInfo.hint}</div>`;
+    if (wordInfo.banned_hint && wordInfo.banned_hint.trim()) {
+        content += `<div style="margin-top: 4px; color: var(--color-success);"><strong>Підказка:</strong> ${wordInfo.banned_hint}</div>`;
     }
 
     tooltip.innerHTML = content;

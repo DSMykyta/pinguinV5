@@ -361,9 +361,12 @@ async function batchMarkChecked(selectedIds, tabId) {
 
         // Очистити кеш якщо це check таб
         if (tabId.startsWith('check-')) {
-            // Використовуємо актуальні значення зі state замість парсингу tabId
-            // (tabId може мати складний формат з дефісами в назві аркуша)
-            invalidateCheckCache(bannedWordsState.selectedSheet, bannedWordsState.selectedWord, bannedWordsState.selectedColumn);
+            // Використовуємо ті самі ключі що і при створенні кешу
+            const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
+            const selectedColumns = bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn];
+            const sheetsKey = [...selectedSheets].sort().join('-');
+            const columnsKey = [...selectedColumns].sort().join('-');
+            invalidateCheckCache(sheetsKey, bannedWordsState.selectedWord, columnsKey);
         }
 
         // Показати результат
