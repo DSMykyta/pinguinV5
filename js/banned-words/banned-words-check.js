@@ -58,6 +58,10 @@ export async function performCheck(sheetName, wordId, columnName) {
     try {
         console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слова=[${selectedWords.join(', ')}], колонки=${selectedColumns.join(', ')}`);
 
+        // ТИМЧАСОВО: інвалідувати кеш для тестування нової агрегації
+        invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
+        console.log(`🗑️ Кеш інвалідовано для тестування: ${sheetsKey}/${wordsKey}/${columnsKey}`);
+
         // Перевірити кеш (ключ враховує всі обрані аркуші, слова та колонки)
         loader.updateProgress(5, 'Перевірка кешу...');
         const cachedResults = getCachedCheckResults(sheetsKey, wordsKey, columnsKey);
@@ -131,6 +135,12 @@ export async function performCheck(sheetName, wordId, columnName) {
 
         console.log(`📝 Об'єднано ${bannedWordObjects.length} слів: ${uniqueUkrWords.length} UA фраз, ${uniqueRusWords.length} RU фраз`);
 
+        // Сформувати назву для прогрес-бара (назви груп замість кількості)
+        const groupNames = bannedWordObjects.map(w => w.group_name_ua || w.local_id).slice(0, 3);
+        const wordsLabel = groupNames.length <= 3
+            ? groupNames.join(', ')
+            : `${groupNames.join(', ')}... (+${bannedWordObjects.length - 3})`;
+
         // Результати з усіх комбінацій аркуш/колонка
         const allResults = [];
         let validCombinations = 0;
@@ -162,11 +172,11 @@ export async function performCheck(sheetName, wordId, columnName) {
                 }
 
                 try {
-                    // Детальний прогрес: аркуш → колонка → кількість слів
+                    // Детальний прогрес: аркуш → колонка → назва групи
                     const progressPercent = Math.round(10 + (currentStep / totalSteps) * 70);
                     loader.updateProgress(
                         Math.min(progressPercent, 80),
-                        `📋 ${sheet}\n📄 ${col}\n🔍 ${searchWordsArray.length} ${langLabel} слів`
+                        `📋 ${sheet}\n📄 ${col}\n🔍 ${wordsLabel}`
                     );
 
                     // Завантажити дані з аркуша
@@ -281,15 +291,27 @@ export async function performCheck(sheetName, wordId, columnName) {
  * @returns {Array} - Агреговані результати
  */
 function aggregateResultsByProduct(results) {
-    // Групувати за комбінацією id + sheetName
+    // Групувати за комбінацією sheetName + id
+    // ВАЖЛИВО: товари з однаковим ID на РІЗНИХ аркушах - це РІЗНІ записи!
     const productMap = new Map();
 
+    console.log(`📊 Агрегація: отримано ${results.length} результатів`);
+
     for (const result of results) {
-        const key = `${result.sheetName}-${result.id}`;
+        // Перевірка на пусті значення
+        if (!result.sheetName || !result.id) {
+            console.warn('⚠️ Пропускаємо результат без sheetName або id:', result);
+            continue;
+        }
+
+        // Унікальний ключ: аркуш + ID (різні аркуші = різні записи)
+        const key = `${result.sheetName}::${result.id}`;
         const resultMatchCount = result.matchCount || 0;
 
+        console.log(`  -> ${key}: matchCount=${resultMatchCount}, foundWords=${result.foundWordsList?.length || 0}`);
+
         if (!productMap.has(key)) {
-            // Новий товар - ініціалізуємо з 0
+            // Новий товар на цьому аркуші
             productMap.set(key, {
                 id: result.id,
                 title: result.title,
@@ -298,7 +320,7 @@ function aggregateResultsByProduct(results) {
                 sheetName: result.sheetName,
                 columnName: result.columnName,
                 columnNames: [],
-                matchCount: 0, // Починаємо з 0, будемо додавати
+                matchCount: 0,
                 columns: [],
                 searchWords: result.searchWords,
                 foundWordsList: []
@@ -315,7 +337,7 @@ function aggregateResultsByProduct(results) {
             fullText: result.fullText
         });
 
-        // ГОЛОВНЕ: Додати кількість входжень до загальної суми
+        // Сумувати входження
         existing.matchCount += resultMatchCount;
 
         // Додати колонку до списку (якщо ще немає)
@@ -329,19 +351,21 @@ function aggregateResultsByProduct(results) {
         }
     }
 
-    // Конвертувати Map у масив та оновити columnName для відображення
-    return Array.from(productMap.values()).map(item => {
+    // Конвертувати Map у масив
+    const aggregated = Array.from(productMap.values()).map(item => {
         if (item.columnNames.length > 1) {
-            // Багато колонок - показати кількість
             item.columnName = `${item.columnNames.length} колонки`;
             item.multipleColumns = true;
         }
         // Дедуплікація знайдених слів
         item.foundWordsList = [...new Set(item.foundWordsList)];
 
-        console.log(`📊 Товар ${item.id}: ${item.columnNames.length} колонок, ${item.matchCount} входжень`);
+        console.log(`📊 [${item.sheetName}] ${item.id}: ${item.columnNames.length} колонок, ${item.matchCount} входжень`);
         return item;
     });
+
+    console.log(`📊 Агрегація завершена: ${aggregated.length} унікальних товарів`);
+    return aggregated;
 }
 
 /**
