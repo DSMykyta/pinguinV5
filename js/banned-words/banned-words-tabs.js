@@ -74,8 +74,8 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     const wordName = word ? (word.group_name_ua || 'Слово') : 'Слово';
 
     // Створюємо унікальний tabId який враховує ВСІ обрані аркуші та колонки
-    const sheetsKey = (selectedSheets || [selectedSheet]).sort().join('-');
-    const columnsKey = (selectedColumns || [selectedColumn]).sort().join('-');
+    const sheetsKey = [...(selectedSheets || [selectedSheet])].sort().join('-');
+    const columnsKey = [...(selectedColumns || [selectedColumn])].sort().join('-');
     const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
 
     // Перевірити чи таб вже існує
@@ -189,6 +189,7 @@ export function initTabHandlers() {
 
         e.preventDefault();
         e.stopPropagation();
+        e.stopImmediatePropagation(); // Зупиняє інші обробники на document
 
         // Знайти батьківську кнопку табу
         const tabButton = closeButton.closest('.nav-icon');

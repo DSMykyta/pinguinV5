@@ -56,6 +56,18 @@
     border-radius: 8px;
     position: relative;
     overflow: hidden;
+    user-select: none;
+}
+
+.panel-box:hover {
+    background-color: var(--color-main-c);
+    color: var(--color-main);
+}
+
+.panel-box:active {
+    background-color: var(--color-main-t-2);
+    color: var(--color-main);
+    transform: scale(0.98);
 }
 
 .panel-box-icon {
@@ -112,3 +124,4 @@
 .panel-box .country-display {
     flex-shrink: 0;
 }
+

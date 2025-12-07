@@ -2,10 +2,10 @@
 // Вибіркова перевірка текстів на заборонені слова
 
 import { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalidateCheckCache } from './banned-words-init.js';
-import { loadSheetDataForCheck, checkTextForBannedWords, getTextFragment, updateProductStatus } from './banned-words-data.js';
-import { showLoader, hideLoader, showErrorDetails } from '../common/ui-loading.js';
+import { loadSheetDataForCheck, checkTextForBannedWords, updateProductStatus } from './banned-words-data.js';
+import { showLoader, showErrorDetails } from '../common/ui-loading.js';
 import { showToast } from '../common/ui-toast.js';
-import { escapeHtml, highlightText } from '../utils/text-utils.js';
+import { escapeHtml } from '../utils/text-utils.js';
 import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 import { registerCheckTabPagination } from './banned-words-pagination.js';
 
@@ -26,8 +26,8 @@ export async function performCheck(sheetName, wordId, columnName) {
     const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn || columnName];
 
     // Розрахувати tabId так само як в createCheckResultsTab
-    const sheetsKey = selectedSheets.sort().join('-');
-    const columnsKey = selectedColumns.sort().join('-');
+    const sheetsKey = [...selectedSheets].sort().join('-');
+    const columnsKey = [...selectedColumns].sort().join('-');
     const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
 
     const container = document.getElementById(`check-results-${tabId}`);
@@ -55,8 +55,58 @@ export async function performCheck(sheetName, wordId, columnName) {
     try {
         console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слово="${wordId}", колонки=${selectedColumns.join(', ')}`);
 
+        // Перевірити кеш (ключ враховує всі обрані аркуші та колонки)
+        loader.updateProgress(5, 'Перевірка кешу...');
+        const cachedResults = getCachedCheckResults(sheetsKey, wordId, columnsKey);
+
+        if (cachedResults) {
+            console.log(`📦 Використовуємо кешовані результати (${cachedResults.length} записів)`);
+            loader.updateProgress(50, 'Використання кешованих результатів...');
+
+            const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
+
+            // Зберегти результати в state
+            bannedWordsState.checkResults = cachedResults;
+            bannedWordsState.selectedSheet = sheetName;
+            bannedWordsState.selectedWord = wordId;
+            bannedWordsState.selectedColumn = columnName;
+
+            // Відрендерити результати
+            loader.updateProgress(70, 'Підготовка результатів...');
+            await renderCheckResults(sheetName, bannedWord);
+
+            // Ініціалізувати пагінацію
+            loader.updateProgress(85, 'Налаштування пагінації...');
+            registerCheckTabPagination(tabId, cachedResults.length, async () => {
+                const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
+                await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
+            });
+
+            // Ініціалізувати сортування
+            loader.updateProgress(90, 'Налаштування сортування...');
+            const { initCheckTabSorting } = await import('./banned-words-events.js');
+            initCheckTabSorting(tabId);
+
+            // Ініціалізувати фільтри
+            loader.updateProgress(95, 'Налаштування фільтрів...');
+            initCheckTabFilters(tabId);
+
+            // Оновити статистику
+            const totalMatchCount = cachedResults.reduce((sum, r) => sum + (r.matchCount || 0), 0);
+            updateAsideStats(cachedResults.length, totalMatchCount);
+
+            // Завершити
+            loader.updateProgress(100, 'Готово!');
+            setTimeout(() => {
+                loader.hide();
+                showToast(`Завантажено з кешу: ${cachedResults.length} результатів`, 'success', 2000);
+            }, 200);
+
+            return;
+        }
+
         // Знайти заборонене слово в state
-        loader.updateProgress(5, 'Пошук заборонного слова...');
+        loader.updateProgress(10, 'Пошук заборонного слова...');
         const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
         if (!bannedWord) {
             loader.hide();
@@ -160,9 +210,8 @@ export async function performCheck(sheetName, wordId, columnName) {
         bannedWordsState.columnsWithErrors = columnsWithErrors;
         console.log(`📊 Колонки з помилками: ${columnsWithErrors.join(', ')}`);
 
-        // Зберегти результати в кеш
-        const cacheKey = `${selectedSheets.join(',')}-${wordId}-${selectedColumns.join(',')}`;
-        setCachedCheckResults(sheetName, wordId, columnName, aggregatedResults);
+        // Зберегти результати в кеш (ключ має співпадати з getCachedCheckResults)
+        setCachedCheckResults(sheetsKey, wordId, columnsKey, aggregatedResults);
 
         // Відрендерити результати
         loader.updateProgress(80, 'Підготовка результатів...');
@@ -277,7 +326,14 @@ function aggregateResultsByProduct(results) {
  */
 export async function renderCheckResults(sheetName, bannedWord) {
     const { selectedSheet, selectedWord, selectedColumn } = bannedWordsState;
-    const tabId = `check-${selectedSheet}-${selectedWord}-${selectedColumn}`;
+
+    // Генеруємо tabId так само як в createCheckResultsTab та performCheck
+    const selectedSheets = bannedWordsState.selectedSheets || [selectedSheet];
+    const selectedColumns = bannedWordsState.selectedColumns || [selectedColumn];
+    const sheetsKey = [...selectedSheets].sort().join('-');
+    const columnsKey = [...selectedColumns].sort().join('-');
+    const tabId = `check-${sheetsKey}-${selectedWord}-${columnsKey}`;
+
     const container = document.getElementById(`check-results-${tabId}`);
     if (!container) {
         console.error('❌ Контейнер для результатів не знайдено:', `check-results-${tabId}`);
@@ -329,7 +385,6 @@ export async function renderCheckResults(sheetName, bannedWord) {
     }
 
     // Визначити чи показувати колонки Аркуш/Колонка
-    const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
     const columnsWithErrors = bannedWordsState.columnsWithErrors || [];
     const showSheetColumn = selectedSheets.length > 1;
     // Показувати колонку "Колонка" тільки якщо помилки знайдено в > 1 колонці
