@@ -781,7 +781,7 @@ function limitWords(text, maxWords = 15) {
 function showBannedWordTooltip(targetElement, wordInfo) {
     const tooltip = getTooltipElement();
 
-    // Сформувати контент tooltip
+    // Сформувати контент tooltip (назва + пояснення + рекомендація)
     let content = '';
 
     // Назва групи
@@ -789,26 +789,14 @@ function showBannedWordTooltip(targetElement, wordInfo) {
         content += `<div style="font-weight: 600; margin-bottom: 8px; color: var(--color-error);">${wordInfo.group_name_ua}</div>`;
     }
 
-    // Українські слова (обмежено до 15 слів)
-    if (wordInfo.name_uk && wordInfo.name_uk.trim()) {
-        const limitedUk = limitWords(wordInfo.name_uk, 15);
-        content += `<div style="margin-bottom: 4px;"><strong>UA:</strong> ${limitedUk}</div>`;
-    }
-
-    // Російські слова (обмежено до 15 слів)
-    if (wordInfo.name_ru && wordInfo.name_ru.trim()) {
-        const limitedRu = limitWords(wordInfo.name_ru, 15);
-        content += `<div style="margin-bottom: 4px;"><strong>RU:</strong> ${limitedRu}</div>`;
-    }
-
     // Пояснення
     if (wordInfo.banned_explaine && wordInfo.banned_explaine.trim()) {
-        content += `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-outline-v);"><em>${wordInfo.banned_explaine}</em></div>`;
+        content += `<div style="margin-bottom: 8px;">${wordInfo.banned_explaine}</div>`;
     }
 
-    // Підказка
-    if (wordInfo.banned_hint && wordInfo.banned_hint.trim()) {
-        content += `<div style="margin-top: 4px; color: var(--color-success);"><strong>Підказка:</strong> ${wordInfo.banned_hint}</div>`;
+    // Рекомендація
+    if (wordInfo.banned_recommend && wordInfo.banned_recommend.trim()) {
+        content += `<div style="color: var(--color-success);"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
     }
 
     tooltip.innerHTML = content;

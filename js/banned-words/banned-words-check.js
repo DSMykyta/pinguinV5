@@ -172,11 +172,11 @@ export async function performCheck(sheetName, wordId, columnName) {
                 }
 
                 try {
-                    // Детальний прогрес: аркуш → колонка → назва групи
+                    // Детальний прогрес: аркуш / колонка / назва групи
                     const progressPercent = Math.round(10 + (currentStep / totalSteps) * 70);
                     loader.updateProgress(
                         Math.min(progressPercent, 80),
-                        `📋 ${sheet}\n📄 ${col}\n🔍 ${wordsLabel}`
+                        `${sheet} / ${col}\n${wordsLabel}`
                     );
 
                     // Завантажити дані з аркуша

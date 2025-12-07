@@ -5,6 +5,8 @@ import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 // Список відсортований за алфавітом для відображення в модальному вікні
 let bannedWords = [];
+// Повні дані про заборонені слова (для tooltip)
+let bannedWordsData = [];
 let validationRegex = null;
 const BANNED_WORDS_URL = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=1742878044`;
 
@@ -68,24 +70,26 @@ async function fetchBannedWords() {
         const csvData = await response.text();
         const parsedData = Papa.parse(csvData, { header: true, skipEmptyLines: true }).data;
 
-        // === ВИПРАВЛЕННЯ: Розбиваємо слова з комірок ===
+        // Зберігаємо повні дані для tooltip
+        bannedWordsData = parsedData;
+
+        // Розбиваємо слова з комірок
         const wordsFromSheet = [];
         parsedData.forEach(row => {
             const ukWords = (row.name_uk || '').split(',').map(s => s.trim()).filter(Boolean);
             const ruWords = (row.name_ru || '').split(',').map(s => s.trim()).filter(Boolean);
             wordsFromSheet.push(...ukWords, ...ruWords);
         });
-        // === КІНЕЦЬ ВИПРАВЛЕННЯ ===
 
         if (wordsFromSheet.length === 0) throw new Error('Список порожній або не знайдено колонки name_uk/name_ru.');
-        
-        // ОПТИМІЗАЦІЯ: Сортуємо унікальний список за алфавітом ОДИН РАЗ тут для відображення в модальному вікні
+
+        // Сортуємо унікальний список за алфавітом
         bannedWords = [...new Set(wordsFromSheet)].sort((a, b) => a.localeCompare(b));
 
     } catch (error) {
         console.error("[Validator] Помилка завантаження:", error.message);
-        // Також сортуємо резервний список
         bannedWords = FALLBACK_WORDS.sort((a, b) => a.localeCompare(b));
+        bannedWordsData = [];
     }
     buildRegex();
 }
@@ -137,6 +141,90 @@ function getResultsContainer() {
 }
 
 /**
+ * Знайти інформацію про заборонене слово
+ */
+function findBannedWordInfo(word) {
+    if (!bannedWordsData || bannedWordsData.length === 0) return null;
+
+    const lowerWord = word.toLowerCase();
+
+    for (const row of bannedWordsData) {
+        const ukWords = (row.name_uk || '').split(',').map(s => s.trim().toLowerCase());
+        const ruWords = (row.name_ru || '').split(',').map(s => s.trim().toLowerCase());
+
+        if (ukWords.includes(lowerWord) || ruWords.includes(lowerWord)) {
+            return {
+                group_name_ua: row.group_name_ua || '',
+                banned_explaine: row.banned_explaine || '',
+                banned_recommend: row.banned_recommend || ''
+            };
+        }
+    }
+    return null;
+}
+
+// Tooltip елемент
+let gteTooltipElement = null;
+
+function getGteTooltipElement() {
+    if (!gteTooltipElement) {
+        gteTooltipElement = document.createElement('div');
+        gteTooltipElement.className = 'banned-word-tooltip';
+        gteTooltipElement.style.cssText = `
+            position: fixed;
+            z-index: 10000;
+            background: var(--color-surface-container-high, #1a1a1a);
+            color: var(--color-on-surface, #fff);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            max-width: 320px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        `;
+        document.body.appendChild(gteTooltipElement);
+    }
+    return gteTooltipElement;
+}
+
+function showGteTooltip(target, wordInfo) {
+    const tooltip = getGteTooltipElement();
+    let content = '';
+
+    // Назва групи
+    if (wordInfo.group_name_ua) {
+        content += `<div style="font-weight: 600; margin-bottom: 6px; color: var(--color-error, #f44336);">${wordInfo.group_name_ua}</div>`;
+    }
+
+    // Пояснення
+    if (wordInfo.banned_explaine) {
+        content += `<div style="margin-bottom: 6px;">${wordInfo.banned_explaine}</div>`;
+    }
+
+    // Рекомендація
+    if (wordInfo.banned_recommend) {
+        content += `<div style="color: var(--color-primary, #4CAF50);"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
+    }
+
+    if (!content) return;
+
+    tooltip.innerHTML = content;
+
+    const rect = target.getBoundingClientRect();
+    tooltip.style.left = `${rect.left}px`;
+    tooltip.style.top = `${rect.bottom + 8}px`;
+    tooltip.style.opacity = '1';
+}
+
+function hideGteTooltip() {
+    if (gteTooltipElement) {
+        gteTooltipElement.style.opacity = '0';
+    }
+}
+
+/**
  * Оновлює відображення результатів з детальною статистикою.
  */
 function displayValidationResults(results) {
@@ -146,11 +234,10 @@ function displayValidationResults(results) {
 
     if (totalCount > 0) {
         const formattedList = [];
-        // Сортуємо результати (які знайдені в тексті) за алфавітом для консистентного відображення
         const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
         for (const [word, count] of sortedEntries) {
-            formattedList.push(`<span class="chip chip-error">${word} (${count})</span>`);
+            formattedList.push(`<span class="chip chip-error" data-banned-word="${word}">${word} (${count})</span>`);
         }
 
         const wordsListString = formattedList.join(' ');
@@ -158,6 +245,18 @@ function displayValidationResults(results) {
 
         resultsContainer.innerHTML = html;
         resultsContainer.classList.add('has-errors');
+
+        // Додати tooltip обробники
+        resultsContainer.querySelectorAll('.chip-error[data-banned-word]').forEach(chip => {
+            chip.addEventListener('mouseenter', (e) => {
+                const word = e.target.dataset.bannedWord;
+                const wordInfo = findBannedWordInfo(word);
+                if (wordInfo) {
+                    showGteTooltip(e.target, wordInfo);
+                }
+            });
+            chip.addEventListener('mouseleave', hideGteTooltip);
+        });
     } else {
         resultsContainer.innerHTML = '';
         resultsContainer.classList.remove('has-errors');
