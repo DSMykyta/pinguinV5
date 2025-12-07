@@ -515,12 +515,12 @@ export async function renderCheckResults(sheetName, bannedWord) {
                     newStatus
                 );
 
-                // Інвалідувати кеш для цієї перевірки
-                invalidateCheckCache(
-                    bannedWordsState.selectedSheet,
-                    bannedWordsState.selectedWord,
-                    bannedWordsState.selectedColumn
-                );
+                // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
+                const selectedSheets = bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet];
+                const selectedColumns = bannedWordsState.selectedColumns || [bannedWordsState.selectedColumn];
+                const sheetsKey = [...selectedSheets].sort().join('-');
+                const columnsKey = [...selectedColumns].sort().join('-');
+                invalidateCheckCache(sheetsKey, bannedWordsState.selectedWord, columnsKey);
 
                 // Оновити локальний стейт
                 const result = bannedWordsState.checkResults.find(r => r.id === productId);

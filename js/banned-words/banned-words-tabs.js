@@ -132,9 +132,14 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
             const word = tabButton.dataset.checkWord;
             const column = tabButton.dataset.checkColumn;
 
-            // Інвалідувати кеш для цієї перевірки
+            // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
+            // tabId має формат: check-{sheetsKey}-{word}-{columnsKey}
             const { invalidateCheckCache } = await import('./banned-words-init.js');
-            invalidateCheckCache(sheet, word, column);
+            const selectedSheets = bannedWordsState.selectedSheets || [sheet];
+            const selectedColumns = bannedWordsState.selectedColumns || [column];
+            const sheetsKey = [...selectedSheets].sort().join('-');
+            const columnsKey = [...selectedColumns].sort().join('-');
+            invalidateCheckCache(sheetsKey, word, columnsKey);
 
             // Оновити state перед перевіркою
             bannedWordsState.selectedSheet = sheet;
@@ -169,6 +174,9 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
 // Прапорець для запобігання повторної ініціалізації
 let handlersInitialized = false;
 
+// Прапорець для запобігання повторному виклику закриття табу
+let isClosingTab = false;
+
 /**
  * Ініціалізувати обробники для всіх табів
  * Використовує делегування подій на document
@@ -191,6 +199,12 @@ export function initTabHandlers() {
         e.stopPropagation();
         e.stopImmediatePropagation(); // Зупиняє інші обробники на document
 
+        // Захист від повторних кліків поки модал відкритий
+        if (isClosingTab) {
+            console.log('⚠️ Закриття табу вже в процесі, ігноруємо клік');
+            return;
+        }
+
         // Знайти батьківську кнопку табу
         const tabButton = closeButton.closest('.nav-icon');
         if (!tabButton) return;
@@ -200,18 +214,24 @@ export function initTabHandlers() {
 
         console.log(`🗑️ Спроба закрити таб: ${tabId}`);
 
-        // Використовуємо showConfirmModal з ui-modal-confirm.js
-        const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
-        const confirmed = await showConfirmModal({
-            title: 'Закрити таб?',
-            message: 'Всі незбережені дані будуть втрачені. Продовжити?',
-            confirmText: 'Закрити',
-            cancelText: 'Скасувати',
-            confirmClass: 'btn-danger'
-        });
+        isClosingTab = true;
 
-        if (confirmed) {
-            removeCheckTab(tabId);
+        try {
+            // Використовуємо showConfirmModal з ui-modal-confirm.js
+            const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
+            const confirmed = await showConfirmModal({
+                title: 'Закрити таб?',
+                message: 'Всі незбережені дані будуть втрачені. Продовжити?',
+                confirmText: 'Закрити',
+                cancelText: 'Скасувати',
+                confirmClass: 'btn-danger'
+            });
+
+            if (confirmed) {
+                removeCheckTab(tabId);
+            }
+        } finally {
+            isClosingTab = false;
         }
     });
 
@@ -372,6 +392,18 @@ export function removeCheckTab(tabId) {
     if (bannedWordsState.tabPaginations[tabId]) {
         delete bannedWordsState.tabPaginations[tabId];
         console.log(`✅ Пагінація табу видалена`);
+    }
+
+    // Видалити фільтри з state
+    if (bannedWordsState.tabFilters[tabId]) {
+        delete bannedWordsState.tabFilters[tabId];
+        console.log(`✅ Фільтри табу видалені`);
+    }
+
+    // Видалити вибрані продукти з state
+    if (bannedWordsState.selectedProducts[tabId]) {
+        delete bannedWordsState.selectedProducts[tabId];
+        console.log(`✅ Вибрані продукти табу видалені`);
     }
 
     // Видалити таб зі збереженого стану
