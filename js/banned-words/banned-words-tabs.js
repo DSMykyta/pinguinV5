@@ -89,6 +89,12 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     const wordsKey = [...wordsArr].sort().join('-');
     const tabId = `check-${sheetsKey}-${wordsKey}-${columnsKey}`;
 
+    // Захист від race conditions - якщо таб вже створюється, чекаємо
+    if (tabsBeingCreated.has(tabId)) {
+        console.log(`⚠️ Таб "${tabId}" вже створюється, пропускаємо...`);
+        return;
+    }
+
     // Перевірити чи таб вже існує
     let existingTab = document.querySelector(`[data-tab-target="${tabId}"]`);
     if (existingTab) {
@@ -100,6 +106,9 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
         await performCheck(selectedSheet, selectedWord, selectedColumn);
         return;
     }
+
+    // Позначити таб як такий, що створюється
+    tabsBeingCreated.add(tabId);
 
     // Створити кнопку табу
     const tabsContainer = document.getElementById('tabs-head-container');
@@ -181,6 +190,9 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
         columns: columnsArr
     });
 
+    // Видалити таб зі списку тих, що створюються
+    tabsBeingCreated.delete(tabId);
+
     // Активувати новий таб через клік (затримка для оновлення DOM)
     // ВИПРАВЛЕНО: Пропустити автоактивацію при відновленні табів
     if (!skipAutoActivate) {
@@ -199,6 +211,9 @@ let handlersInitialized = false;
 // Прапорець для запобігання повторному виклику закриття табу
 let isClosingTab = false;
 
+// Set для відстеження табів, що зараз створюються (захист від race conditions)
+const tabsBeingCreated = new Set();
+
 /**
  * Ініціалізувати обробники для всіх табів
  * Використовує делегування подій на document
@@ -212,14 +227,15 @@ export function initTabHandlers() {
     console.log('🎯 Ініціалізація обробників табів...');
     handlersInitialized = true;
 
-    // Обробник для кнопки закриття табу (ПЕРШИЙ, щоб запобігти активації табу)
+    // Обробник для кнопки закриття табу (використовуємо CAPTURE фазу для гарантованого першого виклику)
     document.addEventListener('click', async (e) => {
         const closeButton = e.target.closest('.tab-close-btn');
         if (!closeButton) return;
 
+        // Зупиняємо подію ОДРАЗУ в capture фазі
         e.preventDefault();
         e.stopPropagation();
-        e.stopImmediatePropagation(); // Зупиняє інші обробники на document
+        e.stopImmediatePropagation();
 
         // Захист від повторних кліків поки модал відкритий
         if (isClosingTab) {
@@ -255,7 +271,7 @@ export function initTabHandlers() {
         } finally {
             isClosingTab = false;
         }
-    });
+    }, true); // CAPTURE = true - обробник спрацьовує першим
 
     // Використовуємо делегування подій на document для надійності
     document.addEventListener('click', async (e) => {

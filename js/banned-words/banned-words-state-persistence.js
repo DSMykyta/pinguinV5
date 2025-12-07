@@ -62,6 +62,24 @@ export function loadTabsState(maxAge = 24 * 60 * 60 * 1000) {
             return null;
         }
 
+        // Дедуплікація табів за tabId (захист від пошкоджених даних)
+        if (state.openTabs && Array.isArray(state.openTabs)) {
+            const seenIds = new Set();
+            const uniqueTabs = [];
+            for (const tab of state.openTabs) {
+                if (tab.tabId && !seenIds.has(tab.tabId)) {
+                    seenIds.add(tab.tabId);
+                    uniqueTabs.push(tab);
+                }
+            }
+            if (uniqueTabs.length !== state.openTabs.length) {
+                console.warn(`⚠️ Знайдено ${state.openTabs.length - uniqueTabs.length} дублікатів табів, видалено`);
+                state.openTabs = uniqueTabs;
+                // Зберегти очищений стан
+                saveTabsState(state);
+            }
+        }
+
         console.log('📂 Завантажено стан табів:', state);
         return state;
     } catch (error) {
