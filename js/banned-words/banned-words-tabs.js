@@ -276,6 +276,9 @@ export function initTabHandlers() {
         if (tabContent) {
             tabContent.classList.add('active');
 
+            // Оновити currentTab в state
+            bannedWordsState.currentTab = tabId;
+
             // Оновити активний таб в збереженому стані
             setActiveTab(tabId);
 

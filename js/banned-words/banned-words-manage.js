@@ -97,8 +97,8 @@ export async function renderBannedWordsTable() {
     const endIndex = startIndex + tabPagination.pageSize;
     const paginatedWords = filteredWords.slice(startIndex, endIndex);
 
-    // Оновити лічильники в заголовку
-    updateCounters(paginatedWords.length, bannedWordsState.bannedWords.length);
+    // Оновити лічильники в заголовку (показуємо з відфільтрованих, не загальних)
+    updateCounters(paginatedWords.length, filteredWords.length);
 
     // Визначити які колонки показувати - якщо порожній масив, показуємо всі
 const visibleCols = (bannedWordsState.visibleColumns && bannedWordsState.visibleColumns.length > 0)
@@ -511,14 +511,8 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
             checkedEl.textContent = checkedCount;
         }
 
-        // Закрити модал (через кнопку закриття)
-        const modalWrapper = document.getElementById('global-modal-wrapper');
-        if (modalWrapper) {
-            document.body.classList.remove('is-modal-open');
-            modalWrapper.classList.remove('is-open');
-        }
-
-        closeModal(); // Закрити модал (використовуючи функцію)
+        // Закрити модал
+        closeModal();
 
         // Показати toast повідомлення
         const { showToast } = await import('../common/ui-toast.js');

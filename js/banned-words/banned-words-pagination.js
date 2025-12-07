@@ -90,11 +90,14 @@ export function initPaginationForBannedWords() {
  * @param {Function} renderFn - Функція рендерингу
  */
 export function registerCheckTabPagination(tabId, totalItems, renderFn) {
+    // Зберегти існуючу пагінацію якщо є (щоб не скидати currentPage)
+    const existing = bannedWordsState.tabPaginations[tabId];
+
     bannedWordsState.tabPaginations[tabId] = {
-        currentPage: 1,
-        pageSize: 10,
+        currentPage: existing?.currentPage || 1,
+        pageSize: existing?.pageSize || 10,
         totalItems: totalItems,
         renderFn: renderFn
     };
-    console.log(`✅ Пагінація для ${tabId} зареєстрована (${totalItems} елементів)`);
+    console.log(`✅ Пагінація для ${tabId} зареєстрована (${totalItems} елементів, сторінка ${bannedWordsState.tabPaginations[tabId].currentPage})`);
 }

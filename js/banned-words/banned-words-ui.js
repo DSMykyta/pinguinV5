@@ -46,8 +46,8 @@ export function showAsidePanels() {
     // Заповнити колонки для пошуку (залежать від visibleColumns)
     populateSearchColumns();
 
-    // Ініціалізувати чекбокс приховування
-    // initHideCheckedToggle(); Помилка: елемент не знайдено}//
+    // Ініціалізувати чекбокс приховування (вимкнено - елемент не знайдено)
+    // initHideCheckedToggle();
 }
 
 /**
