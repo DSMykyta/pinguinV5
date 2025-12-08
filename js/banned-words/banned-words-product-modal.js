@@ -780,9 +780,9 @@ function showBannedWordTooltip(targetElement, wordInfo) {
         content += `<div class="tooltip-description">${wordInfo.banned_explaine}</div>`;
     }
 
-    // Рекомендація
-    if (wordInfo.banned_recommend && wordInfo.banned_recommend.trim()) {
-        content += `<div class="tooltip-recommend"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
+    // Рекомендація (banned_hint)
+    if (wordInfo.banned_hint && wordInfo.banned_hint.trim()) {
+        content += `<div class="tooltip-hint"><strong>Рекомендація:</strong> ${wordInfo.banned_hint}</div>`;
     }
 
     tooltip.innerHTML = content;

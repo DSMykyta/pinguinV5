@@ -156,7 +156,7 @@ function findBannedWordInfo(word) {
             return {
                 group_name_ua: row.group_name_ua || '',
                 banned_explaine: row.banned_explaine || '',
-                banned_recommend: row.banned_recommend || ''
+                banned_hint: row.banned_hint || ''
             };
         }
     }
@@ -189,9 +189,9 @@ function showGteTooltip(target, wordInfo) {
         content += `<div class="tooltip-description">${wordInfo.banned_explaine}</div>`;
     }
 
-    // Рекомендація
-    if (wordInfo.banned_recommend) {
-        content += `<div class="tooltip-recommend"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
+    // Рекомендація (banned_hint)
+    if (wordInfo.banned_hint) {
+        content += `<div class="tooltip-hint"><strong>Рекомендація:</strong> ${wordInfo.banned_hint}</div>`;
     }
 
     if (!content) return;

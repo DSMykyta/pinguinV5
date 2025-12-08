@@ -47,8 +47,8 @@
 .banned-word-tooltip {
     position: fixed;
     z-index: 10000;
-    background: var(--color-surface-container-high);
-    color: var(--color-on-surface);
+    background: var(--color-on-surface);
+    color: var(--color-surface);
     padding: 12px;
     border-radius: 8px;
     font-size: 13px;
@@ -70,18 +70,18 @@
     color: var(--color-error);
 }
 
-/* Опис - білий (на темному фоні) */
+/* Опис - білий текст на темному фоні */
 .banned-word-tooltip .tooltip-description {
     margin-bottom: 8px;
-    color: var(--color-on-surface);
+    color: var(--color-surface);
 }
 
 /* Рекомендація - зелений */
-.banned-word-tooltip .tooltip-recommend {
+.banned-word-tooltip .tooltip-hint {
     color: var(--color-success);
 }
 
-.banned-word-tooltip .tooltip-recommend strong {
+.banned-word-tooltip .tooltip-hint strong {
     font-weight: 600;
 }
 
