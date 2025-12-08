@@ -820,6 +820,7 @@ function showBannedWordTooltip(targetElement, wordInfo) {
     tooltip.style.left = `${left}px`;
     tooltip.style.visibility = '';
     tooltip.style.display = '';
+    tooltip.style.opacity = '';
     tooltip.classList.add('visible');
 }
 
