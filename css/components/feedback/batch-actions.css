@@ -67,24 +67,27 @@
 }
 
 .batch-actions-bar .batch-btn:hover {
-    background: var(--color-secondary);
+    background: var(--color-main-c);
+    color: var(--color-main);
 }
 
 .batch-actions-bar .batch-btn:active {
-    background: var(--color-on-secondary-c);
+    background: var(--color-main-t-2);
 }
 
+/* Primary button - темна, темніша при hover */
 .batch-actions-bar .batch-btn.primary {
-    background: var(--color-secondary);
-    color: var(--color-on-secondary);
+    background: var(--color-main);
+    color: var(--color-surface);
 }
 
 .batch-actions-bar .batch-btn.primary:hover {
-    background: var(--color-secondary);
+    background: var(--color-main);
+    filter: brightness(0.85);
 }
 
 .batch-actions-bar .batch-btn.primary:active {
-    background: var(--color-on-secondary-c);
+    filter: brightness(0.75);
 }
 
 .batch-actions-bar .batch-btn .material-symbols-outlined {
