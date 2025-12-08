@@ -716,20 +716,6 @@ function getTooltipElement() {
     if (!tooltipElement) {
         tooltipElement = document.createElement('div');
         tooltipElement.className = 'banned-word-tooltip';
-        tooltipElement.style.cssText = `
-            position: fixed;
-            z-index: 10000;
-            background: var(--color-on-surface);
-            color: var(--color-surface);
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 13px;
-            max-width: 350px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        `;
         document.body.appendChild(tooltipElement);
     }
     return tooltipElement;
@@ -786,17 +772,17 @@ function showBannedWordTooltip(targetElement, wordInfo) {
 
     // Назва групи
     if (wordInfo.group_name_ua) {
-        content += `<div style="font-weight: 600; margin-bottom: 8px; color: var(--color-error);">${wordInfo.group_name_ua}</div>`;
+        content += `<div class="tooltip-title">${wordInfo.group_name_ua}</div>`;
     }
 
     // Пояснення
     if (wordInfo.banned_explaine && wordInfo.banned_explaine.trim()) {
-        content += `<div style="margin-bottom: 8px;">${wordInfo.banned_explaine}</div>`;
+        content += `<div class="tooltip-description">${wordInfo.banned_explaine}</div>`;
     }
 
     // Рекомендація
     if (wordInfo.banned_recommend && wordInfo.banned_recommend.trim()) {
-        content += `<div style="color: var(--color-success);"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
+        content += `<div class="tooltip-recommend"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
     }
 
     tooltip.innerHTML = content;
@@ -818,7 +804,7 @@ function showBannedWordTooltip(targetElement, wordInfo) {
 
     tooltip.style.top = `${top}px`;
     tooltip.style.left = `${left}px`;
-    tooltip.style.opacity = '1';
+    tooltip.classList.add('visible');
 }
 
 /**
@@ -826,7 +812,7 @@ function showBannedWordTooltip(targetElement, wordInfo) {
  */
 function hideBannedWordTooltip() {
     const tooltip = getTooltipElement();
-    tooltip.style.opacity = '0';
+    tooltip.classList.remove('visible');
 }
 
 /**

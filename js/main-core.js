@@ -22,6 +22,7 @@ export function initCore() {
     // щоб modal system був готовий коли auth спробує відкрити модал
     initModals();
 
+    initModalAvatars();
     initTabs();
     initEventHandlers();
     initSectionNavigator();

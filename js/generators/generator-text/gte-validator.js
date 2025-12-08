@@ -170,20 +170,6 @@ function getGteTooltipElement() {
     if (!gteTooltipElement) {
         gteTooltipElement = document.createElement('div');
         gteTooltipElement.className = 'banned-word-tooltip';
-        gteTooltipElement.style.cssText = `
-            position: fixed;
-            z-index: 10000;
-            background: var(--color-surface-container-high, #1a1a1a);
-            color: var(--color-on-surface, #fff);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            max-width: 320px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        `;
         document.body.appendChild(gteTooltipElement);
     }
     return gteTooltipElement;
@@ -195,17 +181,17 @@ function showGteTooltip(target, wordInfo) {
 
     // Назва групи
     if (wordInfo.group_name_ua) {
-        content += `<div style="font-weight: 600; margin-bottom: 6px; color: var(--color-error, #f44336);">${wordInfo.group_name_ua}</div>`;
+        content += `<div class="tooltip-title">${wordInfo.group_name_ua}</div>`;
     }
 
     // Пояснення
     if (wordInfo.banned_explaine) {
-        content += `<div style="margin-bottom: 6px;">${wordInfo.banned_explaine}</div>`;
+        content += `<div class="tooltip-description">${wordInfo.banned_explaine}</div>`;
     }
 
     // Рекомендація
     if (wordInfo.banned_recommend) {
-        content += `<div style="color: var(--color-primary, #4CAF50);"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
+        content += `<div class="tooltip-recommend"><strong>Рекомендація:</strong> ${wordInfo.banned_recommend}</div>`;
     }
 
     if (!content) return;
@@ -215,12 +201,12 @@ function showGteTooltip(target, wordInfo) {
     const rect = target.getBoundingClientRect();
     tooltip.style.left = `${rect.left}px`;
     tooltip.style.top = `${rect.bottom + 8}px`;
-    tooltip.style.opacity = '1';
+    tooltip.classList.add('visible');
 }
 
 function hideGteTooltip() {
     if (gteTooltipElement) {
-        gteTooltipElement.style.opacity = '0';
+        gteTooltipElement.classList.remove('visible');
     }
 }
 

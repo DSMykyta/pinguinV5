@@ -43,3 +43,45 @@
     opacity: 1;
     transform: scale(1);
 }
+
+.banned-word-tooltip {
+    position: fixed;
+    z-index: 10000;
+    background: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    max-width: 320px;
+    box-shadow: var(--shadow-1);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.banned-word-tooltip.visible {
+    opacity: 1;
+}
+
+/* Назва групи - червоний */
+.banned-word-tooltip .tooltip-title {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--color-error);
+}
+
+/* Опис - білий (на темному фоні) */
+.banned-word-tooltip .tooltip-description {
+    margin-bottom: 8px;
+    color: var(--color-on-surface);
+}
+
+/* Рекомендація - зелений */
+.banned-word-tooltip .tooltip-recommend {
+    color: var(--color-success);
+}
+
+.banned-word-tooltip .tooltip-recommend strong {
+    font-weight: 600;
+}
+
