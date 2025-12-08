@@ -787,23 +787,39 @@ function showBannedWordTooltip(targetElement, wordInfo) {
 
     tooltip.innerHTML = content;
 
-    // Позиціонувати tooltip
+    // Позиціонувати tooltip з перевіркою меж екрану
     const rect = targetElement.getBoundingClientRect();
-    const tooltipRect = tooltip.getBoundingClientRect();
+
+    // Спочатку показати щоб отримати реальні розміри
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.opacity = '0';
+    tooltip.style.display = 'block';
+
+    const tooltipHeight = tooltip.offsetHeight;
+    const tooltipWidth = tooltip.offsetWidth;
 
     let top = rect.bottom + 8;
     let left = rect.left;
 
-    // Перевірити чи tooltip не виходить за межі екрану
-    if (left + 350 > window.innerWidth) {
-        left = window.innerWidth - 360;
+    // Перевірити чи tooltip не виходить за межі екрану (знизу)
+    if (top + tooltipHeight > window.innerHeight) {
+        top = rect.top - tooltipHeight - 8;
     }
-    if (top + 200 > window.innerHeight) {
-        top = rect.top - 200 - 8;
+
+    // Перевірити чи tooltip не виходить за межі екрану (справа)
+    if (left + tooltipWidth > window.innerWidth) {
+        left = window.innerWidth - tooltipWidth - 10;
+    }
+
+    // Не дозволити від'ємний left
+    if (left < 10) {
+        left = 10;
     }
 
     tooltip.style.top = `${top}px`;
     tooltip.style.left = `${left}px`;
+    tooltip.style.visibility = '';
+    tooltip.style.display = '';
     tooltip.classList.add('visible');
 }
 
