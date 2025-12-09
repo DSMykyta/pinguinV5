@@ -18,62 +18,90 @@ const PRICE_START_ROW = 7; // Імпорт XLSX починається з ряд
 
 /**
  * Завантажити дані прайсу з Google Sheets
+ * Оптимізовано: завантажує тільки потрібні колонки
  */
 export async function loadPriceData() {
     try {
         console.log('📥 Завантаження даних прайсу...');
 
-        // Завантажуємо дані починаючи з рядка 7
-        const result = await callSheetsAPI('get', {
-            range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}:P`,
+        // Завантажуємо тільки потрібні колонки через batchGet
+        // A=code, B=article, C=brand, E=name, F=packaging, G=flavor,
+        // H=shiping_date, I=reserve, J=status, K=status_date, L=check, N=payment
+        const ranges = [
+            `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}:C`,  // code, article, brand
+            `${PRICE_SHEET_NAME}!E${PRICE_START_ROW}:L`,  // name, packaging, flavor, shiping_date, reserve, status, status_date, check
+            `${PRICE_SHEET_NAME}!N${PRICE_START_ROW}:N`   // payment
+        ];
+
+        const result = await callSheetsAPI('batchGet', {
+            ranges: ranges,
             spreadsheetType: 'price'
         });
 
-        const rows = result || [];
+        if (!result || result.length < 3) {
+            console.warn('⚠️ Прайс порожній або помилка завантаження');
+            priceState.priceItems = [];
+            priceState.reserveNames = [];
+            return;
+        }
 
-        if (rows.length === 0) {
+        // Витягуємо дані з кожного діапазону
+        const range1 = result[0]?.values || []; // A:C (code, article, brand)
+        const range2 = result[1]?.values || []; // E:L (name...check)
+        const range3 = result[2]?.values || []; // N (payment)
+
+        if (range1.length === 0) {
             console.warn('⚠️ Прайс порожній');
             priceState.priceItems = [];
             priceState.reserveNames = [];
             return;
         }
 
-        // Перший рядок - заголовки (рядок 7)
-        const headers = rows[0];
-        console.log('📋 Заголовки прайсу:', headers);
+        // Перший рядок - заголовки
+        console.log('📋 Заголовки:', range1[0], range2[0], range3[0]);
 
         // Парсимо дані
         const data = [];
         const reserveSet = new Set();
+        const rowCount = Math.max(range1.length, range2.length, range3.length);
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            if (!row || row.length === 0) continue;
+        for (let i = 1; i < rowCount; i++) {
+            const row1 = range1[i] || [];
+            const row2 = range2[i] || [];
+            const row3 = range3[i] || [];
 
-            const item = {};
-            headers.forEach((header, index) => {
-                item[header] = row[index] || '';
-            });
+            const code = (row1[0] || '').toString().trim();
+            if (!code) continue; // Пропускаємо порожні рядки
 
-            // Додати _rowIndex для оновлення
-            item._rowIndex = PRICE_START_ROW + i;
+            const item = {
+                code: code,
+                article: row1[1] || '',
+                brand: row1[2] || '',
+                name: row2[0] || '',
+                packaging: row2[1] || '',
+                flavor: row2[2] || '',
+                shiping_date: row2[3] || '',
+                reserve: row2[4] || '',
+                status: row2[5] || 'FALSE',
+                status_date: row2[6] || '',
+                check: row2[7] || 'FALSE',
+                payment: row3[0] || 'FALSE',
+                _rowIndex: PRICE_START_ROW + i
+            };
 
             // Збираємо унікальні резерви
             if (item.reserve && item.reserve.trim() !== '') {
                 reserveSet.add(item.reserve.trim());
             }
 
-            // Пропускаємо порожні рядки (без code)
-            if (item.code && item.code.trim() !== '') {
-                data.push(item);
-            }
+            data.push(item);
         }
 
         priceState.priceItems = data;
         priceState.filteredItems = [...data];
         priceState.reserveNames = Array.from(reserveSet).sort();
 
-        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів`);
+        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів (оптимізовано)`);
 
     } catch (error) {
         console.error('❌ Помилка завантаження прайсу:', error);
