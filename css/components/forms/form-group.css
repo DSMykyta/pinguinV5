@@ -169,6 +169,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
+    width: 100%;
     background: var(--color-surface-c-low);
     border-radius: 8px;
     cursor: pointer;

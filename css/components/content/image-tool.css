@@ -219,15 +219,3 @@
     flex-direction: column;
     width: 100%;
 }
-
-/**
- * Transparent panel box
- * Використовується для прозорих панелей
- */
-.panel-box--transparent {
-    background: transparent;
-    padding: 0;
-    padding-left: 8px;
-    height: 32px;
-    min-height: 32px;
-}
