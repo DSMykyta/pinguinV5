@@ -16,41 +16,38 @@ import { PRICE_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 const PRICE_SHEET_NAME = 'Price';
 const PRICE_START_ROW = 7; // Імпорт XLSX починається з рядка 7
 
+// Кеш для індексів колонок (заповнюється при першому завантаженні)
+let columnIndices = null;
+
+/**
+ * Конвертувати індекс колонки в букву (0=A, 1=B, ...)
+ */
+function columnIndexToLetter(index) {
+    let letter = '';
+    while (index >= 0) {
+        letter = String.fromCharCode((index % 26) + 65) + letter;
+        index = Math.floor(index / 26) - 1;
+    }
+    return letter;
+}
+
 /**
  * Завантажити дані прайсу з Google Sheets
- * Оптимізовано: завантажує тільки потрібні колонки
+ * Динамічно визначає колонки по заголовках
  */
 export async function loadPriceData() {
     try {
         console.log('📥 Завантаження даних прайсу...');
 
-        // Завантажуємо тільки потрібні колонки через batchGet
-        // A=code, B=article, C=brand, E=name, F=packaging, G=flavor,
-        // H=shiping_date, I=reserve, J=status, K=status_date, L=check, N=payment
-        const ranges = [
-            `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}:C`,  // code, article, brand
-            `${PRICE_SHEET_NAME}!E${PRICE_START_ROW}:L`,  // name, packaging, flavor, shiping_date, reserve, status, status_date, check
-            `${PRICE_SHEET_NAME}!N${PRICE_START_ROW}:N`   // payment
-        ];
-
-        const result = await callSheetsAPI('batchGet', {
-            ranges: ranges,
+        // Завантажуємо всі дані починаючи з рядка 7
+        const result = await callSheetsAPI('get', {
+            range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}:Z`,
             spreadsheetType: 'price'
         });
 
-        if (!result || result.length < 3) {
-            console.warn('⚠️ Прайс порожній або помилка завантаження');
-            priceState.priceItems = [];
-            priceState.reserveNames = [];
-            return;
-        }
+        const rows = result || [];
 
-        // Витягуємо дані з кожного діапазону
-        const range1 = result[0]?.values || []; // A:C (code, article, brand)
-        const range2 = result[1]?.values || []; // E:L (name...check)
-        const range3 = result[2]?.values || []; // N (payment)
-
-        if (range1.length === 0) {
+        if (rows.length === 0) {
             console.warn('⚠️ Прайс порожній');
             priceState.priceItems = [];
             priceState.reserveNames = [];
@@ -58,34 +55,52 @@ export async function loadPriceData() {
         }
 
         // Перший рядок - заголовки
-        console.log('📋 Заголовки:', range1[0], range2[0], range3[0]);
+        const headers = rows[0];
+        console.log('📋 Заголовки прайсу:', headers);
+
+        // Створюємо мапу індексів колонок
+        columnIndices = {};
+        headers.forEach((header, index) => {
+            if (header) {
+                columnIndices[header.toLowerCase()] = index;
+            }
+        });
+        console.log('📋 Індекси колонок:', columnIndices);
 
         // Парсимо дані
         const data = [];
         const reserveSet = new Set();
-        const rowCount = Math.max(range1.length, range2.length, range3.length);
 
-        for (let i = 1; i < rowCount; i++) {
-            const row1 = range1[i] || [];
-            const row2 = range2[i] || [];
-            const row3 = range3[i] || [];
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.length === 0) continue;
 
-            const code = (row1[0] || '').toString().trim();
+            // Динамічно отримуємо значення по назві колонки
+            const getValue = (colName) => {
+                const idx = columnIndices[colName.toLowerCase()];
+                return idx !== undefined ? (row[idx] || '') : '';
+            };
+
+            const code = getValue('code').toString().trim();
             if (!code) continue; // Пропускаємо порожні рядки
 
             const item = {
                 code: code,
-                article: row1[1] || '',
-                brand: row1[2] || '',
-                name: row2[0] || '',
-                packaging: row2[1] || '',
-                flavor: row2[2] || '',
-                shiping_date: row2[3] || '',
-                reserve: row2[4] || '',
-                status: row2[5] || 'FALSE',
-                status_date: row2[6] || '',
-                check: row2[7] || 'FALSE',
-                payment: row3[0] || 'FALSE',
+                article: getValue('article'),
+                brand: getValue('brand'),
+                category: getValue('category'),
+                name: getValue('name'),
+                packaging: getValue('packaging'),
+                flavor: getValue('flavor'),
+                shiping_date: getValue('shiping_date'),
+                reserve: getValue('reserve'),
+                status: getValue('status') || 'FALSE',
+                status_date: getValue('status_date'),
+                check: getValue('check') || 'FALSE',
+                check_date: getValue('check_date'),
+                payment: getValue('payment') || 'FALSE',
+                payment_date: getValue('payment_date'),
+                update_date: getValue('update_date'),
                 _rowIndex: PRICE_START_ROW + i
             };
 
@@ -101,12 +116,21 @@ export async function loadPriceData() {
         priceState.filteredItems = [...data];
         priceState.reserveNames = Array.from(reserveSet).sort();
 
-        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів (оптимізовано)`);
+        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів`);
 
     } catch (error) {
         console.error('❌ Помилка завантаження прайсу:', error);
         throw error;
     }
+}
+
+/**
+ * Отримати букву колонки по назві
+ */
+export function getColumnLetter(columnName) {
+    if (!columnIndices) return null;
+    const idx = columnIndices[columnName.toLowerCase()];
+    return idx !== undefined ? columnIndexToLetter(idx) : null;
 }
 
 /**
@@ -125,22 +149,13 @@ export async function updateItemStatus(code, field, value) {
             throw new Error(`Товар з кодом ${code} не знайдено`);
         }
 
-        // Визначаємо колонку для оновлення
-        const columnMap = {
-            'status': 'J',      // Колонка J = status
-            'status_date': 'K', // Колонка K = status_date
-            'check': 'L',       // Колонка L = check
-            'check_date': 'M',  // Колонка M = check_date
-            'payment': 'N',     // Колонка N = payment
-            'payment_date': 'O' // Колонка O = payment_date
-        };
-
+        // Динамічно визначаємо колонку
+        const columnLetter = getColumnLetter(field);
         const dateField = `${field}_date`;
-        const columnLetter = columnMap[field];
-        const dateColumnLetter = columnMap[dateField];
+        const dateColumnLetter = getColumnLetter(dateField);
 
         if (!columnLetter) {
-            throw new Error(`Невідоме поле: ${field}`);
+            throw new Error(`Колонка "${field}" не знайдена в таблиці`);
         }
 
         // Готуємо дані для оновлення
@@ -152,7 +167,7 @@ export async function updateItemStatus(code, field, value) {
             }
         ];
 
-        // Додаємо дату якщо value = TRUE
+        // Додаємо дату якщо value = TRUE і колонка дати існує
         if (value === 'TRUE' && dateColumnLetter) {
             updates.push({
                 range: `${PRICE_SHEET_NAME}!${dateColumnLetter}${item._rowIndex}`,
@@ -168,7 +183,7 @@ export async function updateItemStatus(code, field, value) {
 
         // Оновлюємо локальний state
         item[field] = value;
-        if (value === 'TRUE') {
+        if (value === 'TRUE' && dateColumnLetter) {
             item[dateField] = currentDate;
         }
 
@@ -196,9 +211,14 @@ export async function updateItemArticle(code, article) {
             throw new Error(`Товар з кодом ${code} не знайдено`);
         }
 
-        // Артикул в колонці B
+        // Динамічно визначаємо колонку article
+        const columnLetter = getColumnLetter('article');
+        if (!columnLetter) {
+            throw new Error('Колонка "article" не знайдена в таблиці');
+        }
+
         await callSheetsAPI('update', {
-            range: `${PRICE_SHEET_NAME}!B${item._rowIndex}`,
+            range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
             values: [[article]],
             spreadsheetType: 'price'
         });
@@ -228,9 +248,14 @@ export async function reserveItem(code, reserveName) {
             throw new Error(`Товар з кодом ${code} не знайдено`);
         }
 
-        // Reserve в колонці I
+        // Динамічно визначаємо колонку reserve
+        const columnLetter = getColumnLetter('reserve');
+        if (!columnLetter) {
+            throw new Error('Колонка "reserve" не знайдена в таблиці');
+        }
+
         await callSheetsAPI('update', {
-            range: `${PRICE_SHEET_NAME}!I${item._rowIndex}`,
+            range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
             values: [[reserveName]],
             spreadsheetType: 'price'
         });
