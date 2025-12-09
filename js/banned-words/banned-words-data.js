@@ -1,7 +1,16 @@
 // js/banned-words/banned-words-data.js
-// Робота з даними Google Sheets - НОВА ВЕРСІЯ (вибіркове завантаження)
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                 BANNED WORDS - DATA MANAGEMENT                           ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Робота з Google Sheets API для заборонених слів.
+ * Використовує уніфікований api-client для всіх операцій
+ */
 
 import { bannedWordsState } from './banned-words-init.js';
+import { callSheetsAPI } from '../utils/api-client.js';
 import { checkTextForBannedWords as checkText, getTextFragment as getFragment } from '../utils/text-utils.js';
 import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID as BANNED_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
@@ -10,6 +19,7 @@ export { checkText as checkTextForBannedWords, getFragment as getTextFragment };
 
 // Re-export IDs for backward compatibility
 export { TEXTS_SPREADSHEET_ID, BANNED_SPREADSHEET_ID };
+
 const BANNED_SHEET_NAME = 'Banned';
 const BANNED_SHEET_GID = '1742878044'; // GID для аркуша Banned
 
@@ -94,32 +104,7 @@ export async function loadBannedWords() {
     }
 }
 
-/**
- * Helper функція для виклику backend API з авторизацією
- */
-async function callSheetsAPI(action, params = {}) {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        throw new Error('Authorization required. Please login first.');
-    }
-
-    const response = await fetch(`${window.location.origin}/api/sheets`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ action, ...params })
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'API request failed');
-    }
-
-    const result = await response.json();
-    return result.data;
-}
+// callSheetsAPI імпортується з '../utils/api-client.js'
 
 /**
  * Отримати список назв аркушів з таблиці текстів
