@@ -6,12 +6,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Робота з Google Sheets API для брендів через backend API.
- * Використовує механізми з GOOGLE-SHEETS-GUIDE.md
- * Backend автоматично працює з spreadsheet з конфігурації.
+ * Використовує уніфікований api-client для всіх операцій
  */
 
 import { brandsState } from './brands-init.js';
+import { callSheetsAPI } from '../utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
+
 const SHEET_NAME = 'Brands';
 const SHEET_GID = '653695455'; // GID для Brands
 
@@ -59,32 +60,7 @@ export async function loadBrands() {
     }
 }
 
-/**
- * Виклик Sheets API через backend (для збереження)
- */
-async function callSheetsAPI(action, params = {}) {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-        throw new Error('Authorization required. Please login first.');
-    }
-
-    const response = await fetch(`${window.location.origin}/api/sheets`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ action, ...params })
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'API request failed');
-    }
-
-    const result = await response.json();
-    return result.data;
-}
+// callSheetsAPI імпортується з '../utils/api-client.js'
 
 /**
  * Отримати бренди з state

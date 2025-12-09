@@ -1,6 +1,14 @@
 /**
- * API Client для роботи з backend
- * Замінює прямі виклики до gapi.client.sheets
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    API CLIENT - UNIFIED DATA LAYER                       ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Єдина точка для всіх операцій з Google Sheets.
+ * Всі модулі (keywords, brands, banned-words, glossary) використовують цей клієнт.
+ *
+ * Використання:
+ *   import { callSheetsAPI } from '../utils/api-client.js';
+ *   await callSheetsAPI('get', { range: 'Sheet!A:Z', spreadsheetType: 'main' });
  */
 
 const API_BASE = window.location.origin;
@@ -10,7 +18,7 @@ const API_SHEETS_PROXY = `${API_BASE}/api/sheets`; // Unified endpoint
  * Виконує запит до backend з автоматичним додаванням токена
  */
 async function apiRequest(url, options = {}) {
-  const token = window.getAuthToken?.();
+  const token = window.getAuthToken?.() || localStorage.getItem('auth_token');
 
   if (!token) {
     throw new Error('Not authorized');
@@ -282,7 +290,82 @@ async function httpDelete(url, data) {
   });
 }
 
+// ============= UNIFIED SHEETS API =============
+
+/**
+ * Універсальна функція для всіх операцій з Google Sheets
+ * Використовується всіма модулями (keywords, brands, banned-words, glossary)
+ *
+ * @param {string} action - Тип операції: 'get', 'batchGet', 'update', 'append', 'batchUpdate', 'batchUpdateSpreadsheet', 'getSheetNames'
+ * @param {Object} params - Параметри операції
+ * @param {string} params.range - Діапазон (для get, update, append)
+ * @param {Array} params.ranges - Масив діапазонів (для batchGet)
+ * @param {Array} params.values - Дані для запису (для update, append)
+ * @param {Array} params.data - Дані для batch оновлення (для batchUpdate)
+ * @param {Array} params.requests - Запити (для batchUpdateSpreadsheet)
+ * @param {string} params.spreadsheetType - Тип таблиці: 'main', 'texts', 'users' (за замовчуванням 'main')
+ * @returns {Promise<any>} Результат операції
+ *
+ * @example
+ * // Читання даних
+ * const data = await callSheetsAPI('get', { range: 'Brands!A:F', spreadsheetType: 'main' });
+ *
+ * @example
+ * // Оновлення рядка
+ * await callSheetsAPI('update', {
+ *   range: 'Brands!A5:F5',
+ *   values: [['id', 'name', 'alt', 'country', 'text', 'link']],
+ *   spreadsheetType: 'main'
+ * });
+ *
+ * @example
+ * // Додавання нового рядка
+ * await callSheetsAPI('append', {
+ *   range: 'Brands!A:F',
+ *   values: [['new-id', 'New Brand', '', '', '', '']],
+ *   spreadsheetType: 'main'
+ * });
+ */
+async function callSheetsAPI(action, params = {}) {
+  const token = window.getAuthToken?.() || localStorage.getItem('auth_token');
+
+  if (!token) {
+    throw new Error('Authorization required. Please login first.');
+  }
+
+  const response = await fetch(API_SHEETS_PROXY, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ action, ...params })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'API request failed');
+  }
+
+  const result = await response.json();
+  return result.data;
+}
+
 // ============= Експорт =============
+
+// ES6 модульні експорти
+export {
+  callSheetsAPI,
+  apiRequest,
+  sheetsGet,
+  sheetsBatchGet,
+  sheetsUpdate,
+  sheetsAppend,
+  sheetsBatchUpdate,
+  sheetsBatchUpdateSpreadsheet,
+  sheetsGetSheetNames,
+  handleApiError
+};
 
 window.apiClient = {
   // Основна функція запитів
@@ -305,12 +388,16 @@ window.apiClient = {
     getSheetNames: sheetsGetSheetNames,
   },
 
+  // Універсальна функція (нова)
+  callSheetsAPI,
+
   // Утиліти
   showError,
   handleApiError,
 };
 
-// Альтернативні експорти для зручності
+// Альтернативні експорти для зручності (window.*)
+window.callSheetsAPI = callSheetsAPI;
 window.sheetsGet = sheetsGet;
 window.sheetsBatchGet = sheetsBatchGet;
 window.sheetsUpdate = sheetsUpdate;
@@ -319,4 +406,4 @@ window.sheetsBatchUpdate = sheetsBatchUpdate;
 window.sheetsBatchUpdateSpreadsheet = sheetsBatchUpdateSpreadsheet;
 window.sheetsGetSheetNames = sheetsGetSheetNames;
 
-console.log('API Client initialized');
+console.log('✅ API Client initialized (unified)');
