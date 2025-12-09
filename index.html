@@ -20,7 +20,7 @@
 
     <nav id="panel-left" class="panel panel-left">
 
-        <div class="panel-content-scroll">            
+        <div class="panel-content-scroll">
 
             <a href="index.html" target="_blank" class="panel-item is-active">
                 <span class="material-symbols-outlined panel-item-icon">instant_mix</span>
@@ -154,7 +154,8 @@
                     </div>
                     <h3>Налаштування таблиць</h3>
                 </div>
-                <button id="reload-section-tablet" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                <button id="reload-section-tablet" class="btn-icon btn-reload text-disabled"
+                    aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -235,31 +236,37 @@
             </div>
 
             <div class="section-content">
-                <div class="form-group-row">
-                    <div class="form-group-result">
-                        <input type="text" id="brand-name" class="input-main" placeholder="Назва бренду">
-                        <div id="country-name" class="country-display"></div>
-                    </div>
-                    <div class="form-group-result">
-                        <input type="text" id="product-name" class="input-main" placeholder="Назва товару">
-                    </div>
-                    <div class="form-group-result">
-                        <input type="text" id="product-packaging" class="input-main"
-                            placeholder="Фасування (напр. 90 капс)">
-                    </div>
-                </div>
 
                 <div class="form-group-column">
+
+                    <div class="form-group-row">
+                        <div class="form-group form-group-result">
+                            <input type="text" id="brand-name" class="input-main" placeholder="Назва бренду">
+                            <div id="country-name" class="country-display"></div>
+                        </div>
+
+                        <div class="form-group form-group-result">
+                            <input type="text" id="product-name" class="input-main" placeholder="Назва товару">
+                        </div>
+
+                        <div class="form-group form-group-result">
+                            <input type="text" id="product-packaging" class="input-main"
+                                placeholder="Фасування (напр. 90 капс)">
+                        </div>
+                    </div>
+
                     <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
                         <span class="form-group-label">Title:</span>
                         <input type="text" id="seo-title" class="input-main" readonly>
                         <span id="seo-title-counter" class="form-group-counter">0/65</span>
                     </div>
+
                     <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
                         <span class="form-group-label">Keywords:</span>
                         <input type="text" id="seo-keywords" class="input-main" readonly>
                         <span id="seo-keywords-counter" class="form-group-counter">0/250</span>
                     </div>
+
                     <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
                         <span class="form-group-label">Description:</span>
                         <input type="text" id="seo-description" class="input-main" readonly>
@@ -287,15 +294,15 @@
                     </div>
                     <h3>Інструменти перекладу</h3>
                 </div>
-                <button id="reload-section-translate" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                <button id="reload-section-translate" class="btn-icon btn-reload text-disabled"
+                    aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
             <div class="section-content section-content-full-height">
 
-                <iframe class="image-tool-iframe"
-                    src="https://semi-shop.com.ua/5tLKV0FnOo.php?all" title="Інструмент перекладу"
-                    sandbox="allow-scripts allow-same-origin allow-forms" loading="lazy">
+                <iframe class="image-tool-iframe" src="https://semi-shop.com.ua/5tLKV0FnOo.php?all"
+                    title="Інструмент перекладу" sandbox="allow-scripts allow-same-origin allow-forms" loading="lazy">
                 </iframe>
 
             </div>
@@ -313,7 +320,8 @@
                     </div>
                     <h3>Список посилань на сайти виробників</h3>
                 </div>
-                <button id="reload-section-links" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                <button id="reload-section-links" class="btn-icon btn-reload text-disabled"
+                    aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -335,7 +343,8 @@
                     </div>
                     <h3>Зміна розміру, полотна та формату</h3>
                 </div>
-                <button id="reload-section-image" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити" data-modal-trigger="confirm-clear-modal" data-modal-size="small">
+                <button id="reload-section-image" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити"
+                    data-modal-trigger="confirm-clear-modal" data-modal-size="small">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -343,28 +352,30 @@
             <div class="section-content section-content-full-height u-p-8">
 
                 <div class="image-tool-container">
-            <div class="image-tool-wrapper">
-                    <div class="panel-box">
-                        <span class="material-symbols-outlined panel-box-icon">link</span>
-                        <input type="text" id="gim-image-url" class="input-main" placeholder="Вставте URL зображення...">
-                        <button id="gim-load-url-btn" class="btn-icon" aria-label="Додати URL">
-                            <span class="material-symbols-outlined">add</span>
-                        </button>
-                    </div>
-                    <div class="canvas-area">
-
-                        <div id="gim-drag-drop-overlay" class="drag-drop-overlay visible">
-                            <span class="material-symbols-outlined">upload_file</span>
-                            <p>Перетягніть файли сюди або</p>
-                            <button id="gim-select-file-btn" class="btn-outline" style="pointer-events: auto;">Виберіть
-                                файл</button>
+                    <div class="image-tool-wrapper">
+                        <div class="panel-box">
+                            <span class="material-symbols-outlined panel-box-icon">link</span>
+                            <input type="text" id="gim-image-url" class="input-main"
+                                placeholder="Вставте URL зображення...">
+                            <button id="gim-load-url-btn" class="btn-icon" aria-label="Додати URL">
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
                         </div>
+                        <div class="canvas-area">
 
-                        <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
-                        <input type="file" id="gim-image-input"
-                            accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
-                            class="u-hidden" multiple>
-                    </div>
+                            <div id="gim-drag-drop-overlay" class="drag-drop-overlay visible">
+                                <span class="material-symbols-outlined">upload_file</span>
+                                <p>Перетягніть файли сюди або</p>
+                                <button id="gim-select-file-btn" class="btn-outline"
+                                    style="pointer-events: auto;">Виберіть
+                                    файл</button>
+                            </div>
+
+                            <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
+                            <input type="file" id="gim-image-input"
+                                accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
+                                class="u-hidden" multiple>
+                        </div>
 
                     </div>
                     <div id="gim-thumbnails-area" class="thumbnails-area">
