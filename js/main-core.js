@@ -11,6 +11,7 @@ import { initSectionNavigator } from './panel/section-navigator.js';
 import { initCustomAuth } from './auth/custom-auth.js';
 import { initChipTooltips } from './common/chip-tooltip.js';
 import { initTooltips } from './common/ui-tooltip.js';
+import { initInfoButtons } from './common/ui-info-modal.js';
 
 
 export function initCore() {
@@ -29,4 +30,5 @@ export function initCore() {
     initCustomAuth();
     initChipTooltips();
     initTooltips();
+    initInfoButtons();
 }
