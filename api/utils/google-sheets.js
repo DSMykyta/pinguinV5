@@ -28,6 +28,7 @@
 // - 'main': основна таблиця (SPREADSHEET_ID)
 // - 'texts': таблиця текстів (SPREADSHEET_ID_TEXTS)
 // - 'users': таблиця користувачів (SPREADSHEET_ID_USERS)
+// - 'price': таблиця прайсу/чекліста (SPREADSHEET_ID_PRICE)
 //
 // ФОРМАТИ ДІАПАЗОНІВ:
 // - "Sheet1!A1:B10" - конкретний діапазон
@@ -43,6 +44,7 @@ const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n')
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SPREADSHEET_ID_TEXTS = process.env.SPREADSHEET_ID_TEXTS;
 const SPREADSHEET_ID_USERS = process.env.SPREADSHEET_ID_USERS;
+const SPREADSHEET_ID_PRICE = process.env.SPREADSHEET_ID_PRICE;
 
 // =========================================================================
 // ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
@@ -66,7 +68,7 @@ function getGoogleSheetsClient() {
 
 /**
  * Отримує ID таблиці за її типом
- * @param {string} type - Тип таблиці ('main' | 'texts' | 'users')
+ * @param {string} type - Тип таблиці ('main' | 'texts' | 'users' | 'price')
  * @returns {string} ID Google Spreadsheet
  */
 function getSpreadsheetId(type = 'main') {
@@ -75,6 +77,9 @@ function getSpreadsheetId(type = 'main') {
   }
   if (type === 'users') {
     return SPREADSHEET_ID_USERS;
+  }
+  if (type === 'price') {
+    return SPREADSHEET_ID_PRICE;
   }
   return SPREADSHEET_ID;
 }

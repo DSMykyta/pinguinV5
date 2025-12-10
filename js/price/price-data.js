@@ -1,0 +1,501 @@
+// js/price/price-data.js
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                      PRICE - DATA MANAGEMENT                              ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Робота з Google Sheets API для прайсу/чекліста.
+ * Використовує уніфікований api-client для всіх операцій.
+ */
+
+import { priceState } from './price-init.js';
+import { callSheetsAPI } from '../utils/api-client.js';
+import { PRICE_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
+
+const PRICE_SHEET_NAME = 'Price';
+const PRICE_START_ROW = 1; // Рядок 1 = заголовки, рядок 2+ = дані
+
+// Кеш для індексів колонок (заповнюється при першому завантаженні)
+let columnIndices = null;
+
+/**
+ * Конвертувати індекс колонки в букву (0=A, 1=B, ...)
+ */
+function columnIndexToLetter(index) {
+    let letter = '';
+    while (index >= 0) {
+        letter = String.fromCharCode((index % 26) + 65) + letter;
+        index = Math.floor(index / 26) - 1;
+    }
+    return letter;
+}
+
+/**
+ * Завантажити дані прайсу з Google Sheets
+ * Динамічно визначає колонки по заголовках
+ */
+export async function loadPriceData() {
+    try {
+        console.log('📥 Завантаження даних прайсу...');
+
+        // Завантажуємо всі дані починаючи з рядка 7
+        const result = await callSheetsAPI('get', {
+            range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}:Z`,
+            spreadsheetType: 'price'
+        });
+
+        const rows = result || [];
+
+        if (rows.length === 0) {
+            console.warn('⚠️ Прайс порожній');
+            priceState.priceItems = [];
+            priceState.reserveNames = [];
+            return;
+        }
+
+        // Перший рядок - заголовки
+        const headers = rows[0];
+        console.log('📋 Заголовки прайсу:', headers);
+
+        // Створюємо мапу індексів колонок
+        columnIndices = {};
+        headers.forEach((header, index) => {
+            if (header) {
+                columnIndices[header.toLowerCase()] = index;
+            }
+        });
+        console.log('📋 Індекси колонок:', columnIndices);
+
+        // Парсимо дані
+        const data = [];
+        const reserveSet = new Set();
+
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.length === 0) continue;
+
+            // Динамічно отримуємо значення по назві колонки
+            const getValue = (colName) => {
+                const idx = columnIndices[colName.toLowerCase()];
+                return idx !== undefined ? (row[idx] || '') : '';
+            };
+
+            const code = getValue('code').toString().trim();
+            if (!code) continue; // Пропускаємо порожні рядки
+
+            const item = {
+                code: code,
+                article: getValue('article'),
+                brand: getValue('brand'),
+                category: getValue('category'),
+                name: getValue('name'),
+                packaging: getValue('packaging'),
+                flavor: getValue('flavor'),
+                shiping_date: getValue('shiping_date'),
+                reserve: getValue('reserve'),
+                status: getValue('status') || 'FALSE',
+                status_date: getValue('status_date'),
+                check: getValue('check') || 'FALSE',
+                check_date: getValue('check_date'),
+                payment: getValue('payment') || 'FALSE',
+                payment_date: getValue('payment_date'),
+                update_date: getValue('update_date'),
+                _rowIndex: PRICE_START_ROW + i
+            };
+
+            // Збираємо унікальні резерви
+            if (item.reserve && item.reserve.trim() !== '') {
+                reserveSet.add(item.reserve.trim());
+            }
+
+            data.push(item);
+        }
+
+        priceState.priceItems = data;
+        priceState.filteredItems = [...data];
+        priceState.reserveNames = Array.from(reserveSet).sort();
+
+        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів`);
+
+    } catch (error) {
+        console.error('❌ Помилка завантаження прайсу:', error);
+        throw error;
+    }
+}
+
+/**
+ * Отримати букву колонки по назві
+ */
+export function getColumnLetter(columnName) {
+    if (!columnIndices) return null;
+    const idx = columnIndices[columnName.toLowerCase()];
+    return idx !== undefined ? columnIndexToLetter(idx) : null;
+}
+
+/**
+ * Оновити статус товару (status/check/payment)
+ * @param {string} code - Унікальний код товару
+ * @param {string} field - Поле для оновлення (status/check/payment)
+ * @param {string} value - Нове значення (TRUE/FALSE)
+ */
+export async function updateItemStatus(code, field, value) {
+    try {
+        console.log(`💾 Оновлення ${field} для ${code}: ${value}`);
+
+        // Знаходимо товар в state
+        const item = priceState.priceItems.find(i => i.code === code);
+        if (!item) {
+            throw new Error(`Товар з кодом ${code} не знайдено`);
+        }
+
+        // Динамічно визначаємо колонку
+        const columnLetter = getColumnLetter(field);
+        const dateField = `${field}_date`;
+        const dateColumnLetter = getColumnLetter(dateField);
+
+        if (!columnLetter) {
+            throw new Error(`Колонка "${field}" не знайдена в таблиці`);
+        }
+
+        // Готуємо дані для оновлення
+        const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const updates = [
+            {
+                range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
+                values: [[value]]
+            }
+        ];
+
+        // Додаємо дату якщо value = TRUE і колонка дати існує
+        if (value === 'TRUE' && dateColumnLetter) {
+            updates.push({
+                range: `${PRICE_SHEET_NAME}!${dateColumnLetter}${item._rowIndex}`,
+                values: [[currentDate]]
+            });
+        }
+
+        // Batch update
+        await callSheetsAPI('batchUpdate', {
+            data: updates,
+            spreadsheetType: 'price'
+        });
+
+        // Оновлюємо локальний state
+        item[field] = value;
+        if (value === 'TRUE' && dateColumnLetter) {
+            item[dateField] = currentDate;
+        }
+
+        console.log(`✅ ${field} оновлено для ${code}`);
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('❌ Помилка оновлення статусу:', error);
+        throw error;
+    }
+}
+
+/**
+ * Оновити артикул товару
+ * @param {string} code - Унікальний код товару
+ * @param {string} article - Новий артикул
+ */
+export async function updateItemArticle(code, article) {
+    try {
+        console.log(`💾 Оновлення артикулу для ${code}: ${article}`);
+
+        const item = priceState.priceItems.find(i => i.code === code);
+        if (!item) {
+            throw new Error(`Товар з кодом ${code} не знайдено`);
+        }
+
+        // Динамічно визначаємо колонку article
+        const columnLetter = getColumnLetter('article');
+        if (!columnLetter) {
+            throw new Error('Колонка "article" не знайдена в таблиці');
+        }
+
+        await callSheetsAPI('update', {
+            range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
+            values: [[article]],
+            spreadsheetType: 'price'
+        });
+
+        // Оновлюємо локальний state
+        item.article = article;
+
+        console.log(`✅ Артикул оновлено для ${code}`);
+
+    } catch (error) {
+        console.error('❌ Помилка оновлення артикулу:', error);
+        throw error;
+    }
+}
+
+/**
+ * Зарезервувати товар
+ * @param {string} code - Унікальний код товару
+ * @param {string} reserveName - Ім'я користувача (display_name)
+ */
+export async function reserveItem(code, reserveName) {
+    try {
+        console.log(`💾 Резервування ${code} для ${reserveName}`);
+
+        const item = priceState.priceItems.find(i => i.code === code);
+        if (!item) {
+            throw new Error(`Товар з кодом ${code} не знайдено`);
+        }
+
+        // Динамічно визначаємо колонку reserve
+        const columnLetter = getColumnLetter('reserve');
+        if (!columnLetter) {
+            throw new Error('Колонка "reserve" не знайдена в таблиці');
+        }
+
+        await callSheetsAPI('update', {
+            range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
+            values: [[reserveName]],
+            spreadsheetType: 'price'
+        });
+
+        // Оновлюємо локальний state
+        item.reserve = reserveName;
+
+        // Додаємо в список резервів якщо новий
+        if (!priceState.reserveNames.includes(reserveName)) {
+            priceState.reserveNames.push(reserveName);
+            priceState.reserveNames.sort();
+        }
+
+        console.log(`✅ Товар ${code} зарезервовано для ${reserveName}`);
+
+    } catch (error) {
+        console.error('❌ Помилка резервування:', error);
+        throw error;
+    }
+}
+
+/**
+ * Імпортувати дані з XLSX у Google Sheets
+ * - Якщо code є в імпорті і в таблиці → оновити поля з XLSX
+ * - Якщо code є в імпорті, немає в таблиці → додати новий
+ * - Якщо code є в таблиці, немає в імпорті → позначити shiping_date = "ненаявно"
+ * @param {Array} importedData - Масив об'єктів з даними з XLSX
+ */
+export async function importDataToSheet(importedData) {
+    try {
+        console.log(`📤 Імпорт ${importedData.length} рядків...`);
+
+        // 1. Завантажити існуючі дані
+        await loadPriceData();
+        const existingItems = priceState.priceItems;
+
+        // 2. Створити мапи
+        const existingMap = new Map();
+        existingItems.forEach(item => {
+            existingMap.set(item.code, item);
+        });
+
+        const importedCodes = new Set(importedData.map(item => item.code));
+
+        // 3. Підготувати оновлення
+        const updates = [];      // Існуючі записи, які є в імпорті
+        const newItems = [];     // Нові записи
+        const unavailable = [];  // Записи, яких немає в імпорті → "ненаявно"
+
+        const currentDate = formatDate(new Date()); // дд.мм.рр
+
+        // Обробка імпортованих даних
+        for (const imported of importedData) {
+            const existing = existingMap.get(imported.code);
+
+            if (existing) {
+                // Оновлюємо тільки поля з XLSX, зберігаємо інші
+                // Якщо товар повернувся в імпорт - він більше не "ненаявно"
+                const newShipDate = imported.shiping_date ||
+                    (existing.shiping_date === 'ненаявно' ? '' : existing.shiping_date);
+
+                const updatedItem = {
+                    ...existing,
+                    brand: imported.brand || existing.brand,
+                    category: imported.category || existing.category,
+                    name: imported.name || existing.name,
+                    packaging: imported.packaging || existing.packaging,
+                    flavor: imported.flavor || existing.flavor,
+                    shiping_date: newShipDate,
+                    update_date: currentDate
+                };
+                updates.push(updatedItem);
+            } else {
+                // Новий запис
+                newItems.push({
+                    code: imported.code,
+                    article: '',
+                    brand: imported.brand || '',
+                    category: imported.category || '',
+                    name: imported.name || '',
+                    packaging: imported.packaging || '',
+                    flavor: imported.flavor || '',
+                    shiping_date: imported.shiping_date || '',
+                    reserve: '',
+                    status: 'FALSE',
+                    status_date: '',
+                    check: 'FALSE',
+                    check_date: '',
+                    payment: 'FALSE',
+                    payment_date: '',
+                    update_date: currentDate
+                });
+            }
+        }
+
+        // Знайти записи, яких немає в імпорті → позначити "ненаявно"
+        for (const existing of existingItems) {
+            if (!importedCodes.has(existing.code) && existing.shiping_date !== 'ненаявно') {
+                unavailable.push({
+                    ...existing,
+                    shiping_date: 'ненаявно',
+                    update_date: currentDate
+                });
+            }
+        }
+
+        console.log(`📊 Оновлення: ${updates.length}, Нових: ${newItems.length}, Ненаявно: ${unavailable.length}`);
+
+        // 4. Batch update існуючих записів
+        if (updates.length > 0) {
+            const batchData = [];
+            for (const item of updates) {
+                // Оновлюємо тільки змінені колонки (brand, category, name, packaging, flavor, shiping_date, update_date)
+                const colBrand = getColumnLetter('brand');
+                const colCategory = getColumnLetter('category');
+                const colName = getColumnLetter('name');
+                const colPackaging = getColumnLetter('packaging');
+                const colFlavor = getColumnLetter('flavor');
+                const colShipDate = getColumnLetter('shiping_date');
+                const colUpdateDate = getColumnLetter('update_date');
+
+                if (colBrand) batchData.push({ range: `${PRICE_SHEET_NAME}!${colBrand}${item._rowIndex}`, values: [[item.brand]] });
+                if (colCategory) batchData.push({ range: `${PRICE_SHEET_NAME}!${colCategory}${item._rowIndex}`, values: [[item.category]] });
+                if (colName) batchData.push({ range: `${PRICE_SHEET_NAME}!${colName}${item._rowIndex}`, values: [[item.name]] });
+                if (colPackaging) batchData.push({ range: `${PRICE_SHEET_NAME}!${colPackaging}${item._rowIndex}`, values: [[item.packaging]] });
+                if (colFlavor) batchData.push({ range: `${PRICE_SHEET_NAME}!${colFlavor}${item._rowIndex}`, values: [[item.flavor]] });
+                if (colShipDate) batchData.push({ range: `${PRICE_SHEET_NAME}!${colShipDate}${item._rowIndex}`, values: [[item.shiping_date]] });
+                if (colUpdateDate) batchData.push({ range: `${PRICE_SHEET_NAME}!${colUpdateDate}${item._rowIndex}`, values: [[item.update_date]] });
+            }
+
+            if (batchData.length > 0) {
+                await callSheetsAPI('batchUpdate', {
+                    data: batchData,
+                    spreadsheetType: 'price'
+                });
+                console.log(`✅ Оновлено ${updates.length} існуючих записів`);
+            }
+        }
+
+        // 5. Додати нові записи
+        if (newItems.length > 0) {
+            const newRows = newItems.map(item => [
+                item.code,
+                item.article,
+                item.brand,
+                item.category,
+                item.name,
+                item.packaging,
+                item.flavor,
+                item.shiping_date,
+                item.reserve,
+                item.status,
+                item.status_date,
+                item.check,
+                item.check_date,
+                item.payment,
+                item.payment_date,
+                item.update_date
+            ]);
+
+            await callSheetsAPI('append', {
+                range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}`,
+                values: newRows,
+                spreadsheetType: 'price'
+            });
+            console.log(`✅ Додано ${newItems.length} нових записів`);
+        }
+
+        // 6. Позначити "ненаявно" для записів яких немає в імпорті
+        if (unavailable.length > 0) {
+            const unavailBatch = [];
+            const colShipDate = getColumnLetter('shiping_date');
+            const colUpdateDate = getColumnLetter('update_date');
+
+            for (const item of unavailable) {
+                if (colShipDate) {
+                    unavailBatch.push({
+                        range: `${PRICE_SHEET_NAME}!${colShipDate}${item._rowIndex}`,
+                        values: [['ненаявно']]
+                    });
+                }
+                if (colUpdateDate) {
+                    unavailBatch.push({
+                        range: `${PRICE_SHEET_NAME}!${colUpdateDate}${item._rowIndex}`,
+                        values: [[item.update_date]]
+                    });
+                }
+            }
+
+            if (unavailBatch.length > 0) {
+                await callSheetsAPI('batchUpdate', {
+                    data: unavailBatch,
+                    spreadsheetType: 'price'
+                });
+                console.log(`✅ Позначено "ненаявно" для ${unavailable.length} записів`);
+            }
+        }
+
+        // 7. Перезавантажити дані
+        await loadPriceData();
+
+        return {
+            updated: updates.length,
+            added: newItems.length,
+            unavailable: unavailable.length
+        };
+
+    } catch (error) {
+        console.error('❌ Помилка імпорту:', error);
+        throw error;
+    }
+}
+
+/**
+ * Форматувати дату в дд.мм.рр
+ */
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}.${month}.${year}`;
+}
+
+/**
+ * Отримати відфільтровані дані за резервом
+ * @param {string} reserveFilter - Фільтр резерву ('all' або ім'я)
+ */
+export function filterByReserve(reserveFilter) {
+    priceState.currentReserveFilter = reserveFilter;
+
+    if (reserveFilter === 'all') {
+        priceState.filteredItems = [...priceState.priceItems];
+    } else {
+        priceState.filteredItems = priceState.priceItems.filter(
+            item => item.reserve === reserveFilter
+        );
+    }
+
+    return priceState.filteredItems;
+}
+
+// Експорт для window
+window.loadPriceData = loadPriceData;

@@ -56,6 +56,7 @@
 @import url('components/forms/toggle.css');
 @import url('components/forms/switch.css');
 @import url('components/forms/checkbox.css');
+@import url('components/forms/drop-zone.css');
 
 /* === COMPONENTS - NAVIGATION === */
 @import url('components/navigation/panel-item.css');
