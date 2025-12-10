@@ -279,58 +279,153 @@ export async function reserveItem(code, reserveName) {
 
 /**
  * Імпортувати дані з XLSX у Google Sheets
- * @param {Array} data - Масив об'єктів з даними
+ * ОНОВЛЮЄ по code: якщо code є → оновити поля з XLSX, зберегти reserve/status/check/payment
+ * Якщо code немає → додати новий рядок
+ * @param {Array} importedData - Масив об'єктів з даними з XLSX
  */
-export async function importDataToSheet(data) {
+export async function importDataToSheet(importedData) {
     try {
-        console.log(`📤 Імпорт ${data.length} рядків у Google Sheets...`);
+        console.log(`📤 Імпорт ${importedData.length} рядків...`);
 
-        // Конвертуємо об'єкти в масив масивів
-        const values = data.map(item => [
-            item.code || '',
-            item.article || '',
-            item.brand || '',
-            item.category || '',
-            item.name || '',
-            item.packaging || '',
-            item.flavor || '',
-            item.shiping_date || '',
-            item.reserve || '',
-            item.status || 'FALSE',
-            item.status_date || '',
-            item.check || 'FALSE',
-            item.check_date || '',
-            item.payment || 'FALSE',
-            item.payment_date || '',
-            new Date().toISOString().split('T')[0] // update_date
-        ]);
+        // 1. Завантажити існуючі дані
+        await loadPriceData();
+        const existingItems = priceState.priceItems;
 
-        // Додаємо заголовки як перший рядок
-        const headers = [
-            'code', 'article', 'brand', 'category', 'name', 'packaging',
-            'flavor', 'shiping_date', 'reserve', 'status', 'status_date',
-            'check', 'check_date', 'payment', 'payment_date', 'update_date'
-        ];
-
-        // Очищаємо існуючі дані (починаючи з рядка 7)
-        // та записуємо нові
-        const allValues = [headers, ...values];
-
-        await callSheetsAPI('update', {
-            range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}`,
-            values: allValues,
-            spreadsheetType: 'price'
+        // 2. Створити мапу існуючих по code
+        const existingMap = new Map();
+        existingItems.forEach(item => {
+            existingMap.set(item.code, item);
         });
 
-        console.log(`✅ Імпортовано ${data.length} рядків`);
+        // 3. Підготувати оновлення
+        const updates = [];  // Для існуючих записів
+        const newItems = []; // Для нових записів
 
-        // Перезавантажуємо дані
+        const currentDate = formatDate(new Date()); // дд.мм.рр
+
+        for (const imported of importedData) {
+            const existing = existingMap.get(imported.code);
+
+            if (existing) {
+                // Оновлюємо тільки поля з XLSX, зберігаємо інші
+                const updatedItem = {
+                    ...existing,
+                    // Поля з XLSX:
+                    brand: imported.brand || existing.brand,
+                    category: imported.category || existing.category,
+                    name: imported.name || existing.name,
+                    packaging: imported.packaging || existing.packaging,
+                    flavor: imported.flavor || existing.flavor,
+                    shiping_date: imported.shiping_date || existing.shiping_date,
+                    // Зберігаємо існуючі:
+                    // article, reserve, status, status_date, check, check_date, payment, payment_date
+                    update_date: currentDate
+                };
+                updates.push(updatedItem);
+            } else {
+                // Новий запис
+                newItems.push({
+                    code: imported.code,
+                    article: '',
+                    brand: imported.brand || '',
+                    category: imported.category || '',
+                    name: imported.name || '',
+                    packaging: imported.packaging || '',
+                    flavor: imported.flavor || '',
+                    shiping_date: imported.shiping_date || '',
+                    reserve: '',
+                    status: 'FALSE',
+                    status_date: '',
+                    check: 'FALSE',
+                    check_date: '',
+                    payment: 'FALSE',
+                    payment_date: '',
+                    update_date: currentDate
+                });
+            }
+        }
+
+        console.log(`📊 Оновлення: ${updates.length}, Нових: ${newItems.length}`);
+
+        // 4. Batch update існуючих записів
+        if (updates.length > 0) {
+            const batchData = [];
+            for (const item of updates) {
+                // Оновлюємо тільки змінені колонки (brand, category, name, packaging, flavor, shiping_date, update_date)
+                const colBrand = getColumnLetter('brand');
+                const colCategory = getColumnLetter('category');
+                const colName = getColumnLetter('name');
+                const colPackaging = getColumnLetter('packaging');
+                const colFlavor = getColumnLetter('flavor');
+                const colShipDate = getColumnLetter('shiping_date');
+                const colUpdateDate = getColumnLetter('update_date');
+
+                if (colBrand) batchData.push({ range: `${PRICE_SHEET_NAME}!${colBrand}${item._rowIndex}`, values: [[item.brand]] });
+                if (colCategory) batchData.push({ range: `${PRICE_SHEET_NAME}!${colCategory}${item._rowIndex}`, values: [[item.category]] });
+                if (colName) batchData.push({ range: `${PRICE_SHEET_NAME}!${colName}${item._rowIndex}`, values: [[item.name]] });
+                if (colPackaging) batchData.push({ range: `${PRICE_SHEET_NAME}!${colPackaging}${item._rowIndex}`, values: [[item.packaging]] });
+                if (colFlavor) batchData.push({ range: `${PRICE_SHEET_NAME}!${colFlavor}${item._rowIndex}`, values: [[item.flavor]] });
+                if (colShipDate) batchData.push({ range: `${PRICE_SHEET_NAME}!${colShipDate}${item._rowIndex}`, values: [[item.shiping_date]] });
+                if (colUpdateDate) batchData.push({ range: `${PRICE_SHEET_NAME}!${colUpdateDate}${item._rowIndex}`, values: [[item.update_date]] });
+            }
+
+            if (batchData.length > 0) {
+                await callSheetsAPI('batchUpdate', {
+                    data: batchData,
+                    spreadsheetType: 'price'
+                });
+                console.log(`✅ Оновлено ${updates.length} існуючих записів`);
+            }
+        }
+
+        // 5. Додати нові записи
+        if (newItems.length > 0) {
+            const newRows = newItems.map(item => [
+                item.code,
+                item.article,
+                item.brand,
+                item.category,
+                item.name,
+                item.packaging,
+                item.flavor,
+                item.shiping_date,
+                item.reserve,
+                item.status,
+                item.status_date,
+                item.check,
+                item.check_date,
+                item.payment,
+                item.payment_date,
+                item.update_date
+            ]);
+
+            await callSheetsAPI('append', {
+                range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}`,
+                values: newRows,
+                spreadsheetType: 'price'
+            });
+            console.log(`✅ Додано ${newItems.length} нових записів`);
+        }
+
+        // 6. Перезавантажити дані
         await loadPriceData();
+
+        return { updated: updates.length, added: newItems.length };
 
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);
         throw error;
     }
+}
+
+/**
+ * Форматувати дату в дд.мм.рр
+ */
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}.${month}.${year}`;
 }
 
 /**
