@@ -24,8 +24,9 @@ export const priceState = {
     importedData: [],            // Дані з імпортованого XLSX
 
     // Фільтри
-    currentReserveFilter: 'all', // Поточний фільтр по reserve
+    currentStatusFilter: 'all',  // Поточний фільтр по статусу
     searchQuery: '',             // Пошуковий запит
+    searchColumns: [],           // Колонки для пошуку
     visibleColumns: [],          // Видимі колонки таблиці
 
     // Пагінація
@@ -136,9 +137,9 @@ async function updateUIWithData() {
     const { initPaginationForPrice } = await import('./price-pagination.js');
     initPaginationForPrice();
 
-    // 4. Заповнити таби резервів
-    const { populateReserveTabs } = await import('./price-ui.js');
-    populateReserveTabs();
+    // 4. Заповнити колонки пошуку
+    const { populateSearchColumns } = await import('./price-ui.js');
+    populateSearchColumns();
 
     // 5. Відрендерити таблицю
     const { renderPriceTable } = await import('./price-table.js');

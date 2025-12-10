@@ -12,37 +12,110 @@ import { priceState } from './price-init.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
 
 /**
- * Заповнити таби резервів
+ * Заповнити таби резервів (юзерів) з аватарками
  */
 export function populateReserveTabs() {
     const tabsContainer = document.getElementById('reserve-filter-tabs');
     if (!tabsContainer) return;
 
-    // Очищаємо всі крім "Всі"
-    const allTab = tabsContainer.querySelector('[data-reserve-filter="all"]');
+    // Очищаємо контейнер
     tabsContainer.innerHTML = '';
 
     // Додаємо таб "Всі"
-    if (allTab) {
-        tabsContainer.appendChild(allTab);
-    } else {
-        const newAllTab = document.createElement('button');
-        newAllTab.className = 'tab-btn active';
-        newAllTab.dataset.reserveFilter = 'all';
-        newAllTab.textContent = 'Всі';
-        tabsContainer.appendChild(newAllTab);
-    }
+    const allTab = document.createElement('button');
+    allTab.className = 'nav-icon active';
+    allTab.dataset.reserveFilter = 'all';
+    allTab.innerHTML = `
+        <span class="material-symbols-outlined">list</span>
+        <span class="nav-icon-label">Всі</span>
+    `;
+    tabsContainer.appendChild(allTab);
 
-    // Додаємо таби для кожного резерву
+    // Додаємо таби для кожного резерву з аватаркою
     priceState.reserveNames.forEach(name => {
         const tab = document.createElement('button');
-        tab.className = 'tab-btn';
+        tab.className = 'nav-icon';
         tab.dataset.reserveFilter = name;
-        tab.textContent = name;
+
+        // Створюємо аватарку з ініціалами
+        const initials = getInitials(name);
+        const avatarColor = getAvatarColor(name);
+
+        tab.innerHTML = `
+            <span class="user-avatar-small" style="background-color: ${avatarColor}">${initials}</span>
+            <span class="nav-icon-label">${name}</span>
+        `;
         tabsContainer.appendChild(tab);
     });
 
     console.log(`✅ Заповнено ${priceState.reserveNames.length + 1} табів резервів`);
+}
+
+/**
+ * Отримати ініціали з імені
+ */
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+/**
+ * Генерувати колір аватарки на основі імені
+ */
+function getAvatarColor(name) {
+    const colors = [
+        '#f44336', '#e91e63', '#9c27b0', '#673ab7',
+        '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4',
+        '#009688', '#4caf50', '#8bc34a', '#cddc39',
+        '#ffc107', '#ff9800', '#ff5722', '#795548'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+}
+
+/**
+ * Заповнити колонки для пошуку в aside
+ */
+export function populateSearchColumns() {
+    const container = document.getElementById('search-columns-list-price');
+    if (!container) return;
+
+    const searchColumns = [
+        { id: 'code', label: 'Код', checked: true },
+        { id: 'article', label: 'Артикул', checked: true },
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'brand', label: 'Бренд', checked: false },
+        { id: 'category', label: 'Категорія', checked: false },
+        { id: 'reserve', label: 'Резерв', checked: false }
+    ];
+
+    container.innerHTML = searchColumns.map(col => `
+        <label class="dropdown-item">
+            <input type="checkbox" id="search-col-${col.id}" value="${col.id}" ${col.checked ? 'checked' : ''}>
+            <span>${col.label}</span>
+        </label>
+    `).join('');
+
+    // Зберігаємо початкові колонки для пошуку
+    priceState.searchColumns = searchColumns.filter(c => c.checked).map(c => c.id);
+
+    // Слухаємо зміни
+    container.addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox') {
+            const checked = container.querySelectorAll('input:checked');
+            priceState.searchColumns = Array.from(checked).map(cb => cb.value);
+            console.log('🔍 Колонки для пошуку:', priceState.searchColumns);
+        }
+    });
+
+    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**

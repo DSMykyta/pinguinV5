@@ -8,7 +8,7 @@
             <button id="clear-search-price" class="btn-icon u-hidden" aria-label="Очистити пошук">
                 <span class="material-symbols-outlined">close</span>
             </button>
-            <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+            <button class="btn-icon" data-dropdown-trigger aria-label="Фільтри пошуку">
                 <span class="material-symbols-outlined">filter_list</span>
             </button>
 
@@ -26,18 +26,12 @@
 
     <!-- SCROLLABLE КОНТЕНТ -->
     <div class="panel-content-scroll">
-
-    </div>
-
-    <div class="panel-separator"></div>
-
-    <!-- FOOTER -->
-    <div class="panel-content-footer">
-        <label class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">upload_file</span>
-            <span class="panel-item-text">Завантажити прайс</span>
-            <input type="file" id="import-xlsx-aside" accept=".xlsx,.xls" hidden>
-        </label>
+        <div class="panel-section-title">
+            <span>Статистика</span>
+        </div>
+        <div id="price-stats-container" class="panel-stats">
+            <!-- Статистика заповнюється динамічно -->
+        </div>
     </div>
 
 </div>

@@ -36,6 +36,12 @@ export function initPriceEvents() {
     // Обробник кнопки оновлення
     initRefreshButton();
 
+    // Обробник пошуку
+    initSearchEvents();
+
+    // Обробник batch actions
+    initBatchActions();
+
     console.log('✅ Price events initialized');
 }
 
@@ -167,10 +173,18 @@ function updateBadgeVisual(badge, isTrue, type) {
 /**
  * Обробник кліку по кнопці редагування
  */
-function handleEditClick(btn) {
+async function handleEditClick(btn) {
     const code = btn.dataset.code;
-    console.log('Edit item:', code);
-    // TODO: Відкрити модал редагування
+    const item = priceState.priceItems.find(i => i.code === code);
+
+    if (!item) {
+        console.error('Item not found:', code);
+        return;
+    }
+
+    // Відкриваємо модал редагування
+    const { openEditModal } = await import('./price-edit-modal.js');
+    openEditModal(item);
 }
 
 /**
@@ -194,27 +208,28 @@ function createArticleSpan(value) {
 }
 
 /**
- * Ініціалізувати обробники табів резервів
+ * Ініціалізувати обробники табів статусів
  */
 function initReserveTabsEvents() {
-    const tabsContainer = document.getElementById('reserve-filter-tabs');
+    const tabsContainer = document.getElementById('status-filter-tabs');
     if (!tabsContainer) return;
 
     tabsContainer.addEventListener('click', async (e) => {
-        const tabBtn = e.target.closest('.tab-btn');
+        const tabBtn = e.target.closest('.nav-icon');
         if (!tabBtn) return;
 
         // Видаляємо active з усіх
-        tabsContainer.querySelectorAll('.tab-btn').forEach(btn => {
+        tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
             btn.classList.remove('active');
         });
 
         // Додаємо active до поточного
         tabBtn.classList.add('active');
 
-        // Фільтруємо дані
-        const filter = tabBtn.dataset.reserveFilter;
-        filterByReserve(filter);
+        // Фільтруємо дані по статусу
+        const filter = tabBtn.dataset.statusFilter;
+        priceState.currentStatusFilter = filter;
+        applyFilters();
 
         // Скидаємо пагінацію
         priceState.pagination.currentPage = 1;
@@ -230,6 +245,182 @@ function initReserveTabsEvents() {
             });
         }
     });
+}
+
+/**
+ * Ініціалізувати пошук
+ */
+function initSearchEvents() {
+    const searchInput = document.getElementById('search-price');
+    const clearBtn = document.getElementById('clear-search-price');
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', async (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        priceState.searchQuery = query;
+
+        // Показуємо/ховаємо кнопку очистки
+        if (clearBtn) {
+            clearBtn.classList.toggle('u-hidden', !query);
+        }
+
+        // Фільтруємо
+        applyFilters();
+
+        // Перерендерюємо
+        await renderPriceTable();
+
+        // Оновлюємо пагінацію
+        if (priceState.paginationAPI) {
+            priceState.paginationAPI.update({
+                totalItems: priceState.filteredItems.length,
+                currentPage: 1
+            });
+        }
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+            searchInput.value = '';
+            priceState.searchQuery = '';
+            clearBtn.classList.add('u-hidden');
+
+            applyFilters();
+            await renderPriceTable();
+
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        });
+    }
+}
+
+/**
+ * Застосувати всі фільтри (статус + пошук)
+ */
+function applyFilters() {
+    let items = [...priceState.priceItems];
+
+    // Фільтр по статусу
+    const statusFilter = priceState.currentStatusFilter || 'all';
+    if (statusFilter !== 'all') {
+        // Отримуємо поточного юзера
+        const currentUser = window.currentUser?.display_name || '';
+
+        switch (statusFilter) {
+            case 'reserved':
+                // Зарезервовані поточним юзером
+                items = items.filter(item => item.reserve === currentUser);
+                break;
+            case 'posted':
+                // Викладені (status = TRUE) поточним юзером
+                items = items.filter(item =>
+                    item.reserve === currentUser &&
+                    (item.status === 'TRUE' || item.status === true)
+                );
+                break;
+            case 'checked':
+                // Перевірені (check = TRUE) поточним юзером
+                items = items.filter(item =>
+                    item.reserve === currentUser &&
+                    (item.check === 'TRUE' || item.check === true)
+                );
+                break;
+            case 'paid':
+                // Оплачені (payment = TRUE) поточним юзером
+                items = items.filter(item =>
+                    item.reserve === currentUser &&
+                    (item.payment === 'TRUE' || item.payment === true)
+                );
+                break;
+        }
+    }
+
+    // Фільтр по пошуку
+    if (priceState.searchQuery) {
+        const query = priceState.searchQuery.toLowerCase();
+        const cols = priceState.searchColumns || ['code', 'article', 'name'];
+
+        items = items.filter(item => {
+            return cols.some(col => {
+                const val = item[col];
+                return val && String(val).toLowerCase().includes(query);
+            });
+        });
+    }
+
+    priceState.filteredItems = items;
+}
+
+/**
+ * Ініціалізувати batch actions
+ */
+function initBatchActions() {
+    const batchBar = document.getElementById('batch-actions-bar');
+    const selectedCount = document.getElementById('selected-count');
+    const container = document.getElementById('price-table-container');
+
+    if (!container || !batchBar) return;
+
+    // Делегування для чекбоксів
+    container.addEventListener('change', (e) => {
+        if (e.target.classList.contains('row-checkbox') || e.target.id === 'select-all-price') {
+            updateBatchBar();
+        }
+    });
+
+    // Batch кнопки
+    document.getElementById('batch-reserve-btn')?.addEventListener('click', () => {
+        const selected = getSelectedCodes();
+        if (selected.length === 0) return;
+        // TODO: відкрити модал вибору резерву
+        console.log('Резервувати:', selected);
+    });
+
+    document.getElementById('batch-status-btn')?.addEventListener('click', async () => {
+        const selected = getSelectedCodes();
+        if (selected.length === 0) return;
+        await batchUpdateStatus(selected, 'status', 'TRUE');
+    });
+
+    document.getElementById('batch-check-btn')?.addEventListener('click', async () => {
+        const selected = getSelectedCodes();
+        if (selected.length === 0) return;
+        await batchUpdateStatus(selected, 'check', 'TRUE');
+    });
+
+    function updateBatchBar() {
+        const checkboxes = container.querySelectorAll('.row-checkbox:checked');
+        const count = checkboxes.length;
+
+        if (count > 0) {
+            batchBar.classList.add('visible');
+            if (selectedCount) selectedCount.textContent = `${count} вибрано`;
+        } else {
+            batchBar.classList.remove('visible');
+        }
+    }
+
+    function getSelectedCodes() {
+        const checkboxes = container.querySelectorAll('.row-checkbox:checked');
+        return Array.from(checkboxes).map(cb => cb.dataset.code);
+    }
+
+    async function batchUpdateStatus(codes, field, value) {
+        try {
+            for (const code of codes) {
+                await updateItemStatus(code, field, value);
+            }
+            await renderPriceTable();
+        } catch (error) {
+            console.error('Batch update error:', error);
+            alert('Помилка масового оновлення');
+        }
+    }
 }
 
 /**
