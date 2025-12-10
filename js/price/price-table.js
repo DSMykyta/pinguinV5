@@ -57,7 +57,7 @@ export async function renderPriceTable() {
         columns: getColumns(),
         visibleColumns: priceState.visibleColumns.length > 0
             ? priceState.visibleColumns
-            : ['code', 'article', 'product', 'reserve', 'status', 'check', 'payment', 'shiping_date', 'update_date'],
+            : ['reserve', 'code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date'],
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
         rowActionsCustom: (row) => `
             <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
@@ -77,9 +77,18 @@ export async function renderPriceTable() {
 
 /**
  * Отримати конфігурацію колонок
+ * Порядок: Резерв, Код, Артикул, Товар, Відправка, Викладено, Перевірено, Оплата, Оновлено
  */
 function getColumns() {
     return [
+        {
+            id: 'reserve',
+            label: 'Резерв',
+            sortable: true,
+            render: (value) => value
+                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
+                : '<span class="text-muted">-</span>'
+        },
         {
             id: 'code',
             label: 'Код',
@@ -106,40 +115,6 @@ function getColumns() {
             render: (value, row) => formatProductDisplay(row)
         },
         {
-            id: 'reserve',
-            label: 'Резерв',
-            sortable: true,
-            render: (value) => value
-                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
-                : '<span class="text-muted">-</span>'
-        },
-        {
-            id: 'status',
-            label: 'Викладено',
-            className: 'cell-bool',
-            sortable: true,
-            render: (value, row) => renderClickableBadge(value, 'status', row.code)
-        },
-        {
-            id: 'check',
-            label: 'Перевірено',
-            className: 'cell-bool',
-            sortable: true,
-            render: (value, row) => renderClickableBadge(value, 'check', row.code)
-        },
-        {
-            id: 'payment',
-            label: 'Оплата',
-            className: 'cell-bool',
-            sortable: true,
-            render: (value) => {
-                const isPaid = value === 'TRUE' || value === true;
-                return isPaid
-                    ? '<span class="badge badge-success"><span class="material-symbols-outlined">payments</span></span>'
-                    : '<span class="badge badge-neutral"><span class="material-symbols-outlined">money_off</span></span>';
-            }
-        },
-        {
             id: 'shiping_date',
             label: 'Відправка',
             sortable: true,
@@ -151,30 +126,42 @@ function getColumns() {
             }
         },
         {
+            id: 'status',
+            label: 'Викладено',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value, row) => renderBadge(value, 'checked', {
+                clickable: true,
+                id: `${row.code}:status`
+            })
+        },
+        {
+            id: 'check',
+            label: 'Перевірено',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value, row) => renderBadge(value, 'checked', {
+                clickable: true,
+                id: `${row.code}:check`
+            })
+        },
+        {
+            id: 'payment',
+            label: 'Оплата',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value, row) => renderBadge(value, 'checked', {
+                clickable: true,
+                id: `${row.code}:payment`
+            })
+        },
+        {
             id: 'update_date',
             label: 'Оновлено',
             sortable: true,
             render: (value) => escapeHtml(value || '-')
         }
     ];
-}
-
-/**
- * Рендерити клікабельний badge статусу
- */
-function renderClickableBadge(value, type, code) {
-    const isTrue = value === 'TRUE' || value === true;
-    const badgeClass = isTrue ? 'badge-success' : 'badge-neutral';
-    const icon = isTrue ? 'check_circle' : 'cancel';
-
-    return `
-        <span class="badge ${badgeClass} clickable"
-              data-code="${escapeHtml(code)}"
-              data-field="${type}"
-              data-value="${isTrue}">
-            <span class="material-symbols-outlined">${icon}</span>
-        </span>
-    `;
 }
 
 /**

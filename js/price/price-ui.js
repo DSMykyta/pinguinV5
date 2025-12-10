@@ -122,7 +122,7 @@ export function populateTableColumns() {
         { id: 'status', label: 'Викладено', checked: true },
         { id: 'check', label: 'Перевірено', checked: true },
         { id: 'payment', label: 'Оплата', checked: true },
-        { id: 'date', label: 'Дата', checked: true }
+        { id: 'update_date', label: 'Оновлено', checked: true }
     ];
 
     const columnSelector = createColumnSelector('table-columns-list-price', tableColumns, {

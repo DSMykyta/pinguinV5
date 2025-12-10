@@ -116,11 +116,18 @@ async function handleTableKeydown(e) {
 
 /**
  * Обробник кліку по badge статусу
+ * Формат data-badge-id: "code:field" (наприклад "CN16085:status")
  */
 async function handleStatusBadgeClick(badge) {
-    const code = badge.dataset.code;
-    const field = badge.dataset.field;
-    const currentValue = badge.dataset.value === 'true';
+    const badgeId = badge.dataset.badgeId;
+    if (!badgeId) return;
+
+    // Парсимо формат "code:field"
+    const [code, field] = badgeId.split(':');
+    if (!code || !field) return;
+
+    // Визначаємо поточний стан по класу
+    const currentValue = badge.classList.contains('badge-success');
     const newValue = !currentValue ? 'TRUE' : 'FALSE';
 
     try {
@@ -129,8 +136,8 @@ async function handleStatusBadgeClick(badge) {
 
         await updateItemStatus(code, field, newValue);
 
-        // Оновлюємо badge
-        updateBadgeVisual(badge, newValue === 'TRUE', field);
+        // Перерендерюємо таблицю для оновлення badge
+        await renderPriceTable();
 
     } catch (error) {
         console.error('Помилка оновлення статусу:', error);
@@ -141,7 +148,7 @@ async function handleStatusBadgeClick(badge) {
 }
 
 /**
- * Оновити візуальний стан badge
+ * Оновити візуальний стан badge (deprecated - тепер використовуємо renderPriceTable)
  */
 function updateBadgeVisual(badge, isTrue, type) {
     badge.dataset.value = isTrue;
