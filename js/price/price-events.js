@@ -58,7 +58,7 @@ async function handleTableClick(e) {
     }
 
     // Клік по кнопці редагування
-    const editBtn = e.target.closest('.btn-edit-item');
+    const editBtn = e.target.closest('.btn-edit');
     if (editBtn) {
         e.preventDefault();
         handleEditClick(editBtn);
@@ -208,43 +208,80 @@ function createArticleSpan(value) {
 }
 
 /**
- * Ініціалізувати обробники табів статусів
+ * Ініціалізувати обробники табів резервів (юзерів)
  */
 function initReserveTabsEvents() {
-    const tabsContainer = document.getElementById('status-filter-tabs');
-    if (!tabsContainer) return;
+    // Таби резервів (юзери)
+    const reserveTabsContainer = document.getElementById('reserve-filter-tabs');
+    if (reserveTabsContainer) {
+        reserveTabsContainer.addEventListener('click', async (e) => {
+            const tabBtn = e.target.closest('.nav-icon');
+            if (!tabBtn) return;
 
-    tabsContainer.addEventListener('click', async (e) => {
-        const tabBtn = e.target.closest('.nav-icon');
-        if (!tabBtn) return;
-
-        // Видаляємо active з усіх
-        tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
-            btn.classList.remove('active');
-        });
-
-        // Додаємо active до поточного
-        tabBtn.classList.add('active');
-
-        // Фільтруємо дані по статусу
-        const filter = tabBtn.dataset.statusFilter;
-        priceState.currentStatusFilter = filter;
-        applyFilters();
-
-        // Скидаємо пагінацію
-        priceState.pagination.currentPage = 1;
-
-        // Перерендерюємо таблицю
-        await renderPriceTable();
-
-        // Оновлюємо пагінацію
-        if (priceState.paginationAPI) {
-            priceState.paginationAPI.update({
-                totalItems: priceState.filteredItems.length,
-                currentPage: 1
+            // Видаляємо active з усіх
+            reserveTabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
+                btn.classList.remove('active');
             });
-        }
-    });
+
+            // Додаємо active до поточного
+            tabBtn.classList.add('active');
+
+            // Фільтруємо дані по резерву
+            const filter = tabBtn.dataset.reserveFilter;
+            priceState.currentReserveFilter = filter;
+            applyFilters();
+
+            // Скидаємо пагінацію
+            priceState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            await renderPriceTable();
+
+            // Оновлюємо пагінацію
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        });
+    }
+
+    // Таби статусів
+    const statusTabsContainer = document.getElementById('status-filter-tabs');
+    if (statusTabsContainer) {
+        statusTabsContainer.addEventListener('click', async (e) => {
+            const tabBtn = e.target.closest('.nav-icon');
+            if (!tabBtn) return;
+
+            // Видаляємо active з усіх
+            statusTabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Додаємо active до поточного
+            tabBtn.classList.add('active');
+
+            // Фільтруємо дані по статусу
+            const filter = tabBtn.dataset.statusFilter;
+            priceState.currentStatusFilter = filter;
+            applyFilters();
+
+            // Скидаємо пагінацію
+            priceState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            await renderPriceTable();
+
+            // Оновлюємо пагінацію
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        });
+    }
 }
 
 /**
@@ -300,47 +337,50 @@ function initSearchEvents() {
 }
 
 /**
- * Застосувати всі фільтри (статус + пошук)
+ * Застосувати всі фільтри (резерв + статус + пошук)
  */
 function applyFilters() {
     let items = [...priceState.priceItems];
 
-    // Фільтр по статусу
+    // 1. Фільтр по резерву (юзеру)
+    const reserveFilter = priceState.currentReserveFilter || 'all';
+    if (reserveFilter !== 'all') {
+        items = items.filter(item => item.reserve === reserveFilter);
+    }
+
+    // 2. Фільтр по статусу (в межах обраного резерву)
     const statusFilter = priceState.currentStatusFilter || 'all';
     if (statusFilter !== 'all') {
-        // Отримуємо поточного юзера
-        const currentUser = window.currentUser?.display_name || '';
-
         switch (statusFilter) {
             case 'reserved':
-                // Зарезервовані поточним юзером
-                items = items.filter(item => item.reserve === currentUser);
+                // Всі зарезервовані (вже відфільтровані по резерву вище)
+                // Якщо резерв = all, показуємо всі зарезервовані
+                if (reserveFilter === 'all') {
+                    items = items.filter(item => item.reserve && item.reserve.trim() !== '');
+                }
                 break;
             case 'posted':
-                // Викладені (status = TRUE) поточним юзером
+                // Викладені (status = TRUE)
                 items = items.filter(item =>
-                    item.reserve === currentUser &&
                     (item.status === 'TRUE' || item.status === true)
                 );
                 break;
             case 'checked':
-                // Перевірені (check = TRUE) поточним юзером
+                // Перевірені (check = TRUE)
                 items = items.filter(item =>
-                    item.reserve === currentUser &&
                     (item.check === 'TRUE' || item.check === true)
                 );
                 break;
             case 'paid':
-                // Оплачені (payment = TRUE) поточним юзером
+                // Оплачені (payment = TRUE)
                 items = items.filter(item =>
-                    item.reserve === currentUser &&
                     (item.payment === 'TRUE' || item.payment === true)
                 );
                 break;
         }
     }
 
-    // Фільтр по пошуку
+    // 3. Фільтр по пошуку
     if (priceState.searchQuery) {
         const query = priceState.searchQuery.toLowerCase();
         const cols = priceState.searchColumns || ['code', 'article', 'name'];

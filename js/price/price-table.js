@@ -72,9 +72,6 @@ export async function renderPriceTable() {
         withContainer: false
     });
 
-    // Додати обробники подій
-    attachTableEventHandlers(container);
-
     updateStats(items.length, priceState.priceItems.length);
 }
 
@@ -202,74 +199,6 @@ function formatProductDisplay(item) {
     }
 
     return display || '-';
-}
-
-/**
- * Додати обробники подій до таблиці
- */
-function attachTableEventHandlers(container) {
-    // Обробник для кнопок редагування
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const code = button.dataset.code;
-            if (code) {
-                // TODO: Реалізувати редагування
-                console.log('Edit item:', code);
-            }
-        });
-    });
-
-    // Обробник для клікабельних badge
-    container.querySelectorAll('.badge.clickable').forEach(badge => {
-        badge.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const code = badge.dataset.code;
-            const field = badge.dataset.field;
-            const currentValue = badge.dataset.value === 'true';
-
-            if (code && field) {
-                const { toggleItemStatus } = await import('./price-events.js');
-                await toggleItemStatus(code, field, !currentValue);
-            }
-        });
-    });
-
-    // Обробник для input артикулу
-    container.querySelectorAll('.input-article').forEach(input => {
-        input.addEventListener('paste', async (e) => {
-            const code = input.dataset.code;
-            if (code) {
-                setTimeout(async () => {
-                    const value = input.value.trim();
-                    if (value) {
-                        const { saveArticle } = await import('./price-events.js');
-                        await saveArticle(code, value);
-                    }
-                }, 0);
-            }
-        });
-
-        input.addEventListener('blur', async () => {
-            const code = input.dataset.code;
-            const value = input.value.trim();
-            if (code && value) {
-                const { saveArticle } = await import('./price-events.js');
-                await saveArticle(code, value);
-            }
-        });
-    });
-
-    // Обробник для select all checkbox
-    const selectAllCheckbox = container.querySelector('#select-all-price');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', () => {
-            const isChecked = selectAllCheckbox.checked;
-            container.querySelectorAll('.row-checkbox').forEach(cb => {
-                cb.checked = isChecked;
-            });
-        });
-    }
 }
 
 /**
