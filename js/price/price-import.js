@@ -137,6 +137,10 @@ async function handleFile(file) {
 
 /**
  * Читання XLSX файлу
+ * Структура XLSX прайсу:
+ * - Рядок 6 = заголовки
+ * - Рядок 7+ = дані
+ * - Колонки A-M: Код, артикул, виробник, категорія, назва, фасування/розмір, смак/колір, ррц, ціна, ціна5000, кіл-сть, сума, дата відправки
  */
 function readXlsxFile(file) {
     return new Promise((resolve, reject) => {
@@ -144,7 +148,6 @@ function readXlsxFile(file) {
 
         reader.onload = (e) => {
             try {
-                // Перевіряємо чи завантажено XLSX бібліотеку
                 if (typeof XLSX === 'undefined') {
                     throw new Error('XLSX library not loaded');
                 }
@@ -152,52 +155,71 @@ function readXlsxFile(file) {
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
 
-                // Беремо перший аркуш
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
 
-                // Конвертуємо в JSON
+                // Конвертуємо в JSON (raw array)
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                // Пропускаємо перші 6 рядків (дані починаються з рядка 7)
-                const dataRows = jsonData.slice(6);
+                // Рядок 6 = заголовки (індекс 5)
+                // Рядок 7+ = дані (індекс 6+)
+                const HEADER_ROW = 5;
+                const DATA_START_ROW = 6;
 
-                if (dataRows.length === 0) {
+                if (jsonData.length <= DATA_START_ROW) {
                     resolve([]);
                     return;
                 }
 
-                // Перший рядок - заголовки
-                const headers = dataRows[0];
+                const headers = jsonData[HEADER_ROW];
+                console.log('📋 Заголовки XLSX (рядок 6):', headers);
 
-                // Мапінг заголовків
-                const headerMap = mapHeaders(headers);
+                // Фіксований мапінг колонок XLSX:
+                // A(0)=Код, B(1)=артикул(skip), C(2)=виробник, D(3)=категорія,
+                // E(4)=назва, F(5)=фасування, G(6)=смак, H(7)=ррц(skip),
+                // I(8)=ціна(skip), J(9)=ціна5000(skip), K(10)=кіл-сть(skip),
+                // L(11)=сума(skip), M(12)=дата відправки
+                const COL = {
+                    CODE: 0,        // A - Код
+                    BRAND: 2,       // C - виробник
+                    CATEGORY: 3,    // D - категорія
+                    NAME: 4,        // E - назва
+                    PACKAGING: 5,   // F - фасування/розмір
+                    FLAVOR: 6,      // G - смак/колір
+                    SHIP_DATE: 12   // M - дата відправки
+                };
 
-                // Парсимо дані
                 const parsedData = [];
-                for (let i = 1; i < dataRows.length; i++) {
-                    const row = dataRows[i];
+                for (let i = DATA_START_ROW; i < jsonData.length; i++) {
+                    const row = jsonData[i];
                     if (!row || row.length === 0) continue;
 
-                    const item = {};
-                    Object.keys(headerMap).forEach(key => {
-                        const index = headerMap[key];
-                        item[key] = index !== -1 && row[index] !== undefined
-                            ? String(row[index]).trim()
-                            : '';
-                    });
+                    const code = row[COL.CODE] ? String(row[COL.CODE]).trim() : '';
+                    if (!code) continue; // Пропускаємо порожні рядки
 
-                    // Пропускаємо порожні рядки
-                    if (item.code && item.code.trim() !== '') {
-                        // Додаємо дефолтні значення
-                        item.status = item.status || 'FALSE';
-                        item.check = item.check || 'FALSE';
-                        item.payment = item.payment || 'FALSE';
-                        parsedData.push(item);
-                    }
+                    const item = {
+                        code: code,
+                        article: '',  // Вводиться вручну
+                        brand: row[COL.BRAND] ? String(row[COL.BRAND]).trim() : '',
+                        category: row[COL.CATEGORY] ? String(row[COL.CATEGORY]).trim() : '',
+                        name: row[COL.NAME] ? String(row[COL.NAME]).trim() : '',
+                        packaging: row[COL.PACKAGING] ? String(row[COL.PACKAGING]).trim() : '',
+                        flavor: row[COL.FLAVOR] ? String(row[COL.FLAVOR]).trim() : '',
+                        shiping_date: row[COL.SHIP_DATE] ? String(row[COL.SHIP_DATE]).trim() : '',
+                        reserve: '',      // Призначається користувачем
+                        status: 'FALSE',
+                        status_date: '',
+                        check: 'FALSE',
+                        check_date: '',
+                        payment: 'FALSE',
+                        payment_date: '',
+                        update_date: ''
+                    };
+
+                    parsedData.push(item);
                 }
 
-                console.log(`✅ Розпарсено ${parsedData.length} рядків`);
+                console.log(`✅ Розпарсено ${parsedData.length} рядків з XLSX`);
                 resolve(parsedData);
 
             } catch (error) {
@@ -211,47 +233,6 @@ function readXlsxFile(file) {
 
         reader.readAsArrayBuffer(file);
     });
-}
-
-/**
- * Мапінг заголовків з файлу на внутрішні поля
- */
-function mapHeaders(headers) {
-    const mapping = {
-        code: -1,
-        article: -1,
-        brand: -1,
-        category: -1,
-        name: -1,
-        packaging: -1,
-        flavor: -1,
-        shiping_date: -1,
-        reserve: -1,
-        status: -1,
-        check: -1,
-        payment: -1
-    };
-
-    // Шукаємо відповідні колонки
-    headers.forEach((header, index) => {
-        const h = String(header).toLowerCase().trim();
-
-        if (h.includes('код') || h === 'code') mapping.code = index;
-        else if (h.includes('артикул') || h === 'article' || h === 'sku') mapping.article = index;
-        else if (h.includes('бренд') || h === 'brand') mapping.brand = index;
-        else if (h.includes('категор') || h === 'category') mapping.category = index;
-        else if (h.includes('назва') || h === 'name' || h.includes('найменування')) mapping.name = index;
-        else if (h.includes('упаков') || h === 'packaging') mapping.packaging = index;
-        else if (h.includes('смак') || h === 'flavor') mapping.flavor = index;
-        else if (h.includes('відправ') || h.includes('shiping') || h.includes('shipping')) mapping.shiping_date = index;
-        else if (h.includes('резерв') || h === 'reserve') mapping.reserve = index;
-        else if (h.includes('виклад') || h === 'status') mapping.status = index;
-        else if (h.includes('перевір') || h === 'check') mapping.check = index;
-        else if (h.includes('оплат') || h === 'payment') mapping.payment = index;
-    });
-
-    console.log('📋 Mapping заголовків:', mapping);
-    return mapping;
 }
 
 /**
