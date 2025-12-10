@@ -313,6 +313,10 @@ export async function importDataToSheet(importedData) {
 
             if (existing) {
                 // Оновлюємо тільки поля з XLSX, зберігаємо інші
+                // Якщо товар повернувся в імпорт - він більше не "ненаявно"
+                const newShipDate = imported.shiping_date ||
+                    (existing.shiping_date === 'ненаявно' ? '' : existing.shiping_date);
+
                 const updatedItem = {
                     ...existing,
                     brand: imported.brand || existing.brand,
@@ -320,7 +324,7 @@ export async function importDataToSheet(importedData) {
                     name: imported.name || existing.name,
                     packaging: imported.packaging || existing.packaging,
                     flavor: imported.flavor || existing.flavor,
-                    shiping_date: imported.shiping_date || existing.shiping_date,
+                    shiping_date: newShipDate,
                     update_date: currentDate
                 };
                 updates.push(updatedItem);
