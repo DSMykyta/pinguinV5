@@ -5,11 +5,12 @@
  * ║                      PRICE - TABLE RENDERING                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Рендеринг таблиці прайсу з badge-кнопками для статусів.
+ * Рендеринг таблиці прайсу з використанням універсального ui-table.
  */
 
 import { priceState } from './price-init.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 /**
  * Рендерити таблицю прайсу
@@ -22,13 +23,14 @@ export async function renderPriceTable() {
 
     // Якщо немає даних
     if (!items || items.length === 0) {
-        container.innerHTML = renderAvatarState('empty', {
-            message: 'Немає даних для відображення',
-            size: 'medium',
-            containerClass: 'empty-state-container',
-            avatarClass: 'empty-state-avatar',
-            messageClass: 'avatar-state-message',
-            showMessage: true
+        renderPseudoTable(container, {
+            data: [],
+            columns: getColumns(),
+            emptyState: {
+                icon: 'receipt_long',
+                message: 'Немає даних для відображення'
+            },
+            withContainer: false
         });
         updateStats(0, 0);
         return;
@@ -40,102 +42,142 @@ export async function renderPriceTable() {
     const endIndex = Math.min(startIndex + pageSize, items.length);
     const pageItems = items.slice(startIndex, endIndex);
 
-    // Генеруємо HTML таблиці
-    const html = `
-        <table class="pseudo-table">
-            <thead>
-                <tr>
-                    <th class="col-checkbox"><input type="checkbox" id="select-all-price"></th>
-                    <th class="col-actions"></th>
-                    <th>Резерв</th>
-                    <th>Код</th>
-                    <th>Артикул</th>
-                    <th>Товар</th>
-                    <th>Відправка</th>
-                    <th>Викладено</th>
-                    <th>Перевірено</th>
-                    <th>Оплата</th>
-                    <th>Дата</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${pageItems.map(item => renderTableRow(item)).join('')}
-            </tbody>
-        </table>
-    `;
+    // Оновити пагінацію
+    if (priceState.paginationAPI) {
+        priceState.paginationAPI.update({
+            currentPage,
+            pageSize,
+            totalItems: items.length
+        });
+    }
 
-    container.innerHTML = html;
+    // Рендерити таблицю через універсальний компонент
+    renderPseudoTable(container, {
+        data: pageItems,
+        columns: getColumns(),
+        visibleColumns: priceState.visibleColumns.length > 0
+            ? priceState.visibleColumns
+            : ['code', 'article', 'product', 'reserve', 'status', 'check', 'payment', 'shiping_date', 'update_date'],
+        rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
+        rowActionsCustom: (row) => `
+            <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
+            <button class="btn-icon btn-edit" data-code="${escapeHtml(row.code)}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+        `,
+        emptyState: {
+            icon: 'receipt_long',
+            message: 'Немає даних для відображення'
+        },
+        withContainer: false
+    });
+
+    // Додати обробники подій
+    attachTableEventHandlers(container);
+
     updateStats(items.length, priceState.priceItems.length);
 }
 
 /**
- * Рендерити один рядок таблиці
+ * Отримати конфігурацію колонок
  */
-function renderTableRow(item) {
-    const statusBadge = renderStatusBadge(item.status, 'status', item.code);
-    const checkBadge = renderStatusBadge(item.check, 'check', item.code);
-    const paymentIndicator = renderPaymentIndicator(item.payment);
-    const productDisplay = formatProductDisplay(item);
-
-    return `
-        <tr data-code="${item.code}" data-row-index="${item._rowIndex}">
-            <td class="col-checkbox">
-                <input type="checkbox" class="row-checkbox" data-code="${item.code}">
-            </td>
-            <td class="col-actions">
-                <button class="btn-icon btn-edit-item" data-code="${item.code}" aria-label="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            </td>
-            <td class="col-reserve">
-                ${item.reserve ? `<span class="chip chip-small">${escapeHtml(item.reserve)}</span>` : '<span class="text-muted">-</span>'}
-            </td>
-            <td class="col-code">${escapeHtml(item.code)}</td>
-            <td class="col-article">
-                ${item.article
-                    ? `<span class="article-value">${escapeHtml(item.article)}</span>`
-                    : `<input type="text" class="input-article" data-code="${item.code}" placeholder="Вставте артикул">`
+function getColumns() {
+    return [
+        {
+            id: 'code',
+            label: 'Код',
+            className: 'cell-id',
+            sortable: true,
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'article',
+            label: 'Артикул',
+            sortable: true,
+            render: (value, row) => {
+                if (value) {
+                    return `<span class="article-value">${escapeHtml(value)}</span>`;
                 }
-            </td>
-            <td class="col-product">${productDisplay}</td>
-            <td class="col-shipping">${escapeHtml(item.shiping_date || '-')}</td>
-            <td class="col-status">${statusBadge}</td>
-            <td class="col-check">${checkBadge}</td>
-            <td class="col-payment">${paymentIndicator}</td>
-            <td class="col-date">${escapeHtml(item.status_date || '-')}</td>
-        </tr>
-    `;
+                return `<input type="text" class="input-inline input-article" data-code="${escapeHtml(row.code)}" placeholder="Артикул">`;
+            }
+        },
+        {
+            id: 'product',
+            label: 'Товар',
+            className: 'cell-main-name',
+            sortable: true,
+            render: (value, row) => formatProductDisplay(row)
+        },
+        {
+            id: 'reserve',
+            label: 'Резерв',
+            sortable: true,
+            render: (value) => value
+                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
+                : '<span class="text-muted">-</span>'
+        },
+        {
+            id: 'status',
+            label: 'Викладено',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value, row) => renderClickableBadge(value, 'status', row.code)
+        },
+        {
+            id: 'check',
+            label: 'Перевірено',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value, row) => renderClickableBadge(value, 'check', row.code)
+        },
+        {
+            id: 'payment',
+            label: 'Оплата',
+            className: 'cell-bool',
+            sortable: true,
+            render: (value) => {
+                const isPaid = value === 'TRUE' || value === true;
+                return isPaid
+                    ? '<span class="badge badge-success"><span class="material-symbols-outlined">payments</span></span>'
+                    : '<span class="badge badge-neutral"><span class="material-symbols-outlined">money_off</span></span>';
+            }
+        },
+        {
+            id: 'shiping_date',
+            label: 'Відправка',
+            sortable: true,
+            render: (value) => {
+                if (value === 'ненаявно') {
+                    return '<span class="badge badge-warning">ненаявно</span>';
+                }
+                return escapeHtml(value || '-');
+            }
+        },
+        {
+            id: 'update_date',
+            label: 'Оновлено',
+            sortable: true,
+            render: (value) => escapeHtml(value || '-')
+        }
+    ];
 }
 
 /**
- * Рендерити badge статусу (клікабельний)
+ * Рендерити клікабельний badge статусу
  */
-function renderStatusBadge(value, type, code) {
+function renderClickableBadge(value, type, code) {
     const isTrue = value === 'TRUE' || value === true;
-    const badgeClass = isTrue ? 'badge-success' : 'badge-secondary';
-    const label = type === 'status' ? (isTrue ? 'Викладено' : 'Не викладено')
-                : (isTrue ? 'Перевірено' : 'Не перевірено');
-    const icon = isTrue ? 'check' : 'close';
+    const badgeClass = isTrue ? 'badge-success' : 'badge-neutral';
+    const icon = isTrue ? 'check_circle' : 'cancel';
 
     return `
         <span class="badge ${badgeClass} clickable"
-              data-code="${code}"
+              data-code="${escapeHtml(code)}"
               data-field="${type}"
               data-value="${isTrue}">
             <span class="material-symbols-outlined">${icon}</span>
-            <span class="badge-label">${label}</span>
         </span>
     `;
-}
-
-/**
- * Рендерити індикатор оплати
- */
-function renderPaymentIndicator(value) {
-    const isPaid = value === 'TRUE' || value === true;
-    return isPaid
-        ? '<span class="payment-indicator paid" title="Оплачено">&#128994;</span>'
-        : '<span class="payment-indicator unpaid" title="Не оплачено">&#128308;</span>';
 }
 
 /**
@@ -163,6 +205,74 @@ function formatProductDisplay(item) {
 }
 
 /**
+ * Додати обробники подій до таблиці
+ */
+function attachTableEventHandlers(container) {
+    // Обробник для кнопок редагування
+    container.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const code = button.dataset.code;
+            if (code) {
+                // TODO: Реалізувати редагування
+                console.log('Edit item:', code);
+            }
+        });
+    });
+
+    // Обробник для клікабельних badge
+    container.querySelectorAll('.badge.clickable').forEach(badge => {
+        badge.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const code = badge.dataset.code;
+            const field = badge.dataset.field;
+            const currentValue = badge.dataset.value === 'true';
+
+            if (code && field) {
+                const { toggleItemStatus } = await import('./price-events.js');
+                await toggleItemStatus(code, field, !currentValue);
+            }
+        });
+    });
+
+    // Обробник для input артикулу
+    container.querySelectorAll('.input-article').forEach(input => {
+        input.addEventListener('paste', async (e) => {
+            const code = input.dataset.code;
+            if (code) {
+                setTimeout(async () => {
+                    const value = input.value.trim();
+                    if (value) {
+                        const { saveArticle } = await import('./price-events.js');
+                        await saveArticle(code, value);
+                    }
+                }, 0);
+            }
+        });
+
+        input.addEventListener('blur', async () => {
+            const code = input.dataset.code;
+            const value = input.value.trim();
+            if (code && value) {
+                const { saveArticle } = await import('./price-events.js');
+                await saveArticle(code, value);
+            }
+        });
+    });
+
+    // Обробник для select all checkbox
+    const selectAllCheckbox = container.querySelector('#select-all-price');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', () => {
+            const isChecked = selectAllCheckbox.checked;
+            container.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.checked = isChecked;
+            });
+        });
+    }
+}
+
+/**
  * Оновити статистику
  */
 function updateStats(shown, total) {
@@ -170,16 +280,6 @@ function updateStats(shown, total) {
     if (statsEl) {
         statsEl.textContent = `Показано ${shown} з ${total}`;
     }
-}
-
-/**
- * Escape HTML для безпечного виводу
- */
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // Експорт для window

@@ -8,6 +8,17 @@
             <button id="clear-search-price" class="btn-icon u-hidden" aria-label="Очистити пошук">
                 <span class="material-symbols-outlined">close</span>
             </button>
+            <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+                <span class="material-symbols-outlined">filter_list</span>
+            </button>
+
+            <!-- Dropdown з чекбоксами колонок для пошуку -->
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Колонки для пошуку</div>
+                <div id="search-columns-list-price" class="dropdown-body">
+                    <!-- Чекбокси додаються динамічно -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -16,53 +27,17 @@
     <!-- SCROLLABLE КОНТЕНТ -->
     <div class="panel-content-scroll">
 
-        <div class="panel-section-title">
-            <span>Швидкі дії</span>
-        </div>
-
-        <!-- Резервувати вибрані -->
-        <button id="btn-reserve-selected" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">bookmark_add</span>
-            <span class="panel-item-text">Резервувати вибрані</span>
-        </button>
-
-        <!-- Відмітити як викладено -->
-        <button id="btn-mark-status" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">check_circle</span>
-            <span class="panel-item-text">Позначити "Викладено"</span>
-        </button>
-
-        <!-- Відмітити як перевірено -->
-        <button id="btn-mark-check" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">verified</span>
-            <span class="panel-item-text">Позначити "Перевірено"</span>
-        </button>
-
-        <div class="panel-separator"></div>
-
-        <!-- Деталі товару -->
-        <div class="panel-section-title">
-            <span>Деталі товару</span>
-        </div>
-
-        <div id="price-item-details" class="panel-item-details u-hidden">
-            <!-- Заповнюється динамічно -->
-        </div>
-
-        <p id="price-no-selection" class="text-muted" style="padding: 0 16px;">
-            Виберіть товар у таблиці для перегляду деталей
-        </p>
-
     </div>
 
     <div class="panel-separator"></div>
 
     <!-- FOOTER -->
     <div class="panel-content-footer">
-        <a href="#tab-import" class="panel-item">
+        <label class="panel-item">
             <span class="material-symbols-outlined panel-item-icon">upload_file</span>
             <span class="panel-item-text">Завантажити прайс</span>
-        </a>
+            <input type="file" id="import-xlsx-aside" accept=".xlsx,.xls" hidden>
+        </label>
     </div>
 
 </div>
