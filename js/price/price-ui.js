@@ -97,18 +97,18 @@ export function toggleSection(sectionId, show) {
 }
 
 /**
- * Оновити активний стан навігатора секцій
+ * Оновити активний стан навігатора табів
  */
-export function updateSectionNavigator(activeSectionId) {
-    const navigator = document.getElementById('section-navigator');
+export function updateSectionNavigator(activeTabId) {
+    const navigator = document.getElementById('tabs-head-container');
     if (!navigator) return;
 
     navigator.querySelectorAll('.nav-icon').forEach(icon => {
-        const href = icon.getAttribute('href');
-        if (href === `#${activeSectionId}`) {
-            icon.classList.add('is-active');
+        const tabTarget = icon.dataset.tabTarget;
+        if (tabTarget === activeTabId) {
+            icon.classList.add('active');
         } else {
-            icon.classList.remove('is-active');
+            icon.classList.remove('active');
         }
     });
 }

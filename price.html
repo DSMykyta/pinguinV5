@@ -96,20 +96,20 @@
 
     </nav>
 
-    <!-- SECTION NAVIGATOR -->
-    <nav id="section-navigator" class="section-navigator">
-        <a href="#tab-price" class="nav-icon is-active" title="Прайс">
-            <span class="material-symbols-outlined">receipt_long</span>
-        </a>
-        <a href="#tab-import" class="nav-icon" title="Завантажити прайс">
-            <span class="material-symbols-outlined">upload_file</span>
-        </a>
-    </nav>
-
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
+        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="tabs-head-container">
+            <button class="nav-icon active" data-tab-target="tab-price">
+                <span class="material-symbols-outlined">receipt_long</span>
+                <span class="nav-icon-label">Прайс</span>
+            </button>
+            <button class="nav-icon" data-tab-target="tab-import">
+                <span class="material-symbols-outlined">upload_file</span>
+                <span class="nav-icon-label">Завантажити прайс</span>
+            </button>
+        </nav>
         <!-- SECTION: ПРАЙС -->
-        <section class="tab-content active" data-tab-content="tab-price" id="tab-price">
+        <div class="tab-content active" data-tab-content="tab-price" id="tab-price">
 
             <div class="section-header u-align-end">
                 <div class="section-name-block">
@@ -158,10 +158,10 @@
             <div id="price-table-container" class="pseudo-table-container">
                 <!-- Заповнюється JavaScript -->
             </div>
-        </section>
+        </div>
 
         <!-- SECTION: ЗАВАНТАЖИТИ ПРАЙС -->
-        <section class="tab-content" data-tab-content="tab-import" id="tab-import">
+        <div class="tab-content" data-tab-content="tab-import" id="tab-import">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -208,7 +208,7 @@
                     <!-- Таблиця превью -->
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="fixed-footer">

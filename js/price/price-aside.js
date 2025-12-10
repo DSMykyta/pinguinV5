@@ -22,7 +22,7 @@ export async function loadAside() {
     }
 
     try {
-        const response = await fetch('/templates/aside/aside-price.html');
+        const response = await fetch('templates/aside/aside-price.html');
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
