@@ -12,24 +12,15 @@ import { priceState } from './price-init.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
 
 /**
- * Заповнити таби резервів (юзерів) з аватарками
+ * Заповнити таби резервів (юзерів) з аватарками в section-navigator
  */
 export function populateReserveTabs() {
-    const tabsContainer = document.getElementById('reserve-filter-tabs');
+    const tabsContainer = document.getElementById('tabs-head-container');
     if (!tabsContainer) return;
 
-    // Очищаємо контейнер
-    tabsContainer.innerHTML = '';
-
-    // Додаємо таб "Всі"
-    const allTab = document.createElement('button');
-    allTab.className = 'nav-icon active';
-    allTab.dataset.reserveFilter = 'all';
-    allTab.innerHTML = `
-        <span class="material-symbols-outlined">list</span>
-        <span class="nav-icon-label">Всі</span>
-    `;
-    tabsContainer.appendChild(allTab);
+    // Видаляємо старі таби юзерів (залишаємо тільки перший - "Прайс")
+    const existingUserTabs = tabsContainer.querySelectorAll('.nav-icon[data-reserve-filter]');
+    existingUserTabs.forEach(tab => tab.remove());
 
     // Додаємо таби для кожного резерву з аватаркою
     priceState.reserveNames.forEach(name => {
@@ -42,13 +33,13 @@ export function populateReserveTabs() {
         const avatarColor = getAvatarColor(name);
 
         tab.innerHTML = `
-            <span class="user-avatar-small" style="background-color: ${avatarColor}">${initials}</span>
+            <span class="avatar avatar-sm" style="background-color: ${avatarColor}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">${initials}</span>
             <span class="nav-icon-label">${name}</span>
         `;
         tabsContainer.appendChild(tab);
     });
 
-    console.log(`✅ Заповнено ${priceState.reserveNames.length + 1} табів резервів`);
+    console.log(`✅ Заповнено ${priceState.reserveNames.length} табів резервів`);
 }
 
 /**

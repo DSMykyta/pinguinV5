@@ -208,18 +208,18 @@ function createArticleSpan(value) {
 }
 
 /**
- * Ініціалізувати обробники табів резервів (юзерів)
+ * Ініціалізувати обробники табів резервів (юзерів) та статусів
  */
 function initReserveTabsEvents() {
-    // Таби резервів (юзери)
-    const reserveTabsContainer = document.getElementById('reserve-filter-tabs');
-    if (reserveTabsContainer) {
-        reserveTabsContainer.addEventListener('click', async (e) => {
-            const tabBtn = e.target.closest('.nav-icon');
+    // Таби резервів (юзери) в section-navigator
+    const sectionNavigator = document.getElementById('tabs-head-container');
+    if (sectionNavigator) {
+        sectionNavigator.addEventListener('click', async (e) => {
+            const tabBtn = e.target.closest('.nav-icon[data-reserve-filter]');
             if (!tabBtn) return;
 
-            // Видаляємо active з усіх
-            reserveTabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
+            // Видаляємо active з усіх табів в navigator
+            sectionNavigator.querySelectorAll('.nav-icon').forEach(btn => {
                 btn.classList.remove('active');
             });
 
