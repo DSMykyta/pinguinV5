@@ -34,15 +34,11 @@ export async function loadAside() {
 
     } catch (error) {
         console.error('❌ Помилка завантаження aside-price:', error);
-        // Показуємо базовий контент
         panelContent.innerHTML = `
             <div class="panel-fragment is-active" id="aside-price">
                 <div class="panel-content-scroll">
-                    <div class="panel-section-title">
-                        <span>Прайс</span>
-                    </div>
                     <p class="text-muted" style="padding: 16px;">
-                        Виберіть товар у таблиці для перегляду деталей
+                        Помилка завантаження панелі
                     </p>
                 </div>
             </div>
@@ -54,11 +50,8 @@ export async function loadAside() {
  * Ініціалізувати події aside панелі
  */
 export function initAsideEvents() {
-    // Пошук
     initSearchEvents();
-
-    // Кнопка резервування
-    initReserveButton();
+    initImportFromAside();
 }
 
 /**
@@ -74,15 +67,12 @@ function initSearchEvents() {
         const query = e.target.value.trim().toLowerCase();
         priceState.searchQuery = query;
 
-        // Показати/сховати кнопку очищення
         if (clearBtn) {
             clearBtn.classList.toggle('u-hidden', query === '');
         }
 
-        // Фільтруємо дані
         filterPriceItems(query);
 
-        // Перерендерюємо
         const { renderPriceTable } = await import('./price-table.js');
         await renderPriceTable();
     });
@@ -93,7 +83,6 @@ function initSearchEvents() {
             priceState.searchQuery = '';
             clearBtn.classList.add('u-hidden');
 
-            // Скидаємо фільтр пошуку
             filterPriceItems('');
 
             const { renderPriceTable } = await import('./price-table.js');
@@ -106,12 +95,10 @@ function initSearchEvents() {
  * Фільтрувати товари за пошуковим запитом
  */
 function filterPriceItems(query) {
-    // Спочатку застосовуємо фільтр резерву
     filterByReserve(priceState.currentReserveFilter);
 
     if (!query) return;
 
-    // Потім фільтруємо по пошуку
     priceState.filteredItems = priceState.filteredItems.filter(item => {
         const searchFields = [
             item.code,
@@ -129,101 +116,24 @@ function filterPriceItems(query) {
 }
 
 /**
- * Ініціалізувати кнопку резервування
+ * Ініціалізувати імпорт з aside
  */
-function initReserveButton() {
-    const reserveBtn = document.getElementById('btn-reserve-selected');
-    if (!reserveBtn) return;
+function initImportFromAside() {
+    const importInput = document.getElementById('import-xlsx-aside');
+    if (!importInput) return;
 
-    reserveBtn.addEventListener('click', async () => {
-        const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
-        if (selectedCheckboxes.length === 0) {
-            alert('Виберіть товари для резервування');
-            return;
-        }
-
-        // Отримуємо ім'я поточного користувача
-        const currentUser = window.currentUser?.display_name;
-        if (!currentUser) {
-            alert('Потрібна авторизація');
-            return;
-        }
-
-        const codes = Array.from(selectedCheckboxes).map(cb => cb.dataset.code);
+    importInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
         try {
-            const { reserveItem } = await import('./price-data.js');
-
-            for (const code of codes) {
-                await reserveItem(code, currentUser);
-            }
-
-            // Перезавантажуємо дані
-            const { loadPriceData } = await import('./price-data.js');
-            await loadPriceData();
-
-            // Оновлюємо таби резервів
-            const { populateReserveTabs } = await import('./price-ui.js');
-            populateReserveTabs();
-
-            // Перерендерюємо таблицю
-            const { renderPriceTable } = await import('./price-table.js');
-            await renderPriceTable();
-
-            alert(`Зарезервовано ${codes.length} товарів для ${currentUser}`);
-
+            const { handleFileImport } = await import('./price-import.js');
+            await handleFileImport(file);
         } catch (error) {
-            console.error('Помилка резервування:', error);
-            alert('Помилка резервування товарів');
+            console.error('Помилка імпорту:', error);
+            alert('Помилка імпорту файлу');
         }
+
+        importInput.value = '';
     });
-}
-
-/**
- * Показати деталі товару в aside
- */
-export function showItemDetails(item) {
-    const detailsContainer = document.getElementById('price-item-details');
-    if (!detailsContainer) return;
-
-    detailsContainer.innerHTML = `
-        <div class="item-detail">
-            <label>Код:</label>
-            <span>${item.code}</span>
-        </div>
-        <div class="item-detail">
-            <label>Артикул:</label>
-            <span>${item.article || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Бренд:</label>
-            <span>${item.brand || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Назва:</label>
-            <span>${item.name || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Категорія:</label>
-            <span>${item.category || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Упаковка:</label>
-            <span>${item.packaging || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Смак:</label>
-            <span>${item.flavor || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Відправка:</label>
-            <span>${item.shiping_date || '-'}</span>
-        </div>
-        <div class="item-detail">
-            <label>Резерв:</label>
-            <span>${item.reserve || '-'}</span>
-        </div>
-    `;
-
-    detailsContainer.classList.remove('u-hidden');
 }
