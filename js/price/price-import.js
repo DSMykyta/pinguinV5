@@ -319,7 +319,7 @@ function initImportButtons() {
             `;
 
             try {
-                await importDataToSheet(priceState.importedData);
+                const result = await importDataToSheet(priceState.importedData);
 
                 // Ховаємо превью
                 hideImportPreview();
@@ -332,7 +332,14 @@ function initImportButtons() {
                 const { renderPriceTable } = await import('./price-table.js');
                 await renderPriceTable();
 
-                alert(`Успішно імпортовано ${priceState.importedData.length} рядків`);
+                // Показуємо результат
+                let message = `Імпорт завершено:\n`;
+                message += `• Оновлено: ${result.updated}\n`;
+                message += `• Додано нових: ${result.added}`;
+                if (result.unavailable > 0) {
+                    message += `\n• Позначено "ненаявно": ${result.unavailable}`;
+                }
+                alert(message);
 
                 // Очищаємо імпортовані дані
                 priceState.importedData = [];
