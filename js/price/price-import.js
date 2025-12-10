@@ -22,9 +22,26 @@ export function initPriceImport() {
 
     initDropZone();
     initFileInput();
+    initAsideImport();
     initImportButtons();
 
     console.log('✅ Price import initialized');
+}
+
+/**
+ * Ініціалізувати імпорт з aside панелі
+ */
+function initAsideImport() {
+    const importInput = document.getElementById('import-xlsx-aside');
+    if (!importInput) return;
+
+    importInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        await handleFile(file);
+        importInput.value = '';
+    });
 }
 
 /**

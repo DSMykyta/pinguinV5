@@ -11,6 +11,7 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
 import { renderPriceTable } from './price-table.js';
+import { initTableSorting } from '../common/ui-table-sort.js';
 
 let eventsInitialized = false;
 
@@ -262,4 +263,47 @@ function initRefreshButton() {
             refreshBtn.classList.remove('rotating');
         }
     });
+}
+
+/**
+ * Ініціалізація сортування для таблиці прайсу
+ */
+export function initPriceSorting() {
+    const container = document.getElementById('price-table-container');
+    if (!container) {
+        console.warn('⚠️ price-table-container не знайдено');
+        return null;
+    }
+
+    const sortAPI = initTableSorting(container, {
+        dataSource: () => priceState.filteredItems,
+        onSort: async (sortedData) => {
+            // Оновити масив відфільтрованих товарів
+            priceState.filteredItems = sortedData;
+
+            // Перерендерити таблицю
+            await renderPriceTable();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPI.getState();
+            if (sortState.column && sortState.direction) {
+                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            code: 'string',
+            article: 'string',
+            product: 'string',
+            reserve: 'string',
+            status: 'boolean',
+            check: 'boolean',
+            payment: 'boolean',
+            shiping_date: 'string',
+            update_date: 'date'
+        }
+    });
+
+    console.log('✅ Сортування прайсу ініціалізовано');
+    return sortAPI;
 }

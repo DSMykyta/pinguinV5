@@ -145,10 +145,13 @@ async function updateUIWithData() {
     await renderPriceTable();
 
     // 6. Ініціалізувати події таблиці
-    const { initPriceEvents } = await import('./price-events.js');
+    const { initPriceEvents, initPriceSorting } = await import('./price-events.js');
     initPriceEvents();
 
-    // 7. Ініціалізувати колонки таблиці
+    // 7. Ініціалізувати сортування
+    initPriceSorting();
+
+    // 8. Ініціалізувати колонки таблиці
     const { populateTableColumns } = await import('./price-ui.js');
     populateTableColumns();
 }

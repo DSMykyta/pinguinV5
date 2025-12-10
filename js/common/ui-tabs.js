@@ -55,13 +55,14 @@ function activateTab(selectedTab) {
     }
 
     // Деактивуємо весь контент (шукаємо глобально)
-    document.querySelectorAll('.tab-content.is-active').forEach(content => {
-        content.classList.remove('is-active');
+    // Підтримуємо обидва класи: active та is-active
+    document.querySelectorAll('.tab-content.is-active, .tab-content.active').forEach(content => {
+        content.classList.remove('is-active', 'active');
     });
 
     // Активуємо потрібні
     selectedTab.classList.add('active');
     if (targetContent) {
-        targetContent.classList.add('is-active');
+        targetContent.classList.add('active');
     }
 }
