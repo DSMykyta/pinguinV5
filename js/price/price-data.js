@@ -14,7 +14,7 @@ import { callSheetsAPI } from '../utils/api-client.js';
 import { PRICE_SPREADSHEET_ID } from '../config/spreadsheet-config.js';
 
 const PRICE_SHEET_NAME = 'Price';
-const PRICE_START_ROW = 7; // Імпорт XLSX починається з рядка 7
+const PRICE_START_ROW = 1; // Рядок 1 = заголовки, рядок 2+ = дані
 
 // Кеш для індексів колонок (заповнюється при першому завантаженні)
 let columnIndices = null;
