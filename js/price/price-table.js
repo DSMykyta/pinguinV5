@@ -58,14 +58,14 @@ export async function renderPriceTableRowsOnly() {
 
     const items = priceState.filteredItems;
 
-    // Якщо немає даних - показуємо empty state (повний перерендер)
-    if (!items || items.length === 0) {
-        await renderPriceTable();
-        return;
-    }
-
     // Видаляємо тільки рядки (не заголовок!)
     container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
+
+    // Якщо немає даних - залишаємо порожню таблицю з заголовками
+    if (!items || items.length === 0) {
+        updateStats(0, priceState.priceItems.length);
+        return;
+    }
 
     // Отримуємо пагіновані дані
     const { currentPage, pageSize } = priceState.pagination;
