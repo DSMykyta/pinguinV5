@@ -48,7 +48,14 @@ export async function loadPriceData() {
         const rows = result || [];
 
         if (rows.length === 0) {
-            console.warn('⚠️ Прайс порожній');
+            console.warn('⚠️ Прайс порожній, використовуємо стандартний порядок колонок');
+            // Стандартний порядок колонок якщо таблиця порожня
+            columnIndices = {
+                'code': 0, 'article': 1, 'brand': 2, 'category': 3,
+                'name': 4, 'packaging': 5, 'flavor': 6, 'shiping_date': 7,
+                'reserve': 8, 'status': 9, 'status_date': 10, 'check': 11,
+                'check_date': 12, 'payment': 13, 'payment_date': 14, 'update_date': 15
+            };
             priceState.priceItems = [];
             priceState.reserveNames = [];
             return;
@@ -289,8 +296,11 @@ export async function importDataToSheet(importedData) {
         console.log(`📤 Імпорт ${importedData.length} рядків...`);
 
         // 1. Завантажити існуючі дані
+        console.log('📥 Завантаження існуючих даних...');
         await loadPriceData();
+        console.log('✅ Існуючі дані завантажено');
         const existingItems = priceState.priceItems;
+        console.log(`📊 Існуючих записів: ${existingItems.length}`);
 
         // 2. Створити мапи
         const existingMap = new Map();
@@ -390,6 +400,7 @@ export async function importDataToSheet(importedData) {
             }
 
             if (batchData.length > 0) {
+                console.log(`📤 Відправка batch update (${batchData.length} операцій)...`);
                 await callSheetsAPI('batchUpdate', {
                     data: batchData,
                     spreadsheetType: 'price'
@@ -400,6 +411,19 @@ export async function importDataToSheet(importedData) {
 
         // 5. Додати нові записи
         if (newItems.length > 0) {
+            console.log(`📤 Додавання ${newItems.length} нових записів...`);
+
+            // Якщо таблиця була порожня - спочатку додаємо заголовки
+            if (existingItems.length === 0) {
+                console.log('📋 Додаємо заголовки...');
+                const headers = ['code', 'article', 'brand', 'category', 'name', 'packaging', 'flavor', 'shiping_date', 'reserve', 'status', 'status_date', 'check', 'check_date', 'payment', 'payment_date', 'update_date'];
+                await callSheetsAPI('update', {
+                    range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}`,
+                    values: [headers],
+                    spreadsheetType: 'price'
+                });
+            }
+
             const newRows = newItems.map(item => [
                 item.code,
                 item.article,
