@@ -283,7 +283,6 @@ export function getColumns() {
             label: 'Резерв',
             sortable: true,
             filterable: true,
-            filterType: 'exists',
             render: (value) => renderReserveCell(value)
         }
     ];
