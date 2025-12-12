@@ -82,6 +82,7 @@ export function initTableFilters(container, options) {
 
         // Звичайний тип - збираємо унікальні значення
         const valueCounts = new Map();
+        let emptyCount = 0;
 
         data.forEach(item => {
             const value = item[columnId];
@@ -89,13 +90,22 @@ export function initTableFilters(container, options) {
 
             if (normalizedValue) {
                 valueCounts.set(normalizedValue, (valueCounts.get(normalizedValue) || 0) + 1);
+            } else {
+                emptyCount++;
             }
         });
 
         // Сортуємо за алфавітом
-        return Array.from(valueCounts.entries())
+        const results = Array.from(valueCounts.entries())
             .sort((a, b) => a[0].localeCompare(b[0], 'uk'))
             .map(([value, count]) => ({ value, label: value, count }));
+
+        // Додаємо опцію "Пусто" якщо є порожні значення
+        if (emptyCount > 0) {
+            results.push({ value: '__empty__', label: 'Пусто', count: emptyCount });
+        }
+
+        return results;
     }
 
     /**
@@ -445,8 +455,16 @@ export function initTableFilters(container, options) {
                     // Звичайний фільтр по значенню
                     const normalizedValue = itemValue ? itemValue.toString().trim() : '';
 
-                    if (normalizedValue && !allowedValues.has(normalizedValue)) {
-                        return false;
+                    if (normalizedValue) {
+                        // Є значення - перевіряємо чи воно дозволене
+                        if (!allowedValues.has(normalizedValue)) {
+                            return false;
+                        }
+                    } else {
+                        // Порожнє значення - перевіряємо чи дозволено __empty__
+                        if (!allowedValues.has('__empty__')) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -623,8 +641,16 @@ export function filterData(data, filters, columns = []) {
             } else {
                 const normalizedValue = itemValue ? itemValue.toString().trim() : '';
 
-                if (normalizedValue && !allowedSet.has(normalizedValue)) {
-                    return false;
+                if (normalizedValue) {
+                    // Є значення - перевіряємо чи воно дозволене
+                    if (!allowedSet.has(normalizedValue)) {
+                        return false;
+                    }
+                } else {
+                    // Порожнє значення - перевіряємо чи дозволено __empty__
+                    if (!allowedSet.has('__empty__')) {
+                        return false;
+                    }
                 }
             }
         }

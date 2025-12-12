@@ -238,14 +238,8 @@ export function getColumns() {
             sortable: true,
             filterable: true,
             render: (value) => {
-                if (value === 'ненаявно' || !value) {
-                    return '<span class="badge badge-warning">ненаявно</span>';
-                }
-                if (value === 'Є на складі' || value === 'На складі') {
-                    return '<span class="badge badge-success">На складі</span>';
-                }
-                // Для "1 день", "1-2 дні" і т.д. - нейтральний badge
-                return `<span class="badge">${escapeHtml(value)}</span>`;
+                const displayValue = value || 'ненаявно';
+                return `<span class="word-chip">${escapeHtml(displayValue)}</span>`;
             }
         },
         {
@@ -289,6 +283,7 @@ export function getColumns() {
             label: 'Резерв',
             sortable: true,
             filterable: true,
+            filterType: 'exists',
             render: (value) => renderReserveCell(value)
         }
     ];
