@@ -108,3 +108,58 @@
     right: 0;
     left: auto;
 }
+
+/* ============================================ */
+/* TABLE COLUMN FILTERS                         */
+/* ============================================ */
+
+/* Dropdown фільтра в заголовку таблиці */
+.filter-dropdown {
+    margin-left: auto;
+}
+
+.filter-dropdown .btn-filter {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+}
+
+.filter-dropdown .btn-filter:hover {
+    opacity: 1;
+}
+
+/* Індикатор активного фільтра */
+.filter-dropdown .btn-filter.is-filtered {
+    opacity: 1;
+    color: var(--color-main);
+}
+
+.filter-dropdown .btn-filter.is-filtered .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* Розділювач в фільтрі */
+.dropdown-separator {
+    height: 1px;
+    background-color: var(--color-outline-v);
+    margin: 4px 8px;
+}
+
+/* Опція "Всі" */
+.filter-select-all {
+    font-weight: 500;
+}
+
+/* Лічильник елементів */
+.filter-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    background: var(--color-surface-c);
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}

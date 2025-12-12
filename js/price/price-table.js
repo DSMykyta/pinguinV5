@@ -79,7 +79,7 @@ export async function renderPriceTable() {
  * Отримати конфігурацію колонок
  * Порядок: Код, Артикул, Товар, Відправка, Викладено, Перевірено, Оплата, Оновлено, Резерв
  */
-function getColumns() {
+export function getColumns() {
     return [
         {
             id: 'code',
@@ -112,8 +112,10 @@ function getColumns() {
             id: 'shiping_date',
             label: 'Відправка',
             sortable: true,
+            filterable: true,
+            filterType: 'exists',
             render: (value) => {
-                if (value === 'ненаявно') {
+                if (value === 'ненаявно' || !value) {
                     return '<span class="badge badge-warning">ненаявно</span>';
                 }
                 return escapeHtml(value || '-');
@@ -159,6 +161,7 @@ function getColumns() {
             id: 'reserve',
             label: 'Резерв',
             sortable: true,
+            filterable: true,
             render: (value) => value
                 ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
                 : '<span class="text-muted">-</span>'

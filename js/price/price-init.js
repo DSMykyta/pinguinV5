@@ -26,6 +26,8 @@ export const priceState = {
     // Фільтри
     currentReserveFilter: 'all', // Поточний фільтр по резерву (юзеру)
     currentStatusFilter: 'all',  // Поточний фільтр по статусу
+    columnFilters: {},           // Фільтри по колонках { columnId: ['value1', 'value2'] }
+    columnFiltersAPI: null,      // API для управління фільтрами колонок
     searchQuery: '',             // Пошуковий запит
     searchColumns: [],           // Колонки для пошуку
     visibleColumns: [],          // Видимі колонки таблиці
@@ -150,13 +152,16 @@ async function updateUIWithData() {
     await renderPriceTable();
 
     // 7. Ініціалізувати події таблиці
-    const { initPriceEvents, initPriceSorting } = await import('./price-events.js');
+    const { initPriceEvents, initPriceSorting, initPriceColumnFilters } = await import('./price-events.js');
     initPriceEvents();
 
     // 8. Ініціалізувати сортування
     initPriceSorting();
 
-    // 9. Ініціалізувати колонки таблиці
+    // 9. Ініціалізувати фільтри колонок
+    initPriceColumnFilters();
+
+    // 10. Ініціалізувати колонки таблиці
     populateTableColumns();
 }
 

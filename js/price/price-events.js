@@ -10,8 +10,9 @@
 
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
-import { renderPriceTable } from './price-table.js';
+import { renderPriceTable, getColumns } from './price-table.js';
 import { initTableSorting } from '../common/ui-table-sort.js';
+import { initTableFilters } from '../common/ui-table-filter.js';
 
 let eventsInitialized = false;
 
@@ -404,6 +405,48 @@ function applyFilters() {
         });
     }
 
+    // 4. Фільтри по колонках (з dropdown в заголовках)
+    if (priceState.columnFilters && Object.keys(priceState.columnFilters).length > 0) {
+        const columns = getColumns();
+
+        items = items.filter(item => {
+            for (const [columnId, allowedValues] of Object.entries(priceState.columnFilters)) {
+                const column = columns.find(c => c.id === columnId);
+                const itemValue = item[columnId];
+                const allowedSet = new Set(allowedValues);
+
+                if (column?.filterType === 'exists') {
+                    // Фільтр по наявності значення
+                    const hasValue = itemValue && itemValue.toString().trim() !== '';
+
+                    if (allowedSet.has('__exists__') && allowedSet.has('__empty__')) {
+                        // Обидва вибрані - показуємо все
+                        continue;
+                    } else if (allowedSet.has('__exists__') && !allowedSet.has('__empty__') && !hasValue) {
+                        return false;
+                    } else if (allowedSet.has('__empty__') && !allowedSet.has('__exists__') && hasValue) {
+                        return false;
+                    } else if (!allowedSet.has('__exists__') && !allowedSet.has('__empty__')) {
+                        return false;
+                    }
+                } else {
+                    // Звичайний фільтр по значенню
+                    const normalizedValue = itemValue ? itemValue.toString().trim() : '';
+
+                    // Якщо значення пусте - показуємо якщо пусті дозволені або фільтр не активний
+                    if (!normalizedValue) {
+                        continue;
+                    }
+
+                    if (!allowedSet.has(normalizedValue)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+    }
+
     priceState.filteredItems = items;
 }
 
@@ -580,4 +623,53 @@ export function initPriceSorting() {
 
     console.log('✅ Сортування прайсу ініціалізовано');
     return sortAPI;
+}
+
+/**
+ * Ініціалізація фільтрів колонок для таблиці прайсу
+ */
+export function initPriceColumnFilters() {
+    const container = document.getElementById('price-table-container');
+    if (!container) {
+        console.warn('⚠️ price-table-container не знайдено');
+        return null;
+    }
+
+    const columns = getColumns();
+    const filterableColumns = columns.filter(col => col.filterable);
+
+    if (filterableColumns.length === 0) {
+        console.log('ℹ️ Немає колонок з filterable: true');
+        return null;
+    }
+
+    const filterAPI = initTableFilters(container, {
+        dataSource: () => priceState.priceItems,
+        columns: columns,
+        onFilter: async (activeFilters) => {
+            // Зберігаємо фільтри в state
+            priceState.columnFilters = activeFilters;
+
+            // Застосовуємо всі фільтри
+            applyFilters();
+
+            // Скидаємо пагінацію
+            priceState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            await renderPriceTable();
+
+            // Оновлюємо пагінацію
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        }
+    });
+
+    priceState.columnFiltersAPI = filterAPI;
+    console.log('✅ Фільтри колонок прайсу ініціалізовано');
+    return filterAPI;
 }
