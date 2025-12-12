@@ -379,7 +379,7 @@ function applyFilters() {
         items = getSuggestions(items);
     } else if (reserveFilter !== 'all') {
         // Звичайний фільтр по резерву (ім'я користувача)
-        items = items.filter(item => item.reserve === reserveFilter);
+        items = items.filter(item => (item.reserve || '').trim() === reserveFilter);
     }
 
     // 2. Фільтр по статусу (в межах обраного резерву)

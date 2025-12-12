@@ -402,10 +402,16 @@ export function initTableFilters(container, options) {
      */
     function triggerFilterChange() {
         if (onFilter) {
-            // Конвертуємо Map в об'єкт
+            // Конвертуємо Map в об'єкт, включаючи тільки активні фільтри
             const filtersObj = {};
             activeFilters.forEach((values, columnId) => {
-                filtersObj[columnId] = Array.from(values);
+                const column = filterableColumns.find(c => c.id === columnId);
+                const uniqueValues = getUniqueValues(columnId, column?.filterType);
+
+                // Включаємо тільки якщо НЕ всі значення вибрані
+                if (values.size < uniqueValues.length) {
+                    filtersObj[columnId] = Array.from(values);
+                }
             });
             onFilter(filtersObj);
         }
