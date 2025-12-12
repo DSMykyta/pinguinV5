@@ -186,6 +186,12 @@ function sortArray(array, column, direction, columnTypes = {}) {
                 bVal = new Date(bVal || 0).getTime();
                 break;
 
+            case 'product':
+                // Спеціальний тип для сортування товарів по Brand + Name
+                aVal = ((a.brand || '') + ' ' + (a.name || '')).trim().toLowerCase();
+                bVal = ((b.brand || '') + ' ' + (b.name || '')).trim().toLowerCase();
+                break;
+
             case 'string':
             default:
                 // String сортування (case-insensitive) - зберігаємо як рядок для localeCompare
@@ -195,8 +201,8 @@ function sortArray(array, column, direction, columnTypes = {}) {
         }
 
         // Порівняння
-        // Для рядків використовуємо localeCompare для правильного сортування кирилиці
-        if (columnType === 'string' || columnType === undefined) {
+        // Для рядків та product використовуємо localeCompare для правильного сортування кирилиці
+        if (columnType === 'string' || columnType === 'product' || columnType === undefined) {
             const comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
             return direction === 'asc' ? comparison : -comparison;
         }

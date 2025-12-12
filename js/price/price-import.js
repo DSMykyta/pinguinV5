@@ -275,6 +275,9 @@ function readXlsxFile(file) {
                         }
                     }
 
+                    // Якщо є артикул - автоматично встановлюємо status і check в TRUE
+                    const hasArticle = article !== '';
+
                     const item = {
                         code: code,
                         article: article,
@@ -285,9 +288,9 @@ function readXlsxFile(file) {
                         flavor: row[COL.FLAVOR] ? String(row[COL.FLAVOR]).trim() : '',
                         shiping_date: shipDate,
                         reserve: '',      // Призначається користувачем
-                        status: 'FALSE',
+                        status: hasArticle ? 'TRUE' : 'FALSE',
                         status_date: '',
-                        check: 'FALSE',
+                        check: hasArticle ? 'TRUE' : 'FALSE',
                         check_date: '',
                         payment: 'FALSE',
                         payment_date: '',

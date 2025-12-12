@@ -345,7 +345,14 @@ function initSearchEvents() {
 }
 
 /**
- * Застосувати всі фільтри (резерв + статус + пошук)
+ * Застосувати всі фільтри (експортована версія)
+ */
+export function applyAllFilters() {
+    applyFilters();
+}
+
+/**
+ * Застосувати всі фільтри (резерв + статус + пошук + колонки)
  */
 function applyFilters() {
     let items = [...priceState.priceItems];
@@ -611,7 +618,7 @@ export function initPriceSorting() {
         columnTypes: {
             code: 'string',
             article: 'string',
-            name: 'string',
+            product: 'product',
             reserve: 'string',
             status: 'boolean',
             check: 'boolean',
