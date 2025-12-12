@@ -74,14 +74,11 @@ export function renderPseudoTable(container, options) {
             ` : ''}
             ${columns.map(col => {
                 const cellClass = col.className || '';
-                const sortableClass = col.sortable ? ' sortable-header' : '';
 
                 return `
-                    <div class="pseudo-table-cell ${cellClass}${sortableClass}${hiddenClass(col.id)}"
-                         ${col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
+                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
                          data-column="${col.id}">
                         <span>${col.label || col.id}</span>
-                        ${col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
                     </div>
                 `;
             }).join('')}

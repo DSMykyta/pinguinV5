@@ -35,25 +35,34 @@ import { initDropdowns } from './ui-dropdown.js';
  * @param {HTMLElement} container - Контейнер таблиці
  * @param {Object} options - Опції
  * @param {Function} options.dataSource - Функція що повертає масив даних
- * @param {Array} options.columns - Конфігурація колонок з filterable: true
+ * @param {Array} options.columns - Конфігурація колонок з filterable: true або sortable: true
  * @param {Function} options.onFilter - Callback при зміні фільтрів
- * @returns {Object} API для управління фільтрами
+ * @param {Function} options.onSort - Callback при зміні сортування
+ * @param {Object} options.columnTypes - Типи колонок для сортування
+ * @returns {Object} API для управління фільтрами та сортуванням
  */
 export function initTableFilters(container, options) {
     const {
         dataSource,
         columns = [],
-        onFilter = null
+        onFilter = null,
+        onSort = null,
+        columnTypes = {}
     } = options;
 
     // Стан фільтрів: { columnId: Set(['value1', 'value2']) }
     const activeFilters = new Map();
 
-    // Знаходимо колонки з filterable: true
-    const filterableColumns = columns.filter(col => col.filterable);
+    // Стан сортування
+    let sortState = { column: null, direction: null };
 
-    if (filterableColumns.length === 0) {
-        console.warn('⚠️ Немає колонок з filterable: true');
+    // Знаходимо колонки з filterable: true або sortable: true
+    const filterableColumns = columns.filter(col => col.filterable);
+    const sortableColumns = columns.filter(col => col.sortable);
+    const dropdownColumns = columns.filter(col => col.filterable || col.sortable);
+
+    if (dropdownColumns.length === 0) {
+        console.warn('⚠️ Немає колонок з filterable: true або sortable: true');
         return null;
     }
 
@@ -104,24 +113,37 @@ export function initTableFilters(container, options) {
             return;
         }
 
-        const uniqueValues = getUniqueValues(column.id, column.filterType);
+        const isSortable = column.sortable;
+        const isFilterable = column.filterable;
 
-        // Ініціалізуємо фільтр як "всі вибрані"
-        if (!activeFilters.has(column.id)) {
-            activeFilters.set(column.id, new Set(uniqueValues.map(v => v.value)));
+        // Отримуємо унікальні значення тільки якщо колонка filterable
+        let uniqueValues = [];
+        if (isFilterable) {
+            uniqueValues = getUniqueValues(column.id, column.filterType);
+
+            // Ініціалізуємо фільтр як "всі вибрані"
+            if (!activeFilters.has(column.id)) {
+                activeFilters.set(column.id, new Set(uniqueValues.map(v => v.value)));
+            }
         }
+
+        // Визначаємо іконку та клас
+        const hasActiveSort = sortState.column === column.id;
+        const iconName = isSortable && !isFilterable ? 'swap_vert' : 'filter_list';
 
         // Створюємо dropdown wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'dropdown-wrapper filter-dropdown';
         wrapper.innerHTML = `
-            <button class="btn-icon btn-filter" data-dropdown-trigger data-filter-column="${column.id}" aria-label="Фільтр ${column.label}">
-                <span class="material-symbols-outlined">filter_list</span>
+            <button class="btn-icon btn-filter ${hasActiveSort ? 'is-filtered' : ''}" data-dropdown-trigger data-filter-column="${column.id}" aria-label="${column.label}">
+                <span class="material-symbols-outlined">${iconName}</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header">${column.label}</div>
-                <div class="dropdown-body filter-options" data-filter-body="${column.id}">
-                    ${renderFilterOptions(column.id, uniqueValues)}
+                <div class="dropdown-body" data-filter-body="${column.id}">
+                    ${isSortable ? renderSortOptions(column.id) : ''}
+                    ${isSortable && isFilterable ? '<div class="dropdown-separator"></div>' : ''}
+                    ${isFilterable ? renderFilterOptions(column.id, uniqueValues) : ''}
                 </div>
             </div>
         `;
@@ -129,8 +151,135 @@ export function initTableFilters(container, options) {
         // Вставляємо після тексту заголовка
         headerCell.appendChild(wrapper);
 
-        // Додаємо обробники чекбоксів
-        setupFilterHandlers(wrapper, column.id);
+        // Додаємо обробники
+        if (isSortable) {
+            setupSortHandlers(wrapper, column.id);
+        }
+        if (isFilterable) {
+            setupFilterHandlers(wrapper, column.id);
+        }
+    }
+
+    /**
+     * Рендер опцій сортування
+     */
+    function renderSortOptions(columnId) {
+        const isActiveAsc = sortState.column === columnId && sortState.direction === 'asc';
+        const isActiveDesc = sortState.column === columnId && sortState.direction === 'desc';
+
+        return `
+            <button class="dropdown-item ${isActiveAsc ? 'active' : ''}" data-sort-column="${columnId}" data-sort-direction="asc">
+                <span class="material-symbols-outlined">arrow_upward</span>
+                <span>Сортувати А → Я</span>
+            </button>
+            <button class="dropdown-item ${isActiveDesc ? 'active' : ''}" data-sort-column="${columnId}" data-sort-direction="desc">
+                <span class="material-symbols-outlined">arrow_downward</span>
+                <span>Сортувати Я → А</span>
+            </button>
+        `;
+    }
+
+    /**
+     * Налаштувати обробники сортування
+     */
+    function setupSortHandlers(wrapper, columnId) {
+        wrapper.querySelectorAll('[data-sort-column]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const direction = btn.dataset.sortDirection;
+
+                // Оновлюємо стан сортування
+                sortState = { column: columnId, direction };
+
+                // Оновлюємо візуальні індикатори всіх колонок
+                updateAllSortIndicators();
+
+                // Сортуємо дані та викликаємо callback
+                triggerSortChange();
+
+                // Закриваємо dropdown
+                const dropdownWrapper = wrapper.closest('.dropdown-wrapper');
+                if (dropdownWrapper) {
+                    dropdownWrapper.classList.remove('is-open');
+                }
+            });
+        });
+    }
+
+    /**
+     * Оновити індикатори сортування у всіх колонках
+     */
+    function updateAllSortIndicators() {
+        dropdownColumns.forEach(col => {
+            if (!col.sortable) return;
+
+            const trigger = container.querySelector(`[data-filter-column="${col.id}"].btn-filter`);
+            if (!trigger) return;
+
+            const isActive = sortState.column === col.id;
+            trigger.classList.toggle('is-filtered', isActive); // Використовуємо існуючий клас is-filtered
+
+            // Оновлюємо активні класи в кнопках сортування
+            const body = container.querySelector(`[data-filter-body="${col.id}"]`);
+            if (body) {
+                body.querySelectorAll('[data-sort-column]').forEach(btn => {
+                    const btnDir = btn.dataset.sortDirection;
+                    const isActiveBtn = isActive && sortState.direction === btnDir;
+                    btn.classList.toggle('active', isActiveBtn);
+                });
+            }
+        });
+    }
+
+    /**
+     * Викликати callback зміни сортування
+     */
+    function triggerSortChange() {
+        if (onSort) {
+            const data = dataSource();
+            const sortedData = sortArray(data, sortState.column, sortState.direction, columnTypes);
+            onSort(sortedData, sortState);
+        }
+    }
+
+    /**
+     * Відсортувати масив
+     */
+    function sortArray(array, column, direction, types = {}) {
+        if (!column || !direction) return array;
+
+        const columnType = types[column] || 'string';
+
+        return [...array].sort((a, b) => {
+            let aVal = a[column];
+            let bVal = b[column];
+
+            // Обробка типу product
+            if (columnType === 'product') {
+                aVal = ((a.brand || '') + ' ' + (a.name || '')).trim().toLowerCase();
+                bVal = ((b.brand || '') + ' ' + (b.name || '')).trim().toLowerCase();
+            } else if (columnType === 'boolean') {
+                aVal = (aVal === 'TRUE' || aVal === true) ? 1 : 0;
+                bVal = (bVal === 'TRUE' || bVal === true) ? 1 : 0;
+                return direction === 'asc' ? aVal - bVal : bVal - aVal;
+            } else if (columnType === 'date') {
+                aVal = aVal ? new Date(aVal).getTime() : 0;
+                bVal = bVal ? new Date(bVal).getTime() : 0;
+                return direction === 'asc' ? aVal - bVal : bVal - aVal;
+            } else if (columnType === 'number') {
+                aVal = parseFloat(aVal) || 0;
+                bVal = parseFloat(bVal) || 0;
+                return direction === 'asc' ? aVal - bVal : bVal - aVal;
+            } else {
+                aVal = String(aVal || '').toLowerCase();
+                bVal = String(bVal || '').toLowerCase();
+            }
+
+            const comparison = aVal.localeCompare(bVal, 'uk');
+            return direction === 'asc' ? comparison : -comparison;
+        });
     }
 
     /**
@@ -314,15 +463,15 @@ export function initTableFilters(container, options) {
         });
     }
 
-    // Ініціалізуємо dropdowns для кожної filterable колонки
-    filterableColumns.forEach(column => {
+    // Ініціалізуємо dropdowns для колонок з filterable або sortable
+    dropdownColumns.forEach(column => {
         createFilterDropdown(column);
     });
 
     // Ініціалізуємо dropdown поведінку
     initDropdowns();
 
-    console.log(`✅ Фільтри таблиці ініціалізовано для ${filterableColumns.length} колонок`);
+    console.log(`✅ Фільтри/сортування таблиці ініціалізовано для ${dropdownColumns.length} колонок`);
 
     // Повертаємо API
     return {
@@ -380,16 +529,44 @@ export function initTableFilters(container, options) {
         },
 
         /**
-         * Знищити фільтри
+         * Отримати поточний стан сортування
+         * @returns {{column: string|null, direction: string|null}}
+         */
+        getSortState() {
+            return { ...sortState };
+        },
+
+        /**
+         * Встановити сортування програмно
+         * @param {string} column - ID колонки
+         * @param {string} direction - Напрямок ('asc' або 'desc')
+         */
+        setSort(column, direction) {
+            sortState = { column, direction };
+            updateAllSortIndicators();
+            triggerSortChange();
+        },
+
+        /**
+         * Скинути сортування
+         */
+        resetSort() {
+            sortState = { column: null, direction: null };
+            updateAllSortIndicators();
+        },
+
+        /**
+         * Знищити фільтри та сортування
          */
         destroy() {
-            filterableColumns.forEach(column => {
+            dropdownColumns.forEach(column => {
                 const wrapper = container.querySelector(`[data-filter-column="${column.id}"]`)?.closest('.dropdown-wrapper');
                 if (wrapper) {
                     wrapper.remove();
                 }
             });
             activeFilters.clear();
+            sortState = { column: null, direction: null };
         }
     };
 }

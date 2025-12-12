@@ -11,7 +11,6 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
 import { renderPriceTable, getColumns } from './price-table.js';
-import { initTableSorting } from '../common/ui-table-sort.js';
 import { initTableFilters } from '../common/ui-table-filter.js';
 
 let eventsInitialized = false;
@@ -645,59 +644,8 @@ function initRefreshButton() {
 }
 
 /**
- * Ініціалізація сортування для таблиці прайсу
- */
-export function initPriceSorting() {
-    const container = document.getElementById('price-table-container');
-    if (!container) {
-        console.warn('⚠️ price-table-container не знайдено');
-        return null;
-    }
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => priceState.filteredItems,
-        onSort: async (sortedData) => {
-            // Отримуємо стан сортування з API
-            const currentSortState = sortAPI.getState();
-
-            // Зберігаємо стан сортування в priceState
-            priceState.sortState = {
-                column: currentSortState.column,
-                direction: currentSortState.direction
-            };
-
-            // Оновити масив відфільтрованих товарів
-            priceState.filteredItems = sortedData;
-
-            // Перерендерити таблицю
-            await renderPriceTable();
-
-            // Відновити візуальні індикатори після рендерингу
-            if (currentSortState.column && currentSortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
-                updateSortIndicators(container, currentSortState.column, currentSortState.direction);
-            }
-        },
-        columnTypes: {
-            code: 'string',
-            article: 'string',
-            product: 'product',
-            reserve: 'string',
-            status: 'boolean',
-            check: 'boolean',
-            payment: 'boolean',
-            shiping_date: 'string',
-            update_date: 'date'
-        }
-    });
-
-    priceState.sortAPI = sortAPI;
-    console.log('✅ Сортування прайсу ініціалізовано');
-    return sortAPI;
-}
-
-/**
- * Ініціалізація фільтрів колонок для таблиці прайсу
+ * Ініціалізація фільтрів та сортування колонок для таблиці прайсу
+ * (Об'єднано в одну функцію - сортування тепер в dropdown меню)
  */
 export function initPriceColumnFilters() {
     const container = document.getElementById('price-table-container');
@@ -707,16 +655,29 @@ export function initPriceColumnFilters() {
     }
 
     const columns = getColumns();
-    const filterableColumns = columns.filter(col => col.filterable);
+    const hasDropdownColumns = columns.some(col => col.filterable || col.sortable);
 
-    if (filterableColumns.length === 0) {
-        console.log('ℹ️ Немає колонок з filterable: true');
+    if (!hasDropdownColumns) {
+        console.log('ℹ️ Немає колонок з filterable або sortable: true');
         return null;
     }
+
+    const columnTypes = {
+        code: 'string',
+        article: 'string',
+        product: 'product',
+        reserve: 'string',
+        status: 'boolean',
+        check: 'boolean',
+        payment: 'boolean',
+        shiping_date: 'string',
+        update_date: 'date'
+    };
 
     const filterAPI = initTableFilters(container, {
         dataSource: () => priceState.priceItems,
         columns: columns,
+        columnTypes: columnTypes,
         onFilter: async (activeFilters) => {
             // Зберігаємо фільтри в state
             priceState.columnFilters = activeFilters;
@@ -737,10 +698,95 @@ export function initPriceColumnFilters() {
                     currentPage: 1
                 });
             }
+        },
+        onSort: async (sortedData, newSortState) => {
+            // Зберігаємо стан сортування
+            priceState.sortState = {
+                column: newSortState.column,
+                direction: newSortState.direction
+            };
+
+            // Застосовуємо фільтри (які тепер включають сортування)
+            applyFilters();
+
+            // Перерендерюємо таблицю
+            await renderPriceTable();
+
+            // Реініціалізуємо dropdown-и після рендерингу
+            reinitColumnFiltersAfterRender();
         }
     });
 
     priceState.columnFiltersAPI = filterAPI;
-    console.log('✅ Фільтри колонок прайсу ініціалізовано');
+    console.log('✅ Фільтри та сортування колонок прайсу ініціалізовано');
     return filterAPI;
+}
+
+/**
+ * Реініціалізувати фільтри/сортування після рендерингу таблиці
+ * (Викликається після renderPriceTable)
+ */
+function reinitColumnFiltersAfterRender() {
+    // Якщо вже є API - знищуємо і створюємо знову
+    if (priceState.columnFiltersAPI) {
+        priceState.columnFiltersAPI.destroy();
+    }
+
+    const container = document.getElementById('price-table-container');
+    if (!container) return;
+
+    const columns = getColumns();
+    const columnTypes = {
+        code: 'string',
+        article: 'string',
+        product: 'product',
+        reserve: 'string',
+        status: 'boolean',
+        check: 'boolean',
+        payment: 'boolean',
+        shiping_date: 'string',
+        update_date: 'date'
+    };
+
+    const filterAPI = initTableFilters(container, {
+        dataSource: () => priceState.priceItems,
+        columns: columns,
+        columnTypes: columnTypes,
+        onFilter: async (activeFilters) => {
+            priceState.columnFilters = activeFilters;
+            applyFilters();
+            priceState.pagination.currentPage = 1;
+            await renderPriceTable();
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        },
+        onSort: async (sortedData, newSortState) => {
+            priceState.sortState = {
+                column: newSortState.column,
+                direction: newSortState.direction
+            };
+            applyFilters();
+            await renderPriceTable();
+            reinitColumnFiltersAfterRender();
+        }
+    });
+
+    // Відновлюємо попередній стан сортування
+    if (priceState.sortState?.column && priceState.sortState?.direction) {
+        filterAPI.setSort(priceState.sortState.column, priceState.sortState.direction);
+    }
+
+    priceState.columnFiltersAPI = filterAPI;
+}
+
+/**
+ * Deprecated: Ініціалізація сортування (тепер інтегровано в initPriceColumnFilters)
+ */
+export function initPriceSorting() {
+    console.log('ℹ️ initPriceSorting deprecated - сортування тепер в dropdown меню фільтрів');
+    return null;
 }

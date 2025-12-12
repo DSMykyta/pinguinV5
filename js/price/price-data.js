@@ -621,10 +621,10 @@ export async function loadUsersData() {
             return {};
         }
 
-        // Перший рядок - заголовки
+        // Перший рядок - заголовки (trim для видалення пробілів!)
         const headers = rows[0];
-        const displayNameIdx = headers.findIndex(h => h?.toLowerCase() === 'display_name');
-        const avatarIdx = headers.findIndex(h => h?.toLowerCase() === 'avatar');
+        const displayNameIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'display_name');
+        const avatarIdx = headers.findIndex(h => h?.trim().toLowerCase() === 'avatar');
 
         if (displayNameIdx === -1 || avatarIdx === -1) {
             console.warn('⚠️ Не знайдено колонки display_name або avatar');
