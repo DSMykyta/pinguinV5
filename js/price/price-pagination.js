@@ -9,7 +9,7 @@
  */
 
 import { priceState } from './price-init.js';
-import { renderPriceTable } from './price-table.js';
+import { renderPriceTableRowsOnly } from './price-table.js';
 import { initPagination } from '../common/ui-pagination.js';
 
 /**
@@ -31,7 +31,8 @@ export function initPaginationForPrice() {
         onPageChange: async (page, pageSize) => {
             priceState.pagination.currentPage = page;
             priceState.pagination.pageSize = pageSize;
-            await renderPriceTable();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
         }
     });
 
