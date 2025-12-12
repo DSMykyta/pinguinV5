@@ -76,6 +76,11 @@ function getSpreadsheetId(type = 'main') {
     return SPREADSHEET_ID_TEXTS;
   }
   if (type === 'users') {
+    // Логуємо для діагностики
+    console.log('📊 SPREADSHEET_ID_USERS:', SPREADSHEET_ID_USERS ? 'налаштовано' : 'НЕ НАЛАШТОВАНО');
+    if (!SPREADSHEET_ID_USERS) {
+      console.error('❌ SPREADSHEET_ID_USERS не налаштовано в Vercel Environment Variables!');
+    }
     return SPREADSHEET_ID_USERS;
   }
   if (type === 'price') {
