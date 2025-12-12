@@ -280,6 +280,13 @@ function readXlsxFile(file) {
                             shipDate = `${day}.${month}.${year}`;
                         } else {
                             shipDate = String(rawShipDate).trim();
+                            // Очищуємо "Очікувати X день при замовленні до XX:XX" → "X день"
+                            if (shipDate.toLowerCase().startsWith('очікувати')) {
+                                shipDate = shipDate
+                                    .replace(/^очікувати\s*/i, '')
+                                    .replace(/\s*при замовленні.*$/i, '')
+                                    .trim();
+                            }
                         }
                     }
 
