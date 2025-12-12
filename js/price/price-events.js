@@ -345,7 +345,14 @@ function initSearchEvents() {
 }
 
 /**
- * Застосувати всі фільтри (резерв + статус + пошук)
+ * Застосувати всі фільтри (експортована версія)
+ */
+export function applyAllFilters() {
+    applyFilters();
+}
+
+/**
+ * Застосувати всі фільтри (резерв + статус + пошук + колонки)
  */
 function applyFilters() {
     let items = [...priceState.priceItems];

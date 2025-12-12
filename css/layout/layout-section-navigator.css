@@ -73,3 +73,8 @@
 .nav-icon.is-active .material-symbols-outlined {
     opacity: 1;
 }
+
+/* Контейнер для динамічних табів резервів - в рядок */
+#reserve-tabs-container {
+    display: contents;
+}
