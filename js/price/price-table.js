@@ -171,7 +171,8 @@ export function getColumns() {
 }
 
 /**
- * Рендерити комірку резерву з аватаркою або ініціалами
+ * Рендерити комірку резерву з аватаркою або ініціалами (БЕЗ імені)
+ * Ім'я показується тільки в tooltip при наведенні
  */
 function renderReserveCell(value) {
     if (!value) {
@@ -182,24 +183,14 @@ function renderReserveCell(value) {
     const userAvatar = priceState.usersMap?.[name] || priceState.usersMap?.[name.toLowerCase()];
 
     if (userAvatar) {
-        // Користувач є в таблиці Users - показуємо аватарку
+        // Користувач є в таблиці Users - показуємо тільки аватарку
         const avatarPath = getAvatarPath(userAvatar, 'calm');
-        return `
-            <span class="reserve-cell" data-tooltip="${escapeHtml(name)}">
-                <img src="${avatarPath}" alt="" class="avatar avatar-xs">
-                <span class="reserve-name">${escapeHtml(name)}</span>
-            </span>
-        `;
+        return `<img src="${avatarPath}" alt="" class="avatar avatar-xs" data-tooltip="${escapeHtml(name)}">`;
     } else {
         // Fallback на ініціали
         const initials = getInitials(name);
         const avatarColor = getAvatarColor(name);
-        return `
-            <span class="reserve-cell" data-tooltip="${escapeHtml(name)}">
-                <span class="avatar avatar-xs avatar-initials" style="background-color: ${avatarColor};">${initials}</span>
-                <span class="reserve-name">${escapeHtml(name)}</span>
-            </span>
-        `;
+        return `<span class="avatar avatar-xs avatar-initials" style="background-color: ${avatarColor};" data-tooltip="${escapeHtml(name)}">${initials}</span>`;
     }
 }
 

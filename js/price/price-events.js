@@ -425,7 +425,9 @@ function applyFilters() {
     }
 
     // 4. Фільтри по колонках (з dropdown в заголовках)
+    console.log('🔧 applyFilters: columnFilters =', priceState.columnFilters);
     if (priceState.columnFilters && Object.keys(priceState.columnFilters).length > 0) {
+        console.log('🔧 Applying column filters...');
         const columns = getColumns();
 
         items = items.filter(item => {

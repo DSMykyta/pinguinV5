@@ -350,11 +350,15 @@ export function initTableFilters(container, options) {
                 const filter = activeFilters.get(columnId);
                 const value = e.target.dataset.filterValue;
 
+                console.log(`🔧 Filter change: ${columnId} = "${value}", checked: ${e.target.checked}`);
+
                 if (e.target.checked) {
                     filter.add(value);
                 } else {
                     filter.delete(value);
                 }
+
+                console.log(`🔧 Filter ${columnId} now has ${filter.size} values`);
 
                 // Оновити "Всі"
                 updateSelectAllState(body, columnId);
@@ -408,11 +412,14 @@ export function initTableFilters(container, options) {
                 const column = filterableColumns.find(c => c.id === columnId);
                 const uniqueValues = getUniqueValues(columnId, column?.filterType);
 
+                console.log(`🔧 Column ${columnId}: ${values.size} selected / ${uniqueValues.length} total`);
+
                 // Включаємо тільки якщо НЕ всі значення вибрані
                 if (values.size < uniqueValues.length) {
                     filtersObj[columnId] = Array.from(values);
                 }
             });
+            console.log('🔧 Sending filters:', filtersObj);
             onFilter(filtersObj);
         }
     }
