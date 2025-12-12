@@ -123,7 +123,11 @@ async function initializeUIWithoutData() {
     // 1. Завантажити aside
     await loadAside();
 
-    // 2. Ініціалізувати імпорт (drag-drop та file input)
+    // 2. Ініціалізувати dropdowns для aside
+    const { initDropdowns } = await import('../common/ui-dropdown.js');
+    initDropdowns();
+
+    // 3. Ініціалізувати імпорт (drag-drop та file input)
     initPriceImport();
 
     // 3. Показати порожню таблицю з аватаром
