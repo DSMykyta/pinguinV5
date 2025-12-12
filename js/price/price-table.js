@@ -99,6 +99,7 @@ function getColumns() {
         {
             id: 'article',
             label: 'Артикул',
+            className: 'cell-article',
             sortable: true,
             render: (value, row) => {
                 if (value) {
