@@ -166,6 +166,7 @@ function getColumns() {
 
 /**
  * Форматувати відображення товару
+ * Формат: Brand name, packaging - flavor
  */
 function formatProductDisplay(item) {
     const brand = item.brand || '';
@@ -177,12 +178,13 @@ function formatProductDisplay(item) {
     if (brand) display += `<strong>${escapeHtml(brand)}</strong> `;
     display += escapeHtml(name);
 
+    // Додаємо packaging та flavor через кому та тире
     const details = [];
     if (packaging) details.push(packaging);
     if (flavor) details.push(flavor);
 
     if (details.length > 0) {
-        display += ` <span class="text-muted">(${escapeHtml(details.join(' - '))})</span>`;
+        display += `, <span class="text-muted">${escapeHtml(details.join(' - '))}</span>`;
     }
 
     return display || '-';
