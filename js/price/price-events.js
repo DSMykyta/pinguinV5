@@ -137,8 +137,8 @@ async function handleStatusBadgeClick(badge) {
 
         await updateItemStatus(code, field, newValue);
 
-        // Перерендерюємо таблицю для оновлення badge
-        await renderPriceTable();
+        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+        await renderPriceTableRowsOnly();
 
     } catch (error) {
         console.error('Помилка оновлення статусу:', error);
@@ -248,11 +248,8 @@ function initReserveTabsEvents() {
             // Скидаємо пагінацію
             priceState.pagination.currentPage = 1;
 
-            // Перерендерюємо таблицю
-            await renderPriceTable();
-
-            // Реініціалізуємо dropdown-и
-            reinitColumnFiltersAfterRender();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
@@ -287,11 +284,8 @@ function initReserveTabsEvents() {
             // Скидаємо пагінацію
             priceState.pagination.currentPage = 1;
 
-            // Перерендерюємо таблицю
-            await renderPriceTable();
-
-            // Реініціалізуємо dropdown-и
-            reinitColumnFiltersAfterRender();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
@@ -325,11 +319,8 @@ function initSearchEvents() {
         // Фільтруємо
         applyFilters();
 
-        // Перерендерюємо
-        await renderPriceTable();
-
-        // Реініціалізуємо dropdown-и
-        reinitColumnFiltersAfterRender();
+        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+        await renderPriceTableRowsOnly();
 
         // Оновлюємо пагінацію
         if (priceState.paginationAPI) {
@@ -347,10 +338,8 @@ function initSearchEvents() {
             clearBtn.classList.add('u-hidden');
 
             applyFilters();
-            await renderPriceTable();
-
-            // Реініціалізуємо dropdown-и
-            reinitColumnFiltersAfterRender();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
 
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({
@@ -621,7 +610,8 @@ function initBatchActions() {
             for (const code of codes) {
                 await updateItemStatus(code, field, value);
             }
-            await renderPriceTable();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Batch update error:', error);
             alert('Помилка масового оновлення');
@@ -646,7 +636,11 @@ function initRefreshButton() {
             // Застосовуємо поточний фільтр
             filterByReserve(priceState.currentReserveFilter);
 
+            // Повний перерендер бо нові дані з сервера
             await renderPriceTable();
+
+            // Реініціалізуємо фільтри з новими даними
+            reinitColumnFiltersAfterRender();
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {

@@ -144,9 +144,16 @@ export function populateTableColumns() {
             priceState.visibleColumns = selectedIds;
             console.log('📋 Видимі колонки:', priceState.visibleColumns);
 
-            // Перемальовати таблицю з оновленими колонками
+            // Повний перерендер бо змінюється структура таблиці
             const { renderPriceTable } = await import('./price-table.js');
             await renderPriceTable();
+
+            // Реініціалізуємо фільтри
+            const { initPriceColumnFilters } = await import('./price-events.js');
+            if (priceState.columnFiltersAPI) {
+                priceState.columnFiltersAPI.destroy();
+            }
+            initPriceColumnFilters();
         }
     });
 

@@ -73,8 +73,9 @@ function initSearchEvents() {
 
         filterPriceItems(query);
 
-        const { renderPriceTable } = await import('./price-table.js');
-        await renderPriceTable();
+        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+        const { renderPriceTableRowsOnly } = await import('./price-table.js');
+        await renderPriceTableRowsOnly();
     });
 
     if (clearBtn) {
@@ -85,8 +86,9 @@ function initSearchEvents() {
 
             filterPriceItems('');
 
-            const { renderPriceTable } = await import('./price-table.js');
-            await renderPriceTable();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            const { renderPriceTableRowsOnly } = await import('./price-table.js');
+            await renderPriceTableRowsOnly();
         });
     }
 }

@@ -161,9 +161,17 @@ async function handleFile(file) {
         const { populateReserveTabs } = await import('./price-ui.js');
         populateReserveTabs();
 
-        // Перерендерюємо таблицю
+        // Повний перерендер бо нові дані з файлу
         const { renderPriceTable } = await import('./price-table.js');
         await renderPriceTable();
+
+        // Реініціалізуємо фільтри з новими даними
+        const { initPriceColumnFilters } = await import('./price-events.js');
+        const { priceState } = await import('./price-init.js');
+        if (priceState.columnFiltersAPI) {
+            priceState.columnFiltersAPI.destroy();
+        }
+        initPriceColumnFilters();
 
         // Показуємо результат
         let message = `Оновлено: ${result.updated}, Додано: ${result.added}`;

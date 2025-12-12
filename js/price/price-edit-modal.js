@@ -7,7 +7,6 @@
 
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, reserveItem } from './price-data.js';
-import { renderPriceTable } from './price-table.js';
 import { showToast } from '../common/ui-toast.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatar, getAvatarPath } from '../utils/avatar-loader.js';
@@ -425,8 +424,9 @@ async function saveChanges() {
             await updateItemStatus(code, 'payment', newPayment ? 'TRUE' : 'FALSE');
         }
 
-        // Перерендеримо таблицю
-        await renderPriceTable();
+        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+        const { renderPriceTableRowsOnly } = await import('./price-table.js');
+        await renderPriceTableRowsOnly();
 
         // Закриваємо модал
         closeEditModal();
