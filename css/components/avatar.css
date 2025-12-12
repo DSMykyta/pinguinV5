@@ -13,6 +13,12 @@
 }
 
 /* Розміри аватарів */
+.avatar-xs {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
 .avatar-sm {
     width: 20px;
     height: 20px;
@@ -196,4 +202,29 @@
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* Reserve cell в таблиці прайсу */
+.reserve-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
+}
+
+.reserve-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+/* Аватар з ініціалами */
+.avatar-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
 }
