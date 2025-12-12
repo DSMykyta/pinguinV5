@@ -10,6 +10,7 @@ import { updateItemStatus, updateItemArticle, reserveItem } from './price-data.j
 import { renderPriceTable } from './price-table.js';
 import { showToast } from '../common/ui-toast.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
+import { renderAvatar, getAvatarPath } from '../utils/avatar-loader.js';
 
 let currentItem = null;
 
@@ -47,6 +48,24 @@ export function closeEditModal() {
         document.body.classList.remove('is-modal-open');
     }
     currentItem = null;
+}
+
+/**
+ * Отримати аватар користувача з usersMap або fallback на ініціали
+ */
+function getUserAvatar(displayName, size = 'sm') {
+    // Перевіряємо чи є користувач в мапі
+    const userAvatar = priceState.usersMap?.[displayName];
+
+    if (userAvatar) {
+        const avatarPath = getAvatarPath(userAvatar, 'calm');
+        return `<img src="${avatarPath}" alt="${displayName}" class="avatar avatar-${size}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">`;
+    }
+
+    // Fallback на ініціали
+    const initials = getInitials(displayName);
+    const color = getAvatarColor(displayName);
+    return `<span class="avatar avatar-${size}" style="background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; width: 24px; height: 24px; border-radius: 50%;">${initials}</span>`;
 }
 
 /**
@@ -152,55 +171,64 @@ function createModal() {
                 <input type="hidden" id="edit-reserve-value">
 
                 <div class="grid2" style="gap: 24px;">
-                    <!-- Left column: article + name fields -->
+                    <!-- Left column: editable fields -->
                     <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="form-group">
                             <label for="edit-article">Артикул</label>
                             <input type="text" id="edit-article" class="input-main" placeholder="Введіть артикул...">
                         </div>
                         <div class="form-group">
-                            <label>Бренд</label>
-                            <div id="edit-brand" class="input-main input-readonly"></div>
+                            <label for="edit-brand">Бренд</label>
+                            <input type="text" id="edit-brand" class="input-main" placeholder="Бренд">
                         </div>
                         <div class="form-group">
-                            <label>Назва</label>
-                            <div id="edit-name" class="input-main input-readonly"></div>
+                            <label for="edit-name">Назва</label>
+                            <input type="text" id="edit-name" class="input-main" placeholder="Назва товару">
                         </div>
                         <div class="form-group">
-                            <label>Категорія</label>
-                            <div id="edit-category" class="input-main input-readonly"></div>
+                            <label for="edit-category">Категорія</label>
+                            <input type="text" id="edit-category" class="input-main" placeholder="Категорія">
                         </div>
                         <div class="form-group">
-                            <label>Фасування</label>
-                            <div id="edit-packaging" class="input-main input-readonly"></div>
+                            <label for="edit-packaging">Фасування</label>
+                            <input type="text" id="edit-packaging" class="input-main" placeholder="Фасування">
                         </div>
                         <div class="form-group">
-                            <label>Смак</label>
-                            <div id="edit-flavor" class="input-main input-readonly"></div>
+                            <label for="edit-flavor">Смак</label>
+                            <input type="text" id="edit-flavor" class="input-main" placeholder="Смак">
                         </div>
                     </div>
 
-                    <!-- Right column: toggle switches -->
-                    <div class="form-grid" style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Right column: toggle switches with text -->
+                    <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="form-group">
                             <label>Викладено</label>
-                            <label class="toggle-switch">
+                            <label class="toggle-switch-segmented">
                                 <input type="checkbox" id="edit-status">
-                                <span class="slider"></span>
+                                <span class="slider">
+                                    <span class="text-off">Ні</span>
+                                    <span class="text-on">Так</span>
+                                </span>
                             </label>
                         </div>
                         <div class="form-group">
                             <label>Перевірено</label>
-                            <label class="toggle-switch">
+                            <label class="toggle-switch-segmented">
                                 <input type="checkbox" id="edit-check">
-                                <span class="slider"></span>
+                                <span class="slider">
+                                    <span class="text-off">Ні</span>
+                                    <span class="text-on">Так</span>
+                                </span>
                             </label>
                         </div>
                         <div class="form-group">
                             <label>Оплачено</label>
-                            <label class="toggle-switch">
+                            <label class="toggle-switch-segmented">
                                 <input type="checkbox" id="edit-payment">
-                                <span class="slider"></span>
+                                <span class="slider">
+                                    <span class="text-off">Ні</span>
+                                    <span class="text-on">Так</span>
+                                </span>
                             </label>
                         </div>
                     </div>
@@ -208,9 +236,9 @@ function createModal() {
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer" style="justify-content: space-between;">
+            <div class="modal-footer">
                 <span class="text-muted" id="edit-footer-code"></span>
-                <span class="text-muted" id="edit-footer-date"></span>
+                <span class="text-muted" id="edit-footer-date" style="margin-left: auto;"></span>
             </div>
         </div>
     `;
@@ -257,11 +285,7 @@ function selectReserve(value) {
     if (!triggerContent) return;
 
     if (value) {
-        const initials = getInitials(value);
-        const color = getAvatarColor(value);
-        triggerContent.innerHTML = `
-            <span class="avatar avatar-sm" style="background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; width: 24px; height: 24px; border-radius: 50%;">${initials}</span>
-        `;
+        triggerContent.innerHTML = getUserAvatar(value, 'sm');
     } else {
         triggerContent.innerHTML = `<span class="material-symbols-outlined">person_off</span>`;
     }
@@ -283,15 +307,13 @@ function fillModalData(item) {
     // Title = product name
     document.getElementById('edit-modal-title').textContent = formatProductName(item);
 
-    // Article
+    // Editable fields
     document.getElementById('edit-article').value = item.article || '';
-
-    // Readonly fields
-    document.getElementById('edit-brand').textContent = item.brand || '-';
-    document.getElementById('edit-name').textContent = item.name || '-';
-    document.getElementById('edit-category').textContent = item.category || '-';
-    document.getElementById('edit-packaging').textContent = item.packaging || '-';
-    document.getElementById('edit-flavor').textContent = item.flavor || '-';
+    document.getElementById('edit-brand').value = item.brand || '';
+    document.getElementById('edit-name').value = item.name || '';
+    document.getElementById('edit-category').value = item.category || '';
+    document.getElementById('edit-packaging').value = item.packaging || '';
+    document.getElementById('edit-flavor').value = item.flavor || '';
 
     // Toggles
     document.getElementById('edit-status').checked = item.status === 'TRUE' || item.status === true;
@@ -302,11 +324,9 @@ function fillModalData(item) {
     const usersList = document.getElementById('reserve-users-list');
     if (usersList) {
         usersList.innerHTML = priceState.reserveNames.map(name => {
-            const initials = getInitials(name);
-            const color = getAvatarColor(name);
             return `
                 <button class="dropdown-item" data-reserve-value="${name}" title="${name}">
-                    <span class="avatar avatar-sm" style="background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; width: 24px; height: 24px; border-radius: 50%;">${initials}</span>
+                    ${getUserAvatar(name, 'sm')}
                     <span>${name}</span>
                 </button>
             `;
@@ -339,15 +359,50 @@ async function saveChanges() {
     try {
         const code = currentItem.code;
 
+        // Збираємо всі поля для оновлення
+        const updates = {};
+
         // Артикул
         const newArticle = document.getElementById('edit-article').value.trim();
-        if (newArticle !== currentItem.article) {
-            await updateItemArticle(code, newArticle);
+        if (newArticle !== (currentItem.article || '')) {
+            updates.article = newArticle;
+        }
+
+        // Інші поля
+        const newBrand = document.getElementById('edit-brand').value.trim();
+        if (newBrand !== (currentItem.brand || '')) {
+            updates.brand = newBrand;
+        }
+
+        const newName = document.getElementById('edit-name').value.trim();
+        if (newName !== (currentItem.name || '')) {
+            updates.name = newName;
+        }
+
+        const newCategory = document.getElementById('edit-category').value.trim();
+        if (newCategory !== (currentItem.category || '')) {
+            updates.category = newCategory;
+        }
+
+        const newPackaging = document.getElementById('edit-packaging').value.trim();
+        if (newPackaging !== (currentItem.packaging || '')) {
+            updates.packaging = newPackaging;
+        }
+
+        const newFlavor = document.getElementById('edit-flavor').value.trim();
+        if (newFlavor !== (currentItem.flavor || '')) {
+            updates.flavor = newFlavor;
+        }
+
+        // Оновлюємо поля якщо є зміни
+        if (Object.keys(updates).length > 0) {
+            const { updateItemFields } = await import('./price-data.js');
+            await updateItemFields(code, updates);
         }
 
         // Резерв
         const newReserve = document.getElementById('edit-reserve-value').value;
-        if (newReserve !== currentItem.reserve) {
+        if (newReserve !== (currentItem.reserve || '')) {
             await reserveItem(code, newReserve);
         }
 

@@ -10,6 +10,7 @@
 
 import { priceState } from './price-init.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
  * Заповнити таби резервів (юзерів) з аватарками в section-navigator
@@ -29,14 +30,25 @@ export function populateReserveTabs() {
         tab.dataset.tabTarget = 'tab-price';
         tab.dataset.reserveFilter = name;
 
-        // Створюємо аватарку з ініціалами
-        const initials = getInitials(name);
-        const avatarColor = getAvatarColor(name);
+        // Перевіряємо чи є аватар в usersMap
+        const userAvatar = priceState.usersMap?.[name];
 
-        tab.innerHTML = `
-            <span class="avatar avatar-sm" style="background-color: ${avatarColor}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">${initials}</span>
-            <span class="nav-icon-label">${name}</span>
-        `;
+        if (userAvatar) {
+            // Є аватар - показуємо картинку
+            const avatarPath = getAvatarPath(userAvatar, 'calm');
+            tab.innerHTML = `
+                <img src="${avatarPath}" alt="${name}" class="avatar avatar-sm" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                <span class="nav-icon-label">${name}</span>
+            `;
+        } else {
+            // Fallback на ініціали
+            const initials = getInitials(name);
+            const avatarColor = getAvatarColor(name);
+            tab.innerHTML = `
+                <span class="avatar avatar-sm" style="background-color: ${avatarColor}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">${initials}</span>
+                <span class="nav-icon-label">${name}</span>
+            `;
+        }
         reserveTabsContainer.appendChild(tab);
     });
 
@@ -83,7 +95,7 @@ export function populateSearchColumns() {
         { id: 'code', label: 'Код', checked: true },
         { id: 'article', label: 'Артикул', checked: true },
         { id: 'name', label: 'Назва', checked: true },
-        { id: 'brand', label: 'Бренд', checked: false },
+        { id: 'brand', label: 'Бренд', checked: true },
         { id: 'category', label: 'Категорія', checked: false },
         { id: 'reserve', label: 'Резерв', checked: false }
     ];
