@@ -524,5 +524,110 @@ export function filterByReserve(reserveFilter) {
     return priceState.filteredItems;
 }
 
+/**
+ * Оновити кілька полів товару одночасно
+ * @param {string} code - Унікальний код товару
+ * @param {Object} fields - Об'єкт з полями для оновлення {fieldName: value}
+ */
+export async function updateItemFields(code, fields) {
+    try {
+        console.log(`💾 Оновлення полів для ${code}:`, fields);
+
+        const item = priceState.priceItems.find(i => i.code === code);
+        if (!item) {
+            throw new Error(`Товар з кодом ${code} не знайдено`);
+        }
+
+        const batchData = [];
+        const currentDate = formatDate(new Date());
+
+        for (const [fieldName, value] of Object.entries(fields)) {
+            const columnLetter = getColumnLetter(fieldName);
+            if (columnLetter) {
+                batchData.push({
+                    range: `${PRICE_SHEET_NAME}!${columnLetter}${item._rowIndex}`,
+                    values: [[value]]
+                });
+                // Оновлюємо локальний state
+                item[fieldName] = value;
+            }
+        }
+
+        // Додаємо update_date
+        const updateDateCol = getColumnLetter('update_date');
+        if (updateDateCol) {
+            batchData.push({
+                range: `${PRICE_SHEET_NAME}!${updateDateCol}${item._rowIndex}`,
+                values: [[currentDate]]
+            });
+            item.update_date = currentDate;
+        }
+
+        if (batchData.length > 0) {
+            await callSheetsAPI('batchUpdate', {
+                data: batchData,
+                spreadsheetType: 'price'
+            });
+        }
+
+        console.log(`✅ Поля оновлено для ${code}`);
+
+    } catch (error) {
+        console.error('❌ Помилка оновлення полів:', error);
+        throw error;
+    }
+}
+
+/**
+ * Завантажити дані користувачів для аватарів
+ * @returns {Object} Мапа display_name -> avatar
+ */
+export async function loadUsersData() {
+    try {
+        console.log('👥 Завантаження даних користувачів...');
+
+        const result = await callSheetsAPI('get', {
+            range: 'Users!A1:Z',
+            spreadsheetType: 'users'
+        });
+
+        const rows = result || [];
+        if (rows.length <= 1) {
+            console.warn('⚠️ Таблиця користувачів порожня');
+            return {};
+        }
+
+        // Перший рядок - заголовки
+        const headers = rows[0];
+        const displayNameIdx = headers.findIndex(h => h?.toLowerCase() === 'display_name');
+        const avatarIdx = headers.findIndex(h => h?.toLowerCase() === 'avatar');
+
+        if (displayNameIdx === -1 || avatarIdx === -1) {
+            console.warn('⚠️ Не знайдено колонки display_name або avatar');
+            return {};
+        }
+
+        const usersMap = {};
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const displayName = row[displayNameIdx]?.trim();
+            const avatar = row[avatarIdx]?.trim();
+
+            if (displayName && avatar) {
+                usersMap[displayName] = avatar;
+            }
+        }
+
+        priceState.usersMap = usersMap;
+        console.log(`✅ Завантажено ${Object.keys(usersMap).length} користувачів з аватарами`);
+
+        return usersMap;
+
+    } catch (error) {
+        console.error('❌ Помилка завантаження користувачів:', error);
+        return {};
+    }
+}
+
 // Експорт для window
 window.loadPriceData = loadPriceData;

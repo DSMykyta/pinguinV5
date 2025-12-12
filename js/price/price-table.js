@@ -161,7 +161,6 @@ export function getColumns() {
             label: 'Відправка',
             sortable: true,
             filterable: true,
-            filterType: 'exists',
             render: (value) => {
                 if (value === 'ненаявно' || !value) {
                     return '<span class="badge badge-warning">ненаявно</span>';

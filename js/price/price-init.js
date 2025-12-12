@@ -63,7 +63,10 @@ export const priceState = {
     ],
 
     // Унікальні резерви для табів
-    reserveNames: []
+    reserveNames: [],
+
+    // Мапа користувачів для аватарів (display_name -> avatar)
+    usersMap: {}
 };
 
 /**
@@ -92,9 +95,12 @@ export function initPrice() {
  */
 async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
-        // Завантажити дані прайсу
-        const { loadPriceData } = await import('./price-data.js');
-        await loadPriceData();
+        // Завантажити дані прайсу та користувачів паралельно
+        const { loadPriceData, loadUsersData } = await import('./price-data.js');
+        await Promise.all([
+            loadPriceData(),
+            loadUsersData()
+        ]);
 
         // Оновити UI з даними
         await updateUIWithData();
