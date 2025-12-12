@@ -580,16 +580,18 @@ export async function updateItemFields(code, fields) {
 
 /**
  * Завантажити дані користувачів для аватарів
+ * Таблиця: User Database, аркуш: Users
+ * Колонки: id, username, password_hash, role, created_at, last_login, display_name, avatar, password
  * @returns {Object} Мапа display_name -> avatar
  */
 export async function loadUsersData() {
     try {
         console.log('👥 Завантаження даних користувачів...');
 
-        // Users в основній таблиці
+        // Users в окремій таблиці User Database
         const result = await callSheetsAPI('get', {
             range: 'Users!A1:Z',
-            spreadsheetType: 'main'
+            spreadsheetType: 'users'
         });
 
         const rows = result || [];

@@ -11,6 +11,7 @@
 import { priceState } from './price-init.js';
 import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
  * Рендерити таблицю прайсу
@@ -209,9 +210,20 @@ export function getColumns() {
             label: 'Резерв',
             sortable: true,
             filterable: true,
-            render: (value) => value
-                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
-                : '<span class="text-muted">-</span>'
+            render: (value) => {
+                if (!value) return '<span class="text-muted">-</span>';
+
+                // Перевіряємо чи є аватар в usersMap
+                const userAvatar = priceState.usersMap?.[value];
+
+                if (userAvatar) {
+                    const avatarPath = getAvatarPath(userAvatar, 'calm');
+                    return `<img src="${avatarPath}" alt="${escapeHtml(value)}" title="${escapeHtml(value)}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">`;
+                }
+
+                // Fallback на chip з текстом
+                return `<span class="chip chip-small">${escapeHtml(value)}</span>`;
+            }
         }
     ];
 }
