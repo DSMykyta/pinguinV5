@@ -80,32 +80,31 @@ export function initTableFilters(container, options) {
             ];
         }
 
-        // Звичайний тип - збираємо унікальні значення
+        // Збираємо ВСІ унікальні значення без винятків
         const valueCounts = new Map();
-        let emptyCount = 0;
 
         data.forEach(item => {
-            const value = item[columnId];
-            const normalizedValue = value ? value.toString().trim() : '';
+            const rawValue = item[columnId];
+            // Якщо пусто - ключ "__empty__", інакше - саме значення
+            const key = (rawValue === null || rawValue === undefined || rawValue === '')
+                ? '__empty__'
+                : rawValue.toString().trim();
 
-            if (normalizedValue) {
-                valueCounts.set(normalizedValue, (valueCounts.get(normalizedValue) || 0) + 1);
-            } else {
-                emptyCount++;
-            }
+            valueCounts.set(key, (valueCounts.get(key) || 0) + 1);
         });
 
-        // Сортуємо за алфавітом
-        const results = Array.from(valueCounts.entries())
-            .sort((a, b) => a[0].localeCompare(b[0], 'uk'))
-            .map(([value, count]) => ({ value, label: value, count }));
-
-        // Додаємо опцію "Пусто" якщо є порожні значення
-        if (emptyCount > 0) {
-            results.push({ value: '__empty__', label: 'Пусто', count: emptyCount });
-        }
-
-        return results;
+        // Сортуємо за алфавітом, але __empty__ в кінці
+        return Array.from(valueCounts.entries())
+            .sort((a, b) => {
+                if (a[0] === '__empty__') return 1;
+                if (b[0] === '__empty__') return -1;
+                return a[0].localeCompare(b[0], 'uk');
+            })
+            .map(([value, count]) => ({
+                value,
+                label: value === '__empty__' ? 'Пусто' : value,
+                count
+            }));
     }
 
     /**
