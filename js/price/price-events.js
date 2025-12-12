@@ -237,6 +237,12 @@ function initReserveTabsEvents() {
             // Фільтруємо дані по резерву
             const filter = tabBtn.dataset.reserveFilter;
             priceState.currentReserveFilter = filter;
+
+            // Скидаємо фільтр колонки reserve щоб не конфліктував з табом
+            if (priceState.columnFilters && priceState.columnFilters.reserve) {
+                delete priceState.columnFilters.reserve;
+            }
+
             applyFilters();
 
             // Скидаємо пагінацію
@@ -755,6 +761,13 @@ function reinitColumnFiltersAfterRender() {
 
     const container = document.getElementById('price-table-container');
     if (!container) return;
+
+    // Перевіряємо чи є заголовок таблиці (якщо таблиця порожня - не реініціалізуємо)
+    const hasHeader = container.querySelector('.pseudo-table-header');
+    if (!hasHeader) {
+        console.log('ℹ️ Таблиця порожня, пропускаємо реініціалізацію фільтрів');
+        return;
+    }
 
     const columns = getColumns();
     const columnTypes = {

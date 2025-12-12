@@ -17,10 +17,13 @@ function handleMouseOver(event) {
     const target = event.target.closest('[data-tooltip]');
     if (!target) return;
 
+    // Для аватарок і елементів з класом tooltip-always - завжди показуємо
+    const forceTooltip = target.classList.contains('avatar') || target.hasAttribute('data-tooltip-always');
+
     // Перевірка чи текст обрізався (якщо елемент має overflow)
     const hasOverflow = target.scrollWidth > target.clientWidth;
-    if (!hasOverflow) {
-        // Якщо текст не обрізався - не показувати tooltip
+    if (!hasOverflow && !forceTooltip) {
+        // Якщо текст не обрізався і не force - не показувати tooltip
         return;
     }
 
