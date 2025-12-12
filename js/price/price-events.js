@@ -10,8 +10,9 @@
 
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
-import { renderPriceTable } from './price-table.js';
+import { renderPriceTable, getColumns } from './price-table.js';
 import { initTableSorting } from '../common/ui-table-sort.js';
+import { initTableFilters } from '../common/ui-table-filter.js';
 
 let eventsInitialized = false;
 
@@ -349,9 +350,16 @@ function initSearchEvents() {
 function applyFilters() {
     let items = [...priceState.priceItems];
 
-    // 1. Фільтр по резерву (юзеру)
+    // 1. Фільтр по резерву (юзеру) або спеціальний фільтр
     const reserveFilter = priceState.currentReserveFilter || 'all';
-    if (reserveFilter !== 'all') {
+    if (reserveFilter === 'not_posted') {
+        // Не викладено - рядки без артикулів
+        items = items.filter(item => !item.article || item.article.trim() === '');
+    } else if (reserveFilter === 'suggestions') {
+        // Пропозиції - варіації товарів, де інші смаки вже викладені
+        items = getSuggestions(items);
+    } else if (reserveFilter !== 'all') {
+        // Звичайний фільтр по резерву (ім'я користувача)
         items = items.filter(item => item.reserve === reserveFilter);
     }
 
@@ -360,11 +368,8 @@ function applyFilters() {
     if (statusFilter !== 'all') {
         switch (statusFilter) {
             case 'reserved':
-                // Всі зарезервовані (вже відфільтровані по резерву вище)
-                // Якщо резерв = all, показуємо всі зарезервовані
-                if (reserveFilter === 'all') {
-                    items = items.filter(item => item.reserve && item.reserve.trim() !== '');
-                }
+                // Всі зарезервовані
+                items = items.filter(item => item.reserve && item.reserve.trim() !== '');
                 break;
             case 'posted':
                 // Викладені (status = TRUE)
@@ -400,7 +405,81 @@ function applyFilters() {
         });
     }
 
+    // 4. Фільтри по колонках (з dropdown в заголовках)
+    if (priceState.columnFilters && Object.keys(priceState.columnFilters).length > 0) {
+        const columns = getColumns();
+
+        items = items.filter(item => {
+            for (const [columnId, allowedValues] of Object.entries(priceState.columnFilters)) {
+                const column = columns.find(c => c.id === columnId);
+                const itemValue = item[columnId];
+                const allowedSet = new Set(allowedValues);
+
+                if (column?.filterType === 'exists') {
+                    // Фільтр по наявності значення
+                    const hasValue = itemValue && itemValue.toString().trim() !== '';
+
+                    if (allowedSet.has('__exists__') && allowedSet.has('__empty__')) {
+                        // Обидва вибрані - показуємо все
+                        continue;
+                    } else if (allowedSet.has('__exists__') && !allowedSet.has('__empty__') && !hasValue) {
+                        return false;
+                    } else if (allowedSet.has('__empty__') && !allowedSet.has('__exists__') && hasValue) {
+                        return false;
+                    } else if (!allowedSet.has('__exists__') && !allowedSet.has('__empty__')) {
+                        return false;
+                    }
+                } else {
+                    // Звичайний фільтр по значенню
+                    const normalizedValue = itemValue ? itemValue.toString().trim() : '';
+
+                    // Якщо значення пусте - показуємо якщо пусті дозволені або фільтр не активний
+                    if (!normalizedValue) {
+                        continue;
+                    }
+
+                    if (!allowedSet.has(normalizedValue)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+    }
+
     priceState.filteredItems = items;
+}
+
+/**
+ * Отримати пропозиції - варіації товарів, де інші смаки/розміри вже викладені
+ * Товар вважається варіацією якщо brand + name + packaging однакові
+ */
+function getSuggestions(items) {
+    // Групуємо товари по brand + name + packaging (без flavor)
+    const groups = new Map();
+
+    for (const item of items) {
+        const key = `${item.brand || ''}|${item.name || ''}|${item.packaging || ''}`.toLowerCase();
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+        groups.get(key).push(item);
+    }
+
+    const suggestions = [];
+
+    for (const [key, groupItems] of groups) {
+        // Шукаємо групи де є хоча б один викладений товар (з артикулом)
+        const hasPosted = groupItems.some(item => item.article && item.article.trim() !== '');
+
+        if (hasPosted) {
+            // Додаємо всі НЕ викладені товари з цієї групи як пропозиції
+            const notPosted = groupItems.filter(item => !item.article || item.article.trim() === '');
+            suggestions.push(...notPosted);
+        }
+    }
+
+    return suggestions;
 }
 
 /**
@@ -532,7 +611,7 @@ export function initPriceSorting() {
         columnTypes: {
             code: 'string',
             article: 'string',
-            product: 'string',
+            name: 'string',
             reserve: 'string',
             status: 'boolean',
             check: 'boolean',
@@ -544,4 +623,53 @@ export function initPriceSorting() {
 
     console.log('✅ Сортування прайсу ініціалізовано');
     return sortAPI;
+}
+
+/**
+ * Ініціалізація фільтрів колонок для таблиці прайсу
+ */
+export function initPriceColumnFilters() {
+    const container = document.getElementById('price-table-container');
+    if (!container) {
+        console.warn('⚠️ price-table-container не знайдено');
+        return null;
+    }
+
+    const columns = getColumns();
+    const filterableColumns = columns.filter(col => col.filterable);
+
+    if (filterableColumns.length === 0) {
+        console.log('ℹ️ Немає колонок з filterable: true');
+        return null;
+    }
+
+    const filterAPI = initTableFilters(container, {
+        dataSource: () => priceState.priceItems,
+        columns: columns,
+        onFilter: async (activeFilters) => {
+            // Зберігаємо фільтри в state
+            priceState.columnFilters = activeFilters;
+
+            // Застосовуємо всі фільтри
+            applyFilters();
+
+            // Скидаємо пагінацію
+            priceState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            await renderPriceTable();
+
+            // Оновлюємо пагінацію
+            if (priceState.paginationAPI) {
+                priceState.paginationAPI.update({
+                    totalItems: priceState.filteredItems.length,
+                    currentPage: 1
+                });
+            }
+        }
+    });
+
+    priceState.columnFiltersAPI = filterAPI;
+    console.log('✅ Фільтри колонок прайсу ініціалізовано');
+    return filterAPI;
 }

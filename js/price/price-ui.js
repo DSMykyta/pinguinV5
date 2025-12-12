@@ -15,17 +15,18 @@ import { createColumnSelector } from '../common/ui-table-columns.js';
  * Заповнити таби резервів (юзерів) з аватарками в section-navigator
  */
 export function populateReserveTabs() {
-    const tabsContainer = document.getElementById('tabs-head-container');
-    if (!tabsContainer) return;
+    // Використовуємо окремий контейнер для динамічних табів
+    const reserveTabsContainer = document.getElementById('reserve-tabs-container');
+    if (!reserveTabsContainer) return;
 
-    // Видаляємо старі таби юзерів (залишаємо тільки перший - "Прайс")
-    const existingUserTabs = tabsContainer.querySelectorAll('.nav-icon[data-reserve-filter]');
-    existingUserTabs.forEach(tab => tab.remove());
+    // Очищаємо тільки динамічні таби
+    reserveTabsContainer.innerHTML = '';
 
     // Додаємо таби для кожного резерву з аватаркою
     priceState.reserveNames.forEach(name => {
         const tab = document.createElement('button');
         tab.className = 'nav-icon';
+        tab.dataset.tabTarget = 'tab-price';
         tab.dataset.reserveFilter = name;
 
         // Створюємо аватарку з ініціалами
@@ -36,7 +37,7 @@ export function populateReserveTabs() {
             <span class="avatar avatar-sm" style="background-color: ${avatarColor}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">${initials}</span>
             <span class="nav-icon-label">${name}</span>
         `;
-        tabsContainer.appendChild(tab);
+        reserveTabsContainer.appendChild(tab);
     });
 
     console.log(`✅ Заповнено ${priceState.reserveNames.length} табів резервів`);
@@ -114,7 +115,6 @@ export function populateSearchColumns() {
  */
 export function populateTableColumns() {
     const tableColumns = [
-        { id: 'reserve', label: 'Резерв', checked: true },
         { id: 'code', label: 'Код', checked: true },
         { id: 'article', label: 'Артикул', checked: true },
         { id: 'product', label: 'Товар', checked: true },
@@ -122,7 +122,8 @@ export function populateTableColumns() {
         { id: 'status', label: 'Викладено', checked: true },
         { id: 'check', label: 'Перевірено', checked: true },
         { id: 'payment', label: 'Оплата', checked: true },
-        { id: 'update_date', label: 'Оновлено', checked: true }
+        { id: 'update_date', label: 'Оновлено', checked: true },
+        { id: 'reserve', label: 'Резерв', checked: true }
     ];
 
     const columnSelector = createColumnSelector('table-columns-list-price', tableColumns, {
