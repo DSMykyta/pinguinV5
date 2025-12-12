@@ -230,8 +230,26 @@ function readXlsxFile(file) {
                     const row = jsonData[i];
                     if (!row || row.length === 0) continue;
 
-                    const code = row[COL.CODE] ? String(row[COL.CODE]).trim() : '';
+                    // Код має бути 11 цифр з ведучими нулями
+                    let code = '';
+                    if (row[COL.CODE]) {
+                        code = String(row[COL.CODE]).trim();
+                        // Якщо це число - додаємо ведучі нулі до 11 символів
+                        if (/^\d+$/.test(code)) {
+                            code = code.padStart(11, '0');
+                        }
+                    }
                     if (!code) continue; // Пропускаємо порожні рядки
+
+                    // Артикул теж може мати ведучі нулі
+                    let article = '';
+                    if (row[COL.ARTICLE]) {
+                        article = String(row[COL.ARTICLE]).trim();
+                        // Якщо це число - додаємо ведучі нулі до 11 символів
+                        if (/^\d+$/.test(article)) {
+                            article = article.padStart(11, '0');
+                        }
+                    }
 
                     // Конвертуємо дату Excel (serial number) в текст
                     const rawShipDate = row[COL.SHIP_DATE];
@@ -251,7 +269,7 @@ function readXlsxFile(file) {
 
                     const item = {
                         code: code,
-                        article: row[COL.ARTICLE] ? String(row[COL.ARTICLE]).trim() : '',
+                        article: article,
                         brand: row[COL.BRAND] ? String(row[COL.BRAND]).trim() : '',
                         category: row[COL.CATEGORY] ? String(row[COL.CATEGORY]).trim() : '',
                         name: row[COL.NAME] ? String(row[COL.NAME]).trim() : '',
