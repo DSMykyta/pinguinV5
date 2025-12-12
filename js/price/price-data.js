@@ -319,6 +319,7 @@ export async function importDataToSheet(importedData) {
 
                 const updatedItem = {
                     ...existing,
+                    article: imported.article || existing.article,
                     brand: imported.brand || existing.brand,
                     category: imported.category || existing.category,
                     name: imported.name || existing.name,
@@ -332,7 +333,7 @@ export async function importDataToSheet(importedData) {
                 // Новий запис
                 newItems.push({
                     code: imported.code,
-                    article: '',
+                    article: imported.article || '',
                     brand: imported.brand || '',
                     category: imported.category || '',
                     name: imported.name || '',
@@ -368,7 +369,8 @@ export async function importDataToSheet(importedData) {
         if (updates.length > 0) {
             const batchData = [];
             for (const item of updates) {
-                // Оновлюємо тільки змінені колонки (brand, category, name, packaging, flavor, shiping_date, update_date)
+                // Оновлюємо тільки змінені колонки (article, brand, category, name, packaging, flavor, shiping_date, update_date)
+                const colArticle = getColumnLetter('article');
                 const colBrand = getColumnLetter('brand');
                 const colCategory = getColumnLetter('category');
                 const colName = getColumnLetter('name');
@@ -377,6 +379,7 @@ export async function importDataToSheet(importedData) {
                 const colShipDate = getColumnLetter('shiping_date');
                 const colUpdateDate = getColumnLetter('update_date');
 
+                if (colArticle) batchData.push({ range: `${PRICE_SHEET_NAME}!${colArticle}${item._rowIndex}`, values: [[item.article]] });
                 if (colBrand) batchData.push({ range: `${PRICE_SHEET_NAME}!${colBrand}${item._rowIndex}`, values: [[item.brand]] });
                 if (colCategory) batchData.push({ range: `${PRICE_SHEET_NAME}!${colCategory}${item._rowIndex}`, values: [[item.category]] });
                 if (colName) batchData.push({ range: `${PRICE_SHEET_NAME}!${colName}${item._rowIndex}`, values: [[item.name]] });
