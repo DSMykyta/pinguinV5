@@ -349,9 +349,16 @@ function initSearchEvents() {
 function applyFilters() {
     let items = [...priceState.priceItems];
 
-    // 1. Фільтр по резерву (юзеру)
+    // 1. Фільтр по резерву (юзеру) або спеціальний фільтр
     const reserveFilter = priceState.currentReserveFilter || 'all';
-    if (reserveFilter !== 'all') {
+    if (reserveFilter === 'not_posted') {
+        // Не викладено - рядки без артикулів
+        items = items.filter(item => !item.article || item.article.trim() === '');
+    } else if (reserveFilter === 'suggestions') {
+        // Пропозиції - варіації товарів, де інші смаки вже викладені
+        items = getSuggestions(items);
+    } else if (reserveFilter !== 'all') {
+        // Звичайний фільтр по резерву (ім'я користувача)
         items = items.filter(item => item.reserve === reserveFilter);
     }
 
@@ -360,11 +367,8 @@ function applyFilters() {
     if (statusFilter !== 'all') {
         switch (statusFilter) {
             case 'reserved':
-                // Всі зарезервовані (вже відфільтровані по резерву вище)
-                // Якщо резерв = all, показуємо всі зарезервовані
-                if (reserveFilter === 'all') {
-                    items = items.filter(item => item.reserve && item.reserve.trim() !== '');
-                }
+                // Всі зарезервовані
+                items = items.filter(item => item.reserve && item.reserve.trim() !== '');
                 break;
             case 'posted':
                 // Викладені (status = TRUE)
@@ -401,6 +405,38 @@ function applyFilters() {
     }
 
     priceState.filteredItems = items;
+}
+
+/**
+ * Отримати пропозиції - варіації товарів, де інші смаки/розміри вже викладені
+ * Товар вважається варіацією якщо brand + name + packaging однакові
+ */
+function getSuggestions(items) {
+    // Групуємо товари по brand + name + packaging (без flavor)
+    const groups = new Map();
+
+    for (const item of items) {
+        const key = `${item.brand || ''}|${item.name || ''}|${item.packaging || ''}`.toLowerCase();
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+        groups.get(key).push(item);
+    }
+
+    const suggestions = [];
+
+    for (const [key, groupItems] of groups) {
+        // Шукаємо групи де є хоча б один викладений товар (з артикулом)
+        const hasPosted = groupItems.some(item => item.article && item.article.trim() !== '');
+
+        if (hasPosted) {
+            // Додаємо всі НЕ викладені товари з цієї групи як пропозиції
+            const notPosted = groupItems.filter(item => !item.article || item.article.trim() === '');
+            suggestions.push(...notPosted);
+        }
+    }
+
+    return suggestions;
 }
 
 /**
@@ -532,7 +568,7 @@ export function initPriceSorting() {
         columnTypes: {
             code: 'string',
             article: 'string',
-            product: 'string',
+            name: 'string',
             reserve: 'string',
             status: 'boolean',
             check: 'boolean',

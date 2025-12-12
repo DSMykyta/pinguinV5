@@ -78,7 +78,7 @@ export function renderPseudoTable(container, options) {
 
                 return `
                     <div class="pseudo-table-cell ${cellClass}${sortableClass}${hiddenClass(col.id)}"
-                         ${col.sortable ? `data-sort-key="${col.id}"` : ''}
+                         ${col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                          data-column="${col.id}">
                         <span>${col.label || col.id}</span>
                         ${col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}

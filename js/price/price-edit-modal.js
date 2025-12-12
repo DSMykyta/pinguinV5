@@ -7,6 +7,7 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, reserveItem } from './price-data.js';
 import { renderPriceTable } from './price-table.js';
+import { showToast } from '../common/ui-toast.js';
 
 let currentItem = null;
 
@@ -27,8 +28,8 @@ export function openEditModal(item) {
     fillModalData(item);
 
     // Показуємо модал
-    modal.classList.add('is-active');
-    document.body.classList.add('modal-open');
+    modal.classList.add('is-open');
+    document.body.classList.add('is-modal-open');
 }
 
 /**
@@ -37,8 +38,8 @@ export function openEditModal(item) {
 export function closeEditModal() {
     const modal = document.getElementById('price-edit-modal');
     if (modal) {
-        modal.classList.remove('is-active');
-        document.body.classList.remove('modal-open');
+        modal.classList.remove('is-open');
+        document.body.classList.remove('is-modal-open');
     }
     currentItem = null;
 }
@@ -49,10 +50,9 @@ export function closeEditModal() {
 function createModal() {
     const modal = document.createElement('div');
     modal.id = 'price-edit-modal';
-    modal.className = 'modal';
+    modal.className = 'modal-overlay';
 
     modal.innerHTML = `
-        <div class="modal-backdrop" data-modal-close></div>
         <div class="modal-container modal-medium">
             <div class="modal-header">
                 <h3 id="edit-modal-title">Редагування товару</h3>
@@ -66,8 +66,8 @@ function createModal() {
                     <input type="text" id="edit-code" class="input-main" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Назва</label>
-                    <input type="text" id="edit-name" class="input-main" readonly>
+                    <label>Товар</label>
+                    <div id="edit-product-display" class="input-main input-readonly"></div>
                 </div>
                 <div class="form-group">
                     <label>Артикул</label>
@@ -115,6 +115,13 @@ function createModal() {
         el.addEventListener('click', closeEditModal);
     });
 
+    // Закриття при кліку на overlay (поза контейнером)
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeEditModal();
+        }
+    });
+
     modal.querySelector('#edit-save-btn').addEventListener('click', saveChanges);
 
     return modal;
@@ -125,7 +132,25 @@ function createModal() {
  */
 function fillModalData(item) {
     document.getElementById('edit-code').value = item.code || '';
-    document.getElementById('edit-name').value = item.name || '';
+
+    // Показуємо повну інформацію про товар: Brand name, packaging - flavor
+    const productDisplay = document.getElementById('edit-product-display');
+    if (productDisplay) {
+        let display = '';
+        if (item.brand) display += item.brand + ' ';
+        display += item.name || '';
+
+        const details = [];
+        if (item.packaging) details.push(item.packaging);
+        if (item.flavor) details.push(item.flavor);
+
+        if (details.length > 0) {
+            display += ', ' + details.join(' - ');
+        }
+
+        productDisplay.textContent = display || '-';
+    }
+
     document.getElementById('edit-article').value = item.article || '';
 
     // Статуси
@@ -204,7 +229,7 @@ async function saveChanges() {
 
     } catch (error) {
         console.error('Error saving:', error);
-        alert('Помилка збереження: ' + error.message);
+        showToast('Помилка збереження: ' + error.message, 'error');
     } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = `

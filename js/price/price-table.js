@@ -57,7 +57,7 @@ export async function renderPriceTable() {
         columns: getColumns(),
         visibleColumns: priceState.visibleColumns.length > 0
             ? priceState.visibleColumns
-            : ['reserve', 'code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date'],
+            : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'],
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
         rowActionsCustom: (row) => `
             <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
@@ -77,18 +77,10 @@ export async function renderPriceTable() {
 
 /**
  * Отримати конфігурацію колонок
- * Порядок: Резерв, Код, Артикул, Товар, Відправка, Викладено, Перевірено, Оплата, Оновлено
+ * Порядок: Код, Артикул, Товар, Відправка, Викладено, Перевірено, Оплата, Оновлено, Резерв
  */
 function getColumns() {
     return [
-        {
-            id: 'reserve',
-            label: 'Резерв',
-            sortable: true,
-            render: (value) => value
-                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
-                : '<span class="text-muted">-</span>'
-        },
         {
             id: 'code',
             label: 'Код',
@@ -113,6 +105,7 @@ function getColumns() {
             label: 'Товар',
             className: 'cell-main-name',
             sortable: true,
+            sortKey: 'name',
             render: (value, row) => formatProductDisplay(row)
         },
         {
@@ -161,6 +154,14 @@ function getColumns() {
             label: 'Оновлено',
             sortable: true,
             render: (value) => escapeHtml(value || '-')
+        },
+        {
+            id: 'reserve',
+            label: 'Резерв',
+            sortable: true,
+            render: (value) => value
+                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
+                : '<span class="text-muted">-</span>'
         }
     ];
 }
@@ -176,7 +177,7 @@ function formatProductDisplay(item) {
     const flavor = item.flavor || '';
 
     let display = '';
-    if (brand) display += `<strong>${escapeHtml(brand)}</strong> `;
+    if (brand) display += escapeHtml(brand) + ' ';
     display += escapeHtml(name);
 
     // Додаємо packaging та flavor через кому та тире
