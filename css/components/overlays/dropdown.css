@@ -142,6 +142,15 @@
 /* Dropdown menu для фільтра - поверх всього */
 .filter-dropdown .dropdown-menu {
     z-index: 10001;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+/* Дозволити довгий текст в опціях фільтра */
+.filter-dropdown .dropdown-item {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
 }
 
 /* Індикатор активного фільтра */
