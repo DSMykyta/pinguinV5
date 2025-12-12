@@ -153,7 +153,7 @@ export function getColumns() {
             label: 'Товар',
             className: 'cell-main-name',
             sortable: true,
-            sortKey: 'name',
+            sortKey: 'product',
             render: (value, row) => formatProductDisplay(row)
         },
         {

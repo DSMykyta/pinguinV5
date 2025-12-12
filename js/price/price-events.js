@@ -618,7 +618,7 @@ export function initPriceSorting() {
         columnTypes: {
             code: 'string',
             article: 'string',
-            name: 'string',
+            product: 'product',
             reserve: 'string',
             status: 'boolean',
             check: 'boolean',
