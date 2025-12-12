@@ -10,6 +10,8 @@
 
 import { priceState } from './price-init.js';
 import { importDataToSheet } from './price-data.js';
+import { showConfirmModal } from '../common/ui-modal-confirm.js';
+import { showToast } from '../common/ui-toast.js';
 
 let importInitialized = false;
 
@@ -124,7 +126,7 @@ async function handleFile(file) {
     ];
 
     if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls)$/i)) {
-        alert('Підтримуються тільки файли Excel (.xlsx, .xls)');
+        showToast('Підтримуються тільки файли Excel (.xlsx, .xls)', 'error');
         return;
     }
 
@@ -135,12 +137,20 @@ async function handleFile(file) {
         const data = await readXlsxFile(file);
 
         if (data.length === 0) {
-            alert('Файл порожній або не містить даних');
+            showToast('Файл порожній або не містить даних', 'error');
             return;
         }
 
         // Підтвердження імпорту
-        if (!confirm(`Імпортувати ${data.length} рядків з файлу "${file.name}"?`)) {
+        const confirmed = await showConfirmModal({
+            title: 'Імпорт прайсу',
+            message: `Імпортувати ${data.length} рядків з файлу "${file.name}"?`,
+            confirmText: 'Імпортувати',
+            cancelText: 'Скасувати',
+            confirmClass: 'btn-primary'
+        });
+
+        if (!confirmed) {
             return;
         }
 
@@ -156,17 +166,15 @@ async function handleFile(file) {
         await renderPriceTable();
 
         // Показуємо результат
-        let message = `Імпорт завершено:\n`;
-        message += `• Оновлено: ${result.updated}\n`;
-        message += `• Додано нових: ${result.added}`;
+        let message = `Оновлено: ${result.updated}, Додано: ${result.added}`;
         if (result.unavailable > 0) {
-            message += `\n• Позначено "ненаявно": ${result.unavailable}`;
+            message += `, Ненаявно: ${result.unavailable}`;
         }
-        alert(message);
+        showToast(message, 'success', 5000);
 
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);
-        alert('Помилка імпорту: ' + error.message);
+        showToast('Помилка імпорту: ' + error.message, 'error', 5000);
     }
 }
 
@@ -230,8 +238,26 @@ function readXlsxFile(file) {
                     const row = jsonData[i];
                     if (!row || row.length === 0) continue;
 
-                    const code = row[COL.CODE] ? String(row[COL.CODE]).trim() : '';
+                    // Код має бути 11 цифр з ведучими нулями
+                    let code = '';
+                    if (row[COL.CODE]) {
+                        code = String(row[COL.CODE]).trim();
+                        // Якщо це число - додаємо ведучі нулі до 11 символів
+                        if (/^\d+$/.test(code)) {
+                            code = code.padStart(11, '0');
+                        }
+                    }
                     if (!code) continue; // Пропускаємо порожні рядки
+
+                    // Артикул теж може мати ведучі нулі
+                    let article = '';
+                    if (row[COL.ARTICLE]) {
+                        article = String(row[COL.ARTICLE]).trim();
+                        // Якщо це число - додаємо ведучі нулі до 11 символів
+                        if (/^\d+$/.test(article)) {
+                            article = article.padStart(11, '0');
+                        }
+                    }
 
                     // Конвертуємо дату Excel (serial number) в текст
                     const rawShipDate = row[COL.SHIP_DATE];
@@ -251,7 +277,7 @@ function readXlsxFile(file) {
 
                     const item = {
                         code: code,
-                        article: row[COL.ARTICLE] ? String(row[COL.ARTICLE]).trim() : '',
+                        article: article,
                         brand: row[COL.BRAND] ? String(row[COL.BRAND]).trim() : '',
                         category: row[COL.CATEGORY] ? String(row[COL.CATEGORY]).trim() : '',
                         name: row[COL.NAME] ? String(row[COL.NAME]).trim() : '',
