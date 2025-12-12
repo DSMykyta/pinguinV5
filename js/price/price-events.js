@@ -454,7 +454,62 @@ function applyFilters() {
         });
     }
 
+    // 5. Застосувати сортування якщо є збережений стан
+    if (priceState.sortState?.column && priceState.sortState?.direction) {
+        items = applySorting(items, priceState.sortState.column, priceState.sortState.direction);
+    }
+
     priceState.filteredItems = items;
+}
+
+/**
+ * Застосувати сортування до масиву
+ */
+function applySorting(items, column, direction) {
+    const columnTypes = {
+        code: 'string',
+        article: 'string',
+        product: 'product',
+        reserve: 'string',
+        status: 'boolean',
+        check: 'boolean',
+        payment: 'boolean',
+        shiping_date: 'string',
+        update_date: 'date'
+    };
+
+    const type = columnTypes[column] || 'string';
+    const multiplier = direction === 'asc' ? 1 : -1;
+
+    return [...items].sort((a, b) => {
+        let aVal = a[column];
+        let bVal = b[column];
+
+        // Для product - сортуємо по name
+        if (type === 'product') {
+            aVal = a.name || '';
+            bVal = b.name || '';
+        }
+
+        // Для boolean
+        if (type === 'boolean') {
+            aVal = (aVal === 'TRUE' || aVal === true) ? 1 : 0;
+            bVal = (bVal === 'TRUE' || bVal === true) ? 1 : 0;
+            return (aVal - bVal) * multiplier;
+        }
+
+        // Для дати
+        if (type === 'date') {
+            aVal = aVal ? new Date(aVal).getTime() : 0;
+            bVal = bVal ? new Date(bVal).getTime() : 0;
+            return (aVal - bVal) * multiplier;
+        }
+
+        // Для рядків
+        aVal = String(aVal || '').toLowerCase();
+        bVal = String(bVal || '').toLowerCase();
+        return aVal.localeCompare(bVal, 'uk') * multiplier;
+    });
 }
 
 /**
@@ -602,6 +657,15 @@ export function initPriceSorting() {
     const sortAPI = initTableSorting(container, {
         dataSource: () => priceState.filteredItems,
         onSort: async (sortedData) => {
+            // Отримуємо стан сортування з API
+            const currentSortState = sortAPI.getState();
+
+            // Зберігаємо стан сортування в priceState
+            priceState.sortState = {
+                column: currentSortState.column,
+                direction: currentSortState.direction
+            };
+
             // Оновити масив відфільтрованих товарів
             priceState.filteredItems = sortedData;
 
@@ -609,10 +673,9 @@ export function initPriceSorting() {
             await renderPriceTable();
 
             // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPI.getState();
-            if (sortState.column && sortState.direction) {
+            if (currentSortState.column && currentSortState.direction) {
                 const { updateSortIndicators } = await import('../common/ui-table-sort.js');
-                updateSortIndicators(container, sortState.column, sortState.direction);
+                updateSortIndicators(container, currentSortState.column, currentSortState.direction);
             }
         },
         columnTypes: {
@@ -628,6 +691,7 @@ export function initPriceSorting() {
         }
     });
 
+    priceState.sortAPI = sortAPI;
     console.log('✅ Сортування прайсу ініціалізовано');
     return sortAPI;
 }

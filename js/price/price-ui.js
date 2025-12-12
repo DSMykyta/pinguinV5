@@ -30,8 +30,8 @@ export function populateReserveTabs() {
         tab.dataset.tabTarget = 'tab-price';
         tab.dataset.reserveFilter = name;
 
-        // Перевіряємо чи є аватар в usersMap
-        const userAvatar = priceState.usersMap?.[name];
+        // Перевіряємо чи є аватар в usersMap (пробуємо оригінал і lowercase)
+        const userAvatar = priceState.usersMap?.[name] || priceState.usersMap?.[name.toLowerCase()];
 
         if (userAvatar) {
             // Є аватар - показуємо картинку

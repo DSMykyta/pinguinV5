@@ -66,7 +66,16 @@ export const priceState = {
     reserveNames: [],
 
     // Мапа користувачів для аватарів (display_name -> avatar)
-    usersMap: {}
+    usersMap: {},
+
+    // Стан сортування
+    sortState: {
+        column: null,
+        direction: null
+    },
+
+    // API сортування
+    sortAPI: null
 };
 
 /**

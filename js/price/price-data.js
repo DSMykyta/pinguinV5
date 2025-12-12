@@ -586,10 +586,28 @@ export async function loadUsersData() {
     try {
         console.log('👥 Завантаження даних користувачів...');
 
+        // Спочатку отримуємо назви аркушів в таблиці users
+        let sheetName = 'Users';
+        try {
+            const sheets = await callSheetsAPI('getSheetNames', {
+                spreadsheetType: 'users'
+            });
+            console.log('📑 Аркуші в таблиці users:', sheets);
+            if (sheets && sheets.length > 0) {
+                sheetName = sheets[0].title;
+                console.log('📝 Використовуємо аркуш:', sheetName);
+            }
+        } catch (e) {
+            console.warn('⚠️ Не вдалося отримати список аркушів:', e.message);
+        }
+
+        // Завантажуємо дані з визначеного аркуша
         const result = await callSheetsAPI('get', {
-            range: 'Users!A1:Z',
+            range: `${sheetName}!A1:Z`,
             spreadsheetType: 'users'
         });
+
+        console.log('📊 Users result:', result?.length, 'rows');
 
         const rows = result || [];
         if (rows.length <= 1) {
@@ -614,12 +632,14 @@ export async function loadUsersData() {
             const avatar = row[avatarIdx]?.trim();
 
             if (displayName && avatar) {
+                // Зберігаємо з оригінальним ключем та lowercase для пошуку
                 usersMap[displayName] = avatar;
+                usersMap[displayName.toLowerCase()] = avatar;
             }
         }
 
         priceState.usersMap = usersMap;
-        console.log(`✅ Завантажено ${Object.keys(usersMap).length} користувачів з аватарами`);
+        console.log(`✅ Завантажено користувачів з аватарами:`, Object.keys(usersMap).filter(k => k !== k.toLowerCase()));
 
         return usersMap;
 

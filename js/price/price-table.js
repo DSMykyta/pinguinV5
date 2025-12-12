@@ -74,54 +74,6 @@ export async function renderPriceTable() {
     });
 
     updateStats(items.length, priceState.priceItems.length);
-
-    // Реініціалізувати фільтри колонок після рендерингу
-    reinitColumnFilters();
-}
-
-/**
- * Реініціалізувати фільтри колонок (викликається після кожного рендеру)
- */
-async function reinitColumnFilters() {
-    const container = document.getElementById('price-table-container');
-    if (!container) return;
-
-    // Зберігаємо поточні фільтри
-    const currentFilters = priceState.columnFilters || {};
-
-    // Імпортуємо і ініціалізуємо фільтри
-    const { initTableFilters } = await import('../common/ui-table-filter.js');
-    const { initDropdowns } = await import('../common/ui-dropdown.js');
-
-    const filterAPI = initTableFilters(container, {
-        dataSource: () => priceState.priceItems,
-        columns: getColumns(),
-        onFilter: async (activeFilters) => {
-            priceState.columnFilters = activeFilters;
-
-            // Імпортуємо applyFilters
-            const { applyAllFilters } = await import('./price-events.js');
-            applyAllFilters();
-
-            priceState.pagination.currentPage = 1;
-            await renderPriceTable();
-
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
-        }
-    });
-
-    // Відновлюємо збережені фільтри
-    if (filterAPI && Object.keys(currentFilters).length > 0) {
-        // Фільтри вже застосовані, просто зберігаємо API
-    }
-
-    priceState.columnFiltersAPI = filterAPI;
-    initDropdowns();
 }
 
 /**
@@ -224,7 +176,7 @@ function renderReserveCell(value) {
     }
 
     const name = value.trim();
-    const userAvatar = priceState.usersMap?.[name];
+    const userAvatar = priceState.usersMap?.[name] || priceState.usersMap?.[name.toLowerCase()];
 
     if (userAvatar) {
         // Користувач є в таблиці Users - показуємо аватарку
