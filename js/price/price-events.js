@@ -245,6 +245,9 @@ function initReserveTabsEvents() {
             // Перерендерюємо таблицю
             await renderPriceTable();
 
+            // Реініціалізуємо dropdown-и
+            reinitColumnFiltersAfterRender();
+
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({
@@ -281,6 +284,9 @@ function initReserveTabsEvents() {
             // Перерендерюємо таблицю
             await renderPriceTable();
 
+            // Реініціалізуємо dropdown-и
+            reinitColumnFiltersAfterRender();
+
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({
@@ -316,6 +322,9 @@ function initSearchEvents() {
         // Перерендерюємо
         await renderPriceTable();
 
+        // Реініціалізуємо dropdown-и
+        reinitColumnFiltersAfterRender();
+
         // Оновлюємо пагінацію
         if (priceState.paginationAPI) {
             priceState.paginationAPI.update({
@@ -333,6 +342,9 @@ function initSearchEvents() {
 
             applyFilters();
             await renderPriceTable();
+
+            // Реініціалізуємо dropdown-и
+            reinitColumnFiltersAfterRender();
 
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({

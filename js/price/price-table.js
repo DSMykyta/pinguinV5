@@ -31,7 +31,8 @@ export async function renderPriceTable() {
                 icon: 'receipt_long',
                 message: 'Немає даних для відображення'
             },
-            withContainer: false
+            withContainer: false,
+            noHeaderSort: true
         });
         updateStats(0, 0);
         return;
@@ -53,6 +54,7 @@ export async function renderPriceTable() {
     }
 
     // Рендерити таблицю через універсальний компонент
+    // noHeaderSort: true - бо сортування в dropdown меню
     renderPseudoTable(container, {
         data: pageItems,
         columns: getColumns(),
@@ -70,7 +72,8 @@ export async function renderPriceTable() {
             icon: 'receipt_long',
             message: 'Немає даних для відображення'
         },
-        withContainer: false
+        withContainer: false,
+        noHeaderSort: true
     });
 
     updateStats(items.length, priceState.priceItems.length);

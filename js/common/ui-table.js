@@ -39,7 +39,8 @@ export function renderPseudoTable(container, options) {
         rowActionsHeader = null,
         emptyState = null,
         onRowClick = null,
-        withContainer = true
+        withContainer = true,
+        noHeaderSort = false // Для сторінок з dropdown сортуванням
     } = options;
 
     // Перевірка видимості колонки
@@ -74,11 +75,16 @@ export function renderPseudoTable(container, options) {
             ` : ''}
             ${columns.map(col => {
                 const cellClass = col.className || '';
+                // Додаємо sortable тільки якщо noHeaderSort = false
+                const sortableClass = (!noHeaderSort && col.sortable) ? ' sortable-header' : '';
+                const showSortIndicator = !noHeaderSort && col.sortable;
 
                 return `
-                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
+                    <div class="pseudo-table-cell ${cellClass}${sortableClass}${hiddenClass(col.id)}"
+                         ${showSortIndicator ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                          data-column="${col.id}">
                         <span>${col.label || col.id}</span>
+                        ${showSortIndicator ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
                     </div>
                 `;
             }).join('')}
