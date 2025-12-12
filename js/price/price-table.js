@@ -11,6 +11,7 @@
 import { priceState } from './price-init.js';
 import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
  * Рендерити таблицю прайсу
@@ -209,11 +210,71 @@ export function getColumns() {
             label: 'Резерв',
             sortable: true,
             filterable: true,
-            render: (value) => value
-                ? `<span class="chip chip-small">${escapeHtml(value)}</span>`
-                : '<span class="text-muted">-</span>'
+            render: (value) => renderReserveCell(value)
         }
     ];
+}
+
+/**
+ * Рендерити комірку резерву з аватаркою або ініціалами
+ */
+function renderReserveCell(value) {
+    if (!value) {
+        return '<span class="text-muted">-</span>';
+    }
+
+    const name = value.trim();
+    const userAvatar = priceState.usersMap?.[name];
+
+    if (userAvatar) {
+        // Користувач є в таблиці Users - показуємо аватарку
+        const avatarPath = getAvatarPath(userAvatar, 'calm');
+        return `
+            <span class="reserve-cell" title="${escapeHtml(name)}">
+                <img src="${avatarPath}" alt="${escapeHtml(name)}" class="avatar avatar-xs" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; vertical-align: middle;">
+                <span class="reserve-name">${escapeHtml(name)}</span>
+            </span>
+        `;
+    } else {
+        // Fallback на ініціали
+        const initials = getInitials(name);
+        const avatarColor = getAvatarColor(name);
+        return `
+            <span class="reserve-cell" title="${escapeHtml(name)}">
+                <span class="avatar avatar-xs" style="background-color: ${avatarColor}; color: white; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 10px; font-weight: 600; vertical-align: middle;">${initials}</span>
+                <span class="reserve-name">${escapeHtml(name)}</span>
+            </span>
+        `;
+    }
+}
+
+/**
+ * Отримати ініціали з імені
+ */
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+}
+
+/**
+ * Генерувати колір аватарки на основі імені
+ */
+function getAvatarColor(name) {
+    const colors = [
+        '#f44336', '#e91e63', '#9c27b0', '#673ab7',
+        '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4',
+        '#009688', '#4caf50', '#8bc34a', '#cddc39',
+        '#ffc107', '#ff9800', '#ff5722', '#795548'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
 }
 
 /**
