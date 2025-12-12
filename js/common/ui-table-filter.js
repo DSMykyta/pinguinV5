@@ -508,6 +508,18 @@ export function initTableFilters(container, options) {
             Object.entries(filters).forEach(([columnId, values]) => {
                 activeFilters.set(columnId, new Set(values));
                 updateFilterIndicator(columnId);
+
+                // Оновлюємо стан чекбоксів в DOM
+                const body = container.querySelector(`[data-filter-body="${columnId}"]`);
+                if (body) {
+                    const filterSet = new Set(values);
+                    // Оновлюємо окремі чекбокси
+                    body.querySelectorAll(`[data-filter-column="${columnId}"]`).forEach(cb => {
+                        cb.checked = filterSet.has(cb.dataset.filterValue);
+                    });
+                    // Оновлюємо "Всі" чекбокс
+                    updateSelectAllState(body, columnId);
+                }
             });
             triggerFilterChange();
         },
