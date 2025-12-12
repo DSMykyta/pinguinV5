@@ -241,7 +241,11 @@ export function getColumns() {
                 if (value === 'ненаявно' || !value) {
                     return '<span class="badge badge-warning">ненаявно</span>';
                 }
-                return escapeHtml(value || '-');
+                if (value === 'Є на складі' || value === 'На складі') {
+                    return '<span class="badge badge-success">На складі</span>';
+                }
+                // Для "1 день", "1-2 дні" і т.д. - нейтральний badge
+                return `<span class="badge">${escapeHtml(value)}</span>`;
             }
         },
         {
