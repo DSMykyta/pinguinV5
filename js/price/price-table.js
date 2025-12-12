@@ -14,6 +14,126 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
 
 /**
+ * Застосувати фільтри до рядків таблиці БЕЗ перемальовування
+ * Просто ховає/показує рядки через CSS
+ */
+export function applyFiltersToTableRows() {
+    const container = document.getElementById('price-table-container');
+    if (!container) return;
+
+    // Отримуємо Set з code відфільтрованих елементів
+    const filteredCodes = new Set(priceState.filteredItems.map(item => item.code));
+
+    // Проходимо по всіх рядках і ховаємо/показуємо
+    let visibleCount = 0;
+    const { currentPage, pageSize } = priceState.pagination;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    container.querySelectorAll('.pseudo-table-row').forEach(row => {
+        const code = row.dataset.rowId;
+        const shouldShow = filteredCodes.has(code);
+
+        if (shouldShow && visibleCount >= startIndex && visibleCount < endIndex) {
+            row.style.display = '';
+            visibleCount++;
+        } else if (shouldShow) {
+            row.style.display = 'none'; // Поза пагінацією
+            visibleCount++;
+        } else {
+            row.style.display = 'none'; // Не проходить фільтр
+        }
+    });
+
+    updateStats(priceState.filteredItems.length, priceState.priceItems.length);
+}
+
+/**
+ * Перерендерити ТІЛЬКИ рядки таблиці (без заголовка)
+ * Викликається при фільтрації/сортуванні щоб не знищувати dropdown-и в заголовках
+ */
+export async function renderPriceTableRowsOnly() {
+    const container = document.getElementById('price-table-container');
+    if (!container) return;
+
+    const items = priceState.filteredItems;
+
+    // Якщо немає даних - показуємо empty state (повний перерендер)
+    if (!items || items.length === 0) {
+        await renderPriceTable();
+        return;
+    }
+
+    // Видаляємо тільки рядки (не заголовок!)
+    container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
+
+    // Отримуємо пагіновані дані
+    const { currentPage, pageSize } = priceState.pagination;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, items.length);
+    const pageItems = items.slice(startIndex, endIndex);
+
+    // Генеруємо нові рядки
+    const rowsHTML = pageItems.map((row, rowIndex) => {
+        const rowId = row.code || row.id || row.local_id || rowIndex;
+        return generateRowHTML(row, rowId);
+    }).join('');
+
+    // Вставляємо після заголовка
+    const header = container.querySelector('.pseudo-table-header');
+    if (header) {
+        header.insertAdjacentHTML('afterend', rowsHTML);
+    }
+
+    updateStats(items.length, priceState.priceItems.length);
+}
+
+/**
+ * Генерувати HTML для одного рядка
+ */
+function generateRowHTML(row, rowId) {
+    const columns = getColumns();
+    const visibleColumns = priceState.visibleColumns.length > 0
+        ? priceState.visibleColumns
+        : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'];
+
+    const isColumnVisible = (columnId) => visibleColumns.includes(columnId);
+    const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
+
+    return `
+        <div class="pseudo-table-row" data-row-id="${rowId}">
+            <div class="pseudo-table-cell cell-actions">
+                <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
+                <button class="btn-icon btn-edit" data-code="${escapeHtml(row.code)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            </div>
+            ${columns.map(col => {
+                const value = row[col.id];
+                const cellClass = col.className || '';
+                const tooltipAttr = col.tooltip !== false && value ?
+                    `data-tooltip="${escapeHtml(value)}"` : '';
+
+                let cellContent;
+                if (col.render && typeof col.render === 'function') {
+                    cellContent = col.render(value, row);
+                } else {
+                    cellContent = escapeHtml(value || '-');
+                }
+
+                return `
+                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
+                         data-column="${col.id}"
+                         ${tooltipAttr}>
+                        ${cellContent}
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+/**
  * Рендерити таблицю прайсу
  */
 export async function renderPriceTable() {

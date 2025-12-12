@@ -10,7 +10,7 @@
 
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
-import { renderPriceTable, getColumns } from './price-table.js';
+import { renderPriceTable, renderPriceTableRowsOnly, getColumns } from './price-table.js';
 import { initTableFilters } from '../common/ui-table-filter.js';
 
 let eventsInitialized = false;
@@ -431,9 +431,7 @@ function applyFilters() {
     }
 
     // 4. Фільтри по колонках (з dropdown в заголовках)
-    console.log('🔧 applyFilters: columnFilters =', priceState.columnFilters);
     if (priceState.columnFilters && Object.keys(priceState.columnFilters).length > 0) {
-        console.log('🔧 Applying column filters...');
         const columns = getColumns();
 
         items = items.filter(item => {
@@ -712,11 +710,8 @@ export function initPriceColumnFilters() {
             // Скидаємо пагінацію
             priceState.pagination.currentPage = 1;
 
-            // Перерендерюємо таблицю
-            await renderPriceTable();
-
-            // Реініціалізуємо dropdown-и після рендерингу (з відновленням стану фільтрів)
-            reinitColumnFiltersAfterRender();
+            // Перерендерюємо ТІЛЬКИ РЯДКИ таблиці (не заголовки)
+            await renderPriceTableRowsOnly();
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
@@ -736,11 +731,8 @@ export function initPriceColumnFilters() {
             // Застосовуємо фільтри (які тепер включають сортування)
             applyFilters();
 
-            // Перерендерюємо таблицю
-            await renderPriceTable();
-
-            // Реініціалізуємо dropdown-и після рендерингу
-            reinitColumnFiltersAfterRender();
+            // Перерендерюємо ТІЛЬКИ РЯДКИ таблиці (не заголовки)
+            await renderPriceTableRowsOnly();
         }
     });
 
@@ -796,8 +788,8 @@ function reinitColumnFiltersAfterRender() {
             priceState.columnFilters = activeFilters;
             applyFilters();
             priceState.pagination.currentPage = 1;
-            await renderPriceTable();
-            reinitColumnFiltersAfterRender();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({
                     totalItems: priceState.filteredItems.length,
@@ -811,8 +803,8 @@ function reinitColumnFiltersAfterRender() {
                 direction: newSortState.direction
             };
             applyFilters();
-            await renderPriceTable();
-            reinitColumnFiltersAfterRender();
+            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
+            await renderPriceTableRowsOnly();
         }
     });
 
