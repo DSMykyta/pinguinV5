@@ -14,6 +14,7 @@ import { renderPriceTable, getColumns } from './price-table.js';
 import { initTableFilters } from '../common/ui-table-filter.js';
 
 let eventsInitialized = false;
+let isRestoringFilters = false; // Флаг для запобігання циклу при відновленні фільтрів
 
 /**
  * Ініціалізувати обробники подій
@@ -679,6 +680,9 @@ export function initPriceColumnFilters() {
         columns: columns,
         columnTypes: columnTypes,
         onFilter: async (activeFilters) => {
+            // Пропускаємо якщо це відновлення стану
+            if (isRestoringFilters) return;
+
             // Зберігаємо фільтри в state
             priceState.columnFilters = activeFilters;
 
@@ -690,6 +694,9 @@ export function initPriceColumnFilters() {
 
             // Перерендерюємо таблицю
             await renderPriceTable();
+
+            // Реініціалізуємо dropdown-и після рендерингу (з відновленням стану фільтрів)
+            reinitColumnFiltersAfterRender();
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
@@ -727,7 +734,7 @@ export function initPriceColumnFilters() {
  * (Викликається після renderPriceTable)
  */
 function reinitColumnFiltersAfterRender() {
-    // Якщо вже є API - знищуємо і створюємо знову
+    // Якщо вже є API - знищуємо
     if (priceState.columnFiltersAPI) {
         priceState.columnFiltersAPI.destroy();
     }
@@ -748,15 +755,22 @@ function reinitColumnFiltersAfterRender() {
         update_date: 'date'
     };
 
+    // Зберігаємо поточні фільтри перед перестворенням
+    const savedFilters = priceState.columnFilters ? { ...priceState.columnFilters } : null;
+
     const filterAPI = initTableFilters(container, {
         dataSource: () => priceState.priceItems,
         columns: columns,
         columnTypes: columnTypes,
         onFilter: async (activeFilters) => {
+            // Пропускаємо якщо це відновлення стану
+            if (isRestoringFilters) return;
+
             priceState.columnFilters = activeFilters;
             applyFilters();
             priceState.pagination.currentPage = 1;
             await renderPriceTable();
+            reinitColumnFiltersAfterRender();
             if (priceState.paginationAPI) {
                 priceState.paginationAPI.update({
                     totalItems: priceState.filteredItems.length,
@@ -775,9 +789,27 @@ function reinitColumnFiltersAfterRender() {
         }
     });
 
-    // Відновлюємо попередній стан сортування
+    // Відновлюємо попередній стан фільтрів (з флагом щоб не викликати callback)
+    if (savedFilters && Object.keys(savedFilters).length > 0) {
+        isRestoringFilters = true;
+        filterAPI.setFilters(savedFilters);
+        isRestoringFilters = false;
+    }
+
+    // Відновлюємо попередній стан сортування (без виклику callback)
     if (priceState.sortState?.column && priceState.sortState?.direction) {
-        filterAPI.setSort(priceState.sortState.column, priceState.sortState.direction);
+        // Використовуємо внутрішній метод оновлення індикаторів без тригера
+        const trigger = container.querySelector(`[data-filter-column="${priceState.sortState.column}"].btn-filter`);
+        if (trigger) {
+            trigger.classList.add('is-filtered');
+        }
+        // Оновлюємо кнопки сортування
+        const body = container.querySelector(`[data-filter-body="${priceState.sortState.column}"]`);
+        if (body) {
+            body.querySelectorAll('[data-sort-column]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sortDirection === priceState.sortState.direction);
+            });
+        }
     }
 
     priceState.columnFiltersAPI = filterAPI;

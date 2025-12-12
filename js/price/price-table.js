@@ -182,8 +182,8 @@ function renderReserveCell(value) {
         // Користувач є в таблиці Users - показуємо аватарку
         const avatarPath = getAvatarPath(userAvatar, 'calm');
         return `
-            <span class="reserve-cell" title="${escapeHtml(name)}">
-                <img src="${avatarPath}" alt="${escapeHtml(name)}" class="avatar avatar-xs" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; vertical-align: middle;">
+            <span class="reserve-cell" data-tooltip="${escapeHtml(name)}">
+                <img src="${avatarPath}" alt="" class="avatar avatar-xs">
                 <span class="reserve-name">${escapeHtml(name)}</span>
             </span>
         `;
@@ -192,8 +192,8 @@ function renderReserveCell(value) {
         const initials = getInitials(name);
         const avatarColor = getAvatarColor(name);
         return `
-            <span class="reserve-cell" title="${escapeHtml(name)}">
-                <span class="avatar avatar-xs" style="background-color: ${avatarColor}; color: white; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 10px; font-weight: 600; vertical-align: middle;">${initials}</span>
+            <span class="reserve-cell" data-tooltip="${escapeHtml(name)}">
+                <span class="avatar avatar-xs avatar-initials" style="background-color: ${avatarColor};">${initials}</span>
                 <span class="reserve-name">${escapeHtml(name)}</span>
             </span>
         `;
