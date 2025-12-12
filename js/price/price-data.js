@@ -586,12 +586,15 @@ export async function loadUsersData() {
     try {
         console.log('👥 Завантаження даних користувачів...');
 
+        // Users в основній таблиці
         const result = await callSheetsAPI('get', {
             range: 'Users!A1:Z',
-            spreadsheetType: 'users'
+            spreadsheetType: 'main'
         });
 
         const rows = result || [];
+        console.log('👥 Users rows:', rows.length, 'headers:', rows[0]);
+
         if (rows.length <= 1) {
             console.warn('⚠️ Таблиця користувачів порожня');
             return {};
@@ -602,8 +605,10 @@ export async function loadUsersData() {
         const displayNameIdx = headers.findIndex(h => h?.toLowerCase() === 'display_name');
         const avatarIdx = headers.findIndex(h => h?.toLowerCase() === 'avatar');
 
+        console.log('👥 Column indices: display_name=', displayNameIdx, 'avatar=', avatarIdx);
+
         if (displayNameIdx === -1 || avatarIdx === -1) {
-            console.warn('⚠️ Не знайдено колонки display_name або avatar');
+            console.warn('⚠️ Не знайдено колонки display_name або avatar. Headers:', headers);
             return {};
         }
 
@@ -619,7 +624,7 @@ export async function loadUsersData() {
         }
 
         priceState.usersMap = usersMap;
-        console.log(`✅ Завантажено ${Object.keys(usersMap).length} користувачів з аватарами`);
+        console.log(`✅ Завантажено ${Object.keys(usersMap).length} користувачів з аватарами:`, usersMap);
 
         return usersMap;
 
