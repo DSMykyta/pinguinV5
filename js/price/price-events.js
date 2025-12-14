@@ -568,12 +568,38 @@ function initBatchActions() {
         }
     });
 
-    // Batch кнопки
-    document.getElementById('batch-reserve-btn')?.addEventListener('click', () => {
+    // Кнопка "Зарезервувати" - резервує на поточного авторизованого користувача
+    document.getElementById('batch-reserve-btn')?.addEventListener('click', async () => {
         const selected = getSelectedCodes();
         if (selected.length === 0) return;
-        // TODO: відкрити модал вибору резерву
-        console.log('Резервувати:', selected);
+
+        // Перевіряємо авторизацію
+        if (!window.isAuthorized || !window.currentUser) {
+            alert('Потрібно авторизуватися для резервування');
+            return;
+        }
+
+        const userName = window.currentUser.display_name;
+        if (!userName) {
+            alert('Не вдалося отримати ім\'я користувача');
+            return;
+        }
+
+        // Перевіряємо чи є вже зарезервовані товари
+        const alreadyReserved = selected.filter(code => {
+            const item = priceState.priceItems.find(i => i.code === code);
+            return item && item.reserve && item.reserve.trim() !== '';
+        });
+
+        if (alreadyReserved.length > 0) {
+            alert(`${alreadyReserved.length} товар(ів) вже зарезервовано іншими користувачами. Змінити резерв можна тільки через кнопку редагування.`);
+            // Фільтруємо тільки незарезервовані
+            const toReserve = selected.filter(code => !alreadyReserved.includes(code));
+            if (toReserve.length === 0) return;
+            await batchReserve(toReserve, userName);
+        } else {
+            await batchReserve(selected, userName);
+        }
     });
 
     document.getElementById('batch-status-btn')?.addEventListener('click', async () => {
@@ -588,13 +614,18 @@ function initBatchActions() {
         await batchUpdateStatus(selected, 'check', 'TRUE');
     });
 
+    // Кнопка "Скасувати вибір"
+    document.getElementById('batch-clear-btn')?.addEventListener('click', () => {
+        clearSelection();
+    });
+
     function updateBatchBar() {
         const checkboxes = container.querySelectorAll('.row-checkbox:checked');
         const count = checkboxes.length;
 
         if (count > 0) {
             batchBar.classList.add('visible');
-            if (selectedCount) selectedCount.textContent = `${count} вибрано`;
+            if (selectedCount) selectedCount.textContent = count;
         } else {
             batchBar.classList.remove('visible');
         }
@@ -605,11 +636,38 @@ function initBatchActions() {
         return Array.from(checkboxes).map(cb => cb.dataset.code);
     }
 
+    function clearSelection() {
+        // Знімаємо всі чекбокси
+        container.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+            cb.checked = false;
+        });
+        // Знімаємо "вибрати все"
+        const selectAll = document.getElementById('select-all-price');
+        if (selectAll) selectAll.checked = false;
+        // Оновлюємо панель
+        updateBatchBar();
+    }
+
+    async function batchReserve(codes, userName) {
+        try {
+            const { reserveItem } = await import('./price-data.js');
+            for (const code of codes) {
+                await reserveItem(code, userName);
+            }
+            clearSelection();
+            await renderPriceTableRowsOnly();
+        } catch (error) {
+            console.error('Batch reserve error:', error);
+            alert('Помилка масового резервування');
+        }
+    }
+
     async function batchUpdateStatus(codes, field, value) {
         try {
             for (const code of codes) {
                 await updateItemStatus(code, field, value);
             }
+            clearSelection();
             // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
             await renderPriceTableRowsOnly();
         } catch (error) {

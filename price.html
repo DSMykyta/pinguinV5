@@ -181,19 +181,26 @@
 
             <!-- Batch Actions Bar -->
             <div id="batch-actions-bar" class="batch-actions-bar">
-                <span id="selected-count">0 вибрано</span>
+                <div class="selection-info">
+                    <span class="selection-count" id="selected-count">0</span>
+                    <span class="selection-label">обрано</span>
+                </div>
                 <div class="batch-actions">
-                    <button id="batch-reserve-btn" class="btn btn-secondary">
+                    <button id="batch-reserve-btn" class="batch-btn">
                         <span class="material-symbols-outlined">person_add</span>
-                        <span class="label">Зарезервувати</span>
+                        Зарезервувати
                     </button>
-                    <button id="batch-status-btn" class="btn btn-secondary">
+                    <button id="batch-status-btn" class="batch-btn">
                         <span class="material-symbols-outlined">check_circle</span>
-                        <span class="label">Викладено</span>
+                        Викладено
                     </button>
-                    <button id="batch-check-btn" class="btn btn-secondary">
+                    <button id="batch-check-btn" class="batch-btn">
                         <span class="material-symbols-outlined">verified</span>
-                        <span class="label">Перевірено</span>
+                        Перевірено
+                    </button>
+                    <button id="batch-clear-btn" class="batch-btn">
+                        <span class="material-symbols-outlined">close</span>
+                        Скасувати вибір
                     </button>
                 </div>
             </div>
