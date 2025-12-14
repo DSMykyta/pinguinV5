@@ -30,6 +30,7 @@ export function initPriceEvents() {
     container.addEventListener('click', handleTableClick);
     container.addEventListener('change', handleTableChange);
     container.addEventListener('keydown', handleTableKeydown);
+    container.addEventListener('focusout', handleArticleBlur);
 
     // Обробник табів резервів
     initReserveTabsEvents();
@@ -86,32 +87,38 @@ async function handleTableChange(e) {
 }
 
 /**
- * Обробник клавіатури (для paste артикулу)
+ * Обробник клавіатури (Enter для збереження артикулу)
  */
 async function handleTableKeydown(e) {
     const articleInput = e.target.closest('.input-article');
     if (!articleInput) return;
 
-    // Дозволяємо тільки Ctrl+V або Cmd+V для вставки
-    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        // Paste дозволено
-        setTimeout(async () => {
-            const code = articleInput.dataset.code;
-            const value = articleInput.value.trim();
-            if (code && value) {
-                try {
-                    await updateItemArticle(code, value);
-                    // Замінюємо input на текст
-                    articleInput.replaceWith(createArticleSpan(value));
-                } catch (error) {
-                    console.error('Помилка збереження артикулу:', error);
-                    alert('Помилка збереження артикулу');
-                }
-            }
-        }, 100);
-    } else if (!e.ctrlKey && !e.metaKey && e.key.length === 1) {
-        // Блокуємо ручний ввід
+    // Enter - зберегти і вийти
+    if (e.key === 'Enter') {
         e.preventDefault();
+        articleInput.blur(); // Викличе handleArticleBlur
+    }
+}
+
+/**
+ * Обробник втрати фокусу - зберегти артикул
+ */
+async function handleArticleBlur(e) {
+    const articleInput = e.target.closest('.input-article');
+    if (!articleInput) return;
+
+    const code = articleInput.dataset.code;
+    const value = articleInput.value.trim();
+
+    if (code && value) {
+        try {
+            await updateItemArticle(code, value);
+            // Замінюємо input на span
+            articleInput.replaceWith(createArticleSpan(value));
+        } catch (error) {
+            console.error('Помилка збереження артикулу:', error);
+            alert('Помилка збереження артикулу');
+        }
     }
 }
 

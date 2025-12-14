@@ -221,7 +221,7 @@ export function getColumns() {
                 if (value) {
                     return `<span class="article-value">${escapeHtml(value)}</span>`;
                 }
-                return `<input type="text" class="input-inline input-article" data-code="${escapeHtml(row.code)}" placeholder="Артикул">`;
+                return `<input type="text" class="input-main input-article" data-code="${escapeHtml(row.code)}" placeholder="Артикул">`;
             }
         },
         {
