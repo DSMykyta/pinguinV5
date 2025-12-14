@@ -416,7 +416,7 @@ function applyFilters() {
     // 3. Фільтр по пошуку
     if (priceState.searchQuery) {
         const query = priceState.searchQuery.toLowerCase();
-        const cols = priceState.searchColumns || ['code', 'article', 'name'];
+        const cols = priceState.searchColumns || ['code', 'article', 'brand', 'name', 'category', 'packaging', 'flavor'];
 
         items = items.filter(item => {
             return cols.some(col => {
