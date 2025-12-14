@@ -447,13 +447,16 @@ function applyFilters() {
                     // Звичайний фільтр по значенню
                     const normalizedValue = itemValue ? itemValue.toString().trim() : '';
 
-                    // Якщо значення пусте - показуємо якщо пусті дозволені або фільтр не активний
-                    if (!normalizedValue) {
-                        continue;
-                    }
-
-                    if (!allowedSet.has(normalizedValue)) {
-                        return false;
+                    if (normalizedValue) {
+                        // Є значення - перевіряємо чи воно дозволене
+                        if (!allowedSet.has(normalizedValue)) {
+                            return false;
+                        }
+                    } else {
+                        // Порожнє значення - перевіряємо чи дозволено __empty__
+                        if (!allowedSet.has('__empty__')) {
+                            return false;
+                        }
                     }
                 }
             }
