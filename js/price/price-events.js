@@ -685,7 +685,8 @@ function initRefreshButton() {
     if (!refreshBtn) return;
 
     refreshBtn.addEventListener('click', async () => {
-        refreshBtn.classList.add('rotating');
+        const icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.add('is-spinning');
 
         try {
             const { loadPriceData } = await import('./price-data.js');
@@ -709,7 +710,7 @@ function initRefreshButton() {
         } catch (error) {
             console.error('Помилка оновлення:', error);
         } finally {
-            refreshBtn.classList.remove('rotating');
+            if (icon) icon.classList.remove('is-spinning');
         }
     });
 }
