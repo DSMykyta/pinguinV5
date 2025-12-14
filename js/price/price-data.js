@@ -511,6 +511,8 @@ function formatDate(date) {
  * @param {string} reserveFilter - Фільтр резерву ('all' або ім'я)
  */
 export function filterByReserve(reserveFilter) {
+    // Default to 'all' if not specified
+    reserveFilter = reserveFilter || 'all';
     priceState.currentReserveFilter = reserveFilter;
 
     if (reserveFilter === 'all') {
