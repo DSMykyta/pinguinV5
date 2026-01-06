@@ -24,7 +24,7 @@ export function initHotkeys() {
             }
         }
 
-        if (isFocusedInContainer && e.key === 'Delete') {
+        if (isFocusedInContainer && e.ctrlKey && e.key === 'Delete') {
             e.preventDefault();
             const activeRow = document.activeElement.closest('.inputs-bloc');
             if (activeRow) {
