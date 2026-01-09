@@ -1,0 +1,62 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="modal-title">Додати маркетплейс</span></h2>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button id="delete-mapper-marketplace" class="segment u-hidden" aria-label="Видалити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">delete</span>
+                            <span class="label">Видалити</span>
+                        </div>
+                    </button>
+                    <button id="save-mapper-marketplace" class="segment" aria-label="Зберегти">
+                        <div class="state-layer">
+                            <span class="label">Зберегти</span>
+                        </div>
+                    </button>
+                    <button class="segment modal-close-btn" aria-label="Закрити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <fieldset class="form-fieldset">
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="mapper-mp-name">
+                            Назва
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="mapper-mp-name" class="input-main" placeholder="Наприклад: Rozetka" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mapper-mp-slug">
+                            Slug
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
+                        <small class="form-hint">Унікальний код (латиницею, без пробілів)</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="mapper-mp-active" checked>
+                        <span>Активний маркетплейс</span>
+                    </label>
+                    <small class="form-hint">Неактивні маркетплейси не відображаються в списках вибору</small>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
