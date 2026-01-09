@@ -1,0 +1,96 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-large">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="modal-title">Імпорт даних маркетплейса</span></h2>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button id="execute-mapper-import" class="segment" aria-label="Імпортувати" disabled>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            <span class="label">Імпортувати</span>
+                        </div>
+                    </button>
+                    <button class="segment modal-close-btn" aria-label="Закрити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <fieldset class="form-fieldset">
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="mapper-import-marketplace">
+                            Маркетплейс
+                            <span class="required">*</span>
+                        </label>
+                        <select id="mapper-import-marketplace" class="input-main" required>
+                            <option value="">— Оберіть маркетплейс —</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Тип даних</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="mapper-import-type" value="characteristics" checked>
+                                <span>Характеристики + Опції</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="mapper-import-type" value="categories">
+                                <span>Категорії</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Файл для імпорту</label>
+                    <div id="mapper-import-dropzone" class="dropzone">
+                        <div class="dropzone-content">
+                            <span class="material-symbols-outlined dropzone-icon">upload_file</span>
+                            <p class="dropzone-text">Перетягніть файл сюди</p>
+                            <p class="dropzone-hint">або клікніть для вибору</p>
+                            <p class="dropzone-formats">CSV, XLSX, XLS</p>
+                        </div>
+                        <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
+                    </div>
+                    <div id="mapper-import-filename" class="file-name"></div>
+                </div>
+
+            </fieldset>
+
+            <!-- Попередній перегляд -->
+            <div id="mapper-import-preview" class="import-preview u-hidden">
+                <div class="preview-header">
+                    <h3>Попередній перегляд</h3>
+                    <div class="preview-stats">
+                        <span class="stat-item">
+                            <span class="material-symbols-outlined">add_circle</span>
+                            Нових: <strong id="preview-new-count">0</strong>
+                        </span>
+                        <span class="stat-item">
+                            <span class="material-symbols-outlined">sync</span>
+                            Оновлених: <strong id="preview-update-count">0</strong>
+                        </span>
+                        <span class="stat-item">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Без змін: <strong id="preview-same-count">0</strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="preview-table-container">
+                    <div id="mapper-import-preview-table" class="pseudo-table-container">
+                        <!-- Таблиця попереднього перегляду -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

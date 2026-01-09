@@ -1,0 +1,87 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="modal-title">Додати характеристику</span></h2>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button id="delete-mapper-characteristic" class="segment u-hidden" aria-label="Видалити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">delete</span>
+                            <span class="label">Видалити</span>
+                        </div>
+                    </button>
+                    <button id="save-mapper-characteristic" class="segment" aria-label="Зберегти">
+                        <div class="state-layer">
+                            <span class="label">Зберегти</span>
+                        </div>
+                    </button>
+                    <button class="segment modal-close-btn" aria-label="Закрити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <fieldset class="form-fieldset">
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="mapper-char-name-ua">
+                            Назва (UA)
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text" id="mapper-char-name-ua" class="input-main" placeholder="Назва українською" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mapper-char-name-ru">Назва (RU)</label>
+                        <input type="text" id="mapper-char-name-ru" class="input-main" placeholder="Назва російською">
+                    </div>
+                </div>
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="mapper-char-type">Тип</label>
+                        <select id="mapper-char-type" class="input-main">
+                            <option value="text">Текст</option>
+                            <option value="number">Число</option>
+                            <option value="select">Вибір (select)</option>
+                            <option value="multiselect">Множинний вибір</option>
+                            <option value="boolean">Так/Ні</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mapper-char-unit">Одиниця виміру</label>
+                        <input type="text" id="mapper-char-unit" class="input-main" placeholder="мг, шт, мл...">
+                    </div>
+                </div>
+
+                <div class="grid2">
+                    <div class="form-group">
+                        <label for="mapper-char-filter">Тип фільтра</label>
+                        <select id="mapper-char-filter" class="input-main">
+                            <option value="none">Без фільтра</option>
+                            <option value="checkbox">Чекбокс</option>
+                            <option value="range">Діапазон</option>
+                            <option value="select">Випадаючий список</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="mapper-char-global">
+                            <span>Глобальна (для всіх категорій)</span>
+                        </label>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+</div>
