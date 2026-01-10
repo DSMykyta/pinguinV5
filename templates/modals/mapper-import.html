@@ -1,5 +1,5 @@
 <div class="modal-overlay">
-    <div class="modal-container modal-large">
+    <div class="modal-container modal-xlarge">
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title"><span id="modal-title">Імпорт даних маркетплейса</span></h2>
@@ -22,7 +22,9 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <fieldset class="form-fieldset">
+            <!-- Крок 1: Вибір маркетплейса та файлу -->
+            <fieldset class="form-fieldset" id="import-step-1">
+                <legend>Крок 1: Вибір файлу</legend>
 
                 <div class="grid2">
                     <div class="form-group">
@@ -52,43 +54,190 @@
 
                 <div class="form-group">
                     <label>Файл для імпорту</label>
-                    <div id="mapper-import-dropzone" class="dropzone">
-                        <div class="dropzone-content">
-                            <span class="material-symbols-outlined dropzone-icon">upload_file</span>
-                            <p class="dropzone-text">Перетягніть файл сюди</p>
-                            <p class="dropzone-hint">або клікніть для вибору</p>
-                            <p class="dropzone-formats">CSV, XLSX, XLS</p>
+                    <div id="mapper-import-dropzone" class="drop-zone">
+                        <div class="drop-zone-content">
+                            <span class="material-symbols-outlined drop-zone-icon">upload_file</span>
+                            <p class="drop-zone-text">Перетягніть файл сюди</p>
+                            <p class="drop-zone-hint">або клікніть для вибору</p>
+                            <p class="drop-zone-hint">CSV, XLSX, XLS</p>
                         </div>
                         <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
                     </div>
-                    <div id="mapper-import-filename" class="file-name"></div>
+                    <div id="mapper-import-filename" class="file-name u-mt-8"></div>
                 </div>
-
             </fieldset>
 
-            <!-- Попередній перегляд -->
+            <!-- Крок 2: Налаштування маппінгу колонок -->
+            <fieldset class="form-fieldset u-hidden" id="import-step-2">
+                <legend>Крок 2: Налаштування колонок</legend>
+
+                <div class="mapping-info">
+                    <span class="material-symbols-outlined">info</span>
+                    <span>Вкажіть, яка колонка з файлу відповідає якому полю системи. Поля з <span class="required">*</span> обов'язкові.</span>
+                </div>
+
+                <!-- Маппінг для характеристик -->
+                <div id="mapping-characteristics" class="mapping-grid">
+                    <div class="mapping-row mapping-header">
+                        <div class="mapping-label">Поле системи</div>
+                        <div class="mapping-select">Колонка з файлу</div>
+                        <div class="mapping-preview">Приклад даних</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="char_id">
+                        <div class="mapping-label">
+                            ID характеристики
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="char_id">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="char_id">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="char_name">
+                        <div class="mapping-label">
+                            Назва характеристики
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="char_name">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="char_name">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="option_id">
+                        <div class="mapping-label">ID опції</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="option_id">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="option_id">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="option_name">
+                        <div class="mapping-label">Назва опції</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="option_name">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="option_name">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="category_id">
+                        <div class="mapping-label">ID категорії MP</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="category_id">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="category_id">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="category_name">
+                        <div class="mapping-label">Назва категорії MP</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="category_name">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="category_name">—</div>
+                    </div>
+                </div>
+
+                <!-- Маппінг для категорій -->
+                <div id="mapping-categories" class="mapping-grid u-hidden">
+                    <div class="mapping-row mapping-header">
+                        <div class="mapping-label">Поле системи</div>
+                        <div class="mapping-select">Колонка з файлу</div>
+                        <div class="mapping-preview">Приклад даних</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="cat_id">
+                        <div class="mapping-label">
+                            ID категорії
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="cat_id">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="cat_id">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="cat_name">
+                        <div class="mapping-label">
+                            Назва категорії
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="cat_name">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="cat_name">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="parent_id">
+                        <div class="mapping-label">ID батьківської</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="parent_id">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="parent_id">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="parent_name">
+                        <div class="mapping-label">Назва батьківської</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="parent_name">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="parent_name">—</div>
+                    </div>
+                </div>
+
+                <div class="form-actions u-mt-16">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="mapper-import-save-mapping">
+                        <span>Зберегти налаштування для цього маркетплейса</span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <!-- Крок 3: Попередній перегляд -->
             <div id="mapper-import-preview" class="import-preview u-hidden">
                 <div class="preview-header">
                     <h3>Попередній перегляд</h3>
                     <div class="preview-stats">
-                        <span class="stat-item">
+                        <span class="stat-item stat-new">
                             <span class="material-symbols-outlined">add_circle</span>
                             Нових: <strong id="preview-new-count">0</strong>
                         </span>
-                        <span class="stat-item">
+                        <span class="stat-item stat-update">
                             <span class="material-symbols-outlined">sync</span>
                             Оновлених: <strong id="preview-update-count">0</strong>
                         </span>
-                        <span class="stat-item">
+                        <span class="stat-item stat-skip">
                             <span class="material-symbols-outlined">check_circle</span>
                             Без змін: <strong id="preview-same-count">0</strong>
                         </span>
                     </div>
                 </div>
                 <div class="preview-table-container">
-                    <div id="mapper-import-preview-table" class="pseudo-table-container">
-                        <!-- Таблиця попереднього перегляду -->
-                    </div>
+                    <table class="preview-table" id="mapper-import-preview-table">
+                        <thead id="preview-table-head"></thead>
+                        <tbody id="preview-table-body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -320,6 +320,13 @@ body.is-modal-open {
     max-width: 95vw;
 }
 
+/* XLarge - для імпорту та превью даних */
+.modal-container.modal-xlarge {
+    width: 90vw;
+    max-width: 1400px;
+    max-height: 90vh;
+}
+
 /* ============================================ */
 /* MODAL HEADER ACTIONS */
 /* ============================================ */

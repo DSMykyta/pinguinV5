@@ -759,11 +759,31 @@ function clearMarketplaceForm() {
 // ІМПОРТ
 // ═══════════════════════════════════════════════════════════════════════════
 
+// Стан імпорту
+let importState = {
+    file: null,
+    parsedData: [],
+    fileHeaders: [],
+    mapping: {},
+    marketplaceId: null,
+    dataType: 'characteristics'
+};
+
 /**
  * Показати модальне вікно імпорту
  */
 export async function showImportModal() {
     console.log('📥 Відкриття модального вікна імпорту');
+
+    // Скинути стан
+    importState = {
+        file: null,
+        parsedData: [],
+        fileHeaders: [],
+        mapping: {},
+        marketplaceId: null,
+        dataType: 'characteristics'
+    };
 
     await showModal('mapper-import', null);
 
@@ -774,10 +794,23 @@ export async function showImportModal() {
     const marketplaceSelect = document.getElementById('mapper-import-marketplace');
     if (marketplaceSelect) {
         populateMarketplaceSelect(marketplaceSelect);
+        // Слухаємо зміну маркетплейса для завантаження збережених маппінгів
+        marketplaceSelect.addEventListener('change', handleMarketplaceChange);
     }
+
+    // Слухаємо зміну типу даних
+    document.querySelectorAll('input[name="mapper-import-type"]').forEach(radio => {
+        radio.addEventListener('change', handleDataTypeChange);
+    });
 
     // Ініціалізувати drag & drop для файлу
     initFileDropzone();
+
+    // Кнопка імпорту
+    const importBtn = document.getElementById('execute-mapper-import');
+    if (importBtn) {
+        importBtn.addEventListener('click', executeImport);
+    }
 }
 
 function populateMarketplaceSelect(select) {
@@ -798,6 +831,63 @@ function populateMarketplaceSelect(select) {
     reinitializeCustomSelect(select);
 }
 
+function handleMarketplaceChange(e) {
+    importState.marketplaceId = e.target.value;
+
+    if (importState.marketplaceId) {
+        // Спробуємо завантажити збережений маппінг
+        loadSavedMapping(importState.marketplaceId);
+    }
+
+    updateMappingPreview();
+}
+
+function handleDataTypeChange(e) {
+    importState.dataType = e.target.value;
+
+    // Показати відповідну секцію маппінгу
+    const charMapping = document.getElementById('mapping-characteristics');
+    const catMapping = document.getElementById('mapping-categories');
+
+    if (importState.dataType === 'characteristics') {
+        charMapping?.classList.remove('u-hidden');
+        catMapping?.classList.add('u-hidden');
+    } else {
+        charMapping?.classList.add('u-hidden');
+        catMapping?.classList.remove('u-hidden');
+    }
+
+    updateMappingPreview();
+}
+
+function loadSavedMapping(marketplaceId) {
+    const marketplaces = getMarketplaces();
+    const mp = marketplaces.find(m => m.id === marketplaceId);
+
+    if (mp && mp.column_mapping) {
+        try {
+            const savedMapping = JSON.parse(mp.column_mapping);
+            if (savedMapping[importState.dataType]) {
+                importState.mapping = savedMapping[importState.dataType];
+                applyMappingToSelects();
+                console.log('📋 Завантажено збережений маппінг:', importState.mapping);
+            }
+        } catch (e) {
+            console.warn('⚠️ Помилка парсингу збереженого маппінгу:', e);
+        }
+    }
+}
+
+function applyMappingToSelects() {
+    Object.entries(importState.mapping).forEach(([field, columnIndex]) => {
+        const select = document.querySelector(`select[data-mapping-field="${field}"]`);
+        if (select) {
+            select.value = columnIndex;
+            reinitializeCustomSelect(select);
+        }
+    });
+}
+
 function initFileDropzone() {
     const dropzone = document.getElementById('mapper-import-dropzone');
     const fileInput = document.getElementById('mapper-import-file');
@@ -812,16 +902,16 @@ function initFileDropzone() {
     // Drag & Drop
     dropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        dropzone.classList.add('dragover');
+        dropzone.classList.add('drag-over');
     });
 
     dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('dragover');
+        dropzone.classList.remove('drag-over');
     });
 
     dropzone.addEventListener('drop', (e) => {
         e.preventDefault();
-        dropzone.classList.remove('dragover');
+        dropzone.classList.remove('drag-over');
 
         const files = e.dataTransfer.files;
         if (files.length > 0) {
@@ -845,6 +935,546 @@ async function handleFileSelect(file) {
         fileNameEl.textContent = file.name;
     }
 
-    // TODO: Парсинг файлу та показ попереднього перегляду
-    showToast(`Файл "${file.name}" обрано`, 'info');
+    importState.file = file;
+
+    try {
+        // Парсимо файл
+        const data = await parseFile(file);
+        importState.parsedData = data.rows;
+        importState.fileHeaders = data.headers;
+
+        console.log(`✅ Файл розпарсено: ${data.headers.length} колонок, ${data.rows.length} рядків`);
+
+        // Показуємо крок 2 (маппінг)
+        document.getElementById('import-step-2')?.classList.remove('u-hidden');
+
+        // Заповнюємо селекти колонок
+        populateColumnSelects(data.headers);
+
+        // Спробуємо автоматично визначити маппінг
+        autoDetectMapping(data.headers);
+
+        showToast(`Файл розпарсено: ${data.rows.length} рядків`, 'success');
+
+    } catch (error) {
+        console.error('❌ Помилка парсингу файлу:', error);
+        showToast('Помилка читання файлу', 'error');
+    }
+}
+
+/**
+ * Парсинг файлу (CSV, XLSX, XLS)
+ */
+async function parseFile(file) {
+    const extension = file.name.split('.').pop().toLowerCase();
+
+    if (extension === 'csv') {
+        return parseCSV(file);
+    } else if (extension === 'xlsx' || extension === 'xls') {
+        return parseExcel(file);
+    } else {
+        throw new Error('Непідтримуваний формат файлу');
+    }
+}
+
+/**
+ * Парсинг CSV файлу
+ */
+function parseCSV(file) {
+    return new Promise((resolve, reject) => {
+        if (typeof Papa === 'undefined') {
+            reject(new Error('PapaParse library not loaded'));
+            return;
+        }
+
+        Papa.parse(file, {
+            header: false,
+            skipEmptyLines: true,
+            complete: (results) => {
+                if (results.data.length === 0) {
+                    reject(new Error('Файл порожній'));
+                    return;
+                }
+
+                const headers = results.data[0].map((h, i) => ({
+                    index: i,
+                    name: String(h || `Колонка ${i + 1}`).trim()
+                }));
+
+                const rows = results.data.slice(1).map(row =>
+                    row.map(cell => String(cell || '').trim())
+                );
+
+                resolve({ headers, rows });
+            },
+            error: (error) => {
+                reject(error);
+            }
+        });
+    });
+}
+
+/**
+ * Парсинг Excel файлу
+ */
+function parseExcel(file) {
+    return new Promise((resolve, reject) => {
+        if (typeof XLSX === 'undefined') {
+            reject(new Error('XLSX library not loaded'));
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                // Беремо перший лист
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                if (jsonData.length === 0) {
+                    reject(new Error('Файл порожній'));
+                    return;
+                }
+
+                const headers = jsonData[0].map((h, i) => ({
+                    index: i,
+                    name: String(h || `Колонка ${i + 1}`).trim()
+                }));
+
+                const rows = jsonData.slice(1).map(row =>
+                    headers.map((_, i) => String(row[i] || '').trim())
+                );
+
+                resolve({ headers, rows });
+
+            } catch (error) {
+                reject(error);
+            }
+        };
+
+        reader.onerror = () => {
+            reject(new Error('Помилка читання файлу'));
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+/**
+ * Заповнити селекти колонками з файлу
+ */
+function populateColumnSelects(headers) {
+    const allSelects = document.querySelectorAll('select[data-mapping-field]');
+
+    allSelects.forEach(select => {
+        // Очистити старі опції (крім першої)
+        select.innerHTML = '<option value="">— Не імпортувати —</option>';
+
+        // Додати нові опції
+        headers.forEach(header => {
+            const option = document.createElement('option');
+            option.value = header.index;
+            option.textContent = header.name;
+            select.appendChild(option);
+        });
+
+        // Оновити кастомний селект
+        reinitializeCustomSelect(select);
+
+        // Додати обробник зміни
+        select.addEventListener('change', handleMappingChange);
+    });
+}
+
+/**
+ * Автоматичне визначення маппінгу
+ */
+function autoDetectMapping(headers) {
+    // Ключові слова для автодетекту
+    const patterns = {
+        char_id: ['id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id'],
+        char_name: ['назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
+        option_id: ['id опції', 'опція id', 'option_id', 'value_id'],
+        option_name: ['назва опції', 'опція', 'option', 'value', 'значення'],
+        category_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
+        category_name: ['назва категорії', 'категорія', 'category', 'cat_name'],
+        cat_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
+        cat_name: ['назва категорії', 'категорія', 'category', 'cat_name'],
+        parent_id: ['id батьківської', 'parent_id', 'parent'],
+        parent_name: ['батьківська', 'parent_name', 'parent category']
+    };
+
+    const detectedMapping = {};
+
+    Object.entries(patterns).forEach(([field, keywords]) => {
+        headers.forEach(header => {
+            const headerLower = header.name.toLowerCase();
+            if (keywords.some(kw => headerLower.includes(kw.toLowerCase()))) {
+                if (!detectedMapping[field]) {
+                    detectedMapping[field] = header.index;
+                }
+            }
+        });
+    });
+
+    // Застосувати автодетект якщо немає збереженого маппінгу
+    if (Object.keys(importState.mapping).length === 0) {
+        importState.mapping = detectedMapping;
+        applyMappingToSelects();
+        console.log('🔍 Автовизначений маппінг:', detectedMapping);
+    }
+
+    updateMappingPreview();
+}
+
+/**
+ * Обробник зміни маппінгу
+ */
+function handleMappingChange(e) {
+    const field = e.target.dataset.mappingField;
+    const columnIndex = e.target.value;
+
+    if (columnIndex === '') {
+        delete importState.mapping[field];
+    } else {
+        importState.mapping[field] = parseInt(columnIndex, 10);
+    }
+
+    updateMappingPreview();
+}
+
+/**
+ * Оновити превью маппінгу
+ */
+function updateMappingPreview() {
+    if (importState.parsedData.length === 0) return;
+
+    // Оновити приклади даних
+    const firstRow = importState.parsedData[0];
+
+    Object.entries(importState.mapping).forEach(([field, columnIndex]) => {
+        const previewEl = document.querySelector(`[data-preview="${field}"]`);
+        if (previewEl && firstRow[columnIndex] !== undefined) {
+            previewEl.textContent = firstRow[columnIndex] || '—';
+        }
+    });
+
+    // Очистити превью для немаппінутих полів
+    document.querySelectorAll('[data-preview]').forEach(el => {
+        const field = el.dataset.preview;
+        if (importState.mapping[field] === undefined) {
+            el.textContent = '—';
+        }
+    });
+
+    // Перевірити чи можна імпортувати
+    validateImport();
+
+    // Оновити таблицю превью
+    updatePreviewTable();
+}
+
+/**
+ * Перевірити валідність імпорту
+ */
+function validateImport() {
+    const importBtn = document.getElementById('execute-mapper-import');
+    if (!importBtn) return;
+
+    let isValid = true;
+    let requiredFields = [];
+
+    if (importState.dataType === 'characteristics') {
+        requiredFields = ['char_id', 'char_name'];
+    } else {
+        requiredFields = ['cat_id', 'cat_name'];
+    }
+
+    requiredFields.forEach(field => {
+        if (importState.mapping[field] === undefined) {
+            isValid = false;
+        }
+    });
+
+    // Також перевіряємо чи обрано маркетплейс
+    if (!importState.marketplaceId) {
+        isValid = false;
+    }
+
+    importBtn.disabled = !isValid;
+}
+
+/**
+ * Оновити таблицю попереднього перегляду
+ */
+function updatePreviewTable() {
+    const previewContainer = document.getElementById('mapper-import-preview');
+    const thead = document.getElementById('preview-table-head');
+    const tbody = document.getElementById('preview-table-body');
+
+    if (!thead || !tbody) return;
+
+    // Отримати активні маппінги
+    const activeMapping = Object.entries(importState.mapping).filter(([field]) => {
+        if (importState.dataType === 'characteristics') {
+            return ['char_id', 'char_name', 'option_id', 'option_name', 'category_id', 'category_name'].includes(field);
+        } else {
+            return ['cat_id', 'cat_name', 'parent_id', 'parent_name'].includes(field);
+        }
+    });
+
+    if (activeMapping.length === 0 || importState.parsedData.length === 0) {
+        previewContainer?.classList.add('u-hidden');
+        return;
+    }
+
+    previewContainer?.classList.remove('u-hidden');
+
+    // Заголовки
+    const fieldNames = {
+        char_id: 'ID характ.',
+        char_name: 'Назва характ.',
+        option_id: 'ID опції',
+        option_name: 'Назва опції',
+        category_id: 'ID категорії',
+        category_name: 'Категорія',
+        cat_id: 'ID категорії',
+        cat_name: 'Назва',
+        parent_id: 'ID батьківської',
+        parent_name: 'Батьківська'
+    };
+
+    thead.innerHTML = `
+        <tr>
+            <th>#</th>
+            ${activeMapping.map(([field]) => `<th>${fieldNames[field] || field}</th>`).join('')}
+            <th>Статус</th>
+        </tr>
+    `;
+
+    // Показуємо перші 50 рядків
+    const previewRows = importState.parsedData.slice(0, 50);
+    let newCount = 0, updateCount = 0, sameCount = 0;
+
+    tbody.innerHTML = previewRows.map((row, i) => {
+        const status = 'new'; // TODO: Порівняти з існуючими даними
+        if (status === 'new') newCount++;
+        else if (status === 'update') updateCount++;
+        else sameCount++;
+
+        const statusClass = status === 'new' ? 'status-new' : status === 'update' ? 'status-update' : 'status-same';
+        const statusIcon = status === 'new' ? 'add_circle' : status === 'update' ? 'sync' : 'check_circle';
+
+        return `
+            <tr class="${statusClass}">
+                <td>${i + 1}</td>
+                ${activeMapping.map(([, colIndex]) => `<td>${row[colIndex] || ''}</td>`).join('')}
+                <td><span class="material-symbols-outlined">${statusIcon}</span></td>
+            </tr>
+        `;
+    }).join('');
+
+    // Оновити лічильники
+    document.getElementById('preview-new-count').textContent = newCount;
+    document.getElementById('preview-update-count').textContent = updateCount;
+    document.getElementById('preview-same-count').textContent = sameCount;
+}
+
+/**
+ * Виконати імпорт
+ */
+async function executeImport() {
+    console.log('📥 Виконання імпорту...');
+
+    const importBtn = document.getElementById('execute-mapper-import');
+    if (importBtn) {
+        importBtn.disabled = true;
+        importBtn.querySelector('.label').textContent = 'Імпортую...';
+    }
+
+    try {
+        // Зберегти маппінг якщо обрано
+        const saveMapping = document.getElementById('mapper-import-save-mapping')?.checked;
+        if (saveMapping && importState.marketplaceId) {
+            await saveColumnMapping();
+        }
+
+        // Виконати імпорт даних
+        if (importState.dataType === 'characteristics') {
+            await importCharacteristicsAndOptions();
+        } else {
+            await importCategories();
+        }
+
+        showToast('Імпорт завершено успішно!', 'success');
+        closeModal();
+        renderCurrentTab();
+
+    } catch (error) {
+        console.error('❌ Помилка імпорту:', error);
+        showToast(`Помилка імпорту: ${error.message}`, 'error');
+    } finally {
+        if (importBtn) {
+            importBtn.disabled = false;
+            importBtn.querySelector('.label').textContent = 'Імпортувати';
+        }
+    }
+}
+
+/**
+ * Зберегти маппінг колонок
+ */
+async function saveColumnMapping() {
+    const marketplaces = getMarketplaces();
+    const mp = marketplaces.find(m => m.id === importState.marketplaceId);
+
+    if (!mp) return;
+
+    let columnMapping = {};
+    try {
+        columnMapping = JSON.parse(mp.column_mapping || '{}');
+    } catch (e) {
+        columnMapping = {};
+    }
+
+    columnMapping[importState.dataType] = importState.mapping;
+
+    await updateMarketplace(importState.marketplaceId, {
+        column_mapping: JSON.stringify(columnMapping)
+    });
+
+    console.log('💾 Маппінг збережено');
+}
+
+/**
+ * Імпорт характеристик та опцій
+ */
+async function importCharacteristicsAndOptions() {
+    const { callSheetsAPI } = await import('../utils/api-client.js');
+
+    const charIdCol = importState.mapping.char_id;
+    const charNameCol = importState.mapping.char_name;
+    const optionIdCol = importState.mapping.option_id;
+    const optionNameCol = importState.mapping.option_name;
+    const categoryIdCol = importState.mapping.category_id;
+    const categoryNameCol = importState.mapping.category_name;
+
+    const mpCharacteristics = [];
+    const mpOptions = [];
+
+    importState.parsedData.forEach(row => {
+        const charId = row[charIdCol] || '';
+        const charName = row[charNameCol] || '';
+
+        if (charId && charName) {
+            // Перевіряємо чи вже додано
+            if (!mpCharacteristics.find(c => c.mp_char_id === charId)) {
+                mpCharacteristics.push({
+                    mp_char_id: charId,
+                    mp_char_name: charName,
+                    mp_category_id: row[categoryIdCol] || '',
+                    mp_category_name: row[categoryNameCol] || ''
+                });
+            }
+        }
+
+        const optionId = optionIdCol !== undefined ? row[optionIdCol] : '';
+        const optionName = optionNameCol !== undefined ? row[optionNameCol] : '';
+
+        if (optionId && optionName && charId) {
+            mpOptions.push({
+                mp_char_id: charId,
+                mp_option_id: optionId,
+                mp_option_name: optionName
+            });
+        }
+    });
+
+    console.log(`📊 Характеристик: ${mpCharacteristics.length}, Опцій: ${mpOptions.length}`);
+
+    // Записуємо характеристики маркетплейса
+    if (mpCharacteristics.length > 0) {
+        const charRows = mpCharacteristics.map(c => [
+            importState.marketplaceId,
+            c.mp_char_id,
+            c.mp_char_name,
+            c.mp_category_id,
+            c.mp_category_name,
+            '' // our_char_id - для маппінгу
+        ]);
+
+        await callSheetsAPI('append', {
+            range: 'Mapper_MP_Characteristics!A:F',
+            values: charRows,
+            spreadsheetType: 'main'
+        });
+    }
+
+    // Записуємо опції маркетплейса
+    if (mpOptions.length > 0) {
+        const optRows = mpOptions.map(o => [
+            importState.marketplaceId,
+            o.mp_char_id,
+            o.mp_option_id,
+            o.mp_option_name,
+            '' // our_option_id - для маппінгу
+        ]);
+
+        await callSheetsAPI('append', {
+            range: 'Mapper_MP_Options!A:E',
+            values: optRows,
+            spreadsheetType: 'main'
+        });
+    }
+}
+
+/**
+ * Імпорт категорій
+ */
+async function importCategories() {
+    const { callSheetsAPI } = await import('../utils/api-client.js');
+
+    const catIdCol = importState.mapping.cat_id;
+    const catNameCol = importState.mapping.cat_name;
+    const parentIdCol = importState.mapping.parent_id;
+    const parentNameCol = importState.mapping.parent_name;
+
+    const mpCategories = [];
+
+    importState.parsedData.forEach(row => {
+        const catId = row[catIdCol] || '';
+        const catName = row[catNameCol] || '';
+
+        if (catId && catName) {
+            mpCategories.push({
+                mp_cat_id: catId,
+                mp_cat_name: catName,
+                mp_parent_id: parentIdCol !== undefined ? row[parentIdCol] : '',
+                mp_parent_name: parentNameCol !== undefined ? row[parentNameCol] : ''
+            });
+        }
+    });
+
+    console.log(`📊 Категорій: ${mpCategories.length}`);
+
+    if (mpCategories.length > 0) {
+        const catRows = mpCategories.map(c => [
+            importState.marketplaceId,
+            c.mp_cat_id,
+            c.mp_cat_name,
+            c.mp_parent_id,
+            c.mp_parent_name,
+            '' // our_cat_id - для маппінгу
+        ]);
+
+        await callSheetsAPI('append', {
+            range: 'Mapper_MP_Categories!A:F',
+            values: catRows,
+            spreadsheetType: 'main'
+        });
+    }
 }
