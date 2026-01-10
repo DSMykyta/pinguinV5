@@ -18,6 +18,7 @@ import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
@@ -30,6 +31,10 @@ export async function showAddCategoryModal() {
     console.log('➕ Відкриття модального вікна для додавання категорії');
 
     await showModal('mapper-category-edit', null);
+
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-category-edit');
+    if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати категорію';
@@ -61,6 +66,10 @@ export async function showEditCategoryModal(id) {
     }
 
     await showModal('mapper-category-edit', null);
+
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-category-edit');
+    if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати категорію';
@@ -194,6 +203,9 @@ function populateParentCategorySelect(excludeId = null) {
             select.appendChild(option);
         }
     });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -207,6 +219,10 @@ export async function showAddCharacteristicModal() {
     console.log('➕ Відкриття модального вікна для додавання характеристики');
 
     await showModal('mapper-characteristic-edit', null);
+
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-characteristic-edit');
+    if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати характеристику';
@@ -237,6 +253,10 @@ export async function showEditCharacteristicModal(id) {
     }
 
     await showModal('mapper-characteristic-edit', null);
+
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-characteristic-edit');
+    if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати характеристику';
@@ -377,6 +397,10 @@ export async function showAddOptionModal() {
 
     await showModal('mapper-option-edit', null);
 
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-option-edit');
+    if (modalEl) initCustomSelects(modalEl);
+
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати опцію';
 
@@ -407,6 +431,10 @@ export async function showEditOptionModal(id) {
     }
 
     await showModal('mapper-option-edit', null);
+
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-option-edit');
+    if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати опцію';
@@ -545,6 +573,9 @@ function populateCharacteristicSelect() {
         option.textContent = char.name_ua || char.id;
         select.appendChild(option);
     });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -736,6 +767,10 @@ export async function showImportModal() {
 
     await showModal('mapper-import', null);
 
+    // Ініціалізувати кастомні селекти в модальному вікні
+    const modalEl = document.getElementById('modal-mapper-import');
+    if (modalEl) initCustomSelects(modalEl);
+
     const marketplaceSelect = document.getElementById('mapper-import-marketplace');
     if (marketplaceSelect) {
         populateMarketplaceSelect(marketplaceSelect);
@@ -758,6 +793,9 @@ function populateMarketplaceSelect(select) {
             select.appendChild(option);
         }
     });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
 }
 
 function initFileDropzone() {
