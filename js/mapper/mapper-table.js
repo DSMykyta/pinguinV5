@@ -11,6 +11,27 @@
 
 import { mapperState } from './mapper-init.js';
 import { getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
+
+/**
+ * Отримати назви категорій за списком ID
+ * @param {string} categoryIdsStr - Рядок з ID категорій через кому
+ * @returns {string} - Назви категорій
+ */
+function getCategoryNames(categoryIdsStr) {
+    if (!categoryIdsStr) return '-';
+
+    const categories = getCategories();
+    const ids = categoryIdsStr.split(',').map(id => id.trim()).filter(id => id);
+
+    if (ids.length === 0) return '-';
+
+    const names = ids.map(id => {
+        const cat = categories.find(c => c.id === id);
+        return cat ? cat.name_ua : id;
+    });
+
+    return names.join(', ');
+}
 import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
@@ -210,6 +231,23 @@ export function renderCharacteristicsTable() {
                 label: 'Одиниця',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
+            },
+            {
+                id: 'category_ids',
+                label: 'Категорії',
+                sortable: false,
+                render: (value) => {
+                    const names = getCategoryNames(value);
+                    if (names === '-') return '-';
+                    // Показуємо чіпи для категорій
+                    const categories = getCategories();
+                    const ids = value.split(',').map(id => id.trim()).filter(id => id);
+                    return ids.map(id => {
+                        const cat = categories.find(c => c.id === id);
+                        const name = cat ? escapeHtml(cat.name_ua) : escapeHtml(id);
+                        return `<span class="word-chip word-chip-small">${name}</span>`;
+                    }).join(' ');
+                }
             }
         ],
         visibleColumns: mapperState.visibleColumns.characteristics,

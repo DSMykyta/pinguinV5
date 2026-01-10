@@ -210,6 +210,13 @@
     font-weight: 600;
 }
 
+/* Маленький варіант для таблиць */
+.word-chip-small {
+    padding: 1px 6px;
+    font-size: 11px;
+    margin: 1px;
+}
+
 
 /* ============================================ */
 /* FILTER PILLS */
