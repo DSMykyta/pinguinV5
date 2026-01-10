@@ -918,7 +918,7 @@ function handleTargetChange(e) {
 
     // Якщо обрано свій довідник - вимкнути вибір маркетплейса
     const mpSelect = document.getElementById('mapper-import-marketplace');
-    const mpGroup = mpSelect?.closest('.form-group');
+    const mpGroup = document.getElementById('marketplace-select-group');
 
     if (importState.importTarget === 'own') {
         mpGroup?.classList.add('u-hidden');
@@ -1223,8 +1223,8 @@ function getSystemFields() {
             { key: 'own_option_parent_id', label: 'Опція: parent_option_id', required: false }
         ],
         // Свій довідник - категорії
+        // id та created_at генеруються автоматично
         own_categories: [
-            { key: 'own_cat_id', label: 'ID категорії', required: false },
             { key: 'own_cat_name_ua', label: 'Назва категорії (UA)', required: true },
             { key: 'own_cat_name_ru', label: 'Назва категорії (RU)', required: false },
             { key: 'own_cat_parent', label: 'Батьківська категорія', required: false }
@@ -1361,8 +1361,7 @@ function autoDetectMapping(headers) {
         own_option_value_ru: ['value_ru', 'значення ru'],
         own_option_parent_id: ['parent_option_id', 'parent_id', 'батьківська опція'],
 
-        // Свій довідник - категорії
-        own_cat_id: ['id', 'ід'],
+        // Свій довідник - категорії (id генерується автоматично)
         own_cat_name_ua: ['назва ua', 'назва укр', 'name_ua', 'назва'],
         own_cat_name_ru: ['назва ru', 'назва рус', 'name_ru'],
         own_cat_parent: ['батьківська', 'parent', 'parent_id']

@@ -17,6 +17,39 @@
     transition: all 0.2s ease;
 }
 
+/* Compact drop zone - horizontal layout */
+.drop-zone.drop-zone-compact {
+    flex-direction: row;
+    min-height: auto;
+    padding: 24px 32px;
+    gap: 16px;
+}
+
+.drop-zone.drop-zone-compact .drop-zone-content {
+    flex-direction: row;
+    gap: 16px;
+}
+
+.drop-zone.drop-zone-compact .drop-zone-icon {
+    font-size: 40px;
+}
+
+.drop-zone.drop-zone-compact .drop-zone-text-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+}
+
+.drop-zone.drop-zone-compact .drop-zone-text {
+    font-size: 15px;
+}
+
+.drop-zone.drop-zone-compact .drop-zone-hint {
+    font-size: 13px;
+}
+
 .drop-zone:hover {
     border-color: var(--primary);
     background-color: var(--surface-container-low);
@@ -328,6 +361,30 @@
 .input-hint {
     font-size: 13px;
     color: var(--on-surface-variant);
+}
+
+/* Form row - flex container for form groups */
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Inline form group - horizontal layout */
+.form-group-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.form-group-inline label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.form-group-inline .input-small {
+    width: 80px;
 }
 
 /* Vertical radio group */

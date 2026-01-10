@@ -28,74 +28,60 @@
 
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-import-marketplace">
-                            Маркетплейс
-                            <span class="required">*</span>
-                        </label>
-                        <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть маркетплейс" required>
-                            <option value="">— Оберіть маркетплейс —</option>
-                        </select>
+                        <label>Тип даних</label>
+                        <div class="switch-container">
+                            <input type="radio" id="import-type-characteristics" name="mapper-import-type" value="characteristics" checked>
+                            <label for="import-type-characteristics" class="switch-label" style="flex: 1;">Характеристики + Опції</label>
+                            <input type="radio" id="import-type-categories" name="mapper-import-type" value="categories">
+                            <label for="import-type-categories" class="switch-label" style="flex: 1;">Категорії</label>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Тип даних</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="mapper-import-type" value="characteristics" checked>
-                                <span>Характеристики + Опції</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="mapper-import-type" value="categories">
-                                <span>Категорії</span>
-                            </label>
+                        <label>Призначення імпорту</label>
+                        <div class="switch-container">
+                            <input type="radio" id="import-target-marketplace" name="mapper-import-target" value="marketplace" checked>
+                            <label for="import-target-marketplace" class="switch-label" style="flex: 1;">Дані маркетплейсу</label>
+                            <input type="radio" id="import-target-own" name="mapper-import-target" value="own">
+                            <label for="import-target-own" class="switch-label" style="flex: 1;">Свій довідник</label>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Призначення імпорту</label>
-                    <div class="radio-group radio-group-vertical">
-                        <label class="radio-label">
-                            <input type="radio" name="mapper-import-target" value="marketplace" checked>
-                            <span class="radio-content">
-                                <strong>Дані маркетплейсу</strong>
-                                <small>Імпорт для подальшого маппінгу на свої дані</small>
-                            </span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="mapper-import-target" value="own">
-                            <span class="radio-content">
-                                <strong>Свій довідник</strong>
-                                <small>Створити власні категорії/характеристики/опції</small>
-                            </span>
-                        </label>
-                    </div>
+                <div class="form-group" id="marketplace-select-group">
+                    <label for="mapper-import-marketplace">
+                        Маркетплейс
+                        <span class="required">*</span>
+                    </label>
+                    <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть маркетплейс" required>
+                        <option value="">— Оберіть маркетплейс —</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>Файл для імпорту</label>
-                    <div id="mapper-import-dropzone" class="drop-zone">
+                    <div id="mapper-import-dropzone" class="drop-zone drop-zone-compact">
                         <div class="drop-zone-content">
                             <span class="material-symbols-outlined drop-zone-icon">upload_file</span>
-                            <p class="drop-zone-text">Перетягніть файл сюди</p>
-                            <p class="drop-zone-hint">або клікніть для вибору</p>
-                            <p class="drop-zone-hint">CSV, XLSX, XLS</p>
+                            <div class="drop-zone-text-wrap">
+                                <p class="drop-zone-text">Перетягніть файл сюди або клікніть для вибору</p>
+                                <p class="drop-zone-hint">CSV, XLSX, XLS</p>
+                            </div>
                         </div>
                         <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
                     </div>
                     <div id="mapper-import-filename" class="file-name u-mt-8"></div>
                 </div>
 
-                <div class="form-group u-hidden" id="header-row-group">
-                    <label for="mapper-import-header-row">Рядок із заголовками</label>
-                    <div class="input-with-hint">
+                <div class="form-row u-hidden" id="header-row-group">
+                    <div class="form-group form-group-inline">
+                        <label for="mapper-import-header-row">Рядок із заголовками</label>
                         <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
-                        <span class="input-hint">Вкажіть номер рядка, де знаходяться назви колонок</span>
+                        <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">
+                            <span class="material-symbols-outlined">refresh</span>
+                            Застосувати
+                        </button>
                     </div>
-                    <button type="button" id="apply-header-row" class="btn btn-secondary btn-small u-mt-8">
-                        <span class="material-symbols-outlined">refresh</span>
-                        Застосувати
-                    </button>
                 </div>
             </fieldset>
 
