@@ -214,6 +214,31 @@ function populateParentCategorySelect(excludeId = null) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Заповнити мульти-селект категорій
+ */
+function populateCategorySelect(selectedIds = []) {
+    const select = document.getElementById('mapper-char-categories');
+    if (!select) return;
+
+    const categories = getCategories();
+
+    select.innerHTML = '';
+
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name_ua || cat.id;
+        if (selectedIds.includes(cat.id)) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+/**
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
@@ -232,6 +257,7 @@ export async function showAddCharacteristicModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearCharacteristicForm();
+    populateCategorySelect();
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
@@ -270,6 +296,12 @@ export async function showEditCharacteristicModal(id) {
             showDeleteCharacteristicConfirm(id);
         };
     }
+
+    // Заповнюємо селект категорій з вибраними
+    const selectedCategoryIds = characteristic.category_ids
+        ? characteristic.category_ids.split(',').map(id => id.trim()).filter(id => id)
+        : [];
+    populateCategorySelect(selectedCategoryIds);
 
     fillCharacteristicForm(characteristic);
 
@@ -344,13 +376,20 @@ async function handleUpdateCharacteristic(id) {
 }
 
 function getCharacteristicFormData() {
+    // Отримуємо вибрані категорії з мульти-селекту
+    const categoriesSelect = document.getElementById('mapper-char-categories');
+    const selectedCategories = categoriesSelect
+        ? Array.from(categoriesSelect.selectedOptions).map(opt => opt.value)
+        : [];
+
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
         type: document.getElementById('mapper-char-type')?.value || 'text',
         unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
         filter_type: document.getElementById('mapper-char-filter')?.value || 'none',
-        is_global: document.getElementById('mapper-char-global')?.checked || false
+        is_global: document.getElementById('mapper-char-global')?.checked || false,
+        category_ids: selectedCategories.join(',')
     };
 }
 
@@ -377,6 +416,7 @@ function clearCharacteristicForm() {
     const unitField = document.getElementById('mapper-char-unit');
     const filterField = document.getElementById('mapper-char-filter');
     const globalField = document.getElementById('mapper-char-global');
+    const categoriesSelect = document.getElementById('mapper-char-categories');
 
     if (nameUaField) nameUaField.value = '';
     if (nameRuField) nameRuField.value = '';
@@ -384,6 +424,11 @@ function clearCharacteristicForm() {
     if (unitField) unitField.value = '';
     if (filterField) filterField.value = 'none';
     if (globalField) globalField.checked = false;
+
+    // Скидаємо вибір категорій
+    if (categoriesSelect) {
+        Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1833,12 +1878,16 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
 
     const characteristics = new Map(); // name_ua -> char object
     const options = []; // {char_name_ua, value_ua, value_ru, parent_option_id}
+    const categoryNamesToCreate = new Set(); // Унікальні назви категорій для створення
 
     importState.parsedData.forEach(row => {
         const nameUa = nameUaCol !== undefined ? String(row[nameUaCol] || '').trim() : '';
         const nameRu = nameRuCol !== undefined ? String(row[nameRuCol] || '').trim() : '';
 
         if (nameUa) {
+            // Отримуємо категорії з рядка
+            const categoryIdsRaw = categoryIdsCol !== undefined ? String(row[categoryIdsCol] || '').trim() : '';
+
             // Додаємо характеристику якщо ще немає
             if (!characteristics.has(nameUa)) {
                 // Визначаємо тип: якщо є опції - select, інакше text
@@ -1859,8 +1908,16 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
                     filter_type: filterTypeCol !== undefined ? String(row[filterTypeCol] || '').trim() : 'none',
                     unit: unitCol !== undefined ? String(row[unitCol] || '').trim() : '',
                     is_global: isGlobal,
-                    category_ids: categoryIdsCol !== undefined ? String(row[categoryIdsCol] || '').trim() : ''
+                    category_names: categoryIdsRaw // Зберігаємо назви категорій
                 });
+
+                // Збираємо унікальні категорії для створення
+                if (categoryIdsRaw) {
+                    categoryIdsRaw.split(',').forEach(catName => {
+                        const trimmed = catName.trim();
+                        if (trimmed) categoryNamesToCreate.add(trimmed);
+                    });
+                }
             }
 
             // Якщо є опція
@@ -1887,9 +1944,55 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
         }
     });
 
-    console.log(`📊 Характеристик: ${characteristics.size}, Опцій: ${options.length}`);
+    console.log(`📊 Характеристик: ${characteristics.size}, Опцій: ${options.length}, Категорій: ${categoryNamesToCreate.size}`);
 
-    // Додаємо характеристики через існуючу функцію
+    // === КРОК 1: Створюємо категорії, яких немає ===
+    const existingCategories = getCategories();
+    const categoryNameToId = new Map(); // Назва -> ID
+
+    // Заповнюємо карту існуючими категоріями
+    existingCategories.forEach(cat => {
+        categoryNameToId.set(cat.name_ua.toLowerCase(), cat.id);
+    });
+
+    // Створюємо нові категорії
+    const newCategoryNames = Array.from(categoryNamesToCreate).filter(
+        name => !categoryNameToId.has(name.toLowerCase())
+    );
+
+    if (newCategoryNames.length > 0) {
+        onProgress(10, `Створюю ${newCategoryNames.length} нових категорій...`);
+
+        for (let i = 0; i < newCategoryNames.length; i++) {
+            const catName = newCategoryNames[i];
+            const catPercent = Math.round(10 + (i / newCategoryNames.length) * 10);
+            onProgress(catPercent, `Категорія: ${catName}`);
+
+            try {
+                const newCat = await addCategory({
+                    name_ua: catName,
+                    name_ru: '',
+                    parent_id: ''
+                });
+                categoryNameToId.set(catName.toLowerCase(), newCat.id);
+                console.log(`✅ Створено категорію: ${catName} -> ${newCat.id}`);
+            } catch (e) {
+                console.warn(`⚠️ Не вдалося створити категорію "${catName}":`, e);
+            }
+        }
+    }
+
+    // === КРОК 2: Конвертуємо назви категорій в ID ===
+    function convertCategoryNamesToIds(categoryNamesStr) {
+        if (!categoryNamesStr) return '';
+        const names = categoryNamesStr.split(',').map(n => n.trim()).filter(n => n);
+        const ids = names
+            .map(name => categoryNameToId.get(name.toLowerCase()))
+            .filter(id => id);
+        return ids.join(',');
+    }
+
+    // === КРОК 3: Додаємо характеристики ===
     const charIdMap = new Map(); // name_ua -> id
     const totalChars = characteristics.size;
     let charIndex = 0;
@@ -1899,6 +2002,9 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
         const charPercent = Math.round(20 + (charIndex / totalChars) * 40);
         onProgress(charPercent, `Характеристика ${charIndex}/${totalChars}: ${nameUa}`);
 
+        // Конвертуємо назви категорій в ID
+        const categoryIds = convertCategoryNamesToIds(char.category_names);
+
         try {
             const newChar = await addCharacteristic({
                 name_ua: char.name_ua,
@@ -1907,7 +2013,7 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
                 unit: char.unit,
                 filter_type: char.filter_type,
                 is_global: char.is_global,
-                category_ids: char.category_ids
+                category_ids: categoryIds
             });
             charIdMap.set(nameUa, newChar.id);
         } catch (e) {
@@ -1915,7 +2021,7 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
         }
     }
 
-    // Додаємо опції
+    // === КРОК 4: Додаємо опції ===
     const totalOpts = options.length;
     let optIndex = 0;
 
