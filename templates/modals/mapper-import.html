@@ -65,6 +65,18 @@
                     </div>
                     <div id="mapper-import-filename" class="file-name u-mt-8"></div>
                 </div>
+
+                <div class="form-group u-hidden" id="header-row-group">
+                    <label for="mapper-import-header-row">Рядок із заголовками</label>
+                    <div class="input-with-hint">
+                        <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
+                        <span class="input-hint">Вкажіть номер рядка, де знаходяться назви колонок</span>
+                    </div>
+                    <button type="button" id="apply-header-row" class="btn btn-secondary btn-small u-mt-8">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Застосувати
+                    </button>
+                </div>
             </fieldset>
 
             <!-- Крок 2: Налаштування маппінгу колонок -->
