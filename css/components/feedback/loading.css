@@ -122,8 +122,18 @@
     );
     background-size: 40px 100%;
     border-radius: var(--radius-full);
-    width: 100%;
+    width: 0;
+    transition: width 0.3s ease;
     animation: stripeMove 1s linear infinite;
+}
+
+@keyframes stripeMove {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 0;
+    }
 }
 
 /* Toast notifications використовуються з css/components/overlays/toast.css */

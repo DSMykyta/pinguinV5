@@ -83,8 +83,12 @@ export function showLoader(container, options = {}) {
     // Повернути API для оновлення прогресу
     return {
         element: loaderEl,
-        updateProgress: (_percent, newMessage) => {
+        updateProgress: (percent, newMessage) => {
             if (type === 'progress') {
+                const fill = loaderEl.querySelector('[data-progress-fill]');
+                if (fill) {
+                    fill.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+                }
                 const msg = loaderEl.querySelector('[data-progress-message]');
                 if (msg && newMessage) msg.textContent = newMessage;
             }

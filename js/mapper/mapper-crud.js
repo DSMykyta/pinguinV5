@@ -19,6 +19,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
+import { showLoader } from '../common/ui-loading.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
@@ -1540,43 +1541,71 @@ async function executeImport() {
     console.log('📥 Виконання імпорту...');
 
     const importBtn = document.getElementById('execute-mapper-import');
+    const modalContent = document.querySelector('#modal-mapper-import .modal-body');
+
     if (importBtn) {
         importBtn.disabled = true;
         importBtn.querySelector('.label').textContent = 'Імпортую...';
     }
 
+    // Показуємо прогрес бар
+    const loader = showLoader(modalContent, {
+        type: 'progress',
+        message: 'Підготовка до імпорту...',
+        overlay: true
+    });
+
     try {
+        loader.updateProgress(5, 'Підготовка даних...');
+
         // Зберегти маппінг якщо обрано (тільки для маркетплейса)
         if (importState.importTarget === 'marketplace') {
             const saveMapping = document.getElementById('mapper-import-save-mapping')?.checked;
             if (saveMapping && importState.marketplaceId) {
+                loader.updateProgress(10, 'Збереження маппінгу...');
                 await saveColumnMapping();
             }
         }
 
-        // Виконати імпорт даних
+        loader.updateProgress(15, 'Імпортую дані...');
+
+        // Виконати імпорт даних з передачею функції прогресу
         if (importState.importTarget === 'marketplace') {
             // Імпорт для маркетплейса
             if (importState.dataType === 'characteristics') {
-                await importCharacteristicsAndOptions();
+                await importCharacteristicsAndOptions((percent, msg) => {
+                    loader.updateProgress(15 + percent * 0.8, msg);
+                });
             } else {
-                await importCategories();
+                await importCategories((percent, msg) => {
+                    loader.updateProgress(15 + percent * 0.8, msg);
+                });
             }
         } else {
             // Імпорт для свого довідника
             if (importState.dataType === 'characteristics') {
-                await importOwnCharacteristicsAndOptions();
+                await importOwnCharacteristicsAndOptions((percent, msg) => {
+                    loader.updateProgress(15 + percent * 0.8, msg);
+                });
             } else {
-                await importOwnCategories();
+                await importOwnCategories((percent, msg) => {
+                    loader.updateProgress(15 + percent * 0.8, msg);
+                });
             }
         }
 
-        showToast('Імпорт завершено успішно!', 'success');
-        closeModal();
-        renderCurrentTab();
+        loader.updateProgress(100, 'Імпорт завершено!');
+
+        setTimeout(() => {
+            loader.hide();
+            showToast('Імпорт завершено успішно!', 'success');
+            closeModal();
+            renderCurrentTab();
+        }, 500);
 
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);
+        loader.hide();
         showToast(`Помилка імпорту: ${error.message}`, 'error');
     } finally {
         if (importBtn) {
@@ -1613,9 +1642,12 @@ async function saveColumnMapping() {
 
 /**
  * Імпорт характеристик та опцій маркетплейса
+ * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importCharacteristicsAndOptions() {
+async function importCharacteristicsAndOptions(onProgress = () => {}) {
     const { callSheetsAPI } = await import('../utils/api-client.js');
+
+    onProgress(10, 'Обробка даних файлу...');
 
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
@@ -1675,6 +1707,8 @@ async function importCharacteristicsAndOptions() {
     const characteristicsList = Array.from(mpCharacteristics.values());
     console.log(`📊 Характеристик: ${characteristicsList.length}, Опцій: ${mpOptions.length}`);
 
+    onProgress(50, `Запис ${characteristicsList.length} характеристик...`);
+
     // Записуємо характеристики маркетплейса
     // Структура таблиці: marketplace_id, mp_char_id, mp_char_name, mp_char_type, mp_filter_type, mp_unit, mp_is_global, mp_category_id, mp_category_name, our_char_id
     if (characteristicsList.length > 0) {
@@ -1698,6 +1732,8 @@ async function importCharacteristicsAndOptions() {
         });
     }
 
+    onProgress(75, `Запис ${mpOptions.length} опцій...`);
+
     // Записуємо опції маркетплейса
     // Структура: marketplace_id, mp_char_id, mp_option_id, mp_option_name, our_option_id
     if (mpOptions.length > 0) {
@@ -1715,13 +1751,18 @@ async function importCharacteristicsAndOptions() {
             spreadsheetType: 'main'
         });
     }
+
+    onProgress(100, 'Готово!');
 }
 
 /**
  * Імпорт категорій
+ * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importCategories() {
+async function importCategories(onProgress = () => {}) {
     const { callSheetsAPI } = await import('../utils/api-client.js');
+
+    onProgress(10, 'Обробка категорій...');
 
     const catIdCol = importState.mapping.cat_id;
     const catNameCol = importState.mapping.cat_name;
@@ -1745,6 +1786,7 @@ async function importCategories() {
     });
 
     console.log(`📊 Категорій: ${mpCategories.length}`);
+    onProgress(50, `Запис ${mpCategories.length} категорій...`);
 
     if (mpCategories.length > 0) {
         const catRows = mpCategories.map(c => [
@@ -1762,6 +1804,8 @@ async function importCategories() {
             spreadsheetType: 'main'
         });
     }
+
+    onProgress(100, 'Готово!');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1770,8 +1814,10 @@ async function importCategories() {
 
 /**
  * Імпорт своїх характеристик та опцій
+ * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importOwnCharacteristicsAndOptions() {
+async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
+    onProgress(5, 'Обробка даних файлу...');
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
     const nameUaCol = m.own_char_name_ua;
@@ -1845,8 +1891,14 @@ async function importOwnCharacteristicsAndOptions() {
 
     // Додаємо характеристики через існуючу функцію
     const charIdMap = new Map(); // name_ua -> id
+    const totalChars = characteristics.size;
+    let charIndex = 0;
 
     for (const [nameUa, char] of characteristics) {
+        charIndex++;
+        const charPercent = Math.round(20 + (charIndex / totalChars) * 40);
+        onProgress(charPercent, `Характеристика ${charIndex}/${totalChars}: ${nameUa}`);
+
         try {
             const newChar = await addCharacteristic({
                 name_ua: char.name_ua,
@@ -1864,7 +1916,14 @@ async function importOwnCharacteristicsAndOptions() {
     }
 
     // Додаємо опції
+    const totalOpts = options.length;
+    let optIndex = 0;
+
     for (const opt of options) {
+        optIndex++;
+        const optPercent = Math.round(60 + (optIndex / Math.max(totalOpts, 1)) * 35);
+        onProgress(optPercent, `Опція ${optIndex}/${totalOpts}: ${opt.value_ua}`);
+
         const charId = charIdMap.get(opt.char_name_ua);
         if (charId) {
             try {
@@ -1880,12 +1939,17 @@ async function importOwnCharacteristicsAndOptions() {
             }
         }
     }
+
+    onProgress(100, 'Готово!');
 }
 
 /**
  * Імпорт своїх категорій
+ * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importOwnCategories() {
+async function importOwnCategories(onProgress = () => {}) {
+    onProgress(5, 'Обробка категорій...');
+
     const nameUaCol = importState.mapping.own_cat_name_ua;
     const nameRuCol = importState.mapping.own_cat_name_ru;
     const parentCol = importState.mapping.own_cat_parent;
@@ -1911,10 +1975,17 @@ async function importOwnCategories() {
 
     // Створюємо категорії в правильному порядку (спочатку без батьківських)
     const catIdMap = new Map(); // name_ua -> id
+    const totalCats = categories.size;
+    let catIndex = 0;
 
     // Перший прохід: категорії без батьківських
+    onProgress(20, 'Додаю кореневі категорії...');
+
     for (const [nameUa, cat] of categories) {
         if (!cat.parent_name) {
+            catIndex++;
+            onProgress(20 + (catIndex / totalCats) * 35, `Категорія ${catIndex}/${totalCats}: ${nameUa}`);
+
             try {
                 const newCat = await addCategory({
                     name_ua: cat.name_ua,
@@ -1929,8 +2000,13 @@ async function importOwnCategories() {
     }
 
     // Другий прохід: категорії з батьківськими
+    onProgress(55, 'Додаю підкатегорії...');
+
     for (const [nameUa, cat] of categories) {
         if (cat.parent_name && !catIdMap.has(nameUa)) {
+            catIndex++;
+            onProgress(55 + ((catIndex - catIdMap.size) / Math.max(totalCats - catIdMap.size, 1)) * 40, `Підкатегорія: ${nameUa}`);
+
             const parentId = catIdMap.get(cat.parent_name) || '';
             try {
                 const newCat = await addCategory({
@@ -1944,4 +2020,6 @@ async function importOwnCategories() {
             }
         }
     }
+
+    onProgress(100, 'Готово!');
 }
