@@ -143,6 +143,16 @@
     color: var(--on-surface-variant);
 }
 
+.mapping-row.mapping-row-filled {
+    background: rgba(76, 175, 80, 0.08);
+    border-left: 3px solid var(--success, #4caf50);
+}
+
+.mapping-row.mapping-row-missing {
+    background: rgba(255, 152, 0, 0.08);
+    border-left: 3px solid var(--warning, #ff9800);
+}
+
 .mapping-label {
     font-size: 14px;
     color: var(--on-surface);
