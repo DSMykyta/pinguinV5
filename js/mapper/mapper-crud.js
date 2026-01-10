@@ -856,19 +856,19 @@ function handleMarketplaceChange(e) {
         loadSavedMapping(importState.marketplaceId);
     }
 
-    updateMappingPreview();
+    validateImport();
+    updatePreviewTable();
 }
 
 function handleDataTypeChange(e) {
     importState.dataType = e.target.value;
+    importState.mapping = {}; // Скидаємо маппінг при зміні типу
     updateMappingSections();
-    updateMappingPreview();
 }
 
 function handleTargetChange(e) {
     importState.importTarget = e.target.value;
     importState.mapping = {}; // Скидаємо маппінг при зміні призначення
-    updateMappingSections();
 
     // Якщо обрано свій довідник - вимкнути вибір маркетплейса
     const mpSelect = document.getElementById('mapper-import-marketplace');
@@ -882,30 +882,16 @@ function handleTargetChange(e) {
         importState.marketplaceId = mpSelect?.value || null;
     }
 
-    updateMappingPreview();
+    // Перегенеровуємо маппінг з новими полями
+    updateMappingSections();
 }
 
 function updateMappingSections() {
-    // Сховати всі секції маппінгу
-    document.getElementById('mapping-characteristics')?.classList.add('u-hidden');
-    document.getElementById('mapping-categories')?.classList.add('u-hidden');
-    document.getElementById('mapping-own-characteristics')?.classList.add('u-hidden');
-    document.getElementById('mapping-own-categories')?.classList.add('u-hidden');
-
-    // Показати потрібну секцію
-    if (importState.importTarget === 'marketplace') {
-        if (importState.dataType === 'characteristics') {
-            document.getElementById('mapping-characteristics')?.classList.remove('u-hidden');
-        } else {
-            document.getElementById('mapping-categories')?.classList.remove('u-hidden');
-        }
-    } else {
-        // Свій довідник
-        if (importState.dataType === 'characteristics') {
-            document.getElementById('mapping-own-characteristics')?.classList.remove('u-hidden');
-        } else {
-            document.getElementById('mapping-own-categories')?.classList.remove('u-hidden');
-        }
+    // При зміні типу імпорту перегенеровуємо маппінг якщо є дані
+    if (importState.fileHeaders.length > 0) {
+        importState.mapping = {}; // Скидаємо маппінг
+        populateColumnSelects(importState.fileHeaders);
+        autoDetectMapping(importState.fileHeaders);
     }
 }
 
@@ -928,13 +914,8 @@ function loadSavedMapping(marketplaceId) {
 }
 
 function applyMappingToSelects() {
-    Object.entries(importState.mapping).forEach(([field, columnIndex]) => {
-        const select = document.querySelector(`select[data-mapping-field="${field}"]`);
-        if (select) {
-            select.value = columnIndex;
-            reinitializeCustomSelect(select);
-        }
-    });
+    // Використовуємо нову функцію для динамічних селектів
+    applyDynamicMappingToSelects();
 }
 
 function initFileDropzone() {
@@ -1156,74 +1137,245 @@ function parseExcelRaw(file) {
 }
 
 /**
- * Заповнити селекти колонками з файлу
+ * Отримати доступні поля системи в залежності від типу імпорту
+ */
+function getSystemFields() {
+    const fields = {
+        // Дані маркетплейса - характеристики + опції
+        marketplace_characteristics: [
+            { key: 'char_id', label: 'ID характеристики', required: true },
+            { key: 'char_name', label: 'Назва характеристики', required: true },
+            { key: 'char_type', label: 'Тип параметра', required: false },
+            { key: 'char_filter_type', label: 'Тип фільтра', required: false },
+            { key: 'char_unit', label: 'Одиниця виміру', required: false },
+            { key: 'char_is_global', label: 'Наскрізний параметр', required: false },
+            { key: 'option_id', label: 'ID опції/значення', required: false },
+            { key: 'option_name', label: 'Назва опції/значення', required: false },
+            { key: 'category_id', label: 'ID категорії', required: false },
+            { key: 'category_name', label: 'Назва категорії', required: false }
+        ],
+        // Дані маркетплейса - категорії
+        marketplace_categories: [
+            { key: 'cat_id', label: 'ID категорії', required: true },
+            { key: 'cat_name', label: 'Назва категорії', required: true },
+            { key: 'parent_id', label: 'ID батьківської категорії', required: false },
+            { key: 'parent_name', label: 'Назва батьківської категорії', required: false }
+        ],
+        // Свій довідник - характеристики + опції
+        // Поля БД: id, name_ua, name_ru, type, unit, filter_type, is_global, category_ids, parent_option_id, created_at
+        // id та created_at генеруються автоматично
+        own_characteristics: [
+            { key: 'own_char_name_ua', label: 'name_ua (Назва UA)', required: true },
+            { key: 'own_char_name_ru', label: 'name_ru (Назва RU)', required: false },
+            { key: 'own_char_type', label: 'type (Тип параметра)', required: false },
+            { key: 'own_char_unit', label: 'unit (Одиниця виміру)', required: false },
+            { key: 'own_char_filter_type', label: 'filter_type (Тип фільтра)', required: false },
+            { key: 'own_char_is_global', label: 'is_global (Наскрізний)', required: false },
+            { key: 'own_char_category_ids', label: 'category_ids (ID категорій)', required: false },
+            { key: 'own_option_value_ua', label: 'Опція: value_ua', required: false },
+            { key: 'own_option_value_ru', label: 'Опція: value_ru', required: false },
+            { key: 'own_option_parent_id', label: 'Опція: parent_option_id', required: false }
+        ],
+        // Свій довідник - категорії
+        own_categories: [
+            { key: 'own_cat_id', label: 'ID категорії', required: false },
+            { key: 'own_cat_name_ua', label: 'Назва категорії (UA)', required: true },
+            { key: 'own_cat_name_ru', label: 'Назва категорії (RU)', required: false },
+            { key: 'own_cat_parent', label: 'Батьківська категорія', required: false }
+        ]
+    };
+
+    const key = `${importState.importTarget}_${importState.dataType}`;
+    return fields[key] || [];
+}
+
+/**
+ * Генерувати динамічний маппінг для колонок файлу
  */
 function populateColumnSelects(headers) {
-    const allSelects = document.querySelectorAll('select[data-mapping-field]');
+    const container = document.getElementById('dynamic-mapping-container');
+    if (!container) return;
 
-    allSelects.forEach(select => {
-        // Очистити старі опції (крім першої)
-        select.innerHTML = '<option value="">— Не імпортувати —</option>';
+    // Отримуємо доступні поля системи
+    const systemFields = getSystemFields();
 
-        // Додати нові опції
-        headers.forEach(header => {
-            const option = document.createElement('option');
-            option.value = header.index;
-            option.textContent = header.name;
-            select.appendChild(option);
+    // Очищаємо контейнер (залишаємо заголовок)
+    const headerRow = container.querySelector('.mapping-header');
+    container.innerHTML = '';
+    if (headerRow) container.appendChild(headerRow);
+
+    // Генеруємо рядок для кожної колонки з файлу
+    headers.forEach((header, idx) => {
+        // Отримуємо приклад даних (перші 3 значення)
+        const sampleValues = importState.parsedData
+            .slice(0, 3)
+            .map(row => row[header.index] || '')
+            .filter(v => v)
+            .join(', ');
+
+        const row = document.createElement('div');
+        row.className = 'mapping-row';
+        row.innerHTML = `
+            <div class="mapping-label">
+                <strong>${header.name}</strong>
+            </div>
+            <div class="mapping-select">
+                <select data-column-index="${header.index}" data-custom-select>
+                    <option value="">— Пропустити —</option>
+                    ${systemFields.map(f => `
+                        <option value="${f.key}"${f.required ? ' data-required="true"' : ''}>
+                            ${f.label}${f.required ? ' *' : ''}
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+            <div class="mapping-preview">${sampleValues || '—'}</div>
+        `;
+
+        container.appendChild(row);
+
+        // Ініціалізуємо кастомний селект
+        const select = row.querySelector('select');
+        if (select) {
+            reinitializeCustomSelect(select);
+            select.addEventListener('change', handleDynamicMappingChange);
+        }
+    });
+}
+
+/**
+ * Обробник зміни динамічного маппінгу
+ */
+function handleDynamicMappingChange(e) {
+    const columnIndex = parseInt(e.target.dataset.columnIndex, 10);
+    const systemField = e.target.value;
+
+    // Видаляємо старе призначення цього поля (якщо було)
+    Object.keys(importState.mapping).forEach(field => {
+        if (importState.mapping[field] === columnIndex) {
+            delete importState.mapping[field];
+        }
+    });
+
+    // Додаємо нове призначення
+    if (systemField) {
+        // Видаляємо це поле з іншої колонки (якщо було)
+        Object.keys(importState.mapping).forEach(field => {
+            if (field === systemField) {
+                // Скидаємо селект іншої колонки
+                const oldSelect = document.querySelector(`select[data-column-index="${importState.mapping[field]}"]`);
+                if (oldSelect && oldSelect !== e.target) {
+                    oldSelect.value = '';
+                    reinitializeCustomSelect(oldSelect);
+                }
+            }
         });
 
-        // Оновити кастомний селект
-        reinitializeCustomSelect(select);
+        importState.mapping[systemField] = columnIndex;
+    }
 
-        // Додати обробник зміни
-        select.addEventListener('change', handleMappingChange);
-    });
+    console.log('📋 Оновлений маппінг:', importState.mapping);
+    validateImport();
+    updatePreviewTable();
 }
 
 /**
  * Автоматичне визначення маппінгу
  */
 function autoDetectMapping(headers) {
-    // Ключові слова для автодетекту
+    // Ключові слова для автодетекту - розширений список
     const patterns = {
-        char_id: ['id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id'],
-        char_name: ['назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
-        option_id: ['id опції', 'опція id', 'option_id', 'value_id'],
-        option_name: ['назва опції', 'опція', 'option', 'value', 'значення'],
+        // Маркетплейс - характеристики
+        char_id: ['id параметра', 'id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id', 'ідентифікатор параметра'],
+        char_name: ['назва параметра', 'назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
+        char_type: ['тип параметра', 'тип характеристики', 'param_type', 'attribute_type'],
+        char_filter_type: ['тип фільтра', 'filter_type', 'фільтр'],
+        char_unit: ['одиниця', 'одиниця виміру', 'unit', 'од.'],
+        char_is_global: ['наскрізний', 'глобальний', 'is_global', 'global'],
+        option_id: ['id значення', 'id опції', 'опція id', 'option_id', 'value_id'],
+        option_name: ['назва значення', 'назва опції', 'опція', 'option', 'value', 'значення'],
         category_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
         category_name: ['назва категорії', 'категорія', 'category', 'cat_name'],
+
+        // Маркетплейс - категорії
         cat_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
-        cat_name: ['назва категорії', 'категорія', 'category', 'cat_name'],
-        parent_id: ['id батьківської', 'parent_id', 'parent'],
-        parent_name: ['батьківська', 'parent_name', 'parent category']
+        cat_name: ['назва категорії', 'категорія', 'category', 'cat_name', 'назва'],
+        parent_id: ['id батьківської', 'parent_id', 'parent', 'батьківська id'],
+        parent_name: ['батьківська категорія', 'parent_name', 'parent category', 'батьківська'],
+
+        // Свій довідник - характеристики (поля БД)
+        own_char_name_ua: ['name_ua', 'назва ua', 'назва укр', 'назва'],
+        own_char_name_ru: ['name_ru', 'назва ru', 'назва рус'],
+        own_char_type: ['type', 'тип параметра', 'тип'],
+        own_char_unit: ['unit', 'одиниця', 'од.'],
+        own_char_filter_type: ['filter_type', 'тип фільтра', 'filter'],
+        own_char_is_global: ['is_global', 'наскрізний', 'глобальний', 'global'],
+        own_char_category_ids: ['category_ids', 'id категорій', 'категорії'],
+        own_option_value_ua: ['value_ua', 'значення ua', 'значення', 'опція'],
+        own_option_value_ru: ['value_ru', 'значення ru'],
+        own_option_parent_id: ['parent_option_id', 'parent_id', 'батьківська опція'],
+
+        // Свій довідник - категорії
+        own_cat_id: ['id', 'ід'],
+        own_cat_name_ua: ['назва ua', 'назва укр', 'name_ua', 'назва'],
+        own_cat_name_ru: ['назва ru', 'назва рус', 'name_ru'],
+        own_cat_parent: ['батьківська', 'parent', 'parent_id']
     };
+
+    // Отримуємо доступні поля для поточного типу імпорту
+    const availableFields = getSystemFields().map(f => f.key);
 
     const detectedMapping = {};
 
-    Object.entries(patterns).forEach(([field, keywords]) => {
-        headers.forEach(header => {
-            const headerLower = header.name.toLowerCase();
-            if (keywords.some(kw => headerLower.includes(kw.toLowerCase()))) {
-                if (!detectedMapping[field]) {
+    // Для кожного заголовка шукаємо відповідне поле
+    headers.forEach(header => {
+        const headerLower = header.name.toLowerCase().trim();
+
+        // Шукаємо серед доступних полів
+        for (const field of availableFields) {
+            if (detectedMapping[field] !== undefined) continue; // вже призначено
+
+            const fieldPatterns = patterns[field] || [];
+
+            // Перевіряємо чи заголовок містить один з паттернів
+            for (const pattern of fieldPatterns) {
+                if (headerLower.includes(pattern.toLowerCase()) ||
+                    pattern.toLowerCase().includes(headerLower)) {
                     detectedMapping[field] = header.index;
+                    break;
                 }
             }
-        });
+
+            if (detectedMapping[field] !== undefined) break;
+        }
     });
 
     // Застосувати автодетект якщо немає збереженого маппінгу
     if (Object.keys(importState.mapping).length === 0) {
         importState.mapping = detectedMapping;
-        applyMappingToSelects();
+        applyDynamicMappingToSelects();
         console.log('🔍 Автовизначений маппінг:', detectedMapping);
     }
 
-    updateMappingPreview();
+    validateImport();
+    updatePreviewTable();
 }
 
 /**
- * Обробник зміни маппінгу
+ * Застосувати маппінг до динамічних селектів
+ */
+function applyDynamicMappingToSelects() {
+    Object.entries(importState.mapping).forEach(([systemField, columnIndex]) => {
+        const select = document.querySelector(`select[data-column-index="${columnIndex}"]`);
+        if (select) {
+            select.value = systemField;
+            reinitializeCustomSelect(select);
+        }
+    });
+}
+
+/**
+ * Обробник зміни маппінгу (старий - для сумісності)
  */
 function handleMappingChange(e) {
     const field = e.target.dataset.mappingField;
@@ -1235,37 +1387,7 @@ function handleMappingChange(e) {
         importState.mapping[field] = parseInt(columnIndex, 10);
     }
 
-    updateMappingPreview();
-}
-
-/**
- * Оновити превью маппінгу
- */
-function updateMappingPreview() {
-    if (importState.parsedData.length === 0) return;
-
-    // Оновити приклади даних
-    const firstRow = importState.parsedData[0];
-
-    Object.entries(importState.mapping).forEach(([field, columnIndex]) => {
-        const previewEl = document.querySelector(`[data-preview="${field}"]`);
-        if (previewEl && firstRow[columnIndex] !== undefined) {
-            previewEl.textContent = firstRow[columnIndex] || '—';
-        }
-    });
-
-    // Очистити превью для немаппінутих полів
-    document.querySelectorAll('[data-preview]').forEach(el => {
-        const field = el.dataset.preview;
-        if (importState.mapping[field] === undefined) {
-            el.textContent = '—';
-        }
-    });
-
-    // Перевірити чи можна імпортувати
     validateImport();
-
-    // Оновити таблицю превью
     updatePreviewTable();
 }
 
@@ -1277,35 +1399,67 @@ function validateImport() {
     if (!importBtn) return;
 
     let isValid = true;
-    let requiredFields = [];
 
-    if (importState.importTarget === 'marketplace') {
-        // Для маркетплейса
-        if (importState.dataType === 'characteristics') {
-            requiredFields = ['char_id', 'char_name'];
-        } else {
-            requiredFields = ['cat_id', 'cat_name'];
-        }
-        // Потрібен маркетплейс
-        if (!importState.marketplaceId) {
-            isValid = false;
-        }
-    } else {
-        // Для свого довідника
-        if (importState.dataType === 'characteristics') {
-            requiredFields = ['own_char_name_ua'];
-        } else {
-            requiredFields = ['own_cat_name_ua'];
-        }
+    // Отримуємо обов'язкові поля з системних полів
+    const systemFields = getSystemFields();
+    const requiredFields = systemFields.filter(f => f.required).map(f => f.key);
+
+    // Перевіряємо чи обрано маркетплейс (якщо імпортуємо для маркетплейса)
+    if (importState.importTarget === 'marketplace' && !importState.marketplaceId) {
+        isValid = false;
     }
 
+    // Перевіряємо обов'язкові поля
     requiredFields.forEach(field => {
         if (importState.mapping[field] === undefined) {
             isValid = false;
         }
     });
 
+    // Перевіряємо чи є дані
+    if (importState.parsedData.length === 0) {
+        isValid = false;
+    }
+
     importBtn.disabled = !isValid;
+
+    // Оновлюємо візуальну індикацію обов'язкових полів
+    updateRequiredFieldsIndicator(requiredFields);
+}
+
+/**
+ * Оновити індикатор заповнення обов'язкових полів
+ */
+function updateRequiredFieldsIndicator(requiredFields) {
+    const container = document.getElementById('dynamic-mapping-container');
+    if (!container) return;
+
+    // Скидаємо всі попередні підсвітки
+    container.querySelectorAll('.mapping-row').forEach(row => {
+        row.classList.remove('mapping-row-missing', 'mapping-row-filled');
+    });
+
+    // Підсвічуємо заповнені/незаповнені обов'язкові поля
+    requiredFields.forEach(field => {
+        const columnIndex = importState.mapping[field];
+        if (columnIndex !== undefined) {
+            const select = container.querySelector(`select[data-column-index="${columnIndex}"]`);
+            if (select) {
+                select.closest('.mapping-row')?.classList.add('mapping-row-filled');
+            }
+        }
+    });
+
+    // Показуємо які обов'язкові поля ще не призначені
+    const missingFields = requiredFields.filter(f => importState.mapping[f] === undefined);
+    if (missingFields.length > 0) {
+        const systemFields = getSystemFields();
+        const missingLabels = missingFields.map(f => {
+            const sf = systemFields.find(s => s.key === f);
+            return sf ? sf.label : f;
+        });
+        console.log('⚠️ Не призначені обов\'язкові поля:', missingLabels.join(', '));
+    }
 }
 
 /**
@@ -1318,14 +1472,19 @@ function updatePreviewTable() {
 
     if (!thead || !tbody) return;
 
-    // Отримати активні маппінги
-    const activeMapping = Object.entries(importState.mapping).filter(([field]) => {
-        if (importState.dataType === 'characteristics') {
-            return ['char_id', 'char_name', 'option_id', 'option_name', 'category_id', 'category_name'].includes(field);
-        } else {
-            return ['cat_id', 'cat_name', 'parent_id', 'parent_name'].includes(field);
-        }
-    });
+    // Отримуємо активні маппінги (тільки ті поля, які призначені)
+    const systemFields = getSystemFields();
+    const activeMapping = Object.entries(importState.mapping)
+        .filter(([field]) => systemFields.some(sf => sf.key === field))
+        .map(([field, colIndex]) => {
+            const sf = systemFields.find(s => s.key === field);
+            return {
+                field,
+                colIndex,
+                label: sf ? sf.label : field,
+                required: sf ? sf.required : false
+            };
+        });
 
     if (activeMapping.length === 0 || importState.parsedData.length === 0) {
         previewContainer?.classList.add('u-hidden');
@@ -1334,24 +1493,10 @@ function updatePreviewTable() {
 
     previewContainer?.classList.remove('u-hidden');
 
-    // Заголовки
-    const fieldNames = {
-        char_id: 'ID характ.',
-        char_name: 'Назва характ.',
-        option_id: 'ID опції',
-        option_name: 'Назва опції',
-        category_id: 'ID категорії',
-        category_name: 'Категорія',
-        cat_id: 'ID категорії',
-        cat_name: 'Назва',
-        parent_id: 'ID батьківської',
-        parent_name: 'Батьківська'
-    };
-
     thead.innerHTML = `
         <tr>
             <th>#</th>
-            ${activeMapping.map(([field]) => `<th>${fieldNames[field] || field}</th>`).join('')}
+            ${activeMapping.map(m => `<th>${m.label}</th>`).join('')}
             <th>Статус</th>
         </tr>
     `;
@@ -1372,16 +1517,20 @@ function updatePreviewTable() {
         return `
             <tr class="${statusClass}">
                 <td>${i + 1}</td>
-                ${activeMapping.map(([, colIndex]) => `<td>${row[colIndex] || ''}</td>`).join('')}
+                ${activeMapping.map(m => `<td>${row[m.colIndex] || ''}</td>`).join('')}
                 <td><span class="material-symbols-outlined">${statusIcon}</span></td>
             </tr>
         `;
     }).join('');
 
     // Оновити лічильники
-    document.getElementById('preview-new-count').textContent = newCount;
-    document.getElementById('preview-update-count').textContent = updateCount;
-    document.getElementById('preview-same-count').textContent = sameCount;
+    const newCountEl = document.getElementById('preview-new-count');
+    const updateCountEl = document.getElementById('preview-update-count');
+    const sameCountEl = document.getElementById('preview-same-count');
+
+    if (newCountEl) newCountEl.textContent = newCount;
+    if (updateCountEl) updateCountEl.textContent = updateCount;
+    if (sameCountEl) sameCountEl.textContent = sameCount;
 }
 
 /**
@@ -1463,70 +1612,94 @@ async function saveColumnMapping() {
 }
 
 /**
- * Імпорт характеристик та опцій
+ * Імпорт характеристик та опцій маркетплейса
  */
 async function importCharacteristicsAndOptions() {
     const { callSheetsAPI } = await import('../utils/api-client.js');
 
-    const charIdCol = importState.mapping.char_id;
-    const charNameCol = importState.mapping.char_name;
-    const optionIdCol = importState.mapping.option_id;
-    const optionNameCol = importState.mapping.option_name;
-    const categoryIdCol = importState.mapping.category_id;
-    const categoryNameCol = importState.mapping.category_name;
+    // Отримуємо індекси колонок з маппінгу
+    const m = importState.mapping;
+    const charIdCol = m.char_id;
+    const charNameCol = m.char_name;
+    const charTypeCol = m.char_type;
+    const charFilterTypeCol = m.char_filter_type;
+    const charUnitCol = m.char_unit;
+    const charIsGlobalCol = m.char_is_global;
+    const optionIdCol = m.option_id;
+    const optionNameCol = m.option_name;
+    const categoryIdCol = m.category_id;
+    const categoryNameCol = m.category_name;
 
-    const mpCharacteristics = [];
+    const mpCharacteristics = new Map(); // mp_char_id -> характеристика
     const mpOptions = [];
 
     importState.parsedData.forEach(row => {
-        const charId = row[charIdCol] || '';
-        const charName = row[charNameCol] || '';
+        const charId = charIdCol !== undefined ? String(row[charIdCol] || '').trim() : '';
+        const charName = charNameCol !== undefined ? String(row[charNameCol] || '').trim() : '';
 
         if (charId && charName) {
-            // Перевіряємо чи вже додано
-            if (!mpCharacteristics.find(c => c.mp_char_id === charId)) {
-                mpCharacteristics.push({
+            // Додаємо/оновлюємо характеристику
+            if (!mpCharacteristics.has(charId)) {
+                mpCharacteristics.set(charId, {
                     mp_char_id: charId,
                     mp_char_name: charName,
-                    mp_category_id: row[categoryIdCol] || '',
-                    mp_category_name: row[categoryNameCol] || ''
+                    mp_char_type: charTypeCol !== undefined ? String(row[charTypeCol] || '').trim() : '',
+                    mp_char_filter_type: charFilterTypeCol !== undefined ? String(row[charFilterTypeCol] || '').trim() : '',
+                    mp_char_unit: charUnitCol !== undefined ? String(row[charUnitCol] || '').trim() : '',
+                    mp_char_is_global: charIsGlobalCol !== undefined ? String(row[charIsGlobalCol] || '').trim() : '',
+                    mp_category_id: categoryIdCol !== undefined ? String(row[categoryIdCol] || '').trim() : '',
+                    mp_category_name: categoryNameCol !== undefined ? String(row[categoryNameCol] || '').trim() : ''
                 });
             }
         }
 
-        const optionId = optionIdCol !== undefined ? row[optionIdCol] : '';
-        const optionName = optionNameCol !== undefined ? row[optionNameCol] : '';
+        // Опції
+        const optionId = optionIdCol !== undefined ? String(row[optionIdCol] || '').trim() : '';
+        const optionName = optionNameCol !== undefined ? String(row[optionNameCol] || '').trim() : '';
 
         if (optionId && optionName && charId) {
-            mpOptions.push({
-                mp_char_id: charId,
-                mp_option_id: optionId,
-                mp_option_name: optionName
-            });
+            // Перевіряємо чи така опція вже є
+            const exists = mpOptions.some(o =>
+                o.mp_char_id === charId && o.mp_option_id === optionId
+            );
+            if (!exists) {
+                mpOptions.push({
+                    mp_char_id: charId,
+                    mp_option_id: optionId,
+                    mp_option_name: optionName
+                });
+            }
         }
     });
 
-    console.log(`📊 Характеристик: ${mpCharacteristics.length}, Опцій: ${mpOptions.length}`);
+    const characteristicsList = Array.from(mpCharacteristics.values());
+    console.log(`📊 Характеристик: ${characteristicsList.length}, Опцій: ${mpOptions.length}`);
 
     // Записуємо характеристики маркетплейса
-    if (mpCharacteristics.length > 0) {
-        const charRows = mpCharacteristics.map(c => [
+    // Структура таблиці: marketplace_id, mp_char_id, mp_char_name, mp_char_type, mp_filter_type, mp_unit, mp_is_global, mp_category_id, mp_category_name, our_char_id
+    if (characteristicsList.length > 0) {
+        const charRows = characteristicsList.map(c => [
             importState.marketplaceId,
             c.mp_char_id,
             c.mp_char_name,
+            c.mp_char_type,
+            c.mp_char_filter_type,
+            c.mp_char_unit,
+            c.mp_char_is_global,
             c.mp_category_id,
             c.mp_category_name,
             '' // our_char_id - для маппінгу
         ]);
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Characteristics!A:F',
+            range: 'Mapper_MP_Characteristics!A:J',
             values: charRows,
             spreadsheetType: 'main'
         });
     }
 
     // Записуємо опції маркетплейса
+    // Структура: marketplace_id, mp_char_id, mp_option_id, mp_option_name, our_option_id
     if (mpOptions.length > 0) {
         const optRows = mpOptions.map(o => [
             importState.marketplaceId,
@@ -1599,38 +1772,70 @@ async function importCategories() {
  * Імпорт своїх характеристик та опцій
  */
 async function importOwnCharacteristicsAndOptions() {
-    const nameUaCol = importState.mapping.own_char_name_ua;
-    const nameRuCol = importState.mapping.own_char_name_ru;
-    const optionUaCol = importState.mapping.own_option_value_ua;
-    const optionRuCol = importState.mapping.own_option_value_ru;
+    // Отримуємо індекси колонок з маппінгу
+    const m = importState.mapping;
+    const nameUaCol = m.own_char_name_ua;
+    const nameRuCol = m.own_char_name_ru;
+    const typeCol = m.own_char_type;
+    const filterTypeCol = m.own_char_filter_type;
+    const unitCol = m.own_char_unit;
+    const isGlobalCol = m.own_char_is_global;
+    const categoryIdsCol = m.own_char_category_ids;
+    const optionUaCol = m.own_option_value_ua;
+    const optionRuCol = m.own_option_value_ru;
+    const optionParentIdCol = m.own_option_parent_id;
 
     const characteristics = new Map(); // name_ua -> char object
-    const options = []; // {char_name_ua, value_ua, value_ru}
+    const options = []; // {char_name_ua, value_ua, value_ru, parent_option_id}
 
     importState.parsedData.forEach(row => {
-        const nameUa = row[nameUaCol]?.trim() || '';
-        const nameRu = nameRuCol !== undefined ? row[nameRuCol]?.trim() : '';
+        const nameUa = nameUaCol !== undefined ? String(row[nameUaCol] || '').trim() : '';
+        const nameRu = nameRuCol !== undefined ? String(row[nameRuCol] || '').trim() : '';
 
         if (nameUa) {
             // Додаємо характеристику якщо ще немає
             if (!characteristics.has(nameUa)) {
+                // Визначаємо тип: якщо є опції - select, інакше text
+                const hasOptions = optionUaCol !== undefined;
+                const charType = typeCol !== undefined ? String(row[typeCol] || '').trim() : (hasOptions ? 'select' : 'text');
+
+                // Визначаємо is_global
+                let isGlobal = false;
+                if (isGlobalCol !== undefined) {
+                    const globalValue = String(row[isGlobalCol] || '').toLowerCase().trim();
+                    isGlobal = ['true', '1', 'так', 'yes', '+', 'да'].includes(globalValue);
+                }
+
                 characteristics.set(nameUa, {
                     name_ua: nameUa,
-                    name_ru: nameRu || ''
+                    name_ru: nameRu,
+                    type: charType || 'text',
+                    filter_type: filterTypeCol !== undefined ? String(row[filterTypeCol] || '').trim() : 'none',
+                    unit: unitCol !== undefined ? String(row[unitCol] || '').trim() : '',
+                    is_global: isGlobal,
+                    category_ids: categoryIdsCol !== undefined ? String(row[categoryIdsCol] || '').trim() : ''
                 });
             }
 
             // Якщо є опція
             if (optionUaCol !== undefined) {
-                const optionUa = row[optionUaCol]?.trim() || '';
-                const optionRu = optionRuCol !== undefined ? row[optionRuCol]?.trim() : '';
+                const optionUa = String(row[optionUaCol] || '').trim();
+                const optionRu = optionRuCol !== undefined ? String(row[optionRuCol] || '').trim() : '';
+                const parentOptionId = optionParentIdCol !== undefined ? String(row[optionParentIdCol] || '').trim() : '';
 
                 if (optionUa) {
-                    options.push({
-                        char_name_ua: nameUa,
-                        value_ua: optionUa,
-                        value_ru: optionRu || ''
-                    });
+                    // Перевіряємо чи така опція вже є для цієї характеристики
+                    const exists = options.some(o =>
+                        o.char_name_ua === nameUa && o.value_ua === optionUa
+                    );
+                    if (!exists) {
+                        options.push({
+                            char_name_ua: nameUa,
+                            value_ua: optionUa,
+                            value_ru: optionRu,
+                            parent_option_id: parentOptionId
+                        });
+                    }
                 }
             }
         }
@@ -1646,10 +1851,11 @@ async function importOwnCharacteristicsAndOptions() {
             const newChar = await addCharacteristic({
                 name_ua: char.name_ua,
                 name_ru: char.name_ru,
-                type: 'select', // за замовчуванням select якщо є опції
-                unit: '',
-                filter_type: 'none',
-                is_global: false
+                type: char.type,
+                unit: char.unit,
+                filter_type: char.filter_type,
+                is_global: char.is_global,
+                category_ids: char.category_ids
             });
             charIdMap.set(nameUa, newChar.id);
         } catch (e) {
@@ -1666,6 +1872,7 @@ async function importOwnCharacteristicsAndOptions() {
                     characteristic_id: charId,
                     value_ua: opt.value_ua,
                     value_ru: opt.value_ru,
+                    parent_option_id: opt.parent_option_id,
                     sort_order: '0'
                 });
             } catch (e) {
