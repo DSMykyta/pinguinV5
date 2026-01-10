@@ -1162,17 +1162,19 @@ function getSystemFields() {
             { key: 'parent_name', label: 'Назва батьківської категорії', required: false }
         ],
         // Свій довідник - характеристики + опції
+        // Поля БД: id, name_ua, name_ru, type, unit, filter_type, is_global, category_ids, parent_option_id, created_at
+        // id та created_at генеруються автоматично
         own_characteristics: [
-            { key: 'own_char_id', label: 'ID характеристики', required: false },
-            { key: 'own_char_name_ua', label: 'Назва характеристики (UA)', required: true },
-            { key: 'own_char_name_ru', label: 'Назва характеристики (RU)', required: false },
-            { key: 'own_char_type', label: 'Тип параметра', required: false },
-            { key: 'own_char_filter_type', label: 'Тип фільтра', required: false },
-            { key: 'own_char_unit', label: 'Одиниця виміру', required: false },
-            { key: 'own_char_is_global', label: 'Наскрізний параметр', required: false },
-            { key: 'own_option_id', label: 'ID опції', required: false },
-            { key: 'own_option_value_ua', label: 'Значення опції (UA)', required: false },
-            { key: 'own_option_value_ru', label: 'Значення опції (RU)', required: false }
+            { key: 'own_char_name_ua', label: 'name_ua (Назва UA)', required: true },
+            { key: 'own_char_name_ru', label: 'name_ru (Назва RU)', required: false },
+            { key: 'own_char_type', label: 'type (Тип параметра)', required: false },
+            { key: 'own_char_unit', label: 'unit (Одиниця виміру)', required: false },
+            { key: 'own_char_filter_type', label: 'filter_type (Тип фільтра)', required: false },
+            { key: 'own_char_is_global', label: 'is_global (Наскрізний)', required: false },
+            { key: 'own_char_category_ids', label: 'category_ids (ID категорій)', required: false },
+            { key: 'own_option_value_ua', label: 'Опція: value_ua', required: false },
+            { key: 'own_option_value_ru', label: 'Опція: value_ru', required: false },
+            { key: 'own_option_parent_id', label: 'Опція: parent_option_id', required: false }
         ],
         // Свій довідник - категорії
         own_categories: [
@@ -1301,17 +1303,17 @@ function autoDetectMapping(headers) {
         parent_id: ['id батьківської', 'parent_id', 'parent', 'батьківська id'],
         parent_name: ['батьківська категорія', 'parent_name', 'parent category', 'батьківська'],
 
-        // Свій довідник - характеристики
-        own_char_id: ['id', 'ід'],
-        own_char_name_ua: ['назва ua', 'назва укр', 'name_ua', 'назва'],
-        own_char_name_ru: ['назва ru', 'назва рус', 'name_ru'],
-        own_char_type: ['тип параметра', 'тип', 'type'],
-        own_char_filter_type: ['тип фільтра', 'filter'],
-        own_char_unit: ['одиниця', 'unit', 'од.'],
-        own_char_is_global: ['наскрізний', 'глобальний', 'global'],
-        own_option_id: ['id опції', 'option_id'],
-        own_option_value_ua: ['значення ua', 'value_ua', 'значення'],
-        own_option_value_ru: ['значення ru', 'value_ru'],
+        // Свій довідник - характеристики (поля БД)
+        own_char_name_ua: ['name_ua', 'назва ua', 'назва укр', 'назва'],
+        own_char_name_ru: ['name_ru', 'назва ru', 'назва рус'],
+        own_char_type: ['type', 'тип параметра', 'тип'],
+        own_char_unit: ['unit', 'одиниця', 'од.'],
+        own_char_filter_type: ['filter_type', 'тип фільтра', 'filter'],
+        own_char_is_global: ['is_global', 'наскрізний', 'глобальний', 'global'],
+        own_char_category_ids: ['category_ids', 'id категорій', 'категорії'],
+        own_option_value_ua: ['value_ua', 'значення ua', 'значення', 'опція'],
+        own_option_value_ru: ['value_ru', 'значення ru'],
+        own_option_parent_id: ['parent_option_id', 'parent_id', 'батьківська опція'],
 
         // Свій довідник - категорії
         own_cat_id: ['id', 'ід'],
@@ -1772,19 +1774,19 @@ async function importCategories() {
 async function importOwnCharacteristicsAndOptions() {
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
-    const charIdCol = m.own_char_id;
     const nameUaCol = m.own_char_name_ua;
     const nameRuCol = m.own_char_name_ru;
     const typeCol = m.own_char_type;
     const filterTypeCol = m.own_char_filter_type;
     const unitCol = m.own_char_unit;
     const isGlobalCol = m.own_char_is_global;
-    const optionIdCol = m.own_option_id;
+    const categoryIdsCol = m.own_char_category_ids;
     const optionUaCol = m.own_option_value_ua;
     const optionRuCol = m.own_option_value_ru;
+    const optionParentIdCol = m.own_option_parent_id;
 
     const characteristics = new Map(); // name_ua -> char object
-    const options = []; // {char_name_ua, value_ua, value_ru}
+    const options = []; // {char_name_ua, value_ua, value_ru, parent_option_id}
 
     importState.parsedData.forEach(row => {
         const nameUa = nameUaCol !== undefined ? String(row[nameUaCol] || '').trim() : '';
@@ -1805,13 +1807,13 @@ async function importOwnCharacteristicsAndOptions() {
                 }
 
                 characteristics.set(nameUa, {
-                    id: charIdCol !== undefined ? String(row[charIdCol] || '').trim() : '',
                     name_ua: nameUa,
                     name_ru: nameRu,
                     type: charType || 'text',
                     filter_type: filterTypeCol !== undefined ? String(row[filterTypeCol] || '').trim() : 'none',
                     unit: unitCol !== undefined ? String(row[unitCol] || '').trim() : '',
-                    is_global: isGlobal
+                    is_global: isGlobal,
+                    category_ids: categoryIdsCol !== undefined ? String(row[categoryIdsCol] || '').trim() : ''
                 });
             }
 
@@ -1819,7 +1821,7 @@ async function importOwnCharacteristicsAndOptions() {
             if (optionUaCol !== undefined) {
                 const optionUa = String(row[optionUaCol] || '').trim();
                 const optionRu = optionRuCol !== undefined ? String(row[optionRuCol] || '').trim() : '';
-                const optionId = optionIdCol !== undefined ? String(row[optionIdCol] || '').trim() : '';
+                const parentOptionId = optionParentIdCol !== undefined ? String(row[optionParentIdCol] || '').trim() : '';
 
                 if (optionUa) {
                     // Перевіряємо чи така опція вже є для цієї характеристики
@@ -1828,10 +1830,10 @@ async function importOwnCharacteristicsAndOptions() {
                     );
                     if (!exists) {
                         options.push({
-                            id: optionId,
                             char_name_ua: nameUa,
                             value_ua: optionUa,
-                            value_ru: optionRu
+                            value_ru: optionRu,
+                            parent_option_id: parentOptionId
                         });
                     }
                 }
@@ -1852,7 +1854,8 @@ async function importOwnCharacteristicsAndOptions() {
                 type: char.type,
                 unit: char.unit,
                 filter_type: char.filter_type,
-                is_global: char.is_global
+                is_global: char.is_global,
+                category_ids: char.category_ids
             });
             charIdMap.set(nameUa, newChar.id);
         } catch (e) {
@@ -1869,6 +1872,7 @@ async function importOwnCharacteristicsAndOptions() {
                     characteristic_id: charId,
                     value_ua: opt.value_ua,
                     value_ru: opt.value_ru,
+                    parent_option_id: opt.parent_option_id,
                     sort_order: '0'
                 });
             } catch (e) {
