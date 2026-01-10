@@ -303,3 +303,19 @@
 .file-name:empty {
     display: none;
 }
+
+/* Header row input */
+.input-with-hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.input-with-hint .input-small {
+    width: 80px;
+}
+
+.input-hint {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+}

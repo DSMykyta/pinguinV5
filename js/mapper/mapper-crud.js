@@ -762,11 +762,13 @@ function clearMarketplaceForm() {
 // Стан імпорту
 let importState = {
     file: null,
-    parsedData: [],
+    rawData: [],        // Сирі дані з файлу (всі рядки)
+    parsedData: [],     // Дані після визначення заголовків
     fileHeaders: [],
     mapping: {},
     marketplaceId: null,
-    dataType: 'characteristics'
+    dataType: 'characteristics',
+    headerRow: 1        // Номер рядка із заголовками (1-based)
 };
 
 /**
@@ -778,11 +780,13 @@ export async function showImportModal() {
     // Скинути стан
     importState = {
         file: null,
+        rawData: [],
         parsedData: [],
         fileHeaders: [],
         mapping: {},
         marketplaceId: null,
-        dataType: 'characteristics'
+        dataType: 'characteristics',
+        headerRow: 1
     };
 
     await showModal('mapper-import', null);
@@ -810,6 +814,12 @@ export async function showImportModal() {
     const importBtn = document.getElementById('execute-mapper-import');
     if (importBtn) {
         importBtn.addEventListener('click', executeImport);
+    }
+
+    // Кнопка застосування рядка заголовків
+    const applyHeaderBtn = document.getElementById('apply-header-row');
+    if (applyHeaderBtn) {
+        applyHeaderBtn.addEventListener('click', applyHeaderRow);
     }
 }
 
@@ -938,23 +948,27 @@ async function handleFileSelect(file) {
     importState.file = file;
 
     try {
-        // Парсимо файл
-        const data = await parseFile(file);
-        importState.parsedData = data.rows;
-        importState.fileHeaders = data.headers;
+        // Парсимо файл і зберігаємо сирі дані
+        const rawData = await parseFileRaw(file);
+        importState.rawData = rawData;
 
-        console.log(`✅ Файл розпарсено: ${data.headers.length} колонок, ${data.rows.length} рядків`);
+        console.log(`✅ Файл прочитано: ${rawData.length} рядків`);
 
-        // Показуємо крок 2 (маппінг)
-        document.getElementById('import-step-2')?.classList.remove('u-hidden');
+        // Показуємо вибір рядка заголовків
+        document.getElementById('header-row-group')?.classList.remove('u-hidden');
 
-        // Заповнюємо селекти колонок
-        populateColumnSelects(data.headers);
+        // Скидаємо до рядка 1
+        const headerRowInput = document.getElementById('mapper-import-header-row');
+        if (headerRowInput) {
+            headerRowInput.value = 1;
+            headerRowInput.max = rawData.length;
+        }
+        importState.headerRow = 1;
 
-        // Спробуємо автоматично визначити маппінг
-        autoDetectMapping(data.headers);
+        // Застосовуємо рядок заголовків
+        applyHeaderRow();
 
-        showToast(`Файл розпарсено: ${data.rows.length} рядків`, 'success');
+        showToast(`Файл прочитано: ${rawData.length} рядків`, 'success');
 
     } catch (error) {
         console.error('❌ Помилка парсингу файлу:', error);
@@ -963,24 +977,65 @@ async function handleFileSelect(file) {
 }
 
 /**
- * Парсинг файлу (CSV, XLSX, XLS)
+ * Застосувати вибраний рядок заголовків
  */
-async function parseFile(file) {
+function applyHeaderRow() {
+    const headerRowInput = document.getElementById('mapper-import-header-row');
+    const headerRow = parseInt(headerRowInput?.value || '1', 10);
+
+    if (headerRow < 1 || headerRow > importState.rawData.length) {
+        showToast('Невірний номер рядка', 'error');
+        return;
+    }
+
+    importState.headerRow = headerRow;
+    importState.mapping = {}; // Скидаємо маппінг
+
+    // Заголовки - це рядок headerRow (1-based), дані - всі рядки після нього
+    const headerRowData = importState.rawData[headerRow - 1];
+    const headers = headerRowData.map((h, i) => ({
+        index: i,
+        name: String(h || `Колонка ${i + 1}`).trim()
+    }));
+
+    const rows = importState.rawData.slice(headerRow).map(row =>
+        headers.map((_, i) => String(row[i] || '').trim())
+    );
+
+    importState.fileHeaders = headers;
+    importState.parsedData = rows;
+
+    console.log(`📋 Заголовки з рядка ${headerRow}: ${headers.map(h => h.name).join(', ')}`);
+
+    // Показуємо крок 2 (маппінг)
+    document.getElementById('import-step-2')?.classList.remove('u-hidden');
+
+    // Заповнюємо селекти колонок
+    populateColumnSelects(headers);
+
+    // Спробуємо автоматично визначити маппінг
+    autoDetectMapping(headers);
+}
+
+/**
+ * Парсинг файлу (CSV, XLSX, XLS) - повертає сирі дані
+ */
+async function parseFileRaw(file) {
     const extension = file.name.split('.').pop().toLowerCase();
 
     if (extension === 'csv') {
-        return parseCSV(file);
+        return parseCSVRaw(file);
     } else if (extension === 'xlsx' || extension === 'xls') {
-        return parseExcel(file);
+        return parseExcelRaw(file);
     } else {
         throw new Error('Непідтримуваний формат файлу');
     }
 }
 
 /**
- * Парсинг CSV файлу
+ * Парсинг CSV файлу - повертає всі рядки як масив
  */
-function parseCSV(file) {
+function parseCSVRaw(file) {
     return new Promise((resolve, reject) => {
         if (typeof Papa === 'undefined') {
             reject(new Error('PapaParse library not loaded'));
@@ -989,23 +1044,19 @@ function parseCSV(file) {
 
         Papa.parse(file, {
             header: false,
-            skipEmptyLines: true,
+            skipEmptyLines: false, // Не пропускаємо порожні рядки для правильної нумерації
             complete: (results) => {
                 if (results.data.length === 0) {
                     reject(new Error('Файл порожній'));
                     return;
                 }
 
-                const headers = results.data[0].map((h, i) => ({
-                    index: i,
-                    name: String(h || `Колонка ${i + 1}`).trim()
-                }));
-
-                const rows = results.data.slice(1).map(row =>
-                    row.map(cell => String(cell || '').trim())
+                // Повертаємо сирі дані як масив масивів
+                const rows = results.data.map(row =>
+                    row.map(cell => cell || '')
                 );
 
-                resolve({ headers, rows });
+                resolve(rows);
             },
             error: (error) => {
                 reject(error);
@@ -1015,9 +1066,9 @@ function parseCSV(file) {
 }
 
 /**
- * Парсинг Excel файлу
+ * Парсинг Excel файлу - повертає всі рядки як масив
  */
-function parseExcel(file) {
+function parseExcelRaw(file) {
     return new Promise((resolve, reject) => {
         if (typeof XLSX === 'undefined') {
             reject(new Error('XLSX library not loaded'));
@@ -1033,23 +1084,24 @@ function parseExcel(file) {
 
                 // Беремо перший лист
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
 
                 if (jsonData.length === 0) {
                     reject(new Error('Файл порожній'));
                     return;
                 }
 
-                const headers = jsonData[0].map((h, i) => ({
-                    index: i,
-                    name: String(h || `Колонка ${i + 1}`).trim()
-                }));
+                // Нормалізуємо кількість колонок (робимо однаковою для всіх рядків)
+                const maxCols = Math.max(...jsonData.map(row => row.length));
+                const rows = jsonData.map(row => {
+                    const normalized = [];
+                    for (let i = 0; i < maxCols; i++) {
+                        normalized.push(row[i] !== undefined ? row[i] : '');
+                    }
+                    return normalized;
+                });
 
-                const rows = jsonData.slice(1).map(row =>
-                    headers.map((_, i) => String(row[i] || '').trim())
-                );
-
-                resolve({ headers, rows });
+                resolve(rows);
 
             } catch (error) {
                 reject(error);
