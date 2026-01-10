@@ -319,3 +319,29 @@
     font-size: 13px;
     color: var(--on-surface-variant);
 }
+
+/* Vertical radio group */
+.radio-group-vertical {
+    flex-direction: column;
+    gap: 12px;
+}
+
+.radio-group-vertical .radio-label {
+    align-items: flex-start;
+}
+
+.radio-group-vertical .radio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.radio-group-vertical .radio-content strong {
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.radio-group-vertical .radio-content small {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+}
