@@ -53,6 +53,26 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Призначення імпорту</label>
+                    <div class="radio-group radio-group-vertical">
+                        <label class="radio-label">
+                            <input type="radio" name="mapper-import-target" value="marketplace" checked>
+                            <span class="radio-content">
+                                <strong>Дані маркетплейсу</strong>
+                                <small>Імпорт для подальшого маппінгу на свої дані</small>
+                            </span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="mapper-import-target" value="own">
+                            <span class="radio-content">
+                                <strong>Свій довідник</strong>
+                                <small>Створити власні категорії/характеристики/опції</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Файл для імпорту</label>
                     <div id="mapper-import-dropzone" class="drop-zone">
                         <div class="drop-zone-content">
@@ -163,7 +183,7 @@
                     </div>
                 </div>
 
-                <!-- Маппінг для категорій -->
+                <!-- Маппінг для категорій МП -->
                 <div id="mapping-categories" class="mapping-grid u-hidden">
                     <div class="mapping-row mapping-header">
                         <div class="mapping-label">Поле системи</div>
@@ -215,6 +235,104 @@
                             </select>
                         </div>
                         <div class="mapping-preview" data-preview="parent_name">—</div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- МАППІНГ ДЛЯ СВОГО ДОВІДНИКА -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+
+                <!-- Маппінг для своїх характеристик -->
+                <div id="mapping-own-characteristics" class="mapping-grid u-hidden">
+                    <div class="mapping-row mapping-header">
+                        <div class="mapping-label">Поле системи</div>
+                        <div class="mapping-select">Колонка з файлу</div>
+                        <div class="mapping-preview">Приклад даних</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_char_name_ua">
+                        <div class="mapping-label">
+                            Назва (укр)
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_char_name_ua">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_char_name_ua">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_char_name_ru">
+                        <div class="mapping-label">Назва (рос)</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_char_name_ru">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_char_name_ru">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_option_value_ua">
+                        <div class="mapping-label">Значення опції (укр)</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_option_value_ua">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_option_value_ua">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_option_value_ru">
+                        <div class="mapping-label">Значення опції (рос)</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_option_value_ru">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_option_value_ru">—</div>
+                    </div>
+                </div>
+
+                <!-- Маппінг для своїх категорій -->
+                <div id="mapping-own-categories" class="mapping-grid u-hidden">
+                    <div class="mapping-row mapping-header">
+                        <div class="mapping-label">Поле системи</div>
+                        <div class="mapping-select">Колонка з файлу</div>
+                        <div class="mapping-preview">Приклад даних</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_cat_name_ua">
+                        <div class="mapping-label">
+                            Назва (укр)
+                            <span class="required">*</span>
+                        </div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_cat_name_ua">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_cat_name_ua">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_cat_name_ru">
+                        <div class="mapping-label">Назва (рос)</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_cat_name_ru">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_cat_name_ru">—</div>
+                    </div>
+
+                    <div class="mapping-row" data-field="own_cat_parent">
+                        <div class="mapping-label">Батьківська категорія</div>
+                        <div class="mapping-select">
+                            <select data-custom-select data-mapping-field="own_cat_parent">
+                                <option value="">— Не імпортувати —</option>
+                            </select>
+                        </div>
+                        <div class="mapping-preview" data-preview="own_cat_parent">—</div>
                     </div>
                 </div>
 

@@ -768,6 +768,7 @@ let importState = {
     mapping: {},
     marketplaceId: null,
     dataType: 'characteristics',
+    importTarget: 'marketplace',  // 'marketplace' або 'own'
     headerRow: 1        // Номер рядка із заголовками (1-based)
 };
 
@@ -786,6 +787,7 @@ export async function showImportModal() {
         mapping: {},
         marketplaceId: null,
         dataType: 'characteristics',
+        importTarget: 'marketplace',
         headerRow: 1
     };
 
@@ -805,6 +807,11 @@ export async function showImportModal() {
     // Слухаємо зміну типу даних
     document.querySelectorAll('input[name="mapper-import-type"]').forEach(radio => {
         radio.addEventListener('change', handleDataTypeChange);
+    });
+
+    // Слухаємо зміну призначення імпорту
+    document.querySelectorAll('input[name="mapper-import-target"]').forEach(radio => {
+        radio.addEventListener('change', handleTargetChange);
     });
 
     // Ініціалізувати drag & drop для файлу
@@ -854,20 +861,52 @@ function handleMarketplaceChange(e) {
 
 function handleDataTypeChange(e) {
     importState.dataType = e.target.value;
+    updateMappingSections();
+    updateMappingPreview();
+}
 
-    // Показати відповідну секцію маппінгу
-    const charMapping = document.getElementById('mapping-characteristics');
-    const catMapping = document.getElementById('mapping-categories');
+function handleTargetChange(e) {
+    importState.importTarget = e.target.value;
+    importState.mapping = {}; // Скидаємо маппінг при зміні призначення
+    updateMappingSections();
 
-    if (importState.dataType === 'characteristics') {
-        charMapping?.classList.remove('u-hidden');
-        catMapping?.classList.add('u-hidden');
+    // Якщо обрано свій довідник - вимкнути вибір маркетплейса
+    const mpSelect = document.getElementById('mapper-import-marketplace');
+    const mpGroup = mpSelect?.closest('.form-group');
+
+    if (importState.importTarget === 'own') {
+        mpGroup?.classList.add('u-hidden');
+        importState.marketplaceId = 'own'; // Псевдо ID для валідації
     } else {
-        charMapping?.classList.add('u-hidden');
-        catMapping?.classList.remove('u-hidden');
+        mpGroup?.classList.remove('u-hidden');
+        importState.marketplaceId = mpSelect?.value || null;
     }
 
     updateMappingPreview();
+}
+
+function updateMappingSections() {
+    // Сховати всі секції маппінгу
+    document.getElementById('mapping-characteristics')?.classList.add('u-hidden');
+    document.getElementById('mapping-categories')?.classList.add('u-hidden');
+    document.getElementById('mapping-own-characteristics')?.classList.add('u-hidden');
+    document.getElementById('mapping-own-categories')?.classList.add('u-hidden');
+
+    // Показати потрібну секцію
+    if (importState.importTarget === 'marketplace') {
+        if (importState.dataType === 'characteristics') {
+            document.getElementById('mapping-characteristics')?.classList.remove('u-hidden');
+        } else {
+            document.getElementById('mapping-categories')?.classList.remove('u-hidden');
+        }
+    } else {
+        // Свій довідник
+        if (importState.dataType === 'characteristics') {
+            document.getElementById('mapping-own-characteristics')?.classList.remove('u-hidden');
+        } else {
+            document.getElementById('mapping-own-categories')?.classList.remove('u-hidden');
+        }
+    }
 }
 
 function loadSavedMapping(marketplaceId) {
@@ -1240,10 +1279,24 @@ function validateImport() {
     let isValid = true;
     let requiredFields = [];
 
-    if (importState.dataType === 'characteristics') {
-        requiredFields = ['char_id', 'char_name'];
+    if (importState.importTarget === 'marketplace') {
+        // Для маркетплейса
+        if (importState.dataType === 'characteristics') {
+            requiredFields = ['char_id', 'char_name'];
+        } else {
+            requiredFields = ['cat_id', 'cat_name'];
+        }
+        // Потрібен маркетплейс
+        if (!importState.marketplaceId) {
+            isValid = false;
+        }
     } else {
-        requiredFields = ['cat_id', 'cat_name'];
+        // Для свого довідника
+        if (importState.dataType === 'characteristics') {
+            requiredFields = ['own_char_name_ua'];
+        } else {
+            requiredFields = ['own_cat_name_ua'];
+        }
     }
 
     requiredFields.forEach(field => {
@@ -1251,11 +1304,6 @@ function validateImport() {
             isValid = false;
         }
     });
-
-    // Також перевіряємо чи обрано маркетплейс
-    if (!importState.marketplaceId) {
-        isValid = false;
-    }
 
     importBtn.disabled = !isValid;
 }
@@ -1349,17 +1397,29 @@ async function executeImport() {
     }
 
     try {
-        // Зберегти маппінг якщо обрано
-        const saveMapping = document.getElementById('mapper-import-save-mapping')?.checked;
-        if (saveMapping && importState.marketplaceId) {
-            await saveColumnMapping();
+        // Зберегти маппінг якщо обрано (тільки для маркетплейса)
+        if (importState.importTarget === 'marketplace') {
+            const saveMapping = document.getElementById('mapper-import-save-mapping')?.checked;
+            if (saveMapping && importState.marketplaceId) {
+                await saveColumnMapping();
+            }
         }
 
         // Виконати імпорт даних
-        if (importState.dataType === 'characteristics') {
-            await importCharacteristicsAndOptions();
+        if (importState.importTarget === 'marketplace') {
+            // Імпорт для маркетплейса
+            if (importState.dataType === 'characteristics') {
+                await importCharacteristicsAndOptions();
+            } else {
+                await importCategories();
+            }
         } else {
-            await importCategories();
+            // Імпорт для свого довідника
+            if (importState.dataType === 'characteristics') {
+                await importOwnCharacteristicsAndOptions();
+            } else {
+                await importOwnCategories();
+            }
         }
 
         showToast('Імпорт завершено успішно!', 'success');
@@ -1528,5 +1588,153 @@ async function importCategories() {
             values: catRows,
             spreadsheetType: 'main'
         });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ІМПОРТ ДЛЯ СВОГО ДОВІДНИКА
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Імпорт своїх характеристик та опцій
+ */
+async function importOwnCharacteristicsAndOptions() {
+    const nameUaCol = importState.mapping.own_char_name_ua;
+    const nameRuCol = importState.mapping.own_char_name_ru;
+    const optionUaCol = importState.mapping.own_option_value_ua;
+    const optionRuCol = importState.mapping.own_option_value_ru;
+
+    const characteristics = new Map(); // name_ua -> char object
+    const options = []; // {char_name_ua, value_ua, value_ru}
+
+    importState.parsedData.forEach(row => {
+        const nameUa = row[nameUaCol]?.trim() || '';
+        const nameRu = nameRuCol !== undefined ? row[nameRuCol]?.trim() : '';
+
+        if (nameUa) {
+            // Додаємо характеристику якщо ще немає
+            if (!characteristics.has(nameUa)) {
+                characteristics.set(nameUa, {
+                    name_ua: nameUa,
+                    name_ru: nameRu || ''
+                });
+            }
+
+            // Якщо є опція
+            if (optionUaCol !== undefined) {
+                const optionUa = row[optionUaCol]?.trim() || '';
+                const optionRu = optionRuCol !== undefined ? row[optionRuCol]?.trim() : '';
+
+                if (optionUa) {
+                    options.push({
+                        char_name_ua: nameUa,
+                        value_ua: optionUa,
+                        value_ru: optionRu || ''
+                    });
+                }
+            }
+        }
+    });
+
+    console.log(`📊 Характеристик: ${characteristics.size}, Опцій: ${options.length}`);
+
+    // Додаємо характеристики через існуючу функцію
+    const charIdMap = new Map(); // name_ua -> id
+
+    for (const [nameUa, char] of characteristics) {
+        try {
+            const newChar = await addCharacteristic({
+                name_ua: char.name_ua,
+                name_ru: char.name_ru,
+                type: 'select', // за замовчуванням select якщо є опції
+                unit: '',
+                filter_type: 'none',
+                is_global: false
+            });
+            charIdMap.set(nameUa, newChar.id);
+        } catch (e) {
+            console.warn(`⚠️ Не вдалося додати характеристику "${nameUa}":`, e);
+        }
+    }
+
+    // Додаємо опції
+    for (const opt of options) {
+        const charId = charIdMap.get(opt.char_name_ua);
+        if (charId) {
+            try {
+                await addOption({
+                    characteristic_id: charId,
+                    value_ua: opt.value_ua,
+                    value_ru: opt.value_ru,
+                    sort_order: '0'
+                });
+            } catch (e) {
+                console.warn(`⚠️ Не вдалося додати опцію "${opt.value_ua}":`, e);
+            }
+        }
+    }
+}
+
+/**
+ * Імпорт своїх категорій
+ */
+async function importOwnCategories() {
+    const nameUaCol = importState.mapping.own_cat_name_ua;
+    const nameRuCol = importState.mapping.own_cat_name_ru;
+    const parentCol = importState.mapping.own_cat_parent;
+
+    // Спочатку збираємо всі унікальні категорії
+    const categories = new Map(); // name_ua -> {name_ua, name_ru, parent_name}
+
+    importState.parsedData.forEach(row => {
+        const nameUa = row[nameUaCol]?.trim() || '';
+        const nameRu = nameRuCol !== undefined ? row[nameRuCol]?.trim() : '';
+        const parentName = parentCol !== undefined ? row[parentCol]?.trim() : '';
+
+        if (nameUa && !categories.has(nameUa)) {
+            categories.set(nameUa, {
+                name_ua: nameUa,
+                name_ru: nameRu || '',
+                parent_name: parentName || ''
+            });
+        }
+    });
+
+    console.log(`📊 Категорій: ${categories.size}`);
+
+    // Створюємо категорії в правильному порядку (спочатку без батьківських)
+    const catIdMap = new Map(); // name_ua -> id
+
+    // Перший прохід: категорії без батьківських
+    for (const [nameUa, cat] of categories) {
+        if (!cat.parent_name) {
+            try {
+                const newCat = await addCategory({
+                    name_ua: cat.name_ua,
+                    name_ru: cat.name_ru,
+                    parent_id: ''
+                });
+                catIdMap.set(nameUa, newCat.id);
+            } catch (e) {
+                console.warn(`⚠️ Не вдалося додати категорію "${nameUa}":`, e);
+            }
+        }
+    }
+
+    // Другий прохід: категорії з батьківськими
+    for (const [nameUa, cat] of categories) {
+        if (cat.parent_name && !catIdMap.has(nameUa)) {
+            const parentId = catIdMap.get(cat.parent_name) || '';
+            try {
+                const newCat = await addCategory({
+                    name_ua: cat.name_ua,
+                    name_ru: cat.name_ru,
+                    parent_id: parentId
+                });
+                catIdMap.set(nameUa, newCat.id);
+            } catch (e) {
+                console.warn(`⚠️ Не вдалося додати категорію "${nameUa}":`, e);
+            }
+        }
     }
 }
