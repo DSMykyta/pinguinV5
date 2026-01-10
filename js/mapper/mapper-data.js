@@ -75,14 +75,15 @@ export async function loadMarketplaces() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних маркетплейсів');
             mapperState.marketplaces = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.marketplaces = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -113,14 +114,15 @@ export async function loadCategories() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних категорій');
             mapperState.categories = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.categories = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -151,14 +153,15 @@ export async function loadCharacteristics() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних характеристик');
             mapperState.characteristics = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.characteristics = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -189,14 +192,15 @@ export async function loadOptions() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних опцій');
             mapperState.options = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.options = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -225,13 +229,14 @@ export async function loadMapCategories() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             mapperState.mapCategories = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.mapCategories = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -259,13 +264,14 @@ export async function loadMapCharacteristics() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             mapperState.mapCharacteristics = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.mapCharacteristics = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -293,13 +299,14 @@ export async function loadMapOptions() {
             spreadsheetType: 'main'
         });
 
-        if (!result || !result.values || result.values.length <= 1) {
+        // Backend повертає масив напряму
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             mapperState.mapOptions = [];
             return [];
         }
 
-        const headers = result.values[0];
-        const rows = result.values.slice(1);
+        const headers = result[0];
+        const rows = result.slice(1);
 
         mapperState.mapOptions = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };

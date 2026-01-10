@@ -141,7 +141,7 @@ function initImportButton() {
 }
 
 /**
- * Ініціалізувати фільтр-пілюлі
+ * Ініціалізувати фільтр-кнопки
  */
 function initFilterPills() {
     const containers = [
@@ -153,18 +153,18 @@ function initFilterPills() {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        const pills = container.querySelectorAll('.filter-pill');
-        pills.forEach(pill => {
-            pill.addEventListener('click', () => {
+        const buttons = container.querySelectorAll('.nav-icon[data-filter]');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
                 // Прибрати active з усіх
-                pills.forEach(p => p.classList.remove('active'));
+                buttons.forEach(b => b.classList.remove('active'));
 
                 // Додати active до поточного
-                pill.classList.add('active');
+                btn.classList.add('active');
 
                 // Отримати значення фільтра
-                const filter = pill.dataset.filter;
-                const tabId = pill.dataset.tabId;
+                const filter = btn.dataset.filter;
+                const tabId = btn.dataset.tabId;
                 const tabName = tabId.replace('tab-mapper-', '');
 
                 // Оновити стан
