@@ -806,11 +806,17 @@ function clearMarketplaceForm() {
     if (nameField) nameField.value = '';
     if (slugField) slugField.value = '';
     if (activeField) {
-        activeField.checked = true;
-        // Додатково встановлюємо атрибут для надійності
-        activeField.setAttribute('checked', 'checked');
+        // Примусово скидаємо спочатку, щоб браузер відстежив зміну
+        activeField.checked = false;
+        activeField.removeAttribute('checked');
+        // Встановлюємо через мікрозатримку для гарантованого оновлення DOM
+        setTimeout(() => {
+            activeField.checked = true;
+            activeField.setAttribute('checked', 'checked');
+            console.log('clearMarketplaceForm (final): activeField.checked =', activeField.checked);
+        }, 10);
     }
-    console.log('clearMarketplaceForm: activeField.checked =', activeField?.checked);
+    console.log('clearMarketplaceForm: initial setup done');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
