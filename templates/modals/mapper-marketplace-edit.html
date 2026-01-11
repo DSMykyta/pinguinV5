@@ -49,10 +49,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="mapper-mp-active" checked>
-                        <span>Активний маркетплейс</span>
-                    </label>
+                    <label>Статус</label>
+                    <div class="switch-container" id="mapper-mp-active-switch">
+                        <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
+                        <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
+                        <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
+                        <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
+                    </div>
                     <small class="form-hint">Неактивні маркетплейси не відображаються в списках вибору</small>
                 </div>
 

@@ -74,10 +74,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="mapper-char-global">
-                            <span>Глобальна (для всіх категорій)</span>
-                        </label>
+                        <label>Глобальна</label>
+                        <div class="switch-container" id="mapper-char-global-switch">
+                            <input type="radio" id="mapper-char-global-no" name="mapper-char-global" value="false" checked>
+                            <label for="mapper-char-global-no" class="switch-label">Ні</label>
+                            <input type="radio" id="mapper-char-global-yes" name="mapper-char-global" value="true">
+                            <label for="mapper-char-global-yes" class="switch-label">Так</label>
+                        </div>
+                        <p class="form-hint">Глобальна характеристика доступна для всіх категорій</p>
                     </div>
                 </div>
 
