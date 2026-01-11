@@ -513,6 +513,8 @@ export async function deleteCategory(id) {
 
 /**
  * Додати нову характеристику
+ * @param {Object} data - Дані характеристики
+ * @param {string} [data.id_directory] - ID з зовнішнього довідника (для уникнення дублів)
  */
 export async function addCharacteristic(data) {
     console.log('➕ Додавання характеристики:', data);
@@ -521,8 +523,10 @@ export async function addCharacteristic(data) {
         const newId = generateId('char', mapperState.characteristics);
         const timestamp = new Date().toISOString();
 
+        // Структура: id | id_directory | name_ua | name_ru | type | unit | filter_type | is_global | category_ids | parent_option_id | created_at
         const newRow = [
             newId,
+            data.id_directory || '',  // ID з зовнішнього довідника
             data.name_ua || '',
             data.name_ru || '',
             data.type || 'TextInput',
@@ -535,7 +539,7 @@ export async function addCharacteristic(data) {
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CHARACTERISTICS}!A:J`,
+            range: `${SHEETS.CHARACTERISTICS}!A:K`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -543,6 +547,7 @@ export async function addCharacteristic(data) {
         const newCharacteristic = {
             _rowIndex: mapperState.characteristics.length + 2,
             id: newId,
+            id_directory: data.id_directory || '',
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
             type: data.type || 'TextInput',
@@ -576,10 +581,12 @@ export async function updateCharacteristic(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:J${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
+        // Структура: id | id_directory | name_ua | name_ru | type | unit | filter_type | is_global | category_ids | parent_option_id | created_at
         const updatedRow = [
             characteristic.id,
+            updates.id_directory !== undefined ? updates.id_directory : (characteristic.id_directory || ''),
             updates.name_ua !== undefined ? updates.name_ua : characteristic.name_ua,
             updates.name_ru !== undefined ? updates.name_ru : characteristic.name_ru,
             updates.type !== undefined ? updates.type : characteristic.type,
@@ -619,11 +626,11 @@ export async function deleteCharacteristic(id) {
         }
 
         const characteristic = mapperState.characteristics[index];
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:J${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
@@ -637,6 +644,8 @@ export async function deleteCharacteristic(id) {
 
 /**
  * Додати нову опцію
+ * @param {Object} data - Дані опції
+ * @param {string} [data.id_directory] - ID з зовнішнього довідника (для уникнення дублів)
  */
 export async function addOption(data) {
     console.log('➕ Додавання опції:', data);
@@ -645,8 +654,10 @@ export async function addOption(data) {
         const newId = generateId('opt', mapperState.options);
         const timestamp = new Date().toISOString();
 
+        // Структура: id | id_directory | characteristic_id | value_ua | value_ru | sort_order | created_at
         const newRow = [
             newId,
+            data.id_directory || '',  // ID з зовнішнього довідника
             data.characteristic_id || '',
             data.value_ua || '',
             data.value_ru || '',
@@ -655,7 +666,7 @@ export async function addOption(data) {
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.OPTIONS}!A:F`,
+            range: `${SHEETS.OPTIONS}!A:G`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -663,6 +674,7 @@ export async function addOption(data) {
         const newOption = {
             _rowIndex: mapperState.options.length + 2,
             id: newId,
+            id_directory: data.id_directory || '',
             characteristic_id: data.characteristic_id || '',
             value_ua: data.value_ua || '',
             value_ru: data.value_ru || '',
@@ -691,10 +703,12 @@ export async function updateOption(id, updates) {
             throw new Error(`Опцію ${id} не знайдено`);
         }
 
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:F${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
 
+        // Структура: id | id_directory | characteristic_id | value_ua | value_ru | sort_order | created_at
         const updatedRow = [
             option.id,
+            updates.id_directory !== undefined ? updates.id_directory : (option.id_directory || ''),
             updates.characteristic_id !== undefined ? updates.characteristic_id : option.characteristic_id,
             updates.value_ua !== undefined ? updates.value_ua : option.value_ua,
             updates.value_ru !== undefined ? updates.value_ru : option.value_ru,
@@ -730,11 +744,11 @@ export async function deleteOption(id) {
         }
 
         const option = mapperState.options[index];
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:F${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
