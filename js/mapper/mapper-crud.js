@@ -382,13 +382,17 @@ function getCharacteristicFormData() {
         ? Array.from(categoriesSelect.selectedOptions).map(opt => opt.value)
         : [];
 
+    // Отримуємо значення глобальності з radio buttons
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const isGlobal = globalYes?.checked ?? false;
+
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
         type: document.getElementById('mapper-char-type')?.value || 'text',
         unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
         filter_type: document.getElementById('mapper-char-filter')?.value || 'none',
-        is_global: document.getElementById('mapper-char-global')?.checked || false,
+        is_global: isGlobal,
         category_ids: selectedCategories.join(',')
     };
 }
@@ -399,14 +403,26 @@ function fillCharacteristicForm(characteristic) {
     const typeField = document.getElementById('mapper-char-type');
     const unitField = document.getElementById('mapper-char-unit');
     const filterField = document.getElementById('mapper-char-filter');
-    const globalField = document.getElementById('mapper-char-global');
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
 
     if (nameUaField) nameUaField.value = characteristic.name_ua || '';
     if (nameRuField) nameRuField.value = characteristic.name_ru || '';
-    if (typeField) typeField.value = characteristic.type || 'text';
     if (unitField) unitField.value = characteristic.unit || '';
-    if (filterField) filterField.value = characteristic.filter_type || 'none';
-    if (globalField) globalField.checked = characteristic.is_global === 'true' || characteristic.is_global === true;
+
+    // Встановлюємо значення та оновлюємо кастомні селекти
+    if (typeField) {
+        typeField.value = characteristic.type || 'text';
+        reinitializeCustomSelect(typeField);
+    }
+    if (filterField) {
+        filterField.value = characteristic.filter_type || 'none';
+        reinitializeCustomSelect(filterField);
+    }
+
+    const isGlobal = characteristic.is_global === 'true' || characteristic.is_global === true;
+    if (globalYes) globalYes.checked = isGlobal;
+    if (globalNo) globalNo.checked = !isGlobal;
 }
 
 function clearCharacteristicForm() {
@@ -415,19 +431,31 @@ function clearCharacteristicForm() {
     const typeField = document.getElementById('mapper-char-type');
     const unitField = document.getElementById('mapper-char-unit');
     const filterField = document.getElementById('mapper-char-filter');
-    const globalField = document.getElementById('mapper-char-global');
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
     const categoriesSelect = document.getElementById('mapper-char-categories');
 
     if (nameUaField) nameUaField.value = '';
     if (nameRuField) nameRuField.value = '';
-    if (typeField) typeField.value = 'text';
     if (unitField) unitField.value = '';
-    if (filterField) filterField.value = 'none';
-    if (globalField) globalField.checked = false;
+    // За замовчуванням - не глобальна
+    if (globalYes) globalYes.checked = false;
+    if (globalNo) globalNo.checked = true;
+
+    // Встановлюємо значення та оновлюємо кастомні селекти
+    if (typeField) {
+        typeField.value = 'text';
+        reinitializeCustomSelect(typeField);
+    }
+    if (filterField) {
+        filterField.value = 'none';
+        reinitializeCustomSelect(filterField);
+    }
 
     // Скидаємо вибір категорій
     if (categoriesSelect) {
         Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
+        reinitializeCustomSelect(categoriesSelect);
     }
 }
 
@@ -777,9 +805,10 @@ async function handleUpdateMarketplace(id) {
 }
 
 function getMarketplaceFormData() {
-    const activeCheckbox = document.getElementById('mapper-mp-active');
-    const isActive = activeCheckbox?.checked ?? false;
-    console.log('getMarketplaceFormData: is_active =', isActive, 'checkbox element:', activeCheckbox);
+    // Отримуємо значення з radio buttons
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const isActive = activeYes?.checked ?? true;
+    console.log('getMarketplaceFormData: is_active =', isActive);
 
     return {
         name: document.getElementById('mapper-mp-name')?.value.trim() || '',
@@ -791,32 +820,29 @@ function getMarketplaceFormData() {
 function fillMarketplaceForm(marketplace) {
     const nameField = document.getElementById('mapper-mp-name');
     const slugField = document.getElementById('mapper-mp-slug');
-    const activeField = document.getElementById('mapper-mp-active');
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const activeNo = document.getElementById('mapper-mp-active-no');
 
     if (nameField) nameField.value = marketplace.name || '';
     if (slugField) slugField.value = marketplace.slug || '';
-    if (activeField) activeField.checked = marketplace.is_active === 'true' || marketplace.is_active === true;
+
+    const isActive = marketplace.is_active === 'true' || marketplace.is_active === true;
+    if (activeYes) activeYes.checked = isActive;
+    if (activeNo) activeNo.checked = !isActive;
 }
 
 function clearMarketplaceForm() {
     const nameField = document.getElementById('mapper-mp-name');
     const slugField = document.getElementById('mapper-mp-slug');
-    const activeField = document.getElementById('mapper-mp-active');
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const activeNo = document.getElementById('mapper-mp-active-no');
 
     if (nameField) nameField.value = '';
     if (slugField) slugField.value = '';
-    if (activeField) {
-        // Примусово скидаємо спочатку, щоб браузер відстежив зміну
-        activeField.checked = false;
-        activeField.removeAttribute('checked');
-        // Встановлюємо через мікрозатримку для гарантованого оновлення DOM
-        setTimeout(() => {
-            activeField.checked = true;
-            activeField.setAttribute('checked', 'checked');
-            console.log('clearMarketplaceForm (final): activeField.checked =', activeField.checked);
-        }, 10);
-    }
-    console.log('clearMarketplaceForm: initial setup done');
+    // За замовчуванням - активний
+    if (activeYes) activeYes.checked = true;
+    if (activeNo) activeNo.checked = false;
+    console.log('clearMarketplaceForm: form cleared, active = true');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1781,23 +1807,30 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
     onProgress(50, `Запис ${characteristicsList.length} характеристик...`);
 
     // Записуємо характеристики маркетплейса
-    // Структура таблиці: marketplace_id, mp_char_id, mp_char_name, mp_char_type, mp_filter_type, mp_unit, mp_is_global, mp_category_id, mp_category_name, our_char_id
+    // Структура таблиці: id, marketplace_id, mp_char_id, mp_char_name, mp_char_type, mp_filter_type, mp_unit, mp_is_global, mp_category_id, mp_category_name, our_char_id, created_at
     if (characteristicsList.length > 0) {
-        const charRows = characteristicsList.map(c => [
-            importState.marketplaceId,
-            c.mp_char_id,
-            c.mp_char_name,
-            c.mp_char_type,
-            c.mp_char_filter_type,
-            c.mp_char_unit,
-            c.mp_char_is_global,
-            c.mp_category_id,
-            c.mp_category_name,
-            '' // our_char_id - для маппінгу
-        ]);
+        const timestamp = new Date().toISOString();
+        const charRows = characteristicsList.map((c, index) => {
+            // Генеруємо унікальний ID для кожного запису
+            const uniqueId = `mpc-${importState.marketplaceId}-${c.mp_char_id}`;
+            return [
+                uniqueId,
+                importState.marketplaceId,
+                c.mp_char_id,
+                c.mp_char_name,
+                c.mp_char_type || '',
+                c.mp_char_filter_type || '',
+                c.mp_char_unit || '',
+                c.mp_char_is_global || '',
+                c.mp_category_id || '',
+                c.mp_category_name || '',
+                '', // our_char_id - для маппінгу
+                timestamp
+            ];
+        });
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Characteristics!A:J',
+            range: 'Mapper_MP_Characteristics!A:L',
             values: charRows,
             spreadsheetType: 'main'
         });
@@ -1806,18 +1839,25 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
     onProgress(75, `Запис ${mpOptions.length} опцій...`);
 
     // Записуємо опції маркетплейса
-    // Структура: marketplace_id, mp_char_id, mp_option_id, mp_option_name, our_option_id
+    // Структура: id, marketplace_id, mp_char_id, mp_option_id, mp_option_name, our_option_id, created_at
     if (mpOptions.length > 0) {
-        const optRows = mpOptions.map(o => [
-            importState.marketplaceId,
-            o.mp_char_id,
-            o.mp_option_id,
-            o.mp_option_name,
-            '' // our_option_id - для маппінгу
-        ]);
+        const timestamp = new Date().toISOString();
+        const optRows = mpOptions.map(o => {
+            // Генеруємо унікальний ID для кожного запису
+            const uniqueId = `mpo-${importState.marketplaceId}-${o.mp_char_id}-${o.mp_option_id}`;
+            return [
+                uniqueId,
+                importState.marketplaceId,
+                o.mp_char_id,
+                o.mp_option_id,
+                o.mp_option_name,
+                '', // our_option_id - для маппінгу
+                timestamp
+            ];
+        });
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Options!A:E',
+            range: 'Mapper_MP_Options!A:G',
             values: optRows,
             spreadsheetType: 'main'
         });
@@ -1859,18 +1899,26 @@ async function importCategories(onProgress = () => {}) {
     console.log(`📊 Категорій: ${mpCategories.length}`);
     onProgress(50, `Запис ${mpCategories.length} категорій...`);
 
+    // Структура: id, marketplace_id, mp_cat_id, mp_cat_name, mp_parent_id, mp_parent_name, our_cat_id, created_at
     if (mpCategories.length > 0) {
-        const catRows = mpCategories.map(c => [
-            importState.marketplaceId,
-            c.mp_cat_id,
-            c.mp_cat_name,
-            c.mp_parent_id,
-            c.mp_parent_name,
-            '' // our_cat_id - для маппінгу
-        ]);
+        const timestamp = new Date().toISOString();
+        const catRows = mpCategories.map(c => {
+            // Генеруємо унікальний ID для кожного запису
+            const uniqueId = `mpcat-${importState.marketplaceId}-${c.mp_cat_id}`;
+            return [
+                uniqueId,
+                importState.marketplaceId,
+                c.mp_cat_id,
+                c.mp_cat_name,
+                c.mp_parent_id || '',
+                c.mp_parent_name || '',
+                '', // our_cat_id - для маппінгу
+                timestamp
+            ];
+        });
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Categories!A:F',
+            range: 'Mapper_MP_Categories!A:H',
             values: catRows,
             spreadsheetType: 'main'
         });
