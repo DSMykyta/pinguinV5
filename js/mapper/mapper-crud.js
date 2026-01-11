@@ -250,6 +250,9 @@ export async function showAddCharacteristicModal() {
     const modalEl = document.getElementById('modal-mapper-characteristic-edit');
     if (modalEl) initCustomSelects(modalEl);
 
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
+
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати характеристику';
 
@@ -284,6 +287,9 @@ export async function showEditCharacteristicModal(id) {
     // Ініціалізувати кастомні селекти в модальному вікні
     const modalEl = document.getElementById('modal-mapper-characteristic-edit');
     if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати характеристику';
@@ -393,8 +399,42 @@ function getCharacteristicFormData() {
         unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         is_global: isGlobal,
-        category_ids: selectedCategories.join(',')
+        // Якщо глобальна - категорії не потрібні
+        category_ids: isGlobal ? '' : selectedCategories.join(',')
     };
+}
+
+/**
+ * Перемикач видимості поля категорій залежно від глобальності
+ */
+function toggleCategoriesField(isGlobal) {
+    const categoriesGroup = document.getElementById('mapper-char-categories')?.closest('.form-group');
+    if (categoriesGroup) {
+        if (isGlobal) {
+            categoriesGroup.style.display = 'none';
+        } else {
+            categoriesGroup.style.display = '';
+        }
+    }
+}
+
+/**
+ * Ініціалізувати обробники для перемикача глобальності
+ */
+function initGlobalToggleHandler() {
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
+
+    if (globalYes) {
+        globalYes.addEventListener('change', () => {
+            if (globalYes.checked) toggleCategoriesField(true);
+        });
+    }
+    if (globalNo) {
+        globalNo.addEventListener('change', () => {
+            if (globalNo.checked) toggleCategoriesField(false);
+        });
+    }
 }
 
 function fillCharacteristicForm(characteristic) {
@@ -428,6 +468,9 @@ function fillCharacteristicForm(characteristic) {
                      String(characteristic.is_global).toLowerCase() === 'true';
     if (globalYes) globalYes.checked = isGlobal;
     if (globalNo) globalNo.checked = !isGlobal;
+
+    // Ховаємо категорії якщо глобальна
+    toggleCategoriesField(isGlobal);
 }
 
 function clearCharacteristicForm() {
@@ -462,6 +505,9 @@ function clearCharacteristicForm() {
         Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
         reinitializeCustomSelect(categoriesSelect);
     }
+
+    // Показуємо поле категорій (бо за замовчуванням не глобальна)
+    toggleCategoriesField(false);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
