@@ -839,3 +839,169 @@ export function getMapCharacteristics() {
 export function getMapOptions() {
     return mapperState.mapOptions || [];
 }
+
+export function getMpCategories() {
+    return mapperState.mpCategories || [];
+}
+
+export function getMpCharacteristics() {
+    return mapperState.mpCharacteristics || [];
+}
+
+export function getMpOptions() {
+    return mapperState.mpOptions || [];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ЗАВАНТАЖЕННЯ ДАНИХ МАРКЕТПЛЕЙСІВ (MP)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Завантажити категорії маркетплейсу
+ * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
+ */
+export async function loadMpCategories() {
+    console.log('📥 Завантаження MP категорій...');
+
+    try {
+        const result = await callSheetsAPI('get', {
+            range: `${SHEETS.MP_CATEGORIES}!A:G`,
+            spreadsheetType: 'main'
+        });
+
+        if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.warn('⚠️ Немає даних MP категорій');
+            mapperState.mpCategories = [];
+            return [];
+        }
+
+        const headers = result[0];
+        const rows = result.slice(1);
+
+        mapperState.mpCategories = rows.map((row, index) => {
+            const obj = { _rowIndex: index + 2 };
+            headers.forEach((header, i) => {
+                obj[header] = row[i] || '';
+            });
+
+            // Парсимо JSON поле data
+            if (obj.data) {
+                try {
+                    const parsedData = JSON.parse(obj.data);
+                    Object.assign(obj, parsedData);
+                } catch (e) {
+                    console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                }
+            }
+
+            return obj;
+        }).filter(item => item.id); // Фільтруємо порожні рядки
+
+        console.log(`✅ Завантажено ${mapperState.mpCategories.length} MP категорій`);
+        return mapperState.mpCategories;
+    } catch (error) {
+        console.error('❌ Помилка завантаження MP категорій:', error);
+        mapperState.mpCategories = [];
+        throw error;
+    }
+}
+
+/**
+ * Завантажити характеристики маркетплейсу
+ * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
+ */
+export async function loadMpCharacteristics() {
+    console.log('📥 Завантаження MP характеристик...');
+
+    try {
+        const result = await callSheetsAPI('get', {
+            range: `${SHEETS.MP_CHARACTERISTICS}!A:G`,
+            spreadsheetType: 'main'
+        });
+
+        if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.warn('⚠️ Немає даних MP характеристик');
+            mapperState.mpCharacteristics = [];
+            return [];
+        }
+
+        const headers = result[0];
+        const rows = result.slice(1);
+
+        mapperState.mpCharacteristics = rows.map((row, index) => {
+            const obj = { _rowIndex: index + 2 };
+            headers.forEach((header, i) => {
+                obj[header] = row[i] || '';
+            });
+
+            // Парсимо JSON поле data
+            if (obj.data) {
+                try {
+                    const parsedData = JSON.parse(obj.data);
+                    Object.assign(obj, parsedData);
+                } catch (e) {
+                    console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                }
+            }
+
+            return obj;
+        }).filter(item => item.id); // Фільтруємо порожні рядки
+
+        console.log(`✅ Завантажено ${mapperState.mpCharacteristics.length} MP характеристик`);
+        return mapperState.mpCharacteristics;
+    } catch (error) {
+        console.error('❌ Помилка завантаження MP характеристик:', error);
+        mapperState.mpCharacteristics = [];
+        throw error;
+    }
+}
+
+/**
+ * Завантажити опції маркетплейсу
+ * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
+ */
+export async function loadMpOptions() {
+    console.log('📥 Завантаження MP опцій...');
+
+    try {
+        const result = await callSheetsAPI('get', {
+            range: `${SHEETS.MP_OPTIONS}!A:G`,
+            spreadsheetType: 'main'
+        });
+
+        if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.warn('⚠️ Немає даних MP опцій');
+            mapperState.mpOptions = [];
+            return [];
+        }
+
+        const headers = result[0];
+        const rows = result.slice(1);
+
+        mapperState.mpOptions = rows.map((row, index) => {
+            const obj = { _rowIndex: index + 2 };
+            headers.forEach((header, i) => {
+                obj[header] = row[i] || '';
+            });
+
+            // Парсимо JSON поле data
+            if (obj.data) {
+                try {
+                    const parsedData = JSON.parse(obj.data);
+                    Object.assign(obj, parsedData);
+                } catch (e) {
+                    console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                }
+            }
+
+            return obj;
+        }).filter(item => item.id); // Фільтруємо порожні рядки
+
+        console.log(`✅ Завантажено ${mapperState.mpOptions.length} MP опцій`);
+        return mapperState.mpOptions;
+    } catch (error) {
+        console.error('❌ Помилка завантаження MP опцій:', error);
+        mapperState.mpOptions = [];
+        throw error;
+    }
+}

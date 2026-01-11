@@ -21,7 +21,7 @@ import { renderAvatarState } from '../utils/avatar-states.js';
  */
 export const mapperState = {
     // Активний таб
-    activeTab: 'categories', // categories | characteristics | options | marketplaces
+    activeTab: 'categories', // categories | characteristics | options | marketplaces | mp-categories | mp-characteristics | mp-options
 
     // Дані
     categories: [],
@@ -45,7 +45,10 @@ export const mapperState = {
         categories: ['id', 'name_ua', 'name_ru'],
         characteristics: ['id', 'name_ua', 'name_ru', 'type'],
         options: ['id', 'value_ua', 'value_ru'],
-        marketplaces: ['id', 'name', 'slug']
+        marketplaces: ['id', 'name', 'slug'],
+        'mp-categories': ['external_id', 'name'],
+        'mp-characteristics': ['external_id', 'name'],
+        'mp-options': ['external_id', 'name']
     },
 
     // Фільтри
@@ -53,7 +56,10 @@ export const mapperState = {
         categories: 'all',
         characteristics: 'all', // all | mapped | unmapped
         options: 'all', // all | mapped | unmapped
-        marketplaces: 'all'
+        marketplaces: 'all',
+        'mp-categories': 'all',
+        'mp-characteristics': 'all',
+        'mp-options': 'all'
     },
 
     // Видимі колонки для кожного табу
@@ -61,7 +67,17 @@ export const mapperState = {
         categories: ['id', 'name_ua', 'parent_id'],
         characteristics: ['id', 'name_ua', 'type', 'is_global'],
         options: ['id', 'characteristic_id', 'value_ua'],
-        marketplaces: ['id', 'name', 'slug', 'is_active']
+        marketplaces: ['id', 'name', 'slug', 'is_active'],
+        'mp-categories': ['external_id', 'name', 'parent_name', 'our_cat_id'],
+        'mp-characteristics': ['external_id', 'name', 'type', 'our_char_id'],
+        'mp-options': ['external_id', 'name', 'char_id', 'our_option_id']
+    },
+
+    // Вибраний маркетплейс для фільтрації MP табів
+    mpSelectedMarketplace: {
+        'mp-categories': null,
+        'mp-characteristics': null,
+        'mp-options': null
     },
 
     // Сортування
@@ -211,7 +227,10 @@ function renderAuthRequiredState() {
         'mapper-categories-table-container',
         'mapper-characteristics-table-container',
         'mapper-options-table-container',
-        'mapper-marketplaces-table-container'
+        'mapper-marketplaces-table-container',
+        'mapper-mp-categories-table-container',
+        'mapper-mp-characteristics-table-container',
+        'mapper-mp-options-table-container'
     ];
 
     containers.forEach(containerId => {
