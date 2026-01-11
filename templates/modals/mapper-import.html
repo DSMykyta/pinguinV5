@@ -2,7 +2,7 @@
     <div class="modal-container modal-xlarge">
         <!-- Header -->
         <div class="modal-header">
-            <h2 class="modal-title"><span id="modal-title">Імпорт даних маркетплейса</span></h2>
+            <h2 class="modal-title"><span id="modal-title">Імпорт даних</span></h2>
             <div class="modal-header-actions">
                 <div class="connected-button-group-square">
                     <button id="execute-mapper-import" class="segment" aria-label="Імпортувати" disabled>
@@ -22,40 +22,21 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <!-- Крок 1: Вибір маркетплейса та файлу -->
+            <!-- Крок 1: Вибір призначення та файлу -->
             <fieldset class="form-fieldset" id="import-step-1">
                 <legend>Крок 1: Вибір файлу</legend>
 
-                <div class="grid2">
-                    <div class="form-group">
-                        <label>Тип даних</label>
-                        <div class="switch-container">
-                            <input type="radio" id="import-type-characteristics" name="mapper-import-type" value="characteristics" checked>
-                            <label for="import-type-characteristics" class="switch-label" style="flex: 1;">Характеристики + Опції</label>
-                            <input type="radio" id="import-type-categories" name="mapper-import-type" value="categories">
-                            <label for="import-type-categories" class="switch-label" style="flex: 1;">Категорії</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Призначення імпорту</label>
-                        <div class="switch-container">
-                            <input type="radio" id="import-target-marketplace" name="mapper-import-target" value="marketplace" checked>
-                            <label for="import-target-marketplace" class="switch-label" style="flex: 1;">Дані маркетплейсу</label>
-                            <input type="radio" id="import-target-own" name="mapper-import-target" value="own">
-                            <label for="import-target-own" class="switch-label" style="flex: 1;">Свій довідник</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" id="marketplace-select-group">
+                <div class="form-group">
                     <label for="mapper-import-marketplace">
-                        Маркетплейс
+                        Призначення імпорту
                         <span class="required">*</span>
                     </label>
-                    <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть маркетплейс" required>
-                        <option value="">— Оберіть маркетплейс —</option>
+                    <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть призначення" required>
+                        <option value="">— Оберіть призначення —</option>
+                        <option value="own">Свій довідник</option>
+                        <!-- Маркетплейси додаються динамічно -->
                     </select>
+                    <p class="form-hint">Оберіть "Свій довідник" для власних даних або маркетплейс для імпорту їхніх характеристик</p>
                 </div>
 
                 <div class="form-group">

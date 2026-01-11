@@ -636,6 +636,9 @@ export async function showAddMarketplaceModal() {
 
     await showModal('mapper-marketplace-edit', null);
 
+    // Затримка для коректного рендерингу DOM
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати маркетплейс';
 
@@ -774,10 +777,14 @@ async function handleUpdateMarketplace(id) {
 }
 
 function getMarketplaceFormData() {
+    const activeCheckbox = document.getElementById('mapper-mp-active');
+    const isActive = activeCheckbox?.checked ?? false;
+    console.log('getMarketplaceFormData: is_active =', isActive, 'checkbox element:', activeCheckbox);
+
     return {
         name: document.getElementById('mapper-mp-name')?.value.trim() || '',
         slug: document.getElementById('mapper-mp-slug')?.value.trim() || '',
-        is_active: document.getElementById('mapper-mp-active')?.checked || false
+        is_active: isActive
     };
 }
 
@@ -798,7 +805,12 @@ function clearMarketplaceForm() {
 
     if (nameField) nameField.value = '';
     if (slugField) slugField.value = '';
-    if (activeField) activeField.checked = true;
+    if (activeField) {
+        activeField.checked = true;
+        // Додатково встановлюємо атрибут для надійності
+        activeField.setAttribute('checked', 'checked');
+    }
+    console.log('clearMarketplaceForm: activeField.checked =', activeField?.checked);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -846,19 +858,9 @@ export async function showImportModal() {
     const marketplaceSelect = document.getElementById('mapper-import-marketplace');
     if (marketplaceSelect) {
         populateMarketplaceSelect(marketplaceSelect);
-        // Слухаємо зміну маркетплейса для завантаження збережених маппінгів
+        // Слухаємо зміну призначення (маркетплейс або свій довідник)
         marketplaceSelect.addEventListener('change', handleMarketplaceChange);
     }
-
-    // Слухаємо зміну типу даних
-    document.querySelectorAll('input[name="mapper-import-type"]').forEach(radio => {
-        radio.addEventListener('change', handleDataTypeChange);
-    });
-
-    // Слухаємо зміну призначення імпорту
-    document.querySelectorAll('input[name="mapper-import-target"]').forEach(radio => {
-        radio.addEventListener('change', handleTargetChange);
-    });
 
     // Ініціалізувати drag & drop для файлу
     initFileDropzone();
@@ -879,8 +881,13 @@ export async function showImportModal() {
 function populateMarketplaceSelect(select) {
     const marketplaces = getMarketplaces();
 
-    select.innerHTML = '<option value="">— Оберіть маркетплейс —</option>';
+    // Спочатку базові опції
+    select.innerHTML = `
+        <option value="">— Оберіть призначення —</option>
+        <option value="own">📁 Свій довідник</option>
+    `;
 
+    // Додаємо активні маркетплейси
     marketplaces.forEach(mp => {
         if (mp.is_active === 'true' || mp.is_active === true) {
             const option = document.createElement('option');
@@ -895,12 +902,26 @@ function populateMarketplaceSelect(select) {
 }
 
 function handleMarketplaceChange(e) {
-    importState.marketplaceId = e.target.value;
+    const selectedValue = e.target.value;
 
-    if (importState.marketplaceId) {
-        // Спробуємо завантажити збережений маппінг
-        loadSavedMapping(importState.marketplaceId);
+    if (selectedValue === 'own') {
+        // Обрано "Свій довідник"
+        importState.importTarget = 'own';
+        importState.marketplaceId = 'own';
+    } else {
+        // Обрано маркетплейс
+        importState.importTarget = 'marketplace';
+        importState.marketplaceId = selectedValue;
+
+        if (selectedValue) {
+            // Спробуємо завантажити збережений маппінг
+            loadSavedMapping(selectedValue);
+        }
     }
+
+    // Скидаємо маппінг при зміні призначення
+    importState.mapping = {};
+    updateMappingSections();
 
     validateImport();
     updatePreviewTable();
