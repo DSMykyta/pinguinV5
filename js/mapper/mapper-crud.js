@@ -2107,14 +2107,43 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
     const characteristicsList = Array.from(mpCharacteristics.values());
     console.log(`📊 Характеристик: ${characteristicsList.length}, Опцій: ${mpOptions.length}`);
 
-    onProgress(50, `Запис ${characteristicsList.length} характеристик...`);
+    onProgress(30, 'Перевірка існуючих даних...');
+
+    // Завантажуємо існуючі дані для перевірки дублікатів
+    const { loadMpCharacteristics, loadMpOptions, getMpCharacteristics, getMpOptions } = await import('./mapper-data.js');
+    await loadMpCharacteristics();
+    await loadMpOptions();
+
+    const existingChars = getMpCharacteristics();
+    const existingOpts = getMpOptions();
+
+    // Створюємо Set існуючих ID для швидкої перевірки
+    const existingCharIds = new Set(
+        existingChars
+            .filter(c => c.marketplace_id === importState.marketplaceId)
+            .map(c => c.external_id)
+    );
+    const existingOptIds = new Set(
+        existingOpts
+            .filter(o => o.marketplace_id === importState.marketplaceId)
+            .map(o => `${o.char_id || ''}-${o.external_id}`)
+    );
+
+    // Фільтруємо тільки нові характеристики
+    const newCharacteristics = characteristicsList.filter(c => !existingCharIds.has(c.mp_char_id));
+    const newOptions = mpOptions.filter(o => !existingOptIds.has(`${o.mp_char_id}-${o.mp_option_id}`));
+
+    console.log(`🆕 Нових характеристик: ${newCharacteristics.length} (з ${characteristicsList.length})`);
+    console.log(`🆕 Нових опцій: ${newOptions.length} (з ${mpOptions.length})`);
+
+    onProgress(50, `Запис ${newCharacteristics.length} нових характеристик...`);
 
     // Записуємо характеристики маркетплейса
     // Структура таблиці: id | marketplace_id | external_id | source | data | created_at | updated_at
     // data - JSON з усіма полями характеристики (різні для кожного маркетплейсу)
-    if (characteristicsList.length > 0) {
+    if (newCharacteristics.length > 0) {
         const timestamp = new Date().toISOString();
-        const charRows = characteristicsList.map((c) => {
+        const charRows = newCharacteristics.map((c) => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpc-${importState.marketplaceId}-${c.mp_char_id}`;
 
@@ -2146,15 +2175,17 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
             values: charRows,
             spreadsheetType: 'main'
         });
+    } else {
+        console.log('⏭️ Всі характеристики вже існують, пропускаємо');
     }
 
-    onProgress(75, `Запис ${mpOptions.length} опцій...`);
+    onProgress(75, `Запис ${newOptions.length} нових опцій...`);
 
     // Записуємо опції маркетплейса
     // Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
-    if (mpOptions.length > 0) {
+    if (newOptions.length > 0) {
         const timestamp = new Date().toISOString();
-        const optRows = mpOptions.map(o => {
+        const optRows = newOptions.map(o => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpo-${importState.marketplaceId}-${o.mp_char_id}-${o.mp_option_id}`;
 
@@ -2181,6 +2212,8 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
             values: optRows,
             spreadsheetType: 'main'
         });
+    } else {
+        console.log('⏭️ Всі опції вже існують, пропускаємо');
     }
 
     onProgress(100, 'Готово!');
@@ -2217,13 +2250,34 @@ async function importCategories(onProgress = () => {}) {
     });
 
     console.log(`📊 Категорій: ${mpCategories.length}`);
-    onProgress(50, `Запис ${mpCategories.length} категорій...`);
+
+    onProgress(30, 'Перевірка існуючих даних...');
+
+    // Завантажуємо існуючі дані для перевірки дублікатів
+    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
+    await loadMpCategories();
+
+    const existingCats = getMpCategories();
+
+    // Створюємо Set існуючих ID для швидкої перевірки
+    const existingCatIds = new Set(
+        existingCats
+            .filter(c => c.marketplace_id === importState.marketplaceId)
+            .map(c => c.external_id)
+    );
+
+    // Фільтруємо тільки нові категорії
+    const newCategories = mpCategories.filter(c => !existingCatIds.has(c.mp_cat_id));
+
+    console.log(`🆕 Нових категорій: ${newCategories.length} (з ${mpCategories.length})`);
+
+    onProgress(50, `Запис ${newCategories.length} нових категорій...`);
 
     // Структура таблиці: id | marketplace_id | external_id | source | data | created_at | updated_at
     // data - JSON з усіма полями категорії (різні для кожного маркетплейсу)
-    if (mpCategories.length > 0) {
+    if (newCategories.length > 0) {
         const timestamp = new Date().toISOString();
-        const catRows = mpCategories.map(c => {
+        const catRows = newCategories.map(c => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpcat-${importState.marketplaceId}-${c.mp_cat_id}`;
 
@@ -2251,6 +2305,8 @@ async function importCategories(onProgress = () => {}) {
             values: catRows,
             spreadsheetType: 'main'
         });
+    } else {
+        console.log('⏭️ Всі категорії вже існують, пропускаємо');
     }
 
     onProgress(100, 'Готово!');
