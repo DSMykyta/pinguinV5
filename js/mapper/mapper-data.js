@@ -190,6 +190,29 @@ export async function loadCharacteristics() {
             if (!obj.name_ua && obj.name_uk) obj.name_ua = obj.name_uk;
             if (!obj.type && obj.param_type) obj.type = obj.param_type;
 
+            // Обробка обрізаних назв колонок (Google Sheets може обрізати довгі назви)
+            const findTruncatedField = (prefix) => {
+                const key = Object.keys(obj).find(k => k.startsWith(prefix));
+                return key ? obj[key] : undefined;
+            };
+
+            if (obj.is_global === undefined || obj.is_global === '') {
+                const val = findTruncatedField('is_global');
+                if (val !== undefined) obj.is_global = val;
+            }
+            if (obj.filter_type === undefined || obj.filter_type === '') {
+                const val = findTruncatedField('filter_t');
+                if (val !== undefined) obj.filter_type = val;
+            }
+            if (obj.category_ids === undefined || obj.category_ids === '') {
+                const val = findTruncatedField('category_');
+                if (val !== undefined) obj.category_ids = val;
+            }
+            if (obj.parent_option_id === undefined || obj.parent_option_id === '') {
+                const val = findTruncatedField('parent_opt');
+                if (val !== undefined) obj.parent_option_id = val;
+            }
+
             return obj;
         });
 
