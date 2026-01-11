@@ -20,6 +20,7 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { showLoader } from '../common/ui-loading.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
