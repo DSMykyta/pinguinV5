@@ -892,11 +892,17 @@ function initMpDataModalEvents() {
 /**
  * Рендерити таблицю в модалці
  */
+const MP_DATA_PAGE_SIZE = 100; // Ліміт рядків на сторінку
+
 function renderMpDataModalTable() {
     const container = document.getElementById('mp-data-table-container');
-    if (!container) return;
+    if (!container) {
+        console.error('❌ Container not found: mp-data-table-container');
+        return;
+    }
 
     const { activeTab, filter, searchQuery } = mpDataModalState;
+    console.log(`📊 Rendering tab: ${activeTab}, filter: ${filter}, search: "${searchQuery}"`);
 
     // Отримуємо дані для поточного табу
     let data = [];
@@ -912,6 +918,8 @@ function renderMpDataModalTable() {
         data = [...mpDataModalState.options];
         columns = getMpOptionsColumns();
     }
+
+    console.log(`📊 Initial data count: ${data.length}`);
 
     // Фільтр по прив'язці
     if (filter === 'mapped') {
@@ -939,12 +947,14 @@ function renderMpDataModalTable() {
         });
     }
 
+    const filteredCount = data.length;
+    console.log(`📊 After filters: ${filteredCount}`);
+
     // Оновлюємо статистику
     const statsEl = document.getElementById('mp-data-stats-text');
     const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
                        activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
                        mpDataModalState.options.length;
-    if (statsEl) statsEl.textContent = `Показано ${data.length} з ${totalCount}`;
 
     // Рендеримо таблицю
     if (data.length === 0) {
@@ -953,26 +963,60 @@ function renderMpDataModalTable() {
                 <div class="avatar-state-message">Дані відсутні</div>
             </div>
         `;
+        if (statsEl) statsEl.textContent = `Показано 0 з ${totalCount}`;
         return;
     }
 
-    // Формуємо HTML таблиці
-    const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
-    const rowsHtml = data.map(item => {
-        const cellsHtml = columns.map(col => {
-            const value = item[col.id];
-            const rendered = col.render ? col.render(value, item) : escapeHtml(value || '-');
-            return `<div class="cell ${col.className || ''}">${rendered}</div>`;
-        }).join('');
-        return `<div class="pseudo-table-row" data-id="${escapeHtml(item.id)}">${cellsHtml}</div>`;
-    }).join('');
+    // Обмежуємо кількість рядків для продуктивності
+    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
+    const hasMore = data.length > MP_DATA_PAGE_SIZE;
 
-    container.innerHTML = `
-        <div class="pseudo-table">
-            <div class="pseudo-table-header">${headerHtml}</div>
-            <div class="pseudo-table-body">${rowsHtml}</div>
-        </div>
-    `;
+    if (statsEl) {
+        if (hasMore) {
+            statsEl.textContent = `Показано ${displayData.length} з ${filteredCount} (всього ${totalCount})`;
+        } else {
+            statsEl.textContent = `Показано ${filteredCount} з ${totalCount}`;
+        }
+    }
+
+    try {
+        // Формуємо HTML таблиці
+        const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
+        const rowsHtml = displayData.map(item => {
+            const cellsHtml = columns.map(col => {
+                const value = item[col.id];
+                const rendered = col.render ? col.render(value, item) : escapeHtml(value || '-');
+                return `<div class="cell ${col.className || ''}">${rendered}</div>`;
+            }).join('');
+            return `<div class="pseudo-table-row" data-id="${escapeHtml(item.id || '')}">${cellsHtml}</div>`;
+        }).join('');
+
+        let tableHtml = `
+            <div class="pseudo-table">
+                <div class="pseudo-table-header">${headerHtml}</div>
+                <div class="pseudo-table-body">${rowsHtml}</div>
+            </div>
+        `;
+
+        // Додаємо повідомлення якщо є ще дані
+        if (hasMore) {
+            tableHtml += `
+                <div class="mp-data-more-hint" style="text-align: center; padding: 1rem; color: var(--color-text-tertiary);">
+                    Показано перші ${MP_DATA_PAGE_SIZE} записів. Використовуйте пошук для фільтрації.
+                </div>
+            `;
+        }
+
+        container.innerHTML = tableHtml;
+        console.log(`✅ Table rendered with ${displayData.length} rows`);
+    } catch (error) {
+        console.error('❌ Error rendering table:', error);
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="avatar-state-message">Помилка відображення: ${error.message}</div>
+            </div>
+        `;
+    }
 }
 
 /**
