@@ -12,7 +12,8 @@ import {
     addCategory, updateCategory, deleteCategory, getCategories,
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     addOption, updateOption, deleteOption, getOptions,
-    addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces
+    addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
+    updateMpCharacteristic, updateMpOption, updateMpCategory
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -21,6 +22,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { showLoader } from '../common/ui-loading.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderPseudoTable } from '../common/ui-table.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
