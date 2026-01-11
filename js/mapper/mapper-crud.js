@@ -423,7 +423,9 @@ function fillCharacteristicForm(characteristic) {
         reinitializeCustomSelect(filterField);
     }
 
-    const isGlobal = characteristic.is_global === 'true' || characteristic.is_global === true;
+    // Підтримуємо різні формати: true, 'true', 'TRUE', TRUE
+    const isGlobal = characteristic.is_global === true ||
+                     String(characteristic.is_global).toLowerCase() === 'true';
     if (globalYes) globalYes.checked = isGlobal;
     if (globalNo) globalNo.checked = !isGlobal;
 }
@@ -1081,7 +1083,7 @@ function fillMarketplaceForm(marketplace) {
     if (nameField) nameField.value = marketplace.name || '';
     if (slugField) slugField.value = marketplace.slug || '';
 
-    const isActive = marketplace.is_active === 'true' || marketplace.is_active === true;
+    const isActive = marketplace.is_active === true || String(marketplace.is_active).toLowerCase() === 'true';
     if (activeYes) activeYes.checked = isActive;
     if (activeNo) activeNo.checked = !isActive;
 }
@@ -1176,7 +1178,7 @@ function populateMarketplaceSelect(select) {
 
     // Додаємо активні маркетплейси
     marketplaces.forEach(mp => {
-        if (mp.is_active === 'true' || mp.is_active === true) {
+        if (mp.is_active === true || String(mp.is_active).toLowerCase() === 'true') {
             const option = document.createElement('option');
             option.value = mp.id;
             option.textContent = mp.name || mp.slug;
