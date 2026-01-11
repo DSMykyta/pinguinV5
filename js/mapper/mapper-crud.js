@@ -718,6 +718,20 @@ export async function showEditMarketplaceModal(id) {
 }
 
 /**
+ * Стан модалки даних маркетплейсу
+ */
+const mpDataModalState = {
+    marketplaceId: null,
+    marketplaceName: '',
+    activeTab: 'categories', // categories | characteristics | options
+    filter: 'all', // all | mapped | unmapped
+    searchQuery: '',
+    categories: [],
+    characteristics: [],
+    options: []
+};
+
+/**
  * Показати дані маркетплейсу
  */
 export async function showMarketplaceDataModal(id) {
@@ -731,8 +745,246 @@ export async function showMarketplaceDataModal(id) {
         return;
     }
 
-    // TODO: Реалізувати модальне вікно перегляду даних маркетплейсу
-    showToast(`Перегляд даних: ${marketplace.name}`, 'info');
+    // Ініціалізуємо стан
+    mpDataModalState.marketplaceId = id;
+    mpDataModalState.marketplaceName = marketplace.name;
+    mpDataModalState.activeTab = 'categories';
+    mpDataModalState.filter = 'all';
+    mpDataModalState.searchQuery = '';
+
+    // Відкриваємо модалку
+    await showModal('mapper-mp-data', null);
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    // Встановлюємо заголовок
+    const title = document.getElementById('mp-data-modal-title');
+    if (title) title.textContent = `${marketplace.name} - Дані`;
+
+    // Завантажуємо дані
+    await loadMpDataForModal(id);
+
+    // Ініціалізуємо обробники
+    initMpDataModalEvents();
+
+    // Рендеримо таблицю
+    renderMpDataModalTable();
+}
+
+/**
+ * Завантажити MP дані для модалки
+ */
+async function loadMpDataForModal(marketplaceId) {
+    const { loadMpCategories, loadMpCharacteristics, loadMpOptions, getMpCategories, getMpCharacteristics, getMpOptions } = await import('./mapper-data.js');
+
+    // Завантажуємо якщо ще не завантажено
+    const allCats = getMpCategories();
+    const allChars = getMpCharacteristics();
+    const allOpts = getMpOptions();
+
+    if (allCats.length === 0) await loadMpCategories();
+    if (allChars.length === 0) await loadMpCharacteristics();
+    if (allOpts.length === 0) await loadMpOptions();
+
+    // Фільтруємо по маркетплейсу
+    mpDataModalState.categories = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
+    mpDataModalState.characteristics = getMpCharacteristics().filter(c => c.marketplace_id === marketplaceId);
+    mpDataModalState.options = getMpOptions().filter(o => o.marketplace_id === marketplaceId);
+
+    // Оновлюємо бейджі кількості
+    const catCount = document.getElementById('mp-data-cat-count');
+    const charCount = document.getElementById('mp-data-char-count');
+    const optCount = document.getElementById('mp-data-opt-count');
+
+    if (catCount) catCount.textContent = mpDataModalState.categories.length;
+    if (charCount) charCount.textContent = mpDataModalState.characteristics.length;
+    if (optCount) optCount.textContent = mpDataModalState.options.length;
+
+    console.log(`✅ Завантажено: ${mpDataModalState.categories.length} категорій, ${mpDataModalState.characteristics.length} характеристик, ${mpDataModalState.options.length} опцій`);
+}
+
+/**
+ * Ініціалізувати обробники подій модалки
+ */
+function initMpDataModalEvents() {
+    // Таби
+    const tabButtons = document.querySelectorAll('#mp-data-tabs [data-mp-tab]');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            mpDataModalState.activeTab = btn.dataset.mpTab;
+            renderMpDataModalTable();
+        });
+    });
+
+    // Фільтри
+    const filterButtons = document.querySelectorAll('#mp-data-filter-pills [data-mp-filter]');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            mpDataModalState.filter = btn.dataset.mpFilter;
+            renderMpDataModalTable();
+        });
+    });
+
+    // Пошук
+    const searchInput = document.getElementById('mp-data-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            mpDataModalState.searchQuery = e.target.value.toLowerCase();
+            renderMpDataModalTable();
+        });
+    }
+}
+
+/**
+ * Рендерити таблицю в модалці
+ */
+function renderMpDataModalTable() {
+    const container = document.getElementById('mp-data-table-container');
+    if (!container) return;
+
+    const { activeTab, filter, searchQuery } = mpDataModalState;
+
+    // Отримуємо дані для поточного табу
+    let data = [];
+    let columns = [];
+
+    if (activeTab === 'categories') {
+        data = [...mpDataModalState.categories];
+        columns = getMpCategoriesColumns();
+    } else if (activeTab === 'characteristics') {
+        data = [...mpDataModalState.characteristics];
+        columns = getMpCharacteristicsColumns();
+    } else if (activeTab === 'options') {
+        data = [...mpDataModalState.options];
+        columns = getMpOptionsColumns();
+    }
+
+    // Фільтр по прив'язці
+    if (filter === 'mapped') {
+        data = data.filter(item => {
+            if (activeTab === 'categories') return !!item.our_cat_id;
+            if (activeTab === 'characteristics') return !!item.our_char_id;
+            if (activeTab === 'options') return !!item.our_option_id;
+            return true;
+        });
+    } else if (filter === 'unmapped') {
+        data = data.filter(item => {
+            if (activeTab === 'categories') return !item.our_cat_id;
+            if (activeTab === 'characteristics') return !item.our_char_id;
+            if (activeTab === 'options') return !item.our_option_id;
+            return true;
+        });
+    }
+
+    // Пошук
+    if (searchQuery) {
+        data = data.filter(item => {
+            const name = (item.name || '').toLowerCase();
+            const extId = (item.external_id || '').toLowerCase();
+            return name.includes(searchQuery) || extId.includes(searchQuery);
+        });
+    }
+
+    // Оновлюємо статистику
+    const statsEl = document.getElementById('mp-data-stats-text');
+    const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
+                       activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
+                       mpDataModalState.options.length;
+    if (statsEl) statsEl.textContent = `Показано ${data.length} з ${totalCount}`;
+
+    // Рендеримо таблицю
+    if (data.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="avatar-state-message">Дані відсутні</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Формуємо HTML таблиці
+    const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
+    const rowsHtml = data.map(item => {
+        const cellsHtml = columns.map(col => {
+            const value = item[col.id];
+            const rendered = col.render ? col.render(value, item) : escapeHtml(value || '-');
+            return `<div class="cell ${col.className || ''}">${rendered}</div>`;
+        }).join('');
+        return `<div class="pseudo-table-row" data-id="${escapeHtml(item.id)}">${cellsHtml}</div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="pseudo-table">
+            <div class="pseudo-table-header">${headerHtml}</div>
+            <div class="pseudo-table-body">${rowsHtml}</div>
+        </div>
+    `;
+}
+
+/**
+ * Колонки для категорій MP
+ */
+function getMpCategoriesColumns() {
+    const categories = getCategories();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'parent_name', label: 'Батьківська' },
+        {
+            id: 'our_cat_id',
+            label: 'Наша категорія',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const cat = categories.find(c => c.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(cat?.name_ua || v)}</span>`;
+            }
+        }
+    ];
+}
+
+/**
+ * Колонки для характеристик MP
+ */
+function getMpCharacteristicsColumns() {
+    const characteristics = getCharacteristics();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'type', label: 'Тип', render: (v) => `<code>${escapeHtml(v || '-')}</code>` },
+        {
+            id: 'our_char_id',
+            label: 'Наша характ.',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const char = characteristics.find(c => c.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(char?.name_ua || v)}</span>`;
+            }
+        }
+    ];
+}
+
+/**
+ * Колонки для опцій MP
+ */
+function getMpOptionsColumns() {
+    const options = getOptions();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'char_id', label: 'Характеристика' },
+        {
+            id: 'our_option_id',
+            label: 'Наша опція',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const opt = options.find(o => o.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(opt?.value_ua || v)}</span>`;
+            }
+        }
+    ];
 }
 
 async function showDeleteMarketplaceConfirm(id) {
