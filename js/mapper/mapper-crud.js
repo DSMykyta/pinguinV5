@@ -406,13 +406,16 @@ function fillCharacteristicForm(characteristic) {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
 
-    if (nameUaField) nameUaField.value = characteristic.name_ua || '';
+    // Підтримуємо обидві назви полів (нові та старі)
+    if (nameUaField) nameUaField.value = characteristic.name_ua || characteristic.name_uk || '';
     if (nameRuField) nameRuField.value = characteristic.name_ru || '';
     if (unitField) unitField.value = characteristic.unit || '';
 
     // Встановлюємо значення та оновлюємо кастомні селекти
+    // Підтримуємо type та param_type
     if (typeField) {
-        typeField.value = characteristic.type || 'text';
+        const typeValue = characteristic.type || characteristic.param_type || 'text';
+        typeField.value = typeValue;
         reinitializeCustomSelect(typeField);
     }
     if (filterField) {

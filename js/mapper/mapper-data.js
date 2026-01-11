@@ -90,8 +90,17 @@ export async function loadMarketplaces() {
             headers.forEach((header, i) => {
                 obj[header] = row[i] || '';
             });
+
+            // Нормалізація полів (алайси для різних назв колонок)
+            if (!obj.id && obj.marketplace_id) obj.id = obj.marketplace_id;
+            if (!obj.name && obj.display_name) obj.name = obj.display_name;
+            if (!obj.slug && obj.marketplace_id) obj.slug = obj.marketplace_id;
+            if (!obj.is_active && obj.state !== undefined) {
+                obj.is_active = obj.state === 'TRUE' || obj.state === true || obj.state === 'true';
+            }
+
             return obj;
-        });
+        }).filter(item => item.id); // Фільтруємо порожні рядки
 
         console.log(`✅ Завантажено ${mapperState.marketplaces.length} маркетплейсів`);
         return mapperState.marketplaces;
@@ -129,6 +138,12 @@ export async function loadCategories() {
             headers.forEach((header, i) => {
                 obj[header] = row[i] || '';
             });
+
+            // Нормалізація полів (алайси для різних назв колонок)
+            if (!obj.id && obj.local_id) obj.id = obj.local_id;
+            if (!obj.name_ua && obj.name_uk) obj.name_ua = obj.name_uk;
+            if (!obj.parent_id && obj.parent_local_id) obj.parent_id = obj.parent_local_id;
+
             return obj;
         });
 
@@ -168,6 +183,13 @@ export async function loadCharacteristics() {
             headers.forEach((header, i) => {
                 obj[header] = row[i] || '';
             });
+
+            // Нормалізація полів (алайси для різних назв колонок)
+            // Підтримуємо як нові так і старі назви колонок
+            if (!obj.id && obj.local_id) obj.id = obj.local_id;
+            if (!obj.name_ua && obj.name_uk) obj.name_ua = obj.name_uk;
+            if (!obj.type && obj.param_type) obj.type = obj.param_type;
+
             return obj;
         });
 
@@ -207,6 +229,13 @@ export async function loadOptions() {
             headers.forEach((header, i) => {
                 obj[header] = row[i] || '';
             });
+
+            // Нормалізація полів (алайси для різних назв колонок)
+            if (!obj.id && obj.local_id) obj.id = obj.local_id;
+            if (!obj.characteristic_id && obj.char_local_id) obj.characteristic_id = obj.char_local_id;
+            if (!obj.value_ua && obj.name_uk) obj.value_ua = obj.name_uk;
+            if (!obj.value_ru && obj.name_ru) obj.value_ru = obj.name_ru;
+
             return obj;
         });
 
