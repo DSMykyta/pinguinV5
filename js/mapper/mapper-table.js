@@ -214,7 +214,7 @@ export function renderCharacteristicsTable() {
                 sortable: true,
                 className: 'cell-bool',
                 render: (value) => {
-                    const isGlobal = value === 'true' || value === true;
+                    const isGlobal = value === true || String(value).toLowerCase() === 'true';
                     return isGlobal
                         ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                         : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
@@ -429,7 +429,7 @@ export function renderMarketplacesTable() {
                 sortable: true,
                 className: 'cell-bool',
                 render: (value) => {
-                    const isActive = value === 'true' || value === true;
+                    const isActive = value === true || String(value).toLowerCase() === 'true';
                     return isActive
                         ? '<span class="severity-badge severity-low">Активний</span>'
                         : '<span class="severity-badge severity-high">Неактивний</span>';
