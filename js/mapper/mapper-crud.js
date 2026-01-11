@@ -389,9 +389,9 @@ function getCharacteristicFormData() {
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
-        type: document.getElementById('mapper-char-type')?.value || 'text',
+        type: document.getElementById('mapper-char-type')?.value || 'TextInput',
         unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
-        filter_type: document.getElementById('mapper-char-filter')?.value || 'none',
+        filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         is_global: isGlobal,
         category_ids: selectedCategories.join(',')
     };
@@ -414,12 +414,12 @@ function fillCharacteristicForm(characteristic) {
     // Встановлюємо значення та оновлюємо кастомні селекти
     // Підтримуємо type та param_type
     if (typeField) {
-        const typeValue = characteristic.type || characteristic.param_type || 'text';
+        const typeValue = characteristic.type || characteristic.param_type || 'TextInput';
         typeField.value = typeValue;
         reinitializeCustomSelect(typeField);
     }
     if (filterField) {
-        filterField.value = characteristic.filter_type || 'none';
+        filterField.value = characteristic.filter_type || 'disable';
         reinitializeCustomSelect(filterField);
     }
 
@@ -447,11 +447,11 @@ function clearCharacteristicForm() {
 
     // Встановлюємо значення та оновлюємо кастомні селекти
     if (typeField) {
-        typeField.value = 'text';
+        typeField.value = 'TextInput';
         reinitializeCustomSelect(typeField);
     }
     if (filterField) {
-        filterField.value = 'none';
+        filterField.value = 'disable';
         reinitializeCustomSelect(filterField);
     }
 

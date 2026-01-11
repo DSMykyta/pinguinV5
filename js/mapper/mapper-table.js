@@ -204,14 +204,8 @@ export function renderCharacteristicsTable() {
                 label: 'Тип',
                 sortable: true,
                 render: (value) => {
-                    const types = {
-                        'text': 'Текст',
-                        'number': 'Число',
-                        'select': 'Вибір',
-                        'multiselect': 'Множинний вибір',
-                        'boolean': 'Так/Ні'
-                    };
-                    return types[value] || escapeHtml(value || '-');
+                    // Показуємо значення як є (TextInput, ComboBox, etc.)
+                    return `<code>${escapeHtml(value || '-')}</code>`;
                 }
             },
             {
