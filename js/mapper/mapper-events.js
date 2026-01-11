@@ -44,6 +44,27 @@ const columnConfigs = {
         { id: 'name', label: 'Назва', checked: true },
         { id: 'slug', label: 'Slug', checked: true },
         { id: 'is_active', label: 'Активний', checked: true }
+    ],
+    'mp-categories': [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'parent_id', label: 'Батьківська ID', checked: false },
+        { id: 'parent_name', label: 'Батьківська', checked: true },
+        { id: 'our_cat_id', label: 'Наша категорія', checked: true }
+    ],
+    'mp-characteristics': [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'type', label: 'Тип', checked: true },
+        { id: 'unit', label: 'Одиниця', checked: false },
+        { id: 'category_name', label: 'Категорія MP', checked: false },
+        { id: 'our_char_id', label: 'Наша характ.', checked: true }
+    ],
+    'mp-options': [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'char_id', label: 'Характеристика', checked: true },
+        { id: 'our_option_id', label: 'Наша опція', checked: true }
     ]
 };
 
@@ -75,7 +96,7 @@ export function initMapperEvents() {
  * Ініціалізувати селектори колонок для всіх табів
  */
 function initColumnSelectors() {
-    const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
+    const tabs = ['categories', 'characteristics', 'options', 'marketplaces', 'mp-categories', 'mp-characteristics', 'mp-options'];
 
     tabs.forEach(tab => {
         const containerId = `table-columns-list-mapper-${tab}`;
@@ -129,7 +150,7 @@ export function initMapperSearch(searchInput) {
  * Ініціалізувати кнопки оновлення
  */
 function initRefreshButtons() {
-    const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
+    const tabs = ['categories', 'characteristics', 'options', 'marketplaces', 'mp-categories', 'mp-characteristics', 'mp-options'];
 
     tabs.forEach(tab => {
         const btn = document.getElementById(`refresh-tab-mapper-${tab}`);
@@ -142,7 +163,15 @@ function initRefreshButtons() {
                 btn.querySelector('.material-symbols-outlined').classList.add('spinning');
 
                 try {
-                    await loadMapperData();
+                    // Для MP табів завантажуємо відповідні дані
+                    if (tab.startsWith('mp-')) {
+                        const { loadMpCategories, loadMpCharacteristics, loadMpOptions } = await import('./mapper-data.js');
+                        if (tab === 'mp-categories') await loadMpCategories();
+                        else if (tab === 'mp-characteristics') await loadMpCharacteristics();
+                        else if (tab === 'mp-options') await loadMpOptions();
+                    } else {
+                        await loadMapperData();
+                    }
                     renderCurrentTab();
                 } catch (error) {
                     console.error(`❌ Помилка оновлення табу ${tab}:`, error);
@@ -215,7 +244,10 @@ function initImportButton() {
 function initFilterPills() {
     const containers = [
         'filter-pills-mapper-characteristics',
-        'filter-pills-mapper-options'
+        'filter-pills-mapper-options',
+        'filter-pills-mapper-mp-categories',
+        'filter-pills-mapper-mp-characteristics',
+        'filter-pills-mapper-mp-options'
     ];
 
     containers.forEach(containerId => {
@@ -246,6 +278,63 @@ function initFilterPills() {
                 console.log(`📋 Фільтр ${tabName}: ${filter}`);
             });
         });
+    });
+
+    // Ініціалізувати фільтри маркетплейсу для MP табів
+    initMpMarketplaceFilters();
+}
+
+/**
+ * Ініціалізувати фільтри маркетплейсу для MP табів
+ */
+function initMpMarketplaceFilters() {
+    const mpTabs = ['categories', 'characteristics', 'options'];
+
+    mpTabs.forEach(tab => {
+        const select = document.getElementById(`mp-filter-${tab}`);
+        if (!select) return;
+
+        // Заповнити список маркетплейсів
+        populateMpFilterDropdown(select);
+
+        // Обробник зміни
+        select.addEventListener('change', async () => {
+            const marketplaceId = select.value;
+            mapperState.mpSelectedMarketplace[`mp-${tab}`] = marketplaceId || null;
+            mapperState.pagination.currentPage = 1;
+
+            // Завантажити дані якщо ще не завантажені
+            if (marketplaceId) {
+                const { loadMpCategories, loadMpCharacteristics, loadMpOptions } = await import('./mapper-data.js');
+                if (tab === 'categories' && mapperState.mpCategories.length === 0) await loadMpCategories();
+                else if (tab === 'characteristics' && mapperState.mpCharacteristics.length === 0) await loadMpCharacteristics();
+                else if (tab === 'options' && mapperState.mpOptions.length === 0) await loadMpOptions();
+            }
+
+            renderCurrentTab();
+            console.log(`📋 MP фільтр ${tab}: ${marketplaceId || 'всі'}`);
+        });
+    });
+}
+
+/**
+ * Заповнити dropdown фільтра маркетплейсу
+ */
+function populateMpFilterDropdown(select) {
+    // Очистити (залишити перший option)
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    // Додати маркетплейси
+    const marketplaces = mapperState.marketplaces || [];
+    marketplaces.forEach(mp => {
+        if (mp.is_active === 'true' || mp.is_active === true) {
+            const option = document.createElement('option');
+            option.value = mp.id;
+            option.textContent = mp.name;
+            select.appendChild(option);
+        }
     });
 }
 

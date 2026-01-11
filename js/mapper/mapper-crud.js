@@ -1807,30 +1807,39 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
     onProgress(50, `Запис ${characteristicsList.length} характеристик...`);
 
     // Записуємо характеристики маркетплейса
-    // Структура таблиці: id, marketplace_id, mp_char_id, mp_char_name, mp_char_type, mp_filter_type, mp_unit, mp_is_global, mp_category_id, mp_category_name, our_char_id, created_at
+    // Структура таблиці: id | marketplace_id | external_id | source | data | created_at | updated_at
+    // data - JSON з усіма полями характеристики (різні для кожного маркетплейсу)
     if (characteristicsList.length > 0) {
         const timestamp = new Date().toISOString();
-        const charRows = characteristicsList.map((c, index) => {
+        const charRows = characteristicsList.map((c) => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpc-${importState.marketplaceId}-${c.mp_char_id}`;
+
+            // Всі дані характеристики зберігаємо в JSON
+            const dataJson = JSON.stringify({
+                name: c.mp_char_name || '',
+                type: c.mp_char_type || '',
+                filter_type: c.mp_char_filter_type || '',
+                unit: c.mp_char_unit || '',
+                is_global: c.mp_char_is_global || '',
+                category_id: c.mp_category_id || '',
+                category_name: c.mp_category_name || '',
+                our_char_id: '' // для маппінгу
+            });
+
             return [
                 uniqueId,
                 importState.marketplaceId,
-                c.mp_char_id,
-                c.mp_char_name,
-                c.mp_char_type || '',
-                c.mp_char_filter_type || '',
-                c.mp_char_unit || '',
-                c.mp_char_is_global || '',
-                c.mp_category_id || '',
-                c.mp_category_name || '',
-                '', // our_char_id - для маппінгу
-                timestamp
+                c.mp_char_id,           // external_id
+                'import',               // source
+                dataJson,               // data (JSON)
+                timestamp,              // created_at
+                timestamp               // updated_at
             ];
         });
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Characteristics!A:L',
+            range: 'Mapper_MP_Characteristics!A:G',
             values: charRows,
             spreadsheetType: 'main'
         });
@@ -1839,20 +1848,28 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
     onProgress(75, `Запис ${mpOptions.length} опцій...`);
 
     // Записуємо опції маркетплейса
-    // Структура: id, marketplace_id, mp_char_id, mp_option_id, mp_option_name, our_option_id, created_at
+    // Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
     if (mpOptions.length > 0) {
         const timestamp = new Date().toISOString();
         const optRows = mpOptions.map(o => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpo-${importState.marketplaceId}-${o.mp_char_id}-${o.mp_option_id}`;
+
+            // Всі дані опції зберігаємо в JSON
+            const dataJson = JSON.stringify({
+                char_id: o.mp_char_id || '',
+                name: o.mp_option_name || '',
+                our_option_id: '' // для маппінгу
+            });
+
             return [
                 uniqueId,
                 importState.marketplaceId,
-                o.mp_char_id,
-                o.mp_option_id,
-                o.mp_option_name,
-                '', // our_option_id - для маппінгу
-                timestamp
+                o.mp_option_id,         // external_id
+                'import',               // source
+                dataJson,               // data (JSON)
+                timestamp,              // created_at
+                timestamp               // updated_at
             ];
         });
 
@@ -1899,26 +1916,35 @@ async function importCategories(onProgress = () => {}) {
     console.log(`📊 Категорій: ${mpCategories.length}`);
     onProgress(50, `Запис ${mpCategories.length} категорій...`);
 
-    // Структура: id, marketplace_id, mp_cat_id, mp_cat_name, mp_parent_id, mp_parent_name, our_cat_id, created_at
+    // Структура таблиці: id | marketplace_id | external_id | source | data | created_at | updated_at
+    // data - JSON з усіма полями категорії (різні для кожного маркетплейсу)
     if (mpCategories.length > 0) {
         const timestamp = new Date().toISOString();
         const catRows = mpCategories.map(c => {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpcat-${importState.marketplaceId}-${c.mp_cat_id}`;
+
+            // Всі дані категорії зберігаємо в JSON
+            const dataJson = JSON.stringify({
+                name: c.mp_cat_name || '',
+                parent_id: c.mp_parent_id || '',
+                parent_name: c.mp_parent_name || '',
+                our_cat_id: '' // для маппінгу
+            });
+
             return [
                 uniqueId,
                 importState.marketplaceId,
-                c.mp_cat_id,
-                c.mp_cat_name,
-                c.mp_parent_id || '',
-                c.mp_parent_name || '',
-                '', // our_cat_id - для маппінгу
-                timestamp
+                c.mp_cat_id,        // external_id
+                'import',           // source
+                dataJson,           // data (JSON)
+                timestamp,          // created_at
+                timestamp           // updated_at
             ];
         });
 
         await callSheetsAPI('append', {
-            range: 'Mapper_MP_Categories!A:H',
+            range: 'Mapper_MP_Categories!A:G',
             values: catRows,
             spreadsheetType: 'main'
         });
