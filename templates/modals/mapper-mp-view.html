@@ -1,0 +1,53 @@
+<div class="modal-overlay">
+    <style>
+        .mp-view-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .mp-view-field {
+            padding: 12px;
+            background: var(--color-surface-c-low);
+            border-radius: 8px;
+        }
+        .mp-view-label {
+            font-size: 12px;
+            color: var(--color-text-tertiary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .mp-view-value {
+            font-size: 14px;
+            color: var(--color-on-surface);
+            word-break: break-word;
+        }
+    </style>
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title"><span id="mp-view-modal-title">Перегляд елемента</span></h2>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" id="mp-view-content">
+            <!-- Заповнюється JavaScript -->
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn-outline modal-close-btn">
+                <span>Закрити</span>
+            </button>
+        </div>
+    </div>
+</div>

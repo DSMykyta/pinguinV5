@@ -377,6 +377,166 @@ export async function loadMapOptions() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// МАППІНГ - CRUD ОПЕРАЦІЇ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Додати маппінг характеристики
+ * Структура: id | own_id | mp_marketplace_id | mp_external_id
+ */
+export async function addCharacteristicMapping(ownId, marketplaceId, externalId) {
+    console.log(`🔗 Додавання маппінгу: ${ownId} → ${marketplaceId}:${externalId}`);
+
+    try {
+        const newId = `map-char-${Date.now()}`;
+
+        const newRow = [
+            newId,
+            ownId,
+            marketplaceId,
+            externalId
+        ];
+
+        await callSheetsAPI('append', {
+            range: `${SHEETS.MAP_CHARACTERISTICS}!A:D`,
+            values: [newRow],
+            spreadsheetType: 'main'
+        });
+
+        const newMapping = {
+            _rowIndex: mapperState.mapCharacteristics.length + 2,
+            id: newId,
+            own_id: ownId,
+            mp_marketplace_id: marketplaceId,
+            mp_external_id: externalId
+        };
+
+        mapperState.mapCharacteristics.push(newMapping);
+        console.log('✅ Маппінг характеристики додано:', newMapping);
+        return newMapping;
+    } catch (error) {
+        console.error('❌ Помилка додавання маппінгу характеристики:', error);
+        throw error;
+    }
+}
+
+/**
+ * Видалити маппінг характеристики
+ */
+export async function deleteCharacteristicMapping(id) {
+    console.log(`🗑️ Видалення маппінгу характеристики: ${id}`);
+
+    try {
+        const mapping = mapperState.mapCharacteristics.find(m => m.id === id);
+        if (!mapping) {
+            throw new Error(`Маппінг ${id} не знайдено`);
+        }
+
+        await callSheetsAPI('delete', {
+            sheetId: SHEET_IDS.MAP_CHARACTERISTICS,
+            startIndex: mapping._rowIndex - 1,
+            endIndex: mapping._rowIndex,
+            spreadsheetType: 'main'
+        });
+
+        const index = mapperState.mapCharacteristics.findIndex(m => m.id === id);
+        if (index > -1) {
+            mapperState.mapCharacteristics.splice(index, 1);
+            // Оновлюємо rowIndex для елементів після видаленого
+            mapperState.mapCharacteristics.forEach((m, i) => {
+                if (i >= index) {
+                    m._rowIndex = i + 2;
+                }
+            });
+        }
+
+        console.log('✅ Маппінг характеристики видалено');
+        return true;
+    } catch (error) {
+        console.error('❌ Помилка видалення маппінгу характеристики:', error);
+        throw error;
+    }
+}
+
+/**
+ * Додати маппінг опції
+ * Структура: id | own_id | mp_marketplace_id | mp_external_id
+ */
+export async function addOptionMapping(ownId, marketplaceId, externalId) {
+    console.log(`🔗 Додавання маппінгу опції: ${ownId} → ${marketplaceId}:${externalId}`);
+
+    try {
+        const newId = `map-opt-${Date.now()}`;
+
+        const newRow = [
+            newId,
+            ownId,
+            marketplaceId,
+            externalId
+        ];
+
+        await callSheetsAPI('append', {
+            range: `${SHEETS.MAP_OPTIONS}!A:D`,
+            values: [newRow],
+            spreadsheetType: 'main'
+        });
+
+        const newMapping = {
+            _rowIndex: mapperState.mapOptions.length + 2,
+            id: newId,
+            own_id: ownId,
+            mp_marketplace_id: marketplaceId,
+            mp_external_id: externalId
+        };
+
+        mapperState.mapOptions.push(newMapping);
+        console.log('✅ Маппінг опції додано:', newMapping);
+        return newMapping;
+    } catch (error) {
+        console.error('❌ Помилка додавання маппінгу опції:', error);
+        throw error;
+    }
+}
+
+/**
+ * Видалити маппінг опції
+ */
+export async function deleteOptionMapping(id) {
+    console.log(`🗑️ Видалення маппінгу опції: ${id}`);
+
+    try {
+        const mapping = mapperState.mapOptions.find(m => m.id === id);
+        if (!mapping) {
+            throw new Error(`Маппінг ${id} не знайдено`);
+        }
+
+        await callSheetsAPI('delete', {
+            sheetId: SHEET_IDS.MAP_OPTIONS,
+            startIndex: mapping._rowIndex - 1,
+            endIndex: mapping._rowIndex,
+            spreadsheetType: 'main'
+        });
+
+        const index = mapperState.mapOptions.findIndex(m => m.id === id);
+        if (index > -1) {
+            mapperState.mapOptions.splice(index, 1);
+            // Оновлюємо rowIndex для елементів після видаленого
+            mapperState.mapOptions.forEach((m, i) => {
+                if (i >= index) {
+                    m._rowIndex = i + 2;
+                }
+            });
+        }
+
+        console.log('✅ Маппінг опції видалено');
+        return true;
+    } catch (error) {
+        console.error('❌ Помилка видалення маппінгу опції:', error);
+        throw error;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CRUD ОПЕРАЦІЇ
 // ═══════════════════════════════════════════════════════════════════════════
 

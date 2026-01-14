@@ -2635,3 +2635,190 @@ async function importOwnCategories(onProgress = () => {}) {
 
     onProgress(100, 'Готово!');
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// МАППІНГ ЕЛЕМЕНТІВ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Створити маппінги між власними та MP елементами
+ * @param {string} tabName - 'characteristics' або 'options'
+ * @param {string} ownId - ID власного елемента
+ * @param {Array} mpItems - Масив MP елементів [{marketplace_id, external_id}, ...]
+ * @returns {boolean} - Успішність операції
+ */
+export async function createMappings(tabName, ownId, mpItems) {
+    console.log(`🔗 Створення маппінгів для ${tabName}: ${ownId} →`, mpItems);
+
+    try {
+        const { addCharacteristicMapping, addOptionMapping, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
+
+        let addMappingFn;
+        let loadMappingsFn;
+
+        if (tabName === 'characteristics') {
+            addMappingFn = addCharacteristicMapping;
+            loadMappingsFn = loadMapCharacteristics;
+        } else if (tabName === 'options') {
+            addMappingFn = addOptionMapping;
+            loadMappingsFn = loadMapOptions;
+        } else {
+            throw new Error(`Непідтримуваний тип табу: ${tabName}`);
+        }
+
+        // Додаємо кожен маппінг
+        for (const mpItem of mpItems) {
+            await addMappingFn(ownId, mpItem.marketplace_id, mpItem.external_id);
+        }
+
+        // Оновлюємо локальний стейт
+        await loadMappingsFn();
+
+        showToast(`Прив'язано ${mpItems.length} елемент(ів)`, 'success');
+        return true;
+    } catch (error) {
+        console.error('❌ Помилка створення маппінгів:', error);
+        showToast('Помилка при прив\'язуванні елементів', 'error');
+        return false;
+    }
+}
+
+/**
+ * Показати модалку для перегляду MP характеристики (read-only)
+ */
+export async function showViewMpCharacteristicModal(marketplaceId, externalId) {
+    console.log(`👁️ Перегляд MP характеристики: ${marketplaceId}:${externalId}`);
+
+    const { getMpCharacteristics, getMarketplaces } = await import('./mapper-data.js');
+    const mpCharacteristics = getMpCharacteristics();
+    const marketplaces = getMarketplaces();
+
+    const char = mpCharacteristics.find(c =>
+        c.marketplace_id === marketplaceId && c.external_id === externalId
+    );
+
+    if (!char) {
+        showToast('Характеристику не знайдено', 'error');
+        return;
+    }
+
+    const marketplace = marketplaces.find(m => m.id === marketplaceId);
+
+    // Показуємо просте модальне вікно з інформацією
+    await showModal('mapper-mp-view', null);
+
+    const modalEl = document.getElementById('modal-mapper-mp-view');
+    if (!modalEl) {
+        console.error('Modal element not found');
+        return;
+    }
+
+    const title = modalEl.querySelector('#mp-view-modal-title');
+    if (title) title.textContent = `${marketplace?.name || marketplaceId}: ${char.name || char.name_ua || externalId}`;
+
+    const content = modalEl.querySelector('#mp-view-content');
+    if (content) {
+        // Форматуємо дані для відображення
+        let html = '<div class="mp-view-grid">';
+
+        const fields = [
+            { label: 'Маркетплейс', value: marketplace?.name || marketplaceId },
+            { label: 'External ID', value: externalId },
+            { label: 'Назва', value: char.name || char.name_ua || '-' },
+            { label: 'Тип', value: char.type || '-' }
+        ];
+
+        // Додаємо всі поля з data
+        if (char.data) {
+            try {
+                const data = typeof char.data === 'string' ? JSON.parse(char.data) : char.data;
+                Object.entries(data).forEach(([key, value]) => {
+                    if (key !== 'name' && key !== 'type') {
+                        fields.push({ label: key, value: typeof value === 'object' ? JSON.stringify(value) : String(value) });
+                    }
+                });
+            } catch (e) {
+                console.warn('⚠️ Не вдалося розпарсити data:', e);
+            }
+        }
+
+        fields.forEach(field => {
+            html += `
+                <div class="mp-view-field">
+                    <div class="mp-view-label">${escapeHtml(field.label)}</div>
+                    <div class="mp-view-value">${escapeHtml(field.value || '-')}</div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        content.innerHTML = html;
+    }
+}
+
+/**
+ * Показати модалку для перегляду MP опції (read-only)
+ */
+export async function showViewMpOptionModal(marketplaceId, externalId) {
+    console.log(`👁️ Перегляд MP опції: ${marketplaceId}:${externalId}`);
+
+    const { getMpOptions, getMarketplaces } = await import('./mapper-data.js');
+    const mpOptions = getMpOptions();
+    const marketplaces = getMarketplaces();
+
+    const opt = mpOptions.find(o =>
+        o.marketplace_id === marketplaceId && o.external_id === externalId
+    );
+
+    if (!opt) {
+        showToast('Опцію не знайдено', 'error');
+        return;
+    }
+
+    const marketplace = marketplaces.find(m => m.id === marketplaceId);
+
+    await showModal('mapper-mp-view', null);
+
+    const modalEl = document.getElementById('modal-mapper-mp-view');
+    if (!modalEl) return;
+
+    const title = modalEl.querySelector('#mp-view-modal-title');
+    if (title) title.textContent = `${marketplace?.name || marketplaceId}: ${opt.name || opt.value_ua || externalId}`;
+
+    const content = modalEl.querySelector('#mp-view-content');
+    if (content) {
+        let html = '<div class="mp-view-grid">';
+
+        const fields = [
+            { label: 'Маркетплейс', value: marketplace?.name || marketplaceId },
+            { label: 'External ID', value: externalId },
+            { label: 'Значення', value: opt.name || opt.value_ua || '-' }
+        ];
+
+        // Додаємо всі поля з data
+        if (opt.data) {
+            try {
+                const data = typeof opt.data === 'string' ? JSON.parse(opt.data) : opt.data;
+                Object.entries(data).forEach(([key, value]) => {
+                    if (key !== 'name' && key !== 'value_ua') {
+                        fields.push({ label: key, value: typeof value === 'object' ? JSON.stringify(value) : String(value) });
+                    }
+                });
+            } catch (e) {
+                console.warn('⚠️ Не вдалося розпарсити data:', e);
+            }
+        }
+
+        fields.forEach(field => {
+            html += `
+                <div class="mp-view-field">
+                    <div class="mp-view-label">${escapeHtml(field.label)}</div>
+                    <div class="mp-view-value">${escapeHtml(field.value || '-')}</div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        content.innerHTML = html;
+    }
+}

@@ -39,6 +39,12 @@ export const mapperState = {
     mapCharacteristics: [],
     mapOptions: [],
 
+    // Вибрані елементи для маппінгу (unified selection)
+    selectedItems: {
+        characteristics: new Set(), // Set of unique keys: "own:id" or "mp:marketplace_id:external_id"
+        options: new Set()
+    },
+
     // Пошук
     searchQuery: '',
     searchColumns: {
