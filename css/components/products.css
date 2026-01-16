@@ -937,13 +937,36 @@
     gap: 16px;
 }
 
-.wizard-header-top .modal-title {
-    flex: 0 0 auto;
-    white-space: nowrap;
-}
-
 .wizard-header-top .btn-icon {
     flex: 0 0 auto;
+}
+
+/* Wizard title block (icon + title + hint) */
+.wizard-title-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 0 0 auto;
+}
+
+.wizard-title-block .material-symbols-outlined {
+    font-size: 32px;
+    color: var(--color-main);
+    background: var(--color-main-c);
+    padding: 8px;
+    border-radius: var(--radius-m);
+}
+
+.wizard-title-block .modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.wizard-title-hint {
+    margin: 0;
+    font-size: 13px;
+    color: var(--color-on-surface-v);
 }
 
 .wizard-progress {
@@ -1742,13 +1765,6 @@
     text-align: center;
 }
 
-.cell-show {
-    width: 60px;
-    min-width: 60px;
-    flex: 0 0 60px;
-    text-align: center;
-}
-
 /* Small button icon */
 .btn-icon-sm {
     width: 28px;
@@ -2029,6 +2045,10 @@
 /* ==========================================================================
    UTILITY CLASSES
    ========================================================================== */
+
+.u-mb-24 {
+    margin-bottom: 24px;
+}
 
 .u-mt-24 {
     margin-top: 24px;
