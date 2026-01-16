@@ -601,6 +601,36 @@ function renderGroupsTab() {
     `;
 
     container.innerHTML = html;
+
+    // Обробники для кнопок у групах
+    container.querySelectorAll('.group-card .btn-icon[title="Редагувати"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const groupName = btn.closest('.group-card')?.querySelector('.group-name')?.textContent || 'Група';
+            showToast(`Редагування групи: ${groupName}`, 'info');
+        });
+    });
+
+    container.querySelectorAll('.group-card .btn-icon[title="Видалити"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const groupCard = btn.closest('.group-card');
+            const groupName = groupCard?.querySelector('.group-name')?.textContent || 'Група';
+            if (confirm(`Видалити групу "${groupName}"?`)) {
+                groupCard.remove();
+                showToast('Групу видалено', 'info');
+            }
+        });
+    });
+
+    // Кнопка створення групи
+    const addGroupBtn = container.querySelector('.group-add-btn');
+    if (addGroupBtn) {
+        addGroupBtn.addEventListener('click', () => {
+            showToast('Створення нової групи зв\'язків', 'info');
+            // Тут можна додати модал створення групи
+        });
+    }
 }
 
 /**
@@ -776,6 +806,9 @@ async function openEditModal(productId) {
         // Ініціалізуємо таби опису
         initDescriptionTabs();
 
+        // Ініціалізуємо всі кнопки в модалі редагування
+        initEditModalActions(productId);
+
     } catch (error) {
         console.error('Failed to load edit modal:', error);
     }
@@ -847,6 +880,79 @@ async function openVariantsModal(productId) {
 
     // Ініціалізуємо кнопки закриття
     initModalCloseButtons();
+
+    // Кнопка "Додати варіант"
+    const addVariantModalBtn = container.querySelector('#btn-add-variant-modal');
+    if (addVariantModalBtn) {
+        addVariantModalBtn.addEventListener('click', () => {
+            const newId = product.variants.length + 1;
+            const newVariant = {
+                id: newId,
+                name: 'Новий варіант',
+                sku: `SKU-${Date.now()}`,
+                price: 0,
+                stock: 0
+            };
+            product.variants.push(newVariant);
+            product.variants_count = product.variants.length;
+
+            // Додаємо до списку
+            const variantsList = container.querySelector('.variants-list');
+            if (variantsList) {
+                const variantHtml = `
+                    <div class="variant-card" data-variant-id="${newVariant.id}">
+                        <div class="variant-header">
+                            <div class="variant-info">
+                                <div class="variant-name">${newVariant.name}</div>
+                                <div class="variant-sku">${newVariant.sku}</div>
+                            </div>
+                            <div class="variant-meta">
+                                <span class="badge badge-neutral">Залишок: 0</span>
+                                <span class="variant-price">₴ 0</span>
+                            </div>
+                            <div class="variant-actions">
+                                <button class="btn-icon btn-edit-variant-modal" title="Редагувати">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn-icon btn-delete-variant-modal" title="Видалити">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                variantsList.insertAdjacentHTML('beforeend', variantHtml);
+            }
+            showToast('Варіант додано', 'success');
+        });
+    }
+
+    // Делегування для кнопок редагування/видалення варіантів
+    const variantsModalList = container.querySelector('.variants-list');
+    if (variantsModalList) {
+        variantsModalList.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[title="Редагувати"]');
+            if (editBtn) {
+                e.stopPropagation();
+                const variantCard = editBtn.closest('.variant-card');
+                const variantName = variantCard?.querySelector('.variant-name')?.textContent || 'Варіант';
+                showToast(`Редагування: ${variantName}`, 'info');
+                return;
+            }
+
+            const deleteBtn = e.target.closest('[title="Видалити"]');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const variantCard = deleteBtn.closest('.variant-card');
+                const variantName = variantCard?.querySelector('.variant-name')?.textContent || 'Варіант';
+                if (confirm(`Видалити варіант "${variantName}"?`)) {
+                    variantCard.remove();
+                    showToast('Варіант видалено', 'info');
+                }
+                return;
+            }
+        });
+    }
 }
 
 /**
@@ -1006,6 +1112,346 @@ function initDescriptionTabs() {
             // Активуємо обраний
             tab.classList.add('active');
             container.querySelector(`[data-tab-content="${targetTab}"]`)?.classList.add('active');
+        });
+    });
+}
+
+/**
+ * Ініціалізація всіх кнопок в модалі редагування
+ */
+function initEditModalActions(productId) {
+    const container = document.getElementById('modal-container');
+    const product = DEMO_PRODUCTS.find(p => p.id == productId);
+
+    // === HEADER BUTTONS ===
+
+    // Кнопка "Зберегти"
+    const saveBtn = container.querySelector('#btn-save-product');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', () => {
+            // Збираємо дані з форми
+            const nameUk = container.querySelector('#edit-name-uk')?.value;
+            const nameRu = container.querySelector('#edit-name-ru')?.value;
+
+            if (product && nameUk) {
+                product.name_uk = nameUk;
+                product.name_ru = nameRu;
+                product.name_short = nameUk;
+            }
+
+            showToast('Зміни збережено', 'success');
+            closeModal();
+            renderProductsTable(DEMO_PRODUCTS);
+        });
+    }
+
+    // Кнопка "Дублювати"
+    const duplicateBtn = container.querySelector('#btn-duplicate-product');
+    if (duplicateBtn) {
+        duplicateBtn.addEventListener('click', () => {
+            if (!product) return;
+
+            const newId = Math.max(...DEMO_PRODUCTS.map(p => p.id)) + 1;
+            const duplicate = {
+                ...product,
+                id: newId,
+                name_uk: product.name_uk + ' (копія)',
+                name_ru: product.name_ru + ' (копия)',
+                name_short: product.name_short + ' (копія)',
+                status: 'draft',
+                variants: product.variants.map((v, i) => ({
+                    ...v,
+                    id: i + 1,
+                    sku: v.sku + '-COPY'
+                }))
+            };
+
+            DEMO_PRODUCTS.unshift(duplicate);
+            showToast(`Товар дубльовано: ${duplicate.name_short}`, 'success');
+            closeModal();
+            renderProductsTable(DEMO_PRODUCTS);
+        });
+    }
+
+    // Кнопка "Видалити"
+    const deleteBtn = container.querySelector('#btn-delete-product');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            if (!product) return;
+
+            if (confirm(`Видалити товар "${product.name_short}"?`)) {
+                const index = DEMO_PRODUCTS.findIndex(p => p.id === product.id);
+                if (index > -1) {
+                    DEMO_PRODUCTS.splice(index, 1);
+                    showToast('Товар видалено', 'info');
+                    closeModal();
+                    renderProductsTable(DEMO_PRODUCTS);
+                }
+            }
+        });
+    }
+
+    // === PHOTOS SECTION ===
+
+    // Клік по "Додати фото"
+    const photoAddBtn = container.querySelector('#photos-grid .photo-add');
+    if (photoAddBtn) {
+        photoAddBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            input.onchange = (e) => {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    // Додаємо фото перед кнопкою "Додати"
+                    const grid = container.querySelector('#photos-grid');
+                    Array.from(files).forEach(file => {
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item';
+                        photoItem.innerHTML = `
+                            <img src="https://via.placeholder.com/200x200/e3f2fd/1565c0?text=${encodeURIComponent(file.name.substring(0, 8))}" alt="${file.name}">
+                            <div class="photo-overlay">
+                                <div class="photo-actions">
+                                    <button class="btn-icon btn-icon-light btn-photo-star" title="Зробити головним">
+                                        <span class="material-symbols-outlined">star</span>
+                                    </button>
+                                    <button class="btn-icon btn-icon-light btn-photo-delete" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        grid.insertBefore(photoItem, photoAddBtn);
+                    });
+                    showToast(`Додано ${files.length} фото`, 'success');
+                }
+            };
+            input.click();
+        });
+    }
+
+    // Делегування для кнопок фото (star, delete)
+    const photosGrid = container.querySelector('#photos-grid');
+    if (photosGrid) {
+        photosGrid.addEventListener('click', (e) => {
+            const starBtn = e.target.closest('.btn-photo-star, [title="Зробити головним"]');
+            if (starBtn) {
+                e.stopPropagation();
+                const photoItem = starBtn.closest('.photo-item');
+                const currentMain = photosGrid.querySelector('.photo-main');
+
+                // Забираємо статус головного з поточного
+                if (currentMain && currentMain !== photoItem) {
+                    currentMain.classList.remove('photo-main');
+                    const badge = currentMain.querySelector('.photo-badge');
+                    if (badge) badge.remove();
+
+                    // Додаємо кнопку star до старого головного
+                    const oldActions = currentMain.querySelector('.photo-actions');
+                    if (oldActions && !oldActions.querySelector('.btn-photo-star, [title="Зробити головним"]')) {
+                        const newStarBtn = document.createElement('button');
+                        newStarBtn.className = 'btn-icon btn-icon-light btn-photo-star';
+                        newStarBtn.title = 'Зробити головним';
+                        newStarBtn.innerHTML = '<span class="material-symbols-outlined">star</span>';
+                        oldActions.insertBefore(newStarBtn, oldActions.firstChild);
+                    }
+                }
+
+                // Встановлюємо нове головне
+                photoItem.classList.add('photo-main');
+                starBtn.remove();
+
+                // Додаємо badge
+                const overlay = photoItem.querySelector('.photo-overlay');
+                if (overlay && !overlay.querySelector('.photo-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'photo-badge';
+                    badge.textContent = 'Головне';
+                    overlay.insertBefore(badge, overlay.firstChild);
+                }
+
+                showToast('Головне фото змінено', 'success');
+                return;
+            }
+
+            const deleteBtn = e.target.closest('.btn-photo-delete, .photo-actions [title="Видалити"]');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const photoItem = deleteBtn.closest('.photo-item');
+                if (photoItem.classList.contains('photo-main')) {
+                    showToast('Не можна видалити головне фото', 'error');
+                    return;
+                }
+                photoItem.remove();
+                showToast('Фото видалено', 'info');
+                return;
+            }
+        });
+    }
+
+    // === VARIANTS SECTION ===
+
+    // Кнопка "Додати варіант"
+    const addVariantBtn = container.querySelector('#btn-add-variant');
+    if (addVariantBtn) {
+        addVariantBtn.addEventListener('click', () => {
+            const variantsList = container.querySelector('#variants-list');
+            if (!variantsList) return;
+
+            const newVariantId = Date.now();
+            const newVariantHtml = `
+                <div class="variant-card" data-variant-id="${newVariantId}">
+                    <div class="variant-header">
+                        <div class="variant-info">
+                            <img src="https://via.placeholder.com/48x48/e0e0e0/666?text=NEW" class="variant-thumb">
+                            <div>
+                                <div class="variant-name">Новий варіант</div>
+                                <div class="variant-sku">SKU-${newVariantId}</div>
+                            </div>
+                        </div>
+                        <div class="variant-meta">
+                            <span class="badge badge-neutral">Залишок: 0</span>
+                            <span class="variant-price">₴ 0</span>
+                        </div>
+                        <div class="variant-actions">
+                            <button class="btn-icon btn-variant-delete" title="Видалити">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                            <button class="btn-icon variant-toggle" title="Розгорнути">
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="variant-body" style="display: none;">
+                        <div class="form-grid form-grid-4">
+                            <div class="form-group">
+                                <label>Артикул</label>
+                                <input type="text" value="SKU-${newVariantId}">
+                            </div>
+                            <div class="form-group">
+                                <label>Штрихкод</label>
+                                <input type="text" placeholder="EAN-13">
+                            </div>
+                            <div class="form-group">
+                                <label>Ціна</label>
+                                <input type="number" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>На складі</label>
+                                <input type="number" value="0">
+                            </div>
+                        </div>
+                        <div class="form-grid form-grid-4">
+                            <div class="form-group">
+                                <label>Смак</label>
+                                <input type="text" placeholder="—">
+                            </div>
+                            <div class="form-group">
+                                <label>Розмір</label>
+                                <input type="text" placeholder="—">
+                            </div>
+                            <div class="form-group">
+                                <label>Об'єм/Вага</label>
+                                <input type="text" placeholder="—">
+                            </div>
+                            <div class="form-group">
+                                <label>Стан</label>
+                                <input type="text" placeholder="—">
+                            </div>
+                        </div>
+                        <div class="variant-section u-mt-16">
+                            <div class="variant-section-header">
+                                <span class="material-symbols-outlined">image</span>
+                                <span>Фото варіанту</span>
+                            </div>
+                            <div class="variant-photos-grid">
+                                <div class="photo-item photo-small photo-add variant-photo-add">
+                                    <span class="material-symbols-outlined">add</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="variant-section u-mt-16">
+                            <label class="checkbox-label">
+                                <input type="checkbox" class="variant-own-composition-toggle">
+                                <span>Власний склад для цього варіанту</span>
+                            </label>
+                            <div class="variant-composition-fields" style="display: none;">
+                                <div class="form-group u-mt-16">
+                                    <label>Інгредієнти</label>
+                                    <textarea rows="3" placeholder="Власний склад для варіанту..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            variantsList.insertAdjacentHTML('beforeend', newVariantHtml);
+
+            // Реініціалізуємо toggle
+            initVariantsToggle();
+
+            showToast('Варіант додано', 'success');
+        });
+    }
+
+    // Делегування для видалення варіантів та toggle власного складу
+    const variantsList = container.querySelector('#variants-list');
+    if (variantsList) {
+        variantsList.addEventListener('click', (e) => {
+            // Видалити варіант
+            const deleteBtn = e.target.closest('.btn-variant-delete, .variant-actions [title="Видалити"]');
+            if (deleteBtn) {
+                e.stopPropagation();
+                const variantCard = deleteBtn.closest('.variant-card');
+                const variantName = variantCard?.querySelector('.variant-name')?.textContent || 'Варіант';
+
+                if (confirm(`Видалити варіант "${variantName}"?`)) {
+                    variantCard.remove();
+                    showToast('Варіант видалено', 'info');
+                }
+                return;
+            }
+
+            // Фото варіанту - додати
+            const variantPhotoAdd = e.target.closest('.variant-photo-add, .variant-photos-grid .photo-add');
+            if (variantPhotoAdd) {
+                e.stopPropagation();
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (ev) => {
+                    const file = ev.target.files[0];
+                    if (file) {
+                        const grid = variantPhotoAdd.closest('.variant-photos-grid');
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item photo-small';
+                        photoItem.innerHTML = `<img src="https://via.placeholder.com/80x80/e3f2fd/1565c0?text=${encodeURIComponent(file.name.substring(0, 4))}" alt="Variant photo">`;
+                        grid.insertBefore(photoItem, variantPhotoAdd);
+                        showToast('Фото варіанту додано', 'success');
+                    }
+                };
+                input.click();
+                return;
+            }
+        });
+
+        // Toggle власного складу
+        variantsList.addEventListener('change', (e) => {
+            if (e.target.classList.contains('variant-own-composition-toggle')) {
+                const compositionFields = e.target.closest('.variant-section').querySelector('.variant-composition-fields');
+                if (compositionFields) {
+                    compositionFields.style.display = e.target.checked ? 'block' : 'none';
+                }
+            }
+        });
+    }
+
+    // === INFO BUTTONS ===
+    container.querySelectorAll('.section-name .btn-icon[aria-label="Інформація"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionName = btn.closest('.section-name')?.querySelector('h2')?.textContent || 'Секція';
+            showToast(`Довідка: ${sectionName}`, 'info');
         });
     });
 }
@@ -1294,9 +1740,31 @@ function openVariantCompositionModal() {
 
     if (compositionModal) {
         compositionModal.classList.add('is-open');
+
+        // Кнопка закриття
+        compositionModal.querySelectorAll('[data-modal-close]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                compositionModal.classList.remove('is-open');
+            });
+        });
+
+        // Клік по overlay
+        compositionModal.addEventListener('click', (e) => {
+            if (e.target === compositionModal) {
+                compositionModal.classList.remove('is-open');
+            }
+        });
+
+        // Кнопка "Зберегти"
+        const saveBtn = compositionModal.querySelector('#save-variant-composition');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => {
+                showToast('Склад варіанту збережено', 'success');
+                compositionModal.classList.remove('is-open');
+            });
+        }
     } else {
-        // Модал вже є в HTML, просто показуємо toast
-        showToast('Модал складу варіанту (demo)', 'info');
+        showToast('Модал складу варіанту не знайдено', 'error');
     }
 }
 
