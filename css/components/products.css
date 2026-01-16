@@ -1225,3 +1225,192 @@
     font-size: 12px;
     color: var(--color-on-surface-v);
 }
+
+/* ==========================================================================
+   WIZARD DOTS (progress indicators)
+   ========================================================================== */
+
+.wizard-dots {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.wizard-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-outline);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wizard-dot:hover {
+    transform: scale(1.2);
+}
+
+.wizard-dot.is-active {
+    background: var(--color-main);
+    box-shadow: 0 0 0 3px var(--color-main-c);
+}
+
+.wizard-dot.is-valid {
+    background: var(--color-success);
+}
+
+.wizard-dot.is-invalid {
+    background: var(--color-error);
+}
+
+/* ==========================================================================
+   FORM ROWS (wizard layout)
+   ========================================================================== */
+
+.form-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-row-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.form-row-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-row-4 {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+/* Special row for Name + Feature + Detail (2:1:1 ratio) */
+.form-row-name {
+    grid-template-columns: 2fr 1fr 1fr;
+}
+
+.form-group-2x {
+    grid-column: span 1;
+}
+
+@media (max-width: 768px) {
+    .form-row-2,
+    .form-row-3,
+    .form-row-4,
+    .form-row-name {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   STACKED INPUTS (bilingual inputs one below another)
+   ========================================================================== */
+
+.stacked-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stacked-inputs input,
+.stacked-inputs textarea,
+.stacked-inputs select {
+    width: 100%;
+}
+
+/* Wizard specific styling */
+.wizard-content .form-group {
+    margin-bottom: 0;
+}
+
+.wizard-content .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-on-surface);
+}
+
+/* Apply same input/select styles to wizard */
+.wizard-content .form-group input[type="text"],
+.wizard-content .form-group input[type="number"],
+.wizard-content .form-group textarea {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    width: 100%;
+    transition: border-color 150ms ease-in-out;
+}
+
+.wizard-content .form-group input:hover,
+.wizard-content .form-group textarea:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.wizard-content .form-group input:focus,
+.wizard-content .form-group textarea:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+}
+
+.wizard-content .form-group select {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    transition: border-color 150ms ease-in-out;
+}
+
+.wizard-content .form-group select:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.wizard-content .form-group select:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+    padding-right: 39px;
+}
+
+.wizard-content .form-group select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Remove number input spinners in wizard */
+.wizard-content input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.wizard-content input[type="number"]::-webkit-outer-spin-button,
+.wizard-content input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
