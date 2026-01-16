@@ -1,0 +1,28 @@
+<div class="pseudo-table-row product-row" data-product-id="{{product_id}}">
+    <div class="pseudo-table-cell cell-actions">
+        <button class="btn-icon btn-edit-product" data-product-id="{{product_id}}" title="Редагувати">
+            <span class="material-symbols-outlined">edit</span>
+        </button>
+    </div>
+    <div class="pseudo-table-cell cell-photo">
+        <img src="{{photo_url}}" alt="{{name}}" class="product-thumb">
+    </div>
+    <div class="pseudo-table-cell cell-main-name">
+        <div class="product-name-block">
+            <strong class="product-name">{{name_uk}}</strong>
+            <span class="product-name-secondary">{{name_short}}</span>
+        </div>
+    </div>
+    <div class="pseudo-table-cell cell-brand">
+        <span class="badge badge-outline">{{brand}}</span>
+    </div>
+    <div class="pseudo-table-cell cell-category">
+        {{category}}
+    </div>
+    <div class="pseudo-table-cell cell-variants">
+        <span class="badge">{{variants_count}} варіантів</span>
+    </div>
+    <div class="pseudo-table-cell cell-status">
+        {{status_badge}}
+    </div>
+</div>

@@ -1,0 +1,446 @@
+<div class="modal-overlay" data-modal-id="product-create-wizard">
+    <div class="modal-container modal-large">
+
+        <!-- Заголовок Wizard -->
+        <div class="modal-header wizard-header">
+            <div class="wizard-header-top">
+                <h2 class="modal-title">Створення товару</h2>
+                <button class="btn-icon" data-modal-close title="Скасувати">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <!-- Прогрес-бар -->
+            <div class="wizard-progress">
+                <div class="wizard-progress-bar" id="wizard-progress-bar" style="width: 16.66%;"></div>
+            </div>
+
+            <!-- Кроки -->
+            <div class="wizard-steps" id="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <div class="wizard-step-number">1</div>
+                    <div class="wizard-step-label">Назва</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="wizard-step-number">2</div>
+                    <div class="wizard-step-label">Фото</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="wizard-step-number">3</div>
+                    <div class="wizard-step-label">Варіанти</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="wizard-step-number">4</div>
+                    <div class="wizard-step-label">Склад</div>
+                </div>
+                <div class="wizard-step" data-step="5">
+                    <div class="wizard-step-number">5</div>
+                    <div class="wizard-step-label">Опис</div>
+                </div>
+                <div class="wizard-step" data-step="6">
+                    <div class="wizard-step-number">6</div>
+                    <div class="wizard-step-label">Готово</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Тіло Wizard -->
+        <div class="modal-body wizard-body">
+
+            <!-- КРОК 1: НАЗВА -->
+            <div class="wizard-content active" data-wizard-step="1">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon">edit</span>
+                    <div>
+                        <h3>Назва товару</h3>
+                        <p>Заповніть структуровані поля для формування назви</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label required">Категорія</label>
+                            <select class="input" id="wizard-category" required>
+                                <option value="">Оберіть категорію</option>
+                                <option value="vitamins">Вітаміни та мінерали</option>
+                                <option value="protein">Протеїн</option>
+                                <option value="amino">Амінокислоти</option>
+                                <option value="sports">Спортивне харчування</option>
+                                <option value="health">Здоров'я</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Бренд</label>
+                            <select class="input" id="wizard-brand" required>
+                                <option value="">Оберіть бренд</option>
+                                <option value="mst">MST Nutrition</option>
+                                <option value="now">Now Foods</option>
+                                <option value="on">Optimum Nutrition</option>
+                                <option value="doctor">Doctor's Best</option>
+                                <option value="life">Life Extension</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Лінійка бренду</label>
+                        <input type="text" class="input" id="wizard-brand-line" placeholder="Наприклад: Sport, Premium, Gold...">
+                    </div>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label required">Текст перед назвою (UK)</label>
+                            <input type="text" class="input" id="wizard-prefix-uk" placeholder="Вітамін Д3" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Текст перед назвою (RU)</label>
+                            <input type="text" class="input" id="wizard-prefix-ru" placeholder="Витамин Д3">
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label required">Назва товару</label>
+                            <input type="text" class="input" id="wizard-name" placeholder="Vitamin D3 5000 IU" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Варіація (фасування)</label>
+                            <input type="text" class="input" id="wizard-variation" placeholder="120 капсул">
+                        </div>
+                    </div>
+
+                    <!-- Прев'ю назви -->
+                    <div class="preview-box u-mt-16">
+                        <div class="preview-label">Згенерована назва:</div>
+                        <div class="preview-value preview-value-large" id="wizard-preview-name">
+                            <span class="text-muted">Заповніть поля вище...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- КРОК 2: ФОТО -->
+            <div class="wizard-content" data-wizard-step="2">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon">image</span>
+                    <div>
+                        <h3>Фотографії</h3>
+                        <p>Завантажте до 10 фотографій товару</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <div class="drop-zone" id="wizard-drop-zone">
+                        <span class="material-symbols-outlined drop-zone-icon">cloud_upload</span>
+                        <div class="drop-zone-text">
+                            <strong>Перетягніть фото сюди</strong>
+                            <span>або натисніть для вибору</span>
+                        </div>
+                        <input type="file" id="wizard-photo-input" multiple accept="image/*" hidden>
+                    </div>
+
+                    <div class="photos-grid photos-grid-wizard" id="wizard-photos-grid">
+                        <!-- Демо фото для візуалізації -->
+                        <div class="photo-item photo-main">
+                            <img src="https://via.placeholder.com/150x150/e8f5e9/2e7d32?text=1" alt="Photo 1">
+                            <div class="photo-overlay">
+                                <span class="photo-badge">Головне</span>
+                                <button class="btn-icon btn-icon-light photo-delete">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="photo-item">
+                            <img src="https://via.placeholder.com/150x150/e3f2fd/1565c0?text=2" alt="Photo 2">
+                            <div class="photo-overlay">
+                                <button class="btn-icon btn-icon-light photo-delete">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="form-hint u-mt-16">
+                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">info</span>
+                        Перше завантажене фото буде головним. Перетягуйте для зміни порядку.
+                    </p>
+                </div>
+            </div>
+
+            <!-- КРОК 3: ВАРІАНТИ -->
+            <div class="wizard-content" data-wizard-step="3">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon">style</span>
+                    <div>
+                        <h3>Варіанти товару</h3>
+                        <p>Додайте смаки, розміри або інші варіації з цінами</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <!-- Швидке додавання варіанту -->
+                    <div class="variant-quick-add">
+                        <div class="form-grid form-grid-4">
+                            <div class="form-group">
+                                <label class="form-label">Назва варіанту</label>
+                                <input type="text" class="input" id="wizard-variant-name" placeholder="Шоколад">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Артикул</label>
+                                <input type="text" class="input" id="wizard-variant-sku" placeholder="CN12345">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ціна</label>
+                                <input type="number" class="input" id="wizard-variant-price" placeholder="450">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <button class="btn btn-primary btn-block" id="wizard-add-variant">
+                                    <span class="material-symbols-outlined">add</span>
+                                    Додати
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Список доданих варіантів -->
+                    <div class="variants-list-compact" id="wizard-variants-list">
+                        <div class="variant-item">
+                            <div class="variant-item-info">
+                                <span class="variant-item-name">Шоколад</span>
+                                <span class="variant-item-sku">CN17214-CHOC</span>
+                            </div>
+                            <span class="variant-item-price">₴ 450</span>
+                            <button class="btn-icon btn-icon-sm">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                        <div class="variant-item">
+                            <div class="variant-item-info">
+                                <span class="variant-item-name">Ваніль</span>
+                                <span class="variant-item-sku">CN17214-VAN</span>
+                            </div>
+                            <span class="variant-item-price">₴ 450</span>
+                            <button class="btn-icon btn-icon-sm">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                        <div class="variant-item">
+                            <div class="variant-item-info">
+                                <span class="variant-item-name">Полуниця</span>
+                                <span class="variant-item-sku">CN17214-STRW</span>
+                            </div>
+                            <span class="variant-item-price">₴ 480</span>
+                            <button class="btn-icon btn-icon-sm">
+                                <span class="material-symbols-outlined">delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="form-hint">
+                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">info</span>
+                        Якщо товар не має варіантів, пропустіть цей крок
+                    </p>
+                </div>
+            </div>
+
+            <!-- КРОК 4: СКЛАД -->
+            <div class="wizard-content" data-wizard-step="4">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon">science</span>
+                    <div>
+                        <h3>Склад продукту</h3>
+                        <p>Введіть харчову цінність та інгредієнти</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <!-- Таблиця складу -->
+                    <div class="form-group">
+                        <label class="form-label">Харчова цінність</label>
+                        <div class="composition-table-wrapper">
+                            <table class="composition-table" id="wizard-composition-table">
+                                <thead>
+                                    <tr>
+                                        <th>Компонент</th>
+                                        <th>На порцію</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="input input-sm" placeholder="Вітамін D3"></td>
+                                        <td><input type="text" class="input input-sm" placeholder="5000 IU"></td>
+                                        <td><button class="btn-icon btn-icon-sm"><span class="material-symbols-outlined">delete</span></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button class="btn btn-outline btn-sm u-mt-8" id="wizard-add-composition">
+                                <span class="material-symbols-outlined">add</span>
+                                Додати рядок
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Інгредієнти -->
+                    <div class="form-group">
+                        <label class="form-label">Інгредієнти (текст)</label>
+                        <textarea class="input" id="wizard-ingredients" rows="4" placeholder="Перелік інгредієнтів через кому..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- КРОК 5: ОПИС -->
+            <div class="wizard-content" data-wizard-step="5">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon">description</span>
+                    <div>
+                        <h3>Опис та SEO</h3>
+                        <p>Введіть опис товару та налаштування для пошукових систем</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <div class="form-group">
+                        <label class="form-label">Опис товару (UK)</label>
+                        <textarea class="input" id="wizard-description-uk" rows="5" placeholder="Опис товару українською..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Опис товару (RU)</label>
+                        <textarea class="input" id="wizard-description-ru" rows="5" placeholder="Описание товара на русском..."></textarea>
+                    </div>
+
+                    <div class="panel-separator u-my-16"></div>
+
+                    <div class="form-group">
+                        <label class="form-label">Meta Title</label>
+                        <input type="text" class="input" id="wizard-seo-title" placeholder="SEO заголовок">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Meta Description</label>
+                        <textarea class="input" id="wizard-seo-desc" rows="2" placeholder="SEO опис для пошукових систем"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- КРОК 6: ГОТОВО -->
+            <div class="wizard-content" data-wizard-step="6">
+                <div class="wizard-content-header">
+                    <span class="material-symbols-outlined wizard-icon wizard-icon-success">check_circle</span>
+                    <div>
+                        <h3>Перевірка та збереження</h3>
+                        <p>Перегляньте дані перед створенням товару</p>
+                    </div>
+                </div>
+
+                <div class="wizard-content-body">
+                    <!-- Підсумок -->
+                    <div class="wizard-summary">
+                        <div class="summary-card">
+                            <div class="summary-card-header">
+                                <span class="material-symbols-outlined">inventory_2</span>
+                                <span>Товар</span>
+                            </div>
+                            <div class="summary-card-body">
+                                <div class="summary-item">
+                                    <span class="summary-label">Назва:</span>
+                                    <span class="summary-value" id="summary-name">MST Vitamin D3 5000 IU, 120 капсул</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Категорія:</span>
+                                    <span class="summary-value" id="summary-category">Вітаміни та мінерали</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Бренд:</span>
+                                    <span class="summary-value" id="summary-brand">MST Nutrition</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-header">
+                                <span class="material-symbols-outlined">image</span>
+                                <span>Медіа</span>
+                            </div>
+                            <div class="summary-card-body">
+                                <div class="summary-item">
+                                    <span class="summary-label">Фотографії:</span>
+                                    <span class="summary-value" id="summary-photos">2 фото</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="summary-card">
+                            <div class="summary-card-header">
+                                <span class="material-symbols-outlined">style</span>
+                                <span>Варіанти</span>
+                            </div>
+                            <div class="summary-card-body">
+                                <div class="summary-item">
+                                    <span class="summary-label">Кількість:</span>
+                                    <span class="summary-value" id="summary-variants">3 варіанти</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Ціни:</span>
+                                    <span class="summary-value" id="summary-prices">₴450 - ₴480</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Статус -->
+                    <div class="form-group u-mt-24">
+                        <label class="form-label">Статус після створення</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="wizard-status" value="draft" checked>
+                                <span class="radio-label">
+                                    <span class="material-symbols-outlined">edit_note</span>
+                                    Чернетка
+                                </span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="wizard-status" value="active">
+                                <span class="radio-label">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    Активний
+                                </span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="wizard-status" value="hidden">
+                                <span class="radio-label">
+                                    <span class="material-symbols-outlined">visibility_off</span>
+                                    Прихований
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Футер Wizard -->
+        <div class="modal-footer wizard-footer">
+            <button class="btn btn-outline" id="wizard-prev" disabled>
+                <span class="material-symbols-outlined">arrow_back</span>
+                Назад
+            </button>
+            <div class="wizard-footer-center">
+                <span id="wizard-step-indicator">Крок 1 з 6</span>
+            </div>
+            <button class="btn btn-primary" id="wizard-next">
+                Далі
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+            <button class="btn btn-primary u-hidden" id="wizard-create">
+                <span class="material-symbols-outlined">check</span>
+                Створити товар
+            </button>
+        </div>
+
+    </div>
+</div>
