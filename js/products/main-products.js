@@ -21,7 +21,9 @@ const DEMO_PRODUCTS = [
         },
         show_on_site: true,
         variants: [
-            { id: 1, name: "Без смаку", sku: "CN17214", price: 450, stock: 25 }
+            { id: 1, name: "Без смаку", sku: "CN17214", price: 450, stock: 25 },
+            { id: 2, name: "Шоколад", sku: "CN17214-CHOC", price: 480, stock: 15 },
+            { id: 3, name: "Ваніль", sku: "CN17214-VAN", price: 480, stock: 10 }
         ]
     },
     {
@@ -112,6 +114,9 @@ const DEMO_PRODUCTS = [
 // Стан сторінки
 let currentFilter = 'all';
 let currentModal = null;
+let sortKey = 'id';
+let sortDirection = 'asc';
+let selectedProducts = new Set();
 
 /**
  * Ініціалізація сторінки
@@ -125,11 +130,20 @@ async function initProductsPage() {
     // Рендеримо таблицю товарів
     renderProductsTable(DEMO_PRODUCTS);
 
+    // Рендеримо таб варіантів
+    renderVariantsTab();
+
+    // Рендеримо таб зв'язків
+    renderGroupsTab();
+
     // Ініціалізуємо обробники подій
     initEventHandlers();
 
     // Ініціалізуємо таби
     initTabs();
+
+    // Додаємо batch actions bar
+    createBatchActionsBar();
 
     console.log('✅ Products page initialized');
 }
@@ -155,10 +169,6 @@ async function loadAsidePanel() {
         console.error('Failed to load aside panel:', error);
     }
 }
-
-// Сортування
-let sortKey = 'id';
-let sortDirection = 'asc';
 
 /**
  * Рендер таблиці товарів
@@ -196,29 +206,32 @@ function renderProductsTable(products) {
                     <span>ID</span><span class="sort-indicator"></span>
                 </div>
                 <div class="pseudo-table-cell cell-photo">Фото</div>
-                <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_uk' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_uk">
-                    <span>Назва</span><span class="sort-indicator"></span>
-                </div>
                 <div class="pseudo-table-cell cell-category sortable-header${sortKey === 'category' ? ' sorted-' + sortDirection : ''}" data-sort-key="category">
                     <span>Категорія</span><span class="sort-indicator"></span>
                 </div>
-                <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
-                <div class="pseudo-table-cell cell-variants sortable-header${sortKey === 'variants_count' ? ' sorted-' + sortDirection : ''}" data-sort-key="variants_count">
-                    <span>Варіанти</span><span class="sort-indicator"></span>
+                <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_short' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_short">
+                    <span>Назва</span><span class="sort-indicator"></span>
                 </div>
-                <div class="pseudo-table-cell cell-status">Статус</div>
-                <div class="pseudo-table-cell cell-toggle">Виводити</div>
+                <div class="pseudo-table-cell cell-variants">Варіанти</div>
+                <div class="pseudo-table-cell cell-status-small">Статус</div>
+                <div class="pseudo-table-cell cell-show">Вивід</div>
+                <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
             </div>
             <div class="pseudo-table-body">
     `;
 
     filtered.forEach(product => {
-        const statusBadge = getStatusBadge(product.status);
+        const statusDot = getStatusDot(product.status);
         const storefrontLinks = getStorefrontLinks(product.storefronts);
+        const showText = product.show_on_site ? '<span class="text-success">Так</span>' : '<span class="text-muted">Ні</span>';
+
         html += `
             <div class="pseudo-table-row product-row" data-product-id="${product.id}">
                 <div class="pseudo-table-cell cell-actions">
-                    <input type="checkbox" class="row-checkbox" data-product-id="${product.id}" aria-label="Вибрати">
+                    <input type="checkbox" class="row-checkbox" data-product-id="${product.id}" aria-label="Вибрати" ${selectedProducts.has(product.id) ? 'checked' : ''}>
+                    <button class="btn-icon btn-icon-sm btn-edit-product" data-product-id="${product.id}" title="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
                 </div>
                 <div class="pseudo-table-cell cell-id">
                     <span class="product-id">${product.id}</span>
@@ -226,29 +239,25 @@ function renderProductsTable(products) {
                 <div class="pseudo-table-cell cell-photo">
                     <img src="${product.photo}" alt="${product.name_short}" class="product-thumb">
                 </div>
-                <div class="pseudo-table-cell cell-main-name">
-                    <div class="product-name-block">
-                        <strong class="product-name">${product.name_uk}</strong>
-                        <span class="product-name-secondary">${product.name_short}</span>
-                    </div>
-                </div>
                 <div class="pseudo-table-cell cell-category">
                     ${product.category}
                 </div>
-                <div class="pseudo-table-cell cell-storefronts">
-                    ${storefrontLinks}
+                <div class="pseudo-table-cell cell-main-name">
+                    <span class="product-name">${product.name_short}</span>
                 </div>
                 <div class="pseudo-table-cell cell-variants">
-                    <span class="badge">${product.variants_count}</span>
+                    <button class="btn-variants-count" data-product-id="${product.id}" title="Переглянути варіанти">
+                        ${product.variants_count}
+                    </button>
                 </div>
-                <div class="pseudo-table-cell cell-status">
-                    ${statusBadge}
+                <div class="pseudo-table-cell cell-status-small">
+                    ${statusDot}
                 </div>
-                <div class="pseudo-table-cell cell-toggle">
-                    <label class="toggle-switch">
-                        <input type="checkbox" class="product-toggle" data-product-id="${product.id}" ${product.show_on_site ? 'checked' : ''}>
-                        <span class="toggle-slider"></span>
-                    </label>
+                <div class="pseudo-table-cell cell-show">
+                    ${showText}
+                </div>
+                <div class="pseudo-table-cell cell-storefronts">
+                    ${storefrontLinks}
                 </div>
             </div>
         `;
@@ -263,6 +272,9 @@ function renderProductsTable(products) {
 
     // Додаємо обробники сортування
     initSortableHeaders();
+
+    // Оновлюємо batch bar
+    updateBatchBar();
 }
 
 /**
@@ -282,6 +294,31 @@ function sortProducts(products, key, direction) {
         if (valA > valB) return direction === 'asc' ? 1 : -1;
         return 0;
     });
+}
+
+/**
+ * Статус як кольоровий кружок
+ */
+function getStatusDot(status) {
+    let color, title;
+    switch (status) {
+        case 'active':
+            color = 'var(--color-success)';
+            title = 'Активний';
+            break;
+        case 'draft':
+            color = 'var(--color-outline)';
+            title = 'Чернетка';
+            break;
+        case 'hidden':
+            color = 'var(--color-warning)';
+            title = 'Прихований';
+            break;
+        default:
+            color = 'var(--color-outline)';
+            title = status;
+    }
+    return `<span class="status-dot" style="background-color: ${color};" title="${title}"></span>`;
 }
 
 /**
@@ -347,33 +384,259 @@ function initSortableHeaders() {
 }
 
 /**
- * Отримати badge для статусу
+ * Batch Actions Bar
  */
-function getStatusBadge(status) {
-    switch (status) {
-        case 'active':
-            return '<span class="badge badge-success">Активний</span>';
-        case 'draft':
-            return '<span class="badge badge-outline">Чернетка</span>';
-        case 'hidden':
-            return '<span class="badge badge-warning">Прихований</span>';
-        default:
-            return '<span class="badge">' + status + '</span>';
+function createBatchActionsBar() {
+    // Перевірити чи вже існує
+    if (document.getElementById('products-batch-bar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'products-batch-bar';
+    bar.className = 'batch-actions-bar';
+    bar.innerHTML = `
+        <div class="selection-info">
+            <span class="selection-count" id="products-selection-count">0</span>
+            <span class="selection-label">вибрано</span>
+        </div>
+        <div class="batch-actions">
+            <button class="batch-btn" id="batch-export">
+                <span class="material-symbols-outlined">download</span>
+                Експорт
+            </button>
+            <button class="batch-btn" id="batch-hide">
+                <span class="material-symbols-outlined">visibility_off</span>
+                Приховати
+            </button>
+            <button class="batch-btn primary" id="batch-activate">
+                <span class="material-symbols-outlined">check_circle</span>
+                Активувати
+            </button>
+        </div>
+    `;
+    document.body.appendChild(bar);
+
+    // Обробники кнопок
+    bar.querySelector('#batch-export').addEventListener('click', batchExport);
+    bar.querySelector('#batch-hide').addEventListener('click', batchHide);
+    bar.querySelector('#batch-activate').addEventListener('click', batchActivate);
+}
+
+function updateBatchBar() {
+    const bar = document.getElementById('products-batch-bar');
+    const count = document.getElementById('products-selection-count');
+    if (!bar || !count) return;
+
+    count.textContent = selectedProducts.size;
+
+    if (selectedProducts.size > 0) {
+        bar.classList.add('visible');
+    } else {
+        bar.classList.remove('visible');
     }
+}
+
+function batchExport() {
+    alert(`Експорт ${selectedProducts.size} товарів (Demo)`);
+}
+
+function batchHide() {
+    alert(`Приховано ${selectedProducts.size} товарів (Demo)`);
+    selectedProducts.clear();
+    renderProductsTable(DEMO_PRODUCTS);
+}
+
+function batchActivate() {
+    alert(`Активовано ${selectedProducts.size} товарів (Demo)`);
+    selectedProducts.clear();
+    renderProductsTable(DEMO_PRODUCTS);
+}
+
+/**
+ * Рендер табу Варіанти
+ */
+function renderVariantsTab() {
+    const container = document.getElementById('variants-table-container');
+    if (!container) return;
+
+    // Збираємо всі варіанти з усіх товарів
+    const allVariants = [];
+    DEMO_PRODUCTS.forEach(product => {
+        product.variants.forEach(variant => {
+            allVariants.push({
+                ...variant,
+                productId: product.id,
+                productName: product.name_short,
+                productPhoto: product.photo
+            });
+        });
+    });
+
+    let html = `
+        <div class="pseudo-table">
+            <div class="pseudo-table-header">
+                <div class="pseudo-table-cell cell-id">ID</div>
+                <div class="pseudo-table-cell cell-photo">Фото</div>
+                <div class="pseudo-table-cell cell-main-name">Товар</div>
+                <div class="pseudo-table-cell">Варіант</div>
+                <div class="pseudo-table-cell">SKU</div>
+                <div class="pseudo-table-cell">Ціна</div>
+                <div class="pseudo-table-cell">Залишок</div>
+            </div>
+            <div class="pseudo-table-body">
+    `;
+
+    allVariants.forEach((variant, idx) => {
+        const stockClass = variant.stock === 0 ? 'text-error' : (variant.stock < 10 ? 'text-warning' : '');
+        html += `
+            <div class="pseudo-table-row">
+                <div class="pseudo-table-cell cell-id">${variant.productId}-${variant.id}</div>
+                <div class="pseudo-table-cell cell-photo">
+                    <img src="${variant.productPhoto}" alt="" class="product-thumb">
+                </div>
+                <div class="pseudo-table-cell cell-main-name">${variant.productName}</div>
+                <div class="pseudo-table-cell">${variant.name}</div>
+                <div class="pseudo-table-cell"><code>${variant.sku}</code></div>
+                <div class="pseudo-table-cell">₴ ${variant.price}</div>
+                <div class="pseudo-table-cell ${stockClass}">${variant.stock}</div>
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+/**
+ * Рендер табу Зв'язки (групи фасування)
+ */
+function renderGroupsTab() {
+    const container = document.getElementById('groups-table-container');
+    if (!container) return;
+
+    // Demo дані для груп
+    const groups = [
+        {
+            id: 1,
+            name: "Протеїн ON Gold Standard Whey",
+            products: [
+                { id: 3, name: "ON Gold Standard Whey, 2.27 кг", variants: 5 },
+                { id: 6, name: "ON Gold Standard Whey, 900 г", variants: 3 },
+                { id: 7, name: "ON Gold Standard Whey, 4.54 кг", variants: 2 }
+            ]
+        },
+        {
+            id: 2,
+            name: "MST Chitosan with Chrom",
+            products: [
+                { id: 1, name: "MST Chitosan with Chrom, 240 капсул", variants: 3 },
+                { id: 8, name: "MST Chitosan with Chrom, 120 капсул", variants: 1 }
+            ]
+        }
+    ];
+
+    let html = `
+        <div class="groups-list">
+    `;
+
+    groups.forEach(group => {
+        html += `
+            <div class="group-card">
+                <div class="group-header">
+                    <div class="group-info">
+                        <span class="group-name">${group.name}</span>
+                        <span class="group-count">${group.products.length} товарів</span>
+                    </div>
+                    <div class="group-actions">
+                        <button class="btn-icon" title="Редагувати">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="btn-icon" title="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="group-products">
+                    ${group.products.map(p => `
+                        <div class="group-product-item">
+                            <span class="group-product-name">${p.name}</span>
+                            <span class="badge">${p.variants} вар.</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+            <button class="btn btn-outline group-add-btn">
+                <span class="material-symbols-outlined">add</span>
+                Створити групу зв'язків
+            </button>
+        </div>
+    `;
+
+    container.innerHTML = html;
 }
 
 /**
  * Ініціалізація обробників подій
  */
 function initEventHandlers() {
-    // Клік по рядку товару
+    // Клік по кнопці редагування
     document.addEventListener('click', (e) => {
-        const productRow = e.target.closest('.product-row');
         const editBtn = e.target.closest('.btn-edit-product');
-
-        if (editBtn || productRow) {
-            const productId = (editBtn || productRow).dataset.productId;
+        if (editBtn) {
+            e.stopPropagation();
+            const productId = editBtn.dataset.productId;
             openEditModal(productId);
+            return;
+        }
+
+        // Клік по кількості варіантів
+        const variantsBtn = e.target.closest('.btn-variants-count');
+        if (variantsBtn) {
+            e.stopPropagation();
+            const productId = variantsBtn.dataset.productId;
+            openVariantsModal(productId);
+            return;
+        }
+
+        // Чекбокс в рядку
+        const checkbox = e.target.closest('.row-checkbox');
+        if (checkbox) {
+            e.stopPropagation();
+            const productId = parseInt(checkbox.dataset.productId);
+            if (checkbox.checked) {
+                selectedProducts.add(productId);
+            } else {
+                selectedProducts.delete(productId);
+            }
+            updateBatchBar();
+            updateSelectAllCheckbox();
+            return;
+        }
+
+        // Select all чекбокс
+        const selectAll = e.target.closest('.header-select-all');
+        if (selectAll) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            if (selectAll.checked) {
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    selectedProducts.add(parseInt(cb.dataset.productId));
+                });
+            } else {
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                });
+                selectedProducts.clear();
+            }
+            updateBatchBar();
+            return;
         }
     });
 
@@ -393,6 +656,15 @@ function initEventHandlers() {
             closeModal();
         }
     });
+}
+
+function updateSelectAllCheckbox() {
+    const selectAll = document.querySelector('.header-select-all');
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    if (!selectAll || checkboxes.length === 0) return;
+
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    selectAll.checked = allChecked;
 }
 
 /**
@@ -442,7 +714,7 @@ async function openEditModal(productId) {
             currentModal = overlay;
         }
 
-        // Ініціалізуємо навігацію по секціях (fullscreen modal)
+        // Ініціалізуємо навігацію по секціях
         initSectionNavigator();
 
         // Ініціалізуємо кнопки закриття
@@ -451,9 +723,80 @@ async function openEditModal(productId) {
         // Ініціалізуємо варіанти
         initVariantsToggle();
 
+        // Ініціалізуємо таби опису
+        initDescriptionTabs();
+
     } catch (error) {
         console.error('Failed to load edit modal:', error);
     }
+}
+
+/**
+ * Відкриття модалу варіантів
+ */
+async function openVariantsModal(productId) {
+    const product = DEMO_PRODUCTS.find(p => p.id == productId);
+    if (!product) return;
+
+    const container = document.getElementById('modal-container');
+
+    // Генеруємо модал варіантів
+    let variantsHtml = '';
+    product.variants.forEach(variant => {
+        const stockClass = variant.stock === 0 ? 'badge-error' : (variant.stock < 10 ? 'badge-warning' : 'badge-success');
+        variantsHtml += `
+            <div class="variant-card" data-variant-id="${variant.id}">
+                <div class="variant-header">
+                    <div class="variant-info">
+                        <div class="variant-name">${variant.name}</div>
+                        <div class="variant-sku">${variant.sku}</div>
+                    </div>
+                    <div class="variant-meta">
+                        <span class="badge ${stockClass}">Залишок: ${variant.stock}</span>
+                        <span class="variant-price">₴ ${variant.price}</span>
+                    </div>
+                    <div class="variant-actions">
+                        <button class="btn-icon" title="Редагувати">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                        <button class="btn-icon" title="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = `
+        <div class="modal-overlay is-open" data-modal-id="variants-modal">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Варіанти: ${product.name_short}</h2>
+                    <button class="btn-icon" data-modal-close>
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="variants-list">
+                        ${variantsHtml}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="btn-add-variant-modal">
+                        <span class="material-symbols-outlined">add</span>
+                        Додати варіант
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.classList.add('is-modal-open');
+    currentModal = container.querySelector('.modal-overlay');
+
+    // Ініціалізуємо кнопки закриття
+    initModalCloseButtons();
 }
 
 /**
@@ -594,6 +937,27 @@ function initVariantsToggle() {
 }
 
 /**
+ * Ініціалізація табів опису
+ */
+function initDescriptionTabs() {
+    const container = document.getElementById('modal-container');
+
+    container.querySelectorAll('.description-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.dataset.tab;
+
+            // Деактивуємо всі таби
+            container.querySelectorAll('.description-tab').forEach(t => t.classList.remove('active'));
+            container.querySelectorAll('.description-tab-content').forEach(c => c.classList.remove('active'));
+
+            // Активуємо обраний
+            tab.classList.add('active');
+            container.querySelector(`[data-tab-content="${targetTab}"]`)?.classList.add('active');
+        });
+    });
+}
+
+/**
  * Ініціалізація wizard
  */
 function initWizard() {
@@ -666,8 +1030,8 @@ function initWizard() {
     // Кнопка "Створити"
     if (createBtn) {
         createBtn.addEventListener('click', () => {
-            alert('✅ Товар створено! (Demo)');
-            closeModal();
+            // Показуємо підсумок
+            showCreationSummary();
         });
     }
 
@@ -692,40 +1056,112 @@ function initWizard() {
 }
 
 /**
+ * Показати підсумок створення
+ */
+function showCreationSummary() {
+    const container = document.getElementById('modal-container');
+
+    // Збираємо дані з форми
+    const category = container.querySelector('#wizard-category')?.options[container.querySelector('#wizard-category')?.selectedIndex]?.text || '—';
+    const brand = container.querySelector('#wizard-brand')?.options[container.querySelector('#wizard-brand')?.selectedIndex]?.text || '—';
+    const nameUk = container.querySelector('#wizard-name-uk')?.value || '—';
+
+    // Замінюємо вміст модалки на підсумок
+    const modalBody = container.querySelector('.wizard-body');
+    const modalFooter = container.querySelector('.wizard-footer');
+
+    if (modalBody) {
+        modalBody.innerHTML = `
+            <div class="wizard-summary">
+                <div class="summary-icon">
+                    <span class="material-symbols-outlined" style="font-size: 64px; color: var(--color-success);">check_circle</span>
+                </div>
+                <h2>Товар успішно створено!</h2>
+                <div class="summary-details">
+                    <div class="summary-item">
+                        <span class="summary-label">Категорія:</span>
+                        <span class="summary-value">${category}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Бренд:</span>
+                        <span class="summary-value">${brand}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Назва:</span>
+                        <span class="summary-value">${nameUk}</span>
+                    </div>
+                </div>
+                <div class="summary-actions">
+                    <button class="btn btn-outline" id="btn-create-another">
+                        <span class="material-symbols-outlined">add</span>
+                        Створити ще один
+                    </button>
+                    <button class="btn btn-primary" id="btn-open-created">
+                        <span class="material-symbols-outlined">edit</span>
+                        Відкрити для редагування
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    if (modalFooter) {
+        modalFooter.style.display = 'none';
+    }
+
+    // Обробники кнопок
+    container.querySelector('#btn-create-another')?.addEventListener('click', () => {
+        closeModal();
+        setTimeout(() => openCreateWizard(), 300);
+    });
+
+    container.querySelector('#btn-open-created')?.addEventListener('click', () => {
+        closeModal();
+        // В реальній версії відкриваємо новий товар
+        alert('Відкриття редагування створеного товару (Demo)');
+    });
+}
+
+/**
  * Ініціалізація прев'ю назви в wizard
  */
 function initNamePreview() {
     const container = document.getElementById('modal-container');
-    const previewEl = container.querySelector('#wizard-preview-name');
-
-    const inputs = [
-        '#wizard-prefix-uk',
-        '#wizard-brand',
-        '#wizard-name',
-        '#wizard-variation'
-    ];
+    const previewUk = container.querySelector('#wizard-preview-name-uk');
+    const previewRu = container.querySelector('#wizard-preview-name-ru');
 
     function updatePreview() {
         const brand = container.querySelector('#wizard-brand');
-        const brandText = brand?.options[brand.selectedIndex]?.text || '';
-        const prefix = container.querySelector('#wizard-prefix-uk')?.value || '';
-        const name = container.querySelector('#wizard-name')?.value || '';
-        const variation = container.querySelector('#wizard-variation')?.value || '';
+        const brandText = brand?.options[brand?.selectedIndex]?.text || '';
+        const prefixUk = container.querySelector('#wizard-prefix-uk')?.value || '';
+        const prefixRu = container.querySelector('#wizard-prefix-ru')?.value || '';
+        const nameUk = container.querySelector('#wizard-name-uk')?.value || '';
+        const nameRu = container.querySelector('#wizard-name-ru')?.value || '';
+        const variationUk = container.querySelector('#wizard-variation-uk')?.value || '';
+        const variationRu = container.querySelector('#wizard-variation-ru')?.value || '';
 
-        let preview = '';
-        if (prefix) preview += prefix + ' ';
-        if (brandText && brandText !== 'Оберіть бренд') preview += brandText + ' ';
-        if (name) preview += name;
-        if (variation) preview += ', ' + variation;
+        let previewTextUk = '';
+        if (prefixUk) previewTextUk += prefixUk + ' ';
+        if (brandText && brandText !== 'Оберіть бренд') previewTextUk += brandText + ' ';
+        if (nameUk) previewTextUk += nameUk;
+        if (variationUk) previewTextUk += ', ' + variationUk;
 
-        if (preview.trim()) {
-            previewEl.innerHTML = preview;
-            previewEl.classList.remove('text-muted');
-        } else {
-            previewEl.innerHTML = '<span class="text-muted">Заповніть поля вище...</span>';
+        let previewTextRu = '';
+        if (prefixRu) previewTextRu += prefixRu + ' ';
+        if (brandText && brandText !== 'Оберіть бренд') previewTextRu += brandText + ' ';
+        if (nameRu) previewTextRu += nameRu;
+        if (variationRu) previewTextRu += ', ' + variationRu;
+
+        if (previewUk) {
+            previewUk.textContent = previewTextUk.trim() || '—';
+        }
+        if (previewRu) {
+            previewRu.textContent = previewTextRu.trim() || '—';
         }
     }
 
+    // Підписка на зміни
+    const inputs = ['#wizard-prefix-uk', '#wizard-prefix-ru', '#wizard-brand', '#wizard-name-uk', '#wizard-name-ru', '#wizard-variation-uk', '#wizard-variation-ru'];
     inputs.forEach(selector => {
         const input = container.querySelector(selector);
         if (input) {
