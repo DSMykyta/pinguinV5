@@ -1344,25 +1344,7 @@
     font-size: 13px;
 }
 
-.badge-outline {
-    background: transparent;
-    border: 1px solid var(--color-outline);
-}
-
-.badge-success {
-    background: var(--color-success-c);
-    color: var(--color-success);
-}
-
-.badge-warning {
-    background: var(--color-warning-c);
-    color: var(--color-warning);
-}
-
-.badge-small {
-    font-size: 10px;
-    padding: 2px 5px;
-}
+/* Badge styles - use global styles from badge.css */
 
 /* Modal Footer
    ========================================================================== */
@@ -1597,13 +1579,7 @@
    PRODUCTS TABLE - Custom Cells
    ========================================================================== */
 
-/* ID Cell */
-.cell-id {
-    width: 60px;
-    min-width: 60px;
-    flex: 0 0 60px;
-}
-
+/* ID Cell - base styles in pseudo-table.css */
 .product-id {
     font-weight: 500;
     color: var(--color-on-surface-v);
