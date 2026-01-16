@@ -80,10 +80,11 @@
                 </div>
 
                 <div class="section-content">
-                    <div class="form-grid form-grid-2">
+                    <!-- Рядок 1: Категорія + Текст перед назвою (stacked UK/RU) -->
+                    <div class="form-row form-row-2">
                         <div class="form-group">
                             <label>Категорія</label>
-                            <select  id="edit-category">
+                            <select id="edit-category">
                                 <option value="">Оберіть категорію</option>
                                 <option value="vitamins" selected>Вітаміни та мінерали</option>
                                 <option value="protein">Протеїн</option>
@@ -91,76 +92,88 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>Текст перед назвою</label>
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-prefix-uk" value="Хітозан та хром" placeholder="🇺🇦">
+                                <input type="text" id="edit-prefix-ru" value="Хитозан и хром" placeholder="🇷🇺">
+                            </div>
+                            <span class="form-hint">Якщо пусто — використовується категорія</span>
+                        </div>
+                    </div>
+
+                    <!-- Рядок 2: Бренд + Саб-бренд -->
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
                             <label>Бренд</label>
-                            <select  id="edit-brand">
+                            <select id="edit-brand">
                                 <option value="">Оберіть бренд</option>
                                 <option value="mst" selected>MST Nutrition</option>
                                 <option value="now">Now Foods</option>
                                 <option value="on">Optimum Nutrition</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Лінійка бренду</label>
-                        <input type="text" id="edit-brand-line" placeholder="Наприклад: Sport, Premium...">
-                    </div>
-
-                    <div class="form-grid form-grid-2">
                         <div class="form-group">
-                            <label>Текст перед назвою (UK)</label>
-                            <input type="text" id="edit-prefix-uk" value="Хітозан та хром">
-                        </div>
-                        <div class="form-group">
-                            <label>Текст перед назвою (RU)</label>
-                            <input type="text" id="edit-prefix-ru" value="Хитозан и хром">
+                            <label>Саб-бренд / Лінійка</label>
+                            <select id="edit-subbrand">
+                                <option value="">—</option>
+                                <option value="sport">Sport</option>
+                                <option value="premium">Premium</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-grid form-grid-2">
-                        <div class="form-group">
-                            <label>Назва товару (UK)</label>
-                            <input type="text" id="edit-name-uk" value="Chitosan with Chrom">
+                    <!-- Рядок 3: Назва (2x) + Ознака + Деталь -->
+                    <div class="form-row form-row-name">
+                        <div class="form-group form-group-2x">
+                            <label>Назва товару</label>
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-name-uk" value="Chitosan with Chrom" placeholder="🇺🇦">
+                                <input type="text" id="edit-name-ru" value="Chitosan with Chrom" placeholder="🇷🇺">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Назва товару (RU)</label>
-                            <input type="text" id="edit-name-ru" value="Chitosan with Chrom">
-                        </div>
-                    </div>
-
-                    <div class="form-grid form-grid-3">
                         <div class="form-group">
                             <label>Ознака товару</label>
-                            <input type="text" id="edit-feature" placeholder="">
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-feature-uk" placeholder="🇺🇦">
+                                <input type="text" id="edit-feature-ru" placeholder="🇷🇺">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Деталь товару</label>
-                            <input type="text" id="edit-detail" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label>Варіація товару</label>
-                            <input type="text" id="edit-variation" value="240 капсул">
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-detail-uk" placeholder="🇺🇦">
+                                <input type="text" id="edit-detail-ru" placeholder="🇷🇺">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Текст після назви</label>
-                        <input type="text" id="edit-suffix" placeholder="">
+                    <!-- Рядок 4: Варіація + Текст після -->
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label>Варіація товару</label>
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-variation-uk" value="240 капсул" placeholder="🇺🇦">
+                                <input type="text" id="edit-variation-ru" value="240 капсул" placeholder="🇷🇺">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Текст після назви</label>
+                            <div class="stacked-inputs">
+                                <input type="text" id="edit-suffix-uk" placeholder="🇺🇦">
+                                <input type="text" id="edit-suffix-ru" placeholder="🇷🇺">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Прев'ю назв -->
-                    <div class="preview-box u-mt-24">
+                    <div class="preview-box u-mt-16">
                         <div class="preview-item">
-                            <span class="preview-label">Повна назва (UK):</span>
+                            <span class="preview-label">🇺🇦 Повна назва:</span>
                             <span class="preview-value" id="preview-full-uk">Хітозан та хром MST Chitosan with Chrom, 240 капсул</span>
                         </div>
                         <div class="preview-item">
-                            <span class="preview-label">Повна назва (RU):</span>
+                            <span class="preview-label">🇷🇺 Повна назва:</span>
                             <span class="preview-value" id="preview-full-ru">Хитозан и хром MST Chitosan with Chrom, 240 капсул</span>
-                        </div>
-                        <div class="preview-item">
-                            <span class="preview-label">Коротка назва:</span>
-                            <span class="preview-value" id="preview-short">MST Chitosan with Chrom, 240 капсул</span>
                         </div>
                     </div>
                 </div>
