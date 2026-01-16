@@ -200,27 +200,25 @@ function renderProductsTable(products) {
 
     // Генеруємо HTML таблиці
     let html = `
-        <div class="pseudo-table">
-            <div class="pseudo-table-header">
-                <div class="pseudo-table-cell cell-actions header-actions-cell">
-                    <input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">
-                </div>
-                <div class="pseudo-table-cell cell-id sortable-header${sortKey === 'id' ? ' sorted-' + sortDirection : ''}" data-sort-key="id">
-                    <span>ID</span><span class="sort-indicator"></span>
-                </div>
-                <div class="pseudo-table-cell cell-photo">Фото</div>
-                <div class="pseudo-table-cell cell-category sortable-header${sortKey === 'category' ? ' sorted-' + sortDirection : ''}" data-sort-key="category">
-                    <span>Категорія</span><span class="sort-indicator"></span>
-                </div>
-                <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_short' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_short">
-                    <span>Назва</span><span class="sort-indicator"></span>
-                </div>
-                <div class="pseudo-table-cell cell-variants">Варіанти</div>
-                <div class="pseudo-table-cell cell-status-small">Статус</div>
-                <div class="pseudo-table-cell cell-bool">Вивід</div>
-                <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell cell-actions header-actions-cell">
+                <input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">
             </div>
-            <div class="pseudo-table-body">
+            <div class="pseudo-table-cell cell-id sortable-header${sortKey === 'id' ? ' sorted-' + sortDirection : ''}" data-sort-key="id">
+                <span>ID</span><span class="sort-indicator"></span>
+            </div>
+            <div class="pseudo-table-cell cell-photo">Фото</div>
+            <div class="pseudo-table-cell cell-category sortable-header${sortKey === 'category' ? ' sorted-' + sortDirection : ''}" data-sort-key="category">
+                <span>Категорія</span><span class="sort-indicator"></span>
+            </div>
+            <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_short' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_short">
+                <span>Назва</span><span class="sort-indicator"></span>
+            </div>
+            <div class="pseudo-table-cell cell-variants">Варіанти</div>
+            <div class="pseudo-table-cell cell-status-small">Статус</div>
+            <div class="pseudo-table-cell cell-bool">Вивід</div>
+            <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
+        </div>
     `;
 
     filtered.forEach(product => {
@@ -265,11 +263,6 @@ function renderProductsTable(products) {
             </div>
         `;
     });
-
-    html += `
-            </div>
-        </div>
-    `;
 
     container.innerHTML = html;
 
@@ -493,17 +486,15 @@ function renderVariantsTab() {
     });
 
     let html = `
-        <div class="pseudo-table">
-            <div class="pseudo-table-header">
-                <div class="pseudo-table-cell cell-id">ID</div>
-                <div class="pseudo-table-cell cell-photo">Фото</div>
-                <div class="pseudo-table-cell cell-main-name">Товар</div>
-                <div class="pseudo-table-cell">Варіант</div>
-                <div class="pseudo-table-cell">SKU</div>
-                <div class="pseudo-table-cell">Ціна</div>
-                <div class="pseudo-table-cell">Залишок</div>
-            </div>
-            <div class="pseudo-table-body">
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell cell-id">ID</div>
+            <div class="pseudo-table-cell cell-photo">Фото</div>
+            <div class="pseudo-table-cell cell-main-name">Товар</div>
+            <div class="pseudo-table-cell">Варіант</div>
+            <div class="pseudo-table-cell">SKU</div>
+            <div class="pseudo-table-cell">Ціна</div>
+            <div class="pseudo-table-cell">Залишок</div>
+        </div>
     `;
 
     allVariants.forEach((variant, idx) => {
@@ -522,11 +513,6 @@ function renderVariantsTab() {
             </div>
         `;
     });
-
-    html += `
-            </div>
-        </div>
-    `;
 
     container.innerHTML = html;
 }
@@ -998,8 +984,11 @@ function initSectionNavigator() {
 
     if (!navigator || !contentArea) return;
 
+    // Визначаємо клас навігаційних елементів (sidebar або horizontal)
+    const navItemClass = navigator.classList.contains('sidebar-navigator') ? '.sidebar-nav-item' : '.nav-icon';
+
     // Клік по навігації - scroll to section
-    navigator.querySelectorAll('.nav-icon').forEach(link => {
+    navigator.querySelectorAll(navItemClass).forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
@@ -1009,7 +998,7 @@ function initSectionNavigator() {
                 targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 // Оновлюємо активний стан
-                navigator.querySelectorAll('.nav-icon').forEach(l => l.classList.remove('active'));
+                navigator.querySelectorAll(navItemClass).forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
             }
         });
@@ -1028,7 +1017,7 @@ function initSectionNavigator() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const sectionId = entry.target.id;
-                navigator.querySelectorAll('.nav-icon').forEach(link => {
+                navigator.querySelectorAll(navItemClass).forEach(link => {
                     link.classList.remove('active');
                     if (link.getAttribute('href') === `#${sectionId}`) {
                         link.classList.add('active');
@@ -1452,6 +1441,30 @@ function initEditModalActions(productId) {
         btn.addEventListener('click', () => {
             const sectionName = btn.closest('.section-name')?.querySelector('h2')?.textContent || 'Секція';
             showToast(`Довідка: ${sectionName}`, 'info');
+        });
+    });
+
+    // === STATUS RADIO BUTTONS ===
+    const statusRadios = container.querySelectorAll('input[name="edit-status"]');
+    const statusBadge = container.querySelector('#product-status-badge');
+
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (!radio.checked || !statusBadge) return;
+
+            const statusMap = {
+                'active': { text: 'Активний', class: 'badge badge-success' },
+                'draft': { text: 'Чернетка', class: 'badge badge-neutral' },
+                'hidden': { text: 'Прихований', class: 'badge badge-warning' }
+            };
+
+            const status = statusMap[radio.value] || statusMap['draft'];
+            statusBadge.textContent = status.text;
+            statusBadge.className = status.class;
+
+            if (product) {
+                product.status = radio.value;
+            }
         });
     });
 }
