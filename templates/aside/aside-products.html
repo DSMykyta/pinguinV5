@@ -1,57 +1,33 @@
 <div class="panel-fragment is-active" id="aside-products">
 
-    <!-- Фіксований заголовок -->
+    <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
     <div class="panel-content-fix">
-        <div class="panel-title">
-            <span class="material-symbols-outlined">inventory_2</span>
-            <span>Товари</span>
-        </div>
-
-        <!-- Пошук -->
-        <div class="form-group">
-            <div class="input-wrapper has-icon-left has-icon-right">
-                <span class="material-symbols-outlined input-icon-left">search</span>
-                <input type="text" id="products-search-input" class="input" placeholder="Пошук товарів...">
-                <button class="btn-icon input-icon-right search-clear-btn u-hidden" aria-label="Очистити">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Фільтри -->
-        <div class="panel-box">
-            <div class="panel-box-header">
+        <div class="panel-box dropdown-wrapper">
+            <span class="material-symbols-outlined panel-box-icon">search</span>
+            <input type="text" id="products-search-input" class="input-main" placeholder="Пошук товарів...">
+            <button id="clear-search-products" class="btn-icon u-hidden" aria-label="Очистити пошук">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <button class="btn-icon" data-dropdown-trigger aria-label="Фільтри пошуку">
                 <span class="material-symbols-outlined">filter_list</span>
-                <span>Фільтри</span>
-            </div>
-            <div class="panel-box-body">
-                <div class="form-group">
-                    <label class="form-label">Категорія</label>
-                    <select class="input" id="filter-category">
-                        <option value="">Всі категорії</option>
-                        <option value="vitamins">Вітаміни</option>
-                        <option value="protein">Протеїн</option>
-                        <option value="amino">Амінокислоти</option>
-                        <option value="sports">Спортивне харчування</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Бренд</label>
-                    <select class="input" id="filter-brand">
-                        <option value="">Всі бренди</option>
-                        <option value="now">Now Foods</option>
-                        <option value="mst">MST Nutrition</option>
-                        <option value="on">Optimum Nutrition</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Наявність</label>
-                    <select class="input" id="filter-stock">
-                        <option value="">Будь-яка</option>
-                        <option value="instock">В наявності</option>
-                        <option value="low">Закінчується</option>
-                        <option value="outstock">Немає в наявності</option>
-                    </select>
+            </button>
+
+            <!-- Dropdown з чекбоксами колонок для пошуку -->
+            <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-header">Колонки для пошуку</div>
+                <div id="search-columns-list-products" class="dropdown-body">
+                    <label class="dropdown-item">
+                        <input type="checkbox" data-search-col="id" checked> ID
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" data-search-col="name" checked> Назва
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" data-search-col="sku" checked> Артикул
+                    </label>
+                    <label class="dropdown-item">
+                        <input type="checkbox" data-search-col="category"> Категорія
+                    </label>
                 </div>
             </div>
         </div>
@@ -59,55 +35,96 @@
 
     <div class="panel-separator"></div>
 
-    <!-- Прокручуваний контент -->
+    <!-- ФІЛЬТРИ (SCROLLABLE) -->
     <div class="panel-content-scroll">
 
-        <!-- Швидка статистика -->
-        <div class="panel-box">
-            <div class="panel-box-header">
-                <span class="material-symbols-outlined">analytics</span>
-                <span>Статистика</span>
-            </div>
-            <div class="panel-box-body">
-                <div class="text-stats">
-                    <div class="text-stats-item">
-                        <span class="text-stats-value">156</span>
-                        <span class="text-stats-label">Всього товарів</span>
-                    </div>
-                    <div class="text-stats-item">
-                        <span class="text-stats-value">423</span>
-                        <span class="text-stats-label">Варіантів</span>
-                    </div>
-                    <div class="text-stats-item">
-                        <span class="text-stats-value">12</span>
-                        <span class="text-stats-label">Груп</span>
-                    </div>
-                </div>
-            </div>
+        <div class="panel-section-title">
+            <span>Фільтри</span>
         </div>
 
-        <!-- Інформаційний блок -->
+        <div class="form-group">
+            <label for="filter-category">Категорія</label>
+            <select id="filter-category" data-custom-select>
+                <option value="">Всі категорії</option>
+                <option value="vitamins">Вітаміни та мінерали</option>
+                <option value="protein">Протеїн</option>
+                <option value="amino">Амінокислоти</option>
+                <option value="sports">Спортивне харчування</option>
+                <option value="weight">Контроль ваги</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="filter-status">Статус</label>
+            <select id="filter-status" data-custom-select>
+                <option value="">Всі статуси</option>
+                <option value="active">Активний</option>
+                <option value="draft">Чернетка</option>
+                <option value="hidden">Прихований</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="filter-storefront">Вітрина</label>
+            <select id="filter-storefront" data-custom-select>
+                <option value="">Всі вітрини</option>
+                <option value="sportmeals">Sport Meals</option>
+                <option value="fitnessshop">Fitness Shop</option>
+                <option value="none">Не викладено</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="filter-stock">Наявність</label>
+            <select id="filter-stock" data-custom-select>
+                <option value="">Будь-яка</option>
+                <option value="instock">В наявності</option>
+                <option value="low">Закінчується</option>
+                <option value="outstock">Немає в наявності</option>
+            </select>
+        </div>
+
+        <button id="aside-btn-apply-filters" class="panel-item">
+            <span class="material-symbols-outlined">filter_alt</span>
+            <span>Застосувати фільтри</span>
+        </button>
+
+        <button id="aside-btn-reset-filters" class="panel-item" style="margin-top: 4px;">
+            <span class="material-symbols-outlined">filter_alt_off</span>
+            <span>Скинути фільтри</span>
+        </button>
+
+        <div class="panel-separator u-mt-16 u-mb-16"></div>
+
+        <!-- Статистика -->
+        <div class="panel-section-title">
+            <span>Статистика</span>
+        </div>
+
         <div class="panel-box">
-            <div class="panel-box-header">
-                <span class="material-symbols-outlined">info</span>
-                <span>Підказка</span>
-            </div>
-            <div class="panel-box-body">
-                <p style="font-size: 13px; color: var(--color-text-secondary); line-height: 1.5;">
-                    Натисніть на товар для редагування. Використовуйте кнопку "+" для створення нового товару через покроковий wizard.
-                </p>
+            <div class="text-stats">
+                <div class="text-stats-item">
+                    <span class="text-stats-value" id="stats-total-products">0</span>
+                    <span class="text-stats-label">Товарів</span>
+                </div>
+                <div class="text-stats-item">
+                    <span class="text-stats-value" id="stats-total-variants">0</span>
+                    <span class="text-stats-label">Варіантів</span>
+                </div>
+                <div class="text-stats-item">
+                    <span class="text-stats-value" id="stats-active">0</span>
+                    <span class="text-stats-label">Активних</span>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <div class="panel-separator"></div>
-
-    <!-- Футер з кнопками -->
+    <!-- FOOTER З КНОПКОЮ СТВОРИТИ (ФІКСОВАНИЙ ЗНИЗУ) -->
     <div class="panel-content-footer">
-        <button id="btn-create-product" class="btn btn-primary btn-block">
-            <span class="material-symbols-outlined">add</span>
-            <span>Створити товар</span>
+        <button id="btn-create-product" class="panel-item">
+            <span class="material-symbols-outlined panel-item-icon">add</span>
+            <span class="panel-item-text">Створити товар</span>
         </button>
     </div>
 

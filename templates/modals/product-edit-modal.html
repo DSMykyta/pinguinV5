@@ -651,11 +651,12 @@
                                 <span class="material-symbols-outlined">info</span>
                             </button>
                         </div>
-                        <h3>Габарити та вага для доставки</h3>
+                        <h3>Габарити, вага та параметри доставки</h3>
                     </div>
                 </div>
 
                 <div class="section-content">
+                    <!-- Розміри та вага -->
                     <div class="form-grid form-grid-4">
                         <div class="form-group">
                             <label>Вага (г)</label>
@@ -675,10 +676,34 @@
                         </div>
                     </div>
 
+                    <!-- Гарантія та вантажні місця -->
+                    <div class="form-grid form-grid-2 u-mt-16">
+                        <div class="form-group">
+                            <label>Гарантія</label>
+                            <select id="edit-warranty">
+                                <option value="">Без гарантії</option>
+                                <option value="14">14 днів</option>
+                                <option value="30">30 днів</option>
+                                <option value="90">90 днів</option>
+                                <option value="180">6 місяців</option>
+                                <option value="365" selected>1 рік</option>
+                                <option value="730">2 роки</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Кількість вантажних місць</label>
+                            <input type="number" id="edit-cargo-places" value="1" min="1" max="99">
+                        </div>
+                    </div>
+
                     <div class="preview-box u-mt-16">
                         <div class="preview-item">
                             <span class="preview-label">Об'ємна вага:</span>
                             <span class="preview-value">0.086 кг</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Гарантія:</span>
+                            <span class="preview-value">1 рік</span>
                         </div>
                     </div>
                 </div>

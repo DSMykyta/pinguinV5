@@ -15,6 +15,11 @@ const DEMO_PRODUCTS = [
         photo: "https://via.placeholder.com/48x48/e8f5e9/2e7d32?text=MST",
         variants_count: 3,
         status: "active",
+        storefronts: {
+            sportmeals: "https://sportmeals.com.ua/product/12345",
+            fitnessshop: null
+        },
+        show_on_site: true,
         variants: [
             { id: 1, name: "Без смаку", sku: "CN17214", price: 450, stock: 25 }
         ]
@@ -29,6 +34,11 @@ const DEMO_PRODUCTS = [
         photo: "https://via.placeholder.com/48x48/fff3e0/e65100?text=NOW",
         variants_count: 1,
         status: "active",
+        storefronts: {
+            sportmeals: "https://sportmeals.com.ua/product/22222",
+            fitnessshop: "https://fitness-shop.ua/product/22222"
+        },
+        show_on_site: true,
         variants: [
             { id: 1, name: "Стандарт", sku: "NF1234", price: 380, stock: 42 }
         ]
@@ -43,6 +53,11 @@ const DEMO_PRODUCTS = [
         photo: "https://via.placeholder.com/48x48/e3f2fd/1565c0?text=ON",
         variants_count: 5,
         status: "active",
+        storefronts: {
+            sportmeals: "https://sportmeals.com.ua/product/33333",
+            fitnessshop: "https://fitness-shop.ua/product/33333"
+        },
+        show_on_site: true,
         variants: [
             { id: 1, name: "Шоколад", sku: "ON2270-CHOC", price: 2450, stock: 12 },
             { id: 2, name: "Ваніль", sku: "ON2270-VAN", price: 2450, stock: 8 },
@@ -61,6 +76,11 @@ const DEMO_PRODUCTS = [
         photo: "https://via.placeholder.com/48x48/fce4ec/c2185b?text=DB",
         variants_count: 1,
         status: "draft",
+        storefronts: {
+            sportmeals: null,
+            fitnessshop: null
+        },
+        show_on_site: false,
         variants: [
             { id: 1, name: "Стандарт", sku: "DB5678", price: 520, stock: 30 }
         ]
@@ -75,6 +95,11 @@ const DEMO_PRODUCTS = [
         photo: "https://via.placeholder.com/48x48/f3e5f5/7b1fa2?text=MST",
         variants_count: 4,
         status: "hidden",
+        storefronts: {
+            sportmeals: null,
+            fitnessshop: null
+        },
+        show_on_site: false,
         variants: [
             { id: 1, name: "Кавун", sku: "MST-BCAA-WM", price: 680, stock: 20 },
             { id: 2, name: "Манго", sku: "MST-BCAA-MG", price: 680, stock: 15 },
@@ -131,6 +156,10 @@ async function loadAsidePanel() {
     }
 }
 
+// Сортування
+let sortKey = 'id';
+let sortDirection = 'asc';
+
 /**
  * Рендер таблиці товарів
  */
@@ -139,10 +168,13 @@ function renderProductsTable(products) {
     if (!container) return;
 
     // Фільтруємо товари
-    const filtered = products.filter(p => {
+    let filtered = products.filter(p => {
         if (currentFilter === 'all') return true;
         return p.status === currentFilter;
     });
+
+    // Сортування
+    filtered = sortProducts(filtered, sortKey, sortDirection);
 
     // Оновлюємо статистику
     const stats = document.getElementById('tab-stats-products');
@@ -150,29 +182,46 @@ function renderProductsTable(products) {
         stats.textContent = `Показано ${filtered.length} з ${products.length}`;
     }
 
+    // Оновлюємо статистику в aside
+    updateAsideStats(products);
+
     // Генеруємо HTML таблиці
     let html = `
         <div class="pseudo-table">
             <div class="pseudo-table-header">
-                <div class="pseudo-table-cell cell-actions"></div>
+                <div class="pseudo-table-cell cell-actions header-actions-cell">
+                    <input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">
+                </div>
+                <div class="pseudo-table-cell cell-id sortable-header${sortKey === 'id' ? ' sorted-' + sortDirection : ''}" data-sort-key="id">
+                    <span>ID</span><span class="sort-indicator"></span>
+                </div>
                 <div class="pseudo-table-cell cell-photo">Фото</div>
-                <div class="pseudo-table-cell cell-main-name">Назва</div>
-                <div class="pseudo-table-cell cell-brand">Бренд</div>
-                <div class="pseudo-table-cell cell-category">Категорія</div>
-                <div class="pseudo-table-cell cell-variants">Варіанти</div>
+                <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_uk' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_uk">
+                    <span>Назва</span><span class="sort-indicator"></span>
+                </div>
+                <div class="pseudo-table-cell cell-category sortable-header${sortKey === 'category' ? ' sorted-' + sortDirection : ''}" data-sort-key="category">
+                    <span>Категорія</span><span class="sort-indicator"></span>
+                </div>
+                <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
+                <div class="pseudo-table-cell cell-variants sortable-header${sortKey === 'variants_count' ? ' sorted-' + sortDirection : ''}" data-sort-key="variants_count">
+                    <span>Варіанти</span><span class="sort-indicator"></span>
+                </div>
                 <div class="pseudo-table-cell cell-status">Статус</div>
+                <div class="pseudo-table-cell cell-toggle">Виводити</div>
             </div>
             <div class="pseudo-table-body">
     `;
 
     filtered.forEach(product => {
         const statusBadge = getStatusBadge(product.status);
+        const storefrontLinks = getStorefrontLinks(product.storefronts);
         html += `
             <div class="pseudo-table-row product-row" data-product-id="${product.id}">
                 <div class="pseudo-table-cell cell-actions">
-                    <button class="btn-icon btn-edit-product" data-product-id="${product.id}" title="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
+                    <input type="checkbox" class="row-checkbox" data-product-id="${product.id}" aria-label="Вибрати">
+                </div>
+                <div class="pseudo-table-cell cell-id">
+                    <span class="product-id">${product.id}</span>
                 </div>
                 <div class="pseudo-table-cell cell-photo">
                     <img src="${product.photo}" alt="${product.name_short}" class="product-thumb">
@@ -183,17 +232,23 @@ function renderProductsTable(products) {
                         <span class="product-name-secondary">${product.name_short}</span>
                     </div>
                 </div>
-                <div class="pseudo-table-cell cell-brand">
-                    <span class="badge badge-outline">${product.brand}</span>
-                </div>
                 <div class="pseudo-table-cell cell-category">
                     ${product.category}
                 </div>
+                <div class="pseudo-table-cell cell-storefronts">
+                    ${storefrontLinks}
+                </div>
                 <div class="pseudo-table-cell cell-variants">
-                    <span class="badge">${product.variants_count} варіантів</span>
+                    <span class="badge">${product.variants_count}</span>
                 </div>
                 <div class="pseudo-table-cell cell-status">
                     ${statusBadge}
+                </div>
+                <div class="pseudo-table-cell cell-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="product-toggle" data-product-id="${product.id}" ${product.show_on_site ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </label>
                 </div>
             </div>
         `;
@@ -205,6 +260,90 @@ function renderProductsTable(products) {
     `;
 
     container.innerHTML = html;
+
+    // Додаємо обробники сортування
+    initSortableHeaders();
+}
+
+/**
+ * Сортування товарів
+ */
+function sortProducts(products, key, direction) {
+    return [...products].sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+
+        if (typeof valA === 'string') {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
+        }
+
+        if (valA < valB) return direction === 'asc' ? -1 : 1;
+        if (valA > valB) return direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+}
+
+/**
+ * Генерація посилань на вітрини
+ */
+function getStorefrontLinks(storefronts) {
+    if (!storefronts) return '<span class="text-muted">—</span>';
+
+    let links = [];
+
+    if (storefronts.sportmeals) {
+        links.push(`<a href="${storefronts.sportmeals}" target="_blank" class="storefront-link" title="Sport Meals">
+            <span class="material-symbols-outlined">fitness_center</span>
+        </a>`);
+    }
+
+    if (storefronts.fitnessshop) {
+        links.push(`<a href="${storefronts.fitnessshop}" target="_blank" class="storefront-link" title="Fitness Shop">
+            <span class="material-symbols-outlined">storefront</span>
+        </a>`);
+    }
+
+    return links.length ? links.join(' ') : '<span class="text-muted">—</span>';
+}
+
+/**
+ * Оновлення статистики в aside
+ */
+function updateAsideStats(products) {
+    const totalProducts = document.getElementById('stats-total-products');
+    const totalVariants = document.getElementById('stats-total-variants');
+    const activeCount = document.getElementById('stats-active');
+
+    if (totalProducts) {
+        totalProducts.textContent = products.length;
+    }
+    if (totalVariants) {
+        const variants = products.reduce((sum, p) => sum + p.variants_count, 0);
+        totalVariants.textContent = variants;
+    }
+    if (activeCount) {
+        const active = products.filter(p => p.status === 'active').length;
+        activeCount.textContent = active;
+    }
+}
+
+/**
+ * Ініціалізація сортування
+ */
+function initSortableHeaders() {
+    document.querySelectorAll('.sortable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const key = header.dataset.sortKey;
+            if (sortKey === key) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortKey = key;
+                sortDirection = 'asc';
+            }
+            renderProductsTable(DEMO_PRODUCTS);
+        });
+    });
 }
 
 /**
