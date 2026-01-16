@@ -3,6 +3,9 @@
  * Сторінка управління товарами з demo даними для візуалізації
  */
 
+import { initCustomSelects } from '../common/ui-select.js';
+import { showToast } from '../common/ui-toast.js';
+
 // Demo дані товарів
 const DEMO_PRODUCTS = [
     {
@@ -865,6 +868,9 @@ async function openCreateWizard() {
         // Ініціалізуємо wizard
         initWizard();
 
+        // Ініціалізуємо кастомні селекти
+        initCustomSelects(container);
+
         // Ініціалізуємо кнопки закриття
         initModalCloseButtons();
 
@@ -1007,13 +1013,16 @@ function initDescriptionTabs() {
 function initWizard() {
     const container = document.getElementById('modal-container');
     let currentStep = 1;
-    const totalSteps = 6;
+    const totalSteps = 7;
 
     const prevBtn = container.querySelector('#wizard-prev');
     const nextBtn = container.querySelector('#wizard-next');
     const createBtn = container.querySelector('#wizard-create');
     const wizardDots = container.querySelector('#wizard-dots');
     const stepIndicator = container.querySelector('#wizard-step-indicator');
+    const titleEl = container.querySelector('#wizard-title');
+    const hintEl = container.querySelector('#wizard-title-hint');
+    const iconEl = container.querySelector('#wizard-title-icon');
 
     function updateWizard() {
         // Оновлюємо індикатор
@@ -1035,7 +1044,15 @@ function initWizard() {
         container.querySelectorAll('.wizard-content').forEach(content => {
             content.classList.remove('active');
         });
-        container.querySelector(`[data-wizard-step="${currentStep}"]`)?.classList.add('active');
+        const activeStep = container.querySelector(`[data-wizard-step="${currentStep}"]`);
+        activeStep?.classList.add('active');
+
+        // Оновлюємо заголовок з data атрибутів
+        if (activeStep && titleEl && hintEl && iconEl) {
+            titleEl.textContent = activeStep.dataset.title || '';
+            hintEl.textContent = activeStep.dataset.hint || '';
+            iconEl.textContent = activeStep.dataset.icon || 'edit';
+        }
 
         // Оновлюємо кнопки
         if (prevBtn) {
@@ -1045,9 +1062,41 @@ function initWizard() {
         if (currentStep === totalSteps) {
             nextBtn?.classList.add('u-hidden');
             createBtn?.classList.remove('u-hidden');
+            // Оновлюємо підсумок на останньому кроці
+            updateSummary();
         } else {
             nextBtn?.classList.remove('u-hidden');
             createBtn?.classList.add('u-hidden');
+        }
+    }
+
+    function updateSummary() {
+        const categoryEl = container.querySelector('#wizard-category');
+        const brandEl = container.querySelector('#wizard-brand');
+        const nameUkEl = container.querySelector('#wizard-name-uk');
+        const nameRuEl = container.querySelector('#wizard-name-ru');
+
+        const summaryCategory = container.querySelector('#summary-category');
+        const summaryBrand = container.querySelector('#summary-brand');
+        const summaryNameUk = container.querySelector('#summary-name-uk');
+        const summaryNameRu = container.querySelector('#summary-name-ru');
+        const summaryVariants = container.querySelector('#summary-variants');
+
+        if (summaryCategory && categoryEl) {
+            summaryCategory.textContent = categoryEl.options[categoryEl.selectedIndex]?.text || '—';
+        }
+        if (summaryBrand && brandEl) {
+            summaryBrand.textContent = brandEl.options[brandEl.selectedIndex]?.text || '—';
+        }
+        if (summaryNameUk && nameUkEl) {
+            summaryNameUk.textContent = nameUkEl.value || '—';
+        }
+        if (summaryNameRu && nameRuEl) {
+            summaryNameRu.textContent = nameRuEl.value || '—';
+        }
+        if (summaryVariants) {
+            const variantsList = container.querySelectorAll('#wizard-variants-list .variant-item');
+            summaryVariants.textContent = variantsList.length;
         }
     }
 
@@ -1100,70 +1149,60 @@ function initWizard() {
 }
 
 /**
- * Показати підсумок створення
+ * Показати підсумок створення - додати товар до таблиці і закрити
  */
 function showCreationSummary() {
     const container = document.getElementById('modal-container');
 
     // Збираємо дані з форми
-    const category = container.querySelector('#wizard-category')?.options[container.querySelector('#wizard-category')?.selectedIndex]?.text || '—';
-    const brand = container.querySelector('#wizard-brand')?.options[container.querySelector('#wizard-brand')?.selectedIndex]?.text || '—';
-    const nameUk = container.querySelector('#wizard-name-uk')?.value || '—';
+    const categoryEl = container.querySelector('#wizard-category');
+    const brandEl = container.querySelector('#wizard-brand');
+    const category = categoryEl?.options[categoryEl?.selectedIndex]?.text || 'Без категорії';
+    const brand = brandEl?.options[brandEl?.selectedIndex]?.text || 'Без бренду';
+    const nameUk = container.querySelector('#wizard-name-uk')?.value || 'Новий товар';
+    const nameRu = container.querySelector('#wizard-name-ru')?.value || nameUk;
+    const statusValue = container.querySelector('input[name="wizard-status"]:checked')?.value || 'draft';
 
-    // Замінюємо вміст модалки на підсумок
-    const modalBody = container.querySelector('.wizard-body');
-    const modalFooter = container.querySelector('.wizard-footer');
+    // Збираємо платформи
+    const showSA = container.querySelector('#wizard-show-sa')?.checked || false;
+    const showSM = container.querySelector('#wizard-show-sm')?.checked || false;
+    const showFS = container.querySelector('#wizard-show-fs')?.checked || false;
 
-    if (modalBody) {
-        modalBody.innerHTML = `
-            <div class="wizard-summary">
-                <div class="summary-icon">
-                    <span class="material-symbols-outlined" style="font-size: 64px; color: var(--color-success);">check_circle</span>
-                </div>
-                <h2>Товар успішно створено!</h2>
-                <div class="summary-details">
-                    <div class="summary-item">
-                        <span class="summary-label">Категорія:</span>
-                        <span class="summary-value">${category}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Бренд:</span>
-                        <span class="summary-value">${brand}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="summary-label">Назва:</span>
-                        <span class="summary-value">${nameUk}</span>
-                    </div>
-                </div>
-                <div class="summary-actions">
-                    <button class="btn btn-outline" id="btn-create-another">
-                        <span class="material-symbols-outlined">add</span>
-                        Створити ще один
-                    </button>
-                    <button class="btn btn-primary" id="btn-open-created">
-                        <span class="material-symbols-outlined">edit</span>
-                        Відкрити для редагування
-                    </button>
-                </div>
-            </div>
-        `;
-    }
+    // Генеруємо новий ID
+    const newId = Math.max(...DEMO_PRODUCTS.map(p => p.id)) + 1;
 
-    if (modalFooter) {
-        modalFooter.style.display = 'none';
-    }
+    // Створюємо новий товар
+    const newProduct = {
+        id: newId,
+        name_uk: nameUk,
+        name_ru: nameRu,
+        name_short: nameUk,
+        brand: brand,
+        category: category,
+        photo: "https://via.placeholder.com/48x48/e0e0e0/666?text=NEW",
+        variants_count: 1,
+        status: statusValue,
+        storefronts: {
+            sportmeals: showSM ? `https://sportmeals.com.ua/product/${newId}` : null,
+            fitnessshop: showFS ? `https://fitness-shop.ua/product/${newId}` : null
+        },
+        show_on_site: showSA,
+        variants: [
+            { id: 1, name: "Стандарт", sku: `NEW-${newId}`, price: 0, stock: 0 }
+        ]
+    };
 
-    // Обробники кнопок
-    container.querySelector('#btn-create-another')?.addEventListener('click', () => {
-        closeModal();
-        setTimeout(() => openCreateWizard(), 300);
-    });
+    // Додаємо до масиву
+    DEMO_PRODUCTS.unshift(newProduct);
 
-    container.querySelector('#btn-open-created')?.addEventListener('click', () => {
-        closeModal();
-        // В реальній версії відкриваємо новий товар
-        alert('Відкриття редагування створеного товару (Demo)');
-    });
+    // Закриваємо модалку
+    closeModal();
+
+    // Перерендеримо таблицю
+    renderProductsTable(DEMO_PRODUCTS);
+
+    // Показуємо toast повідомлення
+    showToast(`Товар "${nameUk}" успішно створено!`, 'success');
 }
 
 /**
