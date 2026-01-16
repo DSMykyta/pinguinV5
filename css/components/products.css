@@ -1712,32 +1712,7 @@
     align-items: center;
 }
 
-.sort-indicator {
-    margin-left: 4px;
-    opacity: 0.3;
-}
-
-.sort-indicator::after {
-    content: "unfold_more";
-    font-family: "Material Symbols Outlined";
-    font-size: 16px;
-}
-
-.sorted-asc .sort-indicator::after {
-    content: "arrow_upward";
-    opacity: 1;
-}
-
-.sorted-desc .sort-indicator::after {
-    content: "arrow_downward";
-    opacity: 1;
-}
-
-.sorted-asc .sort-indicator,
-.sorted-desc .sort-indicator {
-    opacity: 1;
-    color: var(--color-main);
-}
+/* Sort indicator styles moved to pseudo-table.css to avoid conflicts */
 
 /* Row Checkbox */
 .row-checkbox {
