@@ -1505,3 +1505,221 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* ==========================================================================
+   PRODUCTS TABLE - Custom Cells
+   ========================================================================== */
+
+/* ID Cell */
+.cell-id {
+    width: 60px;
+    min-width: 60px;
+    flex: 0 0 60px;
+}
+
+.product-id {
+    font-weight: 500;
+    color: var(--color-on-surface-v);
+    font-size: 13px;
+}
+
+/* Storefronts Cell */
+.cell-storefronts {
+    width: 100px;
+    min-width: 100px;
+    flex: 0 0 100px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.storefront-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-s);
+    background: var(--color-surface-c);
+    color: var(--color-on-surface-v);
+    transition: all 150ms ease;
+}
+
+.storefront-link:hover {
+    background: var(--color-main-c);
+    color: var(--color-main);
+}
+
+.storefront-link .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* Toggle Cell */
+.cell-toggle {
+    width: 80px;
+    min-width: 80px;
+    flex: 0 0 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Toggle Switch Styles */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-outline);
+    transition: 150ms ease;
+    border-radius: 22px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 150ms ease;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--color-main);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+}
+
+/* Sortable Headers */
+.sortable-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable-header:hover {
+    background: var(--color-surface-c);
+}
+
+.sortable-header span {
+    display: inline-flex;
+    align-items: center;
+}
+
+.sort-indicator {
+    margin-left: 4px;
+    opacity: 0.3;
+}
+
+.sort-indicator::after {
+    content: "unfold_more";
+    font-family: "Material Symbols Outlined";
+    font-size: 16px;
+}
+
+.sorted-asc .sort-indicator::after {
+    content: "arrow_upward";
+    opacity: 1;
+}
+
+.sorted-desc .sort-indicator::after {
+    content: "arrow_downward";
+    opacity: 1;
+}
+
+.sorted-asc .sort-indicator,
+.sorted-desc .sort-indicator {
+    opacity: 1;
+    color: var(--color-main);
+}
+
+/* Row Checkbox */
+.row-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   ASIDE PRODUCTS - Custom Styles
+   ========================================================================== */
+
+#aside-products .panel-box {
+    position: relative;
+}
+
+#aside-products .input-main {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--color-on-surface);
+    outline: none;
+    padding: 8px 0;
+}
+
+#aside-products .input-main::placeholder {
+    color: var(--color-on-surface-v);
+}
+
+/* Custom select styling for aside */
+#aside-products .form-group select {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    transition: border-color 150ms ease-in-out;
+}
+
+#aside-products .form-group select:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+#aside-products .form-group select:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+    padding-right: 39px;
+}
+
+/* Form grid 2 columns */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
