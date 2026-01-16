@@ -219,14 +219,7 @@
 
                     <!-- Список варіантів -->
                     <div class="variants-list-compact u-mt-24" id="wizard-variants-list">
-                        <div class="variant-item">
-                            <div class="variant-item-info">
-                                <span class="variant-item-name">Шоколад</span>
-                                <span class="variant-item-sku">CN17214-CHOC</span>
-                            </div>
-                            <span class="variant-item-price">₴ 450</span>
-                            <button class="btn-icon btn-icon-sm"><span class="material-symbols-outlined">delete</span></button>
-                        </div>
+                        <!-- Варіанти додаються динамічно -->
                     </div>
 
                     <button class="btn btn-primary u-mt-16" id="wizard-add-variant">
@@ -354,6 +347,35 @@
                                 <option value="unisex">Унісекс</option>
                                 <option value="male">Чоловіки</option>
                                 <option value="female">Жінки</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Мультиселекти -->
+                    <div class="form-row form-row-2 u-mt-24">
+                        <div class="form-group">
+                            <label>Цілі (множинний вибір)</label>
+                            <select id="wizard-attr-goals" data-custom-select multiple>
+                                <option value="weight-loss">Схуднення</option>
+                                <option value="muscle-gain">Набір маси</option>
+                                <option value="energy">Енергія</option>
+                                <option value="immunity">Імунітет</option>
+                                <option value="recovery">Відновлення</option>
+                                <option value="joints">Суглоби</option>
+                                <option value="sleep">Сон</option>
+                                <option value="focus">Концентрація</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Час прийому (множинний вибір)</label>
+                            <select id="wizard-attr-timing" data-custom-select multiple>
+                                <option value="morning">Ранок</option>
+                                <option value="before-workout">До тренування</option>
+                                <option value="during-workout">Під час тренування</option>
+                                <option value="after-workout">Після тренування</option>
+                                <option value="evening">Вечір</option>
+                                <option value="with-meal">З їжею</option>
+                                <option value="empty-stomach">Натще</option>
                             </select>
                         </div>
                     </div>
