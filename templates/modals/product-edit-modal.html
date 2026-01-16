@@ -1,0 +1,631 @@
+<div class="modal-overlay" data-modal-id="product-edit-modal">
+    <div class="modal-container modal-xlarge">
+
+        <!-- Фіксований заголовок з табами -->
+        <div class="modal-header modal-header-tabs">
+            <div class="modal-header-top">
+                <h2 class="modal-title" id="product-modal-title">Редагування товару</h2>
+                <div class="modal-header-actions">
+                    <button class="btn-icon" id="btn-duplicate-product" title="Дублювати товар">
+                        <span class="material-symbols-outlined">content_copy</span>
+                    </button>
+                    <button class="btn-icon btn-danger" id="btn-delete-product" title="Видалити товар">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <button class="btn-icon" data-modal-close title="Закрити">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Таби навігації -->
+            <nav class="modal-tabs" id="product-edit-tabs">
+                <button class="modal-tab active" data-tab="tab-name">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Назва</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-photos">
+                    <span class="material-symbols-outlined">image</span>
+                    <span>Фото</span>
+                    <span class="badge badge-small">3</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-variants">
+                    <span class="material-symbols-outlined">style</span>
+                    <span>Варіанти</span>
+                    <span class="badge badge-small">5</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-composition">
+                    <span class="material-symbols-outlined">science</span>
+                    <span>Склад</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-attributes">
+                    <span class="material-symbols-outlined">list_alt</span>
+                    <span>Характеристики</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-description">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Опис</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-fulfillment">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                    <span>Фулфілмент</span>
+                </button>
+                <button class="modal-tab" data-tab="tab-seo">
+                    <span class="material-symbols-outlined">search</span>
+                    <span>SEO</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Тіло модального вікна з контентом табів -->
+        <div class="modal-body modal-body-tabs">
+
+            <!-- TAB: НАЗВА (РОЗБИВКА) -->
+            <div class="modal-tab-content active" data-tab-content="tab-name">
+                <div class="form-section">
+                    <h3 class="form-section-title">Розбивка назви</h3>
+                    <p class="form-section-desc">Структуровані поля для формування назви товару</p>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Категорія</label>
+                            <select class="input" id="edit-category">
+                                <option value="">Оберіть категорію</option>
+                                <option value="vitamins" selected>Вітаміни та мінерали</option>
+                                <option value="protein">Протеїн</option>
+                                <option value="amino">Амінокислоти</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Бренд</label>
+                            <select class="input" id="edit-brand">
+                                <option value="">Оберіть бренд</option>
+                                <option value="mst" selected>MST Nutrition</option>
+                                <option value="now">Now Foods</option>
+                                <option value="on">Optimum Nutrition</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Лінійка бренду</label>
+                        <input type="text" class="input" id="edit-brand-line" placeholder="Наприклад: Sport, Premium...">
+                    </div>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Текст перед назвою (UK)</label>
+                            <input type="text" class="input" id="edit-prefix-uk" value="Хітозан та хром">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Текст перед назвою (RU)</label>
+                            <input type="text" class="input" id="edit-prefix-ru" value="Хитозан и хром">
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Назва товару (UK)</label>
+                            <input type="text" class="input" id="edit-name-uk" value="Chitosan with Chrom">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Назва товару (RU)</label>
+                            <input type="text" class="input" id="edit-name-ru" value="Chitosan with Chrom">
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Ознака товару</label>
+                            <input type="text" class="input" id="edit-feature" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Деталь товару</label>
+                            <input type="text" class="input" id="edit-detail" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Варіація товару</label>
+                            <input type="text" class="input" id="edit-variation" value="240 капсул">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Текст після назви</label>
+                        <input type="text" class="input" id="edit-suffix" placeholder="">
+                    </div>
+                </div>
+
+                <!-- Прев'ю згенерованих назв -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Згенеровані назви</h3>
+                    <div class="preview-box">
+                        <div class="preview-item">
+                            <span class="preview-label">Повна назва (UK):</span>
+                            <span class="preview-value" id="preview-full-uk">Хітозан та хром MST Chitosan with Chrom, 240 капсул</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Повна назва (RU):</span>
+                            <span class="preview-value" id="preview-full-ru">Хитозан и хром MST Chitosan with Chrom, 240 капсул</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-label">Коротка назва:</span>
+                            <span class="preview-value" id="preview-short">MST Chitosan with Chrom, 240 капсул</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ФОТО -->
+            <div class="modal-tab-content" data-tab-content="tab-photos">
+                <div class="form-section">
+                    <h3 class="form-section-title">Фотографії товару</h3>
+                    <p class="form-section-desc">Завантажте до 10 фотографій. Перше фото буде головним.</p>
+
+                    <div class="photos-grid" id="photos-grid">
+                        <!-- Головне фото -->
+                        <div class="photo-item photo-main">
+                            <img src="https://via.placeholder.com/200x200/e8f5e9/2e7d32?text=Main" alt="Main photo">
+                            <div class="photo-overlay">
+                                <span class="photo-badge">Головне</span>
+                                <div class="photo-actions">
+                                    <button class="btn-icon btn-icon-light" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Додаткові фото -->
+                        <div class="photo-item">
+                            <img src="https://via.placeholder.com/200x200/e3f2fd/1565c0?text=2" alt="Photo 2">
+                            <div class="photo-overlay">
+                                <div class="photo-actions">
+                                    <button class="btn-icon btn-icon-light" title="Зробити головним">
+                                        <span class="material-symbols-outlined">star</span>
+                                    </button>
+                                    <button class="btn-icon btn-icon-light" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="photo-item">
+                            <img src="https://via.placeholder.com/200x200/fff3e0/e65100?text=3" alt="Photo 3">
+                            <div class="photo-overlay">
+                                <div class="photo-actions">
+                                    <button class="btn-icon btn-icon-light" title="Зробити головним">
+                                        <span class="material-symbols-outlined">star</span>
+                                    </button>
+                                    <button class="btn-icon btn-icon-light" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Кнопка додавання -->
+                        <div class="photo-item photo-add">
+                            <span class="material-symbols-outlined">add_photo_alternate</span>
+                            <span>Додати фото</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ВАРІАНТИ -->
+            <div class="modal-tab-content" data-tab-content="tab-variants">
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <div>
+                            <h3 class="form-section-title">Варіанти товару (SKU)</h3>
+                            <p class="form-section-desc">Смаки, розміри, фасування з індивідуальними цінами та залишками</p>
+                        </div>
+                        <button class="btn btn-outline" id="btn-add-variant">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати варіант</span>
+                        </button>
+                    </div>
+
+                    <!-- Список варіантів -->
+                    <div class="variants-list" id="variants-list">
+
+                        <!-- Варіант 1 -->
+                        <div class="variant-card" data-variant-id="1">
+                            <div class="variant-header">
+                                <div class="variant-info">
+                                    <img src="https://via.placeholder.com/48x48/e8f5e9/2e7d32?text=V1" class="variant-thumb">
+                                    <div>
+                                        <div class="variant-name">Шоколад</div>
+                                        <div class="variant-sku">CN17214-CHOC</div>
+                                    </div>
+                                </div>
+                                <div class="variant-meta">
+                                    <span class="badge badge-success">В наявності: 25</span>
+                                    <span class="variant-price">₴ 450</span>
+                                </div>
+                                <div class="variant-actions">
+                                    <button class="btn-icon" title="Редагувати">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-icon" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                    <button class="btn-icon variant-toggle" title="Розгорнути">
+                                        <span class="material-symbols-outlined">expand_more</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="variant-body">
+                                <div class="form-grid form-grid-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Артикул</label>
+                                        <input type="text" class="input" value="CN17214-CHOC">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Штрихкод</label>
+                                        <input type="text" class="input" value="4260641166459">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Ціна</label>
+                                        <input type="number" class="input" value="450">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">На складі</label>
+                                        <input type="number" class="input" value="25">
+                                    </div>
+                                </div>
+                                <div class="form-grid form-grid-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Смак</label>
+                                        <input type="text" class="input" value="Шоколад">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Розмір</label>
+                                        <input type="text" class="input" placeholder="—">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Об'єм/Вага</label>
+                                        <input type="text" class="input" placeholder="—">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Стан</label>
+                                        <input type="text" class="input" placeholder="—">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Уточнення до назви смаку</label>
+                                    <input type="text" class="input" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Опис проблеми товару</label>
+                                    <textarea class="input" rows="2" placeholder=""></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" id="variant-own-composition-1">
+                                        Власний склад для цього варіанту
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Варіант 2 -->
+                        <div class="variant-card" data-variant-id="2">
+                            <div class="variant-header">
+                                <div class="variant-info">
+                                    <img src="https://via.placeholder.com/48x48/fff3e0/e65100?text=V2" class="variant-thumb">
+                                    <div>
+                                        <div class="variant-name">Ваніль</div>
+                                        <div class="variant-sku">CN17214-VAN</div>
+                                    </div>
+                                </div>
+                                <div class="variant-meta">
+                                    <span class="badge badge-success">В наявності: 18</span>
+                                    <span class="variant-price">₴ 450</span>
+                                </div>
+                                <div class="variant-actions">
+                                    <button class="btn-icon" title="Редагувати">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-icon" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                    <button class="btn-icon variant-toggle" title="Розгорнути">
+                                        <span class="material-symbols-outlined">expand_more</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="variant-body" style="display: none;">
+                                <!-- Collapsed -->
+                            </div>
+                        </div>
+
+                        <!-- Варіант 3 -->
+                        <div class="variant-card" data-variant-id="3">
+                            <div class="variant-header">
+                                <div class="variant-info">
+                                    <img src="https://via.placeholder.com/48x48/fce4ec/c2185b?text=V3" class="variant-thumb">
+                                    <div>
+                                        <div class="variant-name">Полуниця</div>
+                                        <div class="variant-sku">CN17214-STRW</div>
+                                    </div>
+                                </div>
+                                <div class="variant-meta">
+                                    <span class="badge badge-warning">Мало: 3</span>
+                                    <span class="variant-price">₴ 480</span>
+                                </div>
+                                <div class="variant-actions">
+                                    <button class="btn-icon" title="Редагувати">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-icon" title="Видалити">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                    <button class="btn-icon variant-toggle" title="Розгорнути">
+                                        <span class="material-symbols-outlined">expand_more</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="variant-body" style="display: none;">
+                                <!-- Collapsed -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: СКЛАД -->
+            <div class="modal-tab-content" data-tab-content="tab-composition">
+                <div class="form-section">
+                    <h3 class="form-section-title">Склад продукту</h3>
+                    <p class="form-section-desc">Загальний склад для всіх варіантів (ігнорується якщо у варіанта свій)</p>
+
+                    <!-- Табличний склад -->
+                    <div class="form-group">
+                        <label class="form-label">Харчова цінність (таблиця)</label>
+                        <div class="composition-table-wrapper">
+                            <table class="composition-table" id="composition-table">
+                                <thead>
+                                    <tr>
+                                        <th>Компонент</th>
+                                        <th>На порцію</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input type="text" class="input input-sm" value="Хітозан"></td>
+                                        <td><input type="text" class="input input-sm" value="500 мг"></td>
+                                        <td><button class="btn-icon btn-icon-sm"><span class="material-symbols-outlined">delete</span></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="input input-sm" value="Хром"></td>
+                                        <td><input type="text" class="input input-sm" value="40 мкг"></td>
+                                        <td><button class="btn-icon btn-icon-sm"><span class="material-symbols-outlined">delete</span></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button class="btn btn-outline btn-sm u-mt-8" id="btn-add-composition-row">
+                                <span class="material-symbols-outlined">add</span>
+                                Додати рядок
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Інгредієнти текстом -->
+                    <div class="form-group">
+                        <label class="form-label">Інгредієнти (текст)</label>
+                        <textarea class="input" id="edit-ingredients" rows="4" placeholder="Список інгредієнтів...">Хітозан (з панцирів крабів/креветок), Глазирувач (гідроксипропілметилцелюлоза), Наповнювач (мікрокристалічна целюлоза), Піколінат хрому</textarea>
+                    </div>
+
+                    <!-- Прев'ю HTML -->
+                    <div class="form-group">
+                        <label class="form-label">Прев'ю згенерованого HTML</label>
+                        <div class="preview-box preview-html" id="composition-preview">
+                            <table>
+                                <tbody>
+                                    <tr><th><strong>Харчова цінність</strong></th><th><strong>1 капсула</strong></th></tr>
+                                    <tr><td>Хітозан</td><td>500 мг</td></tr>
+                                    <tr><td>Хром</td><td>40 мкг</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ХАРАКТЕРИСТИКИ -->
+            <div class="modal-tab-content" data-tab-content="tab-attributes">
+                <div class="form-section">
+                    <h3 class="form-section-title">Характеристики товару</h3>
+                    <p class="form-section-desc">Поля залежать від обраної категорії</p>
+
+                    <div class="attributes-grid" id="attributes-grid">
+                        <div class="form-group">
+                            <label class="form-label">Форма випуску</label>
+                            <select class="input">
+                                <option value="">Оберіть</option>
+                                <option value="capsules" selected>Капсули</option>
+                                <option value="tablets">Таблетки</option>
+                                <option value="powder">Порошок</option>
+                                <option value="liquid">Рідина</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Країна виробник</label>
+                            <select class="input">
+                                <option value="">Оберіть</option>
+                                <option value="de" selected>Німеччина</option>
+                                <option value="us">США</option>
+                                <option value="uk">Великобританія</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Кількість порцій</label>
+                            <input type="number" class="input" value="240">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Розмір порції</label>
+                            <input type="text" class="input" value="1 капсула">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Призначення</label>
+                            <select class="input" multiple>
+                                <option value="weight" selected>Контроль ваги</option>
+                                <option value="metabolism" selected>Метаболізм</option>
+                                <option value="digestion">Травлення</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Вік</label>
+                            <select class="input">
+                                <option value="">Оберіть</option>
+                                <option value="adult" selected>Дорослі</option>
+                                <option value="children">Діти</option>
+                                <option value="all">Всі</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Стать</label>
+                            <select class="input">
+                                <option value="">Оберіть</option>
+                                <option value="unisex" selected>Унісекс</option>
+                                <option value="male">Чоловіки</option>
+                                <option value="female">Жінки</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Особливості</label>
+                            <input type="text" class="input" placeholder="Без ГМО, Веган...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ОПИС -->
+            <div class="modal-tab-content" data-tab-content="tab-description">
+                <div class="form-section">
+                    <h3 class="form-section-title">Опис товару</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Опис (UK)</label>
+                        <textarea class="input" id="edit-description-uk" rows="8" placeholder="Введіть опис товару українською...">MST Chitosan with Chrom — це дієтична добавка, що поєднує хітозан та хром для підтримки здорового метаболізму та контролю ваги.
+
+Хітозан — природне волокно, отримане з панцирів ракоподібних, яке зв'язує жири в травному тракті. Хром сприяє нормальному метаболізму макроелементів та підтримує нормальний рівень глюкози в крові.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Опис (RU)</label>
+                        <textarea class="input" id="edit-description-ru" rows="8" placeholder="Введіть опис товару російською...">MST Chitosan with Chrom — это диетическая добавка, сочетающая хитозан и хром для поддержки здорового метаболизма и контроля веса.
+
+Хитозан — природное волокно, полученное из панцирей ракообразных, которое связывает жиры в пищеварительном тракте. Хром способствует нормальному метаболизму макроэлементов и поддерживает нормальный уровень глюкозы в крови.</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ФУЛФІЛМЕНТ -->
+            <div class="modal-tab-content" data-tab-content="tab-fulfillment">
+                <div class="form-section">
+                    <h3 class="form-section-title">Дані для фулфілменту</h3>
+                    <p class="form-section-desc">Габарити та вага для розрахунку доставки</p>
+
+                    <div class="form-grid form-grid-4">
+                        <div class="form-group">
+                            <label class="form-label">Вага (г)</label>
+                            <input type="number" class="input" id="edit-weight" value="180">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Довжина (см)</label>
+                            <input type="number" class="input" id="edit-length" value="12">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ширина (см)</label>
+                            <input type="number" class="input" id="edit-width" value="6">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Висота (см)</label>
+                            <input type="number" class="input" id="edit-height" value="6">
+                        </div>
+                    </div>
+
+                    <div class="preview-box u-mt-16">
+                        <div class="preview-item">
+                            <span class="preview-label">Об'ємна вага:</span>
+                            <span class="preview-value" id="preview-volume-weight">0.086 кг</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: SEO -->
+            <div class="modal-tab-content" data-tab-content="tab-seo">
+                <div class="form-section">
+                    <h3 class="form-section-title">SEO налаштування</h3>
+                    <p class="form-section-desc">Метатеги для пошукових систем</p>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Meta Title (UK)
+                            <span class="form-hint" id="seo-title-uk-count">55/60</span>
+                        </label>
+                        <input type="text" class="input" id="edit-seo-title-uk" value="Хітозан та хром MST Chitosan with Chrom 240 капсул купити">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Meta Title (RU)
+                            <span class="form-hint" id="seo-title-ru-count">55/60</span>
+                        </label>
+                        <input type="text" class="input" id="edit-seo-title-ru" value="Хитозан и хром MST Chitosan with Chrom 240 капсул купить">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Meta Description (UK)
+                            <span class="form-hint" id="seo-desc-uk-count">145/160</span>
+                        </label>
+                        <textarea class="input" id="edit-seo-desc-uk" rows="3">Купити Хітозан та хром MST Chitosan with Chrom 240 капсул за найкращою ціною в Україні. Швидка доставка, гарантія якості.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Meta Description (RU)
+                            <span class="form-hint" id="seo-desc-ru-count">148/160</span>
+                        </label>
+                        <textarea class="input" id="edit-seo-desc-ru" rows="3">Купить Хитозан и хром MST Chitosan with Chrom 240 капсул по лучшей цене в Украине. Быстрая доставка, гарантия качества.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Keywords</label>
+                        <input type="text" class="input" id="edit-seo-keywords" value="хітозан, хром, mst, chitosan, схуднення, метаболізм" placeholder="Ключові слова через кому">
+                    </div>
+
+                    <!-- Прев'ю в Google -->
+                    <div class="form-group">
+                        <label class="form-label">Прев'ю в Google</label>
+                        <div class="seo-preview">
+                            <div class="seo-preview-title">Хітозан та хром MST Chitosan with Chrom 240 капсул купити</div>
+                            <div class="seo-preview-url">https://yoursite.com/mst-chitosan-with-chrom-240</div>
+                            <div class="seo-preview-desc">Купити Хітозан та хром MST Chitosan with Chrom 240 капсул за найкращою ціною в Україні. Швидка доставка, гарантія якості.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Футер модального вікна -->
+        <div class="modal-footer">
+            <div class="modal-footer-left">
+                <span class="text-muted" id="product-last-updated">Останнє оновлення: 15.01.2026 14:32</span>
+            </div>
+            <div class="modal-footer-right">
+                <button class="btn btn-outline" data-modal-close>Скасувати</button>
+                <button class="btn btn-primary" id="btn-save-product">
+                    <span class="material-symbols-outlined">save</span>
+                    Зберегти
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

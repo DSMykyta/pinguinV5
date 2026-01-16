@@ -95,6 +95,9 @@
 @import url('components/content/section-misc.css');
 @import url('components/content/image-tool.css');
 
+/* === COMPONENTS - PRODUCTS === */
+@import url('components/products.css');
+
 /* === UTILITIES === */
 @import url('utilities/helpers.css');
 @import url('utilities/animations.css');
