@@ -5,6 +5,7 @@
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
+import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 
 // Demo дані товарів
 const DEMO_PRODUCTS = [
@@ -174,7 +175,7 @@ async function loadAsidePanel() {
 }
 
 /**
- * Рендер таблиці товарів
+ * Рендер таблиці товарів (використовує shared renderPseudoTable)
  */
 function renderProductsTable(products) {
     const container = document.getElementById('products-table-container');
@@ -198,73 +199,82 @@ function renderProductsTable(products) {
     // Оновлюємо статистику в aside
     updateAsideStats(products);
 
-    // Генеруємо HTML таблиці
-    let html = `
-        <div class="pseudo-table-header">
-            <div class="pseudo-table-cell cell-actions header-actions-cell">
-                <input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">
-            </div>
-            <div class="pseudo-table-cell cell-id sortable-header${sortKey === 'id' ? ' sorted-' + sortDirection : ''}" data-sort-key="id">
-                <span>ID</span><span class="sort-indicator"></span>
-            </div>
-            <div class="pseudo-table-cell cell-photo">Фото</div>
-            <div class="pseudo-table-cell cell-category sortable-header${sortKey === 'category' ? ' sorted-' + sortDirection : ''}" data-sort-key="category">
-                <span>Категорія</span><span class="sort-indicator"></span>
-            </div>
-            <div class="pseudo-table-cell cell-main-name sortable-header${sortKey === 'name_short' ? ' sorted-' + sortDirection : ''}" data-sort-key="name_short">
-                <span>Назва</span><span class="sort-indicator"></span>
-            </div>
-            <div class="pseudo-table-cell cell-variants">Варіанти</div>
-            <div class="pseudo-table-cell cell-status-small">Статус</div>
-            <div class="pseudo-table-cell cell-bool">Вивід</div>
-            <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
-        </div>
-    `;
-
-    filtered.forEach(product => {
-        const statusDot = getStatusDot(product.status);
-        const storefrontLinks = getStorefrontLinks(product.storefronts);
-        const showBadge = renderBoolBadge(product.show_on_site, product.id);
-
-        html += `
-            <div class="pseudo-table-row product-row" data-product-id="${product.id}">
-                <div class="pseudo-table-cell cell-actions">
-                    <input type="checkbox" class="row-checkbox" data-product-id="${product.id}" aria-label="Вибрати" ${selectedProducts.has(product.id) ? 'checked' : ''}>
-                    <button class="btn-icon btn-icon-sm btn-edit-product" data-product-id="${product.id}" title="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                </div>
-                <div class="pseudo-table-cell cell-id">
-                    <span class="product-id">${product.id}</span>
-                </div>
-                <div class="pseudo-table-cell cell-photo">
-                    <img src="${product.photo}" alt="${product.name_short}" class="product-thumb">
-                </div>
-                <div class="pseudo-table-cell cell-category">
-                    ${product.category}
-                </div>
-                <div class="pseudo-table-cell cell-main-name">
-                    <span class="product-name">${product.name_short}</span>
-                </div>
-                <div class="pseudo-table-cell cell-variants">
-                    <button class="btn-variants-count" data-product-id="${product.id}" title="Переглянути варіанти">
-                        ${product.variants_count}
-                    </button>
-                </div>
-                <div class="pseudo-table-cell cell-status-small">
-                    ${statusDot}
-                </div>
-                <div class="pseudo-table-cell cell-bool" data-column="show_on_site">
-                    ${showBadge}
-                </div>
-                <div class="pseudo-table-cell cell-storefronts">
-                    ${storefrontLinks}
-                </div>
-            </div>
-        `;
+    // Використовуємо shared renderPseudoTable
+    renderPseudoTable(container, {
+        data: filtered,
+        columns: [
+            {
+                id: 'id',
+                label: 'ID',
+                sortable: true,
+                className: 'cell-id',
+                render: (value) => `<span class="product-id">${value}</span>`
+            },
+            {
+                id: 'photo',
+                label: 'Фото',
+                sortable: false,
+                className: 'cell-photo',
+                render: (value, row) => `<img src="${value}" alt="${row.name_short}" class="product-thumb">`
+            },
+            {
+                id: 'category',
+                label: 'Категорія',
+                sortable: true,
+                className: 'cell-category'
+            },
+            {
+                id: 'name_short',
+                label: 'Назва',
+                sortable: true,
+                className: 'cell-main-name',
+                render: (value) => `<span class="product-name">${value}</span>`
+            },
+            {
+                id: 'variants_count',
+                label: 'Варіанти',
+                sortable: false,
+                className: 'cell-variants',
+                render: (value, row) => `<button class="btn-variants-count" data-product-id="${row.id}" title="Переглянути варіанти">${value}</button>`
+            },
+            {
+                id: 'status',
+                label: 'Статус',
+                sortable: true,
+                className: 'cell-status-small',
+                render: (value) => getStatusDot(value)
+            },
+            {
+                id: 'show_on_site',
+                label: 'Вивід',
+                sortable: false,
+                className: 'cell-bool',
+                render: (value, row) => renderBadge(value, 'boolean', { clickable: true, id: row.id })
+            },
+            {
+                id: 'storefronts',
+                label: 'Вітрини',
+                sortable: false,
+                className: 'cell-storefronts',
+                render: (value) => getStorefrontLinks(value)
+            }
+        ],
+        rowActionsCustom: (row) => {
+            const isChecked = selectedProducts.has(row.id);
+            return `
+                <input type="checkbox" class="row-checkbox" data-product-id="${row.id}" aria-label="Вибрати" ${isChecked ? 'checked' : ''}>
+                <button class="btn-icon btn-icon-sm btn-edit-product" data-product-id="${row.id}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
+        rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">',
+        emptyState: {
+            icon: 'inventory_2',
+            message: 'Товари не знайдено'
+        },
+        withContainer: false // Контейнер вже має клас pseudo-table-container
     });
-
-    container.innerHTML = html;
 
     // Додаємо обробники сортування
     initSortableHeaders();
@@ -317,23 +327,7 @@ function getStatusDot(status) {
     return `<span class="status-dot" style="background-color: ${color};" title="${title}"></span>`;
 }
 
-/**
- * Boolean badge - ідентично banned-words
- */
-function renderBoolBadge(value, productId) {
-    const isTrue = value === true || value === 'TRUE' || value === 1;
-    const badgeClass = isTrue ? 'badge badge-success clickable' : 'badge badge-neutral clickable';
-    const icon = isTrue ? 'check_circle' : 'cancel';
-    const text = isTrue ? 'Так' : 'Ні';
-    const statusValue = isTrue ? 'TRUE' : 'FALSE';
-
-    return `
-        <span class="${badgeClass}" data-badge-id="${productId}" data-status="${statusValue}" style="cursor: pointer;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">${icon}</span>
-            ${text}
-        </span>
-    `.trim();
-}
+// renderBoolBadge видалено - використовується renderBadge з ui-table.js
 
 /**
  * Генерація посилань на вітрини
@@ -466,7 +460,7 @@ function batchActivate() {
 }
 
 /**
- * Рендер табу Варіанти
+ * Рендер табу Варіанти (використовує shared renderPseudoTable)
  */
 function renderVariantsTab() {
     const container = document.getElementById('variants-table-container');
@@ -480,41 +474,67 @@ function renderVariantsTab() {
                 ...variant,
                 productId: product.id,
                 productName: product.name_short,
-                productPhoto: product.photo
+                productPhoto: product.photo,
+                combinedId: `${product.id}-${variant.id}`
             });
         });
     });
 
-    let html = `
-        <div class="pseudo-table-header">
-            <div class="pseudo-table-cell cell-id">ID</div>
-            <div class="pseudo-table-cell cell-photo">Фото</div>
-            <div class="pseudo-table-cell cell-main-name">Товар</div>
-            <div class="pseudo-table-cell">Варіант</div>
-            <div class="pseudo-table-cell">SKU</div>
-            <div class="pseudo-table-cell">Ціна</div>
-            <div class="pseudo-table-cell">Залишок</div>
-        </div>
-    `;
-
-    allVariants.forEach((variant, idx) => {
-        const stockClass = variant.stock === 0 ? 'text-error' : (variant.stock < 10 ? 'text-warning' : '');
-        html += `
-            <div class="pseudo-table-row">
-                <div class="pseudo-table-cell cell-id">${variant.productId}-${variant.id}</div>
-                <div class="pseudo-table-cell cell-photo">
-                    <img src="${variant.productPhoto}" alt="" class="product-thumb">
-                </div>
-                <div class="pseudo-table-cell cell-main-name">${variant.productName}</div>
-                <div class="pseudo-table-cell">${variant.name}</div>
-                <div class="pseudo-table-cell"><code>${variant.sku}</code></div>
-                <div class="pseudo-table-cell">₴ ${variant.price}</div>
-                <div class="pseudo-table-cell ${stockClass}">${variant.stock}</div>
-            </div>
-        `;
+    renderPseudoTable(container, {
+        data: allVariants,
+        columns: [
+            {
+                id: 'combinedId',
+                label: 'ID',
+                sortable: false,
+                className: 'cell-id'
+            },
+            {
+                id: 'productPhoto',
+                label: 'Фото',
+                sortable: false,
+                className: 'cell-photo',
+                render: (value) => `<img src="${value}" alt="" class="product-thumb">`
+            },
+            {
+                id: 'productName',
+                label: 'Товар',
+                sortable: true,
+                className: 'cell-main-name'
+            },
+            {
+                id: 'name',
+                label: 'Варіант',
+                sortable: true
+            },
+            {
+                id: 'sku',
+                label: 'SKU',
+                sortable: false,
+                render: (value) => `<code>${value}</code>`
+            },
+            {
+                id: 'price',
+                label: 'Ціна',
+                sortable: true,
+                render: (value) => `₴ ${value}`
+            },
+            {
+                id: 'stock',
+                label: 'Залишок',
+                sortable: true,
+                render: (value) => {
+                    const stockClass = value === 0 ? 'text-error' : (value < 10 ? 'text-warning' : '');
+                    return `<span class="${stockClass}">${value}</span>`;
+                }
+            }
+        ],
+        emptyState: {
+            icon: 'style',
+            message: 'Варіанти не знайдено'
+        },
+        withContainer: false
     });
-
-    container.innerHTML = html;
 }
 
 /**
