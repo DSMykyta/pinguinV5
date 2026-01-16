@@ -1697,47 +1697,7 @@
     transform: translateX(18px);
 }
 
-/* Sortable Headers */
-.sortable-header {
-    cursor: pointer;
-    user-select: none;
-}
-
-.sortable-header:hover {
-    background: var(--color-surface-c);
-}
-
-.sortable-header span {
-    display: inline-flex;
-    align-items: center;
-}
-
-.sort-indicator {
-    margin-left: 4px;
-    opacity: 0.3;
-}
-
-.sort-indicator::after {
-    content: "unfold_more";
-    font-family: "Material Symbols Outlined";
-    font-size: 16px;
-}
-
-.sorted-asc .sort-indicator::after {
-    content: "arrow_upward";
-    opacity: 1;
-}
-
-.sorted-desc .sort-indicator::after {
-    content: "arrow_downward";
-    opacity: 1;
-}
-
-.sorted-asc .sort-indicator,
-.sorted-desc .sort-indicator {
-    opacity: 1;
-    color: var(--color-main);
-}
+/* Sortable Headers - styles in pseudo-table.css */
 
 /* Row Checkbox */
 .row-checkbox {
