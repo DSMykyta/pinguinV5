@@ -764,6 +764,9 @@ async function openEditModal(productId) {
         // Ініціалізуємо навігацію по секціях
         initSectionNavigator();
 
+        // Ініціалізуємо кастомні селекти
+        initCustomSelects(container);
+
         // Ініціалізуємо кнопки закриття
         initModalCloseButtons();
 
