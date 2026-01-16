@@ -1996,67 +1996,34 @@
 
 /* ==========================================================================
    STOREFRONT CHECKBOXES (SA, SM, FS)
+   Extends existing .chip component from chip.css
    ========================================================================== */
 
 .storefront-checkboxes {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-.checkbox-card {
-    display: block;
+/* Chip with checkbox - label wraps chip, checkbox is hidden */
+.chip-checkbox {
     cursor: pointer;
 }
 
-.checkbox-card input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+.chip-checkbox input[type="checkbox"] {
+    display: none;
 }
 
-.checkbox-card-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 12px 20px;
-    border: 2px solid var(--color-outline);
-    border-radius: var(--radius-m);
-    background: var(--color-surface);
-    transition: all 150ms ease;
-    min-width: 100px;
+.chip-checkbox .chip {
+    gap: 6px;
 }
 
-.checkbox-card-content .material-symbols-outlined {
-    font-size: 24px;
-    color: var(--color-on-surface-v);
-    transition: color 150ms ease;
-}
-
-.checkbox-card-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-}
-
-.checkbox-card-hint {
-    font-size: 11px;
-    color: var(--color-on-surface-v);
-}
-
-.checkbox-card input:checked + .checkbox-card-content {
+/* Checked state uses chip-active colors */
+.chip-checkbox input:checked + .chip {
+    background: var(--color-main);
+    color: var(--color-on-main);
     border-color: var(--color-main);
-    background: var(--color-main-c);
-}
-
-.checkbox-card input:checked + .checkbox-card-content .material-symbols-outlined {
-    color: var(--color-main);
-}
-
-.checkbox-card:hover .checkbox-card-content {
-    border-color: var(--color-main);
+    border-radius: 16px;
 }
 
 /* ==========================================================================
