@@ -465,26 +465,24 @@ function initWizard() {
     const prevBtn = container.querySelector('#wizard-prev');
     const nextBtn = container.querySelector('#wizard-next');
     const createBtn = container.querySelector('#wizard-create');
-    const progressBar = container.querySelector('#wizard-progress-bar');
+    const wizardDots = container.querySelector('#wizard-dots');
     const stepIndicator = container.querySelector('#wizard-step-indicator');
 
     function updateWizard() {
-        // Оновлюємо прогрес бар
-        const progress = (currentStep / totalSteps) * 100;
-        progressBar.style.width = progress + '%';
-
         // Оновлюємо індикатор
-        stepIndicator.textContent = `Крок ${currentStep} з ${totalSteps}`;
+        if (stepIndicator) {
+            stepIndicator.textContent = `Крок ${currentStep} з ${totalSteps}`;
+        }
 
-        // Оновлюємо кроки
-        container.querySelectorAll('.wizard-step').forEach((step, index) => {
-            step.classList.remove('active', 'completed');
-            if (index + 1 === currentStep) {
-                step.classList.add('active');
-            } else if (index + 1 < currentStep) {
-                step.classList.add('completed');
-            }
-        });
+        // Оновлюємо кружечки (dots)
+        if (wizardDots) {
+            wizardDots.querySelectorAll('.wizard-dot').forEach((dot, index) => {
+                dot.classList.remove('is-active');
+                if (index + 1 === currentStep) {
+                    dot.classList.add('is-active');
+                }
+            });
+        }
 
         // Оновлюємо контент
         container.querySelectorAll('.wizard-content').forEach(content => {
@@ -493,38 +491,65 @@ function initWizard() {
         container.querySelector(`[data-wizard-step="${currentStep}"]`)?.classList.add('active');
 
         // Оновлюємо кнопки
-        prevBtn.disabled = currentStep === 1;
+        if (prevBtn) {
+            prevBtn.disabled = currentStep === 1;
+        }
 
         if (currentStep === totalSteps) {
-            nextBtn.classList.add('u-hidden');
-            createBtn.classList.remove('u-hidden');
+            nextBtn?.classList.add('u-hidden');
+            createBtn?.classList.remove('u-hidden');
         } else {
-            nextBtn.classList.remove('u-hidden');
-            createBtn.classList.add('u-hidden');
+            nextBtn?.classList.remove('u-hidden');
+            createBtn?.classList.add('u-hidden');
         }
     }
 
-    prevBtn.addEventListener('click', () => {
-        if (currentStep > 1) {
-            currentStep--;
-            updateWizard();
-        }
-    });
+    // Кнопка "Назад"
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateWizard();
+            }
+        });
+    }
 
-    nextBtn.addEventListener('click', () => {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            updateWizard();
-        }
-    });
+    // Кнопка "Далі"
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateWizard();
+            }
+        });
+    }
 
-    createBtn.addEventListener('click', () => {
-        alert('✅ Товар створено! (Demo)');
-        closeModal();
-    });
+    // Кнопка "Створити"
+    if (createBtn) {
+        createBtn.addEventListener('click', () => {
+            alert('✅ Товар створено! (Demo)');
+            closeModal();
+        });
+    }
+
+    // Клік по кружечках для навігації
+    if (wizardDots) {
+        wizardDots.querySelectorAll('.wizard-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                const step = parseInt(dot.dataset.step);
+                if (step && step >= 1 && step <= totalSteps) {
+                    currentStep = step;
+                    updateWizard();
+                }
+            });
+        });
+    }
 
     // Ініціалізуємо прев'ю назви
     initNamePreview();
+
+    // Початкове оновлення
+    updateWizard();
 }
 
 /**
