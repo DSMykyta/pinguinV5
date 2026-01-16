@@ -1723,3 +1723,273 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
+
+/* ==========================================================================
+   STATUS DOT (colored circle for status)
+   ========================================================================== */
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.cell-status-small {
+    width: 60px;
+    min-width: 60px;
+    flex: 0 0 60px;
+    text-align: center;
+}
+
+.cell-show {
+    width: 60px;
+    min-width: 60px;
+    flex: 0 0 60px;
+    text-align: center;
+}
+
+/* Small button icon */
+.btn-icon-sm {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+}
+
+.btn-icon-sm .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* ==========================================================================
+   VARIANTS COUNT BUTTON
+   ========================================================================== */
+
+.btn-variants-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
+.btn-variants-count:hover {
+    background: var(--color-main-c);
+    border-color: var(--color-main);
+    color: var(--color-main);
+}
+
+/* ==========================================================================
+   VARIANTS MODAL
+   ========================================================================== */
+
+.variants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.variant-card {
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
+    overflow: hidden;
+}
+
+.variant-card .variant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 16px;
+}
+
+.variant-info {
+    flex: 1;
+}
+
+.variant-name {
+    font-weight: 500;
+    color: var(--color-on-surface);
+}
+
+.variant-sku {
+    font-size: 13px;
+    color: var(--color-on-surface-v);
+    font-family: monospace;
+}
+
+.variant-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.variant-price {
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.variant-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* ==========================================================================
+   GROUPS TAB (packaging groups)
+   ========================================================================== */
+
+.groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+.group-card {
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
+    overflow: hidden;
+}
+
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--color-surface-c);
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.group-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.group-name {
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.group-count {
+    font-size: 13px;
+    color: var(--color-on-surface-v);
+}
+
+.group-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.group-products {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.group-product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--color-surface-c);
+    border-radius: var(--radius-s);
+}
+
+.group-product-name {
+    font-size: 14px;
+    color: var(--color-on-surface);
+}
+
+.group-add-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   WIZARD SUMMARY (after creation)
+   ========================================================================== */
+
+.wizard-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 24px;
+    height: 100%;
+}
+
+.wizard-summary .summary-icon {
+    margin-bottom: 24px;
+}
+
+.wizard-summary h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin: 0 0 32px 0;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+    min-width: 300px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--color-surface-c);
+    border-radius: var(--radius-s);
+}
+
+.summary-label {
+    color: var(--color-on-surface-v);
+    font-size: 14px;
+}
+
+.summary-value {
+    color: var(--color-on-surface);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* ==========================================================================
+   TEXT COLOR UTILITIES
+   ========================================================================== */
+
+.text-success {
+    color: var(--color-success);
+}
+
+.text-warning {
+    color: var(--color-warning);
+}
+
+.text-error {
+    color: var(--color-error);
+}
+
+.text-muted {
+    color: var(--color-on-surface-v);
+}
