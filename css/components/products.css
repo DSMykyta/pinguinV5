@@ -1697,22 +1697,7 @@
     transform: translateX(18px);
 }
 
-/* Sortable Headers */
-.sortable-header {
-    cursor: pointer;
-    user-select: none;
-}
-
-.sortable-header:hover {
-    background: var(--color-surface-c);
-}
-
-.sortable-header span {
-    display: inline-flex;
-    align-items: center;
-}
-
-/* Sort indicator styles moved to pseudo-table.css to avoid conflicts */
+/* Sortable Headers - styles in pseudo-table.css */
 
 /* Row Checkbox */
 .row-checkbox {
