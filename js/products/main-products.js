@@ -303,8 +303,8 @@ async function openEditModal(productId) {
             currentModal = overlay;
         }
 
-        // Ініціалізуємо таби в модалці
-        initModalTabs();
+        // Ініціалізуємо навігацію по секціях (fullscreen modal)
+        initSectionNavigator();
 
         // Ініціалізуємо кнопки закриття
         initModalCloseButtons();
@@ -348,24 +348,56 @@ async function openCreateWizard() {
 }
 
 /**
- * Ініціалізація табів в модальному вікні
+ * Ініціалізація навігації по секціях у fullscreen модалці
  */
-function initModalTabs() {
+function initSectionNavigator() {
     const container = document.getElementById('modal-container');
+    const navigator = container.querySelector('#product-section-navigator');
+    const contentArea = container.querySelector('.modal-fullscreen-content');
 
-    container.querySelectorAll('.modal-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            const target = tab.dataset.tab;
+    if (!navigator || !contentArea) return;
 
-            // Деактивуємо всі таби
-            container.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-            container.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+    // Клік по навігації - scroll to section
+    navigator.querySelectorAll('.nav-icon').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetSection = container.querySelector(`#${targetId}`);
 
-            // Активуємо обраний
-            tab.classList.add('active');
-            container.querySelector(`[data-tab-content="${target}"]`)?.classList.add('active');
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Оновлюємо активний стан
+                navigator.querySelectorAll('.nav-icon').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            }
         });
     });
+
+    // Відстежуємо скрол для автоматичного оновлення активного пункту
+    const sections = container.querySelectorAll('.product-section');
+
+    const observerOptions = {
+        root: contentArea,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                navigator.querySelectorAll('.nav-icon').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
 }
 
 /**
