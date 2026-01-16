@@ -984,8 +984,11 @@ function initSectionNavigator() {
 
     if (!navigator || !contentArea) return;
 
+    // Визначаємо клас навігаційних елементів (sidebar або horizontal)
+    const navItemClass = navigator.classList.contains('sidebar-navigator') ? '.sidebar-nav-item' : '.nav-icon';
+
     // Клік по навігації - scroll to section
-    navigator.querySelectorAll('.nav-icon').forEach(link => {
+    navigator.querySelectorAll(navItemClass).forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const targetId = link.getAttribute('href').substring(1);
@@ -995,7 +998,7 @@ function initSectionNavigator() {
                 targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 // Оновлюємо активний стан
-                navigator.querySelectorAll('.nav-icon').forEach(l => l.classList.remove('active'));
+                navigator.querySelectorAll(navItemClass).forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
             }
         });
@@ -1014,7 +1017,7 @@ function initSectionNavigator() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const sectionId = entry.target.id;
-                navigator.querySelectorAll('.nav-icon').forEach(link => {
+                navigator.querySelectorAll(navItemClass).forEach(link => {
                     link.classList.remove('active');
                     if (link.getAttribute('href') === `#${sectionId}`) {
                         link.classList.add('active');
@@ -1438,6 +1441,30 @@ function initEditModalActions(productId) {
         btn.addEventListener('click', () => {
             const sectionName = btn.closest('.section-name')?.querySelector('h2')?.textContent || 'Секція';
             showToast(`Довідка: ${sectionName}`, 'info');
+        });
+    });
+
+    // === STATUS RADIO BUTTONS ===
+    const statusRadios = container.querySelectorAll('input[name="edit-status"]');
+    const statusBadge = container.querySelector('#product-status-badge');
+
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (!radio.checked || !statusBadge) return;
+
+            const statusMap = {
+                'active': { text: 'Активний', class: 'badge badge-success' },
+                'draft': { text: 'Чернетка', class: 'badge badge-neutral' },
+                'hidden': { text: 'Прихований', class: 'badge badge-warning' }
+            };
+
+            const status = statusMap[radio.value] || statusMap['draft'];
+            statusBadge.textContent = status.text;
+            statusBadge.className = status.class;
+
+            if (product) {
+                product.status = radio.value;
+            }
         });
     });
 }
