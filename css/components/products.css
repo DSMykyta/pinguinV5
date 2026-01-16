@@ -240,6 +240,56 @@
     text-transform: uppercase;
 }
 
+/* ==========================================================================
+   DESCRIPTION TABS
+   ========================================================================== */
+
+.description-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.description-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-m, 8px);
+    color: var(--color-on-surface-v);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.description-tab .material-symbols-outlined {
+    font-size: 18px !important;
+}
+
+.description-tab:hover {
+    background: var(--color-surface-c);
+    color: var(--color-on-surface);
+}
+
+.description-tab.active {
+    background: var(--color-main-c);
+    border-color: var(--color-main);
+    color: var(--color-main);
+}
+
+.description-tab-content {
+    display: none;
+}
+
+.description-tab-content.active {
+    display: block;
+}
+
 /* Product Row in Table
    ========================================================================== */
 

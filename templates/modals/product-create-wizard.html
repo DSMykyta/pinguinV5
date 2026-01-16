@@ -403,43 +403,40 @@
                 </div>
 
                 <div class="wizard-content-body">
-                    <div class="bilingual-grid">
-                        <!-- Українська -->
-                        <div class="bilingual-column">
-                            <div class="bilingual-column-header">
-                                <span class="flag">🇺🇦</span>
-                                <h4>Українська</h4>
-                            </div>
-                            <div class="form-group">
-                                <label>Meta Title <span class="form-hint">0/60</span></label>
-                                <input type="text" id="wizard-seo-title-uk" placeholder="SEO заголовок українською">
-                            </div>
-                            <div class="form-group">
-                                <label>Meta Description <span class="form-hint">0/160</span></label>
-                                <textarea id="wizard-seo-desc-uk" rows="3" placeholder="SEO опис українською..."></textarea>
-                            </div>
+                    <!-- Meta Title: UK | RU в одному рядку -->
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label>🇺🇦 Meta Title <span class="form-hint">0/60</span></label>
+                            <input type="text" id="wizard-seo-title-uk" placeholder="SEO заголовок українською">
                         </div>
-
-                        <!-- Російська -->
-                        <div class="bilingual-column">
-                            <div class="bilingual-column-header">
-                                <span class="flag">🇷🇺</span>
-                                <h4>Російська</h4>
-                            </div>
-                            <div class="form-group">
-                                <label>Meta Title <span class="form-hint">0/60</span></label>
-                                <input type="text" id="wizard-seo-title-ru" placeholder="SEO заголовок русском">
-                            </div>
-                            <div class="form-group">
-                                <label>Meta Description <span class="form-hint">0/160</span></label>
-                                <textarea id="wizard-seo-desc-ru" rows="3" placeholder="SEO описание на русском..."></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label>🇷🇺 Meta Title <span class="form-hint">0/60</span></label>
+                            <input type="text" id="wizard-seo-title-ru" placeholder="SEO заголовок русском">
                         </div>
                     </div>
 
-                    <div class="form-group u-mt-16">
-                        <label>Keywords (спільні)</label>
-                        <input type="text" id="wizard-seo-keywords" placeholder="ключ1, ключ2, ключ3...">
+                    <!-- Meta Description: UK | RU в одному рядку -->
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label>🇺🇦 Meta Description <span class="form-hint">0/160</span></label>
+                            <textarea id="wizard-seo-desc-uk" rows="3" placeholder="SEO опис українською..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>🇷🇺 Meta Description <span class="form-hint">0/160</span></label>
+                            <textarea id="wizard-seo-desc-ru" rows="3" placeholder="SEO описание на русском..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Keywords: UK | RU в одному рядку -->
+                    <div class="form-row form-row-2">
+                        <div class="form-group">
+                            <label>🇺🇦 Keywords</label>
+                            <input type="text" id="wizard-keywords-uk" placeholder="ключ1, ключ2, ключ3...">
+                        </div>
+                        <div class="form-group">
+                            <label>🇷🇺 Keywords</label>
+                            <input type="text" id="wizard-keywords-ru" placeholder="ключ1, ключ2, ключ3...">
+                        </div>
                     </div>
 
                     <!-- Фінальні дії -->
