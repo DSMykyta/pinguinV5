@@ -214,7 +214,7 @@ function renderProductsTable(products) {
                 </div>
                 <div class="pseudo-table-cell cell-variants">Варіанти</div>
                 <div class="pseudo-table-cell cell-status-small">Статус</div>
-                <div class="pseudo-table-cell cell-show">Вивід</div>
+                <div class="pseudo-table-cell cell-bool">Вивід</div>
                 <div class="pseudo-table-cell cell-storefronts">Вітрини</div>
             </div>
             <div class="pseudo-table-body">
@@ -223,7 +223,7 @@ function renderProductsTable(products) {
     filtered.forEach(product => {
         const statusDot = getStatusDot(product.status);
         const storefrontLinks = getStorefrontLinks(product.storefronts);
-        const showText = product.show_on_site ? '<span class="text-success">Так</span>' : '<span class="text-muted">Ні</span>';
+        const showBadge = renderBoolBadge(product.show_on_site, product.id);
 
         html += `
             <div class="pseudo-table-row product-row" data-product-id="${product.id}">
@@ -253,8 +253,8 @@ function renderProductsTable(products) {
                 <div class="pseudo-table-cell cell-status-small">
                     ${statusDot}
                 </div>
-                <div class="pseudo-table-cell cell-show">
-                    ${showText}
+                <div class="pseudo-table-cell cell-bool" data-column="show_on_site">
+                    ${showBadge}
                 </div>
                 <div class="pseudo-table-cell cell-storefronts">
                     ${storefrontLinks}
@@ -319,6 +319,24 @@ function getStatusDot(status) {
             title = status;
     }
     return `<span class="status-dot" style="background-color: ${color};" title="${title}"></span>`;
+}
+
+/**
+ * Boolean badge - ідентично banned-words
+ */
+function renderBoolBadge(value, productId) {
+    const isTrue = value === true || value === 'TRUE' || value === 1;
+    const badgeClass = isTrue ? 'badge badge-success clickable' : 'badge badge-neutral clickable';
+    const icon = isTrue ? 'check_circle' : 'cancel';
+    const text = isTrue ? 'Так' : 'Ні';
+    const statusValue = isTrue ? 'TRUE' : 'FALSE';
+
+    return `
+        <span class="${badgeClass}" data-badge-id="${productId}" data-status="${statusValue}" style="cursor: pointer;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">${icon}</span>
+            ${text}
+        </span>
+    `.trim();
 }
 
 /**
@@ -636,6 +654,32 @@ function initEventHandlers() {
                 selectedProducts.clear();
             }
             updateBatchBar();
+            return;
+        }
+
+        // Клік по badge (toggle Так/Ні) - ідентично banned-words
+        const badge = e.target.closest('.badge.clickable');
+        if (badge && badge.dataset.badgeId) {
+            e.stopPropagation();
+            const productId = parseInt(badge.dataset.badgeId);
+            const currentStatus = badge.dataset.status;
+            const isChecked = currentStatus === 'TRUE';
+
+            // Toggle статус
+            const newStatus = !isChecked;
+            const product = DEMO_PRODUCTS.find(p => p.id === productId);
+            if (product) {
+                product.show_on_site = newStatus;
+            }
+
+            // Оновлюємо badge
+            badge.classList.remove('badge-success', 'badge-neutral');
+            badge.classList.add(newStatus ? 'badge-success' : 'badge-neutral');
+            badge.dataset.status = newStatus ? 'TRUE' : 'FALSE';
+            badge.innerHTML = `
+                <span class="material-symbols-outlined" style="font-size: 16px;">${newStatus ? 'check_circle' : 'cancel'}</span>
+                ${newStatus ? 'Так' : 'Ні'}
+            `;
             return;
         }
     });
