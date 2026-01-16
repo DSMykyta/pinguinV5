@@ -1147,8 +1147,157 @@ function initWizard() {
     // Ініціалізуємо прев'ю назви
     initNamePreview();
 
+    // Ініціалізуємо варіанти wizard
+    initWizardVariants();
+
     // Початкове оновлення
     updateWizard();
+}
+
+/**
+ * Ініціалізація варіантів у wizard
+ */
+function initWizardVariants() {
+    const container = document.getElementById('modal-container');
+    let variantCounter = 0;
+
+    // Кнопка "Додати варіант"
+    const addVariantBtn = container.querySelector('#wizard-add-variant');
+    if (addVariantBtn) {
+        addVariantBtn.addEventListener('click', () => {
+            const flavorSelect = container.querySelector('#wizard-variant-flavor');
+            const sizeSelect = container.querySelector('#wizard-variant-size');
+            const weightSelect = container.querySelector('#wizard-variant-weight');
+            const conditionSelect = container.querySelector('#wizard-variant-condition');
+
+            // Отримуємо значення (враховуємо custom-select)
+            const flavor = getSelectValue(flavorSelect);
+            const size = getSelectValue(sizeSelect);
+            const weight = getSelectValue(weightSelect);
+            const condition = getSelectValue(conditionSelect);
+
+            // Формуємо назву варіанту
+            let variantName = [];
+            if (flavor) variantName.push(flavorSelect.options[flavorSelect.selectedIndex]?.text);
+            if (size) variantName.push(sizeSelect.options[sizeSelect.selectedIndex]?.text);
+            if (weight) variantName.push(weightSelect.options[weightSelect.selectedIndex]?.text);
+            if (condition) variantName.push(conditionSelect.options[conditionSelect.selectedIndex]?.text);
+
+            if (variantName.length === 0) {
+                showToast('Оберіть хоча б одну характеристику варіанту', 'error');
+                return;
+            }
+
+            variantCounter++;
+            const variantId = variantCounter;
+            const variantNameStr = variantName.join(' / ');
+            const variantSku = `SKU-${Date.now()}-${variantId}`;
+
+            // Додаємо до списку
+            const variantsList = container.querySelector('#wizard-variants-list');
+            const variantHtml = `
+                <div class="variant-item" data-variant-id="${variantId}">
+                    <div class="variant-item-info">
+                        <span class="variant-item-name">${variantNameStr}</span>
+                        <span class="variant-item-sku">${variantSku}</span>
+                    </div>
+                    <input type="number" class="variant-item-price-input" placeholder="₴ Ціна" style="width: 100px;">
+                    <button class="btn-icon btn-icon-sm btn-delete-variant" data-variant-id="${variantId}" title="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            `;
+            variantsList.insertAdjacentHTML('beforeend', variantHtml);
+
+            // Очищаємо селекти
+            resetSelect(flavorSelect);
+            resetSelect(sizeSelect);
+            resetSelect(weightSelect);
+            resetSelect(conditionSelect);
+
+            showToast(`Варіант "${variantNameStr}" додано`, 'success');
+        });
+    }
+
+    // Делегування для видалення варіантів
+    container.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.btn-delete-variant');
+        if (deleteBtn) {
+            const variantItem = deleteBtn.closest('.variant-item');
+            if (variantItem) {
+                variantItem.remove();
+                showToast('Варіант видалено', 'info');
+            }
+        }
+    });
+
+    // Кнопка "Додати власний склад для варіанту"
+    const compositionBtn = container.querySelector('#wizard-variant-composition-btn');
+    if (compositionBtn) {
+        compositionBtn.addEventListener('click', () => {
+            openVariantCompositionModal();
+        });
+    }
+
+    // Кнопка додавання фото
+    const photoAddBtn = container.querySelector('.photo-add');
+    if (photoAddBtn) {
+        photoAddBtn.addEventListener('click', () => {
+            // Створюємо прихований input для файлу
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    showToast(`Фото "${file.name}" додано (demo)`, 'success');
+                }
+            };
+            input.click();
+        });
+    }
+}
+
+/**
+ * Отримати значення select (враховуючи custom-select)
+ */
+function getSelectValue(selectEl) {
+    if (!selectEl) return '';
+    return selectEl.value || '';
+}
+
+/**
+ * Скинути select до початкового стану
+ */
+function resetSelect(selectEl) {
+    if (!selectEl) return;
+    selectEl.selectedIndex = 0;
+
+    // Якщо є custom-select wrapper, оновлюємо його
+    const wrapper = selectEl.closest('.custom-select-wrapper');
+    if (wrapper) {
+        const trigger = wrapper.querySelector('.custom-select-value-container');
+        const placeholder = wrapper.querySelector('.custom-select-placeholder');
+        if (trigger && placeholder) {
+            trigger.innerHTML = '';
+            trigger.appendChild(placeholder.cloneNode(true));
+        }
+    }
+}
+
+/**
+ * Відкрити модал складу варіанту
+ */
+function openVariantCompositionModal() {
+    const modalContainer = document.getElementById('modal-container');
+    const compositionModal = modalContainer.querySelector('[data-modal-id="variant-composition-modal"]');
+
+    if (compositionModal) {
+        compositionModal.classList.add('is-open');
+    } else {
+        // Модал вже є в HTML, просто показуємо toast
+        showToast('Модал складу варіанту (demo)', 'info');
+    }
 }
 
 /**
@@ -1171,6 +1320,22 @@ function showCreationSummary() {
     const showSM = container.querySelector('#wizard-show-sm')?.checked || false;
     const showFS = container.querySelector('#wizard-show-fs')?.checked || false;
 
+    // Збираємо варіанти з wizard
+    const variantItems = container.querySelectorAll('#wizard-variants-list .variant-item');
+    const variants = [];
+    variantItems.forEach((item, index) => {
+        const name = item.querySelector('.variant-item-name')?.textContent || `Варіант ${index + 1}`;
+        const sku = item.querySelector('.variant-item-sku')?.textContent || `SKU-${Date.now()}-${index}`;
+        const priceInput = item.querySelector('.variant-item-price-input');
+        const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
+        variants.push({ id: index + 1, name, sku, price, stock: 0 });
+    });
+
+    // Якщо варіантів немає - додаємо стандартний
+    if (variants.length === 0) {
+        variants.push({ id: 1, name: "Стандарт", sku: `SKU-${Date.now()}`, price: 0, stock: 0 });
+    }
+
     // Генеруємо новий ID
     const newId = Math.max(...DEMO_PRODUCTS.map(p => p.id)) + 1;
 
@@ -1183,16 +1348,14 @@ function showCreationSummary() {
         brand: brand,
         category: category,
         photo: "https://via.placeholder.com/48x48/e0e0e0/666?text=NEW",
-        variants_count: 1,
+        variants_count: variants.length,
         status: statusValue,
         storefronts: {
             sportmeals: showSM ? `https://sportmeals.com.ua/product/${newId}` : null,
             fitnessshop: showFS ? `https://fitness-shop.ua/product/${newId}` : null
         },
         show_on_site: showSA,
-        variants: [
-            { id: 1, name: "Стандарт", sku: `NEW-${newId}`, price: 0, stock: 0 }
-        ]
+        variants: variants
     };
 
     // Додаємо до масиву
