@@ -413,26 +413,9 @@
     width: 100px;
 }
 
-/* Modal with Tabs
-   ========================================================================== */
+/* Modal with Tabs - base modal styles in modal.css, modal-structure.css */
 
-.modal-header-tabs {
-    padding-bottom: 0;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.modal-header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
-}
-
-.modal-header-actions {
-    display: flex;
-    gap: 4px;
-}
+/* .modal-header-actions - use global from modal.css */
 
 .modal-tabs {
     display: flex;
