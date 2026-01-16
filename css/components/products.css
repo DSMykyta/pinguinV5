@@ -1339,10 +1339,7 @@
     background: var(--color-error-c);
 }
 
-.text-muted {
-    color: var(--color-on-surface-v);
-    font-size: 13px;
-}
+/* .text-muted - use global styles from pseudo-table.css */
 
 /* Badge styles - use global styles from badge.css */
 
@@ -1740,12 +1737,7 @@
     padding-right: 39px;
 }
 
-/* Form grid 2 columns */
-.form-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
+/* Form grid 2 columns - defined earlier in this file */
 
 /* ==========================================================================
    STATUS DOT (colored circle for status)
@@ -1765,16 +1757,7 @@
     text-align: center;
 }
 
-/* Small button icon */
-.btn-icon-sm {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-}
-
-.btn-icon-sm .material-symbols-outlined {
-    font-size: 18px;
-}
+/* Small button icon - defined earlier in this file */
 
 /* ==========================================================================
    VARIANTS COUNT BUTTON
@@ -1990,25 +1973,7 @@
     gap: 12px;
 }
 
-/* ==========================================================================
-   TEXT COLOR UTILITIES
-   ========================================================================== */
-
-.text-success {
-    color: var(--color-success);
-}
-
-.text-warning {
-    color: var(--color-warning);
-}
-
-.text-error {
-    color: var(--color-error);
-}
-
-.text-muted {
-    color: var(--color-on-surface-v);
-}
+/* TEXT COLOR UTILITIES - defined earlier in this file and pseudo-table.css */
 
 /* ==========================================================================
    STOREFRONT CHECKBOXES (SA, SM, FS)
@@ -2042,14 +2007,4 @@
     border-radius: 16px;
 }
 
-/* ==========================================================================
-   UTILITY CLASSES
-   ========================================================================== */
-
-.u-mb-24 {
-    margin-bottom: 24px;
-}
-
-.u-mt-24 {
-    margin-top: 24px;
-}
+/* UTILITY CLASSES - defined earlier in this file */
