@@ -247,7 +247,7 @@
 
                 <div class="section-content">
                     <div class="variants-list" id="variants-list">
-                        <!-- Варіант 1 -->
+                        <!-- Варіант 1 - розгорнутий -->
                         <div class="variant-card expanded" data-variant-id="1">
                             <div class="variant-header">
                                 <div class="variant-info">
@@ -271,6 +271,7 @@
                                 </div>
                             </div>
                             <div class="variant-body">
+                                <!-- Базові поля -->
                                 <div class="form-grid form-grid-4">
                                     <div class="form-group">
                                         <label>Артикул</label>
@@ -307,10 +308,35 @@
                                         <input type="text" placeholder="—">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="checkbox"> Власний склад для цього варіанту
+
+                                <!-- Фото варіанту -->
+                                <div class="variant-section u-mt-16">
+                                    <div class="variant-section-header">
+                                        <span class="material-symbols-outlined">image</span>
+                                        <span>Фото варіанту</span>
+                                    </div>
+                                    <div class="variant-photos-grid">
+                                        <div class="photo-item photo-small">
+                                            <img src="https://via.placeholder.com/80x80/e8f5e9/2e7d32?text=1" alt="Variant photo">
+                                        </div>
+                                        <div class="photo-item photo-small photo-add">
+                                            <span class="material-symbols-outlined">add</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Власний склад -->
+                                <div class="variant-section u-mt-16">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" class="variant-own-composition-toggle">
+                                        <span>Власний склад для цього варіанту</span>
                                     </label>
+                                    <div class="variant-composition-fields" style="display: none;">
+                                        <div class="form-group u-mt-16">
+                                            <label>Інгредієнти</label>
+                                            <textarea rows="3" placeholder="Власний склад для варіанту..."></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -385,32 +411,46 @@
                 </div>
 
                 <div class="section-content">
-                    <div class="form-group">
-                        <label>Інгредієнти (UK)</label>
-                        <textarea id="edit-ingredients-uk" rows="4">Хітозан (з панцирів крабів/креветок), Глазирувач (гідроксипропілметилцелюлоза), Наповнювач (мікрокристалічна целюлоза), Піколінат хрому</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Інгредієнти (RU)</label>
-                        <textarea id="edit-ingredients-ru" rows="4">Хитозан (из панцирей крабов/креветок), Глазирователь (гидроксипропилметилцеллюлоза), Наполнитель (микрокристаллическая целлюлоза), Пиколинат хрома</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Склад таблиця (UK)</label>
-                        <textarea id="edit-composition-table-uk" rows="6">&lt;table&gt;
+                    <div class="bilingual-grid">
+                        <!-- Ліва колонка - Українська -->
+                        <div class="bilingual-column">
+                            <div class="bilingual-column-header">
+                                <span class="flag">🇺🇦</span>
+                                <h4>Українська</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>Інгредієнти</label>
+                                <textarea id="edit-ingredients-uk" rows="4">Хітозан (з панцирів крабів/креветок), Глазирувач (гідроксипропілметилцелюлоза), Наповнювач (мікрокристалічна целюлоза), Піколінат хрому</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Склад таблиця (HTML)</label>
+                                <textarea id="edit-composition-table-uk" rows="6">&lt;table&gt;
 &lt;tr&gt;&lt;th&gt;Харчова цінність&lt;/th&gt;&lt;th&gt;1 капсула&lt;/th&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Хітозан&lt;/td&gt;&lt;td&gt;500 мг&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Хром&lt;/td&gt;&lt;td&gt;40 мкг&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;</textarea>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <label>Склад таблиця (RU)</label>
-                        <textarea id="edit-composition-table-ru" rows="6">&lt;table&gt;
+                        <!-- Права колонка - Російська -->
+                        <div class="bilingual-column">
+                            <div class="bilingual-column-header">
+                                <span class="flag">🇷🇺</span>
+                                <h4>Російська</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>Інгредієнти</label>
+                                <textarea id="edit-ingredients-ru" rows="4">Хитозан (из панцирей крабов/креветок), Глазирователь (гидроксипропилметилцеллюлоза), Наполнитель (микрокристаллическая целлюлоза), Пиколинат хрома</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Склад таблиця (HTML)</label>
+                                <textarea id="edit-composition-table-ru" rows="6">&lt;table&gt;
 &lt;tr&gt;&lt;th&gt;Пищевая ценность&lt;/th&gt;&lt;th&gt;1 капсула&lt;/th&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Хитозан&lt;/td&gt;&lt;td&gt;500 мг&lt;/td&gt;&lt;/tr&gt;
 &lt;tr&gt;&lt;td&gt;Хром&lt;/td&gt;&lt;td&gt;40 мкг&lt;/td&gt;&lt;/tr&gt;
 &lt;/table&gt;</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -488,18 +528,34 @@
                 </div>
 
                 <div class="section-content">
-                    <div class="form-group">
-                        <label>Опис (UK)</label>
-                        <textarea id="edit-description-uk" rows="8">MST Chitosan with Chrom — це дієтична добавка, що поєднує хітозан та хром для підтримки здорового метаболізму та контролю ваги.
+                    <div class="bilingual-grid">
+                        <!-- Ліва колонка - Українська -->
+                        <div class="bilingual-column">
+                            <div class="bilingual-column-header">
+                                <span class="flag">🇺🇦</span>
+                                <h4>Українська</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>Опис</label>
+                                <textarea id="edit-description-uk" rows="12">MST Chitosan with Chrom — це дієтична добавка, що поєднує хітозан та хром для підтримки здорового метаболізму та контролю ваги.
 
 Хітозан — природне волокно, отримане з панцирів ракоподібних, яке зв'язує жири в травному тракті.</textarea>
-                    </div>
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <label>Опис (RU)</label>
-                        <textarea id="edit-description-ru" rows="8">MST Chitosan with Chrom — это диетическая добавка, сочетающая хитозан и хром для поддержки здорового метаболизма и контроля веса.
+                        <!-- Права колонка - Російська -->
+                        <div class="bilingual-column">
+                            <div class="bilingual-column-header">
+                                <span class="flag">🇷🇺</span>
+                                <h4>Російська</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>Опис</label>
+                                <textarea id="edit-description-ru" rows="12">MST Chitosan with Chrom — это диетическая добавка, сочетающая хитозан и хром для поддержки здорового метаболизма и контроля веса.
 
 Хитозан — природное волокно, полученное из панцирей ракообразных, которое связывает жиры в пищеварительном тракте.</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
