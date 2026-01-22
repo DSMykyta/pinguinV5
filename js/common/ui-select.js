@@ -268,7 +268,13 @@ class CustomSelect {
     }
 
     _bindEvents() {
-        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
+        this.trigger.addEventListener('click', () => {
+            this.wrapper.classList.toggle('is-open');
+            // Автофокус на пошук при відкритті
+            if (this.wrapper.classList.contains('is-open') && this.searchInput) {
+                setTimeout(() => this.searchInput.focus(), 0);
+            }
+        });
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
@@ -314,6 +320,23 @@ class CustomSelect {
                 });
             });
         }
+
+        // Закриття з затримкою при виході мишки
+        let closeTimeout = null;
+        this.wrapper.addEventListener('mouseleave', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                closeTimeout = setTimeout(() => {
+                    this.wrapper.classList.remove('is-open');
+                }, 300);
+            }
+        });
+
+        this.wrapper.addEventListener('mouseenter', () => {
+            if (closeTimeout) {
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            }
+        });
     }
 
     _createArrowSVG() {
