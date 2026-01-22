@@ -320,6 +320,23 @@ class CustomSelect {
                 });
             });
         }
+
+        // Закриття з затримкою при виході мишки
+        let closeTimeout = null;
+        this.wrapper.addEventListener('mouseleave', () => {
+            if (this.wrapper.classList.contains('is-open')) {
+                closeTimeout = setTimeout(() => {
+                    this.wrapper.classList.remove('is-open');
+                }, 300);
+            }
+        });
+
+        this.wrapper.addEventListener('mouseenter', () => {
+            if (closeTimeout) {
+                clearTimeout(closeTimeout);
+                closeTimeout = null;
+            }
+        });
     }
 
     _createArrowSVG() {
