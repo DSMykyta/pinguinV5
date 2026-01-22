@@ -240,9 +240,9 @@ function populateCategorySelect(selectedIds = []) {
 }
 
 /**
- * Заповнити селект батьківських опцій (для залежних характеристик)
+ * Заповнити мульти-селект батьківських опцій (для залежних характеристик)
  */
-function populateParentOptionsSelect(selectedOptionId = '') {
+function populateParentOptionsSelect(selectedOptionIds = []) {
     const select = document.getElementById('mapper-char-parent-option');
     if (!select) return;
 
@@ -255,7 +255,7 @@ function populateParentOptionsSelect(selectedOptionId = '') {
         charMap.set(char.id, char);
     });
 
-    select.innerHTML = '<option value="">Не залежить</option>';
+    select.innerHTML = '';
 
     // Групуємо опції за характеристиками
     const optionsByChar = new Map();
@@ -279,7 +279,7 @@ function populateParentOptionsSelect(selectedOptionId = '') {
             const option = document.createElement('option');
             option.value = opt.id;
             option.textContent = opt.value_ua || opt.id;
-            if (opt.id === selectedOptionId) {
+            if (selectedOptionIds.includes(opt.id)) {
                 option.selected = true;
             }
             optgroup.appendChild(option);
@@ -364,8 +364,11 @@ export async function showEditCharacteristicModal(id) {
         : [];
     populateCategorySelect(selectedCategoryIds);
 
-    // Заповнюємо селект батьківських опцій
-    populateParentOptionsSelect(characteristic.parent_option_id || '');
+    // Заповнюємо мульти-селект батьківських опцій
+    const selectedParentOptionIds = characteristic.parent_option_id
+        ? characteristic.parent_option_id.split(',').map(id => id.trim()).filter(id => id)
+        : [];
+    populateParentOptionsSelect(selectedParentOptionIds);
 
     fillCharacteristicForm(characteristic);
 
@@ -450,9 +453,11 @@ function getCharacteristicFormData() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const isGlobal = globalYes?.checked ?? false;
 
-    // Отримуємо значення батьківської опції
+    // Отримуємо вибрані батьківські опції з мульти-селекту
     const parentOptionSelect = document.getElementById('mapper-char-parent-option');
-    const parentOptionId = parentOptionSelect?.value || '';
+    const selectedParentOptions = parentOptionSelect
+        ? Array.from(parentOptionSelect.selectedOptions).map(opt => opt.value)
+        : [];
 
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
@@ -463,7 +468,7 @@ function getCharacteristicFormData() {
         is_global: isGlobal,
         // Якщо глобальна - категорії не потрібні
         category_ids: isGlobal ? '' : selectedCategories.join(','),
-        parent_option_id: parentOptionId
+        parent_option_id: selectedParentOptions.join(',')
     };
 }
 
@@ -569,10 +574,10 @@ function clearCharacteristicForm() {
         reinitializeCustomSelect(categoriesSelect);
     }
 
-    // Скидаємо вибір батьківської опції
+    // Скидаємо вибір батьківських опцій
     const parentOptionSelect = document.getElementById('mapper-char-parent-option');
     if (parentOptionSelect) {
-        parentOptionSelect.value = '';
+        Array.from(parentOptionSelect.options).forEach(opt => opt.selected = false);
         reinitializeCustomSelect(parentOptionSelect);
     }
 
