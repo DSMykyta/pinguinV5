@@ -496,36 +496,56 @@ function applySorting(items, column, direction) {
     };
 
     const type = columnTypes[column] || 'string';
-    const multiplier = direction === 'asc' ? 1 : -1;
 
     return [...items].sort((a, b) => {
         let aVal = a[column];
         let bVal = b[column];
 
-        // Для product - сортуємо по name
+        // Для product - brand + name + packaging + flavor
         if (type === 'product') {
-            aVal = a.name || '';
-            bVal = b.name || '';
+            aVal = `${a.brand || ''} ${a.name || ''} ${a.packaging || ''} ${a.flavor || ''}`.trim();
+            bVal = `${b.brand || ''} ${b.name || ''} ${b.packaging || ''} ${b.flavor || ''}`.trim();
         }
 
         // Для boolean
         if (type === 'boolean') {
             aVal = (aVal === 'TRUE' || aVal === true) ? 1 : 0;
             bVal = (bVal === 'TRUE' || bVal === true) ? 1 : 0;
-            return (aVal - bVal) * multiplier;
+            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+            return 0;
         }
 
-        // Для дати
+        // Для дати (підтримка DD.MM.YY)
         if (type === 'date') {
-            aVal = aVal ? new Date(aVal).getTime() : 0;
-            bVal = bVal ? new Date(bVal).getTime() : 0;
-            return (aVal - bVal) * multiplier;
+            const parseDate = (val) => {
+                if (val && typeof val === 'string' && val.match(/^\d{2}\.\d{2}\.\d{2}$/)) {
+                    const [day, month, year] = val.split('.');
+                    return new Date(2000 + parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
+                }
+                return val ? new Date(val).getTime() : 0;
+            };
+            aVal = parseDate(aVal);
+            bVal = parseDate(bVal);
+            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+            return 0;
         }
 
-        // Для рядків
-        aVal = String(aVal || '').toLowerCase();
-        bVal = String(bVal || '').toLowerCase();
-        return aVal.localeCompare(bVal, 'uk') * multiplier;
+        // Для рядків - НЕ toLowerCase, localeCompare сам ігнорує регістр
+        aVal = String(aVal || '');
+        bVal = String(bVal || '');
+
+        // Пусті значення завжди в кінець
+        const aEmpty = aVal.trim() === '';
+        const bEmpty = bVal.trim() === '';
+        if (aEmpty && bEmpty) return 0;
+        if (aEmpty) return 1;
+        if (bEmpty) return -1;
+
+        // Українське сортування
+        const comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
+        return direction === 'asc' ? comparison : -comparison;
     });
 }
 
