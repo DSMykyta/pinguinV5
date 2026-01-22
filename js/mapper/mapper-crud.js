@@ -334,7 +334,6 @@ function clearRelatedOptions() {
 
     container.innerHTML = `
         <div class="modal-related-empty">
-            <span class="material-symbols-outlined">circle</span>
             <span class="modal-related-empty-text">Опції з'являться після збереження</span>
         </div>
     `;
@@ -413,7 +412,6 @@ function populateRelatedOptions(characteristicId) {
     if (relatedOptions.length === 0) {
         container.innerHTML = `
             <div class="modal-related-empty">
-                <span class="material-symbols-outlined">circle</span>
                 <span class="modal-related-empty-text">Опції відсутні</span>
             </div>
         `;
@@ -425,7 +423,6 @@ function populateRelatedOptions(characteristicId) {
 
     container.innerHTML = relatedOptions.map(opt => `
         <div class="modal-related-item" data-id="${opt.id}">
-            <span class="material-symbols-outlined">circle</span>
             <span class="modal-related-item-name">${opt.value_ua || opt.id}</span>
             <span class="modal-related-item-id">${opt.id}</span>
         </div>
