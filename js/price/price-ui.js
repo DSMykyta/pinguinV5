@@ -86,22 +86,25 @@ function getAvatarColor(name) {
 
 /**
  * Заповнити колонки для пошуку в aside
- * Використовує createColumnSelector з filterBy для синхронізації з видимими колонками
- * Колонки пошуку відповідають колонкам таблиці (не полям даних)
+ * Динамічно з getColumns() - колонки з searchable: true
  */
-export function populateSearchColumns() {
-    // Колонки пошуку = колонки таблиці (product шукає по name + brand)
-    const allSearchColumns = [
-        { id: 'code', label: 'Код', checked: true },
-        { id: 'article', label: 'Артикул', checked: true },
-        { id: 'product', label: 'Товар', checked: true },
-        { id: 'reserve', label: 'Резерв', checked: false }
-    ];
+export async function populateSearchColumns() {
+    const { getColumns } = await import('./price-table.js');
+    const columns = getColumns();
+
+    // Колонки з searchable: true
+    const allSearchColumns = columns
+        .filter(col => col.searchable)
+        .map((col, index) => ({
+            id: col.id,
+            label: col.label,
+            checked: index < 3  // Перші 3 вибрані за замовчуванням
+        }));
 
     // Видимі колонки таблиці
     const visibleTableColumns = priceState.visibleColumns.length > 0
         ? priceState.visibleColumns
-        : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'];
+        : columns.map(c => c.id);
 
     // Фільтруємо тільки ті колонки пошуку, що є серед видимих
     const allowedSearchColumns = allSearchColumns
@@ -122,19 +125,18 @@ export function populateSearchColumns() {
 
 /**
  * Заповнити колонки таблиці в dropdown
+ * Динамічно з getColumns()
  */
-export function populateTableColumns() {
-    const tableColumns = [
-        { id: 'code', label: 'Код', checked: true },
-        { id: 'article', label: 'Артикул', checked: true },
-        { id: 'product', label: 'Товар', checked: true },
-        { id: 'shiping_date', label: 'Відправка', checked: true },
-        { id: 'status', label: 'Викладено', checked: true },
-        { id: 'check', label: 'Перевірено', checked: true },
-        { id: 'payment', label: 'Оплата', checked: true },
-        { id: 'update_date', label: 'Оновлено', checked: true },
-        { id: 'reserve', label: 'Резерв', checked: true }
-    ];
+export async function populateTableColumns() {
+    const { getColumns } = await import('./price-table.js');
+    const columns = getColumns();
+
+    // Всі колонки для вибору видимості
+    const tableColumns = columns.map(col => ({
+        id: col.id,
+        label: col.label,
+        checked: true  // За замовчуванням всі видимі
+    }));
 
     const columnSelector = createColumnSelector('table-columns-list-price', tableColumns, {
         checkboxPrefix: 'price-col',
@@ -143,7 +145,7 @@ export function populateTableColumns() {
             console.log('📋 Видимі колонки:', priceState.visibleColumns);
 
             // Оновлюємо колонки пошуку відповідно до видимих колонок
-            populateSearchColumns();
+            await populateSearchColumns();
 
             // Повний перерендер бо змінюється структура таблиці
             const { renderPriceTable } = await import('./price-table.js');

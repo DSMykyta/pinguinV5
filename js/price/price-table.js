@@ -209,6 +209,7 @@ export function getColumns() {
             label: 'Код',
             className: 'cell-id',
             sortable: true,
+            searchable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
@@ -216,6 +217,7 @@ export function getColumns() {
             label: 'Артикул',
             className: 'cell-article',
             sortable: true,
+            searchable: true,
             render: (value, row) => {
                 if (value) {
                     return `<span class="article-value">${escapeHtml(value)}</span>`;
@@ -228,6 +230,7 @@ export function getColumns() {
             label: 'Товар',
             className: 'cell-main-name',
             sortable: true,
+            searchable: true,
             sortKey: 'product',
             render: (value, row) => formatProductDisplay(row)
         },
@@ -286,6 +289,7 @@ export function getColumns() {
             label: 'Резерв',
             sortable: true,
             filterable: true,
+            searchable: true,
             render: (value) => renderReserveCell(value)
         }
     ];
