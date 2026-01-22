@@ -246,6 +246,7 @@ export function getColumns() {
             label: 'Викладено',
             className: 'cell-bool',
             sortable: true,
+            filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:status`
@@ -256,6 +257,7 @@ export function getColumns() {
             label: 'Перевірено',
             className: 'cell-bool',
             sortable: true,
+            filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:check`
@@ -266,6 +268,7 @@ export function getColumns() {
             label: 'Оплата',
             className: 'cell-bool',
             sortable: true,
+            filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:payment`
@@ -275,6 +278,7 @@ export function getColumns() {
             id: 'update_date',
             label: 'Оновлено',
             sortable: true,
+            filterable: true,
             render: (value) => escapeHtml(value || '-')
         },
         {
