@@ -316,11 +316,29 @@ export async function showAddCharacteristicModal() {
     clearCharacteristicForm();
     populateCategorySelect();
     populateParentOptionsSelect();
+    clearRelatedOptions();
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
         saveBtn.onclick = handleSaveNewCharacteristic;
     }
+}
+
+/**
+ * Очистити список пов'язаних опцій (для нової характеристики)
+ */
+function clearRelatedOptions() {
+    const container = document.getElementById('char-related-options');
+    const countEl = document.getElementById('char-options-count');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="modal-related-empty">
+            <span class="material-symbols-outlined">circle</span>
+            <span class="modal-related-empty-text">Опції з'являться після збереження</span>
+        </div>
+    `;
+    if (countEl) countEl.textContent = '';
 }
 
 /**
@@ -372,10 +390,55 @@ export async function showEditCharacteristicModal(id) {
 
     fillCharacteristicForm(characteristic);
 
+    // Заповнюємо список пов'язаних опцій
+    populateRelatedOptions(id);
+
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateCharacteristic(id);
     }
+}
+
+/**
+ * Заповнити список пов'язаних опцій для характеристики
+ */
+function populateRelatedOptions(characteristicId) {
+    const container = document.getElementById('char-related-options');
+    const countEl = document.getElementById('char-options-count');
+    if (!container) return;
+
+    const options = getOptions();
+    const relatedOptions = options.filter(opt => opt.characteristic_id === characteristicId);
+
+    if (relatedOptions.length === 0) {
+        container.innerHTML = `
+            <div class="modal-related-empty">
+                <span class="material-symbols-outlined">circle</span>
+                <span class="modal-related-empty-text">Опції відсутні</span>
+            </div>
+        `;
+        if (countEl) countEl.textContent = '';
+        return;
+    }
+
+    if (countEl) countEl.textContent = `(${relatedOptions.length})`;
+
+    container.innerHTML = relatedOptions.map(opt => `
+        <div class="modal-related-item" data-id="${opt.id}">
+            <span class="material-symbols-outlined">circle</span>
+            <span class="modal-related-item-name">${opt.value_ua || opt.id}</span>
+            <span class="modal-related-item-id">${opt.id}</span>
+        </div>
+    `).join('');
+
+    // Додаємо обробники для відкриття опції
+    container.querySelectorAll('.modal-related-item').forEach(item => {
+        item.addEventListener('click', async () => {
+            const optId = item.dataset.id;
+            closeModal();
+            await showEditOptionModal(optId);
+        });
+    });
 }
 
 async function showDeleteCharacteristicConfirm(id) {
