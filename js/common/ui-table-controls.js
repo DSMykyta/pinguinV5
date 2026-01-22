@@ -904,6 +904,12 @@ export function getSortValue(item, column, columnType) {
         case 'boolean':
             return (value === 'TRUE' || value === true || value === 1) ? 1 : 0;
         case 'date':
+            // Підтримка формату DD.MM.YY (наприклад 20.01.26)
+            if (value && typeof value === 'string' && value.match(/^\d{2}\.\d{2}\.\d{2}$/)) {
+                const [day, month, year] = value.split('.');
+                const fullYear = parseInt(year, 10) + 2000; // 26 → 2026
+                return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
+            }
             return new Date(value || 0).getTime();
         case 'product':
             // Спеціальний тип для прайсу: brand + name + packaging + flavor
