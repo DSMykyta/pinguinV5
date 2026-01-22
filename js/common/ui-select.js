@@ -268,7 +268,13 @@ class CustomSelect {
     }
 
     _bindEvents() {
-        this.trigger.addEventListener('click', () => this.wrapper.classList.toggle('is-open'));
+        this.trigger.addEventListener('click', () => {
+            this.wrapper.classList.toggle('is-open');
+            // Автофокус на пошук при відкритті
+            if (this.wrapper.classList.contains('is-open') && this.searchInput) {
+                setTimeout(() => this.searchInput.focus(), 0);
+            }
+        });
 
         this.optionsList.addEventListener('click', (e) => {
             const optionEl = e.target.closest('.custom-select-option');
