@@ -164,7 +164,7 @@ export async function loadCharacteristics() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.CHARACTERISTICS}!A:J`,
+            range: `${SHEETS.CHARACTERISTICS}!A:K`,
             spreadsheetType: 'main'
         });
 
@@ -233,7 +233,7 @@ export async function loadOptions() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.OPTIONS}!A:F`,
+            range: `${SHEETS.OPTIONS}!A:G`,
             spreadsheetType: 'main'
         });
 
@@ -523,6 +523,7 @@ export async function addCharacteristic(data) {
 
         const newRow = [
             newId,
+            '', // id_directory - пусте для локально створених
             data.name_ua || '',
             data.name_ru || '',
             data.type || 'TextInput',
@@ -535,7 +536,7 @@ export async function addCharacteristic(data) {
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CHARACTERISTICS}!A:J`,
+            range: `${SHEETS.CHARACTERISTICS}!A:K`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -576,10 +577,11 @@ export async function updateCharacteristic(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:J${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
         const updatedRow = [
             characteristic.id,
+            characteristic.id_directory || '', // зберігаємо існуючий id_directory
             updates.name_ua !== undefined ? updates.name_ua : characteristic.name_ua,
             updates.name_ru !== undefined ? updates.name_ru : characteristic.name_ru,
             updates.type !== undefined ? updates.type : characteristic.type,
@@ -619,11 +621,11 @@ export async function deleteCharacteristic(id) {
         }
 
         const characteristic = mapperState.characteristics[index];
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:J${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
@@ -647,6 +649,7 @@ export async function addOption(data) {
 
         const newRow = [
             newId,
+            '', // id_directory - пусте для локально створених
             data.characteristic_id || '',
             data.value_ua || '',
             data.value_ru || '',
@@ -655,7 +658,7 @@ export async function addOption(data) {
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.OPTIONS}!A:F`,
+            range: `${SHEETS.OPTIONS}!A:G`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -691,10 +694,11 @@ export async function updateOption(id, updates) {
             throw new Error(`Опцію ${id} не знайдено`);
         }
 
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:F${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
 
         const updatedRow = [
             option.id,
+            option.id_directory || '', // зберігаємо існуючий id_directory
             updates.characteristic_id !== undefined ? updates.characteristic_id : option.characteristic_id,
             updates.value_ua !== undefined ? updates.value_ua : option.value_ua,
             updates.value_ru !== undefined ? updates.value_ru : option.value_ru,
@@ -730,11 +734,11 @@ export async function deleteOption(id) {
         }
 
         const option = mapperState.options[index];
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:F${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
