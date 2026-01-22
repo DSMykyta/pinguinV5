@@ -187,9 +187,4 @@
     text-align: center;
 }
 
-/* Dropdown wrapper з fixed позицією (для body-appended dropdowns) */
-.dropdown-wrapper.dropdown-fixed {
-    position: fixed;
-    z-index: 10001;
-}
 

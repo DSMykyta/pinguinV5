@@ -346,25 +346,9 @@ function showHoverDropdown(header, columnConfig, handlers) {
     hideHoverDropdown();
 
     const wrapper = createHoverDropdown(header, columnConfig, handlers);
-    document.body.appendChild(wrapper);
 
-    // Позиціонування wrapper (fixed)
-    const rect = header.getBoundingClientRect();
-    wrapper.classList.add('dropdown-fixed');
-    wrapper.style.top = `${rect.bottom + 4}px`;
-    wrapper.style.left = `${rect.left}px`;
-
-    // Перевірка чи не виходить за межі екрану
-    const dropdown = wrapper.querySelector('.dropdown-menu');
-    requestAnimationFrame(() => {
-        const dropdownRect = dropdown.getBoundingClientRect();
-        if (dropdownRect.right > window.innerWidth) {
-            wrapper.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
-        }
-        if (dropdownRect.bottom > window.innerHeight) {
-            wrapper.style.top = `${rect.top - dropdownRect.height - 4}px`;
-        }
-    });
+    // Додаємо всередину header cell (не до body)
+    header.appendChild(wrapper);
 
     hoverState.activeDropdown = wrapper;
     hoverState.activeHeader = header;
