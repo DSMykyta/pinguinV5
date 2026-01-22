@@ -12,7 +12,7 @@ import { mapperState } from './mapper-init.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
-import { initTableSorting, updateSortIndicators } from '../common/ui-table-sort.js';
+import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 
 /**
  * Конфігурація колонок для кожного табу

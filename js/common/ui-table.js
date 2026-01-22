@@ -75,16 +75,20 @@ export function renderPseudoTable(container, options) {
             ` : ''}
             ${columns.map(col => {
                 const cellClass = col.className || '';
-                // Додаємо sortable тільки якщо noHeaderSort = false
-                const sortableClass = (!noHeaderSort && col.sortable) ? ' sortable-header' : '';
-                const showSortIndicator = !noHeaderSort && col.sortable;
+                // Визначаємо режим сортування
+                // 'click' - клік по заголовку (за замовчуванням якщо тільки sortable)
+                // 'dropdown' - випадаюче меню (якщо filterable або явно вказано)
+                const sortMode = col.sortMode || (col.filterable ? 'dropdown' : 'click');
+                // Додаємо sortable-header тільки для click режиму
+                const useClickSort = !noHeaderSort && col.sortable && sortMode === 'click';
+                const sortableClass = useClickSort ? ' sortable-header' : '';
 
                 return `
                     <div class="pseudo-table-cell ${cellClass}${sortableClass}${hiddenClass(col.id)}"
-                         ${showSortIndicator ? `data-sort-key="${col.sortKey || col.id}"` : ''}
+                         ${useClickSort ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                          data-column="${col.id}">
                         <span>${col.label || col.id}</span>
-                        ${showSortIndicator ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
+                        ${useClickSort ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
                     </div>
                 `;
             }).join('')}

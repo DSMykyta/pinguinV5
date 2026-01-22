@@ -13,7 +13,7 @@ import { renderBrandsTable } from './brands-table.js';
 import { loadBrands } from './brands-data.js';
 import { getBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
-import { initTableSorting } from '../common/ui-table-sort.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -49,7 +49,7 @@ export function initBrandsSorting() {
             // Відновити візуальні індикатори після рендерингу
             const sortState = sortAPI.getState();
             if (sortState.column && sortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
+                const { updateSortIndicators } = await import('../common/ui-table-controls.js');
                 updateSortIndicators(container, sortState.column, sortState.direction);
             }
         },

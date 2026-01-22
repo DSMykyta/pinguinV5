@@ -2,7 +2,7 @@
 // Обробники подій для Banned Words
 
 import { bannedWordsState } from './banned-words-init.js';
-import { initTableSorting } from '../common/ui-table-sort.js';
+import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 
 /**
  * Ініціалізація всіх обробників подій
@@ -90,7 +90,7 @@ function updateHeaderCheckbox() {
 
 // Старі функції (initStatusToggleEvents, initFilterEvents, initSortingEvents) видалені
 // - Фільтрація і пошук тепер обробляються в banned-words-aside.js
-// - Сортування тепер обробляється через ui-table-sort.js
+// - Сортування тепер обробляється через ui-table-controls.js
 
 /**
  * Ініціалізація сортування для таблиці заборонених слів (tab-manage)
@@ -115,7 +115,6 @@ export function initBannedWordsSorting() {
             // ВАЖЛИВО: Відновити візуальні індикатори після рендерингу
             const sortState = sortAPI.getState();
             if (sortState.column && sortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
                 updateSortIndicators(container, sortState.column, sortState.direction);
             }
         },
@@ -163,7 +162,6 @@ export function initCheckTabSorting(tabId) {
             // ВАЖЛИВО: Відновити візуальні індикатори після рендерингу
             const sortState = sortAPI.getState();
             if (sortState.column && sortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-sort.js');
                 updateSortIndicators(container, sortState.column, sortState.direction);
             }
         },

@@ -11,7 +11,7 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly, getColumns } from './price-table.js';
-import { initTableFilters } from '../common/ui-table-filter.js';
+import { initTableFilters } from '../common/ui-table-controls.js';
 
 let eventsInitialized = false;
 let isRestoringFilters = false; // Флаг для запобігання циклу при відновленні фільтрів

@@ -9,7 +9,7 @@
 import { keywordsState } from './keywords-init.js';
 import { renderKeywordsTable } from './keywords-table.js';
 import { loadKeywords, getKeywords } from './keywords-data.js';
-import { initTableSorting } from '../common/ui-table-sort.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 
 export function initKeywordsEvents() {
     console.log('🎯 Ініціалізація обробників подій для ключових слів...');
