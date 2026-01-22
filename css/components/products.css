@@ -413,26 +413,9 @@
     width: 100px;
 }
 
-/* Modal with Tabs
-   ========================================================================== */
+/* Modal with Tabs - base modal styles in modal.css, modal-structure.css */
 
-.modal-header-tabs {
-    padding-bottom: 0;
-    flex-direction: column;
-    align-items: stretch;
-}
-
-.modal-header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 16px;
-}
-
-.modal-header-actions {
-    display: flex;
-    gap: 4px;
-}
+/* .modal-header-actions - use global from modal.css */
 
 .modal-tabs {
     display: flex;
@@ -1679,63 +1662,12 @@
     cursor: pointer;
 }
 
-/* ==========================================================================
-   ASIDE PRODUCTS - Custom Styles
-   ========================================================================== */
-
-#aside-products .panel-box {
-    position: relative;
-}
-
-#aside-products .input-main {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-size: 14px;
-    color: var(--color-on-surface);
-    outline: none;
-    padding: 8px 0;
-}
-
-#aside-products .input-main::placeholder {
-    color: var(--color-on-surface-v);
-}
-
-/* Custom select styling for aside */
-#aside-products .form-group select {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-s, 8px);
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    font-size: 14px;
-    min-height: 40px;
-    width: 100%;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
-    transition: border-color 150ms ease-in-out;
-}
-
-#aside-products .form-group select:hover {
-    border-color: var(--color-on-surface-v);
-}
-
-#aside-products .form-group select:focus {
-    border-color: var(--color-main);
-    border-width: 2px;
-    outline: none;
-    padding: 7px 15px;
-    padding-right: 39px;
-}
+/* ASIDE PRODUCTS - uses global styles from:
+   - input.css (.input-main)
+   - form-group.css (.form-group)
+   - panel-box.css (.panel-box)
+   - layout-panel-content.css (.panel-content-fix, .panel-content-scroll)
+*/
 
 /* Form grid 2 columns - defined earlier in this file */
 
