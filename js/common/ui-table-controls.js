@@ -261,29 +261,30 @@ function createHoverDropdown(header, columnConfig, handlers) {
     const currentFilter = activeFilters.get(columnId);
     const allSelected = uniqueValues.every(v => currentFilter.has(v.value));
 
-    // Створюємо dropdown елемент
+    // Створюємо dropdown елемент (використовуємо існуючі класи)
     const dropdown = document.createElement('div');
-    dropdown.className = 'hover-dropdown';
+    dropdown.className = 'dropdown-menu';
     dropdown.dataset.column = columnId;
+    dropdown.style.display = 'block';
+    dropdown.style.opacity = '1';
+    dropdown.style.transform = 'none';
 
     // Dropdown містить ТІЛЬКИ фільтри (сортування працює по кліку на заголовок)
     dropdown.innerHTML = `
-        <div class="hover-dropdown-header">${columnLabel}</div>
-        <div class="hover-dropdown-body">
-            <label class="hover-dropdown-item filter-all">
+        <div class="dropdown-header">${columnLabel}</div>
+        <div class="dropdown-body">
+            <label class="dropdown-item filter-select-all">
                 <input type="checkbox" data-filter-all ${allSelected ? 'checked' : ''}>
                 <span>Всі</span>
             </label>
-            <div class="hover-dropdown-separator"></div>
-            <div class="hover-dropdown-filters">
-                ${uniqueValues.map(({ value, label, count }) => `
-                    <label class="hover-dropdown-item">
-                        <input type="checkbox" data-filter-value="${value}" ${currentFilter.has(value) ? 'checked' : ''}>
-                        <span>${label}</span>
-                        <span class="filter-count">${count}</span>
-                    </label>
-                `).join('')}
-            </div>
+            <div class="dropdown-separator"></div>
+            ${uniqueValues.map(({ value, label, count }) => `
+                <label class="dropdown-item">
+                    <input type="checkbox" data-filter-value="${value}" ${currentFilter.has(value) ? 'checked' : ''}>
+                    <span>${label}</span>
+                    <span class="filter-count">${count}</span>
+                </label>
+            `).join('')}
         </div>
     `;
 
