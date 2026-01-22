@@ -346,3 +346,16 @@
     font-style: italic;
 }
 
+/* ============================================ */
+/* WORD CHIPS IN TABLE CELLS */
+/* ============================================ */
+
+/* Обмеження висоти для комірок зі списком слів */
+.pseudo-table-cell .cell-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-height: 56px;
+    overflow: hidden;
+}
+

@@ -200,14 +200,15 @@
 /* WORD CHIPS IN CELLS - (ВИПРАВЛЕНО v2) */
 /* ============================================ */
 
-.cell-words-list {
+/* Комірка зі списком слів в таблиці (специфічний селектор для pseudo-table) */
+.pseudo-table-cell .cell-words-list {
     display: flex;
-    flex-wrap: nowrap; /* Заборонити перенос */
+    flex-wrap: wrap;
     gap: 4px;
     padding: 6px 0 !important;
-    white-space: nowrap; 
     line-height: 1.4;
-    /* overflow-x: auto; - ВИДАЛЕНО */
+    max-height: 56px;
+    overflow: hidden;
 }
 
 .word-chip {
