@@ -390,11 +390,9 @@ function setupHoverDropdowns(container, handlers) {
         const columnId = header.dataset.sortKey || header.dataset.column;
         const columnConfig = handlers.filterColumns?.find(c => c.id === columnId);
 
-        // Hover з затримкою 2 секунди
+        // Hover - миттєва поява
         header.addEventListener('mouseenter', () => {
-            hoverState.hoverTimeout = setTimeout(() => {
-                showHoverDropdown(header, columnConfig, handlers);
-            }, 2000);
+            showHoverDropdown(header, columnConfig, handlers);
         });
 
         header.addEventListener('mouseleave', (e) => {
