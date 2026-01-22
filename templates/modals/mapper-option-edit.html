@@ -25,42 +25,73 @@
             </div>
         </div>
 
-        <!-- Body -->
-        <div class="modal-body">
-            <fieldset class="form-fieldset">
+        <!-- Body Split -->
+        <div class="modal-body modal-body-split">
+            <!-- ЛІВА ЧАСТИНА: Форма -->
+            <div class="modal-body-split-left">
+                <fieldset class="form-fieldset">
 
-                <div class="form-group">
-                    <label for="mapper-option-char">
-                        Характеристика
-                        <span class="required">*</span>
-                    </label>
-                    <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику" required>
-                        <option value="">— Оберіть характеристику —</option>
-                    </select>
-                </div>
+                    <!-- Секція: Прив'язки -->
+                    <div class="modal-split-section-title">
+                        <span class="material-symbols-outlined">link</span>
+                        <span>Прив'язки</span>
+                    </div>
 
-                <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-option-value-ua">
-                            Значення (UA)
+                        <label for="mapper-option-char">
+                            Характеристика
                             <span class="required">*</span>
                         </label>
-                        <input type="text" id="mapper-option-value-ua" class="input-main" placeholder="Значення українською" required>
+                        <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику" required>
+                            <option value="">— Оберіть характеристику —</option>
+                        </select>
+                        <p class="form-hint">Оберіть характеристику, до якої належить опція</p>
+                    </div>
+
+                    <!-- Секція: Основні дані -->
+                    <div class="modal-split-section-title" style="margin-top: 24px;">
+                        <span class="material-symbols-outlined">edit</span>
+                        <span>Основні дані</span>
+                    </div>
+
+                    <div class="grid2">
+                        <div class="form-group">
+                            <label for="mapper-option-value-ua">
+                                Значення (UA)
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="mapper-option-value-ua" class="input-main" placeholder="Значення українською" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mapper-option-value-ru">Значення (RU)</label>
+                            <input type="text" id="mapper-option-value-ru" class="input-main" placeholder="Значення російською">
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="mapper-option-value-ru">Значення (RU)</label>
-                        <input type="text" id="mapper-option-value-ru" class="input-main" placeholder="Значення російською">
+                        <label for="mapper-option-order">Порядок сортування</label>
+                        <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
+                        <p class="form-hint">Менше число = вища позиція в списку</p>
+                    </div>
+
+                </fieldset>
+            </div>
+
+            <!-- ПРАВА ЧАСТИНА: Залежні характеристики -->
+            <div class="modal-body-split-right">
+                <div class="modal-split-section-title">
+                    <span>Залежні характеристики</span>
+                    <span id="option-chars-count" class="modal-related-count"></span>
+                </div>
+
+                <div id="option-related-chars" class="modal-related-list">
+                    <!-- Заповнюється динамічно -->
+                    <div class="modal-related-empty">
+                        <span class="modal-related-empty-text">Залежних характеристик немає</span>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="mapper-option-order">Порядок сортування</label>
-                    <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
-                    <small class="form-hint">Менше число = вища позиція в списку</small>
-                </div>
-
-            </fieldset>
+            </div>
         </div>
     </div>
 </div>
