@@ -10,8 +10,9 @@
 
 import { mapperState } from './mapper-init.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { loadMapperData } from './mapper-data.js';
+import { loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
+import { initTableSorting, updateSortIndicators } from '../common/ui-table-sort.js';
 
 /**
  * Конфігурація колонок для кожного табу
@@ -250,48 +251,148 @@ function initFilterPills() {
 }
 
 /**
- * Ініціалізувати сортування
+ * Об'єкт для зберігання API сортування кожного табу
+ */
+const sortAPIs = {
+    categories: null,
+    characteristics: null,
+    options: null,
+    marketplaces: null
+};
+
+/**
+ * Ініціалізувати сортування для всіх табів
  */
 export function initMapperSorting() {
-    document.querySelectorAll('.sortable-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const sortKey = header.dataset.sortKey;
-
-            if (mapperState.sortKey === sortKey) {
-                // Переключити порядок
-                mapperState.sortOrder = mapperState.sortOrder === 'asc' ? 'desc' : 'asc';
-            } else {
-                // Новий ключ сортування
-                mapperState.sortKey = sortKey;
-                mapperState.sortOrder = 'asc';
-            }
-
-            // Оновити індикатори
-            updateSortIndicators(header);
-
-            // Перерендерити
-            renderCurrentTab();
-
-            console.log(`📊 Сортування: ${sortKey} ${mapperState.sortOrder}`);
-        });
-    });
+    initCategoriesSorting();
+    initCharacteristicsSorting();
+    initOptionsSorting();
+    initMarketplacesSorting();
 }
 
 /**
- * Оновити індикатори сортування
+ * Ініціалізувати сортування для категорій
  */
-function updateSortIndicators(activeHeader) {
-    // Прибрати всі індикатори
-    document.querySelectorAll('.sortable-header').forEach(header => {
-        header.classList.remove('sort-asc', 'sort-desc');
-        const indicator = header.querySelector('.sort-indicator');
-        if (indicator) indicator.textContent = '';
+export function initCategoriesSorting() {
+    const container = document.getElementById('mapper-categories-table-container');
+    if (!container) return null;
+
+    sortAPIs.categories = initTableSorting(container, {
+        dataSource: () => getCategories(),
+        onSort: async (sortedData) => {
+            mapperState.categories = sortedData;
+            await renderCurrentTab();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPIs.categories.getState();
+            if (sortState.column && sortState.direction) {
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            id: 'id-number',
+            name_ua: 'string',
+            name_ru: 'string',
+            parent_id: 'string'
+        }
     });
 
-    // Додати індикатор до активного
-    activeHeader.classList.add(mapperState.sortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
-    const indicator = activeHeader.querySelector('.sort-indicator');
-    if (indicator) {
-        indicator.textContent = mapperState.sortOrder === 'asc' ? ' ↑' : ' ↓';
-    }
+    console.log('✅ Сортування категорій ініціалізовано');
+    return sortAPIs.categories;
+}
+
+/**
+ * Ініціалізувати сортування для характеристик
+ */
+export function initCharacteristicsSorting() {
+    const container = document.getElementById('mapper-characteristics-table-container');
+    if (!container) return null;
+
+    sortAPIs.characteristics = initTableSorting(container, {
+        dataSource: () => getCharacteristics(),
+        onSort: async (sortedData) => {
+            mapperState.characteristics = sortedData;
+            await renderCurrentTab();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPIs.characteristics.getState();
+            if (sortState.column && sortState.direction) {
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            id: 'id-number',
+            name_ua: 'string',
+            name_ru: 'string',
+            type: 'string',
+            is_global: 'boolean',
+            unit: 'string'
+        }
+    });
+
+    console.log('✅ Сортування характеристик ініціалізовано');
+    return sortAPIs.characteristics;
+}
+
+/**
+ * Ініціалізувати сортування для опцій
+ */
+export function initOptionsSorting() {
+    const container = document.getElementById('mapper-options-table-container');
+    if (!container) return null;
+
+    sortAPIs.options = initTableSorting(container, {
+        dataSource: () => getOptions(),
+        onSort: async (sortedData) => {
+            mapperState.options = sortedData;
+            await renderCurrentTab();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPIs.options.getState();
+            if (sortState.column && sortState.direction) {
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            id: 'id-number',
+            characteristic_id: 'id-number',
+            value_ua: 'string',
+            value_ru: 'string',
+            sort_order: 'number'
+        }
+    });
+
+    console.log('✅ Сортування опцій ініціалізовано');
+    return sortAPIs.options;
+}
+
+/**
+ * Ініціалізувати сортування для маркетплейсів
+ */
+export function initMarketplacesSorting() {
+    const container = document.getElementById('mapper-marketplaces-table-container');
+    if (!container) return null;
+
+    sortAPIs.marketplaces = initTableSorting(container, {
+        dataSource: () => getMarketplaces(),
+        onSort: async (sortedData) => {
+            mapperState.marketplaces = sortedData;
+            await renderCurrentTab();
+
+            // Відновити візуальні індикатори після рендерингу
+            const sortState = sortAPIs.marketplaces.getState();
+            if (sortState.column && sortState.direction) {
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            id: 'id-number',
+            name: 'string',
+            slug: 'string',
+            is_active: 'boolean'
+        }
+    });
+
+    console.log('✅ Сортування маркетплейсів ініціалізовано');
+    return sortAPIs.marketplaces;
 }

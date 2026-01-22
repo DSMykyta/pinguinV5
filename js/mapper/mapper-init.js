@@ -11,7 +11,7 @@
 
 import { loadMapperData } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { initMapperEvents, initMapperSearch } from './mapper-events.js';
+import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-events.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
@@ -166,6 +166,9 @@ async function checkAuthAndLoadData() {
             // Ініціалізувати обробники подій
             initMapperEvents();
 
+            // Ініціалізувати сортування таблиць
+            initMapperSorting();
+
             console.log('✅ Mapper готовий до роботи');
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
@@ -291,6 +294,31 @@ async function loadAsideMapper() {
                 } else {
                     clearSearchBtn.classList.add('u-hidden');
                 }
+            });
+        }
+
+        // Ініціалізувати кнопки додавання в aside
+        const addCategoryBtn = document.getElementById('btn-add-category-aside');
+        if (addCategoryBtn) {
+            addCategoryBtn.addEventListener('click', async () => {
+                const { showAddCategoryModal } = await import('./mapper-crud.js');
+                showAddCategoryModal();
+            });
+        }
+
+        const addCharacteristicBtn = document.getElementById('btn-add-characteristic-aside');
+        if (addCharacteristicBtn) {
+            addCharacteristicBtn.addEventListener('click', async () => {
+                const { showAddCharacteristicModal } = await import('./mapper-crud.js');
+                showAddCharacteristicModal();
+            });
+        }
+
+        const addOptionBtn = document.getElementById('btn-add-option-aside');
+        if (addOptionBtn) {
+            addOptionBtn.addEventListener('click', async () => {
+                const { showAddOptionModal } = await import('./mapper-crud.js');
+                showAddOptionModal();
             });
         }
 
