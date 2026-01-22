@@ -10,6 +10,22 @@ let bannedWordsData = [];
 let validationRegex = null;
 const BANNED_WORDS_URL = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=1742878044`;
 
+// ============================================
+// HTML ПАТЕРНИ (попередження)
+// ============================================
+
+// Визначення HTML патернів для перевірки
+const HTML_PATTERNS = [
+    {
+        id: 'li-lowercase',
+        // Regex: <li> з можливими пробілами/переносами, потім маленька літера (кирилиця або латиниця)
+        regex: /<li>\s*([а-яїієґёa-z])/gi,
+        name: '<li> з маленької букви',
+        description: 'Текст після тегу <li> має починатися з великої літери.',
+        hint: 'Змініть першу літеру після <li> на велику.'
+    }
+];
+
 // Резервний список слів (Скорочено для стислості)
 const FALLBACK_WORDS = [
     'лікує', 'лікування', 'профілактика хвороб', 'діагностика', 'профілактика',
@@ -95,36 +111,67 @@ async function fetchBannedWords() {
 }
 
 /**
+ * Перевіряє текст на HTML патерни (наприклад <li> з маленької букви)
+ * @param {string} text - Текст для перевірки
+ * @returns {Object} - Результат перевірки { totalCount, patternCounts: Map<patternId, {count, pattern}> }
+ */
+function checkHtmlPatterns(text) {
+    const results = {
+        totalCount: 0,
+        patternCounts: new Map()
+    };
+
+    if (!text || !text.trim()) return results;
+
+    for (const pattern of HTML_PATTERNS) {
+        // Скидаємо lastIndex для глобального regex
+        pattern.regex.lastIndex = 0;
+
+        const matches = text.match(pattern.regex);
+        if (matches && matches.length > 0) {
+            results.patternCounts.set(pattern.id, {
+                count: matches.length,
+                pattern: pattern
+            });
+            results.totalCount += matches.length;
+        }
+    }
+
+    return results;
+}
+
+/**
  * Перевіряє текст і рахує загальну кількість входжень та кількість по кожному слову.
  */
 function validateText() {
     const dom = getTextDOM();
 
-    const results = {
+    const bannedResults = {
         totalCount: 0,
         wordCounts: new Map()
     };
 
-    if (!dom.inputMarkup || !validationRegex) {
-        displayValidationResults(results);
-        return;
-    }
+    const text = dom.inputMarkup ? (dom.inputMarkup.value || '') : '';
 
-    const text = dom.inputMarkup.value || '';
-    
-    validationRegex.lastIndex = 0;
-    let match;
+    // Перевірка HTML патернів (завжди виконується)
+    const htmlResults = checkHtmlPatterns(text);
 
-    while ((match = validationRegex.exec(text)) !== null) {
-        if (match[1]) {
-            const word = match[1].toLowerCase();
-            const currentCount = results.wordCounts.get(word) || 0;
-            results.wordCounts.set(word, currentCount + 1);
-            results.totalCount++;
+    // Перевірка заборонених слів (якщо є regex)
+    if (dom.inputMarkup && validationRegex) {
+        validationRegex.lastIndex = 0;
+        let match;
+
+        while ((match = validationRegex.exec(text)) !== null) {
+            if (match[1]) {
+                const word = match[1].toLowerCase();
+                const currentCount = bannedResults.wordCounts.get(word) || 0;
+                bannedResults.wordCounts.set(word, currentCount + 1);
+                bannedResults.totalCount++;
+            }
         }
     }
 
-    displayValidationResults(results);
+    displayValidationResults(bannedResults, htmlResults);
 }
 
 /**
@@ -242,17 +289,44 @@ function hideGteTooltip() {
 }
 
 /**
- * Оновлює відображення результатів з детальною статистикою.
+ * Знайти інформацію про HTML патерн
+ * @param {string} patternId - ID патерну
+ * @returns {Object|null} - Інформація про патерн
  */
-function displayValidationResults(results) {
-    const { totalCount, wordCounts } = results;
+function findHtmlPatternInfo(patternId) {
+    const pattern = HTML_PATTERNS.find(p => p.id === patternId);
+    if (!pattern) return null;
+
+    return {
+        group_name_ua: pattern.name,
+        banned_explaine: pattern.description,
+        banned_hint: pattern.hint
+    };
+}
+
+/**
+ * Оновлює відображення результатів з детальною статистикою.
+ * @param {Object} bannedResults - Результати перевірки заборонених слів
+ * @param {Object} htmlResults - Результати перевірки HTML патернів
+ */
+function displayValidationResults(bannedResults, htmlResults = { totalCount: 0, patternCounts: new Map() }) {
+    const { totalCount: bannedCount, wordCounts } = bannedResults;
+    const { totalCount: htmlCount, patternCounts } = htmlResults;
     const resultsContainer = getResultsContainer();
     if (!resultsContainer) return;
 
+    const totalCount = bannedCount + htmlCount;
+
     if (totalCount > 0) {
         const formattedList = [];
-        const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
+        // СПОЧАТКУ: HTML патерни (жовті чіпи) - перші в списку
+        for (const [patternId, data] of patternCounts.entries()) {
+            formattedList.push(`<span class="chip chip-warning" data-html-pattern="${patternId}">${data.pattern.name} (${data.count})</span>`);
+        }
+
+        // ПОТІМ: Заборонені слова (червоні чіпи)
+        const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
         for (const [word, count] of sortedEntries) {
             formattedList.push(`<span class="chip chip-error" data-banned-word="${word}">${word} (${count})</span>`);
         }
@@ -263,7 +337,19 @@ function displayValidationResults(results) {
         resultsContainer.innerHTML = html;
         resultsContainer.classList.add('has-errors');
 
-        // Додати tooltip обробники
+        // Tooltip обробники для HTML патернів (жовті чіпи)
+        resultsContainer.querySelectorAll('.chip-warning[data-html-pattern]').forEach(chip => {
+            chip.addEventListener('mouseenter', (e) => {
+                const patternId = e.target.dataset.htmlPattern;
+                const patternInfo = findHtmlPatternInfo(patternId);
+                if (patternInfo) {
+                    showGteTooltip(e.target, patternInfo);
+                }
+            });
+            chip.addEventListener('mouseleave', hideGteTooltip);
+        });
+
+        // Tooltip обробники для заборонених слів (червоні чіпи)
         resultsContainer.querySelectorAll('.chip-error[data-banned-word]').forEach(chip => {
             chip.addEventListener('mouseenter', (e) => {
                 const word = e.target.dataset.bannedWord;

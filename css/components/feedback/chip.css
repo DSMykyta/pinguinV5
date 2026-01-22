@@ -117,6 +117,24 @@
 }
 
 /* ============================================ */
+/* МОДИФІКАТОР: ПОПЕРЕДЖЕННЯ (жовтий) */
+/* ============================================ */
+
+.chip-warning {
+    background: var(--color-warning-c);
+    color: var(--color-warning);
+    border-color: var(--color-warning);
+    cursor: help;
+}
+
+.chip-warning:hover {
+    background: var(--color-warning-c);
+    color: var(--color-warning);
+    border-color: var(--color-warning);
+    border-radius: 8px;
+}
+
+/* ============================================ */
 /* МОДИФІКАТОР: УСПІХ (зелений) */
 /* ============================================ */
 
