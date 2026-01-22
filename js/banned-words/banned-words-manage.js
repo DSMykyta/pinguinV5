@@ -50,40 +50,11 @@ export function getColumns() {
             render: (value) => `<strong>${escapeHtml(value || 'N/A')}</strong>`
         },
         {
-            id: 'name_uk',
-            label: 'Слова (UA)',
-            sortable: true,
-            searchable: true,
-            className: 'cell-name',
-            render: (value) => renderWordChips(value, true)
-        },
-        {
-            id: 'name_ru',
-            label: 'Слова (RU)',
-            sortable: true,
-            searchable: true,
-            render: (value) => renderWordChips(value, false)
-        },
-        {
             id: 'banned_type',
             label: 'Тип',
             sortable: true,
             searchable: true,
             render: (value) => value || '<span style="color: var(--color-on-surface-v);">не вказано</span>'
-        },
-        {
-            id: 'banned_explaine',
-            label: 'Пояснення',
-            sortable: true,
-            searchable: true,
-            render: (value) => value || '-'
-        },
-        {
-            id: 'banned_hint',
-            label: 'Підказка',
-            sortable: true,
-            searchable: true,
-            render: (value) => value || '-'
         },
         {
             id: 'cheaked_line',
