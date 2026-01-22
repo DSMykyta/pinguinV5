@@ -240,6 +240,59 @@ function populateCategorySelect(selectedIds = []) {
 }
 
 /**
+ * Заповнити селект батьківських опцій (для залежних характеристик)
+ */
+function populateParentOptionsSelect(selectedOptionId = '') {
+    const select = document.getElementById('mapper-char-parent-option');
+    if (!select) return;
+
+    const options = getOptions();
+    const characteristics = getCharacteristics();
+
+    // Створюємо мапу характеристик за ID для швидкого пошуку
+    const charMap = new Map();
+    characteristics.forEach(char => {
+        charMap.set(char.id, char);
+    });
+
+    select.innerHTML = '<option value="">Не залежить</option>';
+
+    // Групуємо опції за характеристиками
+    const optionsByChar = new Map();
+    options.forEach(opt => {
+        if (!opt.characteristic_id) return;
+        if (!optionsByChar.has(opt.characteristic_id)) {
+            optionsByChar.set(opt.characteristic_id, []);
+        }
+        optionsByChar.get(opt.characteristic_id).push(opt);
+    });
+
+    // Додаємо опції, згруповані за характеристиками
+    optionsByChar.forEach((opts, charId) => {
+        const char = charMap.get(charId);
+        const charName = char ? (char.name_ua || charId) : charId;
+
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = charName;
+
+        opts.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.id;
+            option.textContent = opt.value_ua || opt.id;
+            if (opt.id === selectedOptionId) {
+                option.selected = true;
+            }
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+/**
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
@@ -262,6 +315,7 @@ export async function showAddCharacteristicModal() {
 
     clearCharacteristicForm();
     populateCategorySelect();
+    populateParentOptionsSelect();
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
@@ -309,6 +363,9 @@ export async function showEditCharacteristicModal(id) {
         ? characteristic.category_ids.split(',').map(id => id.trim()).filter(id => id)
         : [];
     populateCategorySelect(selectedCategoryIds);
+
+    // Заповнюємо селект батьківських опцій
+    populateParentOptionsSelect(characteristic.parent_option_id || '');
 
     fillCharacteristicForm(characteristic);
 
@@ -393,6 +450,10 @@ function getCharacteristicFormData() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const isGlobal = globalYes?.checked ?? false;
 
+    // Отримуємо значення батьківської опції
+    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
+    const parentOptionId = parentOptionSelect?.value || '';
+
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
@@ -401,7 +462,8 @@ function getCharacteristicFormData() {
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         is_global: isGlobal,
         // Якщо глобальна - категорії не потрібні
-        category_ids: isGlobal ? '' : selectedCategories.join(',')
+        category_ids: isGlobal ? '' : selectedCategories.join(','),
+        parent_option_id: parentOptionId
     };
 }
 
@@ -505,6 +567,13 @@ function clearCharacteristicForm() {
     if (categoriesSelect) {
         Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
         reinitializeCustomSelect(categoriesSelect);
+    }
+
+    // Скидаємо вибір батьківської опції
+    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
+    if (parentOptionSelect) {
+        parentOptionSelect.value = '';
+        reinitializeCustomSelect(parentOptionSelect);
     }
 
     // Показуємо поле категорій (бо за замовчуванням не глобальна)
