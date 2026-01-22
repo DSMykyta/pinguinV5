@@ -84,8 +84,9 @@ function sortArray(array, column, direction, columnTypes = {}) {
 
             case 'product':
                 // Спеціальний тип для сортування товарів по Brand + Name
-                aVal = ((a.brand || '') + ' ' + (a.name || '')).trim().toLowerCase();
-                bVal = ((b.brand || '') + ' ' + (b.name || '')).trim().toLowerCase();
+                // НЕ використовуємо toLowerCase() - localeCompare з sensitivity:'base' сам ігнорує регістр
+                aVal = ((a.brand || '') + ' ' + (a.name || '')).trim();
+                bVal = ((b.brand || '') + ' ' + (b.name || '')).trim();
                 break;
 
             case 'string':
@@ -94,6 +95,14 @@ function sortArray(array, column, direction, columnTypes = {}) {
                 bVal = (bVal || '').toString();
                 break;
         }
+
+        // Обробка пустих значень - завжди в кінець
+        const aEmpty = aVal === '' || aVal === null || aVal === undefined;
+        const bEmpty = bVal === '' || bVal === null || bVal === undefined;
+
+        if (aEmpty && bEmpty) return 0;
+        if (aEmpty) return 1;  // Пусті завжди в кінець
+        if (bEmpty) return -1;
 
         // Порівняння
         if (columnType === 'string' || columnType === 'product' || columnType === undefined) {
@@ -913,11 +922,12 @@ export function getSortValue(item, column, columnType) {
             return new Date(value || 0).getTime();
         case 'product':
             // Спеціальний тип для прайсу: brand + name + packaging + flavor
+            // НЕ використовуємо toLowerCase() - localeCompare з sensitivity:'base' сам ігнорує регістр
             const brand = item.brand || '';
             const name = item.name || '';
             const packaging = item.packaging || '';
             const flavor = item.flavor || '';
-            return `${brand} ${name} ${packaging} ${flavor}`.trim().toLowerCase();
+            return `${brand} ${name} ${packaging} ${flavor}`.trim();
         case 'string':
         default:
             return (value || '').toString().toLowerCase();
