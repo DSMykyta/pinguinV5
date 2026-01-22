@@ -75,20 +75,17 @@ export function renderPseudoTable(container, options) {
             ` : ''}
             ${columns.map(col => {
                 const cellClass = col.className || '';
-                // Визначаємо режим сортування
-                // 'click' - клік по заголовку (за замовчуванням якщо тільки sortable)
-                // 'dropdown' - випадаюче меню (якщо filterable або явно вказано)
-                const sortMode = col.sortMode || (col.filterable ? 'dropdown' : 'click');
-                // Додаємо sortable-header тільки для click режиму
-                const useClickSort = !noHeaderSort && col.sortable && sortMode === 'click';
-                const sortableClass = useClickSort ? ' sortable-header' : '';
+                // Клас sortable-header якщо колонка сортується (клік по заголовку)
+                const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
+                // Клас filterable якщо колонка має фільтр (hover 2 сек = dropdown)
+                const filterableClass = col.filterable ? ' filterable' : '';
 
                 return `
-                    <div class="pseudo-table-cell ${cellClass}${sortableClass}${hiddenClass(col.id)}"
-                         ${useClickSort ? `data-sort-key="${col.sortKey || col.id}"` : ''}
+                    <div class="pseudo-table-cell ${cellClass}${sortableClass}${filterableClass}${hiddenClass(col.id)}"
+                         ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                          data-column="${col.id}">
                         <span>${col.label || col.id}</span>
-                        ${useClickSort ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
+                        ${!noHeaderSort && col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
                     </div>
                 `;
             }).join('')}
