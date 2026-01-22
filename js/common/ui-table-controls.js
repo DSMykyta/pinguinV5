@@ -261,13 +261,10 @@ function createHoverDropdown(header, columnConfig, handlers) {
     const currentFilter = activeFilters.get(columnId);
     const allSelected = uniqueValues.every(v => currentFilter.has(v.value));
 
-    // Створюємо dropdown елемент (використовуємо існуючі класи)
+    // Створюємо dropdown елемент
     const dropdown = document.createElement('div');
-    dropdown.className = 'dropdown-menu';
+    dropdown.className = 'dropdown-menu table-filter-dropdown';
     dropdown.dataset.column = columnId;
-    dropdown.style.display = 'block';
-    dropdown.style.opacity = '1';
-    dropdown.style.transform = 'none';
 
     // Dropdown містить ТІЛЬКИ фільтри (сортування працює по кліку на заголовок)
     dropdown.innerHTML = `
@@ -347,21 +344,19 @@ function showHoverDropdown(header, columnConfig, handlers) {
     const dropdown = createHoverDropdown(header, columnConfig, handlers);
     document.body.appendChild(dropdown);
 
-    // Позиціонування
+    // Позиціонування через CSS custom properties
     const rect = header.getBoundingClientRect();
-    dropdown.style.position = 'fixed';
-    dropdown.style.top = `${rect.bottom + 4}px`;
-    dropdown.style.left = `${rect.left}px`;
-    dropdown.style.zIndex = '10000';
+    dropdown.style.setProperty('--dropdown-top', `${rect.bottom + 4}px`);
+    dropdown.style.setProperty('--dropdown-left', `${rect.left}px`);
 
     // Перевірка чи не виходить за межі екрану
     requestAnimationFrame(() => {
         const dropdownRect = dropdown.getBoundingClientRect();
         if (dropdownRect.right > window.innerWidth) {
-            dropdown.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
+            dropdown.style.setProperty('--dropdown-left', `${window.innerWidth - dropdownRect.width - 8}px`);
         }
         if (dropdownRect.bottom > window.innerHeight) {
-            dropdown.style.top = `${rect.top - dropdownRect.height - 4}px`;
+            dropdown.style.setProperty('--dropdown-top', `${rect.top - dropdownRect.height - 4}px`);
         }
     });
 
