@@ -87,44 +87,26 @@ function getAvatarColor(name) {
 /**
  * Заповнити колонки для пошуку в aside
  * Використовує createColumnSelector з filterBy для синхронізації з видимими колонками
+ * Колонки пошуку відповідають колонкам таблиці (не полям даних)
  */
 export function populateSearchColumns() {
-    // Маппінг колонок таблиці до колонок пошуку
-    // product в таблиці = code, article, name, brand для пошуку
+    // Колонки пошуку = колонки таблиці (product шукає по name + brand)
     const allSearchColumns = [
         { id: 'code', label: 'Код', checked: true },
         { id: 'article', label: 'Артикул', checked: true },
-        { id: 'name', label: 'Назва', checked: true },
-        { id: 'brand', label: 'Бренд', checked: true },
+        { id: 'product', label: 'Товар', checked: true },
         { id: 'reserve', label: 'Резерв', checked: false }
     ];
 
-    // Маппінг: яка колонка таблиці контролює яку колонку пошуку
-    // Якщо колонка таблиці не видима - колонка пошуку теж не доступна
-    const tableToSearchMap = {
-        code: 'code',
-        article: 'article',
-        product: ['name', 'brand'],  // product = name + brand
-        reserve: 'reserve'
-    };
-
-    // Створюємо filterBy на основі видимих колонок таблиці
+    // Видимі колонки таблиці
     const visibleTableColumns = priceState.visibleColumns.length > 0
         ? priceState.visibleColumns
         : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'];
 
-    // Перетворюємо видимі колонки таблиці в доступні колонки пошуку
-    const allowedSearchColumns = [];
-    visibleTableColumns.forEach(tableCol => {
-        const mapped = tableToSearchMap[tableCol];
-        if (mapped) {
-            if (Array.isArray(mapped)) {
-                allowedSearchColumns.push(...mapped);
-            } else {
-                allowedSearchColumns.push(mapped);
-            }
-        }
-    });
+    // Фільтруємо тільки ті колонки пошуку, що є серед видимих
+    const allowedSearchColumns = allSearchColumns
+        .map(col => col.id)
+        .filter(id => visibleTableColumns.includes(id));
 
     createColumnSelector('search-columns-list-price', allSearchColumns, {
         checkboxPrefix: 'search-col-price',

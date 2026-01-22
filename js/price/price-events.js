@@ -416,10 +416,17 @@ function applyFilters() {
     // 3. Фільтр по пошуку
     if (priceState.searchQuery) {
         const query = priceState.searchQuery.toLowerCase();
-        const cols = priceState.searchColumns || ['code', 'article', 'brand', 'name', 'category', 'packaging', 'flavor'];
+        const cols = priceState.searchColumns || ['code', 'article', 'product', 'reserve'];
 
         items = items.filter(item => {
             return cols.some(col => {
+                // 'product' шукає по name + brand
+                if (col === 'product') {
+                    const name = item.name || '';
+                    const brand = item.brand || '';
+                    return String(name).toLowerCase().includes(query) ||
+                           String(brand).toLowerCase().includes(query);
+                }
                 const val = item[col];
                 return val && String(val).toLowerCase().includes(query);
             });
