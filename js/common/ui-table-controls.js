@@ -494,7 +494,7 @@ export function initTableSorting(container, options) {
         if (!header) return;
 
         // Якщо клік був на dropdown - ігноруємо
-        if (e.target.closest('.hover-dropdown')) return;
+        if (e.target.closest('.dropdown-wrapper')) return;
 
         const sortKey = header.dataset.sortKey;
         if (!sortKey) return;
