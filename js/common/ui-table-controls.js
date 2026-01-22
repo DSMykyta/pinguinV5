@@ -261,9 +261,12 @@ function createHoverDropdown(header, columnConfig, handlers) {
     const currentFilter = activeFilters.get(columnId);
     const allSelected = uniqueValues.every(v => currentFilter.has(v.value));
 
-    // Створюємо dropdown елемент
+    // Створюємо wrapper з існуючими класами
+    const wrapper = document.createElement('div');
+    wrapper.className = 'dropdown-wrapper filter-dropdown is-open';
+
     const dropdown = document.createElement('div');
-    dropdown.className = 'dropdown-menu table-filter-dropdown';
+    dropdown.className = 'dropdown-menu';
     dropdown.dataset.column = columnId;
 
     // Dropdown містить ТІЛЬКИ фільтри (сортування працює по кліку на заголовок)
@@ -332,7 +335,8 @@ function createHoverDropdown(header, columnConfig, handlers) {
     // Запобігаємо закриттю при кліку всередині dropdown
     dropdown.addEventListener('click', (e) => e.stopPropagation());
 
-    return dropdown;
+    wrapper.appendChild(dropdown);
+    return wrapper;
 }
 
 /**
@@ -341,26 +345,28 @@ function createHoverDropdown(header, columnConfig, handlers) {
 function showHoverDropdown(header, columnConfig, handlers) {
     hideHoverDropdown();
 
-    const dropdown = createHoverDropdown(header, columnConfig, handlers);
-    document.body.appendChild(dropdown);
+    const wrapper = createHoverDropdown(header, columnConfig, handlers);
+    document.body.appendChild(wrapper);
 
-    // Позиціонування через CSS custom properties
+    // Позиціонування wrapper (fixed)
     const rect = header.getBoundingClientRect();
-    dropdown.style.setProperty('--dropdown-top', `${rect.bottom + 4}px`);
-    dropdown.style.setProperty('--dropdown-left', `${rect.left}px`);
+    wrapper.classList.add('dropdown-fixed');
+    wrapper.style.top = `${rect.bottom + 4}px`;
+    wrapper.style.left = `${rect.left}px`;
 
     // Перевірка чи не виходить за межі екрану
+    const dropdown = wrapper.querySelector('.dropdown-menu');
     requestAnimationFrame(() => {
         const dropdownRect = dropdown.getBoundingClientRect();
         if (dropdownRect.right > window.innerWidth) {
-            dropdown.style.setProperty('--dropdown-left', `${window.innerWidth - dropdownRect.width - 8}px`);
+            wrapper.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
         }
         if (dropdownRect.bottom > window.innerHeight) {
-            dropdown.style.setProperty('--dropdown-top', `${rect.top - dropdownRect.height - 4}px`);
+            wrapper.style.top = `${rect.top - dropdownRect.height - 4}px`;
         }
     });
 
-    hoverState.activeDropdown = dropdown;
+    hoverState.activeDropdown = wrapper;
     hoverState.activeHeader = header;
 
     // Закриття при кліку поза dropdown
