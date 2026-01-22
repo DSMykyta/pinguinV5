@@ -905,6 +905,13 @@ export function getSortValue(item, column, columnType) {
             return (value === 'TRUE' || value === true || value === 1) ? 1 : 0;
         case 'date':
             return new Date(value || 0).getTime();
+        case 'product':
+            // Спеціальний тип для прайсу: brand + name + packaging + flavor
+            const brand = item.brand || '';
+            const name = item.name || '';
+            const packaging = item.packaging || '';
+            const flavor = item.flavor || '';
+            return `${brand} ${name} ${packaging} ${flavor}`.trim().toLowerCase();
         case 'string':
         default:
             return (value || '').toString().toLowerCase();
