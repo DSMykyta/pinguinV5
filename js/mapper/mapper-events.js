@@ -140,7 +140,7 @@ function initRefreshButtons() {
 
                 // Показати стан завантаження
                 btn.disabled = true;
-                btn.querySelector('.material-symbols-outlined').classList.add('spinning');
+                btn.querySelector('.material-symbols-outlined').classList.add('is-spinning');
 
                 try {
                     await loadMapperData();
@@ -149,7 +149,7 @@ function initRefreshButtons() {
                     console.error(`❌ Помилка оновлення табу ${tab}:`, error);
                 } finally {
                     btn.disabled = false;
-                    btn.querySelector('.material-symbols-outlined').classList.remove('spinning');
+                    btn.querySelector('.material-symbols-outlined').classList.remove('is-spinning');
                 }
             });
         }

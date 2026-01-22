@@ -79,7 +79,15 @@ export const mapperState = {
     paginationAPI: null,
 
     // Вибраний маркетплейс для перегляду даних
-    selectedMarketplace: null
+    selectedMarketplace: null,
+
+    // Вибрані рядки для batch операцій
+    selectedRows: {
+        categories: new Set(),
+        characteristics: new Set(),
+        options: new Set(),
+        marketplaces: new Set()
+    }
 };
 
 /**

@@ -120,12 +120,17 @@ export function renderCategoriesTable() {
             }
         ],
         visibleColumns: mapperState.visibleColumns.categories,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-category" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
+        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
+        rowActionsCustom: (row) => {
+            const selectedSet = mapperState.selectedRows.categories || new Set();
+            const isChecked = selectedSet.has(row.id);
+            return `
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" ${isChecked ? 'checked' : ''}>
+                <button class="btn-icon btn-edit-category" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
         emptyState: {
             icon: 'folder',
             message: 'Категорії не знайдено'
@@ -144,6 +149,9 @@ export function renderCategoriesTable() {
             }
         });
     });
+
+    // Ініціалізувати чекбокси
+    initTableCheckboxes(container, 'categories', paginatedData);
 
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
@@ -245,12 +253,17 @@ export function renderCharacteristicsTable() {
             }
         ],
         visibleColumns: mapperState.visibleColumns.characteristics,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-characteristic" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
+        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
+        rowActionsCustom: (row) => {
+            const selectedSet = mapperState.selectedRows.characteristics || new Set();
+            const isChecked = selectedSet.has(row.id);
+            return `
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" ${isChecked ? 'checked' : ''}>
+                <button class="btn-icon btn-edit-characteristic" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
         emptyState: {
             icon: 'tune',
             message: 'Характеристики не знайдено'
@@ -269,6 +282,9 @@ export function renderCharacteristicsTable() {
             }
         });
     });
+
+    // Ініціалізувати чекбокси
+    initTableCheckboxes(container, 'characteristics', paginatedData);
 
     // Оновити статистику
     updateStats('characteristics', filteredData.length, characteristics.length);
@@ -344,12 +360,17 @@ export function renderOptionsTable() {
             }
         ],
         visibleColumns: mapperState.visibleColumns.options,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-option" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
+        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
+        rowActionsCustom: (row) => {
+            const selectedSet = mapperState.selectedRows.options || new Set();
+            const isChecked = selectedSet.has(row.id);
+            return `
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" ${isChecked ? 'checked' : ''}>
+                <button class="btn-icon btn-edit-option" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
         emptyState: {
             icon: 'check_box',
             message: 'Опції не знайдено'
@@ -368,6 +389,9 @@ export function renderOptionsTable() {
             }
         });
     });
+
+    // Ініціалізувати чекбокси
+    initTableCheckboxes(container, 'options', paginatedData);
 
     // Оновити статистику
     updateStats('options', filteredData.length, options.length);
@@ -437,15 +461,20 @@ export function renderMarketplacesTable() {
             }
         ],
         visibleColumns: mapperState.visibleColumns.marketplaces,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-view-marketplace" data-id="${escapeHtml(row.id)}" title="Переглянути дані">
-                <span class="material-symbols-outlined">visibility</span>
-            </button>
-            <button class="btn-icon btn-edit-marketplace" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
+        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
+        rowActionsCustom: (row) => {
+            const selectedSet = mapperState.selectedRows.marketplaces || new Set();
+            const isChecked = selectedSet.has(row.id);
+            return `
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces" ${isChecked ? 'checked' : ''}>
+                <button class="btn-icon btn-view-marketplace" data-id="${escapeHtml(row.id)}" title="Переглянути дані">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button class="btn-icon btn-edit-marketplace" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
         emptyState: {
             icon: 'storefront',
             message: 'Маркетплейси не знайдено'
@@ -475,6 +504,9 @@ export function renderMarketplacesTable() {
             }
         });
     });
+
+    // Ініціалізувати чекбокси
+    initTableCheckboxes(container, 'marketplaces', paginatedData);
 
     // Оновити статистику
     updateStats('marketplaces', filteredData.length, marketplaces.length);
@@ -577,4 +609,71 @@ function updateStats(tabName, visible, total) {
     if (!statsEl) return;
 
     statsEl.textContent = `Показано ${visible} з ${total}`;
+}
+
+/**
+ * Ініціалізувати чекбокси для таблиці
+ * @param {HTMLElement} container - Контейнер таблиці
+ * @param {string} tabName - Назва табу (categories, characteristics, options, marketplaces)
+ * @param {Array} data - Дані поточної сторінки
+ */
+function initTableCheckboxes(container, tabName, data) {
+    const selectAllCheckbox = container.querySelector('.select-all-checkbox');
+    const rowCheckboxes = container.querySelectorAll('.row-checkbox');
+
+    if (!selectAllCheckbox || rowCheckboxes.length === 0) return;
+
+    // Ініціалізувати Set якщо не існує
+    if (!mapperState.selectedRows[tabName]) {
+        mapperState.selectedRows[tabName] = new Set();
+    }
+
+    const selectedSet = mapperState.selectedRows[tabName];
+
+    // Оновити стан "select all" чекбокса
+    const updateSelectAllState = () => {
+        const allIds = data.map(row => row.id);
+        const allSelected = allIds.every(id => selectedSet.has(id));
+        const someSelected = allIds.some(id => selectedSet.has(id));
+
+        selectAllCheckbox.checked = allSelected;
+        selectAllCheckbox.indeterminate = someSelected && !allSelected;
+    };
+
+    // Обробник для "select all" чекбокса
+    selectAllCheckbox.addEventListener('change', (e) => {
+        const allIds = data.map(row => row.id);
+
+        if (e.target.checked) {
+            allIds.forEach(id => selectedSet.add(id));
+        } else {
+            allIds.forEach(id => selectedSet.delete(id));
+        }
+
+        // Оновити всі рядкові чекбокси
+        rowCheckboxes.forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+
+        console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
+    });
+
+    // Обробник для рядкових чекбоксів
+    rowCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const rowId = checkbox.dataset.rowId;
+
+            if (checkbox.checked) {
+                selectedSet.add(rowId);
+            } else {
+                selectedSet.delete(rowId);
+            }
+
+            updateSelectAllState();
+            console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
+        });
+    });
+
+    // Встановити початковий стан
+    updateSelectAllState();
 }

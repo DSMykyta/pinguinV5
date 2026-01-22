@@ -99,6 +99,15 @@
     color: var(--color-on-surface);
 }
 
+.form-group input.gost-input,
+.form-group input.gost-input:hover,
+.form-group input.gost-input:active {
+    width: 100%;
+    border: 1px solid transparent;
+    border-color: transparent!important;
+    background-color: transparent;
+}
+
 .form-group label {
     display: flex;
     align-items: center;

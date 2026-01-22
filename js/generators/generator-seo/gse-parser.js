@@ -65,8 +65,9 @@ export function updateBrandAndProductFromText(mainText) {
         productName = words.slice(1).join(' ');
     }
 
-    // 5. Обрізаємо назву товару по тире
-    const dashIndex = productName.search(/\s*(-|–)\s*/);
+    // 5. Обрізаємо назву товару по тире (тільки якщо є пробіл з обох сторін)
+    // Підтримуємо: звичайний дефіс (-), en-dash (–), em-dash (—)
+    const dashIndex = productName.search(/\s[-–—]\s/);
     if (dashIndex !== -1) {
         productName = productName.substring(0, dashIndex).trim();
     }
