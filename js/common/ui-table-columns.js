@@ -148,3 +148,126 @@ export function createColumnSelector(containerId, columns, options = {}) {
         }
     };
 }
+
+/**
+ * Налаштувати dropdown колонок пошуку (універсальна функція)
+ * Автоматично читає колонки з searchable: true
+ *
+ * @param {Object} config - Конфігурація
+ * @param {string} config.containerId - ID контейнера для чекбоксів
+ * @param {Function} config.getColumns - Функція що повертає масив колонок
+ * @param {Object} config.state - State об'єкт сторінки (має мати visibleColumns, searchColumns)
+ * @param {string} [config.checkboxPrefix='search-col'] - Префікс для чекбоксів
+ * @param {number} [config.defaultCheckedCount=3] - Кількість колонок вибраних за замовчуванням
+ *
+ * @returns {Object|null} API селектора або null якщо контейнер не знайдено
+ */
+export function setupSearchColumnsSelector(config) {
+    const {
+        containerId,
+        getColumns,
+        state,
+        checkboxPrefix = 'search-col',
+        defaultCheckedCount = 3
+    } = config;
+
+    const columns = getColumns();
+
+    // Колонки з searchable: true
+    const searchableColumns = columns
+        .filter(col => col.searchable)
+        .map((col, index) => ({
+            id: col.id,
+            label: col.label,
+            checked: index < defaultCheckedCount
+        }));
+
+    // Видимі колонки таблиці
+    const visibleTableColumns = state.visibleColumns?.length > 0
+        ? state.visibleColumns
+        : columns.map(c => c.id);
+
+    // Фільтруємо тільки ті колонки пошуку, що є серед видимих
+    const allowedSearchColumns = searchableColumns
+        .map(col => col.id)
+        .filter(id => visibleTableColumns.includes(id));
+
+    const selector = createColumnSelector(containerId, searchableColumns, {
+        checkboxPrefix,
+        filterBy: allowedSearchColumns,
+        onChange: (selectedIds) => {
+            state.searchColumns = selectedIds;
+            console.log('🔍 Колонки пошуку:', state.searchColumns);
+        }
+    });
+
+    if (selector) {
+        // Ініціалізуємо searchColumns в state
+        state.searchColumns = selector.getSelected();
+    }
+
+    return selector;
+}
+
+/**
+ * Налаштувати dropdown видимих колонок таблиці (універсальна функція)
+ *
+ * @param {Object} config - Конфігурація
+ * @param {string} config.containerId - ID контейнера для чекбоксів
+ * @param {Function} config.getColumns - Функція що повертає масив колонок
+ * @param {Object} config.state - State об'єкт сторінки (має мати visibleColumns)
+ * @param {string} [config.checkboxPrefix='table-col'] - Префікс для чекбоксів
+ * @param {Function} [config.onVisibilityChange] - Callback при зміні видимості
+ * @param {string} [config.searchColumnsContainerId] - ID контейнера пошукових колонок (для синхронізації)
+ *
+ * @returns {Object|null} API селектора або null якщо контейнер не знайдено
+ */
+export function setupTableColumnsSelector(config) {
+    const {
+        containerId,
+        getColumns,
+        state,
+        checkboxPrefix = 'table-col',
+        onVisibilityChange = null,
+        searchColumnsContainerId = null
+    } = config;
+
+    const columns = getColumns();
+
+    // Всі колонки для вибору видимості
+    const tableColumns = columns.map(col => ({
+        id: col.id,
+        label: col.label,
+        checked: true  // За замовчуванням всі видимі
+    }));
+
+    const selector = createColumnSelector(containerId, tableColumns, {
+        checkboxPrefix,
+        onChange: async (selectedIds) => {
+            state.visibleColumns = selectedIds;
+            console.log('📋 Видимі колонки:', state.visibleColumns);
+
+            // Оновлюємо колонки пошуку якщо задано контейнер
+            if (searchColumnsContainerId) {
+                setupSearchColumnsSelector({
+                    containerId: searchColumnsContainerId,
+                    getColumns,
+                    state,
+                    checkboxPrefix: checkboxPrefix.replace('table', 'search')
+                });
+            }
+
+            // Викликаємо callback для перерендеру таблиці
+            if (onVisibilityChange) {
+                await onVisibilityChange(selectedIds);
+            }
+        }
+    });
+
+    if (selector) {
+        // Ініціалізуємо visibleColumns в state
+        state.visibleColumns = selector.getSelected();
+    }
+
+    return selector;
+}

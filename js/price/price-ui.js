@@ -9,8 +9,9 @@
  */
 
 import { priceState } from './price-init.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
+import { getColumns } from './price-table.js';
 
 /**
  * Заповнити таби резервів (юзерів) з аватарками в section-navigator
@@ -86,67 +87,30 @@ function getAvatarColor(name) {
 
 /**
  * Заповнити колонки для пошуку в aside
- * Динамічно з getColumns() - колонки з searchable: true
+ * Використовує універсальну функцію setupSearchColumnsSelector
  */
-export async function populateSearchColumns() {
-    const { getColumns } = await import('./price-table.js');
-    const columns = getColumns();
-
-    // Колонки з searchable: true
-    const allSearchColumns = columns
-        .filter(col => col.searchable)
-        .map((col, index) => ({
-            id: col.id,
-            label: col.label,
-            checked: index < 3  // Перші 3 вибрані за замовчуванням
-        }));
-
-    // Видимі колонки таблиці
-    const visibleTableColumns = priceState.visibleColumns.length > 0
-        ? priceState.visibleColumns
-        : columns.map(c => c.id);
-
-    // Фільтруємо тільки ті колонки пошуку, що є серед видимих
-    const allowedSearchColumns = allSearchColumns
-        .map(col => col.id)
-        .filter(id => visibleTableColumns.includes(id));
-
-    createColumnSelector('search-columns-list-price', allSearchColumns, {
-        checkboxPrefix: 'search-col-price',
-        filterBy: allowedSearchColumns,
-        onChange: (selectedIds) => {
-            priceState.searchColumns = selectedIds;
-            console.log('🔍 Колонки пошуку:', priceState.searchColumns);
-        }
+export function populateSearchColumns() {
+    setupSearchColumnsSelector({
+        containerId: 'search-columns-list-price',
+        getColumns,
+        state: priceState,
+        checkboxPrefix: 'search-col-price'
     });
-
     console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
  * Заповнити колонки таблиці в dropdown
- * Динамічно з getColumns()
+ * Використовує універсальну функцію setupTableColumnsSelector
  */
-export async function populateTableColumns() {
-    const { getColumns } = await import('./price-table.js');
-    const columns = getColumns();
-
-    // Всі колонки для вибору видимості
-    const tableColumns = columns.map(col => ({
-        id: col.id,
-        label: col.label,
-        checked: true  // За замовчуванням всі видимі
-    }));
-
-    const columnSelector = createColumnSelector('table-columns-list-price', tableColumns, {
+export function populateTableColumns() {
+    setupTableColumnsSelector({
+        containerId: 'table-columns-list-price',
+        getColumns,
+        state: priceState,
         checkboxPrefix: 'price-col',
-        onChange: async (selectedIds) => {
-            priceState.visibleColumns = selectedIds;
-            console.log('📋 Видимі колонки:', priceState.visibleColumns);
-
-            // Оновлюємо колонки пошуку відповідно до видимих колонок
-            await populateSearchColumns();
-
+        searchColumnsContainerId: 'search-columns-list-price',
+        onVisibilityChange: async (selectedIds) => {
             // Повний перерендер бо змінюється структура таблиці
             const { renderPriceTable } = await import('./price-table.js');
             await renderPriceTable();
@@ -159,11 +123,6 @@ export async function populateTableColumns() {
             initPriceColumnFilters();
         }
     });
-
-    if (columnSelector) {
-        priceState.visibleColumns = columnSelector.getSelected();
-    }
-
     console.log('✅ Колонки таблиці заповнено');
 }
 
