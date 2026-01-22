@@ -9,65 +9,38 @@
  */
 
 import { brandsState } from './brands-init.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
-import { renderBrandsTable } from './brands-table.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { renderBrandsTable, getColumns } from './brands-table.js';
 
 /**
- * Заповнити колонки для пошуку в dropdown
+ * Заповнити колонки для пошуку в aside
+ * Використовує універсальну функцію setupSearchColumnsSelector
  */
 export function populateSearchColumns() {
-    const allSearchColumns = [
-        { id: 'brand_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: 'Назва', checked: true },
-        { id: 'names_alt', label: 'Альтернативні назви', checked: true },
-        { id: 'country_option_id', label: 'Країна', checked: true },
-        { id: 'brand_text', label: 'Опис', checked: false },
-        { id: 'brand_site_link', label: 'Сайт', checked: false }
-    ];
-
-    createColumnSelector('search-columns-list-brands', allSearchColumns, {
-        checkboxPrefix: 'search-col-brands',
-        filterBy: brandsState.visibleColumns,
-        onChange: (selectedIds) => {
-            brandsState.searchColumns = selectedIds;
-            console.log('🔍 Колонки пошуку:', brandsState.searchColumns);
-        }
+    setupSearchColumnsSelector({
+        containerId: 'search-columns-list-brands',
+        getColumns,
+        state: brandsState,
+        checkboxPrefix: 'search-col-brands'
     });
-
     console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
  * Заповнити колонки таблиці в dropdown
+ * Використовує універсальну функцію setupTableColumnsSelector
  */
 export function populateTableColumns() {
-    const tableColumns = [
-        { id: 'brand_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: 'Назва', checked: true },
-        { id: 'names_alt', label: 'Альтернативні назви', checked: false },
-        { id: 'country_option_id', label: 'Країна', checked: true },
-        { id: 'brand_text', label: 'Опис', checked: false },
-        { id: 'brand_site_link', label: 'Сайт', checked: true }
-    ];
-
-    const columnSelector = createColumnSelector('table-columns-list-brands', tableColumns, {
-        checkboxPrefix: 'table-col-brands',
-        onChange: async (selectedIds) => {
-            brandsState.visibleColumns = selectedIds;
-            console.log('📋 Видимі колонки:', brandsState.visibleColumns);
-
-            // Оновити колонки пошуку (фільтруються по видимих)
-            populateSearchColumns();
-
+    setupTableColumnsSelector({
+        containerId: 'table-columns-list-brands',
+        getColumns,
+        state: brandsState,
+        checkboxPrefix: 'brands-col',
+        searchColumnsContainerId: 'search-columns-list-brands',
+        onVisibilityChange: async (selectedIds) => {
             // Перемальовати таблицю
             renderBrandsTable();
         }
     });
-
-    // Зберегти початкові видимі колонки в state
-    if (columnSelector) {
-        brandsState.visibleColumns = columnSelector.getSelected();
-    }
-
     console.log('✅ Колонки таблиці заповнено');
 }

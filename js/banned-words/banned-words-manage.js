@@ -9,6 +9,96 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderPseudoTable, renderBadge, renderSeverityBadge } from '../common/ui-table.js';
 
 /**
+ * Допоміжна функція для рендерингу чіпів
+ */
+const renderWordChips = (value, isPrimary = false) => {
+    if (!value) return '-';
+    const words = value.split(',').map(s => s.trim()).filter(Boolean);
+    if (words.length === 0) return '-';
+    const primaryClass = isPrimary ? ' primary' : '';
+    const chipsHtml = words.map(word => `<span class="word-chip${primaryClass}">${escapeHtml(word)}</span>`).join('');
+    return `<div class="cell-words-list">${chipsHtml}</div>`;
+};
+
+/**
+ * Отримати конфігурацію колонок для таблиці заборонених слів
+ */
+export function getColumns() {
+    return [
+        {
+            id: 'local_id',
+            label: 'ID',
+            sortable: true,
+            searchable: true,
+            className: 'cell-id',
+            render: (value) => `<span class="word-chip">${value || 'Невідомо'}</span>`
+        },
+        {
+            id: 'severity',
+            label: ' ',
+            sortable: true,
+            searchable: true,
+            className: 'cell-severity',
+            render: (value) => renderSeverityBadge(value)
+        },
+        {
+            id: 'group_name_ua',
+            label: 'Назва Групи',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || 'N/A')}</strong>`
+        },
+        {
+            id: 'name_uk',
+            label: 'Слова (UA)',
+            sortable: true,
+            searchable: true,
+            className: 'cell-name',
+            render: (value) => renderWordChips(value, true)
+        },
+        {
+            id: 'name_ru',
+            label: 'Слова (RU)',
+            sortable: true,
+            searchable: true,
+            render: (value) => renderWordChips(value, false)
+        },
+        {
+            id: 'banned_type',
+            label: 'Тип',
+            sortable: true,
+            searchable: true,
+            render: (value) => value || '<span style="color: var(--color-on-surface-v);">не вказано</span>'
+        },
+        {
+            id: 'banned_explaine',
+            label: 'Пояснення',
+            sortable: true,
+            searchable: true,
+            render: (value) => value || '-'
+        },
+        {
+            id: 'banned_hint',
+            label: 'Підказка',
+            sortable: true,
+            searchable: true,
+            render: (value) => value || '-'
+        },
+        {
+            id: 'cheaked_line',
+            label: 'Перевірено',
+            sortable: true,
+            className: 'cell-bool',
+            render: (value, row) => renderBadge(value, 'checked', {
+                clickable: true,
+                id: row.local_id
+            })
+        }
+    ];
+}
+
+/**
  * Рендер табу управління забороненими словами
  */
 export async function renderBannedWordsManageTab() {
@@ -37,19 +127,6 @@ function updateCounters(pageCount, totalCount) {
 export async function renderBannedWordsTable() {
     const container = document.getElementById('banned-words-table-container');
     if (!container) return;
-
-    // === ВИПРАВЛЕННЯ: Функція перенесена сюди ===
-    // Допоміжна функція для рендерингу чіпів
-    const renderWordChips = (value, isPrimary = false) => {
-        if (!value) return '-';
-        const words = value.split(',').map(s => s.trim()).filter(Boolean);
-        if (words.length === 0) return '-';
-         const primaryClass = isPrimary ? ' primary' : '';
-         // Використовуємо escapeHtml, який вже імпортовано в цьому файлі
-         const chipsHtml = words.map(word => `<span class="word-chip${primaryClass}">${escapeHtml(word)}</span>`).join('');
-         return `<div class="cell-words-list">${chipsHtml}</div>`;
-     };
-
 
     // Фільтрація
     let filteredWords = [...bannedWordsState.bannedWords];
@@ -106,72 +183,9 @@ const visibleCols = (bannedWordsState.visibleColumns && bannedWordsState.visible
         : ['local_id', 'severity', 'group_name_ua', 'banned_type', 'cheaked_line'];
 
     // Рендеринг таблиці через універсальний компонент
-renderPseudoTable(container, {
+    renderPseudoTable(container, {
         data: paginatedWords,
-        columns: [
-            {
-                id: 'local_id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="word-chip">${value || 'Невідомо'}</span>`
-            },            
-            { // ДОДАНО
-                id: 'group_name_ua',
-                label: 'Назва Групи',
-                sortable: true,
-                className: 'cell-main-name', // Це тепер головна назва
-                render: (value) => `<strong>${escapeHtml(value || 'N/A')}</strong>`
-            },
-            {
-                id: 'name_uk',
-                label: 'Слова (UA)', // ЗМІНЕНО
-                sortable: true,
-                className: 'cell-name',
-                render: (value) => renderWordChips(value, true)
-            },
-            {
-                id: 'name_ru',
-                label: 'Слова (RU)', // ЗМІНЕНО
-                sortable: true,
-                render: (value) => renderWordChips(value, false)
-            },
-            {
-                id: 'banned_type',
-                label: 'Тип',
-                sortable: true,
-                render: (value) => value || '<span style="color: var(--color-on-surface-v);">не вказано</span>'
-            },
-            {
-                id: 'banned_explaine',
-                label: 'Пояснення',
-                sortable: true,
-                render: (value) => value || '-'
-            },
-            {
-                id: 'banned_hint',
-                label: 'Підказка',
-                sortable: true,
-                render: (value) => value || '-'
-            },
-            {
-                id: 'severity',
-                label: ' ',
-                sortable: true,
-                className: 'cell-severity',
-                render: (value) => renderSeverityBadge(value)
-            },
-            {
-                id: 'cheaked_line',
-                label: 'Перевірено',
-                sortable: true,
-                className: 'cell-bool',
-                render: (value, row) => renderBadge(value, 'checked', {
-                    clickable: true,
-                    id: row.local_id
-                })
-            }
-        ],
+        columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsCustom: (row) => {
             const selectedSet = bannedWordsState.selectedProducts['tab-manage'] || new Set();

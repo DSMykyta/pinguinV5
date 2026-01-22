@@ -7,69 +7,39 @@
  */
 
 import { keywordsState } from './keywords-init.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
-import { renderKeywordsTable } from './keywords-table.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { renderKeywordsTable, getColumns } from './keywords-table.js';
 
+/**
+ * Заповнити колонки для пошуку в aside
+ * Використовує універсальну функцію setupSearchColumnsSelector
+ */
 export function populateSearchColumns() {
-    const allSearchColumns = [
-        { id: 'local_id', label: 'ID', checked: true },
-        { id: 'param_type', label: 'Тип', checked: false },
-        { id: 'parent_local_id', label: 'Батьківський елемент', checked: false },
-        { id: 'characteristics_local_id', label: 'Характеристика', checked: false },
-        { id: 'name_uk', label: 'Назва (UA)', checked: true },
-        { id: 'name_ru', label: 'Назва (RU)', checked: false },
-        { id: 'name_en', label: 'Назва (EN)', checked: false },
-        { id: 'name_lat', label: 'Назва (LAT)', checked: false },
-        { id: 'name_alt', label: 'Альтернативні назви', checked: false },
-        { id: 'trigers', label: 'Тригери', checked: true },
-        { id: 'keywords_ua', label: 'Ключові слова (UA)', checked: true },
-        { id: 'keywords_ru', label: 'Ключові слова (RU)', checked: false }
-    ];
-
-    createColumnSelector('search-columns-list-keywords', allSearchColumns, {
-        checkboxPrefix: 'search-col-keywords',
-        filterBy: keywordsState.visibleColumns,
-        onChange: (selectedIds) => {
-            keywordsState.searchColumns = selectedIds;
-            console.log('🔍 Колонки пошуку:', keywordsState.searchColumns);
-        }
+    setupSearchColumnsSelector({
+        containerId: 'search-columns-list-keywords',
+        getColumns,
+        state: keywordsState,
+        checkboxPrefix: 'search-col-keywords'
     });
-
     console.log('✅ Колонки пошуку заповнено');
 }
 
+/**
+ * Заповнити колонки таблиці в dropdown
+ * Використовує універсальну функцію setupTableColumnsSelector
+ */
 export function populateTableColumns() {
-    const tableColumns = [
-        { id: 'local_id', label: 'ID', checked: true },
-        { id: 'param_type', label: 'Тип', checked: false },
-        { id: 'parent_local_id', label: 'Батьківський елемент', checked: false },
-        { id: 'characteristics_local_id', label: 'Характеристика', checked: false },
-        { id: 'name_uk', label: 'Назва (UA)', checked: true },
-        { id: 'name_ru', label: 'Назва (RU)', checked: false },
-        { id: 'name_en', label: 'Назва (EN)', checked: false },
-        { id: 'name_lat', label: 'Назва (LAT)', checked: false },
-        { id: 'name_alt', label: 'Альтернативні назви', checked: false },
-        { id: 'trigers', label: 'Тригери', checked: true },
-        { id: 'keywords_ua', label: 'Ключові слова (UA)', checked: true },
-        { id: 'keywords_ru', label: 'Ключові слова (RU)', checked: false }
-    ];
-
-    const columnSelector = createColumnSelector('table-columns-list-keywords', tableColumns, {
-        checkboxPrefix: 'table-col-keywords',
-        onChange: async (selectedIds) => {
-            keywordsState.visibleColumns = selectedIds;
-            console.log('📋 Видимі колонки:', keywordsState.visibleColumns);
-
-            populateSearchColumns();
-
+    setupTableColumnsSelector({
+        containerId: 'table-columns-list-keywords',
+        getColumns,
+        state: keywordsState,
+        checkboxPrefix: 'keywords-col',
+        searchColumnsContainerId: 'search-columns-list-keywords',
+        onVisibilityChange: async (selectedIds) => {
+            // Перемальовати таблицю
             renderKeywordsTable();
         }
     });
-
-    if (columnSelector) {
-        keywordsState.visibleColumns = columnSelector.getSelected();
-    }
-
     console.log('✅ Колонки таблиці заповнено');
 }
 

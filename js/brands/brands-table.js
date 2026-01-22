@@ -15,6 +15,67 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
+ * Отримати конфігурацію колонок для таблиці брендів
+ */
+export function getColumns() {
+    return [
+        {
+            id: 'brand_id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            searchable: true,
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'name_uk',
+            label: 'Назва',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        },
+        {
+            id: 'names_alt',
+            label: 'Альтернативні назви',
+            sortable: true,
+            searchable: true,
+            render: (value) => escapeHtml(value || '-')
+        },
+        {
+            id: 'country_option_id',
+            label: 'Країна',
+            sortable: true,
+            searchable: true,
+            render: (value) => escapeHtml(value || '-')
+        },
+        {
+            id: 'brand_text',
+            label: 'Опис',
+            sortable: true,
+            searchable: true,
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'brand_site_link',
+            label: ' ',
+            sortable: false,
+            className: 'cell-bool',
+            render: (value, row) => {
+                if (!value) {
+                    return `<span class="material-symbols-outlined" title="Немає посилання">block</span>`;
+                }
+                return `
+                    <button class="severity-badge severity-low btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
+                        <span class="material-symbols-outlined">open_in_new</span>
+                    </button>
+                `;
+            }
+        }
+    ];
+}
+
+/**
  * Рендерити таблицю брендів
  */
 export function renderBrandsTable() {
@@ -55,56 +116,7 @@ export function renderBrandsTable() {
     // Рендерити таблицю через універсальний компонент
     renderPseudoTable(container, {
         data: paginatedBrands,
-        columns: [
-            {
-                id: 'brand_id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'name_uk',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'names_alt',
-                label: 'Альтернативні назви',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
-            },
-            {
-                id: 'country_option_id',
-                label: 'Країна',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
-            },
-            {
-                id: 'brand_text',
-                label: 'Опис',
-                sortable: true,
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'brand_site_link',
-                label: ' ',
-                sortable: false,
-                className: 'cell-bool',
-                render: (value, row) => {
-                    if (!value) {
-                        return `<span class="material-symbols-outlined" title="Немає посилання">block</span>`;
-                    }
-                    return `
-                        <button class="severity-badge severity-low btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                        </button>
-                    `;
-                }
-            }
-        ],
+        columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {

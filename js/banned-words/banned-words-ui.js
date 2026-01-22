@@ -14,7 +14,8 @@
 
 import { bannedWordsState } from './banned-words-init.js';
 import { populateSelect } from '../common/ui-select.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { getColumns } from './banned-words-manage.js';
 
 /**
  * Показати controls для вибраного табу
@@ -76,71 +77,36 @@ export function populateCheckSelects() {
 }
 
 /**
- * Заповнити колонки для пошуку в dropdown
+ * Заповнити колонки для пошуку в aside
+ * Використовує універсальну функцію setupSearchColumnsSelector
  */
 export function populateSearchColumns() {
-    const allSearchColumns = [
-        { id: 'local_id', label: 'ID', checked: true },
-        { id: 'severity', label: 'Рівень', checked: true }, // ДОДАНО
-        { id: 'group_name_ua', label: 'Назва Групи', checked: true }, // ДОДАНО
-        { id: 'name_uk', label: 'Ключові слова (UA)', checked: true }, // ЗМІНЕНО
-        { id: 'name_ru', label: 'Ключові слова (RU)', checked: true }, // ЗМІНЕНО
-        { id: 'banned_type', label: 'Тип порушення', checked: true },
-        { id: 'banned_explaine', label: 'Пояснення', checked: false },
-        { id: 'banned_hint', label: 'Підказка', checked: false },
-        { id: 'cheaked_line', label: 'Перевірено', checked: false }
-    ];
-
-    // Створити селектор колонок з фільтрацією по видимих колонках
-    createColumnSelector('search-columns-list', allSearchColumns, {
-        checkboxPrefix: 'search-col',
-        filterBy: bannedWordsState.visibleColumns,
-        onChange: (selectedIds) => {
-            bannedWordsState.searchColumns = selectedIds;
-            console.log('🔍 Колонки пошуку:', bannedWordsState.searchColumns);
-        }
+    setupSearchColumnsSelector({
+        containerId: 'search-columns-list',
+        getColumns,
+        state: bannedWordsState,
+        checkboxPrefix: 'search-col-banned'
     });
-
     console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
  * Заповнити колонки таблиці в dropdown
+ * Використовує універсальну функцію setupTableColumnsSelector
  */
 export function populateTableColumns() {
-    const tableColumns = [
-        { id: 'local_id', label: 'ID', checked: true },
-        { id: 'severity', label: 'Рівень', checked: true }, // ДОДАНО
-        { id: 'group_name_ua', label: 'Назва Групи', checked: true }, // ДОДАНО
-        { id: 'name_uk', label: 'Ключові слова (UA)', checked: false }, // ЗМІНЕНО (за замовчуванням приховано)
-        { id: 'name_ru', label: 'Ключові слова (RU)', checked: false }, // ЗМІНЕНО (за замовчуванням приховано)
-        { id: 'banned_type', label: 'Тип', checked: true },
-        { id: 'banned_explaine', label: 'Пояснення', checked: false },
-        { id: 'banned_hint', label: 'Підказка', checked: false },
-        { id: 'cheaked_line', label: 'Перевірено', checked: true }
-    ];
-
-    // Створити селектор колонок
-    const columnSelector = createColumnSelector('table-columns-list', tableColumns, {
-        checkboxPrefix: 'table-col',
-        onChange: async (selectedIds) => {
-            bannedWordsState.visibleColumns = selectedIds;
-            console.log('📋 Видимі колонки:', bannedWordsState.visibleColumns);
-
-            // Оновити колонки пошуку (фільтруються по видимих)
-            populateSearchColumns();
-
+    setupTableColumnsSelector({
+        containerId: 'table-columns-list',
+        getColumns,
+        state: bannedWordsState,
+        checkboxPrefix: 'banned-col',
+        searchColumnsContainerId: 'search-columns-list',
+        onVisibilityChange: async (selectedIds) => {
             // Перемальовати таблицю
             const { renderBannedWordsTable } = await import('./banned-words-manage.js');
             await renderBannedWordsTable();
         }
     });
-
-    // Зберегти початкові видимі колонки в state
-    if (columnSelector) {
-        bannedWordsState.visibleColumns = columnSelector.getSelected();
-    }
-
     console.log('✅ Колонки таблиці заповнено');
 }
 

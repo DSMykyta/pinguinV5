@@ -12,6 +12,127 @@ import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
+/**
+ * Отримати конфігурацію колонок для таблиці ключових слів
+ */
+export function getColumns() {
+    const keywords = getKeywords();
+
+    return [
+        {
+            id: 'local_id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            searchable: true,
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'param_type',
+            label: 'Тип',
+            className: 'cell-id',
+            sortable: true,
+            searchable: true,
+            render: (value) => value ? `<span class="word-chip">${escapeHtml(value)}</span>` : '-'
+        },
+        {
+            id: 'parent_local_id',
+            label: 'Батьківський елемент',
+            className: 'cell-main-name',
+            sortable: true,
+            searchable: true,
+            render: (value) => {
+                if (!value) return '-';
+                const parent = keywords.find(k => k.local_id === value);
+                return parent ? escapeHtml(parent.name_uk || value) : escapeHtml(value);
+            }
+        },
+        {
+            id: 'characteristics_local_id',
+            label: 'Характеристика',
+            className: 'cell-id',
+            sortable: true,
+            searchable: true,
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'name_uk',
+            label: 'Назва (UA)',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        },
+        {
+            id: 'name_ru',
+            label: 'Назва (RU)',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'name_en',
+            label: 'Назва (EN)',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'name_lat',
+            label: 'Назва (LAT)',
+            sortable: true,
+            searchable: true,
+            className: 'cell-main-name',
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'name_alt',
+            label: 'Альтернативні назви',
+            sortable: true,
+            searchable: true,
+            className: 'cell-context',
+            render: (value) => value ? escapeHtml(value) : '-'
+        },
+        {
+            id: 'trigers',
+            label: 'Тригери',
+            className: 'cell-id',
+            sortable: true,
+            searchable: true,
+            render: (value) => {
+                if (!value) return '-';
+                const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
+                const chipsHtml = triggers.map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`).join(' ');
+                return `<div class="cell-words-list">${chipsHtml}</div>`;
+            }
+        },
+        {
+            id: 'keywords_ua',
+            label: 'Ключові слова (UA)',
+            className: 'cell-context',
+            sortable: true,
+            searchable: true,
+            render: (value) => {
+                if (!value) return '<span class="text-muted">—</span>';
+                return `<div class="context-fragment">${escapeHtml(value)}</div>`;
+            }
+        },
+        {
+            id: 'keywords_ru',
+            label: 'Ключові слова (RU)',
+            className: 'cell-context',
+            sortable: true,
+            searchable: true,
+            render: (value) => {
+                if (!value) return '<span class="text-muted">—</span>';
+                return `<div class="context-fragment">${escapeHtml(value)}</div>`;
+            }
+        }
+    ];
+}
+
 export function renderKeywordsTable() {
     console.log('🎨 Рендеринг таблиці ключових слів...');
 
@@ -45,107 +166,7 @@ export function renderKeywordsTable() {
 
     renderPseudoTable(container, {
         data: paginatedKeywords,
-        columns: [
-            {
-                id: 'local_id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'param_type',
-                label: 'Тип',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => value ? `<span class="word-chip">${escapeHtml(value)}</span>` : '-'
-            },
-            {
-                id: 'parent_local_id',
-                label: 'Батьківський елемент',
-                className: 'cell-main-name',
-                sortable: true,
-                render: (value) => {
-                    if (!value) return '-';
-                    const parent = keywords.find(k => k.local_id === value);
-                    return parent ? escapeHtml(parent.name_uk || value) : escapeHtml(value);
-                }
-            },
-            {
-                id: 'characteristics_local_id',
-                label: 'Характеристика',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'name_uk',
-                label: 'Назва (UA)',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'name_ru',
-                label: 'Назва (RU)',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'name_en',
-                label: 'Назва (EN)',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'name_lat',
-                label: 'Назва (LAT)',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'name_alt',
-                label: 'Альтернативні назви',
-                sortable: true,
-                className: 'cell-context',
-                render: (value) => value ? escapeHtml(value) : '-'
-            },
-            {
-                id: 'trigers',
-                label: 'Тригери',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => {
-                    if (!value) return '-';
-                    const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
-                    const chipsHtml = triggers.map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`).join(' ');
-                    return `<div class="cell-words-list">${chipsHtml}</div>`;
-                }
-            },
-            {
-                id: 'keywords_ua',
-                label: 'Ключові слова (UA)',
-                className: 'cell-context',
-                sortable: true,
-                render: (value) => {
-                    if (!value) return '<span class="text-muted">—</span>';
-                    return `<div class="context-fragment">${escapeHtml(value)}</div>`;
-                }
-            },
-            {
-                id: 'keywords_ru',
-                label: 'Ключові слова (RU)',
-                className: 'cell-context',
-                sortable: true,
-                render: (value) => {
-                    if (!value) return '<span class="text-muted">—</span>';
-                    return `<div class="context-fragment">${escapeHtml(value)}</div>`;
-                }
-            }
-        ],
+        columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
