@@ -20,6 +20,7 @@ import { calculatePercentages, checkForEmptyNutritionFacts } from './gt-calculat
 import { generateHtmlTable } from './gt-html-builder.js';
 import { generateBrText } from './gt-br-builder.js';
 import { processAndFillInputs } from './gt-magic-parser.js';
+import { initMagicHints, destroyMagicHints } from './gt-magic-hints.js';
 import { copyToClipboard, debounce } from './gt-utils.js';
 import { autoSaveSession } from './gt-session-manager.js';
 import { addSampleList, addSampleTemplate } from './gt-template-helpers.js';
@@ -80,8 +81,10 @@ export function setupEventListeners() {
         }
     });
 
-    // Слухаємо modal-opened event для preview
+    // Слухаємо modal-opened event для preview та magic hints
     document.addEventListener('modal-opened', handleTablePreview);
+    document.addEventListener('modal-opened', handleMagicModalOpened);
+    document.addEventListener('modal-closed', handleMagicModalClosed);
 
     const debouncedCalculateAndSave = debounce(() => {
         calculatePercentages();
@@ -100,6 +103,28 @@ function handleMagicApply() {
         magicTextEl.value = '';
     }
     closeModal();
+}
+
+/**
+ * Ініціалізує magic hints при відкритті модалі магічного парсингу
+ * @param {CustomEvent} event - Подія modal-opened
+ */
+function handleMagicModalOpened(event) {
+    const { modalId } = event.detail;
+    if (modalId === 'magic-modal') {
+        initMagicHints();
+    }
+}
+
+/**
+ * Знищує magic hints при закритті модалі магічного парсингу
+ * @param {CustomEvent} event - Подія modal-closed
+ */
+function handleMagicModalClosed(event) {
+    const { modalId } = event.detail;
+    if (modalId === 'magic-modal') {
+        destroyMagicHints();
+    }
 }
 
 /**
