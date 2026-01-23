@@ -2926,10 +2926,23 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
 
     onProgress(10, 'Обробка даних файлу...');
 
+    // DEBUG: Виводимо стан імпорту
+    console.log('📊 DEBUG importCharacteristicsAndOptions:');
+    console.log('  - mapping:', JSON.stringify(importState.mapping));
+    console.log('  - parsedData rows:', importState.parsedData.length);
+    console.log('  - fileHeaders:', importState.fileHeaders.map(h => h.name).join(', '));
+    console.log('  - isRozetkaFormat:', importState.isRozetkaFormat);
+    console.log('  - rozetkaCategory:', importState.rozetkaCategory);
+    if (importState.parsedData.length > 0) {
+        console.log('  - first row sample:', importState.parsedData[0]);
+    }
+
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
     const charIdCol = m.char_id;
     const charNameCol = m.char_name;
+
+    console.log('  - charIdCol:', charIdCol, '| charNameCol:', charNameCol);
     const charTypeCol = m.char_type;
     const charFilterTypeCol = m.char_filter_type;
     const charUnitCol = m.char_unit;
@@ -3026,6 +3039,13 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     console.log(`🆕 Нових характеристик: ${newCharacteristics.length} (з ${characteristicsList.length})`);
     console.log(`🆕 Нових опцій: ${newOptions.length} (з ${mpOptions.length})`);
 
+    // DEBUG: показуємо існуючі ID для перевірки
+    console.log(`📋 existingCharIds:`, Array.from(existingCharIds).slice(0, 5), '...');
+    console.log(`📋 existingOptIds:`, Array.from(existingOptIds).slice(0, 5), '...');
+    if (characteristicsList.length > 0) {
+        console.log(`📋 First parsed characteristic:`, characteristicsList[0]);
+    }
+
     onProgress(50, `Запис ${newCharacteristics.length} нових характеристик...`);
 
     // Записуємо характеристики маркетплейса
@@ -3060,11 +3080,16 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             ];
         });
 
-        await callSheetsAPI('append', {
+        console.log(`📤 Записую ${charRows.length} характеристик...`);
+        console.log(`📤 Sample row:`, charRows[0]);
+
+        const charResult = await callSheetsAPI('append', {
             range: 'Mapper_MP_Characteristics!A:G',
             values: charRows,
             spreadsheetType: 'main'
         });
+
+        console.log(`✅ Результат запису характеристик:`, charResult);
     } else {
         console.log('⏭️ Всі характеристики вже існують, пропускаємо');
     }
