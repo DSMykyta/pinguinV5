@@ -165,8 +165,9 @@ async function checkAuthAndLoadData() {
             await loadMapperData();
 
             // Завантажити MP дані та маппінги паралельно
-            const { loadMpCharacteristics, loadMpOptions, loadMapCategories, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
+            const { loadMpCategories, loadMpCharacteristics, loadMpOptions, loadMapCategories, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
             await Promise.all([
+                loadMpCategories(),
                 loadMpCharacteristics(),
                 loadMpOptions(),
                 loadMapCategories(),
