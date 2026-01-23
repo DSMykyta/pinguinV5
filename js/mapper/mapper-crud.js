@@ -3577,12 +3577,20 @@ async function importOwnCategories(onProgress = () => { }) {
  */
 export async function showSelectOwnCharacteristicModal(selectedIds) {
     console.log(`🔗 Batch маппінг характеристик: ${selectedIds.length} обрано`);
+    console.log('  - selectedIds:', selectedIds);
 
     // Фільтруємо тільки MP характеристики (не власні)
+    const mpChars = getMpCharacteristics();
+    console.log('  - mpChars count:', mpChars.length);
+    console.log('  - mpChars IDs (перші 5):', mpChars.slice(0, 5).map(c => c.id));
+
     const mpIds = selectedIds.filter(id => {
-        const mpChars = getMpCharacteristics();
-        return mpChars.some(c => c.id === id);
+        const found = mpChars.some(c => c.id === id);
+        console.log(`    - checking "${id}": ${found ? 'FOUND' : 'not found'}`);
+        return found;
     });
+
+    console.log('  - mpIds after filter:', mpIds);
 
     if (mpIds.length === 0) {
         showToast('Оберіть характеристики маркетплейсу для маппінгу', 'warning');
