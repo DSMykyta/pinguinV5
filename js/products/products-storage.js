@@ -136,7 +136,7 @@ export function addProduct(productData) {
         brand: productData.brand || '',
         category_id: productData.category_id || '',
         category: productData.category || '',
-        photo: productData.photo || 'https://via.placeholder.com/48x48/e0e0e0/666?text=NEW',
+        photo: productData.photo || '',
         photos: productData.photos || [],
         variants_count: (productData.variants || []).length || 1,
         status: productData.status || 'draft',

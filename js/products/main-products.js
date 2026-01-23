@@ -158,7 +158,9 @@ function renderProductsTable(products) {
                 label: 'Фото',
                 sortable: false,
                 className: 'cell-photo',
-                render: (value, row) => `<img src="${value}" alt="${row.name_short}" class="product-thumb">`
+                render: (value, row) => value
+                    ? `<img src="${value}" alt="${row.name_short}" class="product-thumb">`
+                    : `<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>`
             },
             {
                 id: 'category',
