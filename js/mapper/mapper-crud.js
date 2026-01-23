@@ -1891,7 +1891,10 @@ let importState = {
     marketplaceId: null,
     dataType: 'characteristics',
     importTarget: 'marketplace',  // 'marketplace' або 'own'
-    headerRow: 1        // Номер рядка із заголовками (1-based)
+    headerRow: 1,       // Номер рядка із заголовками (1-based)
+    // Rozetka-специфічні поля
+    isRozetkaFormat: false,
+    rozetkaCategory: null  // { id, name } - категорія з файлу Rozetka
 };
 
 /**
@@ -1910,7 +1913,9 @@ export async function showImportModal() {
         marketplaceId: null,
         dataType: null,  // Користувач має обрати: categories, characteristics, options
         importTarget: 'marketplace',
-        headerRow: 1
+        headerRow: 1,
+        isRozetkaFormat: false,
+        rozetkaCategory: null
     };
 
     await showModal('mapper-import', null);
@@ -1978,15 +1983,39 @@ function populateMarketplaceSelect(select) {
 
 function handleMarketplaceChange(e) {
     const selectedValue = e.target.value;
+    const dataTypeGroup = document.getElementById('mapper-import-datatype')?.closest('.form-group');
 
     if (selectedValue === 'own') {
         // Обрано "Свій довідник"
         importState.importTarget = 'own';
         importState.marketplaceId = 'own';
+        importState.isRozetkaFormat = false;
+        // Для власного довідника показуємо вибір типу даних
+        if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
     } else {
         // Обрано маркетплейс
         importState.importTarget = 'marketplace';
         importState.marketplaceId = selectedValue;
+
+        // Перевіряємо чи це Rozetka
+        const marketplaces = getMarketplaces();
+        const mp = marketplaces.find(m => m.id === selectedValue);
+        const isRozetka = mp && (
+            mp.slug?.toLowerCase() === 'rozetka' ||
+            mp.name?.toLowerCase().includes('rozetka')
+        );
+
+        importState.isRozetkaFormat = isRozetka;
+
+        if (isRozetka) {
+            // Для Rozetka ховаємо вибір типу - все визначається автоматично
+            if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
+            importState.dataType = 'rozetka_pack'; // Спеціальний тип для Rozetka
+            console.log('🟠 Rozetka формат: категорія + характеристики + опції з одного файлу');
+        } else {
+            // Для інших маркетплейсів показуємо вибір типу
+            if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
+        }
 
         if (selectedValue) {
             // Спробуємо завантажити збережений маппінг
@@ -1996,6 +2025,7 @@ function handleMarketplaceChange(e) {
 
     // Скидаємо маппінг при зміні призначення
     importState.mapping = {};
+    importState.rozetkaCategory = null;
     updateMappingSections();
 
     validateImport();
@@ -2119,13 +2149,25 @@ async function handleFileSelect(file) {
         // Показуємо вибір рядка заголовків
         document.getElementById('header-row-group')?.classList.remove('u-hidden');
 
-        // Скидаємо до рядка 1
-        const headerRowInput = document.getElementById('mapper-import-header-row');
-        if (headerRowInput) {
-            headerRowInput.value = 1;
-            headerRowInput.max = rawData.length;
+        // Для Rozetka - парсимо категорію з файлу
+        if (importState.isRozetkaFormat) {
+            parseRozetkaCategory(file.name, rawData);
+            // Для Rozetka заголовки в рядку 2
+            importState.headerRow = 2;
+            const headerRowInput = document.getElementById('mapper-import-header-row');
+            if (headerRowInput) {
+                headerRowInput.value = 2;
+                headerRowInput.max = rawData.length;
+            }
+        } else {
+            // Скидаємо до рядка 1
+            const headerRowInput = document.getElementById('mapper-import-header-row');
+            if (headerRowInput) {
+                headerRowInput.value = 1;
+                headerRowInput.max = rawData.length;
+            }
+            importState.headerRow = 1;
         }
-        importState.headerRow = 1;
 
         // Застосовуємо рядок заголовків
         applyHeaderRow();
@@ -2136,6 +2178,57 @@ async function handleFileSelect(file) {
         console.error('❌ Помилка парсингу файлу:', error);
         showToast('Помилка читання файлу', 'error');
     }
+}
+
+/**
+ * Парсинг категорії Rozetka з назви файлу та першого рядка
+ * Файл: category_report_274390.xlsx
+ * Рядок 1: "Натуральные добавки и экстракты"
+ */
+function parseRozetkaCategory(fileName, rawData) {
+    // Витягуємо ID категорії з назви файлу
+    // Формат: category_report_274390.xlsx або category_report_274390
+    const match = fileName.match(/category_report_(\d+)/i);
+    const categoryId = match ? match[1] : null;
+
+    // Назва категорії - перший рядок, перша колонка
+    const categoryName = rawData[0]?.[0] || '';
+
+    importState.rozetkaCategory = {
+        id: categoryId,
+        name: categoryName.trim()
+    };
+
+    console.log(`🟠 Rozetka категорія: ID=${categoryId}, Назва="${categoryName}"`);
+
+    // Показуємо інформацію про категорію
+    showRozetkaCategoryInfo();
+}
+
+/**
+ * Показати інформацію про категорію Rozetka
+ */
+function showRozetkaCategoryInfo() {
+    const filenameEl = document.getElementById('mapper-import-filename');
+    if (!filenameEl || !importState.rozetkaCategory) return;
+
+    // Видаляємо попередню інформацію про категорію
+    const existingInfo = document.getElementById('rozetka-category-info');
+    if (existingInfo) existingInfo.remove();
+
+    const { id, name } = importState.rozetkaCategory;
+
+    const infoEl = document.createElement('div');
+    infoEl.id = 'rozetka-category-info';
+    infoEl.className = 'rozetka-category-info u-mt-8';
+    infoEl.innerHTML = `
+        <div class="info-badge info-badge-primary">
+            <span class="material-symbols-outlined">category</span>
+            <span><strong>Категорія:</strong> ${name || 'Не визначено'} ${id ? `(ID: ${id})` : ''}</span>
+        </div>
+    `;
+
+    filenameEl.insertAdjacentElement('afterend', infoEl);
 }
 
 /**
@@ -2324,6 +2417,17 @@ function getSystemFields() {
             { key: 'own_cat_name_ua', label: 'Назва категорії (UA)', required: true },
             { key: 'own_cat_name_ru', label: 'Назва категорії (RU)', required: false },
             { key: 'own_cat_parent', label: 'Батьківська категорія', required: false }
+        ],
+        // Rozetka пакет - характеристики + опції (категорія береться з файлу автоматично)
+        marketplace_rozetka_pack: [
+            { key: 'char_id', label: 'ID характеристики', required: true },
+            { key: 'char_name', label: 'Назва характеристики', required: true },
+            { key: 'char_type', label: 'Тип параметра', required: false },
+            { key: 'char_filter_type', label: 'Тип фільтра', required: false },
+            { key: 'char_unit', label: 'Одиниця виміру', required: false },
+            { key: 'char_is_global', label: 'Наскрізний параметр', required: false },
+            { key: 'option_id', label: 'ID опції/значення', required: false },
+            { key: 'option_name', label: 'Назва опції/значення', required: false }
         ]
     };
 
