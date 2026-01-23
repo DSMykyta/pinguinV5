@@ -1287,6 +1287,7 @@ function renderCharacteristicField(char) {
 
     switch (fieldType) {
         case 'select':
+            // Кастомний select з одним вибором (ComboBox)
             fieldHtml = `
                 <select id="char-${char.id}" data-characteristic-id="${char.id}" ${hasChildren ? 'data-has-children="true"' : ''} data-custom-select>
                     <option value="">—</option>
@@ -1295,24 +1296,24 @@ function renderCharacteristicField(char) {
             `;
             break;
 
-        case 'combobox':
+        case 'select-multiple':
+            // Кастомний select з множинним вибором (ListValues, List)
             fieldHtml = `
-                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" list="list-${char.id}" placeholder="Оберіть або введіть">
-                <datalist id="list-${char.id}">
-                    ${options.map(opt => `<option value="${opt.value_ua}">`).join('')}
-                </datalist>
+                <select id="char-${char.id}" data-characteristic-id="${char.id}" ${hasChildren ? 'data-has-children="true"' : ''} data-custom-select multiple>
+                    ${options.map(opt => `<option value="${opt.id}">${opt.value_ua}</option>`).join('')}
+                </select>
             `;
             break;
 
         case 'number':
             fieldHtml = `
-                <input type="number" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="${char.unit || ''}">
+                <input type="number" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="${char.unit || ''}">
             `;
             break;
 
         case 'textarea':
             fieldHtml = `
-                <textarea id="char-${char.id}" data-characteristic-id="${char.id}" rows="3" placeholder=""></textarea>
+                <textarea id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" rows="3" placeholder=""></textarea>
             `;
             break;
 
@@ -1331,13 +1332,13 @@ function renderCharacteristicField(char) {
 
         case 'tags':
             fieldHtml = `
-                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="Введіть через кому">
+                <input type="text" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="Введіть через кому">
             `;
             break;
 
         default:
             fieldHtml = `
-                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="">
+                <input type="text" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="">
             `;
     }
 

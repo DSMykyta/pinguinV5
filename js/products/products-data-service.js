@@ -376,14 +376,14 @@ export function hasChildCharacteristics(characteristicId) {
  * Типи полів для характеристик
  */
 export const FIELD_TYPES = {
-    ListValues: 'select',      // Випадаючий список з фіксованими значеннями
-    ComboBox: 'combobox',      // Випадаючий список з можливістю вводу
-    Integer: 'number',         // Ціле число
-    Decimal: 'number',         // Десяткове число
-    List: 'select',            // Список
-    TextInput: 'text',         // Текстове поле
-    TextArea: 'textarea',      // Багаторядкове поле
-    MultiText: 'tags',         // Множинний текст (теги)
+    ListValues: 'select-multiple', // Кастомний select з множинним вибором
+    List: 'select-multiple',       // Кастомний select з множинним вибором
+    ComboBox: 'select',            // Кастомний select з одним вибором
+    Integer: 'number',             // Ціле число
+    Decimal: 'number',             // Десяткове число
+    TextInput: 'text',             // Текстове поле
+    TextArea: 'textarea',          // Багаторядкове поле
+    MultiText: 'tags',             // Множинний текст (теги)
     CheckBoxGroupValues: 'checkbox-group' // Група чекбоксів
 };
 
