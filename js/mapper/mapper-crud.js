@@ -1898,7 +1898,7 @@ export async function showImportModal() {
         fileHeaders: [],
         mapping: {},
         marketplaceId: null,
-        dataType: 'characteristics',
+        dataType: null,  // Користувач має обрати: categories, characteristics, options
         importTarget: 'marketplace',
         headerRow: 1
     };
@@ -1914,6 +1914,17 @@ export async function showImportModal() {
         populateMarketplaceSelect(marketplaceSelect);
         // Слухаємо зміну призначення (маркетплейс або свій довідник)
         marketplaceSelect.addEventListener('change', handleMarketplaceChange);
+    }
+
+    // Селектор типу даних
+    const dataTypeSelect = document.getElementById('mapper-import-datatype');
+    if (dataTypeSelect) {
+        dataTypeSelect.addEventListener('change', (e) => {
+            importState.dataType = e.target.value;
+            importState.mapping = {}; // Скидаємо маппінг при зміні типу
+            updateMappingSections();
+            validateImport();
+        });
     }
 
     // Ініціалізувати drag & drop для файлу
@@ -2519,6 +2530,11 @@ function validateImport() {
     if (!importBtn) return;
 
     let isValid = true;
+
+    // Перевіряємо чи обрано тип даних
+    if (!importState.dataType) {
+        isValid = false;
+    }
 
     // Отримуємо обов'язкові поля з системних полів
     const systemFields = getSystemFields();
