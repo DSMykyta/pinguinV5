@@ -3335,7 +3335,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
         applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
 
         try {
-            const result = await batchUpdateMpCharacteristicMapping(mpIds, ownCharId);
+            const result = await batchCreateCharacteristicMapping(mpIds, ownCharId);
 
             closeThisModal();
 
@@ -3446,7 +3446,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
         applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
 
         try {
-            const result = await batchUpdateMpOptionMapping(mpIds, ownOptionId);
+            const result = await batchCreateOptionMapping(mpIds, ownOptionId);
 
             closeThisModal();
 
