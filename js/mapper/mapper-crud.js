@@ -4317,6 +4317,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
     } else {
         const mpCats = getMpCategories();
         console.log(`📊 Всього MP категорій: ${mpCats.length}, шукаємо ID: ${mpCatIdOrData}`);
+        console.log(`📊 Наявні ID:`, mpCats.map(c => c.id));
         mpCat = mpCats.find(c => c.id === mpCatIdOrData);
 
         if (!mpCat) {
@@ -4324,6 +4325,14 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
             mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
             if (mpCat) {
                 console.log(`✅ Знайдено за external_id`);
+            }
+        }
+
+        if (!mpCat) {
+            // Спробуємо пошук за частковим співпаданням ID (для випадків mpc-mp-000001-cat-274390 -> mpc-mp-000001)
+            mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
+            if (mpCat) {
+                console.log(`✅ Знайдено за частковим ID: ${mpCat.id}`);
             }
         }
     }
