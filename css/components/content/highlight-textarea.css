@@ -13,6 +13,7 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (змінні кольорів)
+ * - input.css (.banned-word-highlight)
  */
 
 /* Контейнер редактора */
@@ -75,31 +76,9 @@
     background: var(--color-surface);
 }
 
-/* Базовий стиль підсвічування */
-.hwt-highlight {
-    border-radius: 4px;
-    padding: 2px 0;
-}
-
-/* Підсвічування помилок (заборонені слова) */
-.hwt-highlight-error {
-    background-color: var(--color-error-c);
+/* Адаптація banned-word-highlight для overlay (текст прозорий, видно тільки background) */
+.hwt-highlights .banned-word-highlight {
     color: transparent;
-    border-radius: 4px;
-}
-
-/* Підсвічування попереджень */
-.hwt-highlight-warning {
-    background-color: var(--color-warning-c);
-    color: transparent;
-    border-radius: 4px;
-}
-
-/* Підсвічування успіху */
-.hwt-highlight-success {
-    background-color: var(--color-success-c);
-    color: transparent;
-    border-radius: 4px;
 }
 
 /* Синхронізація скролбарів */
