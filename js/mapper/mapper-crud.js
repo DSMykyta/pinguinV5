@@ -467,6 +467,17 @@ export async function showEditCharacteristicModal(id) {
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateCharacteristic(id);
     }
+
+    // Обробник кнопки "Додати опцію"
+    const addOptionBtn = document.getElementById('btn-add-char-option');
+    if (addOptionBtn) {
+        addOptionBtn.onclick = async () => {
+            // Закрити поточну модалку
+            closeModal();
+            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики
+            await showAddOptionModal(id);
+        };
+    }
 }
 
 /**
@@ -1166,8 +1177,8 @@ function clearCharacteristicForm() {
 /**
  * Показати модальне вікно для додавання опції
  */
-export async function showAddOptionModal() {
-    console.log('➕ Відкриття модального вікна для додавання опції');
+export async function showAddOptionModal(preselectedCharacteristicId = null) {
+    console.log('➕ Відкриття модального вікна для додавання опції', preselectedCharacteristicId ? `для характеристики ${preselectedCharacteristicId}` : '');
 
     await showModal('mapper-option-edit', null);
 
@@ -1182,10 +1193,20 @@ export async function showAddOptionModal() {
     clearOptionForm();
 
     // Спочатку заповнюємо селекти
-    populateCharacteristicSelect();
+    populateCharacteristicSelect(preselectedCharacteristicId);
 
     // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
     if (modalEl) initCustomSelects(modalEl);
+
+    // Якщо є preselected характеристика - оновити кастомний селект
+    if (preselectedCharacteristicId) {
+        const charSelect = document.getElementById('mapper-option-char');
+        if (charSelect) {
+            charSelect.value = preselectedCharacteristicId;
+            // Оновити візуальне відображення кастомного селекта
+            reinitializeCustomSelect(charSelect);
+        }
+    }
 
     // Ініціалізувати навігацію по секціях
     initSectionNavigation('option-section-navigator');
@@ -1369,7 +1390,7 @@ function clearOptionForm() {
     if (orderField) orderField.value = '0';
 }
 
-function populateCharacteristicSelect() {
+function populateCharacteristicSelect(preselectedId = null) {
     const select = document.getElementById('mapper-option-char');
     if (!select) return;
 
@@ -1381,6 +1402,9 @@ function populateCharacteristicSelect() {
         const option = document.createElement('option');
         option.value = char.id;
         option.textContent = char.name_ua || char.id;
+        if (preselectedId && char.id === preselectedId) {
+            option.selected = true;
+        }
         select.appendChild(option);
     });
 
