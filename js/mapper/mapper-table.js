@@ -897,18 +897,18 @@ function initTableCheckboxes(container, tabName, data) {
     }
 
     const selectedSet = mapperState.selectedRows[tabName];
+    const batchBarId = `mapper-${tabName}`;
 
-    // Отримати batch bar для характеристик та опцій
-    const batchBar = getBatchBar(`mapper-${tabName}`);
-    console.log(`🔧 Batch bar для mapper-${tabName}:`, batchBar ? 'знайдено' : 'НЕ ЗНАЙДЕНО');
-
-    // Оновити batch bar якщо він є
+    // Оновити batch bar якщо він є (отримуємо динамічно кожен раз)
     const updateBatchBar = () => {
+        const batchBar = getBatchBar(batchBarId);
         if (batchBar) {
             // Синхронізуємо batch bar з selectedSet
             console.log(`🔄 Синхронізація batch bar: ${selectedSet.size} елементів`);
             batchBar.deselectAll();
             selectedSet.forEach(id => batchBar.selectItem(id));
+        } else {
+            console.log(`⚠️ Batch bar для ${batchBarId} ще не створено`);
         }
     };
 
