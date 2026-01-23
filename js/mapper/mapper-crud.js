@@ -3573,33 +3573,66 @@ async function importOwnCategories(onProgress = () => { }) {
 
 /**
  * Показати модалку вибору власної характеристики для batch маппінгу
- * @param {Array<string>} selectedIds - Масив ID вибраних MP характеристик
+ * @param {Array<string>} selectedIds - Масив ID вибраних характеристик (власних + MP)
  */
 export async function showSelectOwnCharacteristicModal(selectedIds) {
     console.log(`🔗 Batch маппінг характеристик: ${selectedIds.length} обрано`);
     console.log('  - selectedIds:', selectedIds);
 
-    // Фільтруємо тільки MP характеристики (не власні)
     const mpChars = getMpCharacteristics();
-    console.log('  - mpChars count:', mpChars.length);
-    console.log('  - mpChars IDs (перші 5):', mpChars.slice(0, 5).map(c => c.id));
+    const ownChars = getCharacteristics();
 
-    const mpIds = selectedIds.filter(id => {
-        const found = mpChars.some(c => c.id === id);
-        console.log(`    - checking "${id}": ${found ? 'FOUND' : 'not found'}`);
-        return found;
-    });
+    // Розділяємо вибрані на власні та MP
+    const selectedOwnIds = selectedIds.filter(id => ownChars.some(c => c.id === id));
+    const selectedMpIds = selectedIds.filter(id => mpChars.some(c => c.id === id));
 
-    console.log('  - mpIds after filter:', mpIds);
+    console.log('  - selectedOwnIds:', selectedOwnIds);
+    console.log('  - selectedMpIds:', selectedMpIds);
 
-    if (mpIds.length === 0) {
-        showToast('Оберіть характеристики маркетплейсу для маппінгу', 'warning');
+    // Якщо немає MP характеристик для маппінгу
+    if (selectedMpIds.length === 0) {
+        showToast('Оберіть хоча б одну характеристику маркетплейсу', 'warning');
         return;
     }
 
-    // Створюємо просту модалку зі списком характеристик
-    const ownChars = getCharacteristics();
+    // Визначаємо цільову власну характеристику
+    let targetOwnCharId = null;
+    let needSelectTarget = true;
 
+    // Якщо вибрана рівно 1 власна - використовуємо її як ціль
+    if (selectedOwnIds.length === 1) {
+        targetOwnCharId = selectedOwnIds[0];
+        needSelectTarget = false;
+        console.log(`  - Автоматично вибрано ціль: ${targetOwnCharId}`);
+    } else if (selectedOwnIds.length > 1) {
+        showToast('Оберіть тільки одну власну характеристику як ціль', 'warning');
+        return;
+    }
+
+    // Якщо не потрібно вибирати - одразу мапимо
+    if (!needSelectTarget) {
+        try {
+            const result = await batchCreateCharacteristicMapping(selectedMpIds, targetOwnCharId);
+
+            // Очищуємо вибір
+            if (mapperState.selectedRows.characteristics) {
+                mapperState.selectedRows.characteristics.clear();
+            }
+            const batchBar = getBatchBar('mapper-characteristics');
+            if (batchBar) batchBar.deselectAll();
+
+            await renderCurrentTab();
+
+            const targetChar = ownChars.find(c => c.id === targetOwnCharId);
+            showToast(`Замаплено ${result.success.length} характеристик до "${targetChar?.name_ua || targetOwnCharId}"`, 'success');
+        } catch (error) {
+            console.error('❌ Помилка batch маппінгу:', error);
+            showToast('Помилка при маппінгу', 'error');
+        }
+        return;
+    }
+
+    // Інакше показуємо модалку вибору цілі
     const modalHtml = `
         <div class="modal-overlay">
             <div class="modal-container modal-medium">
@@ -3614,7 +3647,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <p class="u-mb-16">Обрано <strong>${mpIds.length}</strong> характеристик маркетплейсу.</p>
+                    <p class="u-mb-16">Обрано <strong>${selectedMpIds.length}</strong> характеристик маркетплейсу.</p>
                     <p class="u-mb-16">Оберіть власну характеристику для прив'язки:</p>
 
                     <div class="form-group">
@@ -3666,7 +3699,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
         applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
 
         try {
-            const result = await batchCreateCharacteristicMapping(mpIds, ownCharId);
+            const result = await batchCreateCharacteristicMapping(selectedMpIds, ownCharId);
 
             closeThisModal();
 
