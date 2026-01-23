@@ -4380,7 +4380,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
     }
 
     const modalHtml = `
-        <div class="modal-overlay">
+        <div class="modal-overlay is-open">
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">Категорія маркетплейсу</h2>
