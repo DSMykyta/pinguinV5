@@ -32,116 +32,8 @@ import {
     deleteProduct,
     duplicateProduct,
     getProductsStats,
-    initWithDemoData
+    clearProducts
 } from './products-storage.js';
-
-// Demo дані товарів (для першого запуску)
-const DEMO_PRODUCTS = [
-    {
-        id: 1,
-        name_uk: "Хітозан та хром MST Chitosan with Chrom, 240 капсул",
-        name_ru: "Хитозан и хром MST Chitosan with Chrom, 240 капсул",
-        name_short: "MST Chitosan with Chrom, 240 капсул",
-        brand: "MST Nutrition",
-        category: "Контроль ваги",
-        photo: "https://via.placeholder.com/48x48/e8f5e9/2e7d32?text=MST",
-        variants_count: 3,
-        status: "active",
-        storefronts: {
-            sportmeals: "https://sportmeals.com.ua/product/12345",
-            fitnessshop: null
-        },
-        show_on_site: true,
-        variants: [
-            { id: 1, name: "Без смаку", sku: "CN17214", price: 450, stock: 25 },
-            { id: 2, name: "Шоколад", sku: "CN17214-CHOC", price: 480, stock: 15 },
-            { id: 3, name: "Ваніль", sku: "CN17214-VAN", price: 480, stock: 10 }
-        ]
-    },
-    {
-        id: 2,
-        name_uk: "Вітамін D3 Now Foods Vitamin D3 5000 IU, 120 капсул",
-        name_ru: "Витамин D3 Now Foods Vitamin D3 5000 IU, 120 капсул",
-        name_short: "Now Foods Vitamin D3 5000 IU, 120 капсул",
-        brand: "Now Foods",
-        category: "Вітаміни",
-        photo: "https://via.placeholder.com/48x48/fff3e0/e65100?text=NOW",
-        variants_count: 1,
-        status: "active",
-        storefronts: {
-            sportmeals: "https://sportmeals.com.ua/product/22222",
-            fitnessshop: "https://fitness-shop.ua/product/22222"
-        },
-        show_on_site: true,
-        variants: [
-            { id: 1, name: "Стандарт", sku: "NF1234", price: 380, stock: 42 }
-        ]
-    },
-    {
-        id: 3,
-        name_uk: "Протеїн Optimum Nutrition Gold Standard Whey, 2.27 кг",
-        name_ru: "Протеин Optimum Nutrition Gold Standard Whey, 2.27 кг",
-        name_short: "ON Gold Standard Whey, 2.27 кг",
-        brand: "Optimum Nutrition",
-        category: "Протеїн",
-        photo: "https://via.placeholder.com/48x48/e3f2fd/1565c0?text=ON",
-        variants_count: 5,
-        status: "active",
-        storefronts: {
-            sportmeals: "https://sportmeals.com.ua/product/33333",
-            fitnessshop: "https://fitness-shop.ua/product/33333"
-        },
-        show_on_site: true,
-        variants: [
-            { id: 1, name: "Шоколад", sku: "ON2270-CHOC", price: 2450, stock: 12 },
-            { id: 2, name: "Ваніль", sku: "ON2270-VAN", price: 2450, stock: 8 },
-            { id: 3, name: "Полуниця", sku: "ON2270-STRW", price: 2480, stock: 5 },
-            { id: 4, name: "Банан", sku: "ON2270-BAN", price: 2450, stock: 0 },
-            { id: 5, name: "Cookies & Cream", sku: "ON2270-CC", price: 2520, stock: 15 }
-        ]
-    },
-    {
-        id: 4,
-        name_uk: "Омега-3 Doctor's Best Omega-3 Fish Oil, 120 капсул",
-        name_ru: "Омега-3 Doctor's Best Omega-3 Fish Oil, 120 капсул",
-        name_short: "Doctor's Best Omega-3, 120 капсул",
-        brand: "Doctor's Best",
-        category: "Жирні кислоти",
-        photo: "https://via.placeholder.com/48x48/fce4ec/c2185b?text=DB",
-        variants_count: 1,
-        status: "draft",
-        storefronts: {
-            sportmeals: null,
-            fitnessshop: null
-        },
-        show_on_site: false,
-        variants: [
-            { id: 1, name: "Стандарт", sku: "DB5678", price: 520, stock: 30 }
-        ]
-    },
-    {
-        id: 5,
-        name_uk: "BCAA MST BCAA 2:1:1, 400 г",
-        name_ru: "BCAA MST BCAA 2:1:1, 400 г",
-        name_short: "MST BCAA 2:1:1, 400 г",
-        brand: "MST Nutrition",
-        category: "Амінокислоти",
-        photo: "https://via.placeholder.com/48x48/f3e5f5/7b1fa2?text=MST",
-        variants_count: 4,
-        status: "hidden",
-        storefronts: {
-            sportmeals: null,
-            fitnessshop: null
-        },
-        show_on_site: false,
-        variants: [
-            { id: 1, name: "Кавун", sku: "MST-BCAA-WM", price: 680, stock: 20 },
-            { id: 2, name: "Манго", sku: "MST-BCAA-MG", price: 680, stock: 15 },
-            { id: 3, name: "Лимон", sku: "MST-BCAA-LM", price: 680, stock: 0 },
-            { id: 4, name: "Кола", sku: "MST-BCAA-CL", price: 680, stock: 8 }
-        ]
-    }
-];
 
 // Стан сторінки
 let currentFilter = 'all';
@@ -178,8 +70,8 @@ async function initProductsPage() {
         console.warn('⚠️ Не вдалося завантажити дані з таблиць:', error);
     }
 
-    // Ініціалізуємо товари з localStorage (або demo)
-    productsData = initWithDemoData(DEMO_PRODUCTS);
+    // Завантажуємо товари з localStorage (без демо-даних)
+    productsData = getProducts();
     console.log(`📦 Завантажено ${productsData.length} товарів`);
 
     // Рендеримо таблицю товарів
@@ -2339,6 +2231,22 @@ function closeModal() {
         }, 200);
     }
 }
+
+/**
+ * Очистити всі товари (для скидання до чистого стану)
+ */
+function clearAllProducts() {
+    if (confirm('Видалити ВСІ товари? Цю дію неможливо скасувати.')) {
+        clearProducts();
+        productsData = [];
+        renderProductsTable(productsData);
+        showToast('Всі товари видалено', 'info');
+        console.log('🧹 Всі товари очищено');
+    }
+}
+
+// Експортуємо в window для доступу з консолі
+window.clearAllProducts = clearAllProducts;
 
 // Запускаємо ініціалізацію при завантаженні
 document.addEventListener('DOMContentLoaded', initProductsPage);
