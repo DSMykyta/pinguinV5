@@ -94,7 +94,7 @@ export async function showEditCategoryModal(id) {
     const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = category.name_ua || 'Редагувати категорію';
+    if (title) title.textContent = `Категорія ${category.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-category');
     if (deleteBtn) {
@@ -415,7 +415,7 @@ export async function showEditCharacteristicModal(id) {
     const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = characteristic.name_ua || 'Редагувати характеристику';
+    if (title) title.textContent = `Характеристика ${characteristic.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
     if (deleteBtn) {
@@ -1033,6 +1033,7 @@ function getCharacteristicFormData() {
         type: document.getElementById('mapper-char-type')?.value || 'TextInput',
         unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
+        block_number: document.getElementById('mapper-char-block')?.value || '',
         is_global: isGlobal,
         // Якщо глобальна - категорії не потрібні
         category_ids: isGlobal ? '' : selectedCategories.join(','),
@@ -1079,6 +1080,7 @@ function fillCharacteristicForm(characteristic) {
     const typeField = document.getElementById('mapper-char-type');
     const unitField = document.getElementById('mapper-char-unit');
     const filterField = document.getElementById('mapper-char-filter');
+    const blockField = document.getElementById('mapper-char-block');
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
 
@@ -1097,6 +1099,10 @@ function fillCharacteristicForm(characteristic) {
     if (filterField) {
         filterField.value = characteristic.filter_type || 'disable';
         reinitializeCustomSelect(filterField);
+    }
+    if (blockField) {
+        blockField.value = characteristic.block_number || '';
+        reinitializeCustomSelect(blockField);
     }
 
     // Підтримуємо різні формати: true, 'true', 'TRUE', TRUE
@@ -1218,7 +1224,7 @@ export async function showEditOptionModal(id) {
     const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = option.value_ua || 'Редагувати опцію';
+    if (title) title.textContent = `Опція ${option.value_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-option');
     if (deleteBtn) {
