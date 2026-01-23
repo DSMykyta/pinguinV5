@@ -4221,7 +4221,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
     const optionsHtml = renderTreeOptions(categoryTree);
 
     const modalHtml = `
-        <div class="modal-overlay">
+        <div class="modal-overlay is-open">
             <div class="modal-container modal-small">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до категорії</h2>
