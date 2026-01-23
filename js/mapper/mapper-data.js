@@ -984,6 +984,17 @@ export async function loadMpCharacteristics() {
             spreadsheetType: 'main'
         });
 
+        // DEBUG: Показуємо що API повернуло
+        console.log('🔍 DEBUG loadMpCharacteristics API response:');
+        console.log('  - result type:', typeof result);
+        console.log('  - result is array:', Array.isArray(result));
+        console.log('  - result length:', result?.length || 0);
+        if (result && result.length > 0) {
+            console.log('  - headers:', result[0]);
+            console.log('  - first data row:', result[1] || '(none)');
+            console.log('  - last data row:', result[result.length - 1] || '(none)');
+        }
+
         if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних MP характеристик');
             mapperState.mpCharacteristics = [];
