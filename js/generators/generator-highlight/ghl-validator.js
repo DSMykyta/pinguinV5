@@ -168,8 +168,8 @@ function validateText() {
 
     const text = dom.textarea.value || '';
 
-    // Оновлюємо підсвічування в textarea
-    updateHighlights(text, validationRegex, 'hwt-highlight-error');
+    // Оновлюємо підсвічування в textarea (використовуємо існуючий клас banned-word-highlight)
+    updateHighlights(text, validationRegex, 'banned-word-highlight');
 
     // Рахуємо заборонені слова
     const wordCounts = new Map();
