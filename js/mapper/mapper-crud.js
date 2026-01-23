@@ -901,6 +901,9 @@ function populateRelatedCharacteristics(categoryId) {
 function populateRelatedDependentCharacteristics(optionId) {
     const container = document.getElementById('option-related-chars');
     const countEl = document.getElementById('option-chars-count');
+    const navItem = document.getElementById('nav-option-dependent');
+    const section = document.getElementById('section-option-dependent');
+
     if (!container) return;
 
     const characteristics = getCharacteristics();
@@ -913,16 +916,17 @@ function populateRelatedDependentCharacteristics(optionId) {
         return ids.includes(optionId);
     });
 
+    // Якщо немає залежних — ховаємо секцію та пункт меню
     if (dependentChars.length === 0) {
-        container.innerHTML = `
-            <div class="modal-related-empty">
-                <span class="modal-related-empty-text">Залежних характеристик немає</span>
-            </div>
-        `;
+        if (navItem) navItem.classList.add('u-hidden');
+        if (section) section.classList.add('u-hidden');
         if (countEl) countEl.textContent = '';
         return;
     }
 
+    // Є залежні — показуємо секцію та пункт меню
+    if (navItem) navItem.classList.remove('u-hidden');
+    if (section) section.classList.remove('u-hidden');
     if (countEl) countEl.textContent = `(${dependentChars.length})`;
 
     container.innerHTML = dependentChars.map(char => `
