@@ -83,9 +83,9 @@ function escapeHtml(text) {
  * Оновити підсвічування тексту
  * @param {string} text - Текст для відображення
  * @param {RegExp|null} regex - Регулярний вираз для пошуку слів
- * @param {string} highlightClass - CSS клас для підсвічування (використовує існуючий banned-word-highlight)
+ * @param {string} highlightClass - CSS клас для підсвічування
  */
-export function updateHighlights(text, regex, highlightClass = 'banned-word-highlight') {
+export function updateHighlights(text, regex, highlightClass = 'highlight-banned-word') {
     if (!highlightsElement) return;
 
     if (!regex || !text) {
