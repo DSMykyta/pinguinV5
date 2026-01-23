@@ -312,23 +312,9 @@ export function renderCharacteristicsTable() {
                 label: 'Одиниця',
                 sortable: true,
                 render: (value) => escapeHtml(value || '-')
-            },
-            {
-                id: 'our_char_id',
-                label: 'Маппінг',
-                sortable: false,
-                className: 'cell-mapping',
-                render: (value, row) => {
-                    if (row._source === 'own') return '-';
-                    if (!value) {
-                        return '<span class="severity-badge severity-high">Не прив\'язано</span>';
-                    }
-                    const ownChar = ownCharacteristics.find(c => c.id === value);
-                    return `<span class="severity-badge severity-low">${escapeHtml(ownChar?.name_ua || value)}</span>`;
-                }
             }
         ],
-        visibleColumns: [...(mapperState.visibleColumns.characteristics || []), '_sourceLabel', 'our_char_id'],
+        visibleColumns: [...(mapperState.visibleColumns.characteristics || []), '_sourceLabel'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.characteristics || new Set();
@@ -515,23 +501,9 @@ export function renderOptionsTable() {
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'our_option_id',
-                label: 'Маппінг',
-                sortable: false,
-                className: 'cell-mapping',
-                render: (value, row) => {
-                    if (row._source === 'own') return '-';
-                    if (!value) {
-                        return '<span class="severity-badge severity-high">Не прив\'язано</span>';
-                    }
-                    const ownOpt = ownOptions.find(o => o.id === value);
-                    return `<span class="severity-badge severity-low">${escapeHtml(ownOpt?.value_ua || value)}</span>`;
-                }
             }
         ],
-        visibleColumns: [...(mapperState.visibleColumns.options || []), '_sourceLabel', 'our_option_id'],
+        visibleColumns: [...(mapperState.visibleColumns.options || []), '_sourceLabel'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.options || new Set();
