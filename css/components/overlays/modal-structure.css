@@ -303,18 +303,6 @@
     z-index: 1;
 }
 
-/* Badge для амінокислот (жовтий, як в таблиці) */
-.magic-hint-badge {
-    display: inline-flex;
-    align-items: center;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 16px;
-    background-color: var(--color-warning-c);
-    color: var(--color-warning);
-}
-
 /* Приховуємо коли порожній */
 .magic-hints-sidebar:empty {
     display: none;

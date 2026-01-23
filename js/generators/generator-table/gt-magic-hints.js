@@ -185,8 +185,8 @@ function renderHints(hints) {
         if (hint.type === 'vitamin') {
             return `<span class="chip chip-active">${hint.text}</span>`;
         } else {
-            // Амінокислота - badge жовтий з EAA (як в таблиці)
-            return `<span class="magic-hint-badge">${hint.name} — EAA</span>`;
+            // Амінокислота - chip-warning жовтий з EAA
+            return `<span class="chip chip-warning">${hint.name} — EAA</span>`;
         }
     }).join('');
 }
