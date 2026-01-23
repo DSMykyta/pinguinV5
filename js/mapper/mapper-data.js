@@ -1061,3 +1061,293 @@ export async function loadMpOptions() {
         throw error;
     }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// МАППІНГ (ПРИВ'ЯЗКА MP ДАНИХ ДО ВЛАСНИХ)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Оновити маппінг для MP характеристики
+ * @param {string} mpCharId - ID MP характеристики
+ * @param {string} ownCharId - ID власної характеристики (або '' для видалення маппінгу)
+ */
+export async function updateMpCharacteristicMapping(mpCharId, ownCharId) {
+    console.log(`🔗 Оновлення маппінгу MP характеристики ${mpCharId} -> ${ownCharId || '(видалено)'}`);
+
+    try {
+        const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
+        if (!mpChar) {
+            throw new Error(`MP характеристику ${mpCharId} не знайдено`);
+        }
+
+        // Парсимо поточний data
+        let currentData = {};
+        if (mpChar.data) {
+            try {
+                currentData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : mpChar.data;
+            } catch (e) {
+                currentData = {};
+            }
+        }
+
+        // Оновлюємо our_char_id
+        currentData.our_char_id = ownCharId || '';
+
+        const timestamp = new Date().toISOString();
+        const newDataJson = JSON.stringify(currentData);
+
+        // Оновлюємо рядок в таблиці
+        const range = `${SHEETS.MP_CHARACTERISTICS}!A${mpChar._rowIndex}:G${mpChar._rowIndex}`;
+        const updatedRow = [
+            mpChar.id,
+            mpChar.marketplace_id,
+            mpChar.external_id,
+            mpChar.source || '',
+            newDataJson,
+            mpChar.created_at || '',
+            timestamp
+        ];
+
+        await callSheetsAPI('update', {
+            range: range,
+            values: [updatedRow],
+            spreadsheetType: 'main'
+        });
+
+        // Оновлюємо локальний стан
+        mpChar.data = newDataJson;
+        mpChar.our_char_id = ownCharId || '';
+        mpChar.updated_at = timestamp;
+        Object.assign(mpChar, currentData);
+
+        console.log(`✅ Маппінг MP характеристики оновлено`);
+        return mpChar;
+    } catch (error) {
+        console.error('❌ Помилка оновлення маппінгу MP характеристики:', error);
+        throw error;
+    }
+}
+
+/**
+ * Оновити маппінг для MP опції
+ * @param {string} mpOptionId - ID MP опції
+ * @param {string} ownOptionId - ID власної опції (або '' для видалення маппінгу)
+ */
+export async function updateMpOptionMapping(mpOptionId, ownOptionId) {
+    console.log(`🔗 Оновлення маппінгу MP опції ${mpOptionId} -> ${ownOptionId || '(видалено)'}`);
+
+    try {
+        const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
+        if (!mpOption) {
+            throw new Error(`MP опцію ${mpOptionId} не знайдено`);
+        }
+
+        // Парсимо поточний data
+        let currentData = {};
+        if (mpOption.data) {
+            try {
+                currentData = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data) : mpOption.data;
+            } catch (e) {
+                currentData = {};
+            }
+        }
+
+        // Оновлюємо our_option_id
+        currentData.our_option_id = ownOptionId || '';
+
+        const timestamp = new Date().toISOString();
+        const newDataJson = JSON.stringify(currentData);
+
+        // Оновлюємо рядок в таблиці
+        const range = `${SHEETS.MP_OPTIONS}!A${mpOption._rowIndex}:G${mpOption._rowIndex}`;
+        const updatedRow = [
+            mpOption.id,
+            mpOption.marketplace_id,
+            mpOption.external_id,
+            mpOption.source || '',
+            newDataJson,
+            mpOption.created_at || '',
+            timestamp
+        ];
+
+        await callSheetsAPI('update', {
+            range: range,
+            values: [updatedRow],
+            spreadsheetType: 'main'
+        });
+
+        // Оновлюємо локальний стан
+        mpOption.data = newDataJson;
+        mpOption.our_option_id = ownOptionId || '';
+        mpOption.updated_at = timestamp;
+        Object.assign(mpOption, currentData);
+
+        console.log(`✅ Маппінг MP опції оновлено`);
+        return mpOption;
+    } catch (error) {
+        console.error('❌ Помилка оновлення маппінгу MP опції:', error);
+        throw error;
+    }
+}
+
+/**
+ * Batch оновлення маппінгу для кількох MP характеристик
+ * @param {Array<string>} mpCharIds - Масив ID MP характеристик
+ * @param {string} ownCharId - ID власної характеристики
+ */
+export async function batchUpdateMpCharacteristicMapping(mpCharIds, ownCharId) {
+    console.log(`🔗 Batch маппінг ${mpCharIds.length} MP характеристик -> ${ownCharId}`);
+
+    const results = {
+        success: [],
+        failed: []
+    };
+
+    for (const mpCharId of mpCharIds) {
+        try {
+            await updateMpCharacteristicMapping(mpCharId, ownCharId);
+            results.success.push(mpCharId);
+        } catch (error) {
+            console.error(`❌ Помилка маппінгу ${mpCharId}:`, error);
+            results.failed.push({ id: mpCharId, error: error.message });
+        }
+    }
+
+    console.log(`✅ Batch маппінг завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
+    return results;
+}
+
+/**
+ * Batch оновлення маппінгу для кількох MP опцій
+ * @param {Array<string>} mpOptionIds - Масив ID MP опцій
+ * @param {string} ownOptionId - ID власної опції
+ */
+export async function batchUpdateMpOptionMapping(mpOptionIds, ownOptionId) {
+    console.log(`🔗 Batch маппінг ${mpOptionIds.length} MP опцій -> ${ownOptionId}`);
+
+    const results = {
+        success: [],
+        failed: []
+    };
+
+    for (const mpOptionId of mpOptionIds) {
+        try {
+            await updateMpOptionMapping(mpOptionId, ownOptionId);
+            results.success.push(mpOptionId);
+        } catch (error) {
+            console.error(`❌ Помилка маппінгу ${mpOptionId}:`, error);
+            results.failed.push({ id: mpOptionId, error: error.message });
+        }
+    }
+
+    console.log(`✅ Batch маппінг завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
+    return results;
+}
+
+/**
+ * Автоматичний маппінг MP характеристик за назвою
+ * @param {Array<string>} mpCharIds - Масив ID MP характеристик для автомаппінгу
+ */
+export async function autoMapCharacteristics(mpCharIds) {
+    console.log(`🤖 Авто-маппінг ${mpCharIds.length} MP характеристик...`);
+
+    const results = {
+        mapped: [],
+        notFound: [],
+        failed: []
+    };
+
+    const ownCharacteristics = getCharacteristics();
+
+    for (const mpCharId of mpCharIds) {
+        try {
+            const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
+            if (!mpChar) {
+                results.failed.push({ id: mpCharId, error: 'MP характеристику не знайдено' });
+                continue;
+            }
+
+            // Отримуємо назву MP характеристики
+            const mpData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            const mpName = (mpData.name || '').toLowerCase().trim();
+
+            if (!mpName) {
+                results.notFound.push({ id: mpCharId, name: '(пусто)' });
+                continue;
+            }
+
+            // Шукаємо власну характеристику з такою ж назвою
+            const ownChar = ownCharacteristics.find(c => {
+                const ownName = (c.name_ua || '').toLowerCase().trim();
+                return ownName === mpName;
+            });
+
+            if (ownChar) {
+                await updateMpCharacteristicMapping(mpCharId, ownChar.id);
+                results.mapped.push({ mpId: mpCharId, ownId: ownChar.id, name: mpName });
+            } else {
+                results.notFound.push({ id: mpCharId, name: mpName });
+            }
+        } catch (error) {
+            console.error(`❌ Помилка автомаппінгу ${mpCharId}:`, error);
+            results.failed.push({ id: mpCharId, error: error.message });
+        }
+    }
+
+    console.log(`✅ Авто-маппінг завершено: ${results.mapped.length} замаплено, ${results.notFound.length} не знайдено, ${results.failed.length} помилок`);
+    return results;
+}
+
+/**
+ * Автоматичний маппінг MP опцій за назвою
+ * @param {Array<string>} mpOptionIds - Масив ID MP опцій для автомаппінгу
+ */
+export async function autoMapOptions(mpOptionIds) {
+    console.log(`🤖 Авто-маппінг ${mpOptionIds.length} MP опцій...`);
+
+    const results = {
+        mapped: [],
+        notFound: [],
+        failed: []
+    };
+
+    const ownOptions = getOptions();
+
+    for (const mpOptionId of mpOptionIds) {
+        try {
+            const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
+            if (!mpOption) {
+                results.failed.push({ id: mpOptionId, error: 'MP опцію не знайдено' });
+                continue;
+            }
+
+            // Отримуємо назву MP опції
+            const mpData = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data) : (mpOption.data || {});
+            const mpName = (mpData.name || '').toLowerCase().trim();
+
+            if (!mpName) {
+                results.notFound.push({ id: mpOptionId, name: '(пусто)' });
+                continue;
+            }
+
+            // Шукаємо власну опцію з такою ж назвою
+            const ownOption = ownOptions.find(o => {
+                const ownName = (o.value_ua || '').toLowerCase().trim();
+                return ownName === mpName;
+            });
+
+            if (ownOption) {
+                await updateMpOptionMapping(mpOptionId, ownOption.id);
+                results.mapped.push({ mpId: mpOptionId, ownId: ownOption.id, name: mpName });
+            } else {
+                results.notFound.push({ id: mpOptionId, name: mpName });
+            }
+        } catch (error) {
+            console.error(`❌ Помилка автомаппінгу ${mpOptionId}:`, error);
+            results.failed.push({ id: mpOptionId, error: error.message });
+        }
+    }
+
+    console.log(`✅ Авто-маппінг завершено: ${results.mapped.length} замаплено, ${results.notFound.length} не знайдено, ${results.failed.length} помилок`);
+    return results;
+}

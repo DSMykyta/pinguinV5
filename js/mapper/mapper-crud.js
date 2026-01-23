@@ -12,8 +12,13 @@ import {
     addCategory, updateCategory, deleteCategory, getCategories,
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     addOption, updateOption, deleteOption, getOptions,
-    addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces
+    addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
+    getMpCharacteristics, getMpOptions,
+    batchUpdateMpCharacteristicMapping, batchUpdateMpOptionMapping,
+    autoMapCharacteristics, autoMapOptions
 } from './mapper-data.js';
+import { mapperState } from './mapper-init.js';
+import { getBatchBar } from '../common/ui-batch-actions.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
@@ -690,7 +695,7 @@ function fillCharacteristicForm(characteristic) {
 
     // Підтримуємо різні формати: true, 'true', 'TRUE', TRUE
     const isGlobal = characteristic.is_global === true ||
-                     String(characteristic.is_global).toLowerCase() === 'true';
+        String(characteristic.is_global).toLowerCase() === 'true';
     if (globalYes) globalYes.checked = isGlobal;
     if (globalNo) globalNo.checked = !isGlobal;
 
@@ -1188,8 +1193,8 @@ function renderMpDataModalTable() {
     // Оновлюємо статистику
     const statsEl = document.getElementById('mp-data-stats-text');
     const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
-                       activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
-                       mpDataModalState.options.length;
+        activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
+            mpDataModalState.options.length;
 
     // Рендеримо таблицю
     if (data.length === 0) {
@@ -2323,7 +2328,7 @@ async function saveColumnMapping() {
  * Імпорт характеристик та опцій маркетплейса
  * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importCharacteristicsAndOptions(onProgress = () => {}) {
+async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const { callSheetsAPI } = await import('../utils/api-client.js');
 
     onProgress(10, 'Обробка даних файлу...');
@@ -2502,7 +2507,7 @@ async function importCharacteristicsAndOptions(onProgress = () => {}) {
  * Імпорт категорій
  * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importCategories(onProgress = () => {}) {
+async function importCategories(onProgress = () => { }) {
     const { callSheetsAPI } = await import('../utils/api-client.js');
 
     onProgress(10, 'Обробка категорій...');
@@ -2599,7 +2604,7 @@ async function importCategories(onProgress = () => {}) {
  * Імпорт своїх характеристик та опцій
  * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
+async function importOwnCharacteristicsAndOptions(onProgress = () => { }) {
     onProgress(5, 'Обробка даних файлу...');
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
@@ -2791,7 +2796,7 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => {}) {
  * Імпорт своїх категорій
  * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
-async function importOwnCategories(onProgress = () => {}) {
+async function importOwnCategories(onProgress = () => { }) {
     onProgress(5, 'Обробка категорій...');
 
     const nameUaCol = importState.mapping.own_cat_name_ua;
@@ -2866,4 +2871,542 @@ async function importOwnCategories(onProgress = () => {}) {
     }
 
     onProgress(100, 'Готово!');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BATCH МАППІНГ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Показати модалку вибору власної характеристики для batch маппінгу
+ * @param {Array<string>} selectedIds - Масив ID вибраних MP характеристик
+ */
+export async function showSelectOwnCharacteristicModal(selectedIds) {
+    console.log(`🔗 Batch маппінг характеристик: ${selectedIds.length} обрано`);
+
+    // Фільтруємо тільки MP характеристики (не власні)
+    const mpIds = selectedIds.filter(id => {
+        const mpChars = getMpCharacteristics();
+        return mpChars.some(c => c.id === id);
+    });
+
+    if (mpIds.length === 0) {
+        showToast('Оберіть характеристики маркетплейсу для маппінгу', 'warning');
+        return;
+    }
+
+    // Створюємо просту модалку зі списком характеристик
+    const ownChars = getCharacteristics();
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Замапити до власної характеристики</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p class="u-mb-16">Обрано <strong>${mpIds.length}</strong> характеристик маркетплейсу.</p>
+                    <p class="u-mb-16">Оберіть власну характеристику для прив'язки:</p>
+
+                    <div class="form-group">
+                        <label for="select-own-char">Власна характеристика</label>
+                        <select id="select-own-char" class="input-main">
+                            <option value="">— Оберіть характеристику —</option>
+                            ${ownChars.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name_ua || c.id)}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-apply-char-mapping" class="btn-main">
+                        <span class="material-symbols-outlined">link</span>
+                        Замапити
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const applyBtn = modalOverlay.querySelector('#btn-apply-char-mapping');
+    const selectEl = modalOverlay.querySelector('#select-own-char');
+
+    const closeThisModal = () => {
+        modalOverlay.remove();
+    };
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+
+    applyBtn.addEventListener('click', async () => {
+        const ownCharId = selectEl.value;
+        if (!ownCharId) {
+            showToast('Оберіть характеристику', 'warning');
+            return;
+        }
+
+        applyBtn.disabled = true;
+        applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
+
+        try {
+            const result = await batchUpdateMpCharacteristicMapping(mpIds, ownCharId);
+
+            closeThisModal();
+
+            // Очищуємо вибір
+            if (mapperState.selectedRows.characteristics) {
+                mapperState.selectedRows.characteristics.clear();
+            }
+            const batchBar = getBatchBar('mapper-characteristics');
+            if (batchBar) batchBar.deselectAll();
+
+            // Оновлюємо таблицю
+            await renderCurrentTab();
+
+            showToast(`Замаплено ${result.success.length} характеристик`, 'success');
+        } catch (error) {
+            console.error('❌ Помилка batch маппінгу:', error);
+            showToast('Помилка при маппінгу', 'error');
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<span class="material-symbols-outlined">link</span> Замапити';
+        }
+    });
+}
+
+/**
+ * Показати модалку вибору власної опції для batch маппінгу
+ * @param {Array<string>} selectedIds - Масив ID вибраних MP опцій
+ */
+export async function showSelectOwnOptionModal(selectedIds) {
+    console.log(`🔗 Batch маппінг опцій: ${selectedIds.length} обрано`);
+
+    // Фільтруємо тільки MP опції (не власні)
+    const mpIds = selectedIds.filter(id => {
+        const mpOpts = getMpOptions();
+        return mpOpts.some(o => o.id === id);
+    });
+
+    if (mpIds.length === 0) {
+        showToast('Оберіть опції маркетплейсу для маппінгу', 'warning');
+        return;
+    }
+
+    // Створюємо просту модалку зі списком опцій
+    const ownOptions = getOptions();
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Замапити до власної опції</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p class="u-mb-16">Обрано <strong>${mpIds.length}</strong> опцій маркетплейсу.</p>
+                    <p class="u-mb-16">Оберіть власну опцію для прив'язки:</p>
+
+                    <div class="form-group">
+                        <label for="select-own-option">Власна опція</label>
+                        <select id="select-own-option" class="input-main">
+                            <option value="">— Оберіть опцію —</option>
+                            ${ownOptions.map(o => `<option value="${escapeHtml(o.id)}">${escapeHtml(o.value_ua || o.id)}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-apply-option-mapping" class="btn-main">
+                        <span class="material-symbols-outlined">link</span>
+                        Замапити
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const applyBtn = modalOverlay.querySelector('#btn-apply-option-mapping');
+    const selectEl = modalOverlay.querySelector('#select-own-option');
+
+    const closeThisModal = () => {
+        modalOverlay.remove();
+    };
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+
+    applyBtn.addEventListener('click', async () => {
+        const ownOptionId = selectEl.value;
+        if (!ownOptionId) {
+            showToast('Оберіть опцію', 'warning');
+            return;
+        }
+
+        applyBtn.disabled = true;
+        applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
+
+        try {
+            const result = await batchUpdateMpOptionMapping(mpIds, ownOptionId);
+
+            closeThisModal();
+
+            // Очищуємо вибір
+            if (mapperState.selectedRows.options) {
+                mapperState.selectedRows.options.clear();
+            }
+            const batchBar = getBatchBar('mapper-options');
+            if (batchBar) batchBar.deselectAll();
+
+            // Оновлюємо таблицю
+            await renderCurrentTab();
+
+            showToast(`Замаплено ${result.success.length} опцій`, 'success');
+        } catch (error) {
+            console.error('❌ Помилка batch маппінгу:', error);
+            showToast('Помилка при маппінгу', 'error');
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<span class="material-symbols-outlined">link</span> Замапити';
+        }
+    });
+}
+
+/**
+ * Авто-маппінг характеристик за назвою
+ * @param {Array<string>} selectedIds - Масив ID вибраних MP характеристик
+ */
+export async function handleAutoMapCharacteristics(selectedIds) {
+    console.log(`🤖 Авто-маппінг характеристик: ${selectedIds.length} обрано`);
+
+    // Фільтруємо тільки MP характеристики
+    const mpIds = selectedIds.filter(id => {
+        const mpChars = getMpCharacteristics();
+        return mpChars.some(c => c.id === id);
+    });
+
+    if (mpIds.length === 0) {
+        showToast('Оберіть характеристики маркетплейсу для авто-маппінгу', 'warning');
+        return;
+    }
+
+    showToast('Авто-маппінг...', 'info');
+
+    try {
+        const result = await autoMapCharacteristics(mpIds);
+
+        // Очищуємо вибір
+        if (mapperState.selectedRows.characteristics) {
+            mapperState.selectedRows.characteristics.clear();
+        }
+        const batchBar = getBatchBar('mapper-characteristics');
+        if (batchBar) batchBar.deselectAll();
+
+        // Оновлюємо таблицю
+        await renderCurrentTab();
+
+        if (result.mapped.length > 0) {
+            showToast(`Авто-замаплено ${result.mapped.length} з ${mpIds.length} характеристик`, 'success');
+        } else {
+            showToast(`Не знайдено відповідностей серед ${mpIds.length} характеристик`, 'warning');
+        }
+    } catch (error) {
+        console.error('❌ Помилка авто-маппінгу:', error);
+        showToast('Помилка при авто-маппінгу', 'error');
+    }
+}
+
+/**
+ * Авто-маппінг опцій за назвою
+ * @param {Array<string>} selectedIds - Масив ID вибраних MP опцій
+ */
+export async function handleAutoMapOptions(selectedIds) {
+    console.log(`🤖 Авто-маппінг опцій: ${selectedIds.length} обрано`);
+
+    // Фільтруємо тільки MP опції
+    const mpIds = selectedIds.filter(id => {
+        const mpOpts = getMpOptions();
+        return mpOpts.some(o => o.id === id);
+    });
+
+    if (mpIds.length === 0) {
+        showToast('Оберіть опції маркетплейсу для авто-маппінгу', 'warning');
+        return;
+    }
+
+    showToast('Авто-маппінг...', 'info');
+
+    try {
+        const result = await autoMapOptions(mpIds);
+
+        // Очищуємо вибір
+        if (mapperState.selectedRows.options) {
+            mapperState.selectedRows.options.clear();
+        }
+        const batchBar = getBatchBar('mapper-options');
+        if (batchBar) batchBar.deselectAll();
+
+        // Оновлюємо таблицю
+        await renderCurrentTab();
+
+        if (result.mapped.length > 0) {
+            showToast(`Авто-замаплено ${result.mapped.length} з ${mpIds.length} опцій`, 'success');
+        } else {
+            showToast(`Не знайдено відповідностей серед ${mpIds.length} опцій`, 'warning');
+        }
+    } catch (error) {
+        console.error('❌ Помилка авто-маппінгу:', error);
+        showToast('Помилка при авто-маппінгу', 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ПЕРЕГЛЯД MP ДАНИХ (READ-ONLY)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Показати read-only модалку для MP характеристики
+ * @param {string} mpCharId - ID MP характеристики
+ */
+export async function showViewMpCharacteristicModal(mpCharId) {
+    console.log(`👁️ Перегляд MP характеристики ${mpCharId}`);
+
+    const mpChars = getMpCharacteristics();
+    const mpChar = mpChars.find(c => c.id === mpCharId);
+
+    if (!mpChar) {
+        showToast('MP характеристику не знайдено', 'error');
+        return;
+    }
+
+    // Парсимо data якщо потрібно
+    let charData = mpChar;
+    if (mpChar.data && typeof mpChar.data === 'string') {
+        try {
+            charData = { ...mpChar, ...JSON.parse(mpChar.data) };
+        } catch (e) {
+            // Залишаємо як є
+        }
+    }
+
+    // Знаходимо назву маркетплейсу
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+    const mpName = marketplace ? marketplace.name : mpChar.marketplace_id;
+
+    // Знаходимо назву прив'язаної характеристики
+    let mappedToName = '';
+    if (charData.our_char_id) {
+        const ownChars = getCharacteristics();
+        const ownChar = ownChars.find(c => c.id === charData.our_char_id);
+        mappedToName = ownChar ? (ownChar.name_ua || ownChar.id) : charData.our_char_id;
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Характеристика маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpChar.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpChar.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" class="input-main" value="${escapeHtml(charData.name || '')}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>Тип</label>
+                                <input type="text" class="input-main" value="${escapeHtml(charData.type || '')}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Одиниця виміру</label>
+                                <input type="text" class="input-main" value="${escapeHtml(charData.unit || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Глобальна</label>
+                            <input type="text" class="input-main" value="${charData.is_global ? 'Так' : 'Ні'}" readonly>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+}
+
+/**
+ * Показати read-only модалку для MP опції
+ * @param {string} mpOptionId - ID MP опції
+ */
+export async function showViewMpOptionModal(mpOptionId) {
+    console.log(`👁️ Перегляд MP опції ${mpOptionId}`);
+
+    const mpOpts = getMpOptions();
+    const mpOption = mpOpts.find(o => o.id === mpOptionId);
+
+    if (!mpOption) {
+        showToast('MP опцію не знайдено', 'error');
+        return;
+    }
+
+    // Парсимо data якщо потрібно
+    let optData = mpOption;
+    if (mpOption.data && typeof mpOption.data === 'string') {
+        try {
+            optData = { ...mpOption, ...JSON.parse(mpOption.data) };
+        } catch (e) {
+            // Залишаємо як є
+        }
+    }
+
+    // Знаходимо назву маркетплейсу
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === mpOption.marketplace_id);
+    const mpName = marketplace ? marketplace.name : mpOption.marketplace_id;
+
+    // Знаходимо назву прив'язаної опції
+    let mappedToName = '';
+    if (optData.our_option_id) {
+        const ownOpts = getOptions();
+        const ownOpt = ownOpts.find(o => o.id === optData.our_option_id);
+        mappedToName = ownOpt ? (ownOpt.value_ua || ownOpt.id) : optData.our_option_id;
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Опція маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Значення</label>
+                            <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
 }

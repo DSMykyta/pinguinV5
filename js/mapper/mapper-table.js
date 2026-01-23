@@ -10,7 +10,11 @@
  */
 
 import { mapperState } from './mapper-init.js';
-import { getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
+import {
+    getCategories, getCharacteristics, getOptions, getMarketplaces,
+    getMpCharacteristics, getMpOptions, getMapCharacteristics, getMapOptions
+} from './mapper-data.js';
+import { getBatchBar } from '../common/ui-batch-actions.js';
 
 /**
  * Отримати назви категорій за списком ID
@@ -69,9 +73,19 @@ export function renderCategoriesTable() {
     const container = document.getElementById('mapper-categories-table-container');
     if (!container) return;
 
-    const categories = getCategories();
-    if (!categories || categories.length === 0) {
+    const marketplaces = getMarketplaces();
+
+    // Отримати категорії та додати мітку джерела
+    const categories = getCategories().map(cat => ({
+        ...cat,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    if (categories.length === 0) {
         renderEmptyState(container, 'categories');
+        updateSourceFilterButtons('categories', marketplaces);
         return;
     }
 
@@ -84,6 +98,9 @@ export function renderCategoriesTable() {
     // Оновити пагінацію
     updatePagination(totalItems);
 
+    // Оновити фільтр-кнопки джерела
+    updateSourceFilterButtons('categories', marketplaces);
+
     // Рендерити таблицю
     renderPseudoTable(container, {
         data: paginatedData,
@@ -94,6 +111,18 @@ export function renderCategoriesTable() {
                 className: 'cell-id',
                 sortable: true,
                 render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: '_sourceLabel',
+                label: 'Джерело',
+                sortable: true,
+                className: 'cell-source',
+                render: (value, row) => {
+                    if (row._source === 'own') {
+                        return `<span class="chip chip-success">Власний</span>`;
+                    }
+                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
             },
             {
                 id: 'name_ua',
@@ -119,7 +148,7 @@ export function renderCategoriesTable() {
                 }
             }
         ],
-        visibleColumns: mapperState.visibleColumns.categories,
+        visibleColumns: [...(mapperState.visibleColumns.categories || []), '_sourceLabel'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.categories || new Set();
@@ -160,7 +189,7 @@ export function renderCategoriesTable() {
 }
 
 /**
- * Рендерити таблицю характеристик
+ * Рендерити таблицю характеристик (власні + MP)
  */
 export function renderCharacteristicsTable() {
     console.log('🎨 Рендеринг таблиці характеристик...');
@@ -168,20 +197,59 @@ export function renderCharacteristicsTable() {
     const container = document.getElementById('mapper-characteristics-table-container');
     if (!container) return;
 
-    const characteristics = getCharacteristics();
-    if (!characteristics || characteristics.length === 0) {
+    const marketplaces = getMarketplaces();
+    const categories = getCategories();
+
+    // Отримати власні характеристики
+    const ownCharacteristics = getCharacteristics().map(char => ({
+        ...char,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    // Отримати MP характеристики та конвертувати в уніфікований формат
+    const mpCharacteristics = getMpCharacteristics().map(mpChar => {
+        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+        const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+        return {
+            id: mpChar.id,
+            external_id: mpChar.external_id,
+            marketplace_id: mpChar.marketplace_id,
+            name_ua: data.name || '',
+            name_ru: '',
+            type: data.type || '',
+            unit: data.unit || '',
+            is_global: data.is_global === 'Так' || data.is_global === true,
+            category_ids: data.category_id || '',
+            filter_type: data.filter_type || '',
+            our_char_id: data.our_char_id || '',
+            _source: mpChar.marketplace_id,
+            _sourceLabel: marketplace?.name || mpChar.marketplace_id,
+            _editable: false,
+            _mpData: data
+        };
+    });
+
+    // Об'єднати
+    const allCharacteristics = [...ownCharacteristics, ...mpCharacteristics];
+
+    if (allCharacteristics.length === 0) {
         renderEmptyState(container, 'characteristics');
         return;
     }
 
     // Застосувати фільтри
-    let filteredData = applyFilters(characteristics, 'characteristics');
+    let filteredData = applyFilters(allCharacteristics, 'characteristics');
 
     // Застосувати пагінацію
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     // Оновити пагінацію
     updatePagination(totalItems);
+
+    // Оновити фільтр-кнопки джерела
+    updateSourceFilterButtons('characteristics', marketplaces);
 
     // Рендерити таблицю
     renderPseudoTable(container, {
@@ -192,29 +260,36 @@ export function renderCharacteristicsTable() {
                 label: 'ID',
                 className: 'cell-id',
                 sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+                render: (value, row) => {
+                    // Для MP показуємо external_id
+                    const displayId = row._source === 'own' ? value : (row.external_id || value);
+                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
+                }
+            },
+            {
+                id: '_sourceLabel',
+                label: 'Джерело',
+                sortable: true,
+                className: 'cell-source',
+                render: (value, row) => {
+                    if (row._source === 'own') {
+                        return `<span class="chip chip-success">Власний</span>`;
+                    }
+                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
             },
             {
                 id: 'name_ua',
-                label: 'Назва UA',
+                label: 'Назва',
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
             },
             {
-                id: 'name_ru',
-                label: 'Назва RU',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
-            },
-            {
                 id: 'type',
                 label: 'Тип',
                 sortable: true,
-                render: (value) => {
-                    // Показуємо значення як є (TextInput, ComboBox, etc.)
-                    return `<code>${escapeHtml(value || '-')}</code>`;
-                }
+                render: (value) => `<code>${escapeHtml(value || '-')}</code>`
             },
             {
                 id: 'is_global',
@@ -222,7 +297,7 @@ export function renderCharacteristicsTable() {
                 sortable: true,
                 className: 'cell-bool',
                 render: (value) => {
-                    const isGlobal = value === true || String(value).toLowerCase() === 'true';
+                    const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
                     return isGlobal
                         ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                         : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
@@ -235,33 +310,35 @@ export function renderCharacteristicsTable() {
                 render: (value) => escapeHtml(value || '-')
             },
             {
-                id: 'category_ids',
-                label: 'Категорії',
+                id: 'our_char_id',
+                label: 'Маппінг',
                 sortable: false,
-                render: (value) => {
-                    const names = getCategoryNames(value);
-                    if (names === '-') return '-';
-                    // Показуємо чіпи для категорій
-                    const categories = getCategories();
-                    const ids = value.split(',').map(id => id.trim()).filter(id => id);
-                    return ids.map(id => {
-                        const cat = categories.find(c => c.id === id);
-                        const name = cat ? escapeHtml(cat.name_ua) : escapeHtml(id);
-                        return `<span class="word-chip word-chip-small">${name}</span>`;
-                    }).join(' ');
+                className: 'cell-mapping',
+                render: (value, row) => {
+                    if (row._source === 'own') return '-';
+                    if (!value) {
+                        return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                    }
+                    const ownChar = ownCharacteristics.find(c => c.id === value);
+                    return `<span class="severity-badge severity-low">${escapeHtml(ownChar?.name_ua || value)}</span>`;
                 }
             }
         ],
-        visibleColumns: mapperState.visibleColumns.characteristics,
+        visibleColumns: [...(mapperState.visibleColumns.characteristics || []), '_sourceLabel', 'our_char_id'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.characteristics || new Set();
             const isChecked = selectedSet.has(row.id);
+            const actionBtn = row._editable
+                ? `<button class="btn-icon btn-edit-characteristic" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                       <span class="material-symbols-outlined">edit</span>
+                   </button>`
+                : `<button class="btn-icon btn-view-mp-characteristic" data-id="${escapeHtml(row.id)}" title="Переглянути">
+                       <span class="material-symbols-outlined">visibility</span>
+                   </button>`;
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-edit-characteristic" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                ${actionBtn}
             `;
         },
         emptyState: {
@@ -271,7 +348,7 @@ export function renderCharacteristicsTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування
+    // Додати обробники для кнопок редагування власних
     container.querySelectorAll('.btn-edit-characteristic').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -283,17 +360,32 @@ export function renderCharacteristicsTable() {
         });
     });
 
+    // Додати обробники для кнопок перегляду MP
+    container.querySelectorAll('.btn-view-mp-characteristic').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = button.dataset.id;
+            if (id) {
+                const mpChar = mpCharacteristics.find(c => c.id === id);
+                if (mpChar) {
+                    const { showViewMpCharacteristicModal } = await import('./mapper-crud.js');
+                    await showViewMpCharacteristicModal(mpChar);
+                }
+            }
+        });
+    });
+
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'characteristics', paginatedData);
 
     // Оновити статистику
-    updateStats('characteristics', filteredData.length, characteristics.length);
+    updateStats('characteristics', filteredData.length, allCharacteristics.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} характеристик`);
+    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} характеристик (власних: ${ownCharacteristics.length}, MP: ${mpCharacteristics.length})`);
 }
 
 /**
- * Рендерити таблицю опцій
+ * Рендерити таблицю опцій (власні + MP)
  */
 export function renderOptionsTable() {
     console.log('🎨 Рендеринг таблиці опцій...');
@@ -301,22 +393,69 @@ export function renderOptionsTable() {
     const container = document.getElementById('mapper-options-table-container');
     if (!container) return;
 
-    const options = getOptions();
+    const marketplaces = getMarketplaces();
     const characteristics = getCharacteristics();
+    const mpCharacteristics = getMpCharacteristics();
 
-    if (!options || options.length === 0) {
+    // Отримати власні опції
+    const ownOptions = getOptions().map(opt => ({
+        ...opt,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    // Отримати MP опції та конвертувати в уніфікований формат
+    const mpOptions = getMpOptions().map(mpOpt => {
+        const data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : (mpOpt.data || {});
+        const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
+
+        // Знайти назву характеристики MP
+        let charName = data.char_id || '';
+        const mpChar = mpCharacteristics.find(c =>
+            c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
+        );
+        if (mpChar) {
+            const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            charName = charData.name || data.char_id;
+        }
+
+        return {
+            id: mpOpt.id,
+            external_id: mpOpt.external_id,
+            marketplace_id: mpOpt.marketplace_id,
+            characteristic_id: data.char_id || '',
+            characteristic_name: charName,
+            value_ua: data.name || '',
+            value_ru: '',
+            sort_order: '0',
+            our_option_id: data.our_option_id || '',
+            _source: mpOpt.marketplace_id,
+            _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
+            _editable: false,
+            _mpData: data
+        };
+    });
+
+    // Об'єднати
+    const allOptions = [...ownOptions, ...mpOptions];
+
+    if (allOptions.length === 0) {
         renderEmptyState(container, 'options');
         return;
     }
 
     // Застосувати фільтри
-    let filteredData = applyFilters(options, 'options');
+    let filteredData = applyFilters(allOptions, 'options');
 
     // Застосувати пагінацію
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     // Оновити пагінацію
     updatePagination(totalItems);
+
+    // Оновити фільтр-кнопки джерела
+    updateSourceFilterButtons('options', marketplaces);
 
     // Рендерити таблицю
     renderPseudoTable(container, {
@@ -327,48 +466,72 @@ export function renderOptionsTable() {
                 label: 'ID',
                 className: 'cell-id',
                 sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+                render: (value, row) => {
+                    const displayId = row._source === 'own' ? value : (row.external_id || value);
+                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
+                }
+            },
+            {
+                id: '_sourceLabel',
+                label: 'Джерело',
+                sortable: true,
+                className: 'cell-source',
+                render: (value, row) => {
+                    if (row._source === 'own') {
+                        return `<span class="chip chip-success">Власний</span>`;
+                    }
+                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
             },
             {
                 id: 'characteristic_id',
                 label: 'Характеристика',
                 sortable: true,
-                render: (value) => {
-                    const char = characteristics.find(c => c.id === value);
-                    return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
+                render: (value, row) => {
+                    if (row._source === 'own') {
+                        const char = characteristics.find(c => c.id === value);
+                        return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
+                    }
+                    return escapeHtml(row.characteristic_name || value || '-');
                 }
             },
             {
                 id: 'value_ua',
-                label: 'Значення UA',
+                label: 'Значення',
                 sortable: true,
                 className: 'cell-main-name',
                 render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
             },
             {
-                id: 'value_ru',
-                label: 'Значення RU',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
-            },
-            {
-                id: 'sort_order',
-                label: 'Порядок',
-                sortable: true,
-                className: 'cell-bool',
-                render: (value) => escapeHtml(value || '0')
+                id: 'our_option_id',
+                label: 'Маппінг',
+                sortable: false,
+                className: 'cell-mapping',
+                render: (value, row) => {
+                    if (row._source === 'own') return '-';
+                    if (!value) {
+                        return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                    }
+                    const ownOpt = ownOptions.find(o => o.id === value);
+                    return `<span class="severity-badge severity-low">${escapeHtml(ownOpt?.value_ua || value)}</span>`;
+                }
             }
         ],
-        visibleColumns: mapperState.visibleColumns.options,
+        visibleColumns: [...(mapperState.visibleColumns.options || []), '_sourceLabel', 'our_option_id'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.options || new Set();
             const isChecked = selectedSet.has(row.id);
+            const actionBtn = row._editable
+                ? `<button class="btn-icon btn-edit-option" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                       <span class="material-symbols-outlined">edit</span>
+                   </button>`
+                : `<button class="btn-icon btn-view-mp-option" data-id="${escapeHtml(row.id)}" title="Переглянути">
+                       <span class="material-symbols-outlined">visibility</span>
+                   </button>`;
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-edit-option" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                ${actionBtn}
             `;
         },
         emptyState: {
@@ -378,7 +541,7 @@ export function renderOptionsTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування
+    // Додати обробники для кнопок редагування власних
     container.querySelectorAll('.btn-edit-option').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -390,13 +553,28 @@ export function renderOptionsTable() {
         });
     });
 
+    // Додати обробники для кнопок перегляду MP
+    container.querySelectorAll('.btn-view-mp-option').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = button.dataset.id;
+            if (id) {
+                const mpOpt = mpOptions.find(o => o.id === id);
+                if (mpOpt) {
+                    const { showViewMpOptionModal } = await import('./mapper-crud.js');
+                    await showViewMpOptionModal(mpOpt);
+                }
+            }
+        });
+    });
+
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'options', paginatedData);
 
     // Оновити статистику
-    updateStats('options', filteredData.length, options.length);
+    updateStats('options', filteredData.length, allOptions.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} опцій`);
+    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} опцій (власних: ${ownOptions.length}, MP: ${mpOptions.length})`);
 }
 
 /**
@@ -408,9 +586,17 @@ export function renderMarketplacesTable() {
     const container = document.getElementById('mapper-marketplaces-table-container');
     if (!container) return;
 
-    const marketplaces = getMarketplaces();
-    if (!marketplaces || marketplaces.length === 0) {
+    // Отримати маркетплейси та додати мітку джерела
+    const marketplaces = getMarketplaces().map(mp => ({
+        ...mp,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    if (marketplaces.length === 0) {
         renderEmptyState(container, 'marketplaces');
+        updateSourceFilterButtons('marketplaces', marketplaces);
         return;
     }
 
@@ -423,6 +609,9 @@ export function renderMarketplacesTable() {
     // Оновити пагінацію
     updatePagination(totalItems);
 
+    // Оновити фільтр-кнопки джерела
+    updateSourceFilterButtons('marketplaces', marketplaces);
+
     // Рендерити таблицю
     renderPseudoTable(container, {
         data: paginatedData,
@@ -433,6 +622,18 @@ export function renderMarketplacesTable() {
                 className: 'cell-id',
                 sortable: true,
                 render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: '_sourceLabel',
+                label: 'Джерело',
+                sortable: true,
+                className: 'cell-source',
+                render: (value, row) => {
+                    if (row._source === 'own') {
+                        return `<span class="chip chip-success">Власний</span>`;
+                    }
+                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
             },
             {
                 id: 'name',
@@ -460,7 +661,7 @@ export function renderMarketplacesTable() {
                 }
             }
         ],
-        visibleColumns: mapperState.visibleColumns.marketplaces,
+        visibleColumns: [...(mapperState.visibleColumns.marketplaces || []), '_sourceLabel'],
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.marketplaces || new Set();
@@ -533,14 +734,77 @@ function applyFilters(data, tabName) {
         });
     }
 
-    // Фільтр по маппінгу (для characteristics та options)
+    // Отримати налаштування фільтрів
     const filter = mapperState.filters[tabName];
-    if (filter && filter !== 'all') {
-        // TODO: Реалізувати фільтрацію по маппінгу
-        // Потребує завантаження маппінгів
+
+    // Фільтр по джерелу (source) - для всіх табів
+    if (filter && typeof filter === 'object' && filter.source && filter.source !== 'all') {
+        if (filter.source === 'own') {
+            filtered = filtered.filter(item => item._source === 'own');
+        } else {
+            // Фільтр по конкретному маркетплейсу (наприклад, mp-001)
+            const marketplaceId = filter.source.replace('mp-', '');
+            filtered = filtered.filter(item => item._source === marketplaceId || item.marketplace_id === marketplaceId);
+        }
     }
 
     return filtered;
+}
+
+/**
+ * Оновити кнопки фільтра по джерелу
+ * @param {string} tabName - Назва табу
+ * @param {Array} marketplaces - Список маркетплейсів
+ */
+function updateSourceFilterButtons(tabName, marketplaces) {
+    const containerId = `filter-source-mapper-${tabName}`;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const currentFilter = mapperState.filters[tabName]?.source || 'all';
+
+    // Базові кнопки
+    let html = `
+        <button class="nav-icon ${currentFilter === 'all' ? 'active' : ''}" data-filter-source="all" data-tab="${tabName}">
+            <span class="label">Всі</span>
+        </button>
+        <button class="nav-icon ${currentFilter === 'own' ? 'active' : ''}" data-filter-source="own" data-tab="${tabName}">
+            <span class="label">Власні</span>
+        </button>
+    `;
+
+    // Додати кнопки для кожного активного маркетплейсу
+    const activeMarketplaces = marketplaces.filter(m => m.is_active === true || String(m.is_active).toLowerCase() === 'true');
+    activeMarketplaces.forEach(mp => {
+        const isActive = currentFilter === `mp-${mp.id}`;
+        html += `
+            <button class="nav-icon ${isActive ? 'active' : ''}" data-filter-source="mp-${mp.id}" data-tab="${tabName}">
+                <span class="label">${escapeHtml(mp.name)}</span>
+            </button>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Додати обробники подій
+    container.querySelectorAll('.nav-icon').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const source = btn.dataset.filterSource;
+            const tab = btn.dataset.tab;
+
+            // Оновити стан фільтра
+            if (!mapperState.filters[tab] || typeof mapperState.filters[tab] !== 'object') {
+                mapperState.filters[tab] = { mapped: 'all', source: 'all' };
+            }
+            mapperState.filters[tab].source = source;
+            mapperState.pagination.currentPage = 1;
+
+            // Перерендерити таблицю
+            renderCurrentTab();
+
+            console.log(`🔍 Фільтр джерела ${tab}: ${source}`);
+        });
+    });
 }
 
 /**
@@ -630,6 +894,18 @@ function initTableCheckboxes(container, tabName, data) {
 
     const selectedSet = mapperState.selectedRows[tabName];
 
+    // Отримати batch bar для характеристик та опцій
+    const batchBar = getBatchBar(`mapper-${tabName}`);
+
+    // Оновити batch bar якщо він є
+    const updateBatchBar = () => {
+        if (batchBar) {
+            // Синхронізуємо batch bar з selectedSet
+            batchBar.deselectAll();
+            selectedSet.forEach(id => batchBar.selectItem(id));
+        }
+    };
+
     // Оновити стан "select all" чекбокса
     const updateSelectAllState = () => {
         const allIds = data.map(row => row.id);
@@ -655,6 +931,7 @@ function initTableCheckboxes(container, tabName, data) {
             checkbox.checked = e.target.checked;
         });
 
+        updateBatchBar();
         console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
     });
 
@@ -670,10 +947,12 @@ function initTableCheckboxes(container, tabName, data) {
             }
 
             updateSelectAllState();
+            updateBatchBar();
             console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
         });
     });
 
     // Встановити початковий стан
     updateSelectAllState();
+    updateBatchBar();
 }

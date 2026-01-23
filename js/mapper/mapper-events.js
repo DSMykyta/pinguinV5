@@ -13,6 +13,7 @@ import { renderCurrentTab } from './mapper-table.js';
 import { loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
 import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
+import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
 /**
  * Конфігурація колонок для кожного табу
@@ -63,11 +64,13 @@ export function initMapperEvents() {
     // Кнопка імпорту
     initImportButton();
 
-    // Фільтри
-    initFilterPills();
-
     // Селектори колонок
     initColumnSelectors();
+
+    // Batch actions bars
+    initMapperBatchActions();
+
+    // Примітка: Фільтри по джерелу тепер генеруються динамічно в mapper-table.js
 
     console.log('✅ Обробники подій Mapper ініціалізовано');
 }
@@ -248,6 +251,71 @@ function initFilterPills() {
             });
         });
     });
+}
+
+/**
+ * Ініціалізувати batch actions bar для характеристик та опцій
+ */
+function initMapperBatchActions() {
+    // Batch bar для характеристик
+    createBatchActionsBar({
+        tabId: 'mapper-characteristics',
+        actions: [
+            {
+                id: 'map-to',
+                label: 'Замапити до...',
+                icon: 'link',
+                primary: true,
+                handler: async (selectedIds, tabId) => {
+                    const { showSelectOwnCharacteristicModal } = await import('./mapper-crud.js');
+                    await showSelectOwnCharacteristicModal(selectedIds);
+                }
+            },
+            {
+                id: 'auto-map',
+                label: 'Авто-маппінг',
+                icon: 'auto_fix_high',
+                handler: async (selectedIds, tabId) => {
+                    const { handleAutoMapCharacteristics } = await import('./mapper-crud.js');
+                    await handleAutoMapCharacteristics(selectedIds);
+                }
+            }
+        ],
+        onSelectionChange: (count) => {
+            console.log(`📦 Вибрано ${count} характеристик`);
+        }
+    });
+
+    // Batch bar для опцій
+    createBatchActionsBar({
+        tabId: 'mapper-options',
+        actions: [
+            {
+                id: 'map-to',
+                label: 'Замапити до...',
+                icon: 'link',
+                primary: true,
+                handler: async (selectedIds, tabId) => {
+                    const { showSelectOwnOptionModal } = await import('./mapper-crud.js');
+                    await showSelectOwnOptionModal(selectedIds);
+                }
+            },
+            {
+                id: 'auto-map',
+                label: 'Авто-маппінг',
+                icon: 'auto_fix_high',
+                handler: async (selectedIds, tabId) => {
+                    const { handleAutoMapOptions } = await import('./mapper-crud.js');
+                    await handleAutoMapOptions(selectedIds);
+                }
+            }
+        ],
+        onSelectionChange: (count) => {
+            console.log(`📦 Вибрано ${count} опцій`);
+        }
+    });
+
+    console.log('✅ Batch actions bars ініціалізовано');
 }
 
 /**

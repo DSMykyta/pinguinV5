@@ -48,12 +48,12 @@ export const mapperState = {
         marketplaces: ['id', 'name', 'slug']
     },
 
-    // Фільтри
+    // Фільтри (source: all|own|mp-xxx для фільтрації по джерелу)
     filters: {
-        categories: 'all',
-        characteristics: 'all', // all | mapped | unmapped
-        options: 'all', // all | mapped | unmapped
-        marketplaces: 'all'
+        categories: { source: 'all' },
+        characteristics: { source: 'all' },
+        options: { source: 'all' },
+        marketplaces: { source: 'all' }
     },
 
     // Видимі колонки для кожного табу
@@ -161,8 +161,18 @@ async function checkAuthAndLoadData() {
         console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         try {
-            // Завантажити дані
+            // Завантажити основні дані
             await loadMapperData();
+
+            // Завантажити MP дані та маппінги паралельно
+            const { loadMpCharacteristics, loadMpOptions, loadMapCategories, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
+            await Promise.all([
+                loadMpCharacteristics(),
+                loadMpOptions(),
+                loadMapCategories(),
+                loadMapCharacteristics(),
+                loadMapOptions()
+            ]);
 
             // Ініціалізувати dropdowns після заповнення
             const { initDropdowns } = await import('../common/ui-dropdown.js');
