@@ -310,6 +310,7 @@ export async function loadMapCategories() {
  * Завантажити маппінги для характеристик
  */
 export async function loadMapCharacteristics() {
+    console.log('📥 Завантаження маппінгів характеристик...');
     try {
         const result = await callSheetsAPI('get', {
             range: `${SHEETS.MAP_CHARACTERISTICS}!A:D`,
@@ -318,21 +319,29 @@ export async function loadMapCharacteristics() {
 
         // Backend повертає масив напряму
         if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.log('⚠️ Таблиця маппінгів характеристик порожня');
             mapperState.mapCharacteristics = [];
             return [];
         }
 
         const headers = result[0];
+        console.log('📋 Колонки маппінгів характеристик:', headers);
         const rows = result.slice(1);
 
-        mapperState.mapCharacteristics = rows.map((row, index) => {
-            const obj = { _rowIndex: index + 2 };
-            headers.forEach((header, i) => {
-                obj[header] = row[i] || '';
+        mapperState.mapCharacteristics = rows
+            .filter(row => row[0]) // Фільтруємо порожні рядки
+            .map((row, index) => {
+                const obj = { _rowIndex: index + 2 };
+                headers.forEach((header, i) => {
+                    obj[header] = row[i] || '';
+                });
+                return obj;
             });
-            return obj;
-        });
 
+        console.log(`✅ Завантажено ${mapperState.mapCharacteristics.length} маппінгів характеристик`);
+        if (mapperState.mapCharacteristics.length > 0) {
+            console.log('📊 Приклад маппінгу:', mapperState.mapCharacteristics[0]);
+        }
         return mapperState.mapCharacteristics;
     } catch (error) {
         console.error('❌ Помилка завантаження маппінгів характеристик:', error);
@@ -1166,16 +1175,34 @@ export async function deleteCharacteristicMappingByMpId(mpCharId) {
  * @param {string} ownCharId - ID власної характеристики
  */
 export function getMappedMpCharacteristics(ownCharId) {
+    const result = [];
+    const addedIds = new Set();
+
+    // 1. З нової таблиці маппінгів
     const mappings = mapperState.mapCharacteristics.filter(m =>
         m.characteristic_id === ownCharId
     );
-
-    return mappings.map(mapping => {
+    mappings.forEach(mapping => {
         const mpChar = mapperState.mpCharacteristics.find(c =>
             c.id === mapping.mp_characteristic_id
         );
-        return mpChar ? { ...mpChar, _mappingId: mapping.id } : null;
-    }).filter(Boolean);
+        if (mpChar && !addedIds.has(mpChar.id)) {
+            result.push({ ...mpChar, _mappingId: mapping.id, _source: 'new' });
+            addedIds.add(mpChar.id);
+        }
+    });
+
+    // 2. Зі старого JSON формату (data.our_char_id)
+    mapperState.mpCharacteristics.forEach(mpChar => {
+        if (addedIds.has(mpChar.id)) return;
+        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
+        if (data.our_char_id === ownCharId) {
+            result.push({ ...mpChar, _source: 'legacy' });
+            addedIds.add(mpChar.id);
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -1183,9 +1210,20 @@ export function getMappedMpCharacteristics(ownCharId) {
  * @param {string} mpCharId - ID MP характеристики
  */
 export function isMpCharacteristicMapped(mpCharId) {
-    return mapperState.mapCharacteristics.some(m =>
+    // Перевірити в новій таблиці маппінгів
+    const inNewTable = mapperState.mapCharacteristics.some(m =>
         m.mp_characteristic_id === mpCharId
     );
+    if (inNewTable) return true;
+
+    // Перевірити в старому JSON форматі (data.our_char_id)
+    const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
+    if (mpChar) {
+        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
+        if (data.our_char_id) return true;
+    }
+
+    return false;
 }
 
 /**
@@ -1296,16 +1334,34 @@ export async function deleteOptionMappingByMpId(mpOptionId) {
  * @param {string} ownOptionId - ID власної опції
  */
 export function getMappedMpOptions(ownOptionId) {
+    const result = [];
+    const addedIds = new Set();
+
+    // 1. З нової таблиці маппінгів
     const mappings = mapperState.mapOptions.filter(m =>
         m.option_id === ownOptionId
     );
-
-    return mappings.map(mapping => {
+    mappings.forEach(mapping => {
         const mpOption = mapperState.mpOptions.find(o =>
             o.id === mapping.mp_option_id
         );
-        return mpOption ? { ...mpOption, _mappingId: mapping.id } : null;
-    }).filter(Boolean);
+        if (mpOption && !addedIds.has(mpOption.id)) {
+            result.push({ ...mpOption, _mappingId: mapping.id, _source: 'new' });
+            addedIds.add(mpOption.id);
+        }
+    });
+
+    // 2. Зі старого JSON формату (data.our_option_id)
+    mapperState.mpOptions.forEach(mpOption => {
+        if (addedIds.has(mpOption.id)) return;
+        const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
+        if (data.our_option_id === ownOptionId) {
+            result.push({ ...mpOption, _source: 'legacy' });
+            addedIds.add(mpOption.id);
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -1313,9 +1369,20 @@ export function getMappedMpOptions(ownOptionId) {
  * @param {string} mpOptionId - ID MP опції
  */
 export function isMpOptionMapped(mpOptionId) {
-    return mapperState.mapOptions.some(m =>
+    // Перевірити в новій таблиці маппінгів
+    const inNewTable = mapperState.mapOptions.some(m =>
         m.mp_option_id === mpOptionId
     );
+    if (inNewTable) return true;
+
+    // Перевірити в старому JSON форматі (data.our_option_id)
+    const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
+    if (mpOption) {
+        const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
+        if (data.our_option_id) return true;
+    }
+
+    return false;
 }
 
 /**
