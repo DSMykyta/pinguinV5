@@ -365,6 +365,7 @@ export function renderCharacteristicsTable() {
         button.addEventListener('click', async (e) => {
             e.stopPropagation();
             const id = button.dataset.id;
+            console.log(`👁️ Клік на перегляд MP характеристики: ${id}`);
             if (id) {
                 const { showViewMpCharacteristicModal } = await import('./mapper-crud.js');
                 await showViewMpCharacteristicModal(id);
@@ -404,7 +405,15 @@ export function renderOptionsTable() {
 
     // Отримати MP опції та конвертувати в уніфікований формат
     const mpOptions = getMpOptions().map(mpOpt => {
-        const data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : (mpOpt.data || {});
+        let data = {};
+        if (mpOpt.data) {
+            try {
+                data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
+            } catch (e) {
+                console.warn(`⚠️ Помилка парсингу data для MP опції ${mpOpt.id}:`, e);
+                data = {};
+            }
+        }
         const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
 
         // Знайти назву характеристики MP
@@ -439,6 +448,7 @@ export function renderOptionsTable() {
 
     if (allOptions.length === 0) {
         renderEmptyState(container, 'options');
+        updateSourceFilterButtons('options', marketplaces);
         return;
     }
 
