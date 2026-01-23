@@ -370,6 +370,11 @@ export async function showEditCharacteristicModal(id) {
     const modalEl = document.getElementById('modal-mapper-characteristic-edit');
     if (modalEl) initCustomSelects(modalEl);
 
+    // Додати обробник для кнопки закриття (fullscreen модал)
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+
     // Ініціалізувати перемикач глобальності
     initGlobalToggleHandler();
 
@@ -1144,6 +1149,11 @@ export async function showEditOptionModal(id) {
     // Ініціалізувати кастомні селекти в модальному вікні
     const modalEl = document.getElementById('modal-mapper-option-edit');
     if (modalEl) initCustomSelects(modalEl);
+
+    // Додати обробник для кнопки закриття (fullscreen модал)
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = option.value_ua || 'Редагувати опцію';

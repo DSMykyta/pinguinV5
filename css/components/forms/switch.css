@@ -33,9 +33,6 @@
 .switch-container {
     display: flex;
     gap: 4px;
-    padding: 4px;
-    background: var(--color-surface-c-low);
-    border-radius: 8px;
 }
 
 .switch-container input[type="radio"] {
