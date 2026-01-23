@@ -1087,6 +1087,31 @@ export async function loadMpOptions() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // -------------------------
+// КАТЕГОРІЇ
+// -------------------------
+
+/**
+ * Перевірити чи MP категорія замаплена
+ * @param {string} mpCatId - ID MP категорії
+ */
+export function isMpCategoryMapped(mpCatId) {
+    // Перевірити в таблиці маппінгів
+    const inMappingTable = mapperState.mapCategories.some(m =>
+        m.mp_category_id === mpCatId
+    );
+    if (inMappingTable) return true;
+
+    // Перевірити в старому JSON форматі (data.our_category_id)
+    const mpCat = mapperState.mpCategories.find(c => c.id === mpCatId);
+    if (mpCat) {
+        const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+        if (data.our_category_id) return true;
+    }
+
+    return false;
+}
+
+// -------------------------
 // ХАРАКТЕРИСТИКИ
 // -------------------------
 

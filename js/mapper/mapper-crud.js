@@ -13,7 +13,7 @@ import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     addOption, updateOption, deleteOption, getOptions,
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
-    getMpCharacteristics, getMpOptions,
+    getMpCategories, getMpCharacteristics, getMpOptions,
     batchCreateCharacteristicMapping, batchCreateOptionMapping,
     autoMapCharacteristics, autoMapOptions,
     getMappedMpCharacteristics, getMappedMpOptions,
@@ -4148,6 +4148,145 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                             <label>Значення</label>
                             <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
                         </div>
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+}
+
+/**
+ * Показати read-only модалку для MP категорії
+ * @param {string|Object} mpCatIdOrData - ID MP категорії або об'єкт з даними
+ */
+export async function showViewMpCategoryModal(mpCatIdOrData) {
+    console.log(`👁️ Перегляд MP категорії`, mpCatIdOrData);
+
+    let mpCat;
+
+    // Приймаємо як ID (string), так і об'єкт
+    if (typeof mpCatIdOrData === 'object' && mpCatIdOrData !== null) {
+        mpCat = mpCatIdOrData;
+    } else {
+        const mpCats = getMpCategories();
+        console.log(`📊 Всього MP категорій: ${mpCats.length}, шукаємо ID: ${mpCatIdOrData}`);
+        mpCat = mpCats.find(c => c.id === mpCatIdOrData);
+
+        if (!mpCat) {
+            // Спробуємо пошук за external_id
+            mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
+            if (mpCat) {
+                console.log(`✅ Знайдено за external_id`);
+            }
+        }
+    }
+
+    if (!mpCat) {
+        showToast('MP категорію не знайдено', 'error');
+        console.error(`❌ MP категорію не знайдено: ${mpCatIdOrData}`);
+        return;
+    }
+
+    // Парсимо data якщо потрібно
+    let catData = mpCat;
+    if (mpCat.data && typeof mpCat.data === 'string') {
+        try {
+            catData = { ...mpCat, ...JSON.parse(mpCat.data) };
+        } catch (e) {
+            // Залишаємо як є
+        }
+    }
+
+    // Знаходимо назву маркетплейсу
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
+    const mpName = marketplace ? marketplace.name : mpCat.marketplace_id;
+
+    // Знаходимо назву прив'язаної категорії
+    let mappedToName = '';
+    if (catData.our_category_id) {
+        const ownCats = getCategories();
+        const ownCat = ownCats.find(c => c.id === catData.our_category_id);
+        mappedToName = ownCat ? (ownCat.name_ua || ownCat.id) : catData.our_category_id;
+    }
+
+    // Знаходимо батьківську категорію (якщо є)
+    let parentName = '';
+    if (catData.parent_id) {
+        const mpCats = getMpCategories();
+        const parent = mpCats.find(c => c.external_id === catData.parent_id && c.marketplace_id === mpCat.marketplace_id);
+        if (parent) {
+            const parentData = typeof parent.data === 'string' ? JSON.parse(parent.data || '{}') : (parent.data || {});
+            parentName = parentData.name || catData.parent_id;
+        } else {
+            parentName = catData.parent_id;
+        }
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Категорія маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpCat.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" class="input-main" value="${escapeHtml(catData.name || '')}" readonly>
+                        </div>
+                        ${parentName ? `
+                        <div class="form-group">
+                            <label>Батьківська категорія</label>
+                            <input type="text" class="input-main" value="${escapeHtml(parentName)}" readonly>
+                        </div>
+                        ` : ''}
                     </fieldset>
 
                     <div class="form-fieldset u-mt-16">

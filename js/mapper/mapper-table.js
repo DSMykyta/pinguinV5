@@ -12,8 +12,9 @@
 import { mapperState } from './mapper-init.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
-    getMpCharacteristics, getMpOptions, getMapCharacteristics, getMapOptions,
-    isMpCharacteristicMapped, isMpOptionMapped
+    getMpCategories, getMpCharacteristics, getMpOptions,
+    getMapCharacteristics, getMapOptions,
+    isMpCharacteristicMapped, isMpOptionMapped, isMpCategoryMapped
 } from './mapper-data.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 
@@ -76,13 +77,37 @@ export function renderCategoriesTable() {
 
     const marketplaces = getMarketplaces();
 
-    // Отримати категорії та додати мітку джерела
-    const categories = getCategories().map(cat => ({
+    // Отримати власні категорії
+    const ownCategories = getCategories().map(cat => ({
         ...cat,
         _source: 'own',
         _sourceLabel: 'Власний',
         _editable: true
     }));
+
+    // Отримати MP категорії - тільки незамаплені
+    const mpCategories = getMpCategories()
+        .filter(mpCat => !isMpCategoryMapped(mpCat.id))
+        .map(mpCat => {
+            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+            const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
+            return {
+                id: mpCat.id,
+                external_id: mpCat.external_id,
+                marketplace_id: mpCat.marketplace_id,
+                name_ua: data.name || '',
+                name_ru: '',
+                parent_id: data.parent_id || '',
+                our_category_id: data.our_category_id || '',
+                _source: mpCat.marketplace_id,
+                _sourceLabel: marketplace?.name || mpCat.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
+
+    // Об'єднати
+    const categories = [...ownCategories, ...mpCategories];
 
     if (categories.length === 0) {
         renderEmptyState(container, 'categories');
@@ -111,7 +136,11 @@ export function renderCategoriesTable() {
                 label: 'ID',
                 className: 'cell-id',
                 sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+                render: (value, row) => {
+                    // Для MP показуємо external_id
+                    const displayId = row._source === 'own' ? value : (row.external_id || value);
+                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
+                }
             },
             {
                 id: '_sourceLabel',
@@ -123,6 +152,40 @@ export function renderCategoriesTable() {
                         return `<span class="chip chip-success">Власний</span>`;
                     }
                     return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
+            },
+            {
+                id: '_nestingLevel',
+                label: 'Рів.',
+                className: 'cell-nesting-level',
+                render: (value, row) => {
+                    // Обчислити рівень вкладеності
+                    let level = 0;
+                    let current = row;
+                    const path = [row.name_ua || row.id];
+
+                    while (current && current.parent_id) {
+                        level++;
+                        const parent = categories.find(c => c.id === current.parent_id);
+                        if (parent) {
+                            path.unshift(parent.name_ua || parent.id);
+                            current = parent;
+                        } else {
+                            break;
+                        }
+                        // Захист від циклічних посилань
+                        if (level > 10) break;
+                    }
+
+                    // Tooltip показує шлях до кореня
+                    const tooltipText = level === 0
+                        ? 'Коренева категорія'
+                        : path.join(' → ');
+
+                    // Використовуємо існуючі класи: chip-active для кореня, chip для решти
+                    const chipClass = level === 0 ? 'chip-active' : '';
+
+                    return `<span class="chip ${chipClass}" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
                 }
             },
             {
@@ -154,11 +217,16 @@ export function renderCategoriesTable() {
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.categories || new Set();
             const isChecked = selectedSet.has(row.id);
+            const actionBtn = row._editable
+                ? `<button class="btn-icon btn-edit-category" data-id="${escapeHtml(row.id)}" title="Редагувати">
+                       <span class="material-symbols-outlined">edit</span>
+                   </button>`
+                : `<button class="btn-icon btn-view-mp-category" data-id="${escapeHtml(row.id)}" title="Переглянути">
+                       <span class="material-symbols-outlined">visibility</span>
+                   </button>`;
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-edit-category" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                ${actionBtn}
             `;
         },
         emptyState: {
@@ -168,7 +236,7 @@ export function renderCategoriesTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування
+    // Додати обробники для кнопок редагування власних
     container.querySelectorAll('.btn-edit-category').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -180,13 +248,26 @@ export function renderCategoriesTable() {
         });
     });
 
+    // Додати обробники для кнопок перегляду MP
+    container.querySelectorAll('.btn-view-mp-category').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = button.dataset.id;
+            console.log(`👁️ Клік на перегляд MP категорії: ${id}`);
+            if (id) {
+                const { showViewMpCategoryModal } = await import('./mapper-crud.js');
+                await showViewMpCategoryModal(id);
+            }
+        });
+    });
+
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'categories', paginatedData);
 
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} категорій`);
+    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} категорій (власних: ${ownCategories.length}, MP: ${mpCategories.length})`);
 }
 
 /**
@@ -280,6 +361,35 @@ export function renderCharacteristicsTable() {
                         return `<span class="chip chip-success">Власний</span>`;
                     }
                     return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+                }
+            },
+            {
+                id: 'category_ids',
+                label: 'Кат.',
+                className: 'cell-category-count',
+                render: (value, row) => {
+                    // Якщо глобальна - показати main чіп без цифри
+                    const isGlobal = row.is_global === true || String(row.is_global).toLowerCase() === 'true' || row.is_global === 'Так';
+                    if (isGlobal) {
+                        return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
+                    }
+
+                    // Порахувати категорії
+                    const categoryIdsStr = value || row.category_ids || '';
+                    const categoryIdsList = categoryIdsStr.split(',').map(id => id.trim()).filter(id => id);
+                    const count = categoryIdsList.length;
+
+                    if (count === 0) {
+                        return `<span class="chip" data-tooltip="Не прив'язано до категорій" data-tooltip-always>0</span>`;
+                    }
+
+                    // Отримати назви категорій для tooltip
+                    const categoryNames = categoryIdsList.map(id => {
+                        const cat = categories.find(c => c.id === id);
+                        return cat ? cat.name_ua : id;
+                    }).join('\n');
+
+                    return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
                 }
             },
             {
