@@ -287,11 +287,8 @@
 /* ============================================
    MAGIC HINTS SIDEBAR (для модалі магічного парсингу)
    ============================================
-
-   МОДУЛЬНІСТЬ:
-   Ці стилі можна безпечно видалити разом з:
-   - js/generators/generator-table/gt-magic-hints.js
-   - #magic-hints-sidebar з magic-modal.html
+   Прозорий контейнер з chip-list.
+   Використовує існуючі класи .chip з chip.css
    ============================================ */
 
 .magic-hints-sidebar {
@@ -299,151 +296,21 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    width: 220px;
+    width: 200px;
     max-height: 80vh;
-    padding: 12px;
-    background: var(--color-surface-c);
-    border-radius: var(--radius-l);
-    border: 1px solid var(--color-outline-v);
-    box-shadow: var(--shadow-2);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow-y: auto;
     z-index: 1;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.magic-hints-sidebar.has-hints {
-    opacity: 1;
-    visibility: visible;
+/* Приховуємо коли порожній */
+.magic-hints-sidebar:empty {
+    display: none;
 }
 
-/* Заголовок sidebar */
-.magic-hints-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--color-outline-v);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-on-surface-v);
-}
-
-.magic-hints-header .material-symbols-outlined {
-    font-size: 16px;
-    color: var(--color-primary);
-}
-
-/* Список підказок */
-.magic-hints-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-/* Базовий стиль чіпа */
-.magic-hint-chip {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 10px;
-    background: var(--color-surface-c-low);
-    border-radius: var(--radius-m);
-    border: 1px solid transparent;
-    cursor: default;
-    transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.magic-hint-chip:hover {
-    background: var(--color-surface-c-high);
-}
-
-/* Іконка чіпа */
-.magic-hint-icon {
-    font-size: 18px;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-/* Контент чіпа */
-.magic-hint-content {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
-.magic-hint-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-    line-height: 1.3;
-}
-
-.magic-hint-value {
-    font-size: 11px;
-    color: var(--color-on-surface-v);
-    line-height: 1.3;
-}
-
-/* Бейдж "Незамінна" */
-.magic-hint-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 6px;
-    background: var(--color-tertiary-container);
-    color: var(--color-on-tertiary-container);
-    border-radius: var(--radius-s);
-    font-size: 10px;
-    font-weight: 500;
-    width: fit-content;
-}
-
-/* Вітамін - фіолетовий акцент */
-.magic-hint-vitamin {
-    border-left: 3px solid var(--color-primary);
-}
-
-.magic-hint-vitamin .magic-hint-icon {
-    color: var(--color-primary);
-}
-
-/* Амінокислота - зелений акцент */
-.magic-hint-amino {
-    border-left: 3px solid var(--color-tertiary);
-}
-
-.magic-hint-amino .magic-hint-icon {
-    color: var(--color-tertiary);
-}
-
-/* Порожній стан */
-.magic-hints-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 12px;
-    text-align: center;
-    color: var(--color-on-surface-v);
-    gap: 8px;
-}
-
-.magic-hints-empty .material-symbols-outlined {
-    font-size: 32px;
-    opacity: 0.5;
-}
-
-.magic-hints-empty span:last-child {
-    font-size: 11px;
-    line-height: 1.4;
-}
-
-/* Адаптив: приховуємо на вузьких екранах */
+/* Адаптив */
 @media (max-width: 900px) {
     .magic-hints-sidebar {
         display: none;

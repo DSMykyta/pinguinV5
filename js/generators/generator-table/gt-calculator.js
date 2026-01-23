@@ -52,6 +52,43 @@ export function calculatePercentages() {
 }
 
 /**
+ * Позначає незамінні амінокислоти кольоровим індикатором.
+ * Додає клас до .input-right-tool без тексту (просто кольоровий маркер).
+ */
+export function markEssentialAminoAcids() {
+    // 9 незамінних амінокислот (укр + рос варіанти)
+    const essentialAminos = [
+        'гістидин', 'гистидин',
+        'ізолейцин', 'изолейцин',
+        'лейцин',
+        'лізин', 'лизин',
+        'метіонін', 'метионин',
+        'фенілаланін', 'фенилаланин',
+        'треонін', 'треонин',
+        'триптофан',
+        'валін', 'валин'
+    ];
+
+    const rows = dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC);
+
+    rows.forEach(row => {
+        const leftValue = row.querySelector(SELECTORS.INPUT_LEFT)?.value.toLowerCase() || '';
+        const toolSpan = row.querySelector(SELECTORS.INPUT_RIGHT_TOOL);
+
+        if (!toolSpan) return;
+
+        const isEssential = essentialAminos.some(amino => leftValue.includes(amino));
+
+        if (isEssential) {
+            // Додаємо клас для кольорового індикатора (без тексту)
+            toolSpan.classList.add('tooltip-sm', 'essential-amino');
+        } else {
+            toolSpan.classList.remove('essential-amino');
+        }
+    });
+}
+
+/**
  * Перевіряє, чи заповнене праве поле у рядку "Пищевая ценность".
  * @param {boolean} [silent=false] - Якщо true, не показувати повідомлення.
  * @returns {boolean} - true, якщо поле порожнє.
