@@ -3193,16 +3193,33 @@ export async function handleAutoMapOptions(selectedIds) {
 
 /**
  * Показати read-only модалку для MP характеристики
- * @param {string} mpCharId - ID MP характеристики
+ * @param {string|Object} mpCharIdOrData - ID MP характеристики або об'єкт з даними
  */
-export async function showViewMpCharacteristicModal(mpCharId) {
-    console.log(`👁️ Перегляд MP характеристики ${mpCharId}`);
+export async function showViewMpCharacteristicModal(mpCharIdOrData) {
+    console.log(`👁️ Перегляд MP характеристики`, mpCharIdOrData);
 
-    const mpChars = getMpCharacteristics();
-    const mpChar = mpChars.find(c => c.id === mpCharId);
+    let mpChar;
+
+    // Приймаємо як ID (string), так і об'єкт
+    if (typeof mpCharIdOrData === 'object' && mpCharIdOrData !== null) {
+        mpChar = mpCharIdOrData;
+    } else {
+        const mpChars = getMpCharacteristics();
+        console.log(`📊 Всього MP характеристик: ${mpChars.length}, шукаємо ID: ${mpCharIdOrData}`);
+        mpChar = mpChars.find(c => c.id === mpCharIdOrData);
+
+        if (!mpChar) {
+            // Спробуємо пошук за external_id
+            mpChar = mpChars.find(c => c.external_id === mpCharIdOrData);
+            if (mpChar) {
+                console.log(`✅ Знайдено за external_id`);
+            }
+        }
+    }
 
     if (!mpChar) {
         showToast('MP характеристику не знайдено', 'error');
+        console.error(`❌ MP характеристику не знайдено: ${mpCharIdOrData}`);
         return;
     }
 
@@ -3310,16 +3327,33 @@ export async function showViewMpCharacteristicModal(mpCharId) {
 
 /**
  * Показати read-only модалку для MP опції
- * @param {string} mpOptionId - ID MP опції
+ * @param {string|Object} mpOptionIdOrData - ID MP опції або об'єкт з даними
  */
-export async function showViewMpOptionModal(mpOptionId) {
-    console.log(`👁️ Перегляд MP опції ${mpOptionId}`);
+export async function showViewMpOptionModal(mpOptionIdOrData) {
+    console.log(`👁️ Перегляд MP опції`, mpOptionIdOrData);
 
-    const mpOpts = getMpOptions();
-    const mpOption = mpOpts.find(o => o.id === mpOptionId);
+    let mpOption;
+
+    // Приймаємо як ID (string), так і об'єкт
+    if (typeof mpOptionIdOrData === 'object' && mpOptionIdOrData !== null) {
+        mpOption = mpOptionIdOrData;
+    } else {
+        const mpOpts = getMpOptions();
+        console.log(`📊 Всього MP опцій: ${mpOpts.length}, шукаємо ID: ${mpOptionIdOrData}`);
+        mpOption = mpOpts.find(o => o.id === mpOptionIdOrData);
+
+        if (!mpOption) {
+            // Спробуємо пошук за external_id
+            mpOption = mpOpts.find(o => o.external_id === mpOptionIdOrData);
+            if (mpOption) {
+                console.log(`✅ Знайдено за external_id`);
+            }
+        }
+    }
 
     if (!mpOption) {
         showToast('MP опцію не знайдено', 'error');
+        console.error(`❌ MP опцію не знайдено: ${mpOptionIdOrData}`);
         return;
     }
 

@@ -366,11 +366,8 @@ export function renderCharacteristicsTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const mpChar = mpCharacteristics.find(c => c.id === id);
-                if (mpChar) {
-                    const { showViewMpCharacteristicModal } = await import('./mapper-crud.js');
-                    await showViewMpCharacteristicModal(mpChar);
-                }
+                const { showViewMpCharacteristicModal } = await import('./mapper-crud.js');
+                await showViewMpCharacteristicModal(id);
             }
         });
     });
@@ -559,11 +556,8 @@ export function renderOptionsTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const mpOpt = mpOptions.find(o => o.id === id);
-                if (mpOpt) {
-                    const { showViewMpOptionModal } = await import('./mapper-crud.js');
-                    await showViewMpOptionModal(mpOpt);
-                }
+                const { showViewMpOptionModal } = await import('./mapper-crud.js');
+                await showViewMpOptionModal(id);
             }
         });
     });
