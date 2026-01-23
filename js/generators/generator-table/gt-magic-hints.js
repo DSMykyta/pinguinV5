@@ -165,7 +165,7 @@ function handleTextInput() {
             const name = amino.ua.charAt(0).toUpperCase() + amino.ua.slice(1);
             hints.push({
                 type: 'amino',
-                text: `${name} — незамінна`
+                name: name
             });
         }
     }
@@ -181,10 +181,13 @@ function renderHints(hints) {
         return;
     }
 
-    // Використовуємо існуючі класи .chip
     hintsContainer.innerHTML = hints.map(hint => {
-        const chipClass = hint.type === 'vitamin' ? 'chip-active' : 'chip-success';
-        return `<span class="chip ${chipClass}">${hint.text}</span>`;
+        if (hint.type === 'vitamin') {
+            return `<span class="chip chip-active">${hint.text}</span>`;
+        } else {
+            // Амінокислота - badge жовтий з EAA
+            return `<span class="chip chip-warning">${hint.name} — EAA</span>`;
+        }
     }).join('');
 }
 
