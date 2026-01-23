@@ -372,7 +372,11 @@ export async function showEditCharacteristicModal(id) {
 
     // Додати обробник для кнопки закриття (fullscreen модал)
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
-        btn.addEventListener('click', closeModal);
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
     });
 
     // Ініціалізувати перемикач глобальності
@@ -1152,7 +1156,11 @@ export async function showEditOptionModal(id) {
 
     // Додати обробник для кнопки закриття (fullscreen модал)
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
-        btn.addEventListener('click', closeModal);
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
     });
 
     const title = document.getElementById('modal-title');
