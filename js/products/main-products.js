@@ -1,13 +1,41 @@
 /**
  * Products Page - Main Entry Point
- * Сторінка управління товарами з demo даними для візуалізації
+ * Сторінка управління товарами з локальним збереженням
  */
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
 import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
 
-// Demo дані товарів
+// Data services
+import {
+    loadAllData,
+    loadCategories,
+    loadCharacteristics,
+    loadOptions,
+    loadBrands,
+    getCachedData,
+    getOptionsForCharacteristic,
+    getCharacteristicsForCategory,
+    getCharacteristicsByBlocks,
+    getDependentCharacteristics,
+    hasChildCharacteristics,
+    getFieldType,
+    BLOCK_NAMES
+} from './products-data-service.js';
+
+import {
+    getProducts,
+    saveProducts,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    duplicateProduct,
+    getProductsStats,
+    initWithDemoData
+} from './products-storage.js';
+
+// Demo дані товарів (для першого запуску)
 const DEMO_PRODUCTS = [
     {
         id: 1,
@@ -122,6 +150,17 @@ let sortKey = 'id';
 let sortDirection = 'asc';
 let selectedProducts = new Set();
 
+// Активні товари (з localStorage)
+let productsData = [];
+
+// Дані з таблиць
+let sheetsData = {
+    categories: [],
+    characteristics: [],
+    options: [],
+    brands: []
+};
+
 /**
  * Ініціалізація сторінки
  */
@@ -131,8 +170,20 @@ async function initProductsPage() {
     // Завантажуємо aside панель
     await loadAsidePanel();
 
+    // Завантажуємо дані з Google Sheets
+    try {
+        sheetsData = await loadAllData();
+        console.log('📊 Дані з таблиць:', sheetsData);
+    } catch (error) {
+        console.warn('⚠️ Не вдалося завантажити дані з таблиць:', error);
+    }
+
+    // Ініціалізуємо товари з localStorage (або demo)
+    productsData = initWithDemoData(DEMO_PRODUCTS);
+    console.log(`📦 Завантажено ${productsData.length} товарів`);
+
     // Рендеримо таблицю товарів
-    renderProductsTable(DEMO_PRODUCTS);
+    renderProductsTable(productsData);
 
     // Рендеримо таб варіантів
     renderVariantsTab();
@@ -386,7 +437,7 @@ function initSortableHeaders() {
                 sortKey = key;
                 sortDirection = 'asc';
             }
-            renderProductsTable(DEMO_PRODUCTS);
+            renderProductsTable(productsData);
         });
     });
 }
@@ -448,15 +499,23 @@ function batchExport() {
 }
 
 function batchHide() {
-    alert(`Приховано ${selectedProducts.size} товарів (Demo)`);
+    selectedProducts.forEach(id => {
+        updateProduct(id, { status: 'hidden' });
+    });
+    productsData = getProducts();
+    showToast(`Приховано ${selectedProducts.size} товарів`, 'success');
     selectedProducts.clear();
-    renderProductsTable(DEMO_PRODUCTS);
+    renderProductsTable(productsData);
 }
 
 function batchActivate() {
-    alert(`Активовано ${selectedProducts.size} товарів (Demo)`);
+    selectedProducts.forEach(id => {
+        updateProduct(id, { status: 'active' });
+    });
+    productsData = getProducts();
+    showToast(`Активовано ${selectedProducts.size} товарів`, 'success');
     selectedProducts.clear();
-    renderProductsTable(DEMO_PRODUCTS);
+    renderProductsTable(productsData);
 }
 
 /**
@@ -468,7 +527,7 @@ function renderVariantsTab() {
 
     // Збираємо всі варіанти з усіх товарів
     const allVariants = [];
-    DEMO_PRODUCTS.forEach(product => {
+    productsData.forEach(product => {
         product.variants.forEach(variant => {
             allVariants.push({
                 ...variant,
@@ -706,9 +765,10 @@ function initEventHandlers() {
 
             // Toggle статус
             const newStatus = !isChecked;
-            const product = DEMO_PRODUCTS.find(p => p.id === productId);
+            const product = productsData.find(p => p.id === productId);
             if (product) {
                 product.show_on_site = newStatus;
+                updateProduct(productId, { show_on_site: newStatus });
             }
 
             // Оновлюємо badge
@@ -729,7 +789,7 @@ function initEventHandlers() {
             document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentFilter = btn.dataset.filter;
-            renderProductsTable(DEMO_PRODUCTS);
+            renderProductsTable(productsData);
         });
     });
 
@@ -773,7 +833,7 @@ function initTabs() {
  * Відкриття модального вікна редагування
  */
 async function openEditModal(productId) {
-    const product = DEMO_PRODUCTS.find(p => p.id == productId);
+    const product = productsData.find(p => p.id == productId);
     if (!product) return;
 
     const container = document.getElementById('modal-container');
@@ -796,6 +856,18 @@ async function openEditModal(productId) {
             document.body.classList.add('is-modal-open');
             currentModal = overlay;
         }
+
+        // Наповнюємо селекти категорій та брендів
+        await populateEditModalSelects(container, product);
+
+        // Рендеримо характеристики по блоках
+        renderCharacteristicsByBlocks(container, product.category_id || null);
+
+        // Заповнюємо значення характеристик з товару
+        fillCharacteristicsValues(container, product);
+
+        // Ініціалізуємо обробник зміни категорії
+        initCategoryChangeHandler(container);
 
         // Ініціалізуємо навігацію по секціях
         initSectionNavigator();
@@ -821,10 +893,71 @@ async function openEditModal(productId) {
 }
 
 /**
+ * Наповнення селектів у edit modal
+ */
+async function populateEditModalSelects(container, product) {
+    const { categories, brands } = sheetsData;
+
+    // Категорії
+    const categorySelect = container.querySelector('#edit-category');
+    if (categorySelect && categories.length > 0) {
+        categorySelect.innerHTML = '<option value="">Оберіть категорію</option>';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name_ua;
+            if (cat.id === product.category_id) {
+                option.selected = true;
+            }
+            categorySelect.appendChild(option);
+        });
+    }
+
+    // Бренди
+    const brandSelect = container.querySelector('#edit-brand');
+    if (brandSelect && brands.length > 0) {
+        brandSelect.innerHTML = '<option value="">Оберіть бренд</option>';
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name_uk;
+            if (brand.id === product.brand_id) {
+                option.selected = true;
+            }
+            brandSelect.appendChild(option);
+        });
+    }
+}
+
+/**
+ * Заповнення значень характеристик з товару
+ */
+function fillCharacteristicsValues(container, product) {
+    if (!product.attributes) return;
+
+    Object.entries(product.attributes).forEach(([charId, value]) => {
+        const field = container.querySelector(`[data-characteristic-id="${charId}"]`);
+        if (!field) return;
+
+        if (field.tagName === 'SELECT') {
+            field.value = value;
+        } else if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') {
+            field.value = value;
+        } else if (field.classList.contains('checkbox-group')) {
+            // Для checkbox-group
+            const values = Array.isArray(value) ? value : [value];
+            field.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = values.includes(cb.value);
+            });
+        }
+    });
+}
+
+/**
  * Відкриття модалу варіантів
  */
 async function openVariantsModal(productId) {
-    const product = DEMO_PRODUCTS.find(p => p.id == productId);
+    const product = productsData.find(p => p.id == productId);
     if (!product) return;
 
     const container = document.getElementById('modal-container');
@@ -980,6 +1113,15 @@ async function openCreateWizard() {
             currentModal = overlay;
         }
 
+        // Наповнюємо селекти даними з таблиць
+        await populateWizardSelects(container);
+
+        // Рендеримо характеристики по блоках
+        renderCharacteristicsByBlocks(container, null);
+
+        // Ініціалізуємо обробник зміни категорії
+        initCategoryChangeHandler(container);
+
         // Ініціалізуємо wizard
         initWizard();
 
@@ -992,6 +1134,279 @@ async function openCreateWizard() {
     } catch (error) {
         console.error('Failed to load create wizard:', error);
     }
+}
+
+/**
+ * Наповнення селектів у wizard даними з таблиць
+ */
+async function populateWizardSelects(container) {
+    const { categories, brands, characteristics, options } = sheetsData;
+
+    // Категорії
+    const categorySelect = container.querySelector('#wizard-category');
+    if (categorySelect && categories.length > 0) {
+        categorySelect.innerHTML = '<option value="">Оберіть категорію</option>';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name_ua;
+            categorySelect.appendChild(option);
+        });
+    }
+
+    // Бренди
+    const brandSelect = container.querySelector('#wizard-brand');
+    if (brandSelect && brands.length > 0) {
+        brandSelect.innerHTML = '<option value="">Оберіть бренд</option>';
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name_uk;
+            brandSelect.appendChild(option);
+        });
+    }
+
+    // Смаки (characteristic_id для смаку - шукаємо за назвою)
+    const flavorChar = characteristics.find(c =>
+        c.name_ua?.toLowerCase().includes('смак') ||
+        c.name_ru?.toLowerCase().includes('вкус')
+    );
+    if (flavorChar) {
+        const flavorOptions = getOptionsForCharacteristic(flavorChar.id);
+        const flavorSelect = container.querySelector('#wizard-variant-flavor');
+        if (flavorSelect && flavorOptions.length > 0) {
+            flavorSelect.innerHTML = '<option value="">—</option>';
+            flavorOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.id;
+                option.textContent = opt.value_ua;
+                flavorSelect.appendChild(option);
+            });
+            // Додаємо "Інший..." в кінці
+            const otherOption = document.createElement('option');
+            otherOption.value = 'other';
+            otherOption.textContent = 'Інший...';
+            flavorSelect.appendChild(otherOption);
+        }
+    }
+
+    // Розмір
+    const sizeChar = characteristics.find(c =>
+        c.name_ua?.toLowerCase().includes('розмір') ||
+        c.name_ru?.toLowerCase().includes('размер')
+    );
+    if (sizeChar) {
+        const sizeOptions = getOptionsForCharacteristic(sizeChar.id);
+        const sizeSelect = container.querySelector('#wizard-variant-size');
+        if (sizeSelect && sizeOptions.length > 0) {
+            sizeSelect.innerHTML = '<option value="">—</option>';
+            sizeOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.id;
+                option.textContent = opt.value_ua;
+                sizeSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Об'єм/Вага
+    const weightChar = characteristics.find(c =>
+        c.name_ua?.toLowerCase().includes('вага') ||
+        c.name_ua?.toLowerCase().includes("об'єм") ||
+        c.name_ru?.toLowerCase().includes('вес')
+    );
+    if (weightChar) {
+        const weightOptions = getOptionsForCharacteristic(weightChar.id);
+        const weightSelect = container.querySelector('#wizard-variant-weight');
+        if (weightSelect && weightOptions.length > 0) {
+            weightSelect.innerHTML = '<option value="">—</option>';
+            weightOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.id;
+                option.textContent = opt.value_ua;
+                weightSelect.appendChild(option);
+            });
+        }
+    }
+
+    console.log('✅ Селекти wizard наповнено даними з таблиць');
+}
+
+/**
+ * Рендеринг характеристик по блоках
+ * @param {HTMLElement} container - Контейнер для характеристик
+ * @param {string|null} categoryId - ID категорії для фільтрації
+ */
+function renderCharacteristicsByBlocks(container, categoryId = null) {
+    const attributesGrid = container.querySelector('#attributes-grid, .attributes-grid');
+    if (!attributesGrid) return;
+
+    const blocks = getCharacteristicsByBlocks(categoryId);
+    let html = '';
+
+    // Сортуємо блоки за номером
+    const sortedBlocks = Object.entries(blocks).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
+    sortedBlocks.forEach(([blockNum, block]) => {
+        // Пропускаємо блоки Варіанти та Опис (вони в окремих кроках)
+        if (blockNum === '7' || blockNum === '8') return;
+
+        html += `
+            <div class="attributes-block" data-block="${blockNum}">
+                <div class="attributes-block-header">${block.name}</div>
+                <div class="attributes-block-content">
+        `;
+
+        block.characteristics.forEach(char => {
+            html += renderCharacteristicField(char);
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+    });
+
+    attributesGrid.innerHTML = html;
+
+    // Ініціалізуємо обробники для залежних характеристик
+    initDependentCharacteristicsHandlers(container);
+}
+
+/**
+ * Рендеринг одного поля характеристики
+ * @param {Object} char - Характеристика
+ * @returns {string} HTML
+ */
+function renderCharacteristicField(char) {
+    const fieldType = getFieldType(char);
+    const options = getOptionsForCharacteristic(char.id);
+    const hasChildren = hasChildCharacteristics(char.id);
+
+    let fieldHtml = '';
+
+    switch (fieldType) {
+        case 'select':
+            // Кастомний select з одним вибором (ComboBox)
+            fieldHtml = `
+                <select id="char-${char.id}" data-characteristic-id="${char.id}" ${hasChildren ? 'data-has-children="true"' : ''} data-custom-select>
+                    <option value="">—</option>
+                    ${options.map(opt => `<option value="${opt.id}">${opt.value_ua}</option>`).join('')}
+                </select>
+            `;
+            break;
+
+        case 'select-multiple':
+            // Кастомний select з множинним вибором (ListValues, List)
+            fieldHtml = `
+                <select id="char-${char.id}" data-characteristic-id="${char.id}" ${hasChildren ? 'data-has-children="true"' : ''} data-custom-select multiple>
+                    ${options.map(opt => `<option value="${opt.id}">${opt.value_ua}</option>`).join('')}
+                </select>
+            `;
+            break;
+
+        case 'number':
+            fieldHtml = `
+                <input type="number" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="${char.unit || ''}">
+            `;
+            break;
+
+        case 'textarea':
+            fieldHtml = `
+                <textarea id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" rows="3" placeholder=""></textarea>
+            `;
+            break;
+
+        case 'checkbox-group':
+            fieldHtml = `
+                <div class="checkbox-group" id="char-${char.id}" data-characteristic-id="${char.id}">
+                    ${options.map(opt => `
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="${opt.id}">
+                            <span>${opt.value_ua}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            break;
+
+        case 'tags':
+            fieldHtml = `
+                <input type="text" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="Введіть через кому">
+            `;
+            break;
+
+        default:
+            fieldHtml = `
+                <input type="text" id="char-${char.id}" class="input-main" data-characteristic-id="${char.id}" placeholder="">
+            `;
+    }
+
+    return `
+        <div class="form-group" data-char-field="${char.id}">
+            <label>${char.name_ua}${char.unit ? ` (${char.unit})` : ''}</label>
+            ${fieldHtml}
+        </div>
+    `;
+}
+
+/**
+ * Ініціалізація обробників для залежних характеристик
+ * @param {HTMLElement} container
+ */
+function initDependentCharacteristicsHandlers(container) {
+    // Знаходимо всі селекти з дочірніми характеристиками
+    const selectsWithChildren = container.querySelectorAll('[data-has-children="true"]');
+
+    selectsWithChildren.forEach(select => {
+        select.addEventListener('change', (e) => {
+            const selectedOptionId = e.target.value;
+            const charId = e.target.dataset.characteristicId;
+
+            // Видаляємо попередні залежні поля для цієї характеристики
+            container.querySelectorAll(`[data-parent-char="${charId}"]`).forEach(el => el.remove());
+
+            if (!selectedOptionId) return;
+
+            // Отримуємо залежні характеристики для обраної опції
+            const dependentChars = getDependentCharacteristics(selectedOptionId);
+
+            if (dependentChars.length === 0) return;
+
+            // Знаходимо батьківський form-group
+            const parentFormGroup = e.target.closest('.form-group');
+            if (!parentFormGroup) return;
+
+            // Додаємо залежні поля після батьківського
+            dependentChars.forEach(depChar => {
+                const fieldHtml = renderCharacteristicField(depChar);
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = fieldHtml;
+                const newField = wrapper.firstElementChild;
+                newField.dataset.parentChar = charId;
+                newField.classList.add('dependent-field');
+                parentFormGroup.insertAdjacentElement('afterend', newField);
+            });
+
+            // Перезапускаємо custom selects для нових полів
+            initCustomSelects(container);
+        });
+    });
+}
+
+/**
+ * Обробник зміни категорії - перебудовує характеристики
+ * @param {HTMLElement} container
+ */
+function initCategoryChangeHandler(container) {
+    const categorySelect = container.querySelector('#wizard-category, #edit-category');
+    if (!categorySelect) return;
+
+    categorySelect.addEventListener('change', (e) => {
+        const categoryId = e.target.value;
+        renderCharacteristicsByBlocks(container, categoryId || null);
+        initCustomSelects(container);
+    });
 }
 
 /**
@@ -1130,7 +1545,7 @@ function initDescriptionTabs() {
  */
 function initEditModalActions(productId) {
     const container = document.getElementById('modal-container');
-    const product = DEMO_PRODUCTS.find(p => p.id == productId);
+    const product = productsData.find(p => p.id == productId);
 
     // === HEADER BUTTONS ===
 
@@ -1143,14 +1558,17 @@ function initEditModalActions(productId) {
             const nameRu = container.querySelector('#edit-name-ru')?.value;
 
             if (product && nameUk) {
-                product.name_uk = nameUk;
-                product.name_ru = nameRu;
-                product.name_short = nameUk;
+                updateProduct(product.id, {
+                    name_uk: nameUk,
+                    name_ru: nameRu,
+                    name_short: nameUk
+                });
+                productsData = getProducts();
             }
 
             showToast('Зміни збережено', 'success');
             closeModal();
-            renderProductsTable(DEMO_PRODUCTS);
+            renderProductsTable(productsData);
         });
     }
 
@@ -1160,25 +1578,13 @@ function initEditModalActions(productId) {
         duplicateBtn.addEventListener('click', () => {
             if (!product) return;
 
-            const newId = Math.max(...DEMO_PRODUCTS.map(p => p.id)) + 1;
-            const duplicate = {
-                ...product,
-                id: newId,
-                name_uk: product.name_uk + ' (копія)',
-                name_ru: product.name_ru + ' (копия)',
-                name_short: product.name_short + ' (копія)',
-                status: 'draft',
-                variants: product.variants.map((v, i) => ({
-                    ...v,
-                    id: i + 1,
-                    sku: v.sku + '-COPY'
-                }))
-            };
-
-            DEMO_PRODUCTS.unshift(duplicate);
-            showToast(`Товар дубльовано: ${duplicate.name_short}`, 'success');
-            closeModal();
-            renderProductsTable(DEMO_PRODUCTS);
+            const duplicate = duplicateProduct(product.id);
+            if (duplicate) {
+                productsData = getProducts();
+                showToast(`Товар дубльовано: ${duplicate.name_short}`, 'success');
+                closeModal();
+                renderProductsTable(productsData);
+            }
         });
     }
 
@@ -1189,12 +1595,11 @@ function initEditModalActions(productId) {
             if (!product) return;
 
             if (confirm(`Видалити товар "${product.name_short}"?`)) {
-                const index = DEMO_PRODUCTS.findIndex(p => p.id === product.id);
-                if (index > -1) {
-                    DEMO_PRODUCTS.splice(index, 1);
+                if (deleteProduct(product.id)) {
+                    productsData = getProducts();
                     showToast('Товар видалено', 'info');
                     closeModal();
-                    renderProductsTable(DEMO_PRODUCTS);
+                    renderProductsTable(productsData);
                 }
             }
         });
@@ -1811,7 +2216,9 @@ function showCreationSummary() {
     const categoryEl = container.querySelector('#wizard-category');
     const brandEl = container.querySelector('#wizard-brand');
     const category = categoryEl?.options[categoryEl?.selectedIndex]?.text || 'Без категорії';
+    const categoryId = categoryEl?.value || '';
     const brand = brandEl?.options[brandEl?.selectedIndex]?.text || 'Без бренду';
+    const brandId = brandEl?.value || '';
     const nameUk = container.querySelector('#wizard-name-uk')?.value || 'Новий товар';
     const nameRu = container.querySelector('#wizard-name-ru')?.value || nameUk;
     const statusValue = container.querySelector('input[name="wizard-status"]:checked')?.value || 'draft';
@@ -1829,44 +2236,40 @@ function showCreationSummary() {
         const sku = item.querySelector('.variant-item-sku')?.textContent || `SKU-${Date.now()}-${index}`;
         const priceInput = item.querySelector('.variant-item-price-input');
         const price = priceInput ? parseFloat(priceInput.value) || 0 : 0;
-        variants.push({ id: index + 1, name, sku, price, stock: 0 });
+        variants.push({ id: index + 1, name, sku, barcode: '', price, stock: 0, flavor: '', size: '', weight: '', condition: '', photos: [], own_composition: null });
     });
 
     // Якщо варіантів немає - додаємо стандартний
     if (variants.length === 0) {
-        variants.push({ id: 1, name: "Стандарт", sku: `SKU-${Date.now()}`, price: 0, stock: 0 });
+        variants.push({ id: 1, name: "Стандарт", sku: `SKU-${Date.now()}`, barcode: '', price: 0, stock: 0, flavor: '', size: '', weight: '', condition: '', photos: [], own_composition: null });
     }
 
-    // Генеруємо новий ID
-    const newId = Math.max(...DEMO_PRODUCTS.map(p => p.id)) + 1;
-
-    // Створюємо новий товар
-    const newProduct = {
-        id: newId,
+    // Створюємо новий товар через storage
+    const newProduct = addProduct({
         name_uk: nameUk,
         name_ru: nameRu,
         name_short: nameUk,
         brand: brand,
+        brand_id: brandId,
         category: category,
-        photo: "https://via.placeholder.com/48x48/e0e0e0/666?text=NEW",
-        variants_count: variants.length,
+        category_id: categoryId,
         status: statusValue,
         storefronts: {
-            sportmeals: showSM ? `https://sportmeals.com.ua/product/${newId}` : null,
-            fitnessshop: showFS ? `https://fitness-shop.ua/product/${newId}` : null
+            sportmeals: showSM ? 'pending' : null,
+            fitnessshop: showFS ? 'pending' : null
         },
         show_on_site: showSA,
         variants: variants
-    };
+    });
 
-    // Додаємо до масиву
-    DEMO_PRODUCTS.unshift(newProduct);
+    // Оновлюємо локальний масив
+    productsData = getProducts();
 
     // Закриваємо модалку
     closeModal();
 
     // Перерендеримо таблицю
-    renderProductsTable(DEMO_PRODUCTS);
+    renderProductsTable(productsData);
 
     // Показуємо toast повідомлення
     showToast(`Товар "${nameUk}" успішно створено!`, 'success');
