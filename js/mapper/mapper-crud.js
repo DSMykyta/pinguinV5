@@ -2017,16 +2017,22 @@ function handleMarketplaceChange(e) {
             if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
         }
 
-        if (selectedValue) {
-            // Спробуємо завантажити збережений маппінг
-            loadSavedMapping(selectedValue);
-        }
     }
 
     // Скидаємо маппінг при зміні призначення
     importState.mapping = {};
     importState.rozetkaCategory = null;
-    updateMappingSections();
+
+    // Перевіряємо чи є збережений маппінг для цього маркетплейса
+    const hasSavedMapping = selectedValue && selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
+
+    // Оновлюємо секції (створює селекти), пропускаємо автодетект якщо є збережений маппінг
+    updateMappingSections(hasSavedMapping);
+
+    // Завантажуємо збережений маппінг (якщо є) і застосовуємо до селектів
+    if (hasSavedMapping) {
+        loadSavedMapping(selectedValue);
+    }
 
     validateImport();
     updatePreviewTable();
@@ -2058,13 +2064,30 @@ function handleTargetChange(e) {
     updateMappingSections();
 }
 
-function updateMappingSections() {
+function updateMappingSections(skipAutoDetect = false) {
     // При зміні типу імпорту перегенеровуємо маппінг якщо є дані
     if (importState.fileHeaders.length > 0) {
-        importState.mapping = {}; // Скидаємо маппінг
         populateColumnSelects(importState.fileHeaders);
-        autoDetectMapping(importState.fileHeaders);
+        // Автодетект тільки якщо не буде завантажуватись збережений маппінг
+        if (!skipAutoDetect) {
+            autoDetectMapping(importState.fileHeaders);
+        }
     }
+}
+
+function checkHasSavedMapping(marketplaceId) {
+    const marketplaces = getMarketplaces();
+    const mp = marketplaces.find(m => m.id === marketplaceId);
+
+    if (mp && mp.column_mapping) {
+        try {
+            const savedMapping = JSON.parse(mp.column_mapping);
+            return savedMapping[importState.dataType] && Object.keys(savedMapping[importState.dataType]).length > 0;
+        } catch (e) {
+            return false;
+        }
+    }
+    return false;
 }
 
 function loadSavedMapping(marketplaceId) {
@@ -2821,11 +2844,16 @@ async function executeImport() {
         // Виконати імпорт даних з передачею функції прогресу
         if (importState.importTarget === 'marketplace') {
             // Імпорт для маркетплейса
-            if (importState.dataType === 'characteristics') {
+            if (importState.dataType === 'characteristics' || importState.dataType === 'rozetka_pack') {
+                // Для rozetka_pack також спочатку імпортуємо категорію якщо є
+                if (importState.isRozetkaFormat && importState.rozetkaCategory) {
+                    loader.updateProgress(15, 'Створення категорії...');
+                    await importRozetkaCategory();
+                }
                 await importCharacteristicsAndOptions((percent, msg) => {
-                    loader.updateProgress(15 + percent * 0.8, msg);
+                    loader.updateProgress(20 + percent * 0.75, msg);
                 });
-            } else {
+            } else if (importState.dataType === 'categories') {
                 await importCategories((percent, msg) => {
                     loader.updateProgress(15 + percent * 0.8, msg);
                 });
@@ -2911,6 +2939,11 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const categoryIdCol = m.category_id;
     const categoryNameCol = m.category_name;
 
+    // Для Rozetka - категорія береться з файлу автоматично
+    const rozetkaCategory = importState.isRozetkaFormat && importState.rozetkaCategory
+        ? importState.rozetkaCategory
+        : null;
+
     const mpCharacteristics = new Map(); // mp_char_id -> характеристика
     const mpOptions = [];
 
@@ -2921,6 +2954,14 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
         if (charId && charName) {
             // Додаємо/оновлюємо характеристику
             if (!mpCharacteristics.has(charId)) {
+                // Для Rozetka використовуємо категорію з файлу, інакше з маппінгу
+                const catId = rozetkaCategory
+                    ? rozetkaCategory.id
+                    : (categoryIdCol !== undefined ? String(row[categoryIdCol] || '').trim() : '');
+                const catName = rozetkaCategory
+                    ? rozetkaCategory.name
+                    : (categoryNameCol !== undefined ? String(row[categoryNameCol] || '').trim() : '');
+
                 mpCharacteristics.set(charId, {
                     mp_char_id: charId,
                     mp_char_name: charName,
@@ -2928,8 +2969,8 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                     mp_char_filter_type: charFilterTypeCol !== undefined ? String(row[charFilterTypeCol] || '').trim() : '',
                     mp_char_unit: charUnitCol !== undefined ? String(row[charUnitCol] || '').trim() : '',
                     mp_char_is_global: charIsGlobalCol !== undefined ? String(row[charIsGlobalCol] || '').trim() : '',
-                    mp_category_id: categoryIdCol !== undefined ? String(row[categoryIdCol] || '').trim() : '',
-                    mp_category_name: categoryNameCol !== undefined ? String(row[categoryNameCol] || '').trim() : ''
+                    mp_category_id: catId,
+                    mp_category_name: catName
                 });
             }
         }
@@ -3066,6 +3107,69 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     }
 
     onProgress(100, 'Готово!');
+}
+
+/**
+ * Імпорт категорії з Rozetka файлу (категорія береться з назви файлу та першого рядка)
+ */
+async function importRozetkaCategory() {
+    const { callSheetsAPI } = await import('../utils/api-client.js');
+
+    if (!importState.rozetkaCategory) {
+        console.log('⚠️ Rozetka категорія не визначена');
+        return;
+    }
+
+    const { id: catId, name: catName } = importState.rozetkaCategory;
+
+    if (!catId || !catName) {
+        console.log('⚠️ Rozetka категорія не має ID або назви');
+        return;
+    }
+
+    console.log(`📂 Rozetka категорія: ${catName} (ID: ${catId})`);
+
+    // Перевіряємо чи категорія вже існує
+    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
+    await loadMpCategories();
+
+    const existingCats = getMpCategories();
+    const alreadyExists = existingCats.some(c =>
+        c.marketplace_id === importState.marketplaceId &&
+        c.external_id === catId
+    );
+
+    if (alreadyExists) {
+        console.log(`⏭️ Категорія ${catName} вже існує, пропускаємо`);
+        return;
+    }
+
+    // Створюємо категорію
+    const timestamp = new Date().toISOString();
+    const uniqueId = `mpc-${importState.marketplaceId}-cat-${catId}`;
+
+    const dataJson = JSON.stringify({
+        name: catName,
+        parent_id: '',
+        parent_name: '',
+        our_category_id: ''
+    });
+
+    await callSheetsAPI('append', {
+        range: 'Mapper_MP_Categories!A:G',
+        values: [[
+            uniqueId,
+            importState.marketplaceId,
+            catId,
+            'import',
+            dataJson,
+            timestamp,
+            timestamp
+        ]],
+        spreadsheetType: 'main'
+    });
+
+    console.log(`✅ Категорія ${catName} створена`);
 }
 
 /**
