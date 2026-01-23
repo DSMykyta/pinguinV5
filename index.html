@@ -145,6 +145,10 @@
                 <span class="material-symbols-outlined">imagesmode</span>
                 <span class="nav-icon-label">Обробка зображень</span>
             </a>
+            <a href="#section-highlight" class="nav-icon" aria-label="Підсвічування">
+                <span class="material-symbols-outlined">ink_highlighter</span>
+                <span class="nav-icon-label">Підсвічування</span>
+            </a>
         </nav>
 
         <section id="section-table" data-panel-template="aside-table">
@@ -391,6 +395,32 @@
                     </div>
                 </div>
 
+            </div>
+        </section>
+
+        <section id="section-highlight" data-panel-template="aside-highlight">
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Підсвічування</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3>Підсвічування заборонених слів у тексті</h3>
+                </div>
+                <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
+
+            <div class="section-content section-content-full-height">
+                <div class="toolbar-wrapper">
+                    <div id="ghl-validation-results" class="chip-list"></div>
+                </div>
+                <div id="ghl-editor-container" class="ghl-editor-container">
+                    <textarea id="ghl-input-textarea" class="input-main" placeholder="Вставте сюди текст для перевірки..."></textarea>
+                </div>
             </div>
         </section>
 
