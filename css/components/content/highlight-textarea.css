@@ -1,0 +1,113 @@
+/**
+ * COMPONENT: Highlight Within Textarea
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Overlay техніка для підсвічування тексту в textarea.
+ * Використовує backdrop div під прозорою textarea.
+ *
+ * СТРУКТУРА:
+ * .hwt-container
+ *   .hwt-backdrop
+ *     .hwt-highlights.hwt-content (підсвічений текст)
+ *   textarea.hwt-input.hwt-content (поле вводу)
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (змінні кольорів)
+ */
+
+/* Контейнер редактора */
+.ghl-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+/* Контейнер для overlay */
+.hwt-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    display: flex;
+}
+
+/* Backdrop - фоновий шар для підсвічення */
+.hwt-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Спільні стилі для контенту (backdrop і textarea) */
+.hwt-content {
+    width: 100%;
+    height: 100%;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Textarea - поле вводу */
+.hwt-input {
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    color: var(--color-main);
+    caret-color: var(--color-main);
+    border: none;
+    resize: none;
+    outline: none;
+}
+
+/* Highlights - контейнер з підсвіченим текстом */
+.hwt-highlights {
+    color: transparent;
+    background: var(--color-surface);
+}
+
+/* Базовий стиль підсвічування */
+.hwt-highlight {
+    border-radius: 4px;
+    padding: 2px 0;
+}
+
+/* Підсвічування помилок (заборонені слова) */
+.hwt-highlight-error {
+    background-color: var(--color-error-c);
+    color: transparent;
+    border-radius: 4px;
+}
+
+/* Підсвічування попереджень */
+.hwt-highlight-warning {
+    background-color: var(--color-warning-c);
+    color: transparent;
+    border-radius: 4px;
+}
+
+/* Підсвічування успіху */
+.hwt-highlight-success {
+    background-color: var(--color-success-c);
+    color: transparent;
+    border-radius: 4px;
+}
+
+/* Синхронізація скролбарів */
+.hwt-backdrop::-webkit-scrollbar {
+    display: none;
+}
+
+.hwt-backdrop {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
