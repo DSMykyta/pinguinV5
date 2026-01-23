@@ -12,7 +12,8 @@
 import { mapperState } from './mapper-init.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
-    getMpCharacteristics, getMpOptions, getMapCharacteristics, getMapOptions
+    getMpCharacteristics, getMpOptions, getMapCharacteristics, getMapOptions,
+    isMpCharacteristicMapped, isMpOptionMapped
 } from './mapper-data.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 
@@ -209,27 +210,30 @@ export function renderCharacteristicsTable() {
     }));
 
     // Отримати MP характеристики та конвертувати в уніфікований формат
-    const mpCharacteristics = getMpCharacteristics().map(mpChar => {
-        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-        const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
-        return {
-            id: mpChar.id,
-            external_id: mpChar.external_id,
-            marketplace_id: mpChar.marketplace_id,
-            name_ua: data.name || '',
-            name_ru: '',
-            type: data.type || '',
-            unit: data.unit || '',
-            is_global: data.is_global === 'Так' || data.is_global === true,
-            category_ids: data.category_id || '',
-            filter_type: data.filter_type || '',
-            our_char_id: data.our_char_id || '',
-            _source: mpChar.marketplace_id,
-            _sourceLabel: marketplace?.name || mpChar.marketplace_id,
-            _editable: false,
-            _mpData: data
-        };
-    });
+    // ФІЛЬТРУЄМО: показуємо тільки незамаплені MP характеристики
+    const mpCharacteristics = getMpCharacteristics()
+        .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
+        .map(mpChar => {
+            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+            return {
+                id: mpChar.id,
+                external_id: mpChar.external_id,
+                marketplace_id: mpChar.marketplace_id,
+                name_ua: data.name || '',
+                name_ru: '',
+                type: data.type || '',
+                unit: data.unit || '',
+                is_global: data.is_global === 'Так' || data.is_global === true,
+                category_ids: data.category_id || '',
+                filter_type: data.filter_type || '',
+                our_char_id: data.our_char_id || '',
+                _source: mpChar.marketplace_id,
+                _sourceLabel: marketplace?.name || mpChar.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
 
     // Об'єднати
     const allCharacteristics = [...ownCharacteristics, ...mpCharacteristics];
@@ -404,44 +408,47 @@ export function renderOptionsTable() {
     }));
 
     // Отримати MP опції та конвертувати в уніфікований формат
-    const mpOptions = getMpOptions().map(mpOpt => {
-        let data = {};
-        if (mpOpt.data) {
-            try {
-                data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
-            } catch (e) {
-                console.warn(`⚠️ Помилка парсингу data для MP опції ${mpOpt.id}:`, e);
-                data = {};
+    // ФІЛЬТРУЄМО: показуємо тільки незамаплені MP опції
+    const mpOptions = getMpOptions()
+        .filter(mpOpt => !isMpOptionMapped(mpOpt.id))
+        .map(mpOpt => {
+            let data = {};
+            if (mpOpt.data) {
+                try {
+                    data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
+                } catch (e) {
+                    console.warn(`⚠️ Помилка парсингу data для MP опції ${mpOpt.id}:`, e);
+                    data = {};
+                }
             }
-        }
-        const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
+            const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
 
-        // Знайти назву характеристики MP
-        let charName = data.char_id || '';
-        const mpChar = mpCharacteristics.find(c =>
-            c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
-        );
-        if (mpChar) {
-            const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-            charName = charData.name || data.char_id;
-        }
+            // Знайти назву характеристики MP
+            let charName = data.char_id || '';
+            const mpChar = mpCharacteristics.find(c =>
+                c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
+            );
+            if (mpChar) {
+                const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+                charName = charData.name || data.char_id;
+            }
 
-        return {
-            id: mpOpt.id,
-            external_id: mpOpt.external_id,
-            marketplace_id: mpOpt.marketplace_id,
-            characteristic_id: data.char_id || '',
-            characteristic_name: charName,
-            value_ua: data.name || '',
-            value_ru: '',
-            sort_order: '0',
-            our_option_id: data.our_option_id || '',
-            _source: mpOpt.marketplace_id,
-            _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
-            _editable: false,
-            _mpData: data
-        };
-    });
+            return {
+                id: mpOpt.id,
+                external_id: mpOpt.external_id,
+                marketplace_id: mpOpt.marketplace_id,
+                characteristic_id: data.char_id || '',
+                characteristic_name: charName,
+                value_ua: data.name || '',
+                value_ru: '',
+                sort_order: '0',
+                our_option_id: data.our_option_id || '',
+                _source: mpOpt.marketplace_id,
+                _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
 
     // Об'єднати
     const allOptions = [...ownOptions, ...mpOptions];

@@ -1,97 +1,134 @@
-<div class="modal-overlay">
-    <div class="modal-container modal-large">
-        <!-- Header -->
-        <div class="modal-header">
-            <h2 class="modal-title"><span id="modal-title">Додати опцію</span></h2>
-            <div class="modal-header-actions">
-                <div class="connected-button-group-square">
-                    <button id="delete-mapper-option" class="segment u-hidden" aria-label="Видалити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">delete</span>
-                            <span class="label">Видалити</span>
-                        </div>
-                    </button>
-                    <button id="save-mapper-option" class="segment" aria-label="Зберегти">
-                        <div class="state-layer">
-                            <span class="label">Зберегти</span>
-                        </div>
-                    </button>
-                    <button class="segment modal-close-btn" aria-label="Закрити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
+<div class="modal-overlay modal-fullscreen" data-modal-id="mapper-option-edit">
+    <div class="modal-fullscreen-container modal-with-sidebar">
+
+        <!-- HEADER -->
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <button class="btn-icon" data-modal-close title="Закрити">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="modal-fullscreen-title">
+                    <h1 id="modal-title">Опція</h1>
                 </div>
             </div>
-        </div>
+            <div class="modal-fullscreen-header-right">
+                <button class="btn-icon u-hidden" id="delete-mapper-option" title="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <button class="btn btn-primary" id="save-mapper-option">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>Зберегти</span>
+                </button>
+            </div>
+        </header>
 
-        <!-- Body Split -->
-        <div class="modal-body modal-body-split">
-            <!-- ЛІВА ЧАСТИНА: Форма -->
-            <div class="modal-body-split-left">
-                <fieldset class="form-fieldset">
+        <!-- BODY WITH SIDEBAR -->
+        <div class="modal-body-with-sidebar">
 
-                    <!-- Секція: Прив'язки -->
-                    <div class="modal-split-section-title">
-                        <span class="material-symbols-outlined">link</span>
-                        <span>Прив'язки</span>
-                    </div>
+            <!-- SIDEBAR NAVIGATOR -->
+            <nav class="sidebar-navigator" id="option-section-navigator">
+                <a href="#section-option-main" class="sidebar-nav-item active" aria-label="Основні дані">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="sidebar-nav-label">Основні дані</span>
+                </a>
+                <a href="#section-option-dependent" class="sidebar-nav-item" aria-label="Залежні">
+                    <span class="material-symbols-outlined">account_tree</span>
+                    <span class="sidebar-nav-label">Залежні</span>
+                </a>
+                <!-- Секції маркетплейсів додаються динамічно через JS -->
+            </nav>
 
-                    <div class="form-group">
-                        <label for="mapper-option-char">
-                            Характеристика
-                            <span class="required">*</span>
-                        </label>
-                        <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику" required>
-                            <option value="">— Оберіть характеристику —</option>
-                        </select>
-                        <p class="form-hint">Оберіть характеристику, до якої належить опція</p>
-                    </div>
+            <!-- CONTENT SECTIONS -->
+            <main class="modal-fullscreen-content">
 
-                    <!-- Секція: Основні дані -->
-                    <div class="modal-split-section-title" style="margin-top: 24px;">
-                        <span class="material-symbols-outlined">edit</span>
-                        <span>Основні дані</span>
-                    </div>
-
-                    <div class="grid2">
-                        <div class="form-group">
-                            <label for="mapper-option-value-ua">
-                                Значення (UA)
-                                <span class="required">*</span>
-                            </label>
-                            <input type="text" id="mapper-option-value-ua" class="input-main" placeholder="Значення українською" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="mapper-option-value-ru">Значення (RU)</label>
-                            <input type="text" id="mapper-option-value-ru" class="input-main" placeholder="Значення російською">
+                <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
+                <section id="section-option-main" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Основні дані</h2>
+                                <button class="btn-icon" aria-label="Інформація">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                            <h3>Налаштування власної опції</h3>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="mapper-option-order">Порядок сортування</label>
-                        <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
-                        <p class="form-hint">Менше число = вища позиція в списку</p>
+                    <div class="section-content">
+                        <!-- Прив'язки -->
+                        <div class="form-section-title">
+                            <span class="material-symbols-outlined">link</span>
+                            <span>Прив'язка до характеристики</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-option-char">
+                                    Характеристика
+                                    <span class="required">*</span>
+                                </label>
+                                <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику" required>
+                                    <option value="">-- Оберіть характеристику --</option>
+                                </select>
+                                <p class="form-hint">Оберіть характеристику, до якої належить опція</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mapper-option-order">Порядок сортування</label>
+                                <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
+                                <p class="form-hint">Менше число = вища позиція в списку</p>
+                            </div>
+                        </div>
+
+                        <!-- Значення -->
+                        <div class="form-section-title u-mt-24">
+                            <span class="material-symbols-outlined">edit</span>
+                            <span>Значення</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-option-value-ua">
+                                    Значення (UA)
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="mapper-option-value-ua" class="input-main" placeholder="Значення українською" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mapper-option-value-ru">Значення (RU)</label>
+                                <input type="text" id="mapper-option-value-ru" class="input-main" placeholder="Значення російською">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- СЕКЦІЯ: ЗАЛЕЖНІ ХАРАКТЕРИСТИКИ -->
+                <section id="section-option-dependent" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Залежні характеристики</h2>
+                                <span id="option-chars-count" class="badge badge-neutral"></span>
+                            </div>
+                            <h3>Характеристики, які показуються при виборі цієї опції</h3>
+                        </div>
                     </div>
 
-                </fieldset>
-            </div>
-
-            <!-- ПРАВА ЧАСТИНА: Залежні характеристики -->
-            <div class="modal-body-split-right">
-                <div class="modal-split-section-title">
-                    <span>Залежні характеристики</span>
-                    <span id="option-chars-count" class="modal-related-count"></span>
-                </div>
-
-                <div id="option-related-chars" class="modal-related-list">
-                    <!-- Заповнюється динамічно -->
-                    <div class="modal-related-empty">
-                        <span class="modal-related-empty-text">Залежних характеристик немає</span>
+                    <div class="section-content">
+                        <div id="option-related-chars" class="mapper-related-list">
+                            <!-- Заповнюється динамічно -->
+                            <div class="empty-state-container">
+                                <div class="empty-state-message">Залежних характеристик немає</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </section>
+
+                <!-- СЕКЦІЇ МАРКЕТПЛЕЙСІВ додаються динамічно через JS -->
+
+            </main>
         </div>
     </div>
 </div>

@@ -14,8 +14,10 @@ import {
     addOption, updateOption, deleteOption, getOptions,
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
     getMpCharacteristics, getMpOptions,
-    batchUpdateMpCharacteristicMapping, batchUpdateMpOptionMapping,
-    autoMapCharacteristics, autoMapOptions
+    batchCreateCharacteristicMapping, batchCreateOptionMapping,
+    autoMapCharacteristics, autoMapOptions,
+    getMappedMpCharacteristics, getMappedMpOptions,
+    deleteCharacteristicMapping, deleteOptionMapping
 } from './mapper-data.js';
 import { mapperState } from './mapper-init.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
@@ -372,7 +374,7 @@ export async function showEditCharacteristicModal(id) {
     initGlobalToggleHandler();
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати характеристику';
+    if (title) title.textContent = characteristic.name_ua || 'Редагувати характеристику';
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
     if (deleteBtn) {
@@ -399,6 +401,12 @@ export async function showEditCharacteristicModal(id) {
 
     // Заповнюємо список пов'язаних опцій
     populateRelatedOptions(id);
+
+    // Отримати прив'язані MP характеристики та відрендерити секції маркетплейсів
+    renderMappedMpCharacteristicsSections(id);
+
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('char-section-navigator');
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
@@ -444,6 +452,345 @@ function populateRelatedOptions(characteristicId) {
             await showEditOptionModal(optId);
         });
     });
+}
+
+/**
+ * Рендерити секції маркетплейсів для замаплених MP характеристик
+ * @param {string} ownCharId - ID власної характеристики
+ */
+function renderMappedMpCharacteristicsSections(ownCharId) {
+    const nav = document.getElementById('char-section-navigator');
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    // Очистити динамічні елементи
+    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    content.querySelectorAll('.mapper-section.mp-section').forEach(el => el.remove());
+
+    // Отримати замаплені MP характеристики
+    const mappedMpChars = getMappedMpCharacteristics(ownCharId);
+    if (mappedMpChars.length === 0) return;
+
+    // Згрупувати по маркетплейсах
+    const marketplaces = getMarketplaces();
+    const byMarketplace = {};
+
+    mappedMpChars.forEach(mpChar => {
+        const mpId = mpChar.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            const marketplace = marketplaces.find(m => m.id === mpId);
+            byMarketplace[mpId] = {
+                name: marketplace?.name || mpId,
+                items: []
+            };
+        }
+        byMarketplace[mpId].items.push(mpChar);
+    });
+
+    // Додати секції по маркетплейсах
+    Object.entries(byMarketplace).forEach(([mpId, data]) => {
+        // Меню
+        const navItem = document.createElement('a');
+        navItem.href = `#section-mp-char-${mpId}`;
+        navItem.className = 'sidebar-nav-item mp-nav-item';
+        navItem.setAttribute('aria-label', data.name);
+        navItem.innerHTML = `
+            <span class="material-symbols-outlined">storefront</span>
+            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
+        `;
+        nav.appendChild(navItem);
+
+        // Секція
+        const section = document.createElement('section');
+        section.id = `section-mp-char-${mpId}`;
+        section.className = 'mapper-section mp-section';
+        section.innerHTML = renderMpCharacteristicSectionContent(data);
+        content.appendChild(section);
+    });
+
+    // Додати обробники для кнопок відв'язування
+    content.querySelectorAll('.btn-unmap-char').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const mappingId = btn.dataset.mappingId;
+            if (mappingId) {
+                try {
+                    await deleteCharacteristicMapping(mappingId);
+                    showToast('Маппінг видалено', 'success');
+                    // Перерендерити секції
+                    renderMappedMpCharacteristicsSections(ownCharId);
+                    renderCurrentTab();
+                } catch (error) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Рендерити контент секції маркетплейсу для характеристик
+ */
+function renderMpCharacteristicSectionContent(marketplaceData) {
+    const { name, items } = marketplaceData;
+
+    const itemsHtml = items.map(item => {
+        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+        return `
+            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
+                    <button class="btn-icon btn-unmap btn-unmap-char" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                </div>
+                <div class="mp-item-fields">
+                    <div class="form-grid form-grid-2">
+                        ${renderMpDataFields(data)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="section-header">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2>${escapeHtml(name)}</h2>
+                    <span class="badge badge-neutral">${items.length}</span>
+                </div>
+                <h3>Прив'язані характеристики маркетплейсу</h3>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="mp-items-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Рендерити JSON дані як read-only поля
+ */
+function renderMpDataFields(data) {
+    const knownFields = ['name', 'type', 'unit', 'is_global', 'filter_type', 'category_id'];
+    const fields = [];
+
+    // Спочатку відомі поля
+    if (data.name) {
+        fields.push(`
+            <div class="form-group">
+                <label>Назва</label>
+                <input type="text" value="${escapeHtml(data.name)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.type) {
+        fields.push(`
+            <div class="form-group">
+                <label>Тип</label>
+                <input type="text" value="${escapeHtml(data.type)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.unit) {
+        fields.push(`
+            <div class="form-group">
+                <label>Одиниця</label>
+                <input type="text" value="${escapeHtml(data.unit)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.is_global !== undefined) {
+        fields.push(`
+            <div class="form-group">
+                <label>Глобальна</label>
+                <input type="text" value="${data.is_global === true || data.is_global === 'Так' ? 'Так' : 'Ні'}" readonly>
+            </div>
+        `);
+    }
+
+    // Решта полів (крім службових)
+    const skipFields = [...knownFields, 'our_char_id', 'our_option_id'];
+    Object.entries(data).forEach(([key, value]) => {
+        if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
+            fields.push(`
+                <div class="form-group">
+                    <label>${escapeHtml(key)}</label>
+                    <input type="text" value="${escapeHtml(String(value))}" readonly>
+                </div>
+            `);
+        }
+    });
+
+    return fields.join('');
+}
+
+/**
+ * Ініціалізувати scroll-snap навігацію
+ * @param {string} navId - ID навігаційного елемента
+ */
+function initSectionNavigation(navId) {
+    const nav = document.getElementById(navId);
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    const navItems = nav.querySelectorAll('.sidebar-nav-item');
+
+    // Клік по меню - прокрутка до секції
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href')?.slice(1);
+            if (!targetId) return;
+            const section = document.getElementById(targetId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // При скролі - оновлювати active в меню
+    const sections = content.querySelectorAll('.mapper-section');
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                navItems.forEach(item => {
+                    const href = item.getAttribute('href');
+                    item.classList.toggle('active', href === `#${sectionId}`);
+                });
+            }
+        });
+    }, { threshold: 0.5, root: content });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+}
+
+/**
+ * Рендерити секції маркетплейсів для замаплених MP опцій
+ * @param {string} ownOptionId - ID власної опції
+ */
+function renderMappedMpOptionsSections(ownOptionId) {
+    const nav = document.getElementById('option-section-navigator');
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    // Очистити динамічні елементи
+    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    content.querySelectorAll('.mapper-section.mp-section').forEach(el => el.remove());
+
+    // Отримати замаплені MP опції
+    const mappedMpOpts = getMappedMpOptions(ownOptionId);
+    if (mappedMpOpts.length === 0) return;
+
+    // Згрупувати по маркетплейсах
+    const marketplaces = getMarketplaces();
+    const byMarketplace = {};
+
+    mappedMpOpts.forEach(mpOpt => {
+        const mpId = mpOpt.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            const marketplace = marketplaces.find(m => m.id === mpId);
+            byMarketplace[mpId] = {
+                name: marketplace?.name || mpId,
+                items: []
+            };
+        }
+        byMarketplace[mpId].items.push(mpOpt);
+    });
+
+    // Додати секції по маркетплейсах
+    Object.entries(byMarketplace).forEach(([mpId, data]) => {
+        // Меню
+        const navItem = document.createElement('a');
+        navItem.href = `#section-mp-opt-${mpId}`;
+        navItem.className = 'sidebar-nav-item mp-nav-item';
+        navItem.setAttribute('aria-label', data.name);
+        navItem.innerHTML = `
+            <span class="material-symbols-outlined">storefront</span>
+            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
+        `;
+        nav.appendChild(navItem);
+
+        // Секція
+        const section = document.createElement('section');
+        section.id = `section-mp-opt-${mpId}`;
+        section.className = 'mapper-section mp-section';
+        section.innerHTML = renderMpOptionSectionContent(data);
+        content.appendChild(section);
+    });
+
+    // Додати обробники для кнопок відв'язування
+    content.querySelectorAll('.btn-unmap-opt').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const mappingId = btn.dataset.mappingId;
+            if (mappingId) {
+                try {
+                    await deleteOptionMapping(mappingId);
+                    showToast('Маппінг видалено', 'success');
+                    // Перерендерити секції
+                    renderMappedMpOptionsSections(ownOptionId);
+                    renderCurrentTab();
+                } catch (error) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Рендерити контент секції маркетплейсу для опцій
+ */
+function renderMpOptionSectionContent(marketplaceData) {
+    const { name, items } = marketplaceData;
+
+    const itemsHtml = items.map(item => {
+        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+        return `
+            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
+                    <button class="btn-icon btn-unmap btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                </div>
+                <div class="mp-item-fields">
+                    <div class="form-grid form-grid-2">
+                        ${renderMpDataFields(data)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="section-header">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2>${escapeHtml(name)}</h2>
+                    <span class="badge badge-neutral">${items.length}</span>
+                </div>
+                <h3>Прив'язані опції маркетплейсу</h3>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="mp-items-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
 }
 
 /**
@@ -799,7 +1146,7 @@ export async function showEditOptionModal(id) {
     if (modalEl) initCustomSelects(modalEl);
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати опцію';
+    if (title) title.textContent = option.value_ua || 'Редагувати опцію';
 
     const deleteBtn = document.getElementById('delete-mapper-option');
     if (deleteBtn) {
@@ -815,6 +1162,12 @@ export async function showEditOptionModal(id) {
 
     // Заповнюємо список залежних характеристик
     populateRelatedDependentCharacteristics(id);
+
+    // Отримати прив'язані MP опції та відрендерити секції маркетплейсів
+    renderMappedMpOptionsSections(id);
+
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('option-section-navigator');
 
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {

@@ -1970,3 +1970,161 @@
 }
 
 /* UTILITY CLASSES - defined earlier in this file */
+
+/* ==========================================================================
+   MAPPER SECTIONS (fullscreen modal for characteristics/options)
+   ========================================================================== */
+
+.mapper-section {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 8px 24px;
+    overflow: hidden;
+    padding-bottom: 72px;
+    scroll-snap-align: start;
+}
+
+.mapper-section .section-header {
+    flex: 0 0 auto;
+    padding-bottom: 16px;
+}
+
+.mapper-section .section-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 24px;
+    background-color: var(--color-surface-c-lowest, #fff);
+    border: 1px solid var(--color-outline);
+    border-radius: 12px;
+}
+
+/* MP Section - read-only marketplace data */
+.mapper-section.mp-section .section-content {
+    background: var(--color-surface-c-low);
+}
+
+.mapper-section.mp-section input,
+.mapper-section.mp-section select,
+.mapper-section.mp-section textarea {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* MP Item Cards - cards showing mapped MP entities */
+.mp-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mp-item-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-m);
+    overflow: hidden;
+}
+
+.mp-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--color-surface-c);
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.mp-item-id {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+}
+
+.btn-unmap {
+    color: var(--color-error);
+}
+
+.btn-unmap:hover {
+    background: var(--color-error-c);
+}
+
+.mp-item-fields {
+    padding: 16px;
+}
+
+/* Mapper Related List - list of related items (options, chars) */
+.mapper-related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mapper-related-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--color-surface-c-low);
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-m);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.mapper-related-item:hover {
+    background: var(--color-surface-c);
+    border-color: var(--color-main);
+}
+
+.mapper-related-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.mapper-related-name {
+    font-weight: 500;
+    color: var(--color-on-surface);
+}
+
+.mapper-related-meta {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+}
+
+.mapper-related-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* Form Section Title - inline with icon */
+.form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-on-surface-v);
+    margin-bottom: 16px;
+}
+
+.form-section-title .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Empty State Container */
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.empty-state-message {
+    font-size: 14px;
+    color: var(--color-on-surface-v);
+}
