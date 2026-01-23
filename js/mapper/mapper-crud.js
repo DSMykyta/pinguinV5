@@ -41,9 +41,7 @@ export async function showAddCategoryModal() {
 
     await showModal('mapper-category-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-category-edit');
-    if (modalEl) initCustomSelects(modalEl);
+    const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати категорію';
@@ -52,7 +50,24 @@ export async function showAddCategoryModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearCategoryForm();
+
+    // Спочатку заповнюємо селекти
     populateParentCategorySelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('category-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-category');
     if (saveBtn) {
@@ -76,12 +91,10 @@ export async function showEditCategoryModal(id) {
 
     await showModal('mapper-category-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-category-edit');
-    if (modalEl) initCustomSelects(modalEl);
+    const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати категорію';
+    if (title) title.textContent = category.name_ua || 'Редагувати категорію';
 
     const deleteBtn = document.getElementById('delete-mapper-category');
     if (deleteBtn) {
@@ -92,11 +105,28 @@ export async function showEditCategoryModal(id) {
         };
     }
 
+    // Спочатку заповнюємо селекти
     populateParentCategorySelect(id);
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
     fillCategoryForm(category);
 
     // Заповнюємо список пов'язаних характеристик
     populateRelatedCharacteristics(id);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('category-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-category');
     if (saveBtn) {
@@ -310,12 +340,7 @@ export async function showAddCharacteristicModal() {
 
     await showModal('mapper-characteristic-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-characteristic-edit');
-    if (modalEl) initCustomSelects(modalEl);
-
-    // Ініціалізувати перемикач глобальності
-    initGlobalToggleHandler();
+    const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати характеристику';
@@ -324,9 +349,30 @@ export async function showAddCharacteristicModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearCharacteristicForm();
+
+    // Спочатку заповнюємо селекти, потім ініціалізуємо кастомні селекти
     populateCategorySelect();
     populateParentOptionsSelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
+
     clearRelatedOptions();
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('char-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
@@ -366,21 +412,7 @@ export async function showEditCharacteristicModal(id) {
 
     await showModal('mapper-characteristic-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-characteristic-edit');
-    if (modalEl) initCustomSelects(modalEl);
-
-    // Додати обробник для кнопки закриття (fullscreen модал)
-    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
-        btn.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal();
-        };
-    });
-
-    // Ініціалізувати перемикач глобальності
-    initGlobalToggleHandler();
+    const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = characteristic.name_ua || 'Редагувати характеристику';
@@ -394,17 +426,22 @@ export async function showEditCharacteristicModal(id) {
         };
     }
 
-    // Заповнюємо селект категорій з вибраними
+    // Спочатку заповнюємо селекти
     const selectedCategoryIds = characteristic.category_ids
         ? characteristic.category_ids.split(',').map(id => id.trim()).filter(id => id)
         : [];
     populateCategorySelect(selectedCategoryIds);
 
-    // Заповнюємо мульти-селект батьківських опцій
     const selectedParentOptionIds = characteristic.parent_option_id
         ? characteristic.parent_option_id.split(',').map(id => id.trim()).filter(id => id)
         : [];
     populateParentOptionsSelect(selectedParentOptionIds);
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
 
     fillCharacteristicForm(characteristic);
 
@@ -416,6 +453,15 @@ export async function showEditCharacteristicModal(id) {
 
     // Ініціалізувати scroll-snap навігацію
     initSectionNavigation('char-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
@@ -1115,9 +1161,7 @@ export async function showAddOptionModal() {
 
     await showModal('mapper-option-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-option-edit');
-    if (modalEl) initCustomSelects(modalEl);
+    const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати опцію';
@@ -1126,7 +1170,24 @@ export async function showAddOptionModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearOptionForm();
+
+    // Спочатку заповнюємо селекти
     populateCharacteristicSelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('option-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {
@@ -1150,18 +1211,7 @@ export async function showEditOptionModal(id) {
 
     await showModal('mapper-option-edit', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
-    const modalEl = document.getElementById('modal-mapper-option-edit');
-    if (modalEl) initCustomSelects(modalEl);
-
-    // Додати обробник для кнопки закриття (fullscreen модал)
-    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
-        btn.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            closeModal();
-        };
-    });
+    const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
     const title = document.getElementById('modal-title');
     if (title) title.textContent = option.value_ua || 'Редагувати опцію';
@@ -1175,7 +1225,12 @@ export async function showEditOptionModal(id) {
         };
     }
 
+    // Спочатку заповнюємо селекти
     populateCharacteristicSelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
     fillOptionForm(option);
 
     // Заповнюємо список залежних характеристик
@@ -1186,6 +1241,15 @@ export async function showEditOptionModal(id) {
 
     // Ініціалізувати scroll-snap навігацію
     initSectionNavigation('option-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {

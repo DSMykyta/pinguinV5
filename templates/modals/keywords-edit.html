@@ -1,144 +1,246 @@
-<div class="modal-overlay">
-    <div class="modal-container modal-medium">
-        <!-- Header -->
-        <div class="modal-header">
-            <h2 class="modal-title"><span id="modal-title">Додати запис</span></h2>
-            <div class="modal-header-actions">
-                <div class="connected-button-group-square">
-                    <button id="delete-keyword" class="segment u-hidden" aria-label="Видалити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">delete</span>
-                            <span class="label">Видалити</span>
-                        </div>
-                    </button>
-                    <button id="save-keyword" class="segment" aria-label="Зберегти">
-                        <div class="state-layer">
-                            <span class="label">Зберегти</span>
-                        </div>
-                    </button>
-                    <button class="segment modal-close-btn" aria-label="Закрити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
+<div class="modal-overlay modal-fullscreen" data-modal-id="keywords-edit">
+    <div class="modal-fullscreen-container modal-with-sidebar">
+
+        <!-- HEADER -->
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <button class="btn-icon" data-modal-close title="Закрити">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="modal-fullscreen-title">
+                    <h1 id="modal-title">Ключове слово</h1>
                 </div>
             </div>
-        </div>
+            <div class="modal-fullscreen-header-right">
+                <button class="btn-icon u-hidden" id="delete-keyword" title="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <button class="btn btn-primary" id="save-keyword">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>Зберегти</span>
+                </button>
+            </div>
+        </header>
 
-        <!-- Body -->
-        <div class="modal-body">
-            <fieldset class="form-fieldset">
+        <!-- BODY WITH SIDEBAR -->
+        <div class="modal-body-with-sidebar">
 
+            <!-- SIDEBAR NAVIGATOR -->
+            <nav class="sidebar-navigator" id="keyword-section-navigator">
+                <a href="#section-keyword-main" class="sidebar-nav-item active" aria-label="Основні дані">
+                    <span class="material-symbols-outlined">tune</span>
+                    <span class="sidebar-nav-label">Основні дані</span>
+                </a>
+                <a href="#section-keyword-names" class="sidebar-nav-item" aria-label="Назви">
+                    <span class="material-symbols-outlined">translate</span>
+                    <span class="sidebar-nav-label">Назви</span>
+                </a>
+                <a href="#section-keyword-keywords" class="sidebar-nav-item" aria-label="Ключові слова">
+                    <span class="material-symbols-outlined">label</span>
+                    <span class="sidebar-nav-label">Ключові слова</span>
+                </a>
+                <a href="#section-keyword-glossary" class="sidebar-nav-item" aria-label="Глосарій">
+                    <span class="material-symbols-outlined">menu_book</span>
+                    <span class="sidebar-nav-label">Глосарій</span>
+                </a>
+            </nav>
+
+            <!-- CONTENT SECTIONS -->
+            <main class="modal-fullscreen-content">
+
+                <!-- Hidden fields -->
                 <input type="hidden" id="keyword-local-id">
                 <input type="hidden" id="keyword-param-type" value="">
 
-                <!-- Тригери та Тип параметра -->
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="keyword-trigers">Тригери</label>
-                        <input type="text" id="keyword-trigers" class="input-main" placeholder="Введіть тригери через кому">
-                        <small class="form-hint">Використовуються для автоматичного розпізнавання</small>
+                <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
+                <section id="section-keyword-main" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Основні дані</h2>
+                                <button class="btn-icon" aria-label="Інформація">
+                                    <span class="material-symbols-outlined">info</span>
+                                </button>
+                            </div>
+                            <h3>Налаштування параметрів ключового слова</h3>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="keyword-param-type">Тип параметра</label>
-                        <select id="keyword-param-type-select" data-custom-select placeholder="Оберіть тип...">
-                            <option value="">-- Оберіть тип --</option>
-                            <!-- Динамічно заповнюється через JS -->
-                        </select>
-                        <small class="form-hint">Категорія ключового слова</small>
+                    <div class="section-content">
+                        <!-- Тригери та Тип -->
+                        <div class="form-section-title">
+                            <span class="material-symbols-outlined">bolt</span>
+                            <span>Розпізнавання</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="keyword-trigers">Тригери</label>
+                                <input type="text" id="keyword-trigers" class="input-main" placeholder="Введіть тригери через кому">
+                                <p class="form-hint">Використовуються для автоматичного розпізнавання</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="keyword-param-type-select">Тип параметра</label>
+                                <select id="keyword-param-type-select" data-custom-select placeholder="Оберіть тип...">
+                                    <option value="">-- Оберіть тип --</option>
+                                    <!-- Динамічно заповнюється через JS -->
+                                </select>
+                                <p class="form-hint">Категорія ключового слова</p>
+                            </div>
+                        </div>
+
+                        <!-- Прив'язки -->
+                        <div class="form-section-title u-mt-24">
+                            <span class="material-symbols-outlined">account_tree</span>
+                            <span>Прив'язки</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="keyword-parent-local-id">Батьківський елемент</label>
+                                <select id="keyword-parent-local-id" data-custom-select placeholder="Оберіть...">
+                                    <option value="">-- Не обрано --</option>
+                                    <!-- Динамічно заповнюється через JS -->
+                                </select>
+                                <p class="form-hint">До якого елемента прив'язати</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="keyword-characteristics-local-id">
+                                    Характеристика
+                                    <span class="badge badge-neutral">в розробці</span>
+                                </label>
+                                <input type="text" id="keyword-characteristics-local-id" class="input-main" placeholder="В розробці" disabled>
+                                <p class="form-hint">Буде реалізовано пізніше</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Parent Local ID та Characteristics Local ID -->
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="keyword-parent-local-id">Батьківський елемент</label>
-                        <select id="keyword-parent-local-id" data-custom-select placeholder="Оберіть...">
-                            <option value="">-- Не обрано --</option>
-                            <!-- Динамічно заповнюється через JS -->
-                        </select>
-                        <small class="form-hint">До якого елемента прив'язати</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="keyword-characteristics-local-id">
-                            Характеристика
-                            <small class="form-hint">(в розробці)</small>
-                        </label>
-                        <input type="text" id="keyword-characteristics-local-id" class="input-main" placeholder="В розробці" disabled>
-                        <small class="form-hint">Буде реалізовано пізніше</small>
-                    </div>
-                </div>
-
-                <!-- Назва UA та RU -->
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="keyword-name-uk">
-                            Назва (UA)
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" id="keyword-name-uk" class="input-main" placeholder="Наприклад: Протеїн" required lang="uk">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="keyword-name-ru">
-                            Назва (RU)
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" id="keyword-name-ru" class="input-main" placeholder="Например: Протеин" required lang="ru">
-                    </div>
-                </div>
-
-                <!-- Назва EN та LAT -->
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="keyword-name-en">Назва (EN)</label>
-                        <input type="text" id="keyword-name-en" class="input-main" placeholder="Example: Protein" lang="en">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="keyword-name-lat">Назва (LAT)</label>
-                        <input type="text" id="keyword-name-lat" class="input-main" placeholder="Exemplum: Proteinum" lang="la">
-                    </div>
-                </div>
-
-                <!-- Альтернативні назви -->
-                <div class="form-group">
-                    <label for="keyword-name-alt">Альтернативні назви</label>
-                    <textarea id="keyword-name-alt" class="input-main" rows="4" placeholder="Введіть альтернативні назви через кому"></textarea>
-                    <small class="form-hint">Додаткові варіанти написання</small>
-                </div>
-
-                <!-- Ключові слова UA та RU -->
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="keyword-keywords-ua">
-                            Ключові слова (UA)
-                            <span class="required">*</span>
-                        </label>
-                        <textarea id="keyword-keywords-ua" class="input-main" rows="6" placeholder="Введіть ключові слова через кому" required lang="uk"></textarea>
-                        <small class="form-hint">Використовуються для пошуку та SEO</small>
+                <!-- СЕКЦІЯ: НАЗВИ -->
+                <section id="section-keyword-names" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Назви</h2>
+                            </div>
+                            <h3>Назва ключового слова різними мовами</h3>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="keyword-keywords-ru">
-                            Ключові слова (RU)
-                            <span class="required">*</span>
-                        </label>
-                        <textarea id="keyword-keywords-ru" class="input-main" rows="6" placeholder="Введите ключевые слова через запятую" required lang="ru"></textarea>
-                        <small class="form-hint">Використовуються для пошуку та SEO</small>
+                    <div class="section-content">
+                        <!-- Основні мови -->
+                        <div class="form-section-title">
+                            <span class="material-symbols-outlined">language</span>
+                            <span>Основні мови</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="keyword-name-uk">
+                                    Назва (UA)
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="keyword-name-uk" class="input-main" placeholder="Наприклад: Протеїн" required lang="uk">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="keyword-name-ru">
+                                    Назва (RU)
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="keyword-name-ru" class="input-main" placeholder="Например: Протеин" required lang="ru">
+                            </div>
+                        </div>
+
+                        <!-- Додаткові мови -->
+                        <div class="form-section-title u-mt-24">
+                            <span class="material-symbols-outlined">g_translate</span>
+                            <span>Додаткові мови</span>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="keyword-name-en">Назва (EN)</label>
+                                <input type="text" id="keyword-name-en" class="input-main" placeholder="Example: Protein" lang="en">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="keyword-name-lat">Назва (LAT)</label>
+                                <input type="text" id="keyword-name-lat" class="input-main" placeholder="Exemplum: Proteinum" lang="la">
+                            </div>
+                        </div>
+
+                        <!-- Альтернативні назви -->
+                        <div class="form-section-title u-mt-24">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                            <span>Альтернативні назви</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="keyword-name-alt">Альтернативні назви</label>
+                            <textarea id="keyword-name-alt" class="input-main" rows="4" placeholder="Введіть альтернативні назви через кому"></textarea>
+                            <p class="form-hint">Додаткові варіанти написання</p>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- Текст глосарію -->
-                <div class="form-group">
-                    <label for="keyword-glossary-text">Опис для глосарію</label>
-                    <textarea id="keyword-glossary-text" class="input-main" rows="12" placeholder="Введіть опис терміну (підтримується HTML)"></textarea>
-                    <small class="form-hint">Буде відображатися в глосарії. Можна використовувати HTML теги: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt;</small>
-                </div>
+                <!-- СЕКЦІЯ: КЛЮЧОВІ СЛОВА -->
+                <section id="section-keyword-keywords" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Ключові слова</h2>
+                            </div>
+                            <h3>Слова для пошуку та SEO</h3>
+                        </div>
+                    </div>
 
-            </fieldset>
+                    <div class="section-content">
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="keyword-keywords-ua">
+                                    Ключові слова (UA)
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea id="keyword-keywords-ua" class="input-main" rows="10" placeholder="Введіть ключові слова через кому" required lang="uk"></textarea>
+                                <p class="form-hint">Використовуються для пошуку та SEO</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="keyword-keywords-ru">
+                                    Ключові слова (RU)
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea id="keyword-keywords-ru" class="input-main" rows="10" placeholder="Введите ключевые слова через запятую" required lang="ru"></textarea>
+                                <p class="form-hint">Використовуються для пошуку та SEO</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- СЕКЦІЯ: ГЛОСАРІЙ -->
+                <section id="section-keyword-glossary" class="mapper-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Глосарій</h2>
+                            </div>
+                            <h3>Опис терміну для глосарію</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="keyword-glossary-text">Опис для глосарію</label>
+                            <textarea id="keyword-glossary-text" class="input-main" rows="20" placeholder="Введіть опис терміну (підтримується HTML)"></textarea>
+                            <p class="form-hint">Буде відображатися в глосарії. Можна використовувати HTML теги: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt;</p>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
         </div>
     </div>
 </div>

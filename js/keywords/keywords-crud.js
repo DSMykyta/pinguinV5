@@ -18,6 +18,8 @@ export async function showAddKeywordModal() {
 
     await showModal('keywords-edit', null);
 
+    const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
+
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Додати ключове слово';
 
@@ -26,6 +28,18 @@ export async function showAddKeywordModal() {
 
     clearKeywordForm();
     await initModalSelects();
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation(modalEl);
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-keyword');
     if (saveBtn) {
@@ -46,6 +60,8 @@ export async function showEditKeywordModal(localId) {
 
     await showModal('keywords-edit', null);
 
+    const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
+
     const title = document.getElementById('modal-title');
     if (title) title.textContent = 'Редагувати ключове слово';
 
@@ -63,6 +79,18 @@ export async function showEditKeywordModal(localId) {
 
     // Заповнити форму даними
     fillKeywordForm(keyword);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation(modalEl);
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
 
     const saveBtn = document.getElementById('save-keyword');
     if (saveBtn) {
@@ -284,4 +312,54 @@ async function initModalSelects() {
         // Ініціалізувати кастомний селект
         reinitializeCustomSelect(paramTypeSelect);
     }
+}
+
+/**
+ * Ініціалізувати навігацію по секціях модалу
+ * @param {HTMLElement} modalEl - Елемент модалу
+ */
+function initSectionNavigation(modalEl) {
+    if (!modalEl) return;
+
+    const content = modalEl.querySelector('.modal-fullscreen-content');
+    const navItems = modalEl.querySelectorAll('.sidebar-nav-item');
+
+    if (!content || navItems.length === 0) return;
+
+    // Клік по меню - прокрутка до секції
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href')?.slice(1);
+            if (!targetId) return;
+
+            const section = modalEl.querySelector(`#${targetId}`);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // При скролі - оновлювати active в меню
+    const sections = modalEl.querySelectorAll('.mapper-section');
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                navItems.forEach(item => {
+                    item.classList.toggle('active',
+                        item.getAttribute('href') === `#${sectionId}`);
+                });
+            }
+        });
+    }, {
+        root: content,
+        threshold: 0.3
+    });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
 }
