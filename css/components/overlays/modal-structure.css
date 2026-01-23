@@ -286,9 +286,6 @@
 
 /* ============================================
    MAGIC HINTS SIDEBAR (для модалі магічного парсингу)
-   ============================================
-   Прозорий контейнер з chip-list.
-   Використовує існуючі класи .chip з chip.css
    ============================================ */
 
 .magic-hints-sidebar {
@@ -301,6 +298,31 @@
     align-items: flex-start;
     gap: 6px;
     z-index: 1;
+    max-height: 70vh;
+    padding: 16px 0;
+    overflow-y: auto;
+    /* Прихований scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Fade зверху і знизу */
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black calc(100% - 16px),
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black calc(100% - 16px),
+        transparent 100%
+    );
+}
+
+.magic-hints-sidebar::-webkit-scrollbar {
+    display: none;
 }
 
 /* Приховуємо коли порожній */
