@@ -374,6 +374,18 @@
     border: 1px solid var(--color-outline);
 }
 
+.product-thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface-c-low);
+    color: var(--color-on-surface-v);
+}
+
+.product-thumb-empty .material-symbols-outlined {
+    font-size: 24px;
+}
+
 .product-name-block {
     display: flex;
     flex-direction: column;
