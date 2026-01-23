@@ -135,10 +135,10 @@
     display: flex;
 }
 
-/* Незамінна амінокислота - зелений індикатор */
+/* Незамінна амінокислота - жовтий індикатор з текстом EAA */
 .input-right-tool.essential-amino {
-    background-color: var(--color-success-c);
-    color: var(--color-success);
+    background-color: var(--color-warning-c);
+    color: var(--color-warning);
 }
 
 /* ============================================ */

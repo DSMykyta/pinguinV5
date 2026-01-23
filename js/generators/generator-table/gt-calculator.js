@@ -80,10 +80,16 @@ export function markEssentialAminoAcids() {
         const isEssential = essentialAminos.some(amino => leftValue.includes(amino));
 
         if (isEssential) {
-            // Додаємо клас для кольорового індикатора (без тексту)
+            // Додаємо клас та текст EAA (Essential Amino Acid)
+            toolSpan.textContent = 'EAA';
             toolSpan.classList.add('tooltip-sm', 'essential-amino');
         } else {
             toolSpan.classList.remove('essential-amino');
+            // Очищаємо текст тільки якщо це був EAA (не відсоток)
+            if (toolSpan.textContent === 'EAA') {
+                toolSpan.textContent = '';
+                toolSpan.classList.remove('tooltip-sm');
+            }
         }
     });
 }
