@@ -949,11 +949,16 @@ export async function loadMpCategories() {
                 obj[header] = row[i] || '';
             });
 
+            // Зберігаємо оригінальний ID з таблиці
+            const originalId = obj.id;
+
             // Парсимо JSON поле data
             if (obj.data) {
                 try {
                     const parsedData = JSON.parse(obj.data);
                     Object.assign(obj, parsedData);
+                    // Відновлюємо оригінальний ID (щоб не перезаписався з JSON)
+                    obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
                 }
@@ -1109,6 +1114,80 @@ export function isMpCategoryMapped(mpCatId) {
     }
 
     return false;
+}
+
+/**
+ * Створити маппінг категорії
+ * @param {string} ownCatId - ID власної категорії
+ * @param {string} mpCatId - ID MP категорії
+ */
+export async function createCategoryMapping(ownCatId, mpCatId) {
+    console.log(`🔗 Створення маппінгу категорії: ${ownCatId} <-> ${mpCatId}`);
+
+    try {
+        // Перевірити чи вже існує
+        const existing = mapperState.mapCategories.find(m =>
+            m.category_id === ownCatId && m.mp_category_id === mpCatId
+        );
+        if (existing) {
+            console.log(`⚠️ Маппінг вже існує: ${existing.id}`);
+            return existing;
+        }
+
+        // Генерувати ID
+        const newId = generateId('map-cat', mapperState.mapCategories);
+        const timestamp = new Date().toISOString();
+
+        // Додати рядок в таблицю
+        await callSheetsAPI('append', {
+            range: `${SHEETS.MAP_CATEGORIES}!A:D`,
+            values: [[newId, ownCatId, mpCatId, timestamp]],
+            spreadsheetType: 'main'
+        });
+
+        // Оновити локальний стан
+        const newMapping = {
+            id: newId,
+            category_id: ownCatId,
+            mp_category_id: mpCatId,
+            created_at: timestamp,
+            _rowIndex: mapperState.mapCategories.length + 2
+        };
+        mapperState.mapCategories.push(newMapping);
+
+        console.log(`✅ Маппінг категорії створено: ${newId}`);
+        return newMapping;
+    } catch (error) {
+        console.error('❌ Помилка створення маппінгу категорії:', error);
+        throw error;
+    }
+}
+
+/**
+ * Batch створення маппінгів для кількох MP категорій
+ * @param {Array<string>} mpCatIds - Масив ID MP категорій
+ * @param {string} ownCatId - ID власної категорії
+ */
+export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
+    console.log(`🔗 Batch маппінг ${mpCatIds.length} MP категорій -> ${ownCatId}`);
+
+    const results = {
+        success: [],
+        failed: []
+    };
+
+    for (const mpCatId of mpCatIds) {
+        try {
+            await createCategoryMapping(ownCatId, mpCatId);
+            results.success.push(mpCatId);
+        } catch (error) {
+            console.error(`❌ Помилка маппінгу ${mpCatId}:`, error);
+            results.failed.push({ id: mpCatId, error: error.message });
+        }
+    }
+
+    console.log(`✅ Batch маппінг категорій завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
+    return results;
 }
 
 // -------------------------

@@ -14,7 +14,7 @@ import {
     addOption, updateOption, deleteOption, getOptions,
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
-    batchCreateCharacteristicMapping, batchCreateOptionMapping,
+    batchCreateCategoryMapping, batchCreateCharacteristicMapping, batchCreateOptionMapping,
     autoMapCharacteristics, autoMapOptions,
     getMappedMpCharacteristics, getMappedMpOptions,
     deleteCharacteristicMapping, deleteOptionMapping
@@ -4177,6 +4177,128 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
     closeBtn.addEventListener('click', closeThisModal);
     modalOverlay.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closeThisModal();
+    });
+}
+
+/**
+ * Показати модалку вибору власної категорії для маппінгу MP категорій
+ * @param {string[]} selectedMpCatIds - Масив ID вибраних MP категорій
+ */
+export async function showSelectOwnCategoryModal(selectedMpCatIds) {
+    console.log(`🔗 Вибір власної категорії для ${selectedMpCatIds.length} MP категорій`);
+
+    const ownCategories = getCategories();
+
+    if (ownCategories.length === 0) {
+        showToast('Немає власних категорій для маппінгу', 'warning');
+        return;
+    }
+
+    // Групуємо по рівнях вкладеності
+    const buildTree = (categories, parentId = '') => {
+        return categories
+            .filter(c => (c.parent_id || '') === parentId)
+            .map(cat => ({
+                ...cat,
+                children: buildTree(categories, cat.id)
+            }));
+    };
+
+    const renderTreeOptions = (tree, level = 0) => {
+        let html = '';
+        tree.forEach(cat => {
+            const indent = '—'.repeat(level);
+            const prefix = level > 0 ? `${indent} ` : '';
+            html += `<option value="${escapeHtml(cat.id)}">${prefix}${escapeHtml(cat.name_ua || cat.id)}</option>`;
+            if (cat.children.length > 0) {
+                html += renderTreeOptions(cat.children, level + 1);
+            }
+        });
+        return html;
+    };
+
+    const categoryTree = buildTree(ownCategories);
+    const optionsHtml = renderTreeOptions(categoryTree);
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-small">
+                <div class="modal-header">
+                    <h2 class="modal-title">Замапити до категорії</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p class="u-mb-16">Вибрано ${selectedMpCatIds.length} MP категорій для маппінгу</p>
+                    <div class="form-group">
+                        <label>Власна категорія</label>
+                        <select id="select-own-category" class="input-main">
+                            <option value="">Оберіть категорію...</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn btn-primary" id="btn-confirm-category-mapping">
+                        <span class="material-symbols-outlined">link</span>
+                        <span>Замапити</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    const closeThisModal = () => modalOverlay.remove();
+
+    modalOverlay.querySelectorAll('.modal-close-btn').forEach(btn => {
+        btn.addEventListener('click', closeThisModal);
+    });
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+
+    const confirmBtn = document.getElementById('btn-confirm-category-mapping');
+    const selectEl = document.getElementById('select-own-category');
+
+    confirmBtn.addEventListener('click', async () => {
+        const ownCatId = selectEl.value;
+        if (!ownCatId) {
+            showToast('Оберіть категорію', 'warning');
+            return;
+        }
+
+        try {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">progress_activity</span><span>Маппінг...</span>';
+
+            await batchCreateCategoryMapping(selectedMpCatIds, ownCatId);
+
+            closeThisModal();
+
+            // Очистити виділення
+            mapperState.selectedRows.categories.clear();
+            const batchBar = getBatchBar('mapper-categories');
+            if (batchBar) batchBar.clearSelection();
+
+            showToast(`Замаплено ${selectedMpCatIds.length} категорій`, 'success');
+            renderCurrentTab();
+        } catch (error) {
+            console.error('❌ Помилка маппінгу:', error);
+            showToast('Помилка маппінгу категорій', 'error');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined">link</span><span>Замапити</span>';
+        }
     });
 }
 

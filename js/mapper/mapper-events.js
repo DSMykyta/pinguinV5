@@ -254,9 +254,29 @@ function initFilterPills() {
 }
 
 /**
- * Ініціалізувати batch actions bar для характеристик та опцій
+ * Ініціалізувати batch actions bar для категорій, характеристик та опцій
  */
 function initMapperBatchActions() {
+    // Batch bar для категорій
+    createBatchActionsBar({
+        tabId: 'mapper-categories',
+        actions: [
+            {
+                id: 'map-to',
+                label: 'Замапити до...',
+                icon: 'link',
+                primary: true,
+                handler: async (selectedIds, tabId) => {
+                    const { showSelectOwnCategoryModal } = await import('./mapper-crud.js');
+                    await showSelectOwnCategoryModal(selectedIds);
+                }
+            }
+        ],
+        onSelectionChange: (count) => {
+            console.log(`📦 Вибрано ${count} категорій`);
+        }
+    });
+
     // Batch bar для характеристик
     createBatchActionsBar({
         tabId: 'mapper-characteristics',
