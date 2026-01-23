@@ -16,7 +16,12 @@ import {
     loadBrands,
     getCachedData,
     getOptionsForCharacteristic,
-    getCharacteristicsForCategory
+    getCharacteristicsForCategory,
+    getCharacteristicsByBlocks,
+    getDependentCharacteristics,
+    hasChildCharacteristics,
+    getFieldType,
+    BLOCK_NAMES
 } from './products-data-service.js';
 
 import {
@@ -852,6 +857,18 @@ async function openEditModal(productId) {
             currentModal = overlay;
         }
 
+        // Наповнюємо селекти категорій та брендів
+        await populateEditModalSelects(container, product);
+
+        // Рендеримо характеристики по блоках
+        renderCharacteristicsByBlocks(container, product.category_id || null);
+
+        // Заповнюємо значення характеристик з товару
+        fillCharacteristicsValues(container, product);
+
+        // Ініціалізуємо обробник зміни категорії
+        initCategoryChangeHandler(container);
+
         // Ініціалізуємо навігацію по секціях
         initSectionNavigator();
 
@@ -873,6 +890,67 @@ async function openEditModal(productId) {
     } catch (error) {
         console.error('Failed to load edit modal:', error);
     }
+}
+
+/**
+ * Наповнення селектів у edit modal
+ */
+async function populateEditModalSelects(container, product) {
+    const { categories, brands } = sheetsData;
+
+    // Категорії
+    const categorySelect = container.querySelector('#edit-category');
+    if (categorySelect && categories.length > 0) {
+        categorySelect.innerHTML = '<option value="">Оберіть категорію</option>';
+        categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name_ua;
+            if (cat.id === product.category_id) {
+                option.selected = true;
+            }
+            categorySelect.appendChild(option);
+        });
+    }
+
+    // Бренди
+    const brandSelect = container.querySelector('#edit-brand');
+    if (brandSelect && brands.length > 0) {
+        brandSelect.innerHTML = '<option value="">Оберіть бренд</option>';
+        brands.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.id;
+            option.textContent = brand.name_uk;
+            if (brand.id === product.brand_id) {
+                option.selected = true;
+            }
+            brandSelect.appendChild(option);
+        });
+    }
+}
+
+/**
+ * Заповнення значень характеристик з товару
+ */
+function fillCharacteristicsValues(container, product) {
+    if (!product.attributes) return;
+
+    Object.entries(product.attributes).forEach(([charId, value]) => {
+        const field = container.querySelector(`[data-characteristic-id="${charId}"]`);
+        if (!field) return;
+
+        if (field.tagName === 'SELECT') {
+            field.value = value;
+        } else if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') {
+            field.value = value;
+        } else if (field.classList.contains('checkbox-group')) {
+            // Для checkbox-group
+            const values = Array.isArray(value) ? value : [value];
+            field.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = values.includes(cb.value);
+            });
+        }
+    });
 }
 
 /**
@@ -1038,6 +1116,12 @@ async function openCreateWizard() {
         // Наповнюємо селекти даними з таблиць
         await populateWizardSelects(container);
 
+        // Рендеримо характеристики по блоках
+        renderCharacteristicsByBlocks(container, null);
+
+        // Ініціалізуємо обробник зміни категорії
+        initCategoryChangeHandler(container);
+
         // Ініціалізуємо wizard
         initWizard();
 
@@ -1146,6 +1230,182 @@ async function populateWizardSelects(container) {
     }
 
     console.log('✅ Селекти wizard наповнено даними з таблиць');
+}
+
+/**
+ * Рендеринг характеристик по блоках
+ * @param {HTMLElement} container - Контейнер для характеристик
+ * @param {string|null} categoryId - ID категорії для фільтрації
+ */
+function renderCharacteristicsByBlocks(container, categoryId = null) {
+    const attributesGrid = container.querySelector('#attributes-grid, .attributes-grid');
+    if (!attributesGrid) return;
+
+    const blocks = getCharacteristicsByBlocks(categoryId);
+    let html = '';
+
+    // Сортуємо блоки за номером
+    const sortedBlocks = Object.entries(blocks).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
+    sortedBlocks.forEach(([blockNum, block]) => {
+        // Пропускаємо блоки Варіанти та Опис (вони в окремих кроках)
+        if (blockNum === '7' || blockNum === '8') return;
+
+        html += `
+            <div class="attributes-block" data-block="${blockNum}">
+                <div class="attributes-block-header">${block.name}</div>
+                <div class="attributes-block-content">
+        `;
+
+        block.characteristics.forEach(char => {
+            html += renderCharacteristicField(char);
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+    });
+
+    attributesGrid.innerHTML = html;
+
+    // Ініціалізуємо обробники для залежних характеристик
+    initDependentCharacteristicsHandlers(container);
+}
+
+/**
+ * Рендеринг одного поля характеристики
+ * @param {Object} char - Характеристика
+ * @returns {string} HTML
+ */
+function renderCharacteristicField(char) {
+    const fieldType = getFieldType(char);
+    const options = getOptionsForCharacteristic(char.id);
+    const hasChildren = hasChildCharacteristics(char.id);
+
+    let fieldHtml = '';
+
+    switch (fieldType) {
+        case 'select':
+            fieldHtml = `
+                <select id="char-${char.id}" data-characteristic-id="${char.id}" ${hasChildren ? 'data-has-children="true"' : ''} data-custom-select>
+                    <option value="">—</option>
+                    ${options.map(opt => `<option value="${opt.id}">${opt.value_ua}</option>`).join('')}
+                </select>
+            `;
+            break;
+
+        case 'combobox':
+            fieldHtml = `
+                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" list="list-${char.id}" placeholder="Оберіть або введіть">
+                <datalist id="list-${char.id}">
+                    ${options.map(opt => `<option value="${opt.value_ua}">`).join('')}
+                </datalist>
+            `;
+            break;
+
+        case 'number':
+            fieldHtml = `
+                <input type="number" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="${char.unit || ''}">
+            `;
+            break;
+
+        case 'textarea':
+            fieldHtml = `
+                <textarea id="char-${char.id}" data-characteristic-id="${char.id}" rows="3" placeholder=""></textarea>
+            `;
+            break;
+
+        case 'checkbox-group':
+            fieldHtml = `
+                <div class="checkbox-group" id="char-${char.id}" data-characteristic-id="${char.id}">
+                    ${options.map(opt => `
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="${opt.id}">
+                            <span>${opt.value_ua}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            break;
+
+        case 'tags':
+            fieldHtml = `
+                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="Введіть через кому">
+            `;
+            break;
+
+        default:
+            fieldHtml = `
+                <input type="text" id="char-${char.id}" data-characteristic-id="${char.id}" placeholder="">
+            `;
+    }
+
+    return `
+        <div class="form-group" data-char-field="${char.id}">
+            <label>${char.name_ua}${char.unit ? ` (${char.unit})` : ''}</label>
+            ${fieldHtml}
+        </div>
+    `;
+}
+
+/**
+ * Ініціалізація обробників для залежних характеристик
+ * @param {HTMLElement} container
+ */
+function initDependentCharacteristicsHandlers(container) {
+    // Знаходимо всі селекти з дочірніми характеристиками
+    const selectsWithChildren = container.querySelectorAll('[data-has-children="true"]');
+
+    selectsWithChildren.forEach(select => {
+        select.addEventListener('change', (e) => {
+            const selectedOptionId = e.target.value;
+            const charId = e.target.dataset.characteristicId;
+
+            // Видаляємо попередні залежні поля для цієї характеристики
+            container.querySelectorAll(`[data-parent-char="${charId}"]`).forEach(el => el.remove());
+
+            if (!selectedOptionId) return;
+
+            // Отримуємо залежні характеристики для обраної опції
+            const dependentChars = getDependentCharacteristics(selectedOptionId);
+
+            if (dependentChars.length === 0) return;
+
+            // Знаходимо батьківський form-group
+            const parentFormGroup = e.target.closest('.form-group');
+            if (!parentFormGroup) return;
+
+            // Додаємо залежні поля після батьківського
+            dependentChars.forEach(depChar => {
+                const fieldHtml = renderCharacteristicField(depChar);
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = fieldHtml;
+                const newField = wrapper.firstElementChild;
+                newField.dataset.parentChar = charId;
+                newField.classList.add('dependent-field');
+                parentFormGroup.insertAdjacentElement('afterend', newField);
+            });
+
+            // Перезапускаємо custom selects для нових полів
+            initCustomSelects(container);
+        });
+    });
+}
+
+/**
+ * Обробник зміни категорії - перебудовує характеристики
+ * @param {HTMLElement} container
+ */
+function initCategoryChangeHandler(container) {
+    const categorySelect = container.querySelector('#wizard-category, #edit-category');
+    if (!categorySelect) return;
+
+    categorySelect.addEventListener('change', (e) => {
+        const categoryId = e.target.value;
+        renderCharacteristicsByBlocks(container, categoryId || null);
+        initCustomSelects(container);
+    });
 }
 
 /**

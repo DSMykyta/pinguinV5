@@ -302,81 +302,11 @@
             <!-- КРОК 5: ХАРАКТЕРИСТИКИ -->
             <div class="wizard-content" data-wizard-step="5" data-title="Характеристики" data-hint="Атрибути залежать від обраної категорії" data-icon="list_alt">
                 <div class="wizard-content-body">
-                    <div class="attributes-grid">
-                        <div class="form-group">
-                            <label>Форма випуску</label>
-                            <select id="wizard-attr-form" data-custom-select>
-                                <option value="">—</option>
-                                <option value="capsules">Капсули</option>
-                                <option value="tablets">Таблетки</option>
-                                <option value="powder">Порошок</option>
-                                <option value="liquid">Рідина</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Країна виробник</label>
-                            <select id="wizard-attr-country" data-custom-select>
-                                <option value="">—</option>
-                                <option value="de">Німеччина</option>
-                                <option value="us">США</option>
-                                <option value="uk">Великобританія</option>
-                                <option value="pl">Польща</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Кількість порцій</label>
-                            <input type="number" id="wizard-attr-servings" placeholder="120">
-                        </div>
-                        <div class="form-group">
-                            <label>Розмір порції</label>
-                            <input type="text" id="wizard-attr-serving-size" placeholder="1 капсула">
-                        </div>
-                        <div class="form-group">
-                            <label>Вік</label>
-                            <select id="wizard-attr-age" data-custom-select>
-                                <option value="">—</option>
-                                <option value="adult">Дорослі</option>
-                                <option value="children">Діти</option>
-                                <option value="seniors">Літні</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Стать</label>
-                            <select id="wizard-attr-gender" data-custom-select>
-                                <option value="">—</option>
-                                <option value="unisex">Унісекс</option>
-                                <option value="male">Чоловіки</option>
-                                <option value="female">Жінки</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Мультиселекти -->
-                    <div class="form-row form-row-2 u-mt-24">
-                        <div class="form-group">
-                            <label>Цілі (множинний вибір)</label>
-                            <select id="wizard-attr-goals" data-custom-select multiple>
-                                <option value="weight-loss">Схуднення</option>
-                                <option value="muscle-gain">Набір маси</option>
-                                <option value="energy">Енергія</option>
-                                <option value="immunity">Імунітет</option>
-                                <option value="recovery">Відновлення</option>
-                                <option value="joints">Суглоби</option>
-                                <option value="sleep">Сон</option>
-                                <option value="focus">Концентрація</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Час прийому (множинний вибір)</label>
-                            <select id="wizard-attr-timing" data-custom-select multiple>
-                                <option value="morning">Ранок</option>
-                                <option value="before-workout">До тренування</option>
-                                <option value="during-workout">Під час тренування</option>
-                                <option value="after-workout">Після тренування</option>
-                                <option value="evening">Вечір</option>
-                                <option value="with-meal">З їжею</option>
-                                <option value="empty-stomach">Натще</option>
-                            </select>
+                    <div class="attributes-grid" id="attributes-grid">
+                        <!-- Характеристики будуть додані динамічно з таблиці -->
+                        <div class="attributes-placeholder">
+                            <span class="material-symbols-outlined">hourglass_empty</span>
+                            <p>Оберіть категорію для відображення характеристик</p>
                         </div>
                     </div>
                 </div>

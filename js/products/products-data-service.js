@@ -294,3 +294,104 @@ export function clearCache() {
     dataCache.lastFetch = {};
     console.log('🧹 Кеш даних очищено');
 }
+
+/**
+ * Назви блоків характеристик
+ */
+export const BLOCK_NAMES = {
+    1: 'Форма випуску та фасування',
+    2: 'Склад та тип продукту',
+    3: 'Призначення та цільова аудиторія',
+    4: 'Бренд та документація',
+    5: 'Логістика та габарити',
+    6: 'Службові',
+    7: 'Опис товару',
+    8: 'Варіанти',
+    9: 'Теги'
+};
+
+/**
+ * Отримати характеристики згруповані по блокам
+ * @param {string|null} categoryId - ID категорії (null для всіх)
+ * @returns {Object} { blockNumber: { name, characteristics: [] } }
+ */
+export function getCharacteristicsByBlocks(categoryId = null) {
+    if (!dataCache.characteristics) return {};
+
+    const blocks = {};
+
+    dataCache.characteristics
+        .filter(char => {
+            // Фільтруємо за категорією якщо вказано
+            if (categoryId) {
+                return char.is_global || char.category_ids.includes(categoryId);
+            }
+            return true;
+        })
+        .filter(char => !char.parent_option_id) // Тільки кореневі (не залежні)
+        .forEach(char => {
+            const blockNum = char.block_number || 6; // За замовчуванням - "Службові"
+
+            if (!blocks[blockNum]) {
+                blocks[blockNum] = {
+                    name: BLOCK_NAMES[blockNum] || `Блок ${blockNum}`,
+                    characteristics: []
+                };
+            }
+
+            blocks[blockNum].characteristics.push(char);
+        });
+
+    return blocks;
+}
+
+/**
+ * Отримати залежні характеристики для опції
+ * @param {string} optionId - ID опції
+ * @returns {Array} Масив залежних характеристик
+ */
+export function getDependentCharacteristics(optionId) {
+    if (!dataCache.characteristics) return [];
+    return dataCache.characteristics.filter(char => char.parent_option_id === optionId);
+}
+
+/**
+ * Перевірити чи характеристика має залежні
+ * @param {string} characteristicId - ID характеристики
+ * @returns {boolean}
+ */
+export function hasChildCharacteristics(characteristicId) {
+    if (!dataCache.characteristics || !dataCache.options) return false;
+
+    // Отримуємо опції цієї характеристики
+    const options = getOptionsForCharacteristic(characteristicId);
+
+    // Перевіряємо чи є характеристики які залежать від цих опцій
+    return options.some(opt =>
+        dataCache.characteristics.some(char => char.parent_option_id === opt.id)
+    );
+}
+
+/**
+ * Типи полів для характеристик
+ */
+export const FIELD_TYPES = {
+    ListValues: 'select',      // Випадаючий список з фіксованими значеннями
+    ComboBox: 'combobox',      // Випадаючий список з можливістю вводу
+    Integer: 'number',         // Ціле число
+    Decimal: 'number',         // Десяткове число
+    List: 'select',            // Список
+    TextInput: 'text',         // Текстове поле
+    TextArea: 'textarea',      // Багаторядкове поле
+    MultiText: 'tags',         // Множинний текст (теги)
+    CheckBoxGroupValues: 'checkbox-group' // Група чекбоксів
+};
+
+/**
+ * Отримати тип поля для характеристики
+ * @param {Object} characteristic
+ * @returns {string} Тип поля (select, text, number, textarea, etc.)
+ */
+export function getFieldType(characteristic) {
+    return FIELD_TYPES[characteristic.type] || 'text';
+}
