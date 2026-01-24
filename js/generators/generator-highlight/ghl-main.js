@@ -20,6 +20,99 @@ import { showToast } from '../../common/ui-toast.js';
 let currentMode = 'text';
 
 // ============================================================================
+// САНІТИЗАЦІЯ HTML - <div> заборонено, все в <p>
+// ============================================================================
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sanitizeHtml(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Конвертуємо DIV в P
+    temp.querySelectorAll('div').forEach(div => {
+        const p = document.createElement('p');
+        p.innerHTML = div.innerHTML;
+        div.parentNode.replaceChild(p, div);
+    });
+
+    // Конвертуємо B в STRONG, I в EM
+    temp.querySelectorAll('b').forEach(b => {
+        const strong = document.createElement('strong');
+        strong.innerHTML = b.innerHTML;
+        b.parentNode.replaceChild(strong, b);
+    });
+
+    temp.querySelectorAll('i').forEach(i => {
+        const em = document.createElement('em');
+        em.innerHTML = i.innerHTML;
+        i.parentNode.replaceChild(em, i);
+    });
+
+    // Видаляємо SPAN (залишаємо вміст)
+    temp.querySelectorAll('span').forEach(span => {
+        const fragment = document.createDocumentFragment();
+        while (span.firstChild) {
+            fragment.appendChild(span.firstChild);
+        }
+        span.parentNode.replaceChild(fragment, span);
+    });
+
+    // Видаляємо всі атрибути з дозволених тегів
+    temp.querySelectorAll('*').forEach(el => {
+        // Пропускаємо видалення класу highlight-banned-word
+        const isHighlight = el.classList?.contains('highlight-banned-word');
+        while (el.attributes && el.attributes.length > 0) {
+            el.removeAttribute(el.attributes[0].name);
+        }
+        if (isHighlight) {
+            el.className = 'highlight-banned-word';
+        }
+    });
+
+    return temp.innerHTML;
+}
+
+function sanitizeEditor() {
+    const dom = getHighlightDOM();
+    if (!dom.editor || currentMode !== 'text') return;
+
+    let changed = false;
+
+    // Конвертуємо DIV в P
+    dom.editor.querySelectorAll('div').forEach(div => {
+        const p = document.createElement('p');
+        p.innerHTML = div.innerHTML;
+        div.parentNode.replaceChild(p, div);
+        changed = true;
+    });
+
+    // Конвертуємо B в STRONG
+    dom.editor.querySelectorAll('b').forEach(b => {
+        const strong = document.createElement('strong');
+        strong.innerHTML = b.innerHTML;
+        b.parentNode.replaceChild(strong, b);
+        changed = true;
+    });
+
+    // Конвертуємо I в EM
+    dom.editor.querySelectorAll('i').forEach(i => {
+        const em = document.createElement('em');
+        em.innerHTML = i.innerHTML;
+        i.parentNode.replaceChild(em, i);
+        changed = true;
+    });
+
+    if (changed) {
+        dom.editor.normalize();
+    }
+}
+
+// ============================================================================
 // UNDO/REDO STACK - власна система для обходу проблем contentEditable
 // ============================================================================
 
@@ -721,8 +814,10 @@ async function initHighlightGenerator() {
     // Дебаунсовані функції
     const debouncedValidateAndHighlight = debounce(validateAndHighlight, 500);
     const debouncedSaveUndo = debounce(saveUndoState, 300);
+    const debouncedSanitize = debounce(sanitizeEditor, 100);
 
     dom.editor.addEventListener('input', () => {
+        debouncedSanitize(); // Конвертуємо div->p, b->strong, i->em
         debouncedSaveUndo();
         debouncedValidateAndHighlight();
     });
@@ -772,45 +867,28 @@ async function initHighlightGenerator() {
         const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
 
         if (looksLikeHtml) {
-            // Вставляємо як HTML
-            const temp = document.createElement('div');
-            temp.innerHTML = text;
-
-            // Очищаємо та конвертуємо теги
-            temp.querySelectorAll('*').forEach(el => {
-                const allowedTags = ['P', 'STRONG', 'EM', 'H2', 'H3', 'UL', 'OL', 'LI', 'BR'];
-                if (!allowedTags.includes(el.tagName)) {
-                    if (el.tagName === 'B') {
-                        const strong = document.createElement('strong');
-                        strong.innerHTML = el.innerHTML;
-                        el.parentNode.replaceChild(strong, el);
-                    } else if (el.tagName === 'I') {
-                        const em = document.createElement('em');
-                        em.innerHTML = el.innerHTML;
-                        el.parentNode.replaceChild(em, el);
-                    } else if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
-                        // Замінюємо div/span на їх вміст
-                        const fragment = document.createDocumentFragment();
-                        while (el.firstChild) {
-                            fragment.appendChild(el.firstChild);
-                        }
-                        el.parentNode.replaceChild(fragment, el);
-                    }
-                }
-                // Видаляємо всі атрибути
-                while (el.attributes && el.attributes.length > 0) {
-                    el.removeAttribute(el.attributes[0].name);
-                }
-            });
-
-            document.execCommand('insertHTML', false, temp.innerHTML);
+            // Вставляємо як HTML - sanitize спочатку
+            const sanitized = sanitizeHtml(text);
+            document.execCommand('insertHTML', false, sanitized);
         } else {
-            // Звичайний plain text
+            // Звичайний plain text - огортаємо рядки в <p>
             text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-            document.execCommand('insertText', false, text);
+            const lines = text.split('\n');
+            const html = lines
+                .map(line => line.trim() ? `<p>${escapeHtml(line)}</p>` : '')
+                .filter(Boolean)
+                .join('');
+
+            if (html) {
+                document.execCommand('insertHTML', false, html);
+            }
         }
 
-        setTimeout(debouncedValidateAndHighlight, 50);
+        // Санітизуємо весь контент після вставки
+        setTimeout(() => {
+            sanitizeEditor();
+            debouncedValidateAndHighlight();
+        }, 50);
     });
 
     // Обробка клавіш
@@ -832,6 +910,8 @@ async function initHighlightGenerator() {
             e.preventDefault();
             saveUndoState();
             document.execCommand('insertParagraph');
+            // Санітизуємо після створення параграфу (браузер може створити div)
+            setTimeout(sanitizeEditor, 0);
         }
         // Shift+Enter - <br>
         if (e.key === 'Enter' && e.shiftKey) {
