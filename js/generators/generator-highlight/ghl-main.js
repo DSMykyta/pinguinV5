@@ -1,13 +1,10 @@
 // js/generators/generator-highlight/ghl-main.js
 
 /**
- * HIGHLIGHT GENERATOR - ПОВНОЦІННИЙ WYSIWYG РЕДАКТОР
+ * HIGHLIGHT GENERATOR - Редактор з підсвічуванням заборонених слів
  *
- * Два режими:
- * - Текст (WYSIWYG) - візуальне редагування
- * - Код (HTML) - редагування HTML коду
- *
- * Підсвічування заборонених слів в обох режимах
+ * Два режими: Текст (plain text з br) і Код (HTML)
+ * Використовує існуючі стилі: .banned-word-highlight, .banned-word-tooltip, .chip-error
  */
 
 import { registerPanelInitializer } from '../../panel/panel-right.js';
@@ -19,10 +16,68 @@ import { debounce } from '../../utils/common-utils.js';
 // СТАН
 // ============================================================================
 
-let currentMode = 'text'; // 'text' або 'code'
+let currentMode = 'text';
 
 // ============================================================================
-// TOOLTIP
+// ЗБЕРЕЖЕННЯ/ВІДНОВЛЕННЯ КУРСОРА
+// ============================================================================
+
+function saveCaretPosition(element) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return null;
+
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.startContainer, range.startOffset);
+
+    return {
+        start: preCaretRange.toString().length,
+        end: preCaretRange.toString().length + range.toString().length
+    };
+}
+
+function restoreCaretPosition(element, position) {
+    if (!position) return;
+
+    const selection = window.getSelection();
+    const range = document.createRange();
+
+    let charIndex = 0;
+    const nodeStack = [element];
+    let node, foundStart = false, foundEnd = false;
+
+    while (!foundEnd && (node = nodeStack.pop())) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const nextCharIndex = charIndex + node.length;
+
+            if (!foundStart && position.start >= charIndex && position.start <= nextCharIndex) {
+                range.setStart(node, position.start - charIndex);
+                foundStart = true;
+            }
+
+            if (foundStart && position.end >= charIndex && position.end <= nextCharIndex) {
+                range.setEnd(node, position.end - charIndex);
+                foundEnd = true;
+            }
+
+            charIndex = nextCharIndex;
+        } else {
+            let i = node.childNodes.length;
+            while (i--) {
+                nodeStack.push(node.childNodes[i]);
+            }
+        }
+    }
+
+    if (foundStart) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
+// ============================================================================
+// TOOLTIP (використовує існуючі стилі з tooltip.css)
 // ============================================================================
 
 let tooltipElement = null;
@@ -55,28 +110,24 @@ function showTooltip(target, wordInfo) {
     tooltip.innerHTML = content;
 
     const rect = target.getBoundingClientRect();
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.display = 'block';
-
-    const tooltipHeight = tooltip.offsetHeight;
-    const tooltipWidth = tooltip.offsetWidth;
-
     let top = rect.bottom + 8;
     let left = rect.left;
 
-    if (top + tooltipHeight > window.innerHeight) {
-        top = rect.top - tooltipHeight - 8;
+    tooltip.style.display = 'block';
+    tooltip.style.opacity = '0';
+
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    if (top + tooltipRect.height > window.innerHeight) {
+        top = rect.top - tooltipRect.height - 8;
     }
-    if (left + tooltipWidth > window.innerWidth) {
-        left = window.innerWidth - tooltipWidth - 10;
+    if (left + tooltipRect.width > window.innerWidth) {
+        left = window.innerWidth - tooltipRect.width - 10;
     }
-    if (left < 10) {
-        left = 10;
-    }
+    if (left < 10) left = 10;
 
     tooltip.style.top = `${top}px`;
     tooltip.style.left = `${left}px`;
-    tooltip.style.visibility = '';
     tooltip.classList.add('visible');
 }
 
@@ -94,54 +145,39 @@ function switchToTextMode() {
     const dom = getHighlightDOM();
     if (currentMode === 'text') return;
 
-    // Синхронізуємо контент: код -> текст
     dom.editor.innerHTML = dom.codeEditor.value;
-
-    // Перемикаємо видимість
     dom.editor.style.display = '';
     dom.codeEditor.style.display = 'none';
 
-    // Оновлюємо кнопки
     dom.btnModeText?.classList.add('active');
     dom.btnModeCode?.classList.remove('active');
 
-    // Вмикаємо кнопки форматування
     enableFormatButtons(true);
-
     currentMode = 'text';
-    validateText();
+    validateAndHighlight();
 }
 
 function switchToCodeMode() {
     const dom = getHighlightDOM();
     if (currentMode === 'code') return;
 
-    // Очищаємо підсвічування перед синхронізацією
     clearHighlights();
-
-    // Синхронізуємо контент: текст -> код
     dom.codeEditor.value = dom.editor.innerHTML;
 
-    // Перемикаємо видимість
     dom.editor.style.display = 'none';
     dom.codeEditor.style.display = '';
 
-    // Оновлюємо кнопки
     dom.btnModeText?.classList.remove('active');
     dom.btnModeCode?.classList.add('active');
 
-    // Вимикаємо кнопки форматування
     enableFormatButtons(false);
-
     currentMode = 'code';
-    validateText();
+    validateOnly();
 }
 
 function enableFormatButtons(enabled) {
     const dom = getHighlightDOM();
-    const buttons = [dom.btnBold, dom.btnItalic, dom.btnH2, dom.btnH3, dom.btnList];
-
-    buttons.forEach(btn => {
+    [dom.btnBold, dom.btnItalic, dom.btnH2, dom.btnH3, dom.btnList].forEach(btn => {
         if (btn) {
             btn.disabled = !enabled;
             btn.classList.toggle('text-disabled', !enabled);
@@ -150,12 +186,11 @@ function enableFormatButtons(enabled) {
 }
 
 // ============================================================================
-// ФОРМАТУВАННЯ (execCommand) - тільки для режиму тексту
+// ФОРМАТУВАННЯ - чисті теги без стилів
 // ============================================================================
 
 function execFormat(command, value = null) {
     if (currentMode !== 'text') return;
-
     const dom = getHighlightDOM();
     dom.editor?.focus();
     document.execCommand(command, false, value);
@@ -164,80 +199,47 @@ function execFormat(command, value = null) {
 
 function updateToolbarState() {
     if (currentMode !== 'text') return;
-
     const dom = getHighlightDOM();
 
-    if (dom.btnBold) {
-        dom.btnBold.classList.toggle('active', document.queryCommandState('bold'));
-    }
-    if (dom.btnItalic) {
-        dom.btnItalic.classList.toggle('active', document.queryCommandState('italic'));
-    }
+    dom.btnBold?.classList.toggle('active', document.queryCommandState('bold'));
+    dom.btnItalic?.classList.toggle('active', document.queryCommandState('italic'));
 
     try {
         const block = document.queryCommandValue('formatBlock').toLowerCase();
-        if (dom.btnH2) dom.btnH2.classList.toggle('active', block === 'h2');
-        if (dom.btnH3) dom.btnH3.classList.toggle('active', block === 'h3');
+        dom.btnH2?.classList.toggle('active', block === 'h2');
+        dom.btnH3?.classList.toggle('active', block === 'h3');
     } catch (e) {}
 
-    if (dom.btnList) {
-        dom.btnList.classList.toggle('active', document.queryCommandState('insertUnorderedList'));
-    }
+    dom.btnList?.classList.toggle('active', document.queryCommandState('insertUnorderedList'));
 }
 
 function setupToolbar() {
     const dom = getHighlightDOM();
 
-    // Кнопки форматування
     dom.btnBold?.addEventListener('click', () => execFormat('bold'));
     dom.btnItalic?.addEventListener('click', () => execFormat('italic'));
     dom.btnH2?.addEventListener('click', () => execFormat('formatBlock', '<h2>'));
     dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
 
-    // Перемикачі режимів
     dom.btnModeText?.addEventListener('click', switchToTextMode);
     dom.btnModeCode?.addEventListener('click', switchToCodeMode);
 
-    // Не втрачаємо фокус при кліку на тулбар
     dom.toolbar?.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.btn-icon')) {
-            e.preventDefault();
-        }
+        if (e.target.closest('.btn-icon')) e.preventDefault();
     });
 
-    // Гарячі клавіші
-    dom.editor?.addEventListener('keydown', (e) => {
-        if (e.ctrlKey || e.metaKey) {
-            switch (e.key.toLowerCase()) {
-                case 'b':
-                    e.preventDefault();
-                    execFormat('bold');
-                    break;
-                case 'i':
-                    e.preventDefault();
-                    execFormat('italic');
-                    break;
-            }
-        }
-    });
-
-    // Оновлюємо стан кнопок
     dom.editor?.addEventListener('keyup', updateToolbarState);
     dom.editor?.addEventListener('mouseup', updateToolbarState);
 }
 
 // ============================================================================
-// ПІДСВІЧУВАННЯ ЗАБОРОНЕНИХ СЛІВ (тільки для режиму тексту)
+// ПІДСВІЧУВАННЯ (використовує .banned-word-highlight з input.css)
 // ============================================================================
 
 function getPlainText() {
     const dom = getHighlightDOM();
-    if (currentMode === 'text') {
-        return dom.editor?.textContent || '';
-    } else {
-        return dom.codeEditor?.value || '';
-    }
+    return currentMode === 'text' ? (dom.editor?.textContent || '') : (dom.codeEditor?.value || '');
 }
 
 function applyHighlights() {
@@ -249,21 +251,28 @@ function applyHighlights() {
     const regex = getValidationRegex();
     if (!regex) return;
 
-    // Видаляємо старі mark
-    const marks = dom.editor.querySelectorAll('mark.highlight-banned-word');
-    marks.forEach(mark => {
-        const text = document.createTextNode(mark.textContent);
-        mark.parentNode.replaceChild(text, mark);
-    });
+    // Зберігаємо позицію курсора
+    const caretPos = saveCaretPosition(dom.editor);
 
+    // Видаляємо старі підсвічування
+    dom.editor.querySelectorAll('.banned-word-highlight').forEach(el => {
+        const text = document.createTextNode(el.textContent);
+        el.parentNode.replaceChild(text, el);
+    });
     dom.editor.normalize();
+
+    // Застосовуємо нові
     highlightTextNodes(dom.editor, regex);
+
+    // Відновлюємо курсор
+    restoreCaretPosition(dom.editor, caretPos);
 }
 
 function highlightTextNodes(node, regex) {
     if (node.nodeType === Node.TEXT_NODE) {
         const text = node.textContent;
-        if (!text.trim()) return;
+        // Пропускаємо порожні текстові ноди
+        if (!text || !text.trim()) return;
 
         regex.lastIndex = 0;
         const matches = [...text.matchAll(regex)];
@@ -277,10 +286,10 @@ function highlightTextNodes(node, regex) {
                 fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
             }
 
-            const mark = document.createElement('mark');
-            mark.className = 'highlight-banned-word';
-            mark.textContent = match[0];
-            fragment.appendChild(mark);
+            const span = document.createElement('span');
+            span.className = 'banned-word-highlight';
+            span.textContent = match[0];
+            fragment.appendChild(span);
 
             lastIndex = match.index + match[0].length;
         }
@@ -290,7 +299,11 @@ function highlightTextNodes(node, regex) {
         }
 
         node.parentNode.replaceChild(fragment, node);
-    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'MARK') {
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+        // Пропускаємо підсвічені елементи та BR теги
+        if (node.classList?.contains('banned-word-highlight')) return;
+        if (node.tagName === 'BR') return;
+
         const children = Array.from(node.childNodes);
         for (const child of children) {
             highlightTextNodes(child, regex);
@@ -302,10 +315,9 @@ function clearHighlights() {
     const dom = getHighlightDOM();
     if (!dom.editor) return;
 
-    const marks = dom.editor.querySelectorAll('mark.highlight-banned-word');
-    marks.forEach(mark => {
-        const text = document.createTextNode(mark.textContent);
-        mark.parentNode.replaceChild(text, mark);
+    dom.editor.querySelectorAll('.banned-word-highlight').forEach(el => {
+        const text = document.createTextNode(el.textContent);
+        el.parentNode.replaceChild(text, el);
     });
     dom.editor.normalize();
 }
@@ -314,7 +326,7 @@ function clearHighlights() {
 // ВАЛІДАЦІЯ
 // ============================================================================
 
-function validateText() {
+function validateOnly() {
     const dom = getHighlightDOM();
     const text = getPlainText();
     const regex = getValidationRegex();
@@ -325,18 +337,21 @@ function validateText() {
     if (regex && text) {
         regex.lastIndex = 0;
         let match;
-
         while ((match = regex.exec(text)) !== null) {
             if (match[1]) {
                 const word = match[1].toLowerCase();
-                const currentCount = wordCounts.get(word) || 0;
-                wordCounts.set(word, currentCount + 1);
+                wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
                 totalCount++;
             }
         }
     }
 
     displayResults(wordCounts, totalCount, dom);
+}
+
+function validateAndHighlight() {
+    validateOnly();
+    applyHighlights();
 }
 
 function displayResults(wordCounts, totalCount, dom) {
@@ -353,8 +368,7 @@ function displayResults(wordCounts, totalCount, dom) {
 
         dom.validationResults.querySelectorAll('.chip-error[data-banned-word]').forEach(chip => {
             chip.addEventListener('mouseenter', (e) => {
-                const word = e.target.dataset.bannedWord;
-                const wordInfo = findBannedWordInfo(word);
+                const wordInfo = findBannedWordInfo(e.target.dataset.bannedWord);
                 if (wordInfo) showTooltip(e.target, wordInfo);
             });
             chip.addEventListener('mouseleave', hideTooltip);
@@ -374,18 +388,15 @@ function setupEditorTooltips() {
     if (!dom.editor) return;
 
     dom.editor.addEventListener('mouseover', (e) => {
-        const mark = e.target.closest('mark.highlight-banned-word');
-        if (mark) {
-            const word = mark.textContent.toLowerCase();
-            const wordInfo = findBannedWordInfo(word);
-            if (wordInfo) showTooltip(mark, wordInfo);
+        const highlight = e.target.closest('.banned-word-highlight');
+        if (highlight) {
+            const wordInfo = findBannedWordInfo(highlight.textContent.toLowerCase());
+            if (wordInfo) showTooltip(highlight, wordInfo);
         }
     });
 
     dom.editor.addEventListener('mouseout', (e) => {
-        if (e.target.closest('mark.highlight-banned-word')) {
-            hideTooltip();
-        }
+        if (e.target.closest('.banned-word-highlight')) hideTooltip();
     });
 }
 
@@ -397,38 +408,48 @@ async function initHighlightGenerator() {
     const dom = getHighlightDOM();
     if (!dom.editor) return;
 
-    // 1. Завантажуємо заборонені слова
     await initValidator();
-
-    // 2. Налаштовуємо тулбар
     setupToolbar();
-
-    // 3. Tooltip для підсвічених слів
     setupEditorTooltips();
 
-    // 4. Валідація при введенні
-    const debouncedValidate = debounce(validateText, 300);
+    // Валідація і підсвічування в реальному часі
+    const debouncedValidateAndHighlight = debounce(validateAndHighlight, 500);
 
-    // Режим тексту
-    dom.editor.addEventListener('input', debouncedValidate);
+    dom.editor.addEventListener('input', debouncedValidateAndHighlight);
+
+    // Нормалізація вставленого тексту - тільки plain text
     dom.editor.addEventListener('paste', (e) => {
         e.preventDefault();
-        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        // Нормалізуємо переноси рядків
+        text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
         document.execCommand('insertText', false, text);
-        setTimeout(debouncedValidate, 50);
+        setTimeout(debouncedValidateAndHighlight, 50);
     });
 
-    // Режим коду
-    dom.codeEditor?.addEventListener('input', debouncedValidate);
+    // Обробка клавіш
+    dom.editor.addEventListener('keydown', (e) => {
+        // Enter - створюємо <br> замість <div>
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.execCommand('insertLineBreak');
+        }
+        // Ctrl+B для жирного
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            execFormat('bold');
+        }
+        // Ctrl+I для курсиву
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+            e.preventDefault();
+            execFormat('italic');
+        }
+    });
 
-    // 5. Підсвічування при втраті фокусу (тільки режим тексту)
-    dom.editor.addEventListener('blur', applyHighlights);
-    dom.editor.addEventListener('focus', clearHighlights);
+    dom.codeEditor?.addEventListener('input', debounce(validateOnly, 300));
 
-    // 6. Початкова валідація
-    validateText();
-
-    console.log('✅ Highlight Generator ініціалізовано (Text/Code режими)');
+    validateAndHighlight();
+    console.log('✅ Highlight Generator ініціалізовано');
 }
 
 registerPanelInitializer('aside-highlight', initHighlightGenerator);

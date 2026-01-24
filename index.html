@@ -415,7 +415,7 @@
             </div>
 
             <div class="section-content section-content-full-height">
-                <div class="toolbar-wrapper">
+                <div class="toolbar-wrapper toolbar-wrapper-spaced">
                     <div id="ghl-format-toolbar" class="format-toolbar">
                         <button id="ghl-format-bold" class="btn-icon" title="Жирний (Ctrl+B)" aria-label="Жирний">
                             <span class="material-symbols-outlined">format_bold</span>
@@ -442,8 +442,10 @@
                     </div>
                     <div id="ghl-validation-results" class="chip-list"></div>
                 </div>
-                <div id="ghl-editor" class="input-main" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
-                <textarea id="ghl-code-editor" class="input-main" style="display: none;" placeholder="HTML код..."></textarea>
+                <!-- Режим тексту: WYSIWYG редактор -->
+                <div id="ghl-editor" class="input-main ghl-text-mode" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
+                <!-- Режим коду -->
+                <textarea id="ghl-code-editor" class="input-main ghl-code-mode" style="display: none;" placeholder="HTML код..."></textarea>
             </div>
         </section>
 
