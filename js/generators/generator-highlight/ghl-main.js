@@ -553,7 +553,7 @@ function switchToTextMode() {
 
     dom.editor.innerHTML = dom.codeEditor.value;
     dom.editor.style.display = '';
-    dom.codeContainer.style.display = 'none';
+    dom.codeEditor.style.display = 'none';
 
     enableFormatButtons(true);
     currentMode = 'text';
@@ -579,37 +579,38 @@ function formatHtmlCode(html) {
         .replace(/<\/h([1-6])>/g, '</h$1>\n')
         .replace(/<\/li>/g, '</li>\n')
         .replace(/<\/ul>/g, '</ul>\n')
-        .replace(/<\/ol>/g, '</ol>\n')
-        .replace(/<ul>/g, '\n<ul>\n')
-        .replace(/<ol>/g, '\n<ol>\n');
+        .replace(/<\/ol>/g, '</ol>\n');
 
-    // Видаляємо зайві порожні рядки
+    // Додаємо переноси після відкриваючих ul/ol
     formatted = formatted
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+        .replace(/<ul>/g, '<ul>\n')
+        .replace(/<ol>/g, '<ol>\n');
 
-    return formatted;
-}
+    // Тепер додаємо відступи відповідно до рівня вкладеності
+    const lines = formatted.split('\n');
+    const result = [];
+    let indentLevel = 0;
+    const indentStr = '  '; // 2 пробіли
 
-function updateCodeHighlight() {
-    const dom = getHighlightDOM();
-    if (!dom.codeHighlight || !dom.codeEditor) return;
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
 
-    // Екрануємо HTML для відображення як тексту
-    const code = dom.codeEditor.value;
-    dom.codeHighlight.textContent = code;
+        // Зменшуємо відступ перед закриваючими тегами
+        if (trimmed.startsWith('</ul>') || trimmed.startsWith('</ol>')) {
+            indentLevel = Math.max(0, indentLevel - 1);
+        }
 
-    // Застосовуємо Prism підсвітку
-    if (window.Prism) {
-        Prism.highlightElement(dom.codeHighlight);
+        // Додаємо рядок з відступом
+        result.push(indentStr.repeat(indentLevel) + trimmed);
+
+        // Збільшуємо відступ після відкриваючих ul/ol
+        if (trimmed.startsWith('<ul>') || trimmed.startsWith('<ol>')) {
+            indentLevel++;
+        }
     }
 
-    // Синхронізуємо скрол
-    const pre = dom.codeHighlight.parentElement;
-    if (pre) {
-        pre.scrollTop = dom.codeEditor.scrollTop;
-        pre.scrollLeft = dom.codeEditor.scrollLeft;
-    }
+    return result.join('\n');
 }
 
 function switchToCodeMode() {
@@ -623,10 +624,7 @@ function switchToCodeMode() {
     dom.codeEditor.value = formatHtmlCode(cleanHtml);
 
     dom.editor.style.display = 'none';
-    dom.codeContainer.style.display = '';
-
-    // Оновлюємо підсвітку синтаксису
-    updateCodeHighlight();
+    dom.codeEditor.style.display = '';
 
     enableFormatButtons(false);
     currentMode = 'code';
@@ -635,7 +633,7 @@ function switchToCodeMode() {
 
 function enableFormatButtons(enabled) {
     const dom = getHighlightDOM();
-    [dom.btnBold, dom.btnItalic, dom.btnH2, dom.btnH3, dom.btnList].forEach(btn => {
+    [dom.btnBold, dom.btnItalic, dom.btnH2, dom.btnH3, dom.btnList, dom.btnLowercase].forEach(btn => {
         if (btn) {
             btn.disabled = !enabled;
             btn.classList.toggle('text-disabled', !enabled);
@@ -733,6 +731,29 @@ function toggleHeading(tag) {
     updateToolbarState();
 }
 
+function convertToLowercase() {
+    if (currentMode !== 'text') return;
+    const dom = getHighlightDOM();
+    dom.editor?.focus();
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount || selection.isCollapsed) return;
+
+    // Зберігаємо стан для undo
+    saveUndoState();
+
+    const selectedText = selection.toString();
+    const lowercaseText = selectedText.toLowerCase();
+
+    // Замінюємо виділений текст
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(document.createTextNode(lowercaseText));
+
+    // Прибираємо виділення
+    selection.removeAllRanges();
+}
+
 function isInsideTag(tagName) {
     const selection = window.getSelection();
     if (!selection.rangeCount) return false;
@@ -771,6 +792,7 @@ function setupToolbar() {
     dom.btnH2?.addEventListener('click', () => toggleHeading('h2'));
     dom.btnH3?.addEventListener('click', () => toggleHeading('h3'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
+    dom.btnLowercase?.addEventListener('click', convertToLowercase);
 
     // Radio buttons для перемикання режимів
     dom.btnModeText?.addEventListener('change', () => {
@@ -1293,19 +1315,7 @@ async function initHighlightGenerator() {
         }
     });
 
-    dom.codeEditor?.addEventListener('input', () => {
-        debounce(validateOnly, 300)();
-        updateCodeHighlight();
-    });
-
-    // Синхронізуємо скрол між textarea і підсвіткою
-    dom.codeEditor?.addEventListener('scroll', () => {
-        const pre = dom.codeHighlight?.parentElement;
-        if (pre) {
-            pre.scrollTop = dom.codeEditor.scrollTop;
-            pre.scrollLeft = dom.codeEditor.scrollLeft;
-        }
-    });
+    dom.codeEditor?.addEventListener('input', debounce(validateOnly, 300));
 
     // Оновлюємо fade-ефект при прокрутці validation results
     dom.validationResults?.addEventListener('scroll', updateValidationScrollFade);

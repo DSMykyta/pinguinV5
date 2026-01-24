@@ -11,8 +11,6 @@ export function getHighlightDOM() {
         // Редактори
         editor: document.getElementById('ghl-editor'),
         codeEditor: document.getElementById('ghl-code-editor'),
-        codeContainer: document.getElementById('ghl-code-container'),
-        codeHighlight: document.getElementById('ghl-code-highlight'),
 
         // Результати валідації
         validationResults: document.getElementById('ghl-validation-results'),
@@ -26,6 +24,7 @@ export function getHighlightDOM() {
         btnH2: document.getElementById('ghl-format-h2'),
         btnH3: document.getElementById('ghl-format-h3'),
         btnList: document.getElementById('ghl-format-list'),
+        btnLowercase: document.getElementById('ghl-format-lowercase'),
 
         // Перемикачі режимів
         btnModeText: document.getElementById('ghl-mode-text'),
