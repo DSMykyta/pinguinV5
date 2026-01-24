@@ -587,14 +587,25 @@ async function initHighlightGenerator() {
             document.execCommand('insertLineBreak');
         }
         // Ctrl+B для жирного (<strong>)
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'b') {
             e.preventDefault();
             wrapSelection('strong');
         }
         // Ctrl+I для курсиву (<em>)
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'i') {
             e.preventDefault();
             wrapSelection('em');
+        }
+        // Shift+Ctrl+C - копіювати тільки текст без розмітки
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+            e.preventDefault();
+            const selection = window.getSelection();
+            if (selection.rangeCount) {
+                const plainText = selection.toString();
+                navigator.clipboard.writeText(plainText).then(() => {
+                    console.log('📋 Скопійовано текст без розмітки');
+                });
+            }
         }
     });
 
