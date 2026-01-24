@@ -20,6 +20,99 @@ import { showToast } from '../../common/ui-toast.js';
 let currentMode = 'text';
 
 // ============================================================================
+// САНІТИЗАЦІЯ HTML - <div> заборонено, все в <p>
+// ============================================================================
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sanitizeHtml(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Конвертуємо DIV в P
+    temp.querySelectorAll('div').forEach(div => {
+        const p = document.createElement('p');
+        p.innerHTML = div.innerHTML;
+        div.parentNode.replaceChild(p, div);
+    });
+
+    // Конвертуємо B в STRONG, I в EM
+    temp.querySelectorAll('b').forEach(b => {
+        const strong = document.createElement('strong');
+        strong.innerHTML = b.innerHTML;
+        b.parentNode.replaceChild(strong, b);
+    });
+
+    temp.querySelectorAll('i').forEach(i => {
+        const em = document.createElement('em');
+        em.innerHTML = i.innerHTML;
+        i.parentNode.replaceChild(em, i);
+    });
+
+    // Видаляємо SPAN (залишаємо вміст)
+    temp.querySelectorAll('span').forEach(span => {
+        const fragment = document.createDocumentFragment();
+        while (span.firstChild) {
+            fragment.appendChild(span.firstChild);
+        }
+        span.parentNode.replaceChild(fragment, span);
+    });
+
+    // Видаляємо всі атрибути з дозволених тегів
+    temp.querySelectorAll('*').forEach(el => {
+        // Пропускаємо видалення класу highlight-banned-word
+        const isHighlight = el.classList?.contains('highlight-banned-word');
+        while (el.attributes && el.attributes.length > 0) {
+            el.removeAttribute(el.attributes[0].name);
+        }
+        if (isHighlight) {
+            el.className = 'highlight-banned-word';
+        }
+    });
+
+    return temp.innerHTML;
+}
+
+function sanitizeEditor() {
+    const dom = getHighlightDOM();
+    if (!dom.editor || currentMode !== 'text') return;
+
+    let changed = false;
+
+    // Конвертуємо DIV в P
+    dom.editor.querySelectorAll('div').forEach(div => {
+        const p = document.createElement('p');
+        p.innerHTML = div.innerHTML;
+        div.parentNode.replaceChild(p, div);
+        changed = true;
+    });
+
+    // Конвертуємо B в STRONG
+    dom.editor.querySelectorAll('b').forEach(b => {
+        const strong = document.createElement('strong');
+        strong.innerHTML = b.innerHTML;
+        b.parentNode.replaceChild(strong, b);
+        changed = true;
+    });
+
+    // Конвертуємо I в EM
+    dom.editor.querySelectorAll('i').forEach(i => {
+        const em = document.createElement('em');
+        em.innerHTML = i.innerHTML;
+        i.parentNode.replaceChild(em, i);
+        changed = true;
+    });
+
+    if (changed) {
+        dom.editor.normalize();
+    }
+}
+
+// ============================================================================
 // UNDO/REDO STACK - власна система для обходу проблем contentEditable
 // ============================================================================
 
@@ -228,9 +321,6 @@ function switchToTextMode() {
     dom.editor.style.display = '';
     dom.codeEditor.style.display = 'none';
 
-    dom.btnModeText?.classList.add('active');
-    dom.btnModeCode?.classList.remove('active');
-
     enableFormatButtons(true);
     currentMode = 'text';
 
@@ -251,9 +341,6 @@ function switchToCodeMode() {
 
     dom.editor.style.display = 'none';
     dom.codeEditor.style.display = '';
-
-    dom.btnModeText?.classList.remove('active');
-    dom.btnModeCode?.classList.add('active');
 
     enableFormatButtons(false);
     currentMode = 'code';
@@ -287,21 +374,37 @@ function wrapSelection(tagName) {
 
     const range = selection.getRangeAt(0);
 
-    // Перевіряємо, чи вже обгорнуто цим тегом
-    const parentTag = range.commonAncestorContainer.parentElement?.closest(tagName);
+    // Знаходимо батьківський тег - перевіряємо і anchorNode і focusNode
+    let node = selection.anchorNode;
+    if (node.nodeType === Node.TEXT_NODE) {
+        node = node.parentNode;
+    }
+    const parentTag = node?.closest?.(tagName);
+
     if (parentTag && dom.editor.contains(parentTag)) {
         // Знімаємо тег - витягуємо вміст
-        const fragment = document.createDocumentFragment();
+        const parent = parentTag.parentNode;
+
+        // Зберігаємо позицію для курсора
+        const textContent = parentTag.textContent;
+
+        // Замінюємо тег на його вміст
         while (parentTag.firstChild) {
-            fragment.appendChild(parentTag.firstChild);
+            parent.insertBefore(parentTag.firstChild, parentTag);
         }
-        parentTag.parentNode.replaceChild(fragment, parentTag);
-    } else {
-        // Додаємо тег
+        parent.removeChild(parentTag);
+        parent.normalize();
+    } else if (!range.collapsed) {
+        // Додаємо тег тільки якщо є виділений текст
         const wrapper = document.createElement(tagName);
         wrapper.appendChild(range.extractContents());
         range.insertNode(wrapper);
-        selection.selectAllChildren(wrapper);
+
+        // Виділяємо обгорнутий текст
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(wrapper);
+        selection.addRange(newRange);
     }
 
     updateToolbarState();
@@ -358,8 +461,13 @@ function setupToolbar() {
     dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
 
-    dom.btnModeText?.addEventListener('click', switchToTextMode);
-    dom.btnModeCode?.addEventListener('click', switchToCodeMode);
+    // Radio buttons для перемикання режимів
+    dom.btnModeText?.addEventListener('change', () => {
+        if (dom.btnModeText.checked) switchToTextMode();
+    });
+    dom.btnModeCode?.addEventListener('change', () => {
+        if (dom.btnModeCode.checked) switchToCodeMode();
+    });
 
     dom.toolbar?.addEventListener('mousedown', (e) => {
         if (e.target.closest('.btn-icon')) e.preventDefault();
@@ -600,8 +708,14 @@ function findAndReplaceAll() {
         html = html.split(findText).join(replaceText);
         dom.editor.innerHTML = html;
 
+        // Оновлюємо lastSavedContent після заміни
+        lastSavedContent = getCleanHtml();
+
         validateAndHighlight();
         showToast(`Замінено "${findText}" на "${replaceText}" (${count} разів)`, 'success');
+
+        // Повертаємо фокус на редактор щоб Ctrl+Z працював
+        dom.editor.focus();
     } else {
         // Для режиму коду
         const text = dom.codeEditor.value;
@@ -617,6 +731,9 @@ function findAndReplaceAll() {
         dom.codeEditor.value = text.split(findText).join(replaceText);
         validateOnly();
         showToast(`Замінено "${findText}" на "${replaceText}" (${count} разів)`, 'success');
+
+        // Повертаємо фокус на редактор коду
+        dom.codeEditor.focus();
     }
 }
 
@@ -705,8 +822,10 @@ async function initHighlightGenerator() {
     // Дебаунсовані функції
     const debouncedValidateAndHighlight = debounce(validateAndHighlight, 500);
     const debouncedSaveUndo = debounce(saveUndoState, 300);
+    const debouncedSanitize = debounce(sanitizeEditor, 100);
 
     dom.editor.addEventListener('input', () => {
+        debouncedSanitize(); // Конвертуємо div->p, b->strong, i->em
         debouncedSaveUndo();
         debouncedValidateAndHighlight();
     });
@@ -718,7 +837,19 @@ async function initHighlightGenerator() {
     // Find and Replace
     dom.replaceAllBtn?.addEventListener('click', findAndReplaceAll);
 
-    // Копіювання з HTML розміткою (без .highlight-banned-word)
+    // Кнопка "Додати заборонене слово"
+    const addBannedWordBtn = document.getElementById('ghl-btn-add-banned-word');
+    if (addBannedWordBtn) {
+        addBannedWordBtn.addEventListener('click', async () => {
+            const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+            await loadBannedWords();
+
+            const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
+            await openBannedWordModal();
+        });
+    }
+
+    // Ctrl+C - копіюємо HTML код як plain text (теги видно при вставці)
     dom.editor.addEventListener('copy', (e) => {
         const selection = window.getSelection();
         if (!selection.rangeCount) return;
@@ -734,12 +865,12 @@ async function initHighlightGenerator() {
             el.parentNode.replaceChild(text, el);
         });
 
-        const html = temp.innerHTML;
-        const plainText = temp.textContent;
+        const htmlCode = temp.innerHTML; // HTML код як текст
 
         e.preventDefault();
-        e.clipboardData.setData('text/html', html);
-        e.clipboardData.setData('text/plain', plainText);
+        // Копіюємо HTML код як plain text - щоб при вставці в інші програми були видні теги
+        e.clipboardData.setData('text/plain', htmlCode);
+        showToast('Скопійовано HTML код', 'success');
     });
 
     // Вставка з підтримкою HTML розмітки
@@ -756,45 +887,28 @@ async function initHighlightGenerator() {
         const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
 
         if (looksLikeHtml) {
-            // Вставляємо як HTML
-            const temp = document.createElement('div');
-            temp.innerHTML = text;
-
-            // Очищаємо та конвертуємо теги
-            temp.querySelectorAll('*').forEach(el => {
-                const allowedTags = ['P', 'STRONG', 'EM', 'H2', 'H3', 'UL', 'OL', 'LI', 'BR'];
-                if (!allowedTags.includes(el.tagName)) {
-                    if (el.tagName === 'B') {
-                        const strong = document.createElement('strong');
-                        strong.innerHTML = el.innerHTML;
-                        el.parentNode.replaceChild(strong, el);
-                    } else if (el.tagName === 'I') {
-                        const em = document.createElement('em');
-                        em.innerHTML = el.innerHTML;
-                        el.parentNode.replaceChild(em, el);
-                    } else if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
-                        // Замінюємо div/span на їх вміст
-                        const fragment = document.createDocumentFragment();
-                        while (el.firstChild) {
-                            fragment.appendChild(el.firstChild);
-                        }
-                        el.parentNode.replaceChild(fragment, el);
-                    }
-                }
-                // Видаляємо всі атрибути
-                while (el.attributes && el.attributes.length > 0) {
-                    el.removeAttribute(el.attributes[0].name);
-                }
-            });
-
-            document.execCommand('insertHTML', false, temp.innerHTML);
+            // Вставляємо як HTML - sanitize спочатку
+            const sanitized = sanitizeHtml(text);
+            document.execCommand('insertHTML', false, sanitized);
         } else {
-            // Звичайний plain text
+            // Звичайний plain text - огортаємо рядки в <p>
             text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-            document.execCommand('insertText', false, text);
+            const lines = text.split('\n');
+            const html = lines
+                .map(line => line.trim() ? `<p>${escapeHtml(line)}</p>` : '')
+                .filter(Boolean)
+                .join('');
+
+            if (html) {
+                document.execCommand('insertHTML', false, html);
+            }
         }
 
-        setTimeout(debouncedValidateAndHighlight, 50);
+        // Санітизуємо весь контент після вставки
+        setTimeout(() => {
+            sanitizeEditor();
+            debouncedValidateAndHighlight();
+        }, 50);
     });
 
     // Обробка клавіш
@@ -816,6 +930,8 @@ async function initHighlightGenerator() {
             e.preventDefault();
             saveUndoState();
             document.execCommand('insertParagraph');
+            // Санітизуємо після створення параграфу (браузер може створити div)
+            setTimeout(sanitizeEditor, 0);
         }
         // Shift+Enter - <br>
         if (e.key === 'Enter' && e.shiftKey) {
@@ -833,14 +949,14 @@ async function initHighlightGenerator() {
             e.preventDefault();
             wrapSelection('em');
         }
-        // Shift+Ctrl+C - копіювати тільки текст без розмітки
+        // Ctrl+Shift+C - копіювати тільки текст без розмітки
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
             e.preventDefault();
             const selection = window.getSelection();
             if (selection.rangeCount) {
                 const plainText = selection.toString();
                 navigator.clipboard.writeText(plainText).then(() => {
-                    console.log('📋 Скопійовано текст без розмітки');
+                    showToast('Скопійовано текст (без HTML)', 'success');
                 });
             }
         }
