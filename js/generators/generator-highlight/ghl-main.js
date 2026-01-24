@@ -566,12 +566,40 @@ function switchToTextMode() {
     validateAndHighlight();
 }
 
+function formatHtmlCode(html) {
+    // Форматуємо HTML для кращої читабельності
+    let formatted = html
+        // Очищаємо зайві пробіли
+        .replace(/>\s+</g, '><')
+        .trim();
+
+    // Додаємо переноси рядків після закриваючих тегів
+    formatted = formatted
+        .replace(/<\/p>/g, '</p>\n')
+        .replace(/<\/h([1-6])>/g, '</h$1>\n')
+        .replace(/<\/li>/g, '</li>\n')
+        .replace(/<\/ul>/g, '</ul>\n')
+        .replace(/<\/ol>/g, '</ol>\n')
+        .replace(/<ul>/g, '\n<ul>\n')
+        .replace(/<ol>/g, '\n<ol>\n');
+
+    // Видаляємо зайві порожні рядки
+    formatted = formatted
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+    return formatted;
+}
+
 function switchToCodeMode() {
     const dom = getHighlightDOM();
     if (currentMode === 'code') return;
 
     clearHighlights();
-    dom.codeEditor.value = dom.editor.innerHTML;
+
+    // Форматуємо HTML для кращої читабельності
+    const cleanHtml = getCleanHtml();
+    dom.codeEditor.value = formatHtmlCode(cleanHtml);
 
     dom.editor.style.display = 'none';
     dom.codeEditor.style.display = '';
@@ -656,6 +684,31 @@ function execFormat(command, value = null) {
     updateToolbarState();
 }
 
+function toggleHeading(tag) {
+    if (currentMode !== 'text') return;
+    const dom = getHighlightDOM();
+    dom.editor?.focus();
+
+    // Зберігаємо стан для undo
+    saveUndoState();
+
+    // Перевіряємо чи вже в цьому форматі
+    try {
+        const currentBlock = document.queryCommandValue('formatBlock').toLowerCase();
+        if (currentBlock === tag.toLowerCase()) {
+            // Якщо вже в цьому форматі - повертаємо до параграфу
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            // Застосовуємо формат
+            document.execCommand('formatBlock', false, `<${tag}>`);
+        }
+    } catch (e) {
+        document.execCommand('formatBlock', false, `<${tag}>`);
+    }
+
+    updateToolbarState();
+}
+
 function isInsideTag(tagName) {
     const selection = window.getSelection();
     if (!selection.rangeCount) return false;
@@ -691,8 +744,8 @@ function setupToolbar() {
 
     dom.btnBold?.addEventListener('click', () => wrapSelection('strong'));
     dom.btnItalic?.addEventListener('click', () => wrapSelection('em'));
-    dom.btnH2?.addEventListener('click', () => execFormat('formatBlock', '<h2>'));
-    dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
+    dom.btnH2?.addEventListener('click', () => toggleHeading('h2'));
+    dom.btnH3?.addEventListener('click', () => toggleHeading('h3'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
 
     // Radio buttons для перемикання режимів

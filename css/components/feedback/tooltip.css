@@ -114,26 +114,27 @@
 .shortcuts-tooltip .tooltip-title {
     font-weight: 600;
     margin-bottom: 12px;
-    color: var(--color-main-c);
+    color: var(--color-primary);
     font-size: 14px;
 }
 
 .shortcuts-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .shortcut-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .shortcut-item span {
     margin-left: auto;
-    color: var(--color-surface-v);
+    color: var(--color-surface);
 }
 
 .shortcut-item kbd {
@@ -143,11 +144,12 @@
     min-width: 24px;
     height: 22px;
     padding: 0 6px;
-    background: var(--color-surface-c);
-    color: var(--color-on-surface);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-surface);
     border-radius: 4px;
     font-size: 11px;
     font-weight: 500;
     font-family: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
