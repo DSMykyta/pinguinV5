@@ -294,11 +294,24 @@ function getCleanHtml() {
     if (!dom.editor) return '';
 
     const clone = dom.editor.cloneNode(true);
+
+    // Видаляємо highlight spans
     clone.querySelectorAll('.highlight-banned-word').forEach(el => {
         const text = document.createTextNode(el.textContent);
         el.parentNode.replaceChild(text, el);
     });
-    return clone.innerHTML;
+
+    // Отримуємо HTML і очищаємо
+    let html = clone.innerHTML;
+
+    // Замінюємо &nbsp; на звичайний пробіл
+    html = html.replace(/&nbsp;/g, ' ');
+    html = html.replace(/\u00A0/g, ' ');
+
+    // Очищаємо множинні пробіли
+    html = html.replace(/ {2,}/g, ' ');
+
+    return html;
 }
 
 // ============================================================================
