@@ -418,9 +418,26 @@
                 <div class="toolbar-wrapper">
                     <div id="ghl-validation-results" class="chip-list"></div>
                 </div>
-                <div id="ghl-editor-container" class="ghl-editor-container">
-                    <textarea id="ghl-input-textarea" class="input-main" placeholder="Вставте сюди текст для перевірки..."></textarea>
-                </div>
+                <div id="ghl-editor-container" class="ghl-editor-container"></div>
+    </div>
+</section>
+
+<!-- 
+  ВАЖЛИВО:
+  
+  1. Видали стару textarea:
+     <textarea id="ghl-input-textarea" ...></textarea>
+  
+  2. Додай CSS файл в <head>:
+     <link rel="stylesheet" href="css/components/rich-editor.css">
+  
+  3. В ghl-dom.js зміни:
+     - textarea: document.getElementById('ghl-input-textarea')
+     + editorContainer: document.getElementById('ghl-editor-container')
+  
+  4. Заміни ghl-main.js на ghl-main-v2.js
+  
+  5. Додай ghl-editor.js та ghl-validator-v2.js в папку generators/generator-highlight/
             </div>
         </section>
 
