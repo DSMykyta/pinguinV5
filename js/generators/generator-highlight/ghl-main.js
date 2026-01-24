@@ -461,6 +461,30 @@ async function initHighlightGenerator() {
 
     dom.editor.addEventListener('input', debouncedValidateAndHighlight);
 
+    // Копіювання з HTML розміткою (без .banned-word-highlight)
+    dom.editor.addEventListener('copy', (e) => {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        const fragment = range.cloneContents();
+
+        // Видаляємо підсвічування з копії
+        const temp = document.createElement('div');
+        temp.appendChild(fragment);
+        temp.querySelectorAll('.banned-word-highlight').forEach(el => {
+            const text = document.createTextNode(el.textContent);
+            el.parentNode.replaceChild(text, el);
+        });
+
+        const html = temp.innerHTML;
+        const plainText = temp.textContent;
+
+        e.preventDefault();
+        e.clipboardData.setData('text/html', html);
+        e.clipboardData.setData('text/plain', plainText);
+    });
+
     // Нормалізація вставленого тексту - тільки plain text
     dom.editor.addEventListener('paste', (e) => {
         e.preventDefault();
