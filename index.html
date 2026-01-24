@@ -416,9 +416,34 @@
 
             <div class="section-content section-content-full-height">
                 <div class="toolbar-wrapper">
+                    <div id="ghl-format-toolbar" class="format-toolbar">
+                        <button id="ghl-format-bold" class="btn-icon" title="Жирний (Ctrl+B)" aria-label="Жирний">
+                            <span class="material-symbols-outlined">format_bold</span>
+                        </button>
+                        <button id="ghl-format-italic" class="btn-icon" title="Курсив (Ctrl+I)" aria-label="Курсив">
+                            <span class="material-symbols-outlined">format_italic</span>
+                        </button>
+                        <button id="ghl-format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
+                            <span class="material-symbols-outlined">format_h2</span>
+                        </button>
+                        <button id="ghl-format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
+                            <span class="material-symbols-outlined">format_h3</span>
+                        </button>
+                        <button id="ghl-format-list" class="btn-icon" title="Список" aria-label="Список">
+                            <span class="material-symbols-outlined">format_list_bulleted</span>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button id="ghl-mode-text" class="btn-icon active" title="Режим тексту" aria-label="Режим тексту">
+                            <span class="material-symbols-outlined">text_fields</span>
+                        </button>
+                        <button id="ghl-mode-code" class="btn-icon" title="Режим коду" aria-label="Режим коду">
+                            <span class="material-symbols-outlined">code</span>
+                        </button>
+                    </div>
                     <div id="ghl-validation-results" class="chip-list"></div>
                 </div>
-                <div id="ghl-editor-container" class="ghl-editor-container"></div>
+                <div id="ghl-editor" class="input-main" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
+                <textarea id="ghl-code-editor" class="input-main" style="display: none;" placeholder="HTML код..."></textarea>
             </div>
         </section>
 

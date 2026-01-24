@@ -1,92 +1,122 @@
 /**
- * COMPONENT: Highlight Within Textarea
+ * COMPONENT: Highlight Editor
  *
  * ПРИЗНАЧЕННЯ:
- * Overlay техніка для підсвічування тексту в textarea.
- * Використовує backdrop div під прозорою textarea.
+ * Стилі для WYSIWYG редактора з підсвічуванням заборонених слів.
+ * Використовує contentEditable з існуючим класом .input-main
  *
  * СТРУКТУРА:
- * .hwt-container
- *   .hwt-backdrop
- *     .hwt-highlights.hwt-content (підсвічений текст)
- *   textarea.hwt-input.hwt-content (поле вводу)
+ * #ghl-editor.input-main[contenteditable="true"]
+ *   mark.highlight-banned-word (підсвічені слова)
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (змінні кольорів)
- * - input.css (.banned-word-highlight)
+ * - input.css (.input-main)
  */
 
-/* Контейнер редактора */
-.ghl-editor-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+/* ============================================================================
+   CONTENTEDITABLE РЕДАКТОР
+   ============================================================================ */
+
+/* Базові стилі для contentEditable */
+#ghl-editor {
     min-height: 200px;
-}
-
-/* Контейнер для overlay */
-.hwt-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    flex: 1;
-    display: flex;
-}
-
-/* Backdrop - фоновий шар для підсвічення */
-.hwt-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow: auto;
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Спільні стилі для контенту (backdrop і textarea) */
-.hwt-content {
-    width: 100%;
-    height: 100%;
-    padding: 12px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.6;
+    overflow-y: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
-/* Textarea - поле вводу */
-.hwt-input {
-    position: relative;
-    z-index: 2;
-    background: transparent !important;
-    color: var(--color-main);
-    caret-color: var(--color-main);
-    border: none;
-    resize: none;
-    outline: none;
+/* Placeholder для порожнього редактора */
+#ghl-editor:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted, #999);
+    pointer-events: none;
 }
 
-/* Highlights - контейнер з підсвіченим текстом */
-.hwt-highlights {
-    color: transparent;
-    background: var(--color-surface);
+/* Прибираємо placeholder при фокусі */
+#ghl-editor:focus:empty::before {
+    content: '';
 }
 
-/* Адаптація highlight-banned-word для overlay (текст прозорий, видно тільки background) */
-.hwt-highlights .highlight-banned-word {
-    color: transparent;
+/* ============================================================================
+   ПІДСВІЧУВАННЯ ЗАБОРОНЕНИХ СЛІВ
+   ============================================================================ */
+
+/* Підсвічене слово */
+.highlight-banned-word {
+    background-color: var(--color-error-container, rgba(255, 0, 0, 0.15));
+    color: var(--color-error, #d32f2f);
+    border-radius: 2px;
+    padding: 0 2px;
+    cursor: help;
 }
 
-/* Синхронізація скролбарів */
-.hwt-backdrop::-webkit-scrollbar {
+/* При наведенні */
+.highlight-banned-word:hover {
+    background-color: var(--color-error, #d32f2f);
+    color: white;
+}
+
+/* ============================================================================
+   ТУЛБАР
+   ============================================================================ */
+
+/* Розділювач в тулбарі */
+.format-toolbar .toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--color-outline, #ddd);
+    margin: 0 8px;
+}
+
+/* Активна кнопка форматування */
+.format-toolbar .btn-icon.active {
+    background-color: var(--color-primary, #1976d2);
+    color: white;
+}
+
+.format-toolbar .btn-icon.active:hover {
+    background-color: var(--color-primary-dark, #1565c0);
+}
+
+/* ============================================================================
+   TOOLTIP ДЛЯ ЗАБОРОНЕНИХ СЛІВ
+   ============================================================================ */
+
+.banned-word-tooltip {
+    position: fixed;
+    z-index: 10000;
+    max-width: 320px;
+    padding: 12px 16px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-outline, #ddd);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 13px;
+    line-height: 1.5;
     display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.hwt-backdrop {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.banned-word-tooltip.visible {
+    display: block;
+    opacity: 1;
+}
+
+.banned-word-tooltip .tooltip-title {
+    font-weight: 600;
+    color: var(--color-error, #d32f2f);
+    margin-bottom: 6px;
+}
+
+.banned-word-tooltip .tooltip-description {
+    color: var(--text-primary, #333);
+    margin-bottom: 8px;
+}
+
+.banned-word-tooltip .tooltip-hint {
+    color: var(--text-secondary, #666);
+    padding-top: 8px;
+    border-top: 1px solid var(--color-outline-variant, #eee);
 }
