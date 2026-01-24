@@ -287,21 +287,37 @@ function wrapSelection(tagName) {
 
     const range = selection.getRangeAt(0);
 
-    // Перевіряємо, чи вже обгорнуто цим тегом
-    const parentTag = range.commonAncestorContainer.parentElement?.closest(tagName);
+    // Знаходимо батьківський тег - перевіряємо і anchorNode і focusNode
+    let node = selection.anchorNode;
+    if (node.nodeType === Node.TEXT_NODE) {
+        node = node.parentNode;
+    }
+    const parentTag = node?.closest?.(tagName);
+
     if (parentTag && dom.editor.contains(parentTag)) {
         // Знімаємо тег - витягуємо вміст
-        const fragment = document.createDocumentFragment();
+        const parent = parentTag.parentNode;
+
+        // Зберігаємо позицію для курсора
+        const textContent = parentTag.textContent;
+
+        // Замінюємо тег на його вміст
         while (parentTag.firstChild) {
-            fragment.appendChild(parentTag.firstChild);
+            parent.insertBefore(parentTag.firstChild, parentTag);
         }
-        parentTag.parentNode.replaceChild(fragment, parentTag);
-    } else {
-        // Додаємо тег
+        parent.removeChild(parentTag);
+        parent.normalize();
+    } else if (!range.collapsed) {
+        // Додаємо тег тільки якщо є виділений текст
         const wrapper = document.createElement(tagName);
         wrapper.appendChild(range.extractContents());
         range.insertNode(wrapper);
-        selection.selectAllChildren(wrapper);
+
+        // Виділяємо обгорнутий текст
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(wrapper);
+        selection.addRange(newRange);
     }
 
     updateToolbarState();
