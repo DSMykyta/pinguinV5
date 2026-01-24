@@ -416,10 +416,21 @@ function setupInfoButtonTooltip() {
     const infoBtn = section.querySelector('button[aria-label="Інформація"]');
     if (!infoBtn) return;
 
+    // Перевіряємо чи вже додані обробники
+    if (infoBtn.dataset.tooltipInit) return;
+    infoBtn.dataset.tooltipInit = 'true';
+
     infoBtn.addEventListener('mouseenter', (e) => {
         showShortcutsTooltip(e.currentTarget);
     });
     infoBtn.addEventListener('mouseleave', hideShortcutsTooltip);
+}
+
+// Ініціалізуємо tooltip одразу при завантаженні сторінки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupInfoButtonTooltip);
+} else {
+    setupInfoButtonTooltip();
 }
 
 // ============================================================================
