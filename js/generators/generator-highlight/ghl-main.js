@@ -186,8 +186,38 @@ function enableFormatButtons(enabled) {
 }
 
 // ============================================================================
-// ФОРМАТУВАННЯ - чисті теги без стилів
+// ФОРМАТУВАННЯ - семантичні теги: <strong>, <em>, <h2>, <h3>, <ul>/<li>
 // ============================================================================
+
+function wrapSelection(tagName) {
+    if (currentMode !== 'text') return;
+    const dom = getHighlightDOM();
+    dom.editor?.focus();
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    const range = selection.getRangeAt(0);
+
+    // Перевіряємо, чи вже обгорнуто цим тегом
+    const parentTag = range.commonAncestorContainer.parentElement?.closest(tagName);
+    if (parentTag && dom.editor.contains(parentTag)) {
+        // Знімаємо тег - витягуємо вміст
+        const fragment = document.createDocumentFragment();
+        while (parentTag.firstChild) {
+            fragment.appendChild(parentTag.firstChild);
+        }
+        parentTag.parentNode.replaceChild(fragment, parentTag);
+    } else {
+        // Додаємо тег
+        const wrapper = document.createElement(tagName);
+        wrapper.appendChild(range.extractContents());
+        range.insertNode(wrapper);
+        selection.selectAllChildren(wrapper);
+    }
+
+    updateToolbarState();
+}
 
 function execFormat(command, value = null) {
     if (currentMode !== 'text') return;
@@ -197,12 +227,26 @@ function execFormat(command, value = null) {
     updateToolbarState();
 }
 
+function isInsideTag(tagName) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return false;
+
+    const dom = getHighlightDOM();
+    let node = selection.anchorNode;
+
+    while (node && node !== dom.editor) {
+        if (node.nodeName?.toLowerCase() === tagName.toLowerCase()) return true;
+        node = node.parentNode;
+    }
+    return false;
+}
+
 function updateToolbarState() {
     if (currentMode !== 'text') return;
     const dom = getHighlightDOM();
 
-    dom.btnBold?.classList.toggle('active', document.queryCommandState('bold'));
-    dom.btnItalic?.classList.toggle('active', document.queryCommandState('italic'));
+    dom.btnBold?.classList.toggle('active', isInsideTag('strong'));
+    dom.btnItalic?.classList.toggle('active', isInsideTag('em'));
 
     try {
         const block = document.queryCommandValue('formatBlock').toLowerCase();
@@ -216,8 +260,8 @@ function updateToolbarState() {
 function setupToolbar() {
     const dom = getHighlightDOM();
 
-    dom.btnBold?.addEventListener('click', () => execFormat('bold'));
-    dom.btnItalic?.addEventListener('click', () => execFormat('italic'));
+    dom.btnBold?.addEventListener('click', () => wrapSelection('strong'));
+    dom.btnItalic?.addEventListener('click', () => wrapSelection('em'));
     dom.btnH2?.addEventListener('click', () => execFormat('formatBlock', '<h2>'));
     dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
@@ -429,20 +473,25 @@ async function initHighlightGenerator() {
 
     // Обробка клавіш
     dom.editor.addEventListener('keydown', (e) => {
-        // Enter - створюємо <br> замість <div>
+        // Enter - створюємо <p> (стандартна поведінка formatBlock)
         if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.execCommand('insertParagraph');
+        }
+        // Shift+Enter - <br>
+        if (e.key === 'Enter' && e.shiftKey) {
             e.preventDefault();
             document.execCommand('insertLineBreak');
         }
-        // Ctrl+B для жирного
+        // Ctrl+B для жирного (<strong>)
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
             e.preventDefault();
-            execFormat('bold');
+            wrapSelection('strong');
         }
-        // Ctrl+I для курсиву
+        // Ctrl+I для курсиву (<em>)
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
             e.preventDefault();
-            execFormat('italic');
+            wrapSelection('em');
         }
     });
 
