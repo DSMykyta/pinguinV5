@@ -656,6 +656,31 @@ function execFormat(command, value = null) {
     updateToolbarState();
 }
 
+function toggleHeading(tag) {
+    if (currentMode !== 'text') return;
+    const dom = getHighlightDOM();
+    dom.editor?.focus();
+
+    // Зберігаємо стан для undo
+    saveUndoState();
+
+    // Перевіряємо чи вже в цьому форматі
+    try {
+        const currentBlock = document.queryCommandValue('formatBlock').toLowerCase();
+        if (currentBlock === tag.toLowerCase()) {
+            // Якщо вже в цьому форматі - повертаємо до параграфу
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            // Застосовуємо формат
+            document.execCommand('formatBlock', false, `<${tag}>`);
+        }
+    } catch (e) {
+        document.execCommand('formatBlock', false, `<${tag}>`);
+    }
+
+    updateToolbarState();
+}
+
 function isInsideTag(tagName) {
     const selection = window.getSelection();
     if (!selection.rangeCount) return false;
@@ -691,8 +716,8 @@ function setupToolbar() {
 
     dom.btnBold?.addEventListener('click', () => wrapSelection('strong'));
     dom.btnItalic?.addEventListener('click', () => wrapSelection('em'));
-    dom.btnH2?.addEventListener('click', () => execFormat('formatBlock', '<h2>'));
-    dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
+    dom.btnH2?.addEventListener('click', () => toggleHeading('h2'));
+    dom.btnH3?.addEventListener('click', () => toggleHeading('h3'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
 
     // Radio buttons для перемикання режимів
