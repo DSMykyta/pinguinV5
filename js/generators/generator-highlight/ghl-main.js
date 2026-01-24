@@ -92,6 +92,8 @@ function getTooltipElement() {
 }
 
 function showTooltip(target, wordInfo) {
+    if (!wordInfo) return;
+
     const tooltip = getTooltipElement();
     let content = '';
 
@@ -108,17 +110,17 @@ function showTooltip(target, wordInfo) {
     if (!content) return;
 
     tooltip.innerHTML = content;
+    tooltip.classList.remove('visible');
 
     const rect = target.getBoundingClientRect();
     let top = rect.bottom + 8;
     let left = rect.left;
 
-    // Показуємо для вимірювання розмірів
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.display = 'block';
-
+    // Тимчасово показуємо для вимірювання
+    tooltip.style.cssText = `position: fixed; visibility: hidden; display: block;`;
     const tooltipRect = tooltip.getBoundingClientRect();
 
+    // Перевіряємо межі екрану
     if (top + tooltipRect.height > window.innerHeight) {
         top = rect.top - tooltipRect.height - 8;
     }
@@ -127,10 +129,8 @@ function showTooltip(target, wordInfo) {
     }
     if (left < 10) left = 10;
 
-    tooltip.style.top = `${top}px`;
-    tooltip.style.left = `${left}px`;
-    tooltip.style.visibility = '';
-    tooltip.style.display = '';
+    // Встановлюємо позицію і показуємо
+    tooltip.style.cssText = `position: fixed; top: ${top}px; left: ${left}px;`;
     tooltip.classList.add('visible');
 }
 
