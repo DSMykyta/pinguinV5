@@ -11,6 +11,8 @@ export function getHighlightDOM() {
         // Редактори
         editor: document.getElementById('ghl-editor'),
         codeEditor: document.getElementById('ghl-code-editor'),
+        codeContainer: document.getElementById('ghl-code-container'),
+        codeHighlight: document.getElementById('ghl-code-highlight'),
 
         // Результати валідації
         validationResults: document.getElementById('ghl-validation-results'),

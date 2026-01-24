@@ -553,7 +553,7 @@ function switchToTextMode() {
 
     dom.editor.innerHTML = dom.codeEditor.value;
     dom.editor.style.display = '';
-    dom.codeEditor.style.display = 'none';
+    dom.codeContainer.style.display = 'none';
 
     enableFormatButtons(true);
     currentMode = 'text';
@@ -591,6 +591,27 @@ function formatHtmlCode(html) {
     return formatted;
 }
 
+function updateCodeHighlight() {
+    const dom = getHighlightDOM();
+    if (!dom.codeHighlight || !dom.codeEditor) return;
+
+    // Екрануємо HTML для відображення як тексту
+    const code = dom.codeEditor.value;
+    dom.codeHighlight.textContent = code;
+
+    // Застосовуємо Prism підсвітку
+    if (window.Prism) {
+        Prism.highlightElement(dom.codeHighlight);
+    }
+
+    // Синхронізуємо скрол
+    const pre = dom.codeHighlight.parentElement;
+    if (pre) {
+        pre.scrollTop = dom.codeEditor.scrollTop;
+        pre.scrollLeft = dom.codeEditor.scrollLeft;
+    }
+}
+
 function switchToCodeMode() {
     const dom = getHighlightDOM();
     if (currentMode === 'code') return;
@@ -602,7 +623,10 @@ function switchToCodeMode() {
     dom.codeEditor.value = formatHtmlCode(cleanHtml);
 
     dom.editor.style.display = 'none';
-    dom.codeEditor.style.display = '';
+    dom.codeContainer.style.display = '';
+
+    // Оновлюємо підсвітку синтаксису
+    updateCodeHighlight();
 
     enableFormatButtons(false);
     currentMode = 'code';
@@ -899,6 +923,21 @@ function validateAndHighlight() {
     applyHighlights();
 }
 
+function updateValidationScrollFade() {
+    const dom = getHighlightDOM();
+    if (!dom.validationResults) return;
+
+    const wrapper = dom.validationResults.parentElement;
+    if (!wrapper || !wrapper.classList.contains('validation-results-wrapper')) return;
+
+    const el = dom.validationResults;
+    const hasScrollLeft = el.scrollLeft > 0;
+    const hasScrollRight = el.scrollLeft < (el.scrollWidth - el.clientWidth - 1);
+
+    wrapper.classList.toggle('has-scroll-left', hasScrollLeft);
+    wrapper.classList.toggle('has-scroll-right', hasScrollRight);
+}
+
 function displayResults(wordCounts, bannedCount, htmlResults, dom) {
     if (!dom.validationResults) return;
 
@@ -938,9 +977,13 @@ function displayResults(wordCounts, bannedCount, htmlResults, dom) {
             });
             chip.addEventListener('mouseleave', hideTooltip);
         });
+
+        // Оновлюємо fade-ефект
+        setTimeout(updateValidationScrollFade, 0);
     } else {
         dom.validationResults.innerHTML = '';
         dom.validationResults.classList.remove('has-errors');
+        updateValidationScrollFade();
     }
 }
 
@@ -1250,7 +1293,22 @@ async function initHighlightGenerator() {
         }
     });
 
-    dom.codeEditor?.addEventListener('input', debounce(validateOnly, 300));
+    dom.codeEditor?.addEventListener('input', () => {
+        debounce(validateOnly, 300)();
+        updateCodeHighlight();
+    });
+
+    // Синхронізуємо скрол між textarea і підсвіткою
+    dom.codeEditor?.addEventListener('scroll', () => {
+        const pre = dom.codeHighlight?.parentElement;
+        if (pre) {
+            pre.scrollTop = dom.codeEditor.scrollTop;
+            pre.scrollLeft = dom.codeEditor.scrollLeft;
+        }
+    });
+
+    // Оновлюємо fade-ефект при прокрутці validation results
+    dom.validationResults?.addEventListener('scroll', updateValidationScrollFade);
 
     validateAndHighlight();
     console.log('✅ Highlight Generator ініціалізовано');
