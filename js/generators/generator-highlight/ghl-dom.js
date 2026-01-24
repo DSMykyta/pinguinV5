@@ -28,6 +28,11 @@ export function getHighlightDOM() {
         // Перемикачі режимів
         btnModeText: document.getElementById('ghl-mode-text'),
         btnModeCode: document.getElementById('ghl-mode-code'),
+
+        // Find and Replace
+        findInput: document.getElementById('ghl-find-input'),
+        replaceInput: document.getElementById('ghl-replace-input'),
+        replaceAllBtn: document.getElementById('ghl-replace-all-btn'),
     };
 
     return domCache;

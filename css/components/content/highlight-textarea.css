@@ -8,6 +8,8 @@
  * - input.css (.input-main)
  * - tooltip.css (.banned-word-tooltip)
  * - chip.css (.chip-error)
+ * - rich-editor.css (.toolbar-separator)
+ * - button-icon.css (.btn-icon.active)
  */
 
 /* ============================================================================
@@ -22,13 +24,24 @@
     line-height: 1.6;
 }
 
-/* Нормалізація відступів */
+/* Нормалізація відступів для параграфів */
 #ghl-editor p {
     margin: 0 0 0.5em 0;
 }
 
 #ghl-editor p:last-child {
     margin-bottom: 0;
+}
+
+/* Стилі для списків - відступи для кращої читабельності */
+#ghl-editor ul,
+#ghl-editor ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+#ghl-editor li {
+    margin: 0.25em 0;
 }
 
 /* Placeholder для порожнього редактора */
@@ -65,22 +78,4 @@
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-}
-
-/* Розділювач в тулбарі */
-.format-toolbar .toolbar-separator {
-    width: 1px;
-    height: 24px;
-    background: var(--color-outline);
-    margin: 0 8px;
-}
-
-/* Активна кнопка форматування */
-#ghl-format-toolbar .btn-icon.active {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-}
-
-#ghl-format-toolbar .btn-icon.active:hover {
-    background-color: var(--color-primary-h);
 }
