@@ -531,21 +531,20 @@ async function initHighlightGenerator() {
     dom.editor.addEventListener('paste', (e) => {
         e.preventDefault();
         const clipboardData = e.clipboardData || window.clipboardData;
+        let text = clipboardData.getData('text/plain');
 
-        // Спочатку пробуємо HTML
-        let html = clipboardData.getData('text/html');
+        // Детекція HTML в plain text (коли копіюють код з редактора)
+        const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
 
-        if (html) {
-            // Очищаємо HTML від зайвих атрибутів та стилів
+        if (looksLikeHtml) {
+            // Вставляємо як HTML
             const temp = document.createElement('div');
-            temp.innerHTML = html;
+            temp.innerHTML = text;
 
-            // Видаляємо всі style, class та інші атрибути, залишаємо тільки чисті теги
+            // Очищаємо та конвертуємо теги
             temp.querySelectorAll('*').forEach(el => {
-                // Дозволені теги
                 const allowedTags = ['P', 'STRONG', 'EM', 'H2', 'H3', 'UL', 'OL', 'LI', 'BR'];
                 if (!allowedTags.includes(el.tagName)) {
-                    // Замінюємо недозволений тег на span без атрибутів
                     if (el.tagName === 'B') {
                         const strong = document.createElement('strong');
                         strong.innerHTML = el.innerHTML;
@@ -554,64 +553,26 @@ async function initHighlightGenerator() {
                         const em = document.createElement('em');
                         em.innerHTML = el.innerHTML;
                         el.parentNode.replaceChild(em, el);
-                    } else if (el.tagName === 'DIV') {
-                        const p = document.createElement('p');
-                        p.innerHTML = el.innerHTML;
-                        el.parentNode.replaceChild(p, el);
+                    } else if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
+                        // Замінюємо div/span на їх вміст
+                        const fragment = document.createDocumentFragment();
+                        while (el.firstChild) {
+                            fragment.appendChild(el.firstChild);
+                        }
+                        el.parentNode.replaceChild(fragment, el);
                     }
                 }
                 // Видаляємо всі атрибути
-                while (el.attributes.length > 0) {
+                while (el.attributes && el.attributes.length > 0) {
                     el.removeAttribute(el.attributes[0].name);
                 }
             });
 
             document.execCommand('insertHTML', false, temp.innerHTML);
         } else {
-            // Якщо немає HTML формату, перевіряємо чи plain text містить HTML теги
-            let text = clipboardData.getData('text/plain');
-
-            // Детекція HTML в plain text (коли копіюють код з редактора)
-            const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
-
-            if (looksLikeHtml) {
-                // Вставляємо як HTML
-                const temp = document.createElement('div');
-                temp.innerHTML = text;
-
-                // Очищаємо та конвертуємо теги
-                temp.querySelectorAll('*').forEach(el => {
-                    const allowedTags = ['P', 'STRONG', 'EM', 'H2', 'H3', 'UL', 'OL', 'LI', 'BR'];
-                    if (!allowedTags.includes(el.tagName)) {
-                        if (el.tagName === 'B') {
-                            const strong = document.createElement('strong');
-                            strong.innerHTML = el.innerHTML;
-                            el.parentNode.replaceChild(strong, el);
-                        } else if (el.tagName === 'I') {
-                            const em = document.createElement('em');
-                            em.innerHTML = el.innerHTML;
-                            el.parentNode.replaceChild(em, el);
-                        } else if (el.tagName === 'DIV' || el.tagName === 'SPAN') {
-                            // Замінюємо div/span на їх вміст
-                            const fragment = document.createDocumentFragment();
-                            while (el.firstChild) {
-                                fragment.appendChild(el.firstChild);
-                            }
-                            el.parentNode.replaceChild(fragment, el);
-                        }
-                    }
-                    // Видаляємо всі атрибути
-                    while (el.attributes && el.attributes.length > 0) {
-                        el.removeAttribute(el.attributes[0].name);
-                    }
-                });
-
-                document.execCommand('insertHTML', false, temp.innerHTML);
-            } else {
-                // Звичайний plain text
-                text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-                document.execCommand('insertText', false, text);
-            }
+            // Звичайний plain text
+            text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+            document.execCommand('insertText', false, text);
         }
 
         setTimeout(debouncedValidateAndHighlight, 50);
