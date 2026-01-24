@@ -321,9 +321,6 @@ function switchToTextMode() {
     dom.editor.style.display = '';
     dom.codeEditor.style.display = 'none';
 
-    dom.btnModeText?.classList.add('active');
-    dom.btnModeCode?.classList.remove('active');
-
     enableFormatButtons(true);
     currentMode = 'text';
 
@@ -344,9 +341,6 @@ function switchToCodeMode() {
 
     dom.editor.style.display = 'none';
     dom.codeEditor.style.display = '';
-
-    dom.btnModeText?.classList.remove('active');
-    dom.btnModeCode?.classList.add('active');
 
     enableFormatButtons(false);
     currentMode = 'code';
@@ -467,8 +461,13 @@ function setupToolbar() {
     dom.btnH3?.addEventListener('click', () => execFormat('formatBlock', '<h3>'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
 
-    dom.btnModeText?.addEventListener('click', switchToTextMode);
-    dom.btnModeCode?.addEventListener('click', switchToCodeMode);
+    // Radio buttons для перемикання режимів
+    dom.btnModeText?.addEventListener('change', () => {
+        if (dom.btnModeText.checked) switchToTextMode();
+    });
+    dom.btnModeCode?.addEventListener('change', () => {
+        if (dom.btnModeCode.checked) switchToCodeMode();
+    });
 
     dom.toolbar?.addEventListener('mousedown', (e) => {
         if (e.target.closest('.btn-icon')) e.preventDefault();
