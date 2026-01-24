@@ -4,7 +4,7 @@
  * HIGHLIGHT GENERATOR - Редактор з підсвічуванням заборонених слів
  *
  * Два режими: Текст (plain text з br) і Код (HTML)
- * Використовує існуючі стилі: .banned-word-highlight, .banned-word-tooltip, .chip-error
+ * Використовує існуючі стилі: .highlight-banned-word, .banned-word-tooltip, .chip-error
  */
 
 import { registerPanelInitializer } from '../../panel/panel-right.js';
@@ -281,7 +281,7 @@ function setupToolbar() {
 }
 
 // ============================================================================
-// ПІДСВІЧУВАННЯ (використовує .banned-word-highlight з input.css)
+// ПІДСВІЧУВАННЯ (використовує .highlight-banned-word з input.css)
 // ============================================================================
 
 function getPlainText() {
@@ -302,7 +302,7 @@ function applyHighlights() {
     const caretPos = saveCaretPosition(dom.editor);
 
     // Видаляємо старі підсвічування
-    dom.editor.querySelectorAll('.banned-word-highlight').forEach(el => {
+    dom.editor.querySelectorAll('.highlight-banned-word').forEach(el => {
         const text = document.createTextNode(el.textContent);
         el.parentNode.replaceChild(text, el);
     });
@@ -334,7 +334,7 @@ function highlightTextNodes(node, regex) {
             }
 
             const span = document.createElement('span');
-            span.className = 'banned-word-highlight';
+            span.className = 'highlight-banned-word';
             span.textContent = match[0];
             fragment.appendChild(span);
 
@@ -348,7 +348,7 @@ function highlightTextNodes(node, regex) {
         node.parentNode.replaceChild(fragment, node);
     } else if (node.nodeType === Node.ELEMENT_NODE) {
         // Пропускаємо підсвічені елементи та BR теги
-        if (node.classList?.contains('banned-word-highlight')) return;
+        if (node.classList?.contains('highlight-banned-word')) return;
         if (node.tagName === 'BR') return;
 
         const children = Array.from(node.childNodes);
@@ -362,7 +362,7 @@ function clearHighlights() {
     const dom = getHighlightDOM();
     if (!dom.editor) return;
 
-    dom.editor.querySelectorAll('.banned-word-highlight').forEach(el => {
+    dom.editor.querySelectorAll('.highlight-banned-word').forEach(el => {
         const text = document.createTextNode(el.textContent);
         el.parentNode.replaceChild(text, el);
     });
@@ -378,7 +378,7 @@ function getHtmlContent() {
     if (currentMode === 'text') {
         // Тимчасово видаляємо підсвічування для отримання чистого HTML
         const clone = dom.editor.cloneNode(true);
-        clone.querySelectorAll('.banned-word-highlight').forEach(el => {
+        clone.querySelectorAll('.highlight-banned-word').forEach(el => {
             const text = document.createTextNode(el.textContent);
             el.parentNode.replaceChild(text, el);
         });
@@ -474,7 +474,7 @@ function setupEditorTooltips() {
     if (!dom.editor) return;
 
     dom.editor.addEventListener('mouseover', (e) => {
-        const highlight = e.target.closest('.banned-word-highlight');
+        const highlight = e.target.closest('.highlight-banned-word');
         if (highlight) {
             const wordInfo = findBannedWordInfo(highlight.textContent.toLowerCase());
             if (wordInfo) showTooltip(highlight, wordInfo);
@@ -482,7 +482,7 @@ function setupEditorTooltips() {
     });
 
     dom.editor.addEventListener('mouseout', (e) => {
-        if (e.target.closest('.banned-word-highlight')) hideTooltip();
+        if (e.target.closest('.highlight-banned-word')) hideTooltip();
     });
 }
 
@@ -503,7 +503,7 @@ async function initHighlightGenerator() {
 
     dom.editor.addEventListener('input', debouncedValidateAndHighlight);
 
-    // Копіювання з HTML розміткою (без .banned-word-highlight)
+    // Копіювання з HTML розміткою (без .highlight-banned-word)
     dom.editor.addEventListener('copy', (e) => {
         const selection = window.getSelection();
         if (!selection.rangeCount) return;
@@ -514,7 +514,7 @@ async function initHighlightGenerator() {
         // Видаляємо підсвічування з копії
         const temp = document.createElement('div');
         temp.appendChild(fragment);
-        temp.querySelectorAll('.banned-word-highlight').forEach(el => {
+        temp.querySelectorAll('.highlight-banned-word').forEach(el => {
             const text = document.createTextNode(el.textContent);
             el.parentNode.replaceChild(text, el);
         });
