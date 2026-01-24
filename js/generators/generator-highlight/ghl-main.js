@@ -828,7 +828,7 @@ async function initHighlightGenerator() {
     // Find and Replace
     dom.replaceAllBtn?.addEventListener('click', findAndReplaceAll);
 
-    // Копіювання з HTML розміткою (без .highlight-banned-word)
+    // Ctrl+C - копіюємо HTML код як plain text (теги видно при вставці)
     dom.editor.addEventListener('copy', (e) => {
         const selection = window.getSelection();
         if (!selection.rangeCount) return;
@@ -844,12 +844,12 @@ async function initHighlightGenerator() {
             el.parentNode.replaceChild(text, el);
         });
 
-        const html = temp.innerHTML;
-        const plainText = temp.textContent;
+        const htmlCode = temp.innerHTML; // HTML код як текст
 
         e.preventDefault();
-        e.clipboardData.setData('text/html', html);
-        e.clipboardData.setData('text/plain', plainText);
+        // Копіюємо HTML код як plain text - щоб при вставці в інші програми були видні теги
+        e.clipboardData.setData('text/plain', htmlCode);
+        showToast('Скопійовано HTML код', 'success');
     });
 
     // Вставка з підтримкою HTML розмітки
@@ -928,14 +928,14 @@ async function initHighlightGenerator() {
             e.preventDefault();
             wrapSelection('em');
         }
-        // Shift+Ctrl+C - копіювати тільки текст без розмітки
+        // Ctrl+Shift+C - копіювати тільки текст без розмітки
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
             e.preventDefault();
             const selection = window.getSelection();
             if (selection.rangeCount) {
                 const plainText = selection.toString();
                 navigator.clipboard.writeText(plainText).then(() => {
-                    console.log('📋 Скопійовано текст без розмітки');
+                    showToast('Скопійовано текст (без HTML)', 'success');
                 });
             }
         }
