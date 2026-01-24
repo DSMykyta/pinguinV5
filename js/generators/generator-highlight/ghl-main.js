@@ -485,13 +485,53 @@ async function initHighlightGenerator() {
         e.clipboardData.setData('text/plain', plainText);
     });
 
-    // Нормалізація вставленого тексту - тільки plain text
+    // Вставка з підтримкою HTML розмітки
     dom.editor.addEventListener('paste', (e) => {
         e.preventDefault();
-        let text = (e.clipboardData || window.clipboardData).getData('text/plain');
-        // Нормалізуємо переноси рядків
-        text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-        document.execCommand('insertText', false, text);
+        const clipboardData = e.clipboardData || window.clipboardData;
+
+        // Спочатку пробуємо HTML
+        let html = clipboardData.getData('text/html');
+
+        if (html) {
+            // Очищаємо HTML від зайвих атрибутів та стилів
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+
+            // Видаляємо всі style, class та інші атрибути, залишаємо тільки чисті теги
+            temp.querySelectorAll('*').forEach(el => {
+                // Дозволені теги
+                const allowedTags = ['P', 'STRONG', 'EM', 'H2', 'H3', 'UL', 'OL', 'LI', 'BR'];
+                if (!allowedTags.includes(el.tagName)) {
+                    // Замінюємо недозволений тег на span без атрибутів
+                    if (el.tagName === 'B') {
+                        const strong = document.createElement('strong');
+                        strong.innerHTML = el.innerHTML;
+                        el.parentNode.replaceChild(strong, el);
+                    } else if (el.tagName === 'I') {
+                        const em = document.createElement('em');
+                        em.innerHTML = el.innerHTML;
+                        el.parentNode.replaceChild(em, el);
+                    } else if (el.tagName === 'DIV') {
+                        const p = document.createElement('p');
+                        p.innerHTML = el.innerHTML;
+                        el.parentNode.replaceChild(p, el);
+                    }
+                }
+                // Видаляємо всі атрибути
+                while (el.attributes.length > 0) {
+                    el.removeAttribute(el.attributes[0].name);
+                }
+            });
+
+            document.execCommand('insertHTML', false, temp.innerHTML);
+        } else {
+            // Якщо немає HTML, вставляємо plain text
+            let text = clipboardData.getData('text/plain');
+            text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+            document.execCommand('insertText', false, text);
+        }
+
         setTimeout(debouncedValidateAndHighlight, 50);
     });
 
