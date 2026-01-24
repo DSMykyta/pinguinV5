@@ -107,6 +107,23 @@ function sanitizeEditor() {
         changed = true;
     });
 
+    // Видаляємо SPAN (залишаємо вміст) - крім highlight-banned-word
+    dom.editor.querySelectorAll('span:not(.highlight-banned-word)').forEach(span => {
+        const fragment = document.createDocumentFragment();
+        while (span.firstChild) {
+            fragment.appendChild(span.firstChild);
+        }
+        span.parentNode.replaceChild(fragment, span);
+        changed = true;
+    });
+
+    // Видаляємо всі атрибути (style, class, etc.) з дозволених тегів
+    dom.editor.querySelectorAll('p, strong, em, h2, h3, ul, li').forEach(el => {
+        while (el.attributes.length > 0) {
+            el.removeAttribute(el.attributes[0].name);
+        }
+    });
+
     if (changed) {
         dom.editor.normalize();
     }
@@ -307,6 +324,113 @@ function hideTooltip() {
     if (tooltipElement) {
         tooltipElement.classList.remove('visible');
     }
+}
+
+// ============================================================================
+// SHORTCUTS TOOLTIP
+// ============================================================================
+
+let shortcutsTooltipElement = null;
+
+function getShortcutsTooltip() {
+    if (!shortcutsTooltipElement) {
+        shortcutsTooltipElement = document.createElement('div');
+        shortcutsTooltipElement.className = 'shortcuts-tooltip';
+        shortcutsTooltipElement.innerHTML = `
+            <div class="tooltip-title">Гарячі клавіші</div>
+            <div class="shortcuts-list">
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>B</kbd>
+                    <span>Жирний текст</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>I</kbd>
+                    <span>Курсив</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+                    <span>Скасувати</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Y</kbd>
+                    <span>Повторити</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>C</kbd>
+                    <span>Копіювати HTML код</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>
+                    <span>Копіювати текст</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Enter</kbd>
+                    <span>Новий параграф</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>Shift</kbd> + <kbd>Enter</kbd>
+                    <span>Новий рядок</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(shortcutsTooltipElement);
+    }
+    return shortcutsTooltipElement;
+}
+
+function showShortcutsTooltip(target) {
+    const tooltip = getShortcutsTooltip();
+    tooltip.classList.remove('visible');
+
+    const rect = target.getBoundingClientRect();
+    let top = rect.bottom + 8;
+    let left = rect.left;
+
+    // Тимчасово показуємо для вимірювання
+    tooltip.style.cssText = 'position: fixed; visibility: hidden; display: block;';
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    // Перевіряємо межі екрану
+    if (top + tooltipRect.height > window.innerHeight) {
+        top = rect.top - tooltipRect.height - 8;
+    }
+    if (left + tooltipRect.width > window.innerWidth) {
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    if (left < 10) left = 10;
+
+    tooltip.style.cssText = `position: fixed; top: ${top}px; left: ${left}px;`;
+    tooltip.classList.add('visible');
+}
+
+function hideShortcutsTooltip() {
+    if (shortcutsTooltipElement) {
+        shortcutsTooltipElement.classList.remove('visible');
+    }
+}
+
+function setupInfoButtonTooltip() {
+    const section = document.getElementById('section-highlight');
+    if (!section) return;
+
+    const infoBtn = section.querySelector('button[aria-label="Інформація"]');
+    if (!infoBtn) return;
+
+    // Перевіряємо чи вже додані обробники
+    if (infoBtn.dataset.tooltipInit) return;
+    infoBtn.dataset.tooltipInit = 'true';
+
+    infoBtn.addEventListener('mouseenter', (e) => {
+        showShortcutsTooltip(e.currentTarget);
+    });
+    infoBtn.addEventListener('mouseleave', hideShortcutsTooltip);
+}
+
+// Ініціалізуємо tooltip одразу при завантаженні сторінки
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupInfoButtonTooltip);
+} else {
+    setupInfoButtonTooltip();
 }
 
 // ============================================================================
@@ -815,6 +939,7 @@ async function initHighlightGenerator() {
     await initValidator();
     setupToolbar();
     setupEditorTooltips();
+    setupInfoButtonTooltip();
 
     // Ініціалізуємо lastSavedContent
     lastSavedContent = dom.editor.innerHTML;
