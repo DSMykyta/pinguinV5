@@ -107,6 +107,23 @@ function sanitizeEditor() {
         changed = true;
     });
 
+    // Видаляємо SPAN (залишаємо вміст) - крім highlight-banned-word
+    dom.editor.querySelectorAll('span:not(.highlight-banned-word)').forEach(span => {
+        const fragment = document.createDocumentFragment();
+        while (span.firstChild) {
+            fragment.appendChild(span.firstChild);
+        }
+        span.parentNode.replaceChild(fragment, span);
+        changed = true;
+    });
+
+    // Видаляємо всі атрибути (style, class, etc.) з дозволених тегів
+    dom.editor.querySelectorAll('p, strong, em, h2, h3, ul, li').forEach(el => {
+        while (el.attributes.length > 0) {
+            el.removeAttribute(el.attributes[0].name);
+        }
+    });
+
     if (changed) {
         dom.editor.normalize();
     }
