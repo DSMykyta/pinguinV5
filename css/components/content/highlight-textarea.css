@@ -5,7 +5,7 @@
  * Стилі для WYSIWYG редактора з підсвічуванням заборонених слів.
  *
  * ЗАЛЕЖНОСТІ:
- * - input.css (.input-main, .banned-word-highlight)
+ * - input.css (.input-main)
  * - tooltip.css (.banned-word-tooltip)
  * - chip.css (.chip-error)
  */
@@ -19,8 +19,32 @@
     min-height: 200px;
     overflow-y: auto;
     word-wrap: break-word;
-    white-space: pre-line;
     line-height: 1.6;
+}
+
+/* Нормалізація відступів */
+#ghl-editor p {
+    margin: 0 0 0.5em 0;
+}
+
+#ghl-editor p:last-child {
+    margin-bottom: 0;
+}
+
+/* Підсвічування заборонених слів - як в text-viewer */
+#ghl-editor .highlight-banned-word {
+    background: var(--color-error-c);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: help;
+}
+
+#ghl-editor .highlight-banned-word:hover {
+    background: var(--color-error);
+    color: var(--color-on-error);
+    border-color: var(--color-error);
 }
 
 /* Placeholder для порожнього редактора */
