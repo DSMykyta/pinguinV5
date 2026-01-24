@@ -31,22 +31,6 @@
     margin-bottom: 0;
 }
 
-/* Підсвічування заборонених слів - як в text-viewer */
-#ghl-editor .highlight-banned-word {
-    background: var(--color-error-c);
-    color: var(--color-error);
-    border: 1px solid var(--color-error);
-    padding: 2px 4px;
-    border-radius: 4px;
-    cursor: help;
-}
-
-#ghl-editor .highlight-banned-word:hover {
-    background: var(--color-error);
-    color: var(--color-on-error);
-    border-color: var(--color-error);
-}
-
 /* Placeholder для порожнього редактора */
 #ghl-editor:empty::before {
     content: attr(data-placeholder);
