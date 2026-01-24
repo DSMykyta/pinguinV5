@@ -79,3 +79,144 @@
     align-items: center;
     gap: 16px;
 }
+
+/* ============================================================================
+   CODE EDITOR WITH SYNTAX HIGHLIGHTING (Prism.js overlay)
+   ============================================================================ */
+
+.code-editor-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.code-editor-container .code-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--color-surface-c-low);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+    pointer-events: none;
+}
+
+.code-editor-container .code-highlight code {
+    font-family: inherit;
+    background: none;
+    padding: 0;
+}
+
+.code-editor-container .code-textarea {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    padding: 12px 16px;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    resize: vertical;
+    color: transparent;
+    caret-color: var(--color-on-surface);
+    z-index: 1;
+}
+
+.code-editor-container .code-textarea::selection {
+    background: rgba(var(--color-primary-rgb), 0.3);
+}
+
+.code-editor-container .code-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* Prism.js theme overrides for dark mode support */
+.code-highlight .token.tag {
+    color: #e06c75;
+}
+
+.code-highlight .token.attr-name {
+    color: #d19a66;
+}
+
+.code-highlight .token.attr-value {
+    color: #98c379;
+}
+
+.code-highlight .token.punctuation {
+    color: #abb2bf;
+}
+
+/* ============================================================================
+   VALIDATION RESULTS - chips з fade-ефектом
+   ============================================================================ */
+
+#ghl-validation-results {
+    flex-direction: row-reverse;
+    /* Ховаємо скролбар */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+#ghl-validation-results::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+}
+
+/* Контейнер для fade-ефекту */
+.validation-results-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Fade-ефект на початку (зліва) */
+.validation-results-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, var(--color-surface), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Fade-ефект в кінці (справа) */
+.validation-results-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to left, var(--color-surface), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Показуємо fade коли є прокрутка */
+.validation-results-wrapper.has-scroll-left::before {
+    opacity: 1;
+}
+
+.validation-results-wrapper.has-scroll-right::after {
+    opacity: 1;
+}
