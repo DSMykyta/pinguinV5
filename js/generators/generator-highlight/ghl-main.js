@@ -837,6 +837,18 @@ async function initHighlightGenerator() {
     // Find and Replace
     dom.replaceAllBtn?.addEventListener('click', findAndReplaceAll);
 
+    // Кнопка "Додати заборонене слово"
+    const addBannedWordBtn = document.getElementById('ghl-btn-add-banned-word');
+    if (addBannedWordBtn) {
+        addBannedWordBtn.addEventListener('click', async () => {
+            const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+            await loadBannedWords();
+
+            const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
+            await openBannedWordModal();
+        });
+    }
+
     // Ctrl+C - копіюємо HTML код як plain text (теги видно при вставці)
     dom.editor.addEventListener('copy', (e) => {
         const selection = window.getSelection();

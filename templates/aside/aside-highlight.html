@@ -1,39 +1,25 @@
-<div class="panel-content-fix">
-    <div class="panel-item-title">
-        <h3>Підсвічування тексту</h3>
-    </div>
-    <p class="panel-item-description">
-        Заборонені слова підсвічуються червоним кольором прямо в тексті.
-    </p>
-</div>
-
-<div class="panel-separator"></div>
-
 <div class="panel-content-scroll">
     <div class="panel-content-fix">
-        <div class="panel-item-title">
-            <h3>Знайти та замінити</h3>
-        </div>
         <div class="form-group">
             <input type="text" id="ghl-find-input" class="input-main" placeholder="Що знайти...">
         </div>
         <div class="form-group">
             <input type="text" id="ghl-replace-input" class="input-main" placeholder="На що замінити...">
         </div>
-        <button id="ghl-replace-all-btn" class="btn btn-secondary">Замінити все</button>
-    </div>
-
-    <div class="panel-separator"></div>
-
-    <div class="panel-item">
-        <span class="material-symbols-outlined panel-item-icon">info</span>
-        <span class="panel-item-text">Ctrl+Z / Ctrl+Y для undo/redo</span>
+        <button id="ghl-replace-all-btn" class="panel-item">
+            <span class="panel-item-text">Замінити все</span>
+        </button>
     </div>
 </div>
 
 <div class="panel-content-footer">
-    <button id="ghl-btn-show-banned-list" class="panel-item" data-modal-trigger="banned-words-modal">
-        <span class="material-symbols-outlined panel-item-icon">list</span>
-        <span class="panel-item-text">Список заборонених слів</span>
+    <button id="ghl-btn-add-banned-word" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">add</span>
+        <span class="panel-item-text">Додати заборонене слово</span>
     </button>
+
+    <a href="https://gemini.google.com/gem/1_NHId3H4LuGYzVGxuz5Fa_r0Mou5z0In?usp=sharing" target="_blank" class="panel-item">
+        <span class="material-symbols-outlined">auto_fix_high</span>
+        <span class="panel-item-text">Текст від Gemini</span>
+    </a>
 </div>

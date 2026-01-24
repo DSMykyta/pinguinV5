@@ -145,9 +145,9 @@
                 <span class="material-symbols-outlined">imagesmode</span>
                 <span class="nav-icon-label">Обробка зображень</span>
             </a>
-            <a href="#section-highlight" class="nav-icon" aria-label="Підсвічування">
+            <a href="#section-highlight" class="nav-icon" aria-label="Текст">
                 <span class="material-symbols-outlined">ink_highlighter</span>
-                <span class="nav-icon-label">Підсвічування</span>
+                <span class="nav-icon-label">Текст</span>
             </a>
         </nav>
 
@@ -402,12 +402,12 @@
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Підсвічування</h2>
+                        <h2>Текст</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3>Підсвічування заборонених слів у тексті</h3>
+                    <h3>Редактор тексту з підсвічуванням</h3>
                 </div>
                 <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
@@ -447,7 +447,7 @@
                 <!-- Режим коду -->
                 <textarea id="ghl-code-editor" class="input-main ghl-code-mode" style="display: none;" placeholder="HTML код..."></textarea>
             </div>
-            <div class="section-footer">
+            <div id="ghl-text-stats" class="text-stats-container">
                 <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
                 <span class="stat-item">Слів: <strong id="ghl-word-count">0</strong></span>
                 <span class="stat-item">Час читання: <strong id="ghl-reading-time">0</strong> хв</span>
