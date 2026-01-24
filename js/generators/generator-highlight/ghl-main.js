@@ -708,8 +708,14 @@ function findAndReplaceAll() {
         html = html.split(findText).join(replaceText);
         dom.editor.innerHTML = html;
 
+        // Оновлюємо lastSavedContent після заміни
+        lastSavedContent = getCleanHtml();
+
         validateAndHighlight();
         showToast(`Замінено "${findText}" на "${replaceText}" (${count} разів)`, 'success');
+
+        // Повертаємо фокус на редактор щоб Ctrl+Z працював
+        dom.editor.focus();
     } else {
         // Для режиму коду
         const text = dom.codeEditor.value;
@@ -725,6 +731,9 @@ function findAndReplaceAll() {
         dom.codeEditor.value = text.split(findText).join(replaceText);
         validateOnly();
         showToast(`Замінено "${findText}" на "${replaceText}" (${count} разів)`, 'success');
+
+        // Повертаємо фокус на редактор коду
+        dom.codeEditor.focus();
     }
 }
 
