@@ -96,7 +96,7 @@
     overflow: hidden;
 }
 
-/* Fade-ефект тільки зліва (бо row-reverse - нові елементи зліва) */
+/* Fade-ефект зліва */
 .validation-results-wrapper::before {
     content: '';
     position: absolute;
@@ -111,7 +111,26 @@
     transition: opacity 0.2s;
 }
 
-/* Показуємо fade коли є прокрутка зліва */
+/* Fade-ефект справа */
+.validation-results-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to left, var(--color-surface), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Показуємо fade коли є прокрутка */
 .validation-results-wrapper.has-scroll-left::before {
+    opacity: 1;
+}
+
+.validation-results-wrapper.has-scroll-right::after {
     opacity: 1;
 }

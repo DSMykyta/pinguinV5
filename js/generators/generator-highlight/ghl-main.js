@@ -13,11 +13,36 @@ import { initValidator, getValidationRegex, findBannedWordInfo, checkHtmlPattern
 import { debounce } from '../../utils/common-utils.js';
 import { showToast } from '../../common/ui-toast.js';
 
+// SEO інтеграція
+import { getSeoDOM } from '../generator-seo/gse-dom.js';
+import { runCalculations as runSeoCalculations } from '../generator-seo/gse-events.js';
+import { updateBrandAndProductFromText } from '../generator-seo/gse-parser.js';
+import { syncTulipsFromProductName } from '../generator-seo/gse-triggers.js';
+
 // ============================================================================
 // СТАН
 // ============================================================================
 
 let currentMode = 'text';
+
+// ============================================================================
+// SEO ІНТЕГРАЦІЯ
+// ============================================================================
+
+function updateSeoFromEditor() {
+    const dom = getHighlightDOM();
+    if (!dom.editor) return;
+
+    const text = dom.editor.textContent || '';
+    const { brand, product } = updateBrandAndProductFromText(text);
+
+    const seoDom = getSeoDOM();
+    if (seoDom.brandNameInput) seoDom.brandNameInput.value = brand;
+    if (seoDom.productNameInput) seoDom.productNameInput.value = product;
+
+    syncTulipsFromProductName();
+    runSeoCalculations();
+}
 
 // ============================================================================
 // САНІТИЗАЦІЯ HTML - <div> заборонено, все в <p>
@@ -1111,6 +1136,12 @@ function resetEditor() {
     if (dom.findInput) dom.findInput.value = '';
     if (dom.replaceInput) dom.replaceInput.value = '';
 
+    // Очищаємо SEO поля
+    const seoDom = getSeoDOM();
+    if (seoDom.brandNameInput) seoDom.brandNameInput.value = '';
+    if (seoDom.productNameInput) seoDom.productNameInput.value = '';
+    runSeoCalculations();
+
     // Скидаємо валідацію
     if (dom.validationResults) {
         dom.validationResults.innerHTML = '';
@@ -1177,10 +1208,14 @@ async function initHighlightGenerator() {
     const debouncedSaveUndo = debounce(saveUndoState, 300);
     const debouncedSanitize = debounce(sanitizeEditor, 100);
 
+    // Дебаунсована функція для SEO
+    const debouncedSeoUpdate = debounce(updateSeoFromEditor, 300);
+
     dom.editor.addEventListener('input', () => {
         debouncedSanitize(); // Конвертуємо div->p, b->strong, i->em
         debouncedSaveUndo();
         debouncedValidateAndHighlight();
+        debouncedSeoUpdate(); // Оновлюємо SEO поля
     });
 
     // Reset кнопка
