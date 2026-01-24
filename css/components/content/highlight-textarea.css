@@ -3,33 +3,30 @@
  *
  * ПРИЗНАЧЕННЯ:
  * Стилі для WYSIWYG редактора з підсвічуванням заборонених слів.
- * Використовує contentEditable з існуючим класом .input-main
- *
- * СТРУКТУРА:
- * #ghl-editor.input-main[contenteditable="true"]
- *   mark.highlight-banned-word (підсвічені слова)
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (змінні кольорів)
- * - input.css (.input-main)
+ * - input.css (.input-main, .banned-word-highlight)
+ * - tooltip.css (.banned-word-tooltip)
+ * - chip.css (.chip-error)
  */
 
 /* ============================================================================
-   CONTENTEDITABLE РЕДАКТОР
+   РЕДАКТОР
    ============================================================================ */
 
 /* Базові стилі для contentEditable */
 #ghl-editor {
     min-height: 200px;
     overflow-y: auto;
-    white-space: pre-wrap;
     word-wrap: break-word;
+    white-space: pre-line;
+    line-height: 1.6;
 }
 
 /* Placeholder для порожнього редактора */
 #ghl-editor:empty::before {
     content: attr(data-placeholder);
-    color: var(--text-muted, #999);
+    color: var(--text-muted);
     pointer-events: none;
 }
 
@@ -39,84 +36,43 @@
 }
 
 /* ============================================================================
-   ПІДСВІЧУВАННЯ ЗАБОРОНЕНИХ СЛІВ
+   РЕЖИМ КОДУ - сіріший фон
    ============================================================================ */
 
-/* Підсвічене слово */
-.highlight-banned-word {
-    background-color: var(--color-error-container, rgba(255, 0, 0, 0.15));
-    color: var(--color-error, #d32f2f);
-    border-radius: 2px;
-    padding: 0 2px;
-    cursor: help;
-}
-
-/* При наведенні */
-.highlight-banned-word:hover {
-    background-color: var(--color-error, #d32f2f);
-    color: white;
+.ghl-code-mode {
+    background-color: var(--color-surface-c-low) !important;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    resize: vertical;
 }
 
 /* ============================================================================
-   ТУЛБАР
+   ТУЛБАР - chips навпроти кнопок
    ============================================================================ */
+
+.toolbar-wrapper-spaced {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
 
 /* Розділювач в тулбарі */
 .format-toolbar .toolbar-separator {
     width: 1px;
     height: 24px;
-    background: var(--color-outline, #ddd);
+    background: var(--color-outline);
     margin: 0 8px;
 }
 
 /* Активна кнопка форматування */
-.format-toolbar .btn-icon.active {
-    background-color: var(--color-primary, #1976d2);
-    color: white;
+#ghl-format-toolbar .btn-icon.active {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
 }
 
-.format-toolbar .btn-icon.active:hover {
-    background-color: var(--color-primary-dark, #1565c0);
-}
-
-/* ============================================================================
-   TOOLTIP ДЛЯ ЗАБОРОНЕНИХ СЛІВ
-   ============================================================================ */
-
-.banned-word-tooltip {
-    position: fixed;
-    z-index: 10000;
-    max-width: 320px;
-    padding: 12px 16px;
-    background: var(--color-surface, #fff);
-    border: 1px solid var(--color-outline, #ddd);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-size: 13px;
-    line-height: 1.5;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.banned-word-tooltip.visible {
-    display: block;
-    opacity: 1;
-}
-
-.banned-word-tooltip .tooltip-title {
-    font-weight: 600;
-    color: var(--color-error, #d32f2f);
-    margin-bottom: 6px;
-}
-
-.banned-word-tooltip .tooltip-description {
-    color: var(--text-primary, #333);
-    margin-bottom: 8px;
-}
-
-.banned-word-tooltip .tooltip-hint {
-    color: var(--text-secondary, #666);
-    padding-top: 8px;
-    border-top: 1px solid var(--color-outline-variant, #eee);
+#ghl-format-toolbar .btn-icon.active:hover {
+    background-color: var(--color-primary-h);
 }
