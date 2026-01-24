@@ -566,12 +566,40 @@ function switchToTextMode() {
     validateAndHighlight();
 }
 
+function formatHtmlCode(html) {
+    // Форматуємо HTML для кращої читабельності
+    let formatted = html
+        // Очищаємо зайві пробіли
+        .replace(/>\s+</g, '><')
+        .trim();
+
+    // Додаємо переноси рядків після закриваючих тегів
+    formatted = formatted
+        .replace(/<\/p>/g, '</p>\n')
+        .replace(/<\/h([1-6])>/g, '</h$1>\n')
+        .replace(/<\/li>/g, '</li>\n')
+        .replace(/<\/ul>/g, '</ul>\n')
+        .replace(/<\/ol>/g, '</ol>\n')
+        .replace(/<ul>/g, '\n<ul>\n')
+        .replace(/<ol>/g, '\n<ol>\n');
+
+    // Видаляємо зайві порожні рядки
+    formatted = formatted
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+    return formatted;
+}
+
 function switchToCodeMode() {
     const dom = getHighlightDOM();
     if (currentMode === 'code') return;
 
     clearHighlights();
-    dom.codeEditor.value = dom.editor.innerHTML;
+
+    // Форматуємо HTML для кращої читабельності
+    const cleanHtml = getCleanHtml();
+    dom.codeEditor.value = formatHtmlCode(cleanHtml);
 
     dom.editor.style.display = 'none';
     dom.codeEditor.style.display = '';
