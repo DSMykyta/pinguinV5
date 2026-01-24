@@ -113,8 +113,9 @@ function showTooltip(target, wordInfo) {
     let top = rect.bottom + 8;
     let left = rect.left;
 
+    // Показуємо для вимірювання розмірів
+    tooltip.style.visibility = 'hidden';
     tooltip.style.display = 'block';
-    tooltip.style.opacity = '0';
 
     const tooltipRect = tooltip.getBoundingClientRect();
 
@@ -128,6 +129,8 @@ function showTooltip(target, wordInfo) {
 
     tooltip.style.top = `${top}px`;
     tooltip.style.left = `${left}px`;
+    tooltip.style.visibility = '';
+    tooltip.style.display = '';
     tooltip.classList.add('visible');
 }
 
