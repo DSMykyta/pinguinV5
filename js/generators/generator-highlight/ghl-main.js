@@ -33,6 +33,24 @@ function sanitizeHtml(html) {
     const temp = document.createElement('div');
     temp.innerHTML = html;
 
+    // Видаляємо небезпечні та непотрібні теги повністю
+    temp.querySelectorAll('script, style, iframe, object, embed, img, meta, link').forEach(el => {
+        el.remove();
+    });
+
+    // Конвертуємо посилання <a> - залишаємо тільки текст
+    temp.querySelectorAll('a').forEach(a => {
+        const text = document.createTextNode(a.textContent);
+        a.parentNode.replaceChild(text, a);
+    });
+
+    // Конвертуємо PRE в P
+    temp.querySelectorAll('pre').forEach(pre => {
+        const p = document.createElement('p');
+        p.innerHTML = pre.innerHTML;
+        pre.parentNode.replaceChild(p, pre);
+    });
+
     // Конвертуємо DIV в P
     temp.querySelectorAll('div').forEach(div => {
         const p = document.createElement('p');
@@ -74,7 +92,35 @@ function sanitizeHtml(html) {
         }
     });
 
-    return temp.innerHTML;
+    // Видаляємо порожні параграфи
+    temp.querySelectorAll('p').forEach(p => {
+        if (!p.textContent.trim() && !p.querySelector('br')) {
+            p.remove();
+        }
+    });
+
+    // Отримуємо HTML і очищаємо
+    let result = temp.innerHTML;
+
+    // Декодуємо HTML entities
+    result = result
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+
+    // Видаляємо маркери списків
+    result = result.replace(/[•·●○■□▪▫]/g, '');
+
+    // Видаляємо contentReference (від ChatGPT)
+    result = result.replace(/:contentReference\[oaicite:\d+\]\{index=\d+\}/g, '');
+
+    // Очищаємо множинні пробіли
+    result = result.replace(/ {2,}/g, ' ');
+
+    return result;
 }
 
 function sanitizeEditor() {
@@ -82,6 +128,27 @@ function sanitizeEditor() {
     if (!dom.editor || currentMode !== 'text') return;
 
     let changed = false;
+
+    // Видаляємо небезпечні та непотрібні теги повністю
+    dom.editor.querySelectorAll('script, style, iframe, object, embed, img, meta, link').forEach(el => {
+        el.remove();
+        changed = true;
+    });
+
+    // Конвертуємо посилання <a> - залишаємо тільки текст
+    dom.editor.querySelectorAll('a').forEach(a => {
+        const text = document.createTextNode(a.textContent);
+        a.parentNode.replaceChild(text, a);
+        changed = true;
+    });
+
+    // Конвертуємо PRE в P
+    dom.editor.querySelectorAll('pre').forEach(pre => {
+        const p = document.createElement('p');
+        p.innerHTML = pre.innerHTML;
+        pre.parentNode.replaceChild(p, pre);
+        changed = true;
+    });
 
     // Конвертуємо DIV в P
     dom.editor.querySelectorAll('div').forEach(div => {
@@ -123,6 +190,36 @@ function sanitizeEditor() {
             el.removeAttribute(el.attributes[0].name);
         }
     });
+
+    // Видаляємо порожні параграфи
+    dom.editor.querySelectorAll('p').forEach(p => {
+        if (!p.textContent.trim() && !p.querySelector('br')) {
+            p.remove();
+            changed = true;
+        }
+    });
+
+    // Очищаємо текстові ноди від маркерів списків та entities
+    const walker = document.createTreeWalker(dom.editor, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while ((node = walker.nextNode())) {
+        let text = node.textContent;
+        const original = text;
+
+        // Видаляємо маркери списків
+        text = text.replace(/[•·●○■□▪▫]/g, '');
+
+        // Декодуємо &nbsp;
+        text = text.replace(/\u00A0/g, ' ');
+
+        // Очищаємо множинні пробіли
+        text = text.replace(/ {2,}/g, ' ');
+
+        if (text !== original) {
+            node.textContent = text;
+            changed = true;
+        }
+    }
 
     if (changed) {
         dom.editor.normalize();
@@ -197,11 +294,24 @@ function getCleanHtml() {
     if (!dom.editor) return '';
 
     const clone = dom.editor.cloneNode(true);
+
+    // Видаляємо highlight spans
     clone.querySelectorAll('.highlight-banned-word').forEach(el => {
         const text = document.createTextNode(el.textContent);
         el.parentNode.replaceChild(text, el);
     });
-    return clone.innerHTML;
+
+    // Отримуємо HTML і очищаємо
+    let html = clone.innerHTML;
+
+    // Замінюємо &nbsp; на звичайний пробіл
+    html = html.replace(/&nbsp;/g, ' ');
+    html = html.replace(/\u00A0/g, ' ');
+
+    // Очищаємо множинні пробіли
+    html = html.replace(/ {2,}/g, ' ');
+
+    return html;
 }
 
 // ============================================================================
