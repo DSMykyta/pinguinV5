@@ -181,3 +181,70 @@ export function validateText(text) {
 export async function reloadBannedWords() {
     await fetchBannedWords();
 }
+
+// ============================================================================
+// HTML ПАТЕРНИ (попередження) - скопійовано з gte-validator.js
+// ============================================================================
+
+const HTML_PATTERNS = [
+    {
+        id: 'li-lowercase',
+        // Regex: <li> з можливими пробілами/переносами, потім маленька літера (кирилиця або латиниця)
+        regex: /<li>\s*([а-яїієґёa-z])/g,
+        name: '‹li› з маленької букви',
+        description: 'Текст після тегу ‹li› має починатися з великої літери.',
+        hint: 'Змініть першу літеру після ‹li› на велику.'
+    },
+    {
+        id: 'text-without-tag',
+        // Regex: закриваючий тег, після якого йде текст без відкриваючого тегу
+        regex: /<\/[a-z0-9]+>\s*([А-ЯЇІЄҐЁа-яїієґёA-Za-z])/g,
+        name: 'Текст без тегу',
+        description: 'Після закриваючого тегу текст має бути обгорнутий у відповідний тег (‹p›, ‹h3› тощо).',
+        hint: 'Додайте відкриваючий тег перед текстом, наприклад ‹p›.'
+    }
+];
+
+/**
+ * Перевіряє текст на HTML патерни
+ * @param {string} html - HTML для перевірки
+ * @returns {Object} - { totalCount, patternCounts: Map<patternId, {count, pattern}> }
+ */
+export function checkHtmlPatterns(html) {
+    const results = {
+        totalCount: 0,
+        patternCounts: new Map()
+    };
+
+    if (!html || !html.trim()) return results;
+
+    for (const pattern of HTML_PATTERNS) {
+        pattern.regex.lastIndex = 0;
+        const matches = html.match(pattern.regex);
+        if (matches && matches.length > 0) {
+            results.patternCounts.set(pattern.id, {
+                count: matches.length,
+                pattern: pattern
+            });
+            results.totalCount += matches.length;
+        }
+    }
+
+    return results;
+}
+
+/**
+ * Знайти інформацію про HTML патерн
+ * @param {string} patternId - ID патерну
+ * @returns {Object|null}
+ */
+export function findHtmlPatternInfo(patternId) {
+    const pattern = HTML_PATTERNS.find(p => p.id === patternId);
+    if (!pattern) return null;
+
+    return {
+        group_name_ua: pattern.name,
+        banned_explaine: pattern.description,
+        banned_hint: pattern.hint
+    };
+}

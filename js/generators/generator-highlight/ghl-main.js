@@ -9,7 +9,7 @@
 
 import { registerPanelInitializer } from '../../panel/panel-right.js';
 import { getHighlightDOM } from './ghl-dom.js';
-import { initValidator, getValidationRegex, findBannedWordInfo } from './ghl-validator.js';
+import { initValidator, getValidationRegex, findBannedWordInfo, checkHtmlPatterns, findHtmlPatternInfo } from './ghl-validator.js';
 import { debounce } from '../../utils/common-utils.js';
 
 // ============================================================================
@@ -370,13 +370,29 @@ function clearHighlights() {
 // ВАЛІДАЦІЯ
 // ============================================================================
 
+function getHtmlContent() {
+    const dom = getHighlightDOM();
+    if (currentMode === 'text') {
+        // Тимчасово видаляємо підсвічування для отримання чистого HTML
+        const clone = dom.editor.cloneNode(true);
+        clone.querySelectorAll('.banned-word-highlight').forEach(el => {
+            const text = document.createTextNode(el.textContent);
+            el.parentNode.replaceChild(text, el);
+        });
+        return clone.innerHTML;
+    }
+    return dom.codeEditor?.value || '';
+}
+
 function validateOnly() {
     const dom = getHighlightDOM();
     const text = getPlainText();
+    const html = getHtmlContent();
     const regex = getValidationRegex();
 
+    // Перевірка заборонених слів
     const wordCounts = new Map();
-    let totalCount = 0;
+    let bannedCount = 0;
 
     if (regex && text) {
         regex.lastIndex = 0;
@@ -385,12 +401,15 @@ function validateOnly() {
             if (match[1]) {
                 const word = match[1].toLowerCase();
                 wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
-                totalCount++;
+                bannedCount++;
             }
         }
     }
 
-    displayResults(wordCounts, totalCount, dom);
+    // Перевірка HTML патернів
+    const htmlResults = checkHtmlPatterns(html);
+
+    displayResults(wordCounts, bannedCount, htmlResults, dom);
 }
 
 function validateAndHighlight() {
@@ -398,18 +417,38 @@ function validateAndHighlight() {
     applyHighlights();
 }
 
-function displayResults(wordCounts, totalCount, dom) {
+function displayResults(wordCounts, bannedCount, htmlResults, dom) {
     if (!dom.validationResults) return;
 
-    if (totalCount > 0) {
-        const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-        const chips = sortedEntries.map(([word, count]) =>
-            `<span class="chip chip-error" data-banned-word="${word}">${word} (${count})</span>`
-        ).join(' ');
+    const totalCount = bannedCount + htmlResults.totalCount;
 
-        dom.validationResults.innerHTML = chips;
+    if (totalCount > 0) {
+        const chips = [];
+
+        // СПОЧАТКУ: HTML патерни (жовті чіпи)
+        for (const [patternId, data] of htmlResults.patternCounts.entries()) {
+            chips.push(`<span class="chip chip-warning" data-html-pattern="${patternId}">${data.pattern.name} (${data.count})</span>`);
+        }
+
+        // ПОТІМ: Заборонені слова (червоні чіпи)
+        const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        for (const [word, count] of sortedEntries) {
+            chips.push(`<span class="chip chip-error" data-banned-word="${word}">${word} (${count})</span>`);
+        }
+
+        dom.validationResults.innerHTML = chips.join(' ');
         dom.validationResults.classList.add('has-errors');
 
+        // Tooltip для HTML патернів (жовті чіпи)
+        dom.validationResults.querySelectorAll('.chip-warning[data-html-pattern]').forEach(chip => {
+            chip.addEventListener('mouseenter', (e) => {
+                const patternInfo = findHtmlPatternInfo(e.target.dataset.htmlPattern);
+                if (patternInfo) showTooltip(e.target, patternInfo);
+            });
+            chip.addEventListener('mouseleave', hideTooltip);
+        });
+
+        // Tooltip для заборонених слів (червоні чіпи)
         dom.validationResults.querySelectorAll('.chip-error[data-banned-word]').forEach(chip => {
             chip.addEventListener('mouseenter', (e) => {
                 const wordInfo = findBannedWordInfo(e.target.dataset.bannedWord);
