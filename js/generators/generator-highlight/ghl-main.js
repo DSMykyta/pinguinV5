@@ -553,7 +553,7 @@ function switchToTextMode() {
 
     dom.editor.innerHTML = dom.codeEditor.value;
     dom.editor.style.display = '';
-    dom.codeContainer.style.display = 'none';
+    dom.codeEditor.style.display = 'none';
 
     enableFormatButtons(true);
     currentMode = 'text';
@@ -578,10 +578,10 @@ function formatHtmlCode(html) {
         .replace(/<\/p>/g, '</p>\n')
         .replace(/<\/h([1-6])>/g, '</h$1>\n')
         .replace(/<\/li>/g, '</li>\n')
+        .replace(/<ul>/g, '<ul>\n')
         .replace(/<\/ul>/g, '</ul>\n')
-        .replace(/<\/ol>/g, '</ol>\n')
-        .replace(/<ul>/g, '\n<ul>\n')
-        .replace(/<ol>/g, '\n<ol>\n');
+        .replace(/<ol>/g, '<ol>\n')
+        .replace(/<\/ol>/g, '</ol>\n');
 
     // Видаляємо зайві порожні рядки
     formatted = formatted
@@ -589,27 +589,6 @@ function formatHtmlCode(html) {
         .trim();
 
     return formatted;
-}
-
-function updateCodeHighlight() {
-    const dom = getHighlightDOM();
-    if (!dom.codeHighlight || !dom.codeEditor) return;
-
-    // Екрануємо HTML для відображення як тексту
-    const code = dom.codeEditor.value;
-    dom.codeHighlight.textContent = code;
-
-    // Застосовуємо Prism підсвітку
-    if (window.Prism) {
-        Prism.highlightElement(dom.codeHighlight);
-    }
-
-    // Синхронізуємо скрол
-    const pre = dom.codeHighlight.parentElement;
-    if (pre) {
-        pre.scrollTop = dom.codeEditor.scrollTop;
-        pre.scrollLeft = dom.codeEditor.scrollLeft;
-    }
 }
 
 function switchToCodeMode() {
@@ -623,10 +602,7 @@ function switchToCodeMode() {
     dom.codeEditor.value = formatHtmlCode(cleanHtml);
 
     dom.editor.style.display = 'none';
-    dom.codeContainer.style.display = '';
-
-    // Оновлюємо підсвітку синтаксису
-    updateCodeHighlight();
+    dom.codeEditor.style.display = '';
 
     enableFormatButtons(false);
     currentMode = 'code';
@@ -1293,19 +1269,7 @@ async function initHighlightGenerator() {
         }
     });
 
-    dom.codeEditor?.addEventListener('input', () => {
-        debounce(validateOnly, 300)();
-        updateCodeHighlight();
-    });
-
-    // Синхронізуємо скрол між textarea і підсвіткою
-    dom.codeEditor?.addEventListener('scroll', () => {
-        const pre = dom.codeHighlight?.parentElement;
-        if (pre) {
-            pre.scrollTop = dom.codeEditor.scrollTop;
-            pre.scrollLeft = dom.codeEditor.scrollLeft;
-        }
-    });
+    dom.codeEditor?.addEventListener('input', debounce(validateOnly, 300));
 
     // Оновлюємо fade-ефект при прокрутці validation results
     dom.validationResults?.addEventListener('scroll', updateValidationScrollFade);

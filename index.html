@@ -7,7 +7,6 @@
     <title>Інструменти</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -448,10 +447,7 @@
                 <!-- Режим тексту: WYSIWYG редактор -->
                 <div id="ghl-editor" class="input-main ghl-text-mode" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
                 <!-- Режим коду -->
-                <div id="ghl-code-container" class="code-editor-container" style="display: none;">
-                    <pre class="code-highlight" aria-hidden="true"><code id="ghl-code-highlight" class="language-markup"></code></pre>
-                    <textarea id="ghl-code-editor" class="input-main ghl-code-mode code-textarea" placeholder="HTML код..."></textarea>
-                </div>
+                <textarea id="ghl-code-editor" class="input-main ghl-code-mode" style="display: none;" placeholder="HTML код..."></textarea>
             </div>
             <div id="ghl-text-stats" class="text-stats-container">
                 <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
@@ -475,8 +471,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
 
 </body>
 
