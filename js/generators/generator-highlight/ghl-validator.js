@@ -1,9 +1,7 @@
-// js/generators/generator-highlight/ghl-validator-v2.js
+// js/generators/generator-highlight/ghl-validator.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║           HIGHLIGHT GENERATOR - VALIDATOR V2                              ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * HIGHLIGHT GENERATOR - VALIDATOR
  *
  * Логіка завантаження та перевірки заборонених слів.
  * Адаптовано для роботи з Rich Text Editor.
