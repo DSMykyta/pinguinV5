@@ -11,7 +11,7 @@
 import { registerPanelInitializer } from '../../panel/panel-right.js';
 import { getHighlightDOM } from './ghl-dom.js';
 import { initRichEditor, getPlainText, getEditorElement, applyHighlights, clearHighlights } from './ghl-editor.js';
-import { initValidator, getValidationRegex, getBannedWordsData, findBannedWordInfo } from './ghl-validator-v2.js';
+import { initValidator, getValidationRegex, getBannedWordsData, findBannedWordInfo } from './ghl-validator.js';
 import { debounce } from '../../utils/common-utils.js';
 
 // ============================================================================
