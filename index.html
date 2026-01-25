@@ -125,10 +125,6 @@
                 <span class="material-symbols-outlined">table_chart</span>
                 <span class="nav-icon-label">Таблиці</span>
             </a>
-            <a href="#section-text" class="nav-icon" aria-label="Текст">
-                <span class="material-symbols-outlined">edit_note</span>
-                <span class="nav-icon-label">Текст</span>
-            </a>
             <a href="#section-seo" class="nav-icon" aria-label="Сео">
                 <span class="material-symbols-outlined">search</span>
                 <span class="nav-icon-label">Сео</span>
@@ -171,61 +167,6 @@
 
             <div class="section-content" id="rows-container"></div>
 
-        </section>
-
-        <section id="section-text" data-panel-template="aside-text">
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Текст</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3>Налаштування тексту</h3>
-                </div>
-
-                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
-
-            </div>
-
-            <div class="section-content section-content-full-height">
-                <!-- Панель форматування -->
-                <div class="toolbar-wrapper">
-                    <div id="text-format-toolbar" class="format-toolbar">
-                        <button id="format-bold" class="btn-icon" title="Жирний" aria-label="Жирний">
-                            <span class="material-symbols-outlined">format_bold</span>
-                        </button>
-                        <button id="format-h1" class="btn-icon" title="Заголовок H1" aria-label="Заголовок H1">
-                            <span class="material-symbols-outlined">format_h1</span>
-                        </button>
-                        <button id="format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
-                            <span class="material-symbols-outlined">format_h2</span>
-                        </button>
-                        <button id="format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
-                            <span class="material-symbols-outlined">format_h3</span>
-                        </button>
-                        <button id="format-lowercase" class="btn-icon" title="Нижній регістр"
-                            aria-label="Нижній регістр">
-                            <span class="material-symbols-outlined">text_rotate_vertical</span>
-                        </button>
-                    </div>
-
-                    <div id="gte-validation-results">
-                    </div>
-
-                </div>
-
-                <textarea id="input-text-markup" class="input-main" placeholder="Вставте сюди текст..."></textarea>
-            </div>
-
-            <div id="gte-text-stats" class="text-stats-container">
-                <span class="stat-item">Символів: <strong id="gte-char-count">0</strong></span>
-                <span class="stat-item">Слів: <strong id="gte-word-count">0</strong></span>
-                <span class="stat-item">Час читання: <strong id="gte-reading-time">0</strong> хв</span>
-            </div>
         </section>
 
         <section id="section-seo" data-panel-template="aside-seo">
