@@ -145,10 +145,6 @@
                 <span class="material-symbols-outlined">imagesmode</span>
                 <span class="nav-icon-label">Обробка зображень</span>
             </a>
-            <a href="#section-highlight" class="nav-icon" aria-label="Текст">
-                <span class="material-symbols-outlined">ink_highlighter</span>
-                <span class="nav-icon-label">Текст</span>
-            </a>
         </nav>
 
         <section id="section-table" data-panel-template="aside-table">
@@ -173,7 +169,7 @@
 
         </section>
 
-        <section id="section-text" data-panel-template="aside-text">
+        <section id="section-text" data-panel-template="aside-highlight">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
@@ -182,49 +178,58 @@
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3>Налаштування тексту</h3>
+                    <h3>Редактор тексту з підсвічуванням</h3>
                 </div>
-
-                <button id="reload-section-text" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
-
             </div>
 
             <div class="section-content section-content-full-height">
-                <!-- Панель форматування -->
-                <div class="toolbar-wrapper">
-                    <div id="text-format-toolbar" class="format-toolbar">
-                        <button id="format-bold" class="btn-icon" title="Жирний" aria-label="Жирний">
+                <div class="toolbar-wrapper toolbar-wrapper-spaced">
+                    <div id="ghl-format-toolbar" class="format-toolbar">
+                        <button id="ghl-format-bold" class="btn-icon" title="Жирний (Ctrl+B)" aria-label="Жирний">
                             <span class="material-symbols-outlined">format_bold</span>
                         </button>
-                        <button id="format-h1" class="btn-icon" title="Заголовок H1" aria-label="Заголовок H1">
+                        <button id="ghl-format-italic" class="btn-icon" title="Курсив (Ctrl+I)" aria-label="Курсив">
+                            <span class="material-symbols-outlined">format_italic</span>
+                        </button>
+                        <button id="ghl-format-h1" class="btn-icon" title="Заголовок H1" aria-label="Заголовок H1">
                             <span class="material-symbols-outlined">format_h1</span>
                         </button>
-                        <button id="format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
+                        <button id="ghl-format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
                             <span class="material-symbols-outlined">format_h2</span>
                         </button>
-                        <button id="format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
+                        <button id="ghl-format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
                             <span class="material-symbols-outlined">format_h3</span>
                         </button>
-                        <button id="format-lowercase" class="btn-icon" title="Нижній регістр"
-                            aria-label="Нижній регістр">
+                        <button id="ghl-format-list" class="btn-icon" title="Список" aria-label="Список">
+                            <span class="material-symbols-outlined">format_list_bulleted</span>
+                        </button>
+                        <button id="ghl-format-lowercase" class="btn-icon" title="Нижній регістр" aria-label="Нижній регістр">
                             <span class="material-symbols-outlined">text_rotate_vertical</span>
                         </button>
+                        <div class="toolbar-separator"></div>
+                        <div class="switch-container">
+                            <input type="radio" id="ghl-mode-text" name="ghl-mode" value="text" checked>
+                            <label for="ghl-mode-text" class="switch-label">Текст</label>
+                            <input type="radio" id="ghl-mode-code" name="ghl-mode" value="code">
+                            <label for="ghl-mode-code" class="switch-label">Код</label>
+                        </div>
                     </div>
-
-                    <div id="gte-validation-results">
+                    <div class="validation-results-wrapper">
+                        <div id="ghl-validation-results" class="chip-list"></div>
                     </div>
-
                 </div>
-
-                <textarea id="input-text-markup" class="input-main" placeholder="Вставте сюди текст..."></textarea>
+                <!-- Режим тексту: WYSIWYG редактор -->
+                <div id="ghl-editor" class="input-main ghl-text-mode" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
+                <!-- Режим коду -->
+                <textarea id="ghl-code-editor" class="input-main ghl-code-mode" style="display: none;" placeholder="HTML код..."></textarea>
             </div>
-
-            <div id="gte-text-stats" class="text-stats-container">
-                <span class="stat-item">Символів: <strong id="gte-char-count">0</strong></span>
-                <span class="stat-item">Слів: <strong id="gte-word-count">0</strong></span>
-                <span class="stat-item">Час читання: <strong id="gte-reading-time">0</strong> хв</span>
+            <div id="ghl-text-stats" class="text-stats-container">
+                <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
+                <span class="stat-item">Слів: <strong id="ghl-word-count">0</strong></span>
+                <span class="stat-item">Час читання: <strong id="ghl-reading-time">0</strong> хв</span>
             </div>
         </section>
 
@@ -395,70 +400,6 @@
                     </div>
                 </div>
 
-            </div>
-        </section>
-
-        <section id="section-highlight" data-panel-template="aside-highlight">
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Текст</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3>Редактор тексту з підсвічуванням</h3>
-                </div>
-                <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
-            </div>
-
-            <div class="section-content section-content-full-height">
-                <div class="toolbar-wrapper toolbar-wrapper-spaced">
-                    <div id="ghl-format-toolbar" class="format-toolbar">
-                        <button id="ghl-format-bold" class="btn-icon" title="Жирний (Ctrl+B)" aria-label="Жирний">
-                            <span class="material-symbols-outlined">format_bold</span>
-                        </button>
-                        <button id="ghl-format-italic" class="btn-icon" title="Курсив (Ctrl+I)" aria-label="Курсив">
-                            <span class="material-symbols-outlined">format_italic</span>
-                        </button>
-                        <button id="ghl-format-h1" class="btn-icon" title="Заголовок H1" aria-label="Заголовок H1">
-                            <span class="material-symbols-outlined">format_h1</span>
-                        </button>
-                        <button id="ghl-format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
-                            <span class="material-symbols-outlined">format_h2</span>
-                        </button>
-                        <button id="ghl-format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
-                            <span class="material-symbols-outlined">format_h3</span>
-                        </button>
-                        <button id="ghl-format-list" class="btn-icon" title="Список" aria-label="Список">
-                            <span class="material-symbols-outlined">format_list_bulleted</span>
-                        </button>
-                        <button id="ghl-format-lowercase" class="btn-icon" title="Нижній регістр" aria-label="Нижній регістр">
-                            <span class="material-symbols-outlined">text_rotate_vertical</span>
-                        </button>
-                        <div class="toolbar-separator"></div>
-                        <div class="switch-container">
-                            <input type="radio" id="ghl-mode-text" name="ghl-mode" value="text" checked>
-                            <label for="ghl-mode-text" class="switch-label">Текст</label>
-                            <input type="radio" id="ghl-mode-code" name="ghl-mode" value="code">
-                            <label for="ghl-mode-code" class="switch-label">Код</label>
-                        </div>
-                    </div>
-                    <div class="validation-results-wrapper">
-                        <div id="ghl-validation-results" class="chip-list"></div>
-                    </div>
-                </div>
-                <!-- Режим тексту: WYSIWYG редактор -->
-                <div id="ghl-editor" class="input-main ghl-text-mode" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
-                <!-- Режим коду -->
-                <textarea id="ghl-code-editor" class="input-main ghl-code-mode" style="display: none;" placeholder="HTML код..."></textarea>
-            </div>
-            <div id="ghl-text-stats" class="text-stats-container">
-                <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
-                <span class="stat-item">Слів: <strong id="ghl-word-count">0</strong></span>
-                <span class="stat-item">Час читання: <strong id="ghl-reading-time">0</strong> хв</span>
             </div>
         </section>
 
