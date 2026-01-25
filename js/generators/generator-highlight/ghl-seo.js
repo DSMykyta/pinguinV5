@@ -17,11 +17,14 @@ export function updateSeoFromEditor() {
     const dom = getHighlightDOM();
     if (!dom.editor) return;
 
+    const seoDom = getSeoDOM();
+    // Перевіряємо чи SEO панель завантажена
+    if (!seoDom.brandNameInput || !seoDom.inputTextMarkup) return;
+
     const text = dom.editor.textContent || '';
     const { brand, product } = updateBrandAndProductFromText(text);
 
-    const seoDom = getSeoDOM();
-    if (seoDom.brandNameInput) seoDom.brandNameInput.value = brand;
+    seoDom.brandNameInput.value = brand;
     if (seoDom.productNameInput) seoDom.productNameInput.value = product;
 
     syncTulipsFromProductName();

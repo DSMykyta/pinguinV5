@@ -183,13 +183,6 @@ export function sanitizeEditor() {
         }
     });
 
-    // Виносимо ul/ol з p (браузер іноді огортає список в параграф)
-    dom.editor.querySelectorAll('p > ul, p > ol').forEach(list => {
-        const p = list.parentNode;
-        p.parentNode.insertBefore(list, p);
-        changed = true;
-    });
-
     // Видаляємо порожні параграфи
     dom.editor.querySelectorAll('p').forEach(p => {
         if (!p.textContent.trim() && !p.querySelector('br')) {
