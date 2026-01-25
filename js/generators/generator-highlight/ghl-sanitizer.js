@@ -6,6 +6,7 @@
 
 import { getHighlightDOM } from './ghl-dom.js';
 import { getCurrentMode } from './ghl-mode.js';
+import { saveCaretPosition, restoreCaretPosition } from './ghl-caret.js';
 
 /**
  * Екранування HTML символів
@@ -119,6 +120,9 @@ export function sanitizeEditor() {
     const dom = getHighlightDOM();
     if (!dom.editor || getCurrentMode() !== 'text') return;
 
+    // Зберігаємо позицію курсора
+    const caretPos = saveCaretPosition(dom.editor);
+
     let changed = false;
 
     // Видаляємо небезпечні та непотрібні теги повністю
@@ -216,4 +220,7 @@ export function sanitizeEditor() {
     if (changed) {
         dom.editor.normalize();
     }
+
+    // Відновлюємо позицію курсора
+    restoreCaretPosition(dom.editor, caretPos);
 }
