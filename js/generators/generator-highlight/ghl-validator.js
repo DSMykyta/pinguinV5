@@ -248,3 +248,104 @@ export function findHtmlPatternInfo(patternId) {
         banned_hint: pattern.hint
     };
 }
+
+// ============================================================================
+// BANNED WORDS LIST MODAL
+// ============================================================================
+
+/**
+ * Обробник відкриття модального вікна зі списком заборонених слів
+ */
+async function handleBannedWordsModalOpened(event) {
+    const { modalId, bodyTarget } = event.detail;
+
+    if (modalId !== 'banned-words-list-modal') return;
+
+    // Імпортуємо необхідні модулі
+    const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+    const { renderBannedWordsTable } = await import('../../banned-words/banned-words-manage.js');
+    const { initPaginationForBannedWords } = await import('../../banned-words/banned-words-pagination.js');
+    const { openBannedWordModal } = await import('../../banned-words/banned-words-manage.js');
+
+    // Завантажуємо дані
+    await loadBannedWords();
+
+    // Знаходимо елементи модалу
+    const tableContainer = bodyTarget?.querySelector('#modal-banned-words-table-container');
+    const searchInput = bodyTarget?.querySelector('#modal-banned-words-search');
+    const statsEl = bodyTarget?.querySelector('#modal-banned-words-stats');
+    const refreshBtn = bodyTarget?.querySelector('#modal-refresh-banned-words');
+    const addBtn = bodyTarget?.querySelector('#modal-add-banned-word');
+
+    if (!tableContainer) {
+        console.error('[GHL Validator] Не знайдено контейнер таблиці в модалі');
+        return;
+    }
+
+    // Рендеримо таблицю в модалі
+    await renderBannedWordsTable(tableContainer, {
+        statsElement: statsEl,
+        isModal: true
+    });
+
+    // Ініціалізуємо пагінацію для модалу
+    const paginationContainer = bodyTarget?.querySelector('#modal-pagination-nav-container');
+    if (paginationContainer) {
+        initPaginationForBannedWords(paginationContainer, { isModal: true });
+    }
+
+    // Пошук
+    if (searchInput) {
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            await renderBannedWordsTable(tableContainer, {
+                statsElement: statsEl,
+                searchQuery: query,
+                isModal: true
+            });
+        });
+    }
+
+    // Оновити
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.classList.add('is-spinning');
+            await loadBannedWords(true);
+            await renderBannedWordsTable(tableContainer, {
+                statsElement: statsEl,
+                isModal: true
+            });
+            setTimeout(() => refreshBtn.classList.remove('is-spinning'), 500);
+        });
+    }
+
+    // Додати
+    if (addBtn) {
+        addBtn.addEventListener('click', async () => {
+            await openBannedWordModal();
+        });
+    }
+
+    // Фільтри (Всі / Не перевірені / Перевірені)
+    const filterBtns = bodyTarget?.querySelectorAll('[data-filter]');
+    filterBtns?.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            await renderBannedWordsTable(tableContainer, {
+                statsElement: statsEl,
+                filter: filter,
+                isModal: true
+            });
+        });
+    });
+}
+
+/**
+ * Ініціалізація слухача для модального вікна
+ */
+export function initBannedWordsModalListener() {
+    document.addEventListener('modal-opened', handleBannedWordsModalOpened);
+}

@@ -13,7 +13,7 @@ import { showToast } from '../../common/ui-toast.js';
 
 // Модулі генератора
 import { getHighlightDOM } from './ghl-dom.js';
-import { initValidator } from './ghl-validator.js';
+import { initValidator, initBannedWordsModalListener } from './ghl-validator.js';
 import { sanitizeEditor } from './ghl-sanitizer.js';
 import { saveUndoState, undo, redo, initLastSavedContent } from './ghl-undo.js';
 import { setupToolbar, wrapSelection } from './ghl-formatting.js';
@@ -34,6 +34,7 @@ async function initHighlightGenerator() {
     if (!dom.editor) return;
 
     await initValidator();
+    initBannedWordsModalListener();
 
     // Налаштовуємо тулбар з колбеками
     setupToolbar(clearHighlights, validateAndHighlight, validateOnly);

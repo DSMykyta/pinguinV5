@@ -156,6 +156,7 @@ export function setupToolbar(clearHighlights, validateAndHighlight, validateOnly
 
     dom.btnBold?.addEventListener('click', () => wrapSelection('strong'));
     dom.btnItalic?.addEventListener('click', () => wrapSelection('em'));
+    dom.btnH1?.addEventListener('click', () => toggleHeading('h1'));
     dom.btnH2?.addEventListener('click', () => toggleHeading('h2'));
     dom.btnH3?.addEventListener('click', () => toggleHeading('h3'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));

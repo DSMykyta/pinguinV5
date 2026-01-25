@@ -21,6 +21,7 @@ export function getHighlightDOM() {
         // Кнопки форматування
         btnBold: document.getElementById('ghl-format-bold'),
         btnItalic: document.getElementById('ghl-format-italic'),
+        btnH1: document.getElementById('ghl-format-h1'),
         btnH2: document.getElementById('ghl-format-h2'),
         btnH3: document.getElementById('ghl-format-h3'),
         btnList: document.getElementById('ghl-format-list'),
