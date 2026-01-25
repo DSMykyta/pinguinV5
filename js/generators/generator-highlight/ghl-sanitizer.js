@@ -208,9 +208,6 @@ export function sanitizeEditor() {
         // Декодуємо &nbsp;
         text = text.replace(/\u00A0/g, ' ');
 
-        // Очищаємо множинні пробіли
-        text = text.replace(/ {2,}/g, ' ');
-
         if (text !== original) {
             node.textContent = text;
             changed = true;
