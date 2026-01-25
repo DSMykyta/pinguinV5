@@ -64,6 +64,31 @@ export function saveUndoState() {
 }
 
 /**
+ * Поставити курсор в кінець редактора
+ */
+function placeCursorAtEnd(editor) {
+    const range = document.createRange();
+    const selection = window.getSelection();
+
+    // Знаходимо останній текстовий вузол або елемент
+    let lastNode = editor;
+    while (lastNode.lastChild) {
+        lastNode = lastNode.lastChild;
+    }
+
+    if (lastNode.nodeType === Node.TEXT_NODE) {
+        range.setStart(lastNode, lastNode.length);
+        range.setEnd(lastNode, lastNode.length);
+    } else {
+        range.selectNodeContents(editor);
+        range.collapse(false);
+    }
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+/**
  * Скасувати дію
  */
 export function undo(validateAndHighlight) {
@@ -79,6 +104,10 @@ export function undo(validateAndHighlight) {
     lastSavedContent = previousContent;
 
     dom.editor.innerHTML = previousContent;
+
+    // Ставимо курсор в кінець
+    placeCursorAtEnd(dom.editor);
+
     if (validateAndHighlight) validateAndHighlight();
 }
 
@@ -98,6 +127,10 @@ export function redo(validateAndHighlight) {
     lastSavedContent = nextContent;
 
     dom.editor.innerHTML = nextContent;
+
+    // Ставимо курсор в кінець
+    placeCursorAtEnd(dom.editor);
+
     if (validateAndHighlight) validateAndHighlight();
 }
 
