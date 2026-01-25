@@ -1,92 +1,136 @@
 /**
- * COMPONENT: Highlight Within Textarea
+ * COMPONENT: Highlight Editor
  *
  * ПРИЗНАЧЕННЯ:
- * Overlay техніка для підсвічування тексту в textarea.
- * Використовує backdrop div під прозорою textarea.
- *
- * СТРУКТУРА:
- * .hwt-container
- *   .hwt-backdrop
- *     .hwt-highlights.hwt-content (підсвічений текст)
- *   textarea.hwt-input.hwt-content (поле вводу)
+ * Стилі для WYSIWYG редактора з підсвічуванням заборонених слів.
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (змінні кольорів)
- * - input.css (.banned-word-highlight)
+ * - input.css (.input-main)
+ * - tooltip.css (.banned-word-tooltip)
+ * - chip.css (.chip-error)
+ * - rich-editor.css (.toolbar-separator)
+ * - button-icon.css (.btn-icon.active)
  */
 
-/* Контейнер редактора */
-.ghl-editor-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+/* ============================================================================
+   РЕДАКТОР
+   ============================================================================ */
+
+/* Базові стилі для contentEditable */
+#ghl-editor {
     min-height: 200px;
-}
-
-/* Контейнер для overlay */
-.hwt-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    flex: 1;
-    display: flex;
-}
-
-/* Backdrop - фоновий шар для підсвічення */
-.hwt-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow: auto;
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* Спільні стилі для контенту (backdrop і textarea) */
-.hwt-content {
-    width: 100%;
-    height: 100%;
-    padding: 12px;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.6;
-    white-space: pre-wrap;
+    overflow-y: auto;
     word-wrap: break-word;
-    overflow-wrap: break-word;
+    line-height: 1.6;
 }
 
-/* Textarea - поле вводу */
-.hwt-input {
+/* Нормалізація відступів для параграфів */
+#ghl-editor p {
+    margin: 0 0 0.5em 0;
+}
+
+#ghl-editor p:last-child {
+    margin-bottom: 0;
+}
+
+/* Стилі для списків - відступи для кращої читабельності */
+#ghl-editor ul,
+#ghl-editor ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+#ghl-editor li {
+    margin: 0.25em 0;
+}
+
+/* Placeholder для порожнього редактора */
+#ghl-editor:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* Прибираємо placeholder при фокусі */
+#ghl-editor:focus:empty::before {
+    content: '';
+}
+
+/* ============================================================================
+   РЕЖИМ КОДУ - більше простору між рядками
+   ============================================================================ */
+
+.ghl-code-mode {
+    background-color: var(--color-surface-c-low) !important;
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    resize: vertical;
+}
+
+/* ============================================================================
+   ТУЛБАР - chips навпроти кнопок
+   ============================================================================ */
+
+.toolbar-wrapper-spaced {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+/* ============================================================================
+   VALIDATION RESULTS - chips з fade-ефектом
+   ============================================================================ */
+
+#ghl-validation-results {
+    flex-direction: row-reverse;
+}
+
+/* Контейнер для fade-ефекту */
+.validation-results-wrapper {
     position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Fade-ефект зліва */
+.validation-results-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, var(--color-surface), transparent);
     z-index: 2;
-    background: transparent !important;
-    color: var(--color-main);
-    caret-color: var(--color-main);
-    border: none;
-    resize: none;
-    outline: none;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
-/* Highlights - контейнер з підсвіченим текстом */
-.hwt-highlights {
-    color: transparent;
-    background: var(--color-surface);
+/* Fade-ефект справа */
+.validation-results-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to left, var(--color-surface), transparent);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
-/* Адаптація highlight-banned-word для overlay (текст прозорий, видно тільки background) */
-.hwt-highlights .highlight-banned-word {
-    color: transparent;
+/* Показуємо fade коли є прокрутка */
+.validation-results-wrapper.has-scroll-left::before {
+    opacity: 1;
 }
 
-/* Синхронізація скролбарів */
-.hwt-backdrop::-webkit-scrollbar {
-    display: none;
-}
-
-.hwt-backdrop {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.validation-results-wrapper.has-scroll-right::after {
+    opacity: 1;
 }

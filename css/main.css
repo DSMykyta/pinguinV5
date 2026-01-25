@@ -96,8 +96,10 @@
 @import url('components/content/image-tool.css');
 @import url('components/content/highlight-textarea.css');
 
+
 /* === COMPONENTS - PRODUCTS === */
 @import url('components/products.css');
+@import url('components/rich-editor.css');
 
 /* === UTILITIES === */
 @import url('utilities/helpers.css');

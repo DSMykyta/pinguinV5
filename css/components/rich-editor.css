@@ -1,0 +1,260 @@
+/* css/components/rich-editor.css */
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    RICH TEXT EDITOR STYLES                                ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
+
+/* ============================================================================
+   КОНТЕЙНЕР
+   ============================================================================ */
+
+.rich-editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-primary);
+}
+
+/* ============================================================================
+   ТУЛБАР
+   ============================================================================ */
+
+.rich-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    min-height: 44px;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: var(--border-color);
+    margin: 0 4px;
+}
+
+/* Кнопки тулбару */
+.rich-editor-toolbar .btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rich-editor-toolbar .btn-icon:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.rich-editor-toolbar .btn-icon.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+.rich-editor-toolbar .btn-icon .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* ============================================================================
+   ОБЛАСТЬ РЕДАКТОРА (contentEditable)
+   ============================================================================ */
+
+.rich-editor-content {
+    flex: 1;
+    min-height: 200px;
+    max-height: 100%;
+    padding: 16px;
+    overflow-y: auto;
+    outline: none;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    
+    /* Для scroll */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+.rich-editor-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rich-editor-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.rich-editor-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.rich-editor-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-disabled);
+}
+
+/* Placeholder */
+.rich-editor-content:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-disabled);
+    pointer-events: none;
+}
+
+/* Фокус */
+.rich-editor-content.focused {
+    /* Можна додати рамку якщо потрібно */
+}
+
+/* ============================================================================
+   ФОРМАТУВАННЯ КОНТЕНТУ
+   ============================================================================ */
+
+.rich-editor-content h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin: 0.5em 0;
+    color: var(--text-primary);
+}
+
+.rich-editor-content h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin: 0.5em 0;
+    color: var(--text-primary);
+}
+
+.rich-editor-content p {
+    margin: 0.5em 0;
+}
+
+.rich-editor-content ul,
+.rich-editor-content ol {
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+}
+
+.rich-editor-content li {
+    margin: 0.25em 0;
+}
+
+.rich-editor-content a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+/* ============================================================================
+   ПІДСВІЧУВАННЯ ЗАБОРОНЕНИХ СЛІВ
+   ============================================================================ */
+
+.rich-editor-content .highlight-banned-word,
+.rich-editor-content mark.highlight-banned-word {
+    background-color: rgba(239, 68, 68, 0.25);
+    border-bottom: 2px solid var(--color-error);
+    border-radius: 2px;
+    padding: 0 2px;
+    margin: 0 -2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.rich-editor-content .highlight-banned-word:hover,
+.rich-editor-content mark.highlight-banned-word:hover {
+    background-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Різні типи підсвічування (для майбутнього розширення) */
+.rich-editor-content .highlight-warning {
+    background-color: rgba(245, 158, 11, 0.25);
+    border-bottom: 2px solid var(--color-warning);
+}
+
+.rich-editor-content .highlight-info {
+    background-color: rgba(59, 130, 246, 0.25);
+    border-bottom: 2px solid var(--color-info);
+}
+
+.rich-editor-content .highlight-success {
+    background-color: rgba(34, 197, 94, 0.25);
+    border-bottom: 2px solid var(--color-success);
+}
+
+/* ============================================================================
+   ВИДІЛЕННЯ ТЕКСТУ
+   ============================================================================ */
+
+.rich-editor-content ::selection {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* ============================================================================
+   АДАПТИВНІСТЬ
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .rich-editor-toolbar {
+        padding: 6px 8px;
+        gap: 2px;
+    }
+    
+    .rich-editor-toolbar .btn-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .rich-editor-toolbar .btn-icon .material-symbols-outlined {
+        font-size: 18px;
+    }
+    
+    .toolbar-separator {
+        height: 20px;
+        margin: 0 2px;
+    }
+    
+    .rich-editor-content {
+        padding: 12px;
+        min-height: 150px;
+    }
+}
+
+/* ============================================================================
+   ТЕМНА ТЕМА (якщо потрібно)
+   ============================================================================ */
+
+[data-theme="dark"] .rich-editor-container {
+    border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .rich-editor-toolbar {
+    background: var(--bg-secondary-dark);
+    border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .rich-editor-content {
+    background: var(--bg-primary-dark);
+    color: var(--text-primary-dark);
+}
