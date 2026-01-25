@@ -59,5 +59,3 @@ Claude Writing Assistant
 test-*.html
 V4 ALL ALL резерв 12 10 25/
 
-# Deprecated generators (kept locally as backup)
-js/generators/generator-text/
