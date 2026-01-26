@@ -150,7 +150,7 @@ function hideShortcutsTooltip() {
 }
 
 export function setupInfoButtonTooltip() {
-    const section = document.getElementById('section-highlight');
+    const section = document.getElementById('section-text');
     if (!section) return;
 
     const infoBtn = section.querySelector('button[aria-label="Інформація"]');
