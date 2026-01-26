@@ -111,6 +111,7 @@ function handleMagicApply() {
  * @param {CustomEvent} event - Подія modal-opened
  */
 function handleMagicModalOpened(event) {
+    if (!event.detail) return;
     const { modalId } = event.detail;
     if (modalId === 'magic-modal') {
         initMagicHints();
@@ -122,6 +123,7 @@ function handleMagicModalOpened(event) {
  * @param {CustomEvent} event - Подія modal-closed
  */
 function handleMagicModalClosed(event) {
+    if (!event.detail) return;
     const { modalId } = event.detail;
     if (modalId === 'magic-modal') {
         destroyMagicHints();
@@ -133,6 +135,7 @@ function handleMagicModalClosed(event) {
  * @param {CustomEvent} event - Подія modal-opened
  */
 function handleTablePreview(event) {
+    if (!event.detail) return;
     const { modalId, trigger } = event.detail;
 
     // Перевіряємо чи це preview-modal-table
