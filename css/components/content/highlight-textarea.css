@@ -134,3 +134,57 @@
 .validation-results-wrapper.has-scroll-right::after {
     opacity: 1;
 }
+
+/* ============================================================================
+   CHIP NAVIGATION - Клікабельні чіпи + flash-ефект
+   ============================================================================ */
+
+/* Курсор для клікабельних чіпів */
+#ghl-validation-results .chip-error,
+#ghl-validation-results .chip-warning {
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#ghl-validation-results .chip-error:hover,
+#ghl-validation-results .chip-warning:hover {
+    transform: scale(1.05);
+}
+
+#ghl-validation-results .chip-error:active,
+#ghl-validation-results .chip-warning:active {
+    transform: scale(0.98);
+}
+
+/* Flash-ефект для знайденого слова в редакторі */
+@keyframes highlight-flash {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.highlight-banned-word.flash {
+    animation: highlight-flash 0.6s ease-out;
+}
+
+/* Flash для HTML патернів (жовтий) */
+@keyframes highlight-flash-warning {
+    0% {
+        outline: 2px solid rgba(245, 158, 11, 0.8);
+        outline-offset: 1px;
+    }
+    100% {
+        outline: 2px solid rgba(245, 158, 11, 0);
+        outline-offset: 4px;
+    }
+}
+
+.highlight-html-pattern-flash {
+    animation: highlight-flash-warning 0.6s ease-out;
+}

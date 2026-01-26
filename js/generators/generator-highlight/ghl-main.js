@@ -24,6 +24,7 @@ import { findAndReplaceAll } from './ghl-find-replace.js';
 import { resetEditor } from './ghl-reset.js';
 import { setupCopyHandler, setupPasteHandler } from './ghl-copy.js';
 import { updateSeoFromEditor } from './ghl-seo.js';
+import { setupChipNavigation } from './ghl-chip-navigation.js';
 
 // ============================================================================
 // ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ ОБРОБКИ ENTER
@@ -163,6 +164,7 @@ async function initHighlightGenerator() {
     setupToolbar(clearHighlights, validateAndHighlight, validateOnly);
     setupEditorTooltips();
     setupInfoButtonTooltip();
+    setupChipNavigation();
 
     // Ініціалізуємо lastSavedContent
     initLastSavedContent(dom.editor.innerHTML);
