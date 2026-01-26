@@ -60,7 +60,7 @@ function displayResults(wordCounts, bannedCount, htmlResults, dom) {
         // Заборонені слова (червоні чіпи)
         const sortedEntries = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
         for (const [word, count] of sortedEntries) {
-            chips.push(`<span class="chip chip-error" data-banned-word="${word}">${word} (${count})</span>`);
+            chips.push(`<span class="chip chip-error chip-nav" data-banned-word="${word}">${word} (${count})</span>`);
         }
 
         dom.validationResults.innerHTML = chips.join(' ');
