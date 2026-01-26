@@ -47,10 +47,12 @@ async function initHighlightGenerator() {
     // Дебаунсовані функції
     const debouncedValidateAndHighlight = debounce(validateAndHighlight, 500);
     const debouncedSaveUndo = debounce(saveUndoState, 300);
+    const debouncedSanitize = debounce(sanitizeEditor, 100);
     const debouncedSeoUpdate = debounce(updateSeoFromEditor, 300);
 
-    // Обробник введення (санітизація тільки при копіюванні)
+    // Обробник введення
     dom.editor.addEventListener('input', () => {
+        debouncedSanitize();
         debouncedSaveUndo();
         debouncedValidateAndHighlight();
         debouncedSeoUpdate();

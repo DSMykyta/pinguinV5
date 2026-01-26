@@ -180,6 +180,16 @@ export function sanitizeEditor() {
         changed = true;
     });
 
+    // Видаляємо FONT (залишаємо вміст)
+    dom.editor.querySelectorAll('font').forEach(font => {
+        const fragment = document.createDocumentFragment();
+        while (font.firstChild) {
+            fragment.appendChild(font.firstChild);
+        }
+        font.parentNode.replaceChild(fragment, font);
+        changed = true;
+    });
+
     // Видаляємо всі атрибути (style, class, etc.) з дозволених тегів
     dom.editor.querySelectorAll('p, strong, em, h2, h3, ul, li').forEach(el => {
         while (el.attributes.length > 0) {
@@ -195,29 +205,9 @@ export function sanitizeEditor() {
         }
     });
 
-    // Очищаємо текстові ноди від маркерів списків та entities
-    const walker = document.createTreeWalker(dom.editor, NodeFilter.SHOW_TEXT, null, false);
-    let node;
-    while ((node = walker.nextNode())) {
-        let text = node.textContent;
-        const original = text;
-
-        // Видаляємо маркери списків
-        text = text.replace(/[•·●○■□▪▫]/g, '');
-
-        // Декодуємо &nbsp;
-        text = text.replace(/\u00A0/g, ' ');
-
-        if (text !== original) {
-            node.textContent = text;
-            changed = true;
-        }
-    }
-
     if (changed) {
         dom.editor.normalize();
+        // Відновлюємо позицію курсора тільки якщо були зміни
+        restoreCaretPosition(dom.editor, caretPos);
     }
-
-    // Відновлюємо позицію курсора
-    restoreCaretPosition(dom.editor, caretPos);
 }
