@@ -125,6 +125,16 @@ export function sanitizeEditor() {
 
     let changed = false;
 
+    // Огортаємо "голі" текстові ноди в <p>
+    Array.from(dom.editor.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+            const p = document.createElement('p');
+            p.textContent = node.textContent;
+            node.parentNode.replaceChild(p, node);
+            changed = true;
+        }
+    });
+
     // Видаляємо небезпечні та непотрібні теги повністю
     dom.editor.querySelectorAll('script, style, iframe, object, embed, img, meta, link').forEach(el => {
         el.remove();
