@@ -330,6 +330,7 @@
 .highlight-banned-word:hover {
     background: var(--color-error);
     color: var(--color-on-error);
+    border-color: var(--color-error);
 }
 
 /* Flash-ефект при навігації до слова */
