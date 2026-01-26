@@ -170,8 +170,8 @@ export function sanitizeEditor() {
         changed = true;
     });
 
-    // Видаляємо SPAN (залишаємо вміст) - крім highlight-banned-word
-    dom.editor.querySelectorAll('span:not(.highlight-banned-word)').forEach(span => {
+    // Видаляємо ВСІ SPAN (включаючи highlight-banned-word - він буде відновлений validateAndHighlight)
+    dom.editor.querySelectorAll('span').forEach(span => {
         const fragment = document.createDocumentFragment();
         while (span.firstChild) {
             fragment.appendChild(span.firstChild);
