@@ -109,26 +109,30 @@ function insertParagraphAndFocus(editor) {
     }
 
     // Встановлюємо курсор на початок нового параграфа
-    const newRange = document.createRange();
+    // Використовуємо zero-width space як якір (браузер не видалить його)
+    const ZWSP = '\u200B';
 
-    // Знаходимо перший текстовий вузол або створюємо якір для курсора
-    let firstChild = newParagraph.firstChild;
-    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-        newRange.setStart(firstChild, 0);
-    } else {
-        // Створюємо пустий текстовий вузол для надійного позиціонування курсора
-        const textAnchor = document.createTextNode('');
-        if (firstChild) {
-            newParagraph.insertBefore(textAnchor, firstChild);
-        } else {
-            newParagraph.appendChild(textAnchor);
-        }
-        newRange.setStart(textAnchor, 0);
+    // Видаляємо <br> якщо є і замінюємо на zero-width space
+    const br = newParagraph.querySelector('br');
+    if (br) {
+        br.remove();
     }
-    newRange.collapse(true);
 
-    // Фокусуємо редактор ПЕРЕД встановленням selection
+    // Додаємо zero-width space як перший елемент
+    const textAnchor = document.createTextNode(ZWSP);
+    if (newParagraph.firstChild) {
+        newParagraph.insertBefore(textAnchor, newParagraph.firstChild);
+    } else {
+        newParagraph.appendChild(textAnchor);
+    }
+
+    // Фокусуємо редактор
     editor.focus();
+
+    // Встановлюємо курсор після zero-width space
+    const newRange = document.createRange();
+    newRange.setStart(textAnchor, 1); // Після ZWSP
+    newRange.collapse(true);
 
     selection.removeAllRanges();
     selection.addRange(newRange);
