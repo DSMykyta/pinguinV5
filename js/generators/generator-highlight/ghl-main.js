@@ -102,7 +102,6 @@ async function initHighlightGenerator() {
             e.preventDefault();
             saveUndoState();
             document.execCommand('insertParagraph');
-            setTimeout(sanitizeEditor, 0);
         }
         // Shift+Enter - <br>
         if (e.key === 'Enter' && e.shiftKey) {
