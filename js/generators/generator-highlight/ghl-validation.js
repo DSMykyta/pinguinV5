@@ -54,7 +54,7 @@ function displayResults(wordCounts, bannedCount, htmlResults, dom) {
 
         // HTML патерни (жовті чіпи)
         for (const [patternId, data] of htmlResults.patternCounts.entries()) {
-            chips.push(`<span class="chip chip-warning chip-nav" data-html-pattern="${patternId}">${data.pattern.name} (${data.count})</span>`);
+            chips.push(`<span class="chip chip-warning" data-html-pattern="${patternId}">${data.pattern.name} (${data.count})</span>`);
         }
 
         // Заборонені слова (червоні чіпи)

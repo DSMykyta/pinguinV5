@@ -5,33 +5,31 @@
  *
  * Функціонал:
  * - Клік на червоний чіп (заборонене слово) → перехід до слова в редакторі
- * - Клік на жовтий чіп (HTML патерн) → перехід до патерну в редакторі
  * - Циклічна навігація: 1→2→3→1...
  * - Flash-ефект для візуального підсвічування
  *
  * ВИДАЛЕННЯ БЕЗ НАСЛІДКІВ:
  * 1. Видалити цей файл
  * 2. Видалити імпорт та виклик setupChipNavigation() з ghl-main.js
- * 3. (Опціонально) Видалити CSS секцію "CHIP NAVIGATION" з highlight-textarea.css
  */
 
 import { getHighlightDOM } from './ghl-dom.js';
 
-// Зберігаємо поточний індекс для кожного слова/патерну
+// Зберігаємо поточний індекс для кожного слова
 const navigationState = new Map();
 
 /**
  * Застосувати flash-ефект до елемента
  */
-function applyFlash(element, flashClass = 'flash') {
-    element.classList.remove(flashClass);
+function applyFlash(element) {
+    element.classList.remove('flash');
     // Force reflow для перезапуску анімації
     void element.offsetWidth;
-    element.classList.add(flashClass);
+    element.classList.add('flash');
 
     // Видаляємо клас після анімації
     setTimeout(() => {
-        element.classList.remove(flashClass);
+        element.classList.remove('flash');
     }, 600);
 }
 
@@ -91,54 +89,10 @@ function navigateToBannedWord(word) {
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     // Flash-ефект
-    applyFlash(target, 'flash');
+    applyFlash(target);
 
     // Ставимо курсор в кінець слова
     placeCursorAtEnd(target);
-}
-
-/**
- * Навігація до HTML патерну
- * HTML патерни не підсвічуються span-ами, тому шукаємо в тексті
- */
-function navigateToHtmlPattern(patternId) {
-    const dom = getHighlightDOM();
-    if (!dom.editor) return;
-
-    // Патерни та їх regex
-    const patterns = {
-        'empty-tags': /<(\w+)[^>]*>\s*<\/\1>/gi,
-        'nested-tags': /<(\w+)[^>]*>(\s*<\1[^>]*>)/gi,
-        'inline-styles': /style\s*=\s*["'][^"']*["']/gi,
-        'br-tags': /<br\s*\/?>/gi,
-        'nbsp': /&nbsp;/gi,
-        'font-tags': /<\/?font[^>]*>/gi,
-        'div-tags': /<\/?div[^>]*>/gi,
-        'span-tags': /<span[^>]*>|<\/span>/gi
-    };
-
-    const regex = patterns[patternId];
-    if (!regex) return;
-
-    // Отримуємо HTML редактора
-    const html = dom.editor.innerHTML;
-    const matches = [...html.matchAll(new RegExp(regex.source, 'gi'))];
-
-    if (matches.length === 0) return;
-
-    // Поточний індекс
-    const stateKey = `pattern:${patternId}`;
-    let currentIndex = navigationState.get(stateKey) ?? -1;
-    currentIndex = (currentIndex + 1) % matches.length;
-    navigationState.set(stateKey, currentIndex);
-
-    const match = matches[currentIndex];
-
-    // Знаходимо позицію в тексті і намагаємося знайти найближчий елемент
-    // Це складніше, бо патерни в HTML, а не в тексті
-    // Простіший варіант - підсвічуємо весь редактор з flash
-    applyFlash(dom.editor, 'highlight-html-pattern-flash');
-    dom.editor.focus();
 }
 
 /**
@@ -163,16 +117,6 @@ export function setupChipNavigation() {
             const word = errorChip.dataset.bannedWord;
             if (word) {
                 navigateToBannedWord(word);
-            }
-            return;
-        }
-
-        // HTML патерни (жовті чіпи)
-        const warningChip = e.target.closest('.chip-warning[data-html-pattern]');
-        if (warningChip) {
-            const patternId = warningChip.dataset.htmlPattern;
-            if (patternId) {
-                navigateToHtmlPattern(patternId);
             }
         }
     });
