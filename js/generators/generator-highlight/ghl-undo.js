@@ -36,7 +36,11 @@ export function getCleanHtml() {
     // Очищаємо множинні пробіли
     html = html.replace(/ {2,}/g, ' ');
 
-    return html;
+    // Видаляємо порожні параграфи з br
+    html = html.replace(/<p><br><\/p>/gi, '');
+    html = html.replace(/<p><br\/><\/p>/gi, '');
+
+    return html.trim();
 }
 
 /**
