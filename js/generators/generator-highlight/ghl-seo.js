@@ -19,7 +19,7 @@ export function updateSeoFromEditor() {
 
     const seoDom = getSeoDOM();
     // Перевіряємо чи SEO панель завантажена
-    if (!seoDom.brandNameInput || !seoDom.inputTextMarkup) return;
+    if (!seoDom.brandNameInput) return;
 
     const text = dom.editor.textContent || '';
     const { brand, product } = updateBrandAndProductFromText(text);
