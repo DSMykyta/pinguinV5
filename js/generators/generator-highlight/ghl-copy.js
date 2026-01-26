@@ -32,7 +32,8 @@ export function setupCopyHandler() {
             el.parentNode.replaceChild(text, el);
         });
 
-        const htmlCode = temp.innerHTML;
+        // Санітизуємо HTML при копіюванні
+        const htmlCode = sanitizeHtml(temp.innerHTML);
 
         e.preventDefault();
         e.clipboardData.setData('text/plain', htmlCode);
