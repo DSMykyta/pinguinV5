@@ -215,21 +215,10 @@ body.is-modal-open {
     word-wrap: break-word;
 }
 
-/* Підсвічені слова в модалі (червоні як chip-error) */
-.text-viewer .highlight-banned-word {
-    background: var(--color-error-c);
-    color: var(--color-error);
-    border: 1px solid var(--color-error);
-    padding: 2px 4px;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: help;
-}
-
+/* Hover-ефект для підсвічених слів в модалі */
 .text-viewer .highlight-banned-word:hover {
     background: var(--color-error);
     color: var(--color-on-error);
-    border-color: var(--color-error);
 }
 
 /* Статистика внизу модалу */
