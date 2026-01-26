@@ -143,12 +143,10 @@
     cursor: pointer;
 }
 
-.chip-nav:hover {
-    transform: scale(1.05);
-}
-
-.chip-nav:active {
-    transform: scale(0.98);
+.chip-error.chip-nav:hover {
+    background: var(--color-error);
+    color: var(--color-on-error);
+    border-color: var(--color-error);
 }
 
 /* ============================================ */
