@@ -111,20 +111,27 @@ function insertParagraphAndFocus(editor) {
     // Встановлюємо курсор на початок нового параграфа
     const newRange = document.createRange();
 
-    // Знаходимо перший текстовий вузол або ставимо курсор на початок
-    const firstChild = newParagraph.firstChild;
+    // Знаходимо перший текстовий вузол або створюємо якір для курсора
+    let firstChild = newParagraph.firstChild;
     if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
         newRange.setStart(firstChild, 0);
     } else {
-        newRange.setStart(newParagraph, 0);
+        // Створюємо пустий текстовий вузол для надійного позиціонування курсора
+        const textAnchor = document.createTextNode('');
+        if (firstChild) {
+            newParagraph.insertBefore(textAnchor, firstChild);
+        } else {
+            newParagraph.appendChild(textAnchor);
+        }
+        newRange.setStart(textAnchor, 0);
     }
     newRange.collapse(true);
 
+    // Фокусуємо редактор ПЕРЕД встановленням selection
+    editor.focus();
+
     selection.removeAllRanges();
     selection.addRange(newRange);
-
-    // Фокусуємо редактор для гарантії
-    editor.focus();
 }
 
 /**
