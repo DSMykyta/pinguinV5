@@ -135,6 +135,27 @@
 }
 
 /* ============================================ */
+/* МОДИФІКАТОР: КЛІКАБЕЛЬНИЙ CHIP-ERROR/WARNING */
+/* Для validation results - клік переходить до слова */
+/* ============================================ */
+
+#ghl-validation-results .chip-error,
+#ghl-validation-results .chip-warning {
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#ghl-validation-results .chip-error:hover,
+#ghl-validation-results .chip-warning:hover {
+    transform: scale(1.05);
+}
+
+#ghl-validation-results .chip-error:active,
+#ghl-validation-results .chip-warning:active {
+    transform: scale(0.98);
+}
+
+/* ============================================ */
 /* МОДИФІКАТОР: УСПІХ (зелений) */
 /* ============================================ */
 
