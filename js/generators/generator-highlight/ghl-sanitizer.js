@@ -201,19 +201,14 @@ export function sanitizeEditor() {
     });
 
     // Видаляємо всі атрибути (style, class, etc.) з дозволених тегів
-    dom.editor.querySelectorAll('p, strong, em, h2, h3, ul, li').forEach(el => {
+    dom.editor.querySelectorAll('p, strong, em, h1, h2, h3, ul, li').forEach(el => {
         while (el.attributes.length > 0) {
             el.removeAttribute(el.attributes[0].name);
         }
     });
 
-    // Видаляємо порожні параграфи
-    dom.editor.querySelectorAll('p').forEach(p => {
-        if (!p.textContent.trim() && !p.querySelector('br')) {
-            p.remove();
-            changed = true;
-        }
-    });
+    // НЕ видаляємо порожні параграфи тут - це ламає позицію курсора після Enter
+    // Порожні параграфи видаляються тільки при копіюванні (sanitizeHtml)
 
     if (changed) {
         dom.editor.normalize();
