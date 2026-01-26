@@ -108,34 +108,29 @@ function insertParagraphAndFocus(editor) {
         editor.appendChild(newParagraph);
     }
 
-    // Встановлюємо курсор на початок нового параграфа
-    // Використовуємо zero-width space як якір (браузер не видалить його)
-    const ZWSP = '\u200B';
-
-    // Видаляємо <br> якщо є і замінюємо на zero-width space
-    const br = newParagraph.querySelector('br');
-    if (br) {
-        br.remove();
-    }
-
-    // Додаємо zero-width space як перший елемент
-    const textAnchor = document.createTextNode(ZWSP);
-    if (newParagraph.firstChild) {
-        newParagraph.insertBefore(textAnchor, newParagraph.firstChild);
-    } else {
-        newParagraph.appendChild(textAnchor);
+    // Гарантуємо що новий параграф має <br> для позиціонування курсора
+    let br = newParagraph.querySelector('br');
+    if (!br) {
+        br = document.createElement('br');
+        newParagraph.appendChild(br);
     }
 
     // Фокусуємо редактор
     editor.focus();
 
-    // Встановлюємо курсор після zero-width space
+    // Встановлюємо курсор перед <br> в новому параграфі
     const newRange = document.createRange();
-    newRange.setStart(textAnchor, 1); // Після ZWSP
+    newRange.setStart(newParagraph, 0);
     newRange.collapse(true);
 
     selection.removeAllRanges();
     selection.addRange(newRange);
+
+    // Додатково скролимо до курсора
+    const rect = newRange.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        newParagraph.scrollIntoView({ block: 'nearest' });
+    }
 }
 
 /**
