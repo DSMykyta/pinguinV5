@@ -108,30 +108,29 @@ function insertParagraphAndFocus(editor) {
         editor.appendChild(newParagraph);
     }
 
-    // Встановлюємо курсор на початок нового параграфа
-    const newRange = document.createRange();
-
-    // Знаходимо перший текстовий вузол або створюємо якір для курсора
-    let firstChild = newParagraph.firstChild;
-    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-        newRange.setStart(firstChild, 0);
-    } else {
-        // Створюємо пустий текстовий вузол для надійного позиціонування курсора
-        const textAnchor = document.createTextNode('');
-        if (firstChild) {
-            newParagraph.insertBefore(textAnchor, firstChild);
-        } else {
-            newParagraph.appendChild(textAnchor);
-        }
-        newRange.setStart(textAnchor, 0);
+    // Гарантуємо що новий параграф має <br> для позиціонування курсора
+    let br = newParagraph.querySelector('br');
+    if (!br) {
+        br = document.createElement('br');
+        newParagraph.appendChild(br);
     }
-    newRange.collapse(true);
 
-    // Фокусуємо редактор ПЕРЕД встановленням selection
+    // Фокусуємо редактор
     editor.focus();
+
+    // Встановлюємо курсор перед <br> в новому параграфі
+    const newRange = document.createRange();
+    newRange.setStart(newParagraph, 0);
+    newRange.collapse(true);
 
     selection.removeAllRanges();
     selection.addRange(newRange);
+
+    // Додатково скролимо до курсора
+    const rect = newRange.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        newParagraph.scrollIntoView({ block: 'nearest' });
+    }
 }
 
 /**
