@@ -341,7 +341,7 @@
 }
 
 .highlight-banned-word.flash {
-    animation: highlight-flash 0.6s ease-out;
+    animation: highlight-flash 1.2s ease-out;
 }
 
 /* Лічильник входжень */
