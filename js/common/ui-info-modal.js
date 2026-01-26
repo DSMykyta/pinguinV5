@@ -112,9 +112,6 @@ export function initInfoButtons() {
 
         if (!infoButton) return;
 
-        // Секція текстового редактора має свій tooltip замість модалу
-        if (infoButton.closest('#section-text')) return;
-
         e.preventDefault();
         e.stopPropagation();
 
