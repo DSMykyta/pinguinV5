@@ -1,13 +1,11 @@
 // js/generators/generator-seo/gse-events.js
 import { getSeoDOM } from './gse-dom.js';
-import { updateBrandAndProductFromText } from './gse-parser.js';
 import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from './gse-generators.js';
 import { checkSafety } from './gse-helpers.js';
 import { syncTulipsFromProductName, addTulip } from './gse-triggers.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
 import { initSearchClear } from '../../utils/search-clear.js';
-import { debounce } from '../../utils/common-utils.js';
 
 /**
  * Головна функція, яка робить ТІЛЬКИ перерахунок SEO-полів.
@@ -18,7 +16,7 @@ export function runCalculations() {
     const brand = dom.brandNameInput.value.trim();
     const product = dom.productNameInput.value.trim();
     const packaging = dom.productPackagingInput.value.trim();
-    const mainText = dom.inputTextMarkup.value;
+    const mainText = dom.ghlEditor?.textContent || '';
     const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip-active'))
                               .map(t => t.dataset.title);
 
@@ -37,14 +35,7 @@ export function runCalculations() {
 export function initEventListeners() {
     const dom = getSeoDOM();
 
-    dom.inputTextMarkup.addEventListener('input', debounce(() => {
-        const { brand, product } = updateBrandAndProductFromText(dom.inputTextMarkup.value);
-        dom.brandNameInput.value = brand;
-        dom.productNameInput.value = product;
-        syncTulipsFromProductName();
-        runCalculations();
-    }, 300));
-
+    // Текст редактора обробляється в ghl-seo.js -> updateSeoFromEditor()
 
     dom.productNameInput.addEventListener('input', () => {
         syncTulipsFromProductName();

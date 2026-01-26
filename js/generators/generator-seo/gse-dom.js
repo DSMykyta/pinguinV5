@@ -9,8 +9,8 @@ export function getSeoDOM() {
 
     domCache = {
         // --- Вхідні дані ---
-        // Це поле з сусіднього модуля "Текст", звідки ми беремо назву
-        inputTextMarkup: document.getElementById('input-text-markup'), 
+        // Редактор тексту з Highlight Generator, звідки беремо текст для SEO
+        ghlEditor: document.getElementById('ghl-editor'),
         
         // Три поля для ручного вводу
         brandNameInput: document.getElementById('brand-name'),
