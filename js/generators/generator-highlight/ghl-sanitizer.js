@@ -8,6 +8,22 @@ import { getHighlightDOM } from './ghl-dom.js';
 import { getCurrentMode } from './ghl-mode.js';
 import { saveCaretPosition, restoreCaretPosition } from './ghl-caret.js';
 
+// Флаг для пропуску відновлення курсора (після Enter)
+let skipCaretRestore = false;
+
+/**
+ * Встановити флаг пропуску відновлення курсора
+ */
+export function setSkipCaretRestore(value) {
+    skipCaretRestore = value;
+    // Автоматично скидаємо через 200ms
+    if (value) {
+        setTimeout(() => {
+            skipCaretRestore = false;
+        }, 200);
+    }
+}
+
 /**
  * Екранування HTML символів
  */
@@ -212,7 +228,9 @@ export function sanitizeEditor() {
 
     if (changed) {
         dom.editor.normalize();
-        // Відновлюємо позицію курсора тільки якщо були зміни
-        restoreCaretPosition(dom.editor, caretPos);
+        // Відновлюємо позицію курсора тільки якщо були зміни і не встановлено флаг пропуску
+        if (!skipCaretRestore) {
+            restoreCaretPosition(dom.editor, caretPos);
+        }
     }
 }
