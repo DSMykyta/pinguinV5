@@ -215,12 +215,6 @@ body.is-modal-open {
     word-wrap: break-word;
 }
 
-/* Hover-ефект для підсвічених слів в модалі */
-.text-viewer .highlight-banned-word:hover {
-    background: var(--color-error);
-    color: var(--color-on-error);
-}
-
 /* Статистика внизу модалу */
 .product-text-stats {
     display: flex;

@@ -166,25 +166,6 @@
     text-decoration: underline;
 }
 
-/* ============================================================================
-   ПІДСВІЧУВАННЯ ЗАБОРОНЕНИХ СЛІВ
-   ============================================================================ */
-
-.rich-editor-content .highlight-banned-word,
-.rich-editor-content mark.highlight-banned-word {
-    background-color: rgba(239, 68, 68, 0.25);
-    border-bottom: 2px solid var(--color-error);
-    border-radius: 2px;
-    padding: 0 2px;
-    margin: 0 -2px;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-
-.rich-editor-content .highlight-banned-word:hover,
-.rich-editor-content mark.highlight-banned-word:hover {
-    background-color: rgba(239, 68, 68, 0.4);
-}
 
 /* Різні типи підсвічування (для майбутнього розширення) */
 .rich-editor-content .highlight-warning {

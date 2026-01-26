@@ -321,8 +321,15 @@
     padding: 2px 4px;
     border-radius: 4px;
     font-weight: 600;
-    white-space: nowrap; /* Заборонити розрив виділеного слова */
-    display: inline; /* Змінено на inline щоб слово було в потоці тексту */
+    white-space: nowrap;
+    display: inline;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.highlight-banned-word:hover {
+    background: var(--color-error);
+    color: var(--color-on-error);
 }
 
 /* Flash-ефект при навігації до слова */
