@@ -26,6 +26,8 @@ export function getHighlightDOM() {
         btnH3: document.getElementById('ghl-format-h3'),
         btnList: document.getElementById('ghl-format-list'),
         btnLowercase: document.getElementById('ghl-format-lowercase'),
+        btnUppercase: document.getElementById('ghl-format-uppercase'),
+        btnTitlecase: document.getElementById('ghl-format-titlecase'),
 
         // Перемикачі режимів
         btnModeText: document.getElementById('ghl-mode-text'),
