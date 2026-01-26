@@ -129,6 +129,28 @@ export function toggleHeading(tag) {
  * Конвертувати виділення в нижній регістр
  */
 export function convertToLowercase() {
+    convertCase('lowercase');
+}
+
+/**
+ * Конвертувати виділення у верхній регістр
+ */
+export function convertToUppercase() {
+    convertCase('uppercase');
+}
+
+/**
+ * Конвертувати виділення - кожне слово з великої
+ */
+export function convertToTitlecase() {
+    convertCase('titlecase');
+}
+
+/**
+ * Універсальна функція конвертації регістру
+ * @param {'lowercase'|'uppercase'|'titlecase'} caseType - тип конвертації
+ */
+function convertCase(caseType) {
     if (getCurrentMode() !== 'text') return;
     const dom = getHighlightDOM();
     dom.editor?.focus();
@@ -139,11 +161,27 @@ export function convertToLowercase() {
     saveUndoState();
 
     const selectedText = selection.toString();
-    const lowercaseText = selectedText.toLowerCase();
+    let convertedText;
+
+    switch (caseType) {
+        case 'lowercase':
+            convertedText = selectedText.toLowerCase();
+            break;
+        case 'uppercase':
+            convertedText = selectedText.toUpperCase();
+            break;
+        case 'titlecase':
+            convertedText = selectedText
+                .toLowerCase()
+                .replace(/(?:^|\s)\S/g, char => char.toUpperCase());
+            break;
+        default:
+            convertedText = selectedText;
+    }
 
     const range = selection.getRangeAt(0);
     range.deleteContents();
-    range.insertNode(document.createTextNode(lowercaseText));
+    range.insertNode(document.createTextNode(convertedText));
 
     selection.removeAllRanges();
 }
@@ -161,6 +199,8 @@ export function setupToolbar(clearHighlights, validateAndHighlight, validateOnly
     dom.btnH3?.addEventListener('click', () => toggleHeading('h3'));
     dom.btnList?.addEventListener('click', () => execFormat('insertUnorderedList'));
     dom.btnLowercase?.addEventListener('click', convertToLowercase);
+    dom.btnUppercase?.addEventListener('click', convertToUppercase);
+    dom.btnTitlecase?.addEventListener('click', convertToTitlecase);
 
     // Radio buttons для перемикання режимів
     dom.btnModeText?.addEventListener('change', () => {

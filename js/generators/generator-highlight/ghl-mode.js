@@ -66,10 +66,12 @@ export function formatHtmlCode(html) {
  */
 export function enableFormatButtons(enabled) {
     const dom = getHighlightDOM();
-    [dom.btnBold, dom.btnItalic, dom.btnH2, dom.btnH3, dom.btnList, dom.btnLowercase].forEach(btn => {
+    [dom.btnBold, dom.btnItalic, dom.btnH1, dom.btnH2, dom.btnH3, dom.btnList, dom.btnLowercase, dom.btnUppercase, dom.btnTitlecase].forEach(btn => {
         if (btn) {
             btn.disabled = !enabled;
             btn.classList.toggle('text-disabled', !enabled);
+            // Знімаємо активний стан при вимкненні
+            if (!enabled) btn.classList.remove('active');
         }
     });
 }
