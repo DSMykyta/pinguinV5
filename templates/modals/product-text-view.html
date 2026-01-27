@@ -5,16 +5,18 @@
     <div class="modal-container modal-large">
         <!-- Header -->
         <div class="modal-header">
-            <h2 class="modal-title">Перегляд тексту товару</h2>
+            <h2 class="modal-title">Перегляд <span id="product-modal-title">...</span></h2>
             <div class="modal-header-actions">
+                <span class="badge badge-neutral clickable" id="product-modal-status-badge" data-badge-id="" data-status="FALSE">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
+                    <span class="badge-label">Ні</span>
+                </span>
                 <div class="connected-button-group-square">
-                    <span class="badge badge-neutral clickable segment"
-                          id="product-modal-status-badge"
-                          data-badge-id=""
-                          data-status="FALSE">
-                        <span class="material-symbols-outlined">cancel</span>
-                        Ні
-                    </span>
+                    <button id="product-modal-copy-btn" class="segment" aria-label="Копіювати текст">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </div>
+                    </button>
                     <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
@@ -31,54 +33,39 @@
             <input type="hidden" id="product-modal-sheet-name">
             <input type="hidden" id="product-modal-row-index">
 
-            <!-- Заголовок товару з табами аркушів -->
-            <div class="product-modal-header-row">
-                <div class="product-modal-title-block">
-                    <h3 id="product-modal-title" class="product-modal-title">Завантаження...</h3>
-                    <!-- Таби аркушів (якщо > 1 аркуша) - компактні -->
-                    <div class="filter-pills-container u-hidden" id="product-sheet-pills">
-                        <!-- Піли аркушів будуть динамічно створені -->
-                    </div>
-                </div>
-                <p id="product-modal-id" class="product-modal-id">ID: ...</p>
-            </div>
-
-            <!-- Таби для вибору колонки та кнопка копіювання -->
-            <div class="product-modal-tabs-row">
+            <!-- Toolbar: Field tabs ←→ ID + Sheet pills -->
+            <div class="xr-toolbar" style="margin-bottom: 16px;">
                 <div class="filter-pills-container" id="product-text-field-pills">
-                    <!-- Піли колонок будуть динамічно створені на основі перевірених колонок -->
+                    <!-- Піли колонок будуть динамічно створені -->
                 </div>
-                <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
-                    <span class="material-symbols-outlined">content_copy</span>
-                </button>
+                <div class="toolbar" style="gap: 16px;">
+                    <!-- Таби аркушів (якщо > 1 аркуша) -->
+                    <div class="filter-pills-container u-hidden" id="product-sheet-pills"></div>
+                    <span id="product-modal-id" class="text-stats-container" style="pointer-events: auto;">ID: <strong>...</strong></span>
+                </div>
             </div>
 
-            <!-- Контент табів (динамічно створюється в JS) -->
+            <!-- Text viewer -->
             <div class="product-text-content">
-                <!-- Панелі будуть динамічно створені на основі перевірених колонок -->
-            </div>
-
-            <!-- Статистика знайдених слів -->
-            <div class="product-text-stats">
-                <div class="product-text-stats-row">
-                    <div class="stat-item">
-                        <span class="material-symbols-outlined">policy</span>
-                        <span id="product-modal-banned-count">0</span>
-                        <span class="stat-label">заборонених слів</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="material-symbols-outlined">match_word</span>
-                        <span id="product-modal-match-count">0</span>
-                        <span class="stat-label">входжень</span>
-                    </div>
-                </div>
-                <div id="product-modal-banned-chips" class="chip-list">
-                    <!-- Chip для кожного забороненого слова -->
-                </div>
+                <!-- Панелі будуть динамічно створені -->
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="modal-footer"></div>
+        <!-- Footer: Stats + Chips -->
+        <div class="modal-footer" style="flex-direction: column; align-items: stretch; gap: 12px;">
+            <div class="text-stats-container" style="pointer-events: auto; justify-content: center; width: 100%;">
+                <span class="stat-item">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">policy</span>
+                    Слів: <strong id="product-modal-banned-count">0</strong>
+                </span>
+                <span class="stat-item">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">match_word</span>
+                    Входжень: <strong id="product-modal-match-count">0</strong>
+                </span>
+            </div>
+            <div id="product-modal-banned-chips" class="chip-list" style="justify-content: center;">
+                <!-- Chip для кожного забороненого слова -->
+            </div>
+        </div>
     </div>
 </div>
