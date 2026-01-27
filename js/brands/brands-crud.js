@@ -5,42 +5,34 @@
  * ║                    BRANDS - CRUD OPERATIONS                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
+ * 🔌 ПЛАГІН — можна видалити, система працюватиме без модалів редагування.
+ *
  * Модальні вікна для додавання, редагування та видалення брендів.
+ * Використовує fullscreen modal з 4 секціями:
+ * - Інформація (назва, альт. назви, країна)
+ * - Посилання (динамічний список)
+ * - Текст (ui-editor)
+ * - Налаштування (статус, логотип, mapper)
  */
 
-import { addBrand, updateBrand, deleteBrand, getBrands } from './brands-data.js';
-import { renderBrandsTable } from './brands-table.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
+import { brandsState } from './brands-state.js';
+import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { highlightText, checkTextForBannedWords } from '../utils/text-utils.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { createEditor } from '../common/ui-editor.js';
 
-/**
- * Генерувати новий ID для бренду (для відображення в UI)
- * @returns {string} Новий ID у форматі bran-XXXXXX (6 цифр)
- */
-function generateBrandIdForUI() {
-    const brands = getBrands();
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
 
-    // Знайти максимальний номер
-    let maxNum = 0;
+let textEditor = null; // UI Editor instance
+let currentBrandId = null; // ID бренду, що редагується (null = новий)
 
-    brands.forEach(brand => {
-        if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
-            const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
-            if (!isNaN(num) && num > maxNum) {
-                maxNum = num;
-            }
-        }
-    });
-
-    // Новий номер
-    const newNum = maxNum + 1;
-
-    // Форматувати як bran-XXXXXX (6 цифр)
-    return `bran-${String(newNum).padStart(6, '0')}`;
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// SHOW MODALS
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Показати модальне вікно для додавання бренду
@@ -48,44 +40,30 @@ function generateBrandIdForUI() {
 export async function showAddBrandModal() {
     console.log('➕ Відкриття модального вікна для додавання бренду');
 
-    // Відкрити модал
+    currentBrandId = null;
+
     await showModal('brand-edit', null);
 
-    // Оновити заголовок
-    const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Додати бренд';
+    // Заголовок
+    const title = document.getElementById('brand-modal-title');
+    if (title) title.textContent = 'Новий бренд';
 
-    // Приховати кнопку видалення (тільки для нових брендів)
-    const deleteBtn = document.getElementById('delete-brand');
+    // Приховати кнопку видалення
+    const deleteBtn = document.getElementById('btn-delete-brand');
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     // Очистити форму
     clearBrandForm();
 
-    // Генерувати і показати новий ID
+    // Ініціалізувати компоненти
+    initModalComponents();
+
+    // Згенерувати ID (для відображення)
     const newId = generateBrandIdForUI();
     const idField = document.getElementById('brand-id');
     if (idField) idField.value = newId;
 
-    // Обробник кнопки відкриття сайту
-    const openSiteBtn = document.getElementById('open-brand-site');
-    const siteInput = document.getElementById('brand-site-link');
-    if (openSiteBtn && siteInput) {
-        openSiteBtn.onclick = () => {
-            const url = siteInput.value.trim();
-            if (url) {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            } else {
-                showToast('Введіть URL сайту', 'error');
-            }
-        };
-    }
-
-    // Обробник збереження
-    const saveBtn = document.getElementById('save-brand');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveNewBrand;
-    }
+    runHook('onModalOpen', null);
 }
 
 /**
@@ -95,24 +73,22 @@ export async function showAddBrandModal() {
 export async function showEditBrandModal(brandId) {
     console.log(`✏️ Відкриття модального вікна для редагування бренду ${brandId}`);
 
-    const { getBrands } = await import('./brands-data.js');
-    const brands = getBrands();
-    const brand = brands.find(b => b.brand_id === brandId);
-
+    const brand = getBrandById(brandId);
     if (!brand) {
         showToast('Бренд не знайдено', 'error');
         return;
     }
 
-    // Відкрити модал
+    currentBrandId = brandId;
+
     await showModal('brand-edit', null);
 
-    // Оновити заголовок
-    const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати бренд';
+    // Заголовок з назвою бренду
+    const title = document.getElementById('brand-modal-title');
+    if (title) title.textContent = `Редагувати ${brand.name_uk}`;
 
     // Показати кнопку видалення
-    const deleteBtn = document.getElementById('delete-brand');
+    const deleteBtn = document.getElementById('btn-delete-brand');
     if (deleteBtn) {
         deleteBtn.classList.remove('u-hidden');
         deleteBtn.onclick = () => {
@@ -121,65 +97,13 @@ export async function showEditBrandModal(brandId) {
         };
     }
 
+    // Ініціалізувати компоненти
+    initModalComponents();
+
     // Заповнити форму даними
     fillBrandForm(brand);
 
-    // Обробник кнопки відкриття сайту
-    const openSiteBtn = document.getElementById('open-brand-site');
-    const siteInput = document.getElementById('brand-site-link');
-    if (openSiteBtn && siteInput) {
-        openSiteBtn.onclick = () => {
-            const url = siteInput.value.trim();
-            if (url) {
-                window.open(url, '_blank', 'noopener,noreferrer');
-            } else {
-                showToast('Введіть URL сайту', 'error');
-            }
-        };
-    }
-
-    // Обробник збереження
-    const saveBtn = document.getElementById('save-brand');
-    if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateBrand(brandId);
-    }
-}
-
-/**
- * Показати модальне вікно глосарію для бренду
- * @param {string} brandId - ID бренду
- */
-export async function showGlossaryModal(brandId) {
-    console.log(`👁️ Відкриття модального вікна глосарію для ${brandId}`);
-
-    const brands = getBrands();
-    const brand = brands.find(b => b.brand_id === brandId);
-
-    if (!brand) {
-        showToast('Бренд не знайдено', 'error');
-        return;
-    }
-
-    await showModal('glossary-view', null);
-
-    const title = document.getElementById('modal-title');
-    if (title) title.textContent = `Глосарій: ${brand.name_uk}`;
-
-    const contentEl = document.getElementById('glossary-content');
-    if (contentEl) {
-        if (brand.glossary_text && brand.glossary_text.trim()) {
-            contentEl.innerHTML = brand.glossary_text;
-        } else {
-            contentEl.innerHTML = renderAvatarState('empty', {
-                message: 'Текст глосарію відсутній',
-                size: 'medium',
-                containerClass: 'empty-state-container',
-                avatarClass: 'empty-state-avatar',
-                messageClass: 'avatar-state-message',
-                showMessage: true
-            });
-        }
-    }
+    runHook('onModalOpen', brand);
 }
 
 /**
@@ -189,10 +113,7 @@ export async function showGlossaryModal(brandId) {
 export async function showDeleteBrandConfirm(brandId) {
     console.log(`🗑️ Підтвердження видалення бренду ${brandId}`);
 
-    const { getBrands } = await import('./brands-data.js');
-    const brands = getBrands();
-    const brand = brands.find(b => b.brand_id === brandId);
-
+    const brand = getBrandById(brandId);
     if (!brand) {
         showToast('Бренд не знайдено', 'error');
         return;
@@ -211,37 +132,380 @@ export async function showDeleteBrandConfirm(brandId) {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL COMPONENTS INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+
 /**
- * Обробник збереження нового бренду
+ * Ініціалізувати компоненти модалу
  */
-async function handleSaveNewBrand() {
-    console.log('💾 Збереження нового бренду...');
+function initModalComponents() {
+    initTextEditor();
+    initAltNamesHandlers();
+    initLinksHandlers();
+    initSaveHandler();
+    initSectionNavigation();
+}
 
-    const brandData = getBrandFormData();
+/**
+ * Ініціалізувати текстовий редактор
+ */
+function initTextEditor() {
+    const container = document.getElementById('brand-text-editor-container');
+    if (!container) return;
 
-    // Валідація
-    if (!brandData.name_uk) {
-        showToast('Введіть назву бренду', 'error');
-        return;
+    // Очистити попередній редактор
+    container.innerHTML = '';
+
+    if (textEditor) {
+        textEditor.destroy();
+        textEditor = null;
     }
 
-    try {
-        await addBrand(brandData);
-        showToast('Бренд успішно додано', 'success');
-        closeModal();
-        renderBrandsTable();
-    } catch (error) {
-        console.error('❌ Помилка додавання бренду:', error);
-        showToast('Помилка додавання бренду', 'error');
+    textEditor = createEditor(container, {
+        initialValue: '',
+        mode: 'text',
+        placeholder: 'Введіть опис бренду...',
+        minHeight: 300
+    });
+}
+
+/**
+ * Ініціалізувати обробники альтернативних назв
+ */
+function initAltNamesHandlers() {
+    const addBtn = document.getElementById('btn-add-alt-name');
+    if (addBtn) {
+        addBtn.onclick = () => addAltNameInput('');
     }
 }
 
 /**
- * Обробник оновлення бренду
- * @param {string} brandId - ID бренду
+ * Ініціалізувати обробники посилань
  */
-async function handleUpdateBrand(brandId) {
-    console.log(`💾 Оновлення бренду ${brandId}...`);
+function initLinksHandlers() {
+    const addBtn = document.getElementById('btn-add-link');
+    if (addBtn) {
+        addBtn.onclick = () => addLinkRow({ name: '', url: '' });
+    }
+}
+
+/**
+ * Ініціалізувати обробник збереження
+ */
+function initSaveHandler() {
+    const saveBtn = document.getElementById('btn-save-brand');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveBrand;
+    }
+}
+
+/**
+ * Ініціалізувати навігацію по секціях
+ */
+function initSectionNavigation() {
+    const nav = document.getElementById('brand-section-navigator');
+    if (!nav) return;
+
+    nav.querySelectorAll('.sidebar-nav-item').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Оновити активний пункт
+            nav.querySelectorAll('.sidebar-nav-item').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // Скролити до секції
+            const targetId = link.getAttribute('href').substring(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// АЛЬТЕРНАТИВНІ НАЗВИ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Додати інпут для альтернативної назви
+ * @param {string} value - Значення
+ */
+function addAltNameInput(value = '') {
+    const container = document.getElementById('brand-names-alt-container');
+    if (!container) return;
+
+    const row = document.createElement('div');
+    row.className = 'dynamic-input-row';
+    row.innerHTML = `
+        <input type="text" class="input-main alt-name-input" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
+        <button type="button" class="btn-icon btn-remove-alt-name" title="Видалити">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    `;
+
+    // Обробник видалення
+    row.querySelector('.btn-remove-alt-name').onclick = () => row.remove();
+
+    container.appendChild(row);
+}
+
+/**
+ * Отримати всі альтернативні назви
+ * @returns {string[]} Масив назв
+ */
+function getAltNames() {
+    const container = document.getElementById('brand-names-alt-container');
+    if (!container) return [];
+
+    const inputs = container.querySelectorAll('.alt-name-input');
+    return Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(v => v);
+}
+
+/**
+ * Встановити альтернативні назви
+ * @param {string[]} names - Масив назв
+ */
+function setAltNames(names) {
+    const container = document.getElementById('brand-names-alt-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (Array.isArray(names)) {
+        names.forEach(name => addAltNameInput(name));
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ПОСИЛАННЯ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Додати рядок посилання
+ * @param {Object} link - { name, url }
+ */
+function addLinkRow(link = { name: '', url: '' }) {
+    const container = document.getElementById('brand-links-container');
+    const emptyState = document.getElementById('brand-links-empty');
+    if (!container) return;
+
+    // Сховати empty state
+    if (emptyState) emptyState.classList.add('u-hidden');
+
+    const row = document.createElement('div');
+    row.className = 'brand-link-row';
+    row.innerHTML = `
+        <div class="form-group form-group-name">
+            <input type="text" class="input-main link-name" value="${escapeHtml(link.name)}" placeholder="Назва (ua, de...)">
+        </div>
+        <div class="form-group form-group-url">
+            <input type="url" class="input-main link-url" value="${escapeHtml(link.url)}" placeholder="https://...">
+        </div>
+        <button type="button" class="btn-icon btn-open-link" title="Відкрити">
+            <span class="material-symbols-outlined">open_in_new</span>
+        </button>
+        <button type="button" class="btn-icon btn-remove-link" title="Видалити">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    `;
+
+    // Обробники
+    row.querySelector('.btn-open-link').onclick = () => {
+        const url = row.querySelector('.link-url').value.trim();
+        if (url) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } else {
+            showToast('Введіть URL', 'warning');
+        }
+    };
+
+    row.querySelector('.btn-remove-link').onclick = () => {
+        row.remove();
+        updateLinksEmptyState();
+    };
+
+    container.appendChild(row);
+}
+
+/**
+ * Отримати всі посилання
+ * @returns {Array<{name: string, url: string}>} Масив посилань
+ */
+function getLinks() {
+    const container = document.getElementById('brand-links-container');
+    if (!container) return [];
+
+    const rows = container.querySelectorAll('.brand-link-row');
+    return Array.from(rows)
+        .map(row => ({
+            name: row.querySelector('.link-name')?.value.trim() || '',
+            url: row.querySelector('.link-url')?.value.trim() || ''
+        }))
+        .filter(link => link.url); // Тільки з URL
+}
+
+/**
+ * Встановити посилання
+ * @param {Array<{name: string, url: string}>} links - Масив посилань
+ */
+function setLinks(links) {
+    const container = document.getElementById('brand-links-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (Array.isArray(links)) {
+        links.forEach(link => addLinkRow(link));
+    }
+
+    updateLinksEmptyState();
+}
+
+/**
+ * Оновити стан empty state для посилань
+ */
+function updateLinksEmptyState() {
+    const container = document.getElementById('brand-links-container');
+    const emptyState = document.getElementById('brand-links-empty');
+    if (!container || !emptyState) return;
+
+    const hasLinks = container.querySelectorAll('.brand-link-row').length > 0;
+    emptyState.classList.toggle('u-hidden', hasLinks);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FORM DATA
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Отримати дані з форми
+ * @returns {Object} Дані бренду
+ */
+function getBrandFormData() {
+    return {
+        name_uk: document.getElementById('brand-name-uk')?.value.trim() || '',
+        names_alt: getAltNames(),
+        country_option_id: document.getElementById('brand-country')?.value.trim() || '',
+        brand_status: document.querySelector('input[name="brand-status"]:checked')?.value || 'active',
+        brand_logo_url: document.getElementById('brand-logo-url')?.value || '',
+        brand_links: getLinks(),
+        brand_text: textEditor ? textEditor.getValue() : '',
+        mapper_option_id: document.getElementById('brand-mapper-option-id')?.value || ''
+    };
+}
+
+/**
+ * Заповнити форму даними бренду
+ * @param {Object} brand - Бренд
+ */
+function fillBrandForm(brand) {
+    // ID
+    const idField = document.getElementById('brand-id');
+    if (idField) idField.value = brand.brand_id || '';
+
+    // Назва
+    const nameField = document.getElementById('brand-name-uk');
+    if (nameField) nameField.value = brand.name_uk || '';
+
+    // Альтернативні назви
+    setAltNames(brand.names_alt);
+
+    // Країна
+    const countryField = document.getElementById('brand-country');
+    if (countryField) countryField.value = brand.country_option_id || '';
+
+    // Статус
+    const statusRadio = document.querySelector(`input[name="brand-status"][value="${brand.brand_status || 'active'}"]`);
+    if (statusRadio) statusRadio.checked = true;
+
+    // Статус badge
+    const statusBadge = document.getElementById('brand-status-badge');
+    if (statusBadge) {
+        statusBadge.textContent = brand.brand_status === 'inactive' ? 'Неактивний' : 'Активний';
+        statusBadge.className = `badge ${brand.brand_status === 'inactive' ? 'badge-warning' : 'badge-success'}`;
+    }
+
+    // Посилання
+    setLinks(brand.brand_links);
+
+    // Текст
+    if (textEditor) {
+        textEditor.setValue(brand.brand_text || '');
+    }
+
+    // Логотип
+    const logoField = document.getElementById('brand-logo-url');
+    if (logoField) logoField.value = brand.brand_logo_url || '';
+
+    // Mapper
+    const mapperField = document.getElementById('brand-mapper-option-id');
+    if (mapperField) mapperField.value = brand.mapper_option_id || '';
+
+    const mapperDisplay = document.getElementById('brand-mapper-id-display');
+    if (mapperDisplay) mapperDisplay.textContent = brand.mapper_option_id || '—';
+}
+
+/**
+ * Очистити форму
+ */
+function clearBrandForm() {
+    // ID
+    const idField = document.getElementById('brand-id');
+    if (idField) idField.value = '';
+
+    // Назва
+    const nameField = document.getElementById('brand-name-uk');
+    if (nameField) nameField.value = '';
+
+    // Альтернативні назви
+    setAltNames([]);
+
+    // Країна
+    const countryField = document.getElementById('brand-country');
+    if (countryField) countryField.value = '';
+
+    // Статус
+    const statusRadio = document.querySelector('input[name="brand-status"][value="active"]');
+    if (statusRadio) statusRadio.checked = true;
+
+    // Статус badge
+    const statusBadge = document.getElementById('brand-status-badge');
+    if (statusBadge) {
+        statusBadge.textContent = 'Активний';
+        statusBadge.className = 'badge badge-success';
+    }
+
+    // Посилання
+    setLinks([]);
+
+    // Текст - буде очищено при ініціалізації редактора
+
+    // Логотип
+    const logoField = document.getElementById('brand-logo-url');
+    if (logoField) logoField.value = '';
+
+    // Mapper
+    const mapperField = document.getElementById('brand-mapper-option-id');
+    if (mapperField) mapperField.value = '';
+
+    const mapperDisplay = document.getElementById('brand-mapper-id-display');
+    if (mapperDisplay) mapperDisplay.textContent = '—';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Обробник збереження бренду
+ */
+async function handleSaveBrand() {
+    console.log('💾 Збереження бренду...');
 
     const brandData = getBrandFormData();
 
@@ -252,13 +516,24 @@ async function handleUpdateBrand(brandId) {
     }
 
     try {
-        await updateBrand(brandId, brandData);
-        showToast('Бренд успішно оновлено', 'success');
+        if (currentBrandId) {
+            // Оновлення
+            await updateBrand(currentBrandId, brandData);
+            showToast('Бренд успішно оновлено', 'success');
+            runHook('onBrandUpdate', currentBrandId, brandData);
+        } else {
+            // Створення
+            const newBrand = await addBrand(brandData);
+            showToast('Бренд успішно додано', 'success');
+            runHook('onBrandAdd', newBrand);
+        }
+
         closeModal();
-        renderBrandsTable();
+        runHook('onModalClose');
+        runHook('onRender');
     } catch (error) {
-        console.error('❌ Помилка оновлення бренду:', error);
-        showToast('Помилка оновлення бренду', 'error');
+        console.error('❌ Помилка збереження бренду:', error);
+        showToast('Помилка збереження бренду', 'error');
     }
 }
 
@@ -272,103 +547,59 @@ async function handleDeleteBrand(brandId) {
     try {
         await deleteBrand(brandId);
         showToast('Бренд успішно видалено', 'success');
-        renderBrandsTable();
+        runHook('onBrandDelete', brandId);
+        runHook('onRender');
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);
         showToast('Помилка видалення бренду', 'error');
     }
 }
 
-/**
- * Отримати дані з форми
- * @returns {Object} Дані бренду
- */
-function getBrandFormData() {
-    return {
-        name_uk: document.getElementById('brand-name-uk')?.value.trim() || '',
-        names_alt: document.getElementById('brand-names-alt')?.value.trim() || '',
-        country_option_id: document.getElementById('brand-country')?.value || '',
-        brand_text: document.getElementById('brand-text')?.textContent.trim() || '',
-        brand_site_link: document.getElementById('brand-site-link')?.value.trim() || ''
-    };
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Заповнити форму даними бренду
- * @param {Object} brand - Бренд
+ * Генерувати новий ID для бренду (для відображення в UI)
+ * @returns {string} Новий ID у форматі bran-XXXXXX
  */
-async function fillBrandForm(brand) {
-    const idField = document.getElementById('brand-id');
-    const nameField = document.getElementById('brand-name-uk');
-    const namesAltField = document.getElementById('brand-names-alt');
-    const countryField = document.getElementById('brand-country');
-    const textViewer = document.getElementById('brand-text');
-    const siteField = document.getElementById('brand-site-link');
+function generateBrandIdForUI() {
+    const brands = getBrands();
+    let maxNum = 0;
 
-    if (idField) idField.value = brand.brand_id || '';
-    if (nameField) nameField.value = brand.name_uk || '';
-    if (namesAltField) namesAltField.value = brand.names_alt || '';
-    if (countryField) countryField.value = brand.country_option_id || '';
-
-    // Виділити заборонені слова в описі
-    if (textViewer && brand.brand_text) {
-        await highlightBrandText(textViewer, brand.brand_text);
-    } else if (textViewer) {
-        textViewer.textContent = '';
-    }
-
-    if (siteField) siteField.value = brand.brand_site_link || '';
-}
-
-/**
- * Виділити заборонені слова в тексті бренду
- * @param {HTMLElement} viewer - Елемент для відображення
- * @param {string} text - Текст для перевірки
- */
-async function highlightBrandText(viewer, text) {
-    try {
-        // Завантажити всі заборонені слова
-        const { loadAllBannedWords } = await import('../banned-words/banned-words-data.js');
-        const allBannedWords = await loadAllBannedWords();
-
-        if (!allBannedWords || allBannedWords.length === 0) {
-            viewer.textContent = text;
-            return;
+    brands.forEach(brand => {
+        if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
+            const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
+            if (!isNaN(num) && num > maxNum) {
+                maxNum = num;
+            }
         }
+    });
 
-        // Перевірити текст на заборонені слова
-        const foundWords = checkTextForBannedWords(text, allBannedWords);
-
-        if (foundWords.length > 0) {
-            // Виділити знайдені слова
-            const wordsToHighlight = foundWords.map(f => f.word);
-            const highlightedText = highlightText(text, wordsToHighlight, 'highlight-banned-word');
-            viewer.innerHTML = highlightedText;
-        } else {
-            viewer.textContent = text;
-        }
-    } catch (error) {
-        console.error('❌ Помилка виділення заборонених слів:', error);
-        viewer.textContent = text;
-    }
+    const newNum = maxNum + 1;
+    return `bran-${String(newNum).padStart(6, '0')}`;
 }
 
 /**
- * Очистити форму
+ * Екранувати HTML
+ * @param {string} str - Рядок
+ * @returns {string} Екранований рядок
  */
-function clearBrandForm() {
-    const idField = document.getElementById('brand-id');
-    const nameField = document.getElementById('brand-name-uk');
-    const namesAltField = document.getElementById('brand-names-alt');
-    const countryField = document.getElementById('brand-country');
-    const textViewer = document.getElementById('brand-text');
-    const siteField = document.getElementById('brand-site-link');
-
-    if (idField) idField.value = '';
-    if (nameField) nameField.value = '';
-    if (namesAltField) namesAltField.value = '';
-    if (countryField) countryField.value = '';
-    if (textViewer) textViewer.textContent = '';
-    if (siteField) siteField.value = '';
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Цей файл — плагін, тому не потрібно реєструвати хуки
+// Експортуємо функції для виклику з інших модулів
+
+console.log('[Brands CRUD] Плагін завантажено');
