@@ -5,17 +5,25 @@
  * ║                    BRANDS - TABLE RENDERING                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
+ * 🔌 ПЛАГІН — можна видалити, система працюватиме без таблиці брендів.
+ *
  * Рендеринг таблиці брендів з підтримкою пагінації, сортування та фільтрації.
  */
 
+import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
-import { brandsState } from './brands-init.js';
+import { brandsState } from './brands-state.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// COLUMNS CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════
+
 /**
  * Отримати конфігурацію колонок для таблиці брендів
+ * ПРИМІТКА: Колонка 'brand_text' (Опис) видалена за запитом
  */
 export function getColumns() {
     return [
@@ -40,7 +48,13 @@ export function getColumns() {
             label: 'Альтернативні назви',
             sortable: true,
             searchable: true,
-            render: (value) => escapeHtml(value || '-')
+            render: (value) => {
+                // value тепер масив
+                if (Array.isArray(value) && value.length > 0) {
+                    return value.map(n => `<span class="word-chip">${escapeHtml(n)}</span>`).join(' ');
+                }
+                return '-';
+            }
         },
         {
             id: 'country_option_id',
@@ -50,30 +64,44 @@ export function getColumns() {
             render: (value) => escapeHtml(value || '-')
         },
         {
-            id: 'brand_text',
-            label: 'Опис',
+            id: 'brand_status',
+            label: 'Статус',
             sortable: true,
-            searchable: true,
-            render: (value) => value ? escapeHtml(value) : '-'
+            className: 'cell-status',
+            render: (value) => {
+                const isActive = value !== 'inactive';
+                const badgeClass = isActive ? 'badge-success' : 'badge-warning';
+                const text = isActive ? 'Активний' : 'Неактивний';
+                return `<span class="badge ${badgeClass}">${text}</span>`;
+            }
         },
         {
-            id: 'brand_site_link',
-            label: ' ',
+            id: 'brand_links',
+            label: 'Посилання',
             sortable: false,
-            className: 'cell-bool',
-            render: (value, row) => {
-                if (!value) {
-                    return `<span class="material-symbols-outlined" title="Немає посилання">block</span>`;
+            className: 'cell-links',
+            render: (value) => {
+                // value тепер масив [{name, url}, ...]
+                if (!Array.isArray(value) || value.length === 0) {
+                    return `<span class="material-symbols-outlined text-muted" title="Немає посилань">link_off</span>`;
                 }
+
+                // Показати кількість посилань
+                const count = value.length;
                 return `
-                    <button class="severity-badge severity-low btn-link" data-link="${escapeHtml(value)}" title="Відкрити сайт">
-                        <span class="material-symbols-outlined">open_in_new</span>
-                    </button>
+                    <span class="badge badge-outline" title="${count} посилань">
+                        <span class="material-symbols-outlined">link</span>
+                        ${count}
+                    </span>
                 `;
             }
         }
     ];
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Рендерити таблицю брендів
@@ -111,7 +139,7 @@ export function renderBrandsTable() {
     // Визначити які колонки показувати
     const visibleCols = brandsState.visibleColumns.length > 0
         ? brandsState.visibleColumns
-        : ['brand_id', 'name_uk', 'country_option_id'];
+        : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
     // Рендерити таблицю через універсальний компонент
     renderPseudoTable(container, {
@@ -120,13 +148,7 @@ export function renderBrandsTable() {
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
-            const hasGlossary = row.glossary_text && row.glossary_text.trim();
-            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
-
             return `
-                <button class="btn-icon btn-view-glossary ${eyeClass}" data-brand-id="${escapeHtml(row.brand_id)}" title="Переглянути глосарій">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
                 <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
@@ -137,17 +159,6 @@ export function renderBrandsTable() {
             message: 'Бренди не знайдено'
         },
         withContainer: false
-    });
-
-    // Додати обробники для кнопок відкриття посилань
-    container.querySelectorAll('.btn-link').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const link = button.dataset.link;
-            if (link) {
-                window.open(link, '_blank', 'noopener,noreferrer');
-            }
-        });
     });
 
     // Додати обробники для кнопок редагування
@@ -162,24 +173,15 @@ export function renderBrandsTable() {
         });
     });
 
-    // Додати обробники для кнопок перегляду глосарію
-    container.querySelectorAll('.btn-view-glossary').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const brandId = button.dataset.brandId;
-            if (brandId) {
-                const { showGlossaryModal } = await import('./brands-crud.js');
-                await showGlossaryModal(brandId);
-            }
-        });
-    });
-
-
     // Оновити статистику
     updateStats(filteredBrands.length, brands.length);
 
     console.log(`✅ Відрендерено ${paginatedBrands.length} з ${filteredBrands.length} брендів`);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Застосувати фільтри
@@ -197,6 +199,13 @@ function applyFilters(brands) {
         filtered = filtered.filter(brand => {
             return columns.some(column => {
                 const value = brand[column];
+
+                // Масив (names_alt)
+                if (Array.isArray(value)) {
+                    return value.some(v => v.toLowerCase().includes(query));
+                }
+
+                // Рядок
                 return value?.toString().toLowerCase().includes(query);
             });
         });
@@ -205,6 +214,10 @@ function applyFilters(brands) {
     return filtered;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
 /**
  * Відрендерити порожній стан
  */
@@ -212,7 +225,6 @@ function renderEmptyState() {
     const container = document.getElementById('brands-table-container');
     if (!container) return;
 
-    // Використовуємо глобальну систему аватарів
     const avatarHtml = renderAvatarState('empty', {
         size: 'medium',
         containerClass: 'empty-state-container',
@@ -237,3 +249,18 @@ function updateStats(visible, total) {
     statsEl.textContent = `Показано ${visible} з ${total}`;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Реєструємо на хук onInit — рендеримо таблицю після завантаження даних
+registerBrandsPlugin('onInit', () => {
+    renderBrandsTable();
+});
+
+// Реєструємо на хук onRender — для оновлення таблиці
+registerBrandsPlugin('onRender', () => {
+    renderBrandsTable();
+});
+
+console.log('[Brands Table] Плагін завантажено');

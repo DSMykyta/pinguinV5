@@ -1,73 +1,221 @@
-<div class="modal-overlay">
-    <div class="modal-container modal-medium">
-        <!-- Header -->
-        <div class="modal-header">
-            <h2 class="modal-title"><span id="modal-title">Додати бренд</span></h2>
-            <div class="modal-header-actions">
-                <div class="connected-button-group-square">
-                    <button id="delete-brand" class="segment u-hidden" aria-label="Видалити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">delete</span>
-                        </div>
-                    </button>
-                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
+<div class="modal-overlay modal-fullscreen" data-modal-id="brand-edit-modal">
+    <div class="modal-fullscreen-container modal-with-sidebar">
+
+        <!-- HEADER -->
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <button class="btn-icon" data-modal-close title="Закрити">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="modal-fullscreen-title">
+                    <h1 id="brand-modal-title">Новий бренд</h1>
+                    <span class="badge badge-success" id="brand-status-badge">Активний</span>
                 </div>
             </div>
-        </div>
+            <div class="modal-fullscreen-header-right">
+                <button class="btn-icon u-hidden" id="btn-delete-brand" title="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <button class="btn btn-primary" id="btn-save-brand">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>Зберегти</span>
+                </button>
+            </div>
+        </header>
 
-        <!-- Body -->
-        <div class="modal-body">
-            <fieldset class="form-fieldset">
-                <input type="hidden" id="brand-id">
+        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <div class="modal-body-with-sidebar">
 
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="brand-name-uk">
-                            Назва бренду (UA)
-                            <span class="required">*</span>
-                        </label>
-                        <input type="text" id="brand-name-uk" class="input-main" placeholder="Наприклад: Optimum Nutrition" required>
+            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
+            <nav class="sidebar-navigator" id="brand-section-navigator">
+                <a href="#section-brand-info" class="sidebar-nav-item active" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="sidebar-nav-label">Інформація</span>
+                </a>
+                <a href="#section-brand-links" class="sidebar-nav-item" aria-label="Посилання">
+                    <span class="material-symbols-outlined">link</span>
+                    <span class="sidebar-nav-label">Посилання</span>
+                </a>
+                <a href="#section-brand-text" class="sidebar-nav-item" aria-label="Текст">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="sidebar-nav-label">Текст</span>
+                </a>
+                <a href="#section-brand-settings" class="sidebar-nav-item" aria-label="Налаштування">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="sidebar-nav-label">Налаштування</span>
+                </a>
+            </nav>
+
+            <!-- КОНТЕНТ - секції -->
+            <main class="modal-fullscreen-content">
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 1: ІНФОРМАЦІЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-info" class="product-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Інформація</h2>
+                            </div>
+                            <h3>Основні дані про бренд</h3>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="brand-country">Країна</label>
-                        <input type="text" id="brand-country" class="input-main" placeholder="Наприклад: Польща, США">
+                    <div class="section-content">
+                        <!-- ID (прихований) -->
+                        <input type="hidden" id="brand-id">
+
+                        <!-- Назва -->
+                        <div class="form-group">
+                            <label for="brand-name-uk">
+                                Назва бренду
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="brand-name-uk" class="input-main"
+                                placeholder="Наприклад: Optimum Nutrition" required>
+                        </div>
+
+                        <!-- Альтернативні назви -->
+                        <div class="form-group">
+                            <label>
+                                Альтернативні назви
+                                <button type="button" class="btn-icon btn-icon-small" id="btn-add-alt-name" title="Додати назву">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                            </label>
+                            <div id="brand-names-alt-container" class="dynamic-inputs-container">
+                                <!-- Динамічні інпути додаються через JS -->
+                            </div>
+                            <small class="form-hint">Використовується для пошуку та розпізнавання бренду</small>
+                        </div>
+
+                        <!-- Країна -->
+                        <div class="form-group">
+                            <label for="brand-country">Країна</label>
+                            <input type="text" id="brand-country" class="input-main"
+                                placeholder="Наприклад: Польща, США">
+                            <small class="form-hint">Пізніше буде вибір з опцій Mapper</small>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="form-group">
-                    <label for="brand-names-alt">Альтернативні назви</label>
-                    <input type="text" id="brand-names-alt" class="input-main"
-                        placeholder="Введіть альтернативні назви через кому (наприклад: ON, Оптимум, Оптімум)">
-                    <small class="form-hint">Використовується для пошуку та розпізнавання бренду</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="brand-site-link">Сайт бренду</label>
-                    <div class="panel-box">
-                        <span class="material-symbols-outlined panel-box-icon">link</span>
-                        <input type="url" id="brand-site-link" class="input-main" placeholder="https://example.com">
-                        <button id="open-brand-site" class="btn-icon" aria-label="Відкрити сайт" title="Відкрити в новій вкладці">
-                            <span class="material-symbols-outlined">open_in_new</span>
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 2: ПОСИЛАННЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-links" class="product-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Посилання</h2>
+                            </div>
+                            <h3>Посилання на сайти бренду</h3>
+                        </div>
+                        <button class="btn btn-outline" id="btn-add-link">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати посилання</span>
                         </button>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="brand-text">Опис бренду</label>
-                    <textarea id="brand-text" class="input-main" rows="12"
-                        placeholder="Опишіть бренд, його історію, особливості продукції..."></textarea>
-                </div>
-            </fieldset>
+                    <div class="section-content">
+                        <div id="brand-links-container" class="brand-links-list">
+                            <!-- Динамічні рядки посилань додаються через JS -->
+                        </div>
+
+                        <div id="brand-links-empty" class="empty-state-inline">
+                            <span class="material-symbols-outlined">link_off</span>
+                            <span>Посилання відсутні</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 3: ТЕКСТ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-text" class="product-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Текст бренду</h2>
+                            </div>
+                            <h3>Опис бренду для сайту</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div id="brand-text-editor-container">
+                            <!-- UI Editor буде вставлений через JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 4: НАЛАШТУВАННЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-settings" class="product-section">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Налаштування</h2>
+                            </div>
+                            <h3>Статус та інтеграції</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <!-- Статус -->
+                        <div class="form-group">
+                            <label>Статус бренду</label>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="brand-status" value="active" checked>
+                                    <span class="radio-label">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                        Активний
+                                    </span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="brand-status" value="inactive">
+                                    <span class="radio-label">
+                                        <span class="material-symbols-outlined">cancel</span>
+                                        Неактивний
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Логотип (зарезервовано) -->
+                        <div class="form-group u-mt-24">
+                            <label>Логотип</label>
+                            <div class="preview-box">
+                                <div class="preview-item">
+                                    <span class="material-symbols-outlined text-muted">image</span>
+                                    <span class="text-muted">Завантаження логотипу буде доступне пізніше</span>
+                                </div>
+                                <input type="hidden" id="brand-logo-url">
+                            </div>
+                        </div>
+
+                        <!-- Mapper інтеграція (зарезервовано) -->
+                        <div class="form-group u-mt-24">
+                            <label>Зв'язок з Mapper</label>
+                            <div class="preview-box">
+                                <div class="preview-item">
+                                    <span class="preview-label">mapper_option_id:</span>
+                                    <span class="preview-value text-muted" id="brand-mapper-id-display">—</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="text-muted">Синхронізація з Mapper буде доступна пізніше</span>
+                                </div>
+                                <input type="hidden" id="brand-mapper-option-id">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
         </div>
 
-        <!-- Footer -->
-        <div class="modal-footer">
-            <button id="save-brand" class="btn btn-primary">Зберегти</button>
-        </div>
     </div>
 </div>
