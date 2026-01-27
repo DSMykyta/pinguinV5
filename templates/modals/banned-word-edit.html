@@ -4,6 +4,10 @@
         <div class="modal-header">
             <h2 class="modal-title"><span id="modal-title">Редагування слова</span></h2>
             <div class="modal-header-actions">
+                <span class="badge badge-neutral clickable" id="banned-word-checked-badge" data-status="FALSE">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
+                    <span class="badge-label">Ні</span>
+                </span>
                 <div class="connected-button-group-square">
                     <div class="dropdown-wrapper">
                         <button type="button" class="segment" id="severity-dropdown-trigger" data-dropdown-trigger aria-label="Змінити рівень небезпеки">
@@ -12,28 +16,26 @@
                             </div>
                         </button>
                         <div class="dropdown-menu dropdown-menu-severity">
-                            <button class="dropdown-item" data-severity-value="high" title="Критично">
+                            <button class="dropdown-item" data-severity-value="high">
                                 <span class="severity-badge severity-high">
                                     <span class="material-symbols-outlined">brightness_alert</span>
                                 </span>
+                                <span class="dropdown-item-label">Критично</span>
                             </button>
-                            <button class="dropdown-item" data-severity-value="medium" title="Несуттєво">
+                            <button class="dropdown-item" data-severity-value="medium">
                                 <span class="severity-badge severity-medium">
                                     <span class="material-symbols-outlined">error</span>
                                 </span>
+                                <span class="dropdown-item-label">Несуттєво</span>
                             </button>
-                            <button class="dropdown-item" data-severity-value="low" title="Перевірити">
+                            <button class="dropdown-item" data-severity-value="low">
                                 <span class="severity-badge severity-low">
                                     <span class="material-symbols-outlined">exclamation</span>
                                 </span>
+                                <span class="dropdown-item-label">Перевірити</span>
                             </button>
                         </div>
                     </div>
-                    <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">check_circle</span>
-                        </div>
-                    </button>
                     <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
