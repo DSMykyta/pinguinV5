@@ -23,7 +23,6 @@ import { validateAndHighlight, validateOnly, updateValidationScrollFade } from '
 import { findAndReplaceAll } from './ghl-find-replace.js';
 import { resetEditor } from './ghl-reset.js';
 import { setupCopyHandler, setupPasteHandler } from './ghl-copy.js';
-import { updateSeoFromEditor } from './ghl-seo.js';
 import { setupChipNavigation } from './ghl-chip-navigation.js';
 
 // ============================================================================
@@ -179,14 +178,13 @@ async function initHighlightGenerator() {
     const debouncedValidateAndHighlight = debounce(validateAndHighlight, 500);
     const debouncedSaveUndo = debounce(saveUndoState, 300);
     const debouncedSanitize = debounce(sanitizeEditor, 100);
-    const debouncedSeoUpdate = debounce(updateSeoFromEditor, 300);
 
     // Обробник введення
     dom.editor.addEventListener('input', () => {
         debouncedSanitize();
         debouncedSaveUndo();
         debouncedValidateAndHighlight();
-        debouncedSeoUpdate();
+        // SEO слухає цей редактор напряму через свій власний listener
     });
 
     // Reset кнопка

@@ -6,6 +6,8 @@ import { syncTulipsFromProductName, addTulip } from './gse-triggers.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
 import { initSearchClear } from '../../utils/search-clear.js';
+import { updateBrandAndProductFromText } from './gse-parser.js';
+import { debounce } from '../../utils/common-utils.js';
 
 /**
  * Головна функція, яка робить ТІЛЬКИ перерахунок SEO-полів.
@@ -30,12 +32,33 @@ export function runCalculations() {
 }
 
 /**
+ * Оновити SEO поля з тексту редактора Highlight
+ */
+function updateSeoFromEditor() {
+    const dom = getSeoDOM();
+    if (!dom.ghlEditor || !dom.brandNameInput) return;
+
+    const text = dom.ghlEditor.textContent || '';
+    const { brand, product } = updateBrandAndProductFromText(text);
+
+    dom.brandNameInput.value = brand;
+    if (dom.productNameInput) dom.productNameInput.value = product;
+
+    syncTulipsFromProductName();
+    runCalculations();
+}
+
+/**
  * Налаштовує всі слухачі подій.
  */
 export function initEventListeners() {
     const dom = getSeoDOM();
 
-    // Текст редактора обробляється в ghl-seo.js -> updateSeoFromEditor()
+    // SEO слухає зміни в редакторі Highlight (якщо він є на сторінці)
+    if (dom.ghlEditor) {
+        const debouncedSeoUpdate = debounce(updateSeoFromEditor, 300);
+        dom.ghlEditor.addEventListener('input', debouncedSeoUpdate);
+    }
 
     dom.productNameInput.addEventListener('input', () => {
         syncTulipsFromProductName();
