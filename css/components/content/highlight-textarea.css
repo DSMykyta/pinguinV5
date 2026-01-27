@@ -1,73 +1,14 @@
 /**
- * COMPONENT: Highlight Editor
+ * COMPONENT: Highlight Editor - Специфічні стилі
  *
  * ПРИЗНАЧЕННЯ:
- * Стилі для WYSIWYG редактора з підсвічуванням заборонених слів.
+ * Стилі специфічні для generator-highlight (validation chips).
+ * Базові стилі редактора — в rich-editor.css
  *
  * ЗАЛЕЖНОСТІ:
- * - input.css (.input-main)
- * - tooltip.css (.banned-word-tooltip)
+ * - rich-editor.css (базові стилі редактора)
  * - chip.css (.chip-error)
- * - rich-editor.css (.toolbar-separator)
- * - button-icon.css (.btn-icon.active)
  */
-
-/* ============================================================================
-   РЕДАКТОР
-   ============================================================================ */
-
-/* Базові стилі для contentEditable */
-#ghl-editor {
-    min-height: 200px;
-    overflow-y: auto;
-    word-wrap: break-word;
-    line-height: 1.6;
-}
-
-/* Нормалізація відступів для параграфів */
-#ghl-editor p {
-    margin: 0 0 0.5em 0;
-}
-
-#ghl-editor p:last-child {
-    margin-bottom: 0;
-}
-
-/* Стилі для списків - відступи для кращої читабельності */
-#ghl-editor ul,
-#ghl-editor ol {
-    margin: 0.5em 0;
-    padding-left: 1.5em;
-}
-
-#ghl-editor li {
-    margin: 0.25em 0;
-}
-
-/* Placeholder для порожнього редактора */
-#ghl-editor:empty::before {
-    content: attr(data-placeholder);
-    color: var(--text-muted);
-    pointer-events: none;
-}
-
-/* Прибираємо placeholder при фокусі */
-#ghl-editor:focus:empty::before {
-    content: '';
-}
-
-/* ============================================================================
-   РЕЖИМ КОДУ - більше простору між рядками
-   ============================================================================ */
-
-.ghl-code-mode {
-    background-color: var(--color-surface-c-low) !important;
-    font-family: 'Roboto Mono', 'Consolas', monospace;
-    font-size: 13px;
-    line-height: 1.8;
-    white-space: pre-wrap;
-    resize: vertical;
-}
 
 /* ============================================================================
    ТУЛБАР - chips навпроти кнопок
