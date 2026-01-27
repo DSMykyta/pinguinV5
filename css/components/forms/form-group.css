@@ -261,10 +261,20 @@
 
 /* ============================================ */
 /* DYNAMIC INPUT ROW                           */
-/* [name input] — [url input] [btn] [btn]      */
 /* ============================================ */
 
-.dynamic-input-row,
+.dynamic-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+/* ============================================ */
+/* BRAND LINK ROW                              */
+/* Об'єднаний інпут: [name | url] [btn] [btn]  */
+/* ============================================ */
+
 .brand-link-row {
     display: flex;
     align-items: center;
@@ -272,35 +282,55 @@
     margin-bottom: 8px;
 }
 
-.brand-link-row .form-group {
-    margin-bottom: 0;
-}
-
-.brand-link-row .form-group-name {
-    flex: 0 0 120px;
-}
-
-.brand-link-row .form-group-url {
+/* Контейнер для об'єднаних інпутів */
+.brand-link-inputs {
+    display: flex;
     flex: 1;
-    position: relative;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-xs, 4px);
+    overflow: hidden;
+    transition: border-color 150ms ease-in-out;
 }
 
-/* Рисочка між name і url */
-.brand-link-row .form-group-url::before {
-    content: '—';
-    position: absolute;
-    left: -16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-on-surface-v);
-    font-size: 14px;
+.brand-link-inputs:focus-within {
+    border-color: var(--color-main);
+    border-width: 2px;
 }
 
-.brand-link-row .input-main {
-    width: 100%;
+/* Інпут назви (ліва частина) */
+.brand-link-inputs .link-name {
+    flex: 0 0 100px;
+    border: none;
+    border-right: 1px solid var(--color-outline);
+    border-radius: 0;
+    padding: 8px 12px;
+    background: var(--color-surface-c-low);
+    min-height: 40px;
 }
 
-/* Кнопки відкрити/видалити */
+.brand-link-inputs .link-name:focus {
+    outline: none;
+    border: none;
+    border-right: 1px solid var(--color-outline);
+    padding: 8px 12px;
+}
+
+/* Інпут URL (права частина) */
+.brand-link-inputs .link-url {
+    flex: 1;
+    border: none;
+    border-radius: 0;
+    padding: 8px 12px;
+    min-height: 40px;
+}
+
+.brand-link-inputs .link-url:focus {
+    outline: none;
+    border: none;
+    padding: 8px 12px;
+}
+
+/* Кнопки */
 .brand-link-row .btn-icon {
     flex-shrink: 0;
 }
