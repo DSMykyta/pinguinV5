@@ -46,7 +46,7 @@ export function initModals() {
 
         // Закриття модалу через [data-modal-close] або .modal-close-btn
         const closeTrigger = e.target.closest('[data-modal-close], .modal-close-btn');
-        if (closeTrigger && closeTrigger.closest('.modal-container')) {
+        if (closeTrigger && closeTrigger.closest('.modal-container, .modal-fullscreen-container')) {
              e.preventDefault();
              closeModal();
 

@@ -207,14 +207,19 @@ function initSaveHandler() {
  */
 function initSectionNavigation() {
     const nav = document.getElementById('brand-section-navigator');
-    if (!nav) return;
+    const contentArea = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !contentArea) return;
 
-    nav.querySelectorAll('.sidebar-nav-item').forEach(link => {
+    const navLinks = nav.querySelectorAll('.sidebar-nav-item');
+    const sections = contentArea.querySelectorAll('.product-section[id]');
+
+    // Клік по навігації
+    navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
 
             // Оновити активний пункт
-            nav.querySelectorAll('.sidebar-nav-item').forEach(l => l.classList.remove('active'));
+            navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
 
             // Скролити до секції
@@ -225,6 +230,26 @@ function initSectionNavigation() {
             }
         });
     });
+
+    // Scroll spy - оновлення активного пункту при прокрутці
+    const observerOptions = {
+        root: contentArea,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
