@@ -1,13 +1,22 @@
 // js/generators/generator-seo/gse-triggers.js
+
+/**
+ * ПЛАГІН: Тригери (тюльпани) для SEO
+ * Можна видалити — SEO працюватиме без тюльпанів.
+ */
+
+import { registerSeoPlugin, optionalFunctions } from './gse-plugins.js';
 import { getSeoDOM } from './gse-dom.js';
 import { getTriggersData } from './gse-data.js';
 
 /**
  * Створює список кнопок-тригерів в асайді.
  */
-export function renderTriggerButtons() {
+function renderTriggerButtons() {
     const dom = getSeoDOM();
     const triggersData = getTriggersData();
+
+    if (!dom.trigerButtonsContainer) return;
     dom.trigerButtonsContainer.innerHTML = '';
 
     triggersData.forEach(trigger => {
@@ -22,8 +31,9 @@ export function renderTriggerButtons() {
 /**
  * Створює HTML для одного "тюльпана" і додає його на сторінку.
  */
-export function addTulip(title, isActive = true) {
+function addTulip(title, isActive = true) {
     const dom = getSeoDOM();
+    if (!dom.triggerTitlesContainer) return;
     if (dom.triggerTitlesContainer.querySelector(`[data-title="${title}"]`)) return;
 
     const triggerData = getTriggersData().find(t => t.title === title);
@@ -47,9 +57,12 @@ export function addTulip(title, isActive = true) {
  * Автоматично додає "тюльпани" на основі назви продукту.
  * Спочатку очищає всі існуючі тюльпани, потім додає нові.
  */
-export function syncTulipsFromProductName() {
+function syncTulipsFromProductName() {
     const dom = getSeoDOM();
     const triggersData = getTriggersData();
+
+    if (!dom.triggerTitlesContainer || !dom.productNameInput) return;
+
     const productName = dom.productNameInput.value.toLowerCase();
 
     // Очищуємо всі існуючі тюльпани
@@ -68,3 +81,19 @@ export function syncTulipsFromProductName() {
         }
     });
 }
+
+/**
+ * Ініціалізація плагіна
+ */
+function initTriggers() {
+    // Реєструємо функції як опціональні
+    optionalFunctions.addTulip = addTulip;
+    optionalFunctions.syncTulipsFromProductName = syncTulipsFromProductName;
+
+    // Малюємо кнопки при старті
+    renderTriggerButtons();
+}
+
+// Самореєстрація плагіна
+registerSeoPlugin('onInit', initTriggers);
+registerSeoPlugin('onReset', renderTriggerButtons);
