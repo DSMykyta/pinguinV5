@@ -258,3 +258,65 @@
     display: flex;
     align-items: center;
 }
+
+/* ============================================ */
+/* DYNAMIC INPUT ROW (name — url з кнопками)   */
+/* ============================================ */
+
+.dynamic-input-row,
+.brand-link-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.brand-link-row .form-group {
+    margin-bottom: 0;
+}
+
+.brand-link-row .form-group-name {
+    flex: 0 0 120px;
+}
+
+.brand-link-row .form-group-url {
+    flex: 1;
+    position: relative;
+}
+
+/* Рисочка між name і url */
+.brand-link-row .form-group-url::before {
+    content: '—';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-on-surface-v);
+    font-size: 14px;
+}
+
+.brand-link-row .input-main {
+    width: 100%;
+}
+
+/* Кнопки відкрити/видалити */
+.brand-link-row .btn-icon {
+    flex-shrink: 0;
+}
+
+/* Контейнер для динамічних рядків */
+.dynamic-rows-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Empty state */
+.dynamic-rows-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--color-on-surface-v);
+    font-size: 13px;
+    background: var(--color-surface-c-low);
+    border-radius: var(--radius-xs);
+}
