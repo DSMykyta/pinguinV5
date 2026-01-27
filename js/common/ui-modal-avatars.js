@@ -29,16 +29,6 @@ const MODAL_AVATAR_MAPPING = {
         avatarContainerId: 'confirm-clear-avatar-container',
         messageContainerId: 'confirm-clear-avatar-message'
     },
-    'confirm-close-tab-modal': {
-        stateType: 'confirmClose',
-        avatarContainerId: 'confirm-close-tab-avatar-container',
-        messageContainerId: 'confirm-close-tab-avatar-message'
-    },
-    'confirm-refresh-modal': {
-        stateType: 'confirmReload',
-        avatarContainerId: 'confirm-refresh-avatar-container',
-        messageContainerId: 'confirm-refresh-avatar-message'
-    },
     'auth-login-modal': {
         stateType: 'authLogin',
         avatarContainerId: 'auth-login-avatar-container',
