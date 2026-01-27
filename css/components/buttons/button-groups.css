@@ -86,6 +86,11 @@
     color: var(--color-on-main);
 }
 
+.segment.active .material-symbols-outlined,
+.segment:hover .material-symbols-outlined {
+    color: var(--color-on-main);
+}
+
 /* Розширення border-radius тільки для табів з кнопкою закриття */
 .segment.active,
 .segment:hover {

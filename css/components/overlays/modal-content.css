@@ -387,10 +387,10 @@
 }
 
 /* ============================================
-   MAGIC HINTS SIDEBAR
+   MODAL SIDEBAR HINTS (універсальний блок для підказок)
    ============================================ */
 
-.magic-hints-sidebar {
+.modal-sidebar-hints {
     position: absolute;
     left: 16px;
     top: 50%;
@@ -421,16 +421,16 @@
     );
 }
 
-.magic-hints-sidebar::-webkit-scrollbar {
+.modal-sidebar-hints::-webkit-scrollbar {
     display: none;
 }
 
-.magic-hints-sidebar:empty {
+.modal-sidebar-hints:empty {
     display: none;
 }
 
 @media (max-width: 900px) {
-    .magic-hints-sidebar {
+    .modal-sidebar-hints {
         display: none;
     }
 }

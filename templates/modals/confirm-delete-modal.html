@@ -5,9 +5,15 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Підтвердження Видалення</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
@@ -25,23 +31,13 @@
                     <br>
                     <strong>Цю дію неможливо скасувати.</strong>
                 </div>
-
-                <!-- Кнопки дій -->
-                <div class="connected-button-group-square modal-footer grid2" role="group">
-                    <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                            <span class="label">Скасувати</span>
-                        </div>
-                    </button>
-                    <button type="button" class="segment" id="confirm-delete-btn" aria-label="Видалити">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">delete</span>
-                            <span class="label">Видалити</span>
-                        </div>
-                    </button>
-                </div>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-modal-close>Скасувати</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-btn">Видалити</button>
         </div>
     </div>
 </div>
