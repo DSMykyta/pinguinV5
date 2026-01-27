@@ -8,15 +8,9 @@
                     <button id="delete-mapper-marketplace" class="segment u-hidden" aria-label="Видалити">
                         <div class="state-layer">
                             <span class="material-symbols-outlined">delete</span>
-                            <span class="label">Видалити</span>
                         </div>
                     </button>
-                    <button id="save-mapper-marketplace" class="segment" aria-label="Зберегти">
-                        <div class="state-layer">
-                            <span class="label">Зберегти</span>
-                        </div>
-                    </button>
-                    <button class="segment modal-close-btn" aria-label="Закрити">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
                         </div>
@@ -28,7 +22,6 @@
         <!-- Body -->
         <div class="modal-body">
             <fieldset class="form-fieldset">
-
                 <div class="grid2">
                     <div class="form-group">
                         <label for="mapper-mp-name">
@@ -58,8 +51,12 @@
                     </div>
                     <small class="form-hint">Неактивні маркетплейси не відображаються в списках вибору</small>
                 </div>
-
             </fieldset>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button id="save-mapper-marketplace" class="btn btn-primary">Зберегти</button>
         </div>
     </div>
 </div>

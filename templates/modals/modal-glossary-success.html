@@ -3,9 +3,20 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Успішно збережено!</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment" id="reload-page-btn" data-modal-close aria-label="Оновити сторінку">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">refresh</span>
+                        </div>
+                    </button>
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
@@ -14,11 +25,10 @@
                 <div id="success-avatar-container"></div>
                 <h3 class="success-state-title">Тепер ясно що це!</h3>
                 <p class="success-state-text">Після оновлення сторінки ми зможемо читати новий опис</p>
-                <button class="btn-primary" data-modal-close id="reload-page-btn">
-                    <span class="material-symbols-outlined">refresh</span>
-                    <span>Оновити сторінку</span>
-                </button>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="modal-footer"></div>
     </div>
 </div>

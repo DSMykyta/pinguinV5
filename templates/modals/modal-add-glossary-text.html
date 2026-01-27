@@ -10,7 +10,7 @@
                             <span class="material-symbols-outlined">info</span>
                         </div>
                     </button>
-                    <button class="segment modal-close" aria-label="Закрити" data-modal-close>
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
                         </div>
@@ -51,21 +51,6 @@
                                 <small>Можна використовувати HTML теги: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;code&gt; тощо</small>
                             </div>
                         </form>
-
-                        <div class="connected-button-group-square modal-footer" role="group">
-                            <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                                <div class="state-layer">
-                                    <span class="material-symbols-outlined">close</span>
-                                    <span class="label">Скасувати</span>
-                                </div>
-                            </button>
-                            <button type="submit" form="add-glossary-text-form" class="segment" id="save-glossary-text-btn" aria-label="Зберегти">
-                                <div class="state-layer">
-                                    <span class="material-symbols-outlined">save</span>
-                                    <span class="label">Зберегти</span>
-                                </div>
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Інформація про шаблон -->
@@ -111,65 +96,10 @@
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="submit" form="add-glossary-text-form" class="btn btn-primary" id="save-glossary-text-btn">Зберегти</button>
+        </div>
     </div>
 </div>
-
-<style>
-.info-content {
-    padding: 24px;
-    max-width: 800px;
-}
-
-.info-content h3 {
-    font-size: 20px;
-    margin-bottom: 24px;
-    color: var(--color-on-surface);
-}
-
-.info-section {
-    margin-bottom: 32px;
-}
-
-.info-section h4 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--color-on-surface);
-}
-
-.info-section ul {
-    margin: 12px 0;
-    padding-left: 24px;
-}
-
-.info-section li {
-    margin-bottom: 8px;
-    line-height: 1.6;
-}
-
-.info-section pre {
-    background-color: var(--color-surface-c-low);
-    border: 1px solid var(--color-outline-v);
-    border-radius: 8px;
-    padding: 16px;
-    overflow-x: auto;
-    margin: 12px 0;
-}
-
-.info-section code {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 13px;
-    background-color: var(--color-surface-c-low);
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid var(--color-outline-v);
-}
-
-.info-section pre code {
-    background: none;
-    border: none;
-    padding: 0;
-    display: block;
-    line-height: 1.5;
-}
-</style>

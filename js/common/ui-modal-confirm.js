@@ -116,7 +116,7 @@ export async function showConfirmModal(options = {}) {
         if (confirmBtn) {
             confirmBtn.textContent = confirmText;
             // Додаємо/замінюємо клас
-            confirmBtn.className = `btn-primary ${confirmClass}`;
+            confirmBtn.className = `btn ${confirmClass}`;
             confirmBtn.dataset.confirmAction = 'confirm';
         }
 

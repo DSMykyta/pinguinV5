@@ -1,17 +1,11 @@
 <div class="modal-overlay">
-    <div class="modal-container modal-xlarge">
+    <div class="modal-container modal-large">
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title"><span id="modal-title">Імпорт даних</span></h2>
             <div class="modal-header-actions">
                 <div class="connected-button-group-square">
-                    <button id="execute-mapper-import" class="segment" aria-label="Імпортувати" disabled>
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">upload_file</span>
-                            <span class="label">Імпортувати</span>
-                        </div>
-                    </button>
-                    <button class="segment modal-close-btn" aria-label="Закрити">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
                         </div>
@@ -74,10 +68,7 @@
                     <div class="form-group form-group-inline">
                         <label for="mapper-import-header-row">Рядок із заголовками</label>
                         <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
-                        <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">
-                            <span class="material-symbols-outlined">refresh</span>
-                            Застосувати
-                        </button>
+                        <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">Застосувати</button>
                     </div>
                 </div>
             </fieldset>
@@ -135,6 +126,11 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button id="execute-mapper-import" class="btn btn-primary" disabled>Імпортувати</button>
         </div>
     </div>
 </div>

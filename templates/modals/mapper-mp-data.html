@@ -1,23 +1,11 @@
 <div class="modal-overlay">
-    <style>
-        #modal-mapper-mp-data .mp-data-table-container {
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        #modal-mapper-mp-data .mp-data-stats {
-            margin-top: 1rem;
-            text-align: right;
-            color: var(--color-text-tertiary);
-            font-size: 0.875rem;
-        }
-    </style>
     <div class="modal-container modal-large">
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title"><span id="mp-data-modal-title">Дані маркетплейсу</span></h2>
             <div class="modal-header-actions">
                 <div class="connected-button-group-square">
-                    <button class="segment modal-close-btn" aria-label="Закрити">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
                         </div>
@@ -79,5 +67,8 @@
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="modal-footer"></div>
     </div>
 </div>

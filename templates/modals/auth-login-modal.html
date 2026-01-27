@@ -5,9 +5,15 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Вхід</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
@@ -34,26 +40,14 @@
                         <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль" autocomplete="current-password" required>
                     </div>
 
-                    <div class="avatar-state-message" style="font-size: 10px;">
-                        Для отримання доступу зверніться до найкращої людини в цьому світі
-                    </div>
-
-                    <div class="connected-button-group-square modal-footer grid2" role="group">
-                        <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">close</span>
-                                <span class="label">Скасувати</span>
-                            </div>
-                        </button>
-                        <button type="submit" class="segment" id="auth-login-btn" aria-label="Увійти">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">login</span>
-                                <span class="label">Увійти</span>
-                            </div>
-                        </button>
-                    </div>
+                    <small class="form-hint">Для отримання доступу зверніться до найкращої людини в цьому світі</small>
                 </form>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="submit" form="auth-login-form" class="btn btn-primary" id="auth-login-btn">Увійти</button>
         </div>
     </div>
 </div>
