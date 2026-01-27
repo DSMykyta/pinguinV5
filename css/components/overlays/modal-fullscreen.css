@@ -164,18 +164,6 @@
     color: var(--color-main);
 }
 
-/* Danger item (delete button) */
-.sidebar-nav-danger {
-    color: var(--color-error);
-    border: none;
-    background: transparent;
-}
-
-.sidebar-nav-danger:hover {
-    background: var(--color-error-c);
-    color: var(--color-error);
-}
-
 .sidebar-nav-item .material-symbols-outlined {
     font-size: 20px;
 }
