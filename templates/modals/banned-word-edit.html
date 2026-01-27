@@ -12,30 +12,28 @@
                             </div>
                         </button>
                         <div class="dropdown-menu dropdown-menu-severity">
-                            <button class="dropdown-item" data-severity-value="high">
+                            <button class="dropdown-item" data-severity-value="high" title="Критично">
                                 <span class="severity-badge severity-high">
                                     <span class="material-symbols-outlined">brightness_alert</span>
                                 </span>
-                                <span>Критично</span>
                             </button>
-                            <button class="dropdown-item" data-severity-value="medium">
+                            <button class="dropdown-item" data-severity-value="medium" title="Несуттєво">
                                 <span class="severity-badge severity-medium">
                                     <span class="material-symbols-outlined">error</span>
                                 </span>
-                                <span>Несуттєво</span>
                             </button>
-                            <button class="dropdown-item" data-severity-value="low">
+                            <button class="dropdown-item" data-severity-value="low" title="Перевірити">
                                 <span class="severity-badge severity-low">
                                     <span class="material-symbols-outlined">exclamation</span>
                                 </span>
-                                <span>Перевірити</span>
                             </button>
                         </div>
                     </div>
-                    <span class="badge badge-neutral clickable segment" id="banned-word-checked-badge" data-status="FALSE">
-                        <span class="material-symbols-outlined">cancel</span>
-                        <span class="badge-label">Ні</span>
-                    </span>
+                    <button id="banned-word-mark-checked" class="segment u-hidden" aria-label="Позначити перевіреним">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                    </button>
                     <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
                         <div class="state-layer">
                             <span class="material-symbols-outlined">close</span>
@@ -106,6 +104,7 @@
 
         <!-- Footer -->
         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-modal-close>Скасувати</button>
             <button id="save-banned-word" class="btn btn-primary">Зберегти</button>
         </div>
     </div>
