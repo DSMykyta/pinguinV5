@@ -174,12 +174,10 @@ function initTextEditor() {
 
 /**
  * Ініціалізувати обробники альтернативних назв
+ * Додає перший порожній інпут
  */
 function initAltNamesHandlers() {
-    const addBtn = document.getElementById('btn-add-alt-name');
-    if (addBtn) {
-        addBtn.onclick = () => addAltNameInput('');
-    }
+    ensureEmptyAltNameInput();
 }
 
 /**
@@ -259,24 +257,68 @@ function initSectionNavigation() {
 /**
  * Додати інпут для альтернативної назви
  * @param {string} value - Значення
+ * @param {boolean} isEmpty - Чи це порожній інпут (без кнопки видалення)
  */
-function addAltNameInput(value = '') {
+function addAltNameInput(value = '', isEmpty = false) {
     const container = document.getElementById('brand-names-alt-container');
     if (!container) return;
 
     const row = document.createElement('div');
     row.className = 'dynamic-input-row';
-    row.innerHTML = `
-        <input type="text" class="input-main alt-name-input" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
-        <button type="button" class="btn-icon btn-remove-alt-name" title="Видалити">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-    `;
 
-    // Обробник видалення
-    row.querySelector('.btn-remove-alt-name').onclick = () => row.remove();
+    if (isEmpty) {
+        // Порожній інпут без кнопки видалення
+        row.innerHTML = `
+            <input type="text" class="input-main alt-name-input" value="" placeholder="Альтернативна назва">
+        `;
+        row.dataset.empty = 'true';
+    } else {
+        // Заповнений інпут з кнопкою видалення
+        row.innerHTML = `
+            <input type="text" class="input-main alt-name-input" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
+            <button type="button" class="btn-icon btn-remove-alt-name" title="Видалити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        `;
+        row.querySelector('.btn-remove-alt-name').onclick = () => row.remove();
+    }
+
+    const input = row.querySelector('.alt-name-input');
+
+    // При blur - перевірити чи заповнений
+    input.addEventListener('blur', () => {
+        const val = input.value.trim();
+        if (val && row.dataset.empty === 'true') {
+            // Був порожній, став заповнений — додати кнопку видалення
+            delete row.dataset.empty;
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn-icon btn-remove-alt-name';
+            deleteBtn.title = 'Видалити';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+            deleteBtn.onclick = () => row.remove();
+            row.appendChild(deleteBtn);
+
+            // Додати новий порожній інпут
+            ensureEmptyAltNameInput();
+        }
+    });
 
     container.appendChild(row);
+}
+
+/**
+ * Переконатися що є порожній інпут в кінці
+ */
+function ensureEmptyAltNameInput() {
+    const container = document.getElementById('brand-names-alt-container');
+    if (!container) return;
+
+    // Перевірити чи є порожній
+    const emptyRow = container.querySelector('.dynamic-input-row[data-empty="true"]');
+    if (!emptyRow) {
+        addAltNameInput('', true);
+    }
 }
 
 /**
@@ -303,9 +345,12 @@ function setAltNames(names) {
 
     container.innerHTML = '';
 
-    if (Array.isArray(names)) {
-        names.forEach(name => addAltNameInput(name));
+    if (Array.isArray(names) && names.length > 0) {
+        names.forEach(name => addAltNameInput(name, false));
     }
+
+    // Додати порожній інпут в кінці
+    ensureEmptyAltNameInput();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
