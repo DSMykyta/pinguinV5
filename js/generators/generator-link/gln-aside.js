@@ -1,9 +1,16 @@
 // js/generators/generator-link/gln-aside.js
 
 /**
+ * ПЛАГІН: Кнопки в footer aside Links
+ * Можна видалити — Links працюватиме без кнопки "Додати бренд".
+ */
+
+import { registerLinksPlugin } from './gln-plugins.js';
+
+/**
  * Ініціалізація обробників кнопок у footer aside
  */
-export function initAsideButtons() {
+function initAsideButtons() {
     const addButton = document.getElementById('btn-add-brand-links');
     if (addButton) {
         addButton.addEventListener('click', async () => {
@@ -18,3 +25,6 @@ export function initAsideButtons() {
         });
     }
 }
+
+// Самореєстрація плагіна
+registerLinksPlugin('onInit', initAsideButtons);
