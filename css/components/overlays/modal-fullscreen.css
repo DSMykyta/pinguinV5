@@ -209,36 +209,24 @@
 
 /* ============================================
    FULLSCREEN SECTIONS (scroll-snap)
+   Оверрайди для стандартних section всередині модалу
    ============================================ */
 
-.product-section {
-    display: flex;
-    flex-direction: column;
+.modal-fullscreen-content section {
     height: 100%;
-    padding: 8px 24px;
     overflow: hidden;
-    padding-bottom: 72px;
-    scroll-snap-align: start;
 }
 
-.product-section .section-header {
+.modal-fullscreen-content section .section-header {
     flex: 0 0 auto;
     padding-bottom: 16px;
 }
 
-.product-section .section-content {
+.modal-fullscreen-content section .section-content {
     flex: 1 1 auto;
     overflow-y: auto;
     min-height: 0;
     margin: 0;
-    padding: 24px;
-    background-color: var(--color-surface-c-lowest, #fff);
-    border: 1px solid var(--color-outline);
-    border-radius: 12px;
-}
-
-.product-section .section-content.full-width {
-    max-width: none;
 }
 
 /* ============================================

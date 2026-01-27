@@ -209,7 +209,7 @@ function initSectionNavigation() {
     if (!nav || !contentArea) return;
 
     const navLinks = nav.querySelectorAll('.sidebar-nav-item');
-    const sections = contentArea.querySelectorAll('.product-section[id]');
+    const sections = contentArea.querySelectorAll('section[id]');
 
     // Клік по навігації
     navLinks.forEach(link => {
