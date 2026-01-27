@@ -3,14 +3,19 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Управління маркетплейсами</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
         <div class="modal-body">
-
             <!-- ТАБИ -->
             <div class="admin-tabs">
                 <button class="admin-tab-link active" data-tab="list">Список маркетплейсів</button>
@@ -34,10 +39,7 @@
                         </tbody>
                     </table>
                 </div>
-                <button id="add-marketplace-btn" class="btn-secondary" style="margin-top: 16px;">
-                    <span class="material-symbols-outlined">add</span>
-                    <span>Додати маркетплейс</span>
-                </button>
+                <button id="add-marketplace-btn" class="btn btn-secondary u-mt-16">Додати маркетплейс</button>
             </div>
 
             <!-- TAB 2: Налаштування колонок -->
@@ -52,7 +54,7 @@
 
                 <div id="columns-config-container" class="u-hidden">
                     <!-- Підтаби для типів сутностей -->
-                    <div class="admin-tabs" style="margin-top: 16px;">
+                    <div class="admin-tabs u-mt-16">
                         <button class="admin-tab-link active" data-subtab="Categories">Categories</button>
                         <button class="admin-tab-link" data-subtab="Characteristics">Characteristics</button>
                         <button class="admin-tab-link" data-subtab="Options">Options</button>
@@ -74,10 +76,7 @@
                                 <!-- Рядки додаються через JS -->
                             </tbody>
                         </table>
-                        <button class="btn-secondary add-column-btn" data-entity-type="Categories" style="margin-top: 16px;">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button class="btn btn-secondary add-column-btn u-mt-16" data-entity-type="Categories">Додати колонку</button>
                     </div>
 
                     <!-- Таблиця колонок для Characteristics -->
@@ -96,10 +95,7 @@
                                 <!-- Рядки додаються через JS -->
                             </tbody>
                         </table>
-                        <button class="btn-secondary add-column-btn" data-entity-type="Characteristics" style="margin-top: 16px;">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button class="btn btn-secondary add-column-btn u-mt-16" data-entity-type="Characteristics">Додати колонку</button>
                     </div>
 
                     <!-- Таблиця колонок для Options -->
@@ -118,19 +114,16 @@
                                 <!-- Рядки додаються через JS -->
                             </tbody>
                         </table>
-                        <button class="btn-secondary add-column-btn" data-entity-type="Options" style="margin-top: 16px;">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button class="btn btn-secondary add-column-btn u-mt-16" data-entity-type="Options">Додати колонку</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="modal-footer">
-                <button class="btn-secondary" data-modal-close>Закрити</button>
-                <button id="save-marketplace-config-btn" class="btn-primary u-hidden">Зберегти зміни</button>
-            </div>
-
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal-close>Закрити</button>
+            <button id="save-marketplace-config-btn" class="btn btn-primary u-hidden">Зберегти зміни</button>
         </div>
     </div>
 </div>

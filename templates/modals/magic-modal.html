@@ -1,33 +1,31 @@
 <div class="modal-overlay">
-    <!-- Magic Hints Sidebar (модульний блок - можна видалити) -->
-    <div class="magic-hints-sidebar" id="magic-hints-sidebar"></div>
+    <!-- Modal Sidebar Hints (універсальний блок для підказок) -->
+    <aside class="modal-sidebar-hints" id="magic-hints-sidebar"></aside>
 
     <div class="modal-container modal-medium">
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Магічний парсинг</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
         <div class="modal-body">
-
             <p class="form-hint">Вставте скопійований текст складу продукту. Система автоматично спробує розділити назви та значення.</p>
+            <textarea id="magic-text" class="modal-textarea" placeholder="Білок 25 г ..."></textarea>
+        </div>
 
-            <textarea style="height: 50vh;" id="magic-text" class="modal-textarea" placeholder="Білок 25 г ..."></textarea>
-
-            <div class="connected-button-group-square modal-footer" role="group">
-
-                <button type="button" id="magic-apply-btn" class="segment" aria-label="Застосувати">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">auto_fix</span>
-                        <span class="label">Застосувати</span>
-                    </div>
-                </button>
-
-            </div>
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="magic-apply-btn">Застосувати</button>
         </div>
     </div>
 </div>

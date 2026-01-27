@@ -7,19 +7,20 @@
         <div class="modal-header">
             <h2 class="modal-title">Перегляд тексту товару</h2>
             <div class="modal-header-actions">
-                <span class="badge badge-neutral clickable"
-                      id="product-modal-status-badge"
-                      data-badge-id=""
-                      data-status="FALSE"
-                      style="cursor: pointer;">
-                    <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
-                    Ні
-                </span>
-                <button class="segment modal-close-btn" aria-label="Закрити">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">close</span>
-                    </div>
-                </button>
+                <div class="connected-button-group-square">
+                    <span class="badge badge-neutral clickable segment"
+                          id="product-modal-status-badge"
+                          data-badge-id=""
+                          data-status="FALSE">
+                        <span class="material-symbols-outlined">cancel</span>
+                        Ні
+                    </span>
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -31,20 +32,20 @@
             <input type="hidden" id="product-modal-row-index">
 
             <!-- Заголовок товару з табами аркушів -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--color-outline-v); gap: 12px; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
-                    <h3 id="product-modal-title" style="margin: 0; font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Завантаження...</h3>
+            <div class="product-modal-header-row">
+                <div class="product-modal-title-block">
+                    <h3 id="product-modal-title" class="product-modal-title">Завантаження...</h3>
                     <!-- Таби аркушів (якщо > 1 аркуша) - компактні -->
-                    <div class="filter-pills-container u-hidden" id="product-sheet-pills" style="gap: 4px;">
+                    <div class="filter-pills-container u-hidden" id="product-sheet-pills">
                         <!-- Піли аркушів будуть динамічно створені -->
                     </div>
                 </div>
-                <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v); white-space: nowrap;">ID: ...</p>
+                <p id="product-modal-id" class="product-modal-id">ID: ...</p>
             </div>
 
             <!-- Таби для вибору колонки та кнопка копіювання -->
-            <div style="display: flex; align-items: center; margin-bottom: 12px; gap: 8px;">
-                <div class="filter-pills-container" id="product-text-field-pills" style="flex: 1;">
+            <div class="product-modal-tabs-row">
+                <div class="filter-pills-container" id="product-text-field-pills">
                     <!-- Піли колонок будуть динамічно створені на основі перевірених колонок -->
                 </div>
                 <button id="product-modal-copy-btn" class="btn-icon" aria-label="Копіювати текст">
@@ -59,7 +60,7 @@
 
             <!-- Статистика знайдених слів -->
             <div class="product-text-stats">
-                <div style="display: flex; gap: 16px;">
+                <div class="product-text-stats-row">
                     <div class="stat-item">
                         <span class="material-symbols-outlined">policy</span>
                         <span id="product-modal-banned-count">0</span>
@@ -76,5 +77,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="modal-footer"></div>
     </div>
 </div>

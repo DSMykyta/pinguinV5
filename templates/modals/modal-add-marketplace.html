@@ -3,9 +3,15 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Додати маркетплейс</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
@@ -38,7 +44,7 @@
                 <!-- Початкова конфігурація колонок -->
                 <fieldset class="form-fieldset">
                     <legend>Початкові колонки</legend>
-                    <p style="margin-bottom: 16px;">
+                    <p class="form-hint u-mb-16">
                         Вкажіть базові колонки для кожного типу сутності.
                         Пізніше їх можна буде змінити в налаштуваннях.
                     </p>
@@ -48,18 +54,14 @@
                         <label>Categories (рекомендовані колонки)</label>
                         <div id="mp-columns-categories" class="initial-columns-list">
                             <div class="initial-column-item">
-                                <input type="text" class="column-name" placeholder="Назва колонки"
-                                    data-entity-type="Categories">
+                                <input type="text" class="column-name" placeholder="Назва колонки" data-entity-type="Categories">
                                 <input type="text" class="column-display" placeholder="Відображувана назва">
                                 <button type="button" class="btn-icon-small remove-initial-column-btn" title="Видалити">
                                     <span class="material-symbols-outlined">close</span>
                                 </button>
                             </div>
                         </div>
-                        <button type="button" class="btn-secondary btn-small" id="add-categories-column-btn">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="add-categories-column-btn">Додати колонку</button>
                     </div>
 
                     <!-- Characteristics -->
@@ -67,18 +69,14 @@
                         <label>Characteristics (рекомендовані колонки)</label>
                         <div id="mp-columns-characteristics" class="initial-columns-list">
                             <div class="initial-column-item">
-                                <input type="text" class="column-name" placeholder="Назва колонки"
-                                    data-entity-type="Characteristics">
+                                <input type="text" class="column-name" placeholder="Назва колонки" data-entity-type="Characteristics">
                                 <input type="text" class="column-display" placeholder="Відображувана назва">
                                 <button type="button" class="btn-icon-small remove-initial-column-btn" title="Видалити">
                                     <span class="material-symbols-outlined">close</span>
                                 </button>
                             </div>
                         </div>
-                        <button type="button" class="btn-secondary btn-small" id="add-characteristics-column-btn">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="add-characteristics-column-btn">Додати колонку</button>
                     </div>
 
                     <!-- Options -->
@@ -86,54 +84,23 @@
                         <label>Options (рекомендовані колонки)</label>
                         <div id="mp-columns-options" class="initial-columns-list">
                             <div class="initial-column-item">
-                                <input type="text" class="column-name" placeholder="Назва колонки"
-                                    data-entity-type="Options">
+                                <input type="text" class="column-name" placeholder="Назва колонки" data-entity-type="Options">
                                 <input type="text" class="column-display" placeholder="Відображувана назва">
                                 <button type="button" class="btn-icon-small remove-initial-column-btn" title="Видалити">
                                     <span class="material-symbols-outlined">close</span>
                                 </button>
                             </div>
                         </div>
-                        <button type="button" class="btn-secondary btn-small" id="add-options-column-btn">
-                            <span class="material-symbols-outlined">add</span>
-                            <span>Додати колонку</span>
-                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="add-options-column-btn">Додати колонку</button>
                     </div>
                 </fieldset>
-
             </form>
+        </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" data-modal-close>Скасувати</button>
-                <button type="submit" form="add-marketplace-form" class="btn-primary" id="create-marketplace-btn">
-                    Створити маркетплейс
-                </button>
-            </div>
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-modal-close>Скасувати</button>
+            <button type="submit" form="add-marketplace-form" class="btn btn-primary" id="create-marketplace-btn">Створити маркетплейс</button>
         </div>
     </div>
 </div>
-
-<style>
-.initial-columns-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.initial-column-item {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 8px;
-    align-items: center;
-}
-
-.initial-column-item input {
-    margin: 0;
-}
-
-.btn-small {
-    font-size: 14px;
-    padding: 6px 12px;
-}
-</style>

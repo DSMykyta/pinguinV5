@@ -3,9 +3,15 @@
         <!-- Header -->
         <div class="modal-header">
             <h2 class="modal-title">Об'єднання Елементів</h2>
-            <button class="btn-icon modal-close" aria-label="Закрити" data-modal-close>
-                <span class="material-symbols-outlined">close</span>
-            </button>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Body -->
@@ -34,21 +40,12 @@
                     <li>Дублікати будуть остаточно видалені. <strong>Ця дія незворотна.</strong></li>
                 </ul>
             </div>
+        </div>
 
-            <div class="connected-button-group-square modal-footer grid2" role="group">
-                <button type="button" data-modal-close class="segment" aria-label="Скасувати">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">close</span>
-                        <span class="label">Скасувати</span>
-                    </div>
-                </button>
-                <button type="button" id="confirm-merge-btn" class="segment" disabled aria-label="Виконати Об'єднання">
-                    <div class="state-layer">
-                        <span class="material-symbols-outlined">merge</span>
-                        <span class="label">Виконати Об'єднання</span>
-                    </div>
-                </button>
-            </div>
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-modal-close>Скасувати</button>
+            <button type="button" class="btn btn-danger" id="confirm-merge-btn" disabled>Виконати Об'єднання</button>
         </div>
     </div>
 </div>
