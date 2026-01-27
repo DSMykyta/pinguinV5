@@ -20,9 +20,9 @@ export function createEditorTemplate(id, config) {
     } = config;
 
     return `
-        <div class="editor-component" data-editor-id="${id}">
+        <div class="editor-component rich-editor-container" data-editor-id="${id}">
             <!-- Toolbar -->
-            <div class="toolbar-wrapper toolbar-wrapper-spaced">
+            <div class="rich-editor-toolbar toolbar-wrapper-spaced">
                 <div class="format-toolbar" id="${id}-toolbar">
                     <button type="button" class="btn-icon" data-action="bold" title="Жирний (Ctrl+B)" aria-label="Жирний">
                         <span class="material-symbols-outlined">format_bold</span>
@@ -77,7 +77,7 @@ export function createEditorTemplate(id, config) {
             <!-- Режим тексту: WYSIWYG редактор -->
             <div
                 id="${id}-editor"
-                class="input-main editor-text-mode"
+                class="rich-editor-content"
                 contenteditable="true"
                 data-placeholder="${placeholder}"
                 style="min-height: ${minHeight}px;"
@@ -86,7 +86,7 @@ export function createEditorTemplate(id, config) {
             <!-- Режим коду -->
             <textarea
                 id="${id}-code-editor"
-                class="input-main editor-code-mode"
+                class="input-main rich-editor-code"
                 style="display: none; min-height: ${minHeight}px;"
                 placeholder="HTML код..."
             ></textarea>

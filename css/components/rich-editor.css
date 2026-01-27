@@ -35,6 +35,14 @@
     min-height: 44px;
 }
 
+/* Тулбар з chips навпроти кнопок */
+.toolbar-wrapper-spaced {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
 .toolbar-group {
     display: flex;
     align-items: center;
@@ -132,6 +140,13 @@
 /* ============================================================================
    ФОРМАТУВАННЯ КОНТЕНТУ
    ============================================================================ */
+
+.rich-editor-content h1 {
+    font-size: 1.75em;
+    font-weight: 700;
+    margin: 0.5em 0;
+    color: var(--text-primary);
+}
 
 .rich-editor-content h2 {
     font-size: 1.5em;
@@ -238,4 +253,27 @@
 [data-theme="dark"] .rich-editor-content {
     background: var(--bg-primary-dark);
     color: var(--text-primary-dark);
+}
+
+/* ============================================================================
+   РЕЖИМ КОДУ
+   ============================================================================ */
+
+.rich-editor-code {
+    flex: 1;
+    min-height: 200px;
+    padding: 16px;
+    background-color: var(--color-surface-c-low);
+    font-family: 'Roboto Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    resize: vertical;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    outline: none;
+}
+
+.rich-editor-code:focus {
+    outline: none;
 }
