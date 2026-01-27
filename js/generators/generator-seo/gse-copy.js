@@ -1,4 +1,11 @@
 // js/generators/generator-seo/gse-copy.js
+
+/**
+ * ПЛАГІН: Копіювання SEO полів
+ * Можна видалити — SEO працюватиме без копіювання.
+ */
+
+import { registerSeoPlugin } from './gse-plugins.js';
 import { getSeoDOM } from './gse-dom.js';
 import { showToast } from '../../common/ui-toast.js';
 
@@ -41,7 +48,7 @@ async function copyFieldToClipboard(inputElement, fieldName) {
 /**
  * Ініціалізує слухачів для копіювання полів SEO результатів.
  */
-export function initCopyListeners() {
+function initCopyListeners() {
     const dom = getSeoDOM();
 
     // Масив полів з їх назвами
@@ -71,3 +78,6 @@ export function initCopyListeners() {
         }
     });
 }
+
+// Самореєстрація плагіна
+registerSeoPlugin('onInit', initCopyListeners);

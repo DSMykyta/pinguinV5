@@ -1,9 +1,16 @@
 // js/generators/generator-seo/gse-aside.js
 
 /**
+ * ПЛАГІН: Кнопки в footer aside SEO
+ * Можна видалити — SEO працюватиме без кнопки "Додати ключове слово".
+ */
+
+import { registerSeoPlugin } from './gse-plugins.js';
+
+/**
  * Ініціалізація обробників кнопок у footer aside
  */
-export function initAsideButtons() {
+function initAsideButtons() {
     const addKeywordBtn = document.getElementById('btn-add-keyword-seo');
     if (addKeywordBtn) {
         addKeywordBtn.addEventListener('click', async () => {
@@ -18,3 +25,6 @@ export function initAsideButtons() {
         });
     }
 }
+
+// Самореєстрація плагіна
+registerSeoPlugin('onInit', initAsideButtons);

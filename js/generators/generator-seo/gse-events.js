@@ -2,7 +2,7 @@
 import { getSeoDOM } from './gse-dom.js';
 import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from './gse-generators.js';
 import { checkSafety } from './gse-helpers.js';
-import { syncTulipsFromProductName, addTulip } from './gse-triggers.js';
+import { optionalFunctions } from './gse-plugins.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
 import { initSearchClear } from '../../utils/search-clear.js';
@@ -44,7 +44,7 @@ function updateSeoFromEditor() {
     dom.brandNameInput.value = brand;
     if (dom.productNameInput) dom.productNameInput.value = product;
 
-    syncTulipsFromProductName();
+    optionalFunctions.syncTulipsFromProductName?.();
     runCalculations();
 }
 
@@ -61,7 +61,7 @@ export function initEventListeners() {
     }
 
     dom.productNameInput.addEventListener('input', () => {
-        syncTulipsFromProductName();
+        optionalFunctions.syncTulipsFromProductName?.();
         runCalculations();
     });
 
@@ -78,7 +78,7 @@ export function initEventListeners() {
 
     dom.trigerButtonsContainer.addEventListener('click', e => {
         if (e.target.classList.contains('chip-clickable')) {
-            addTulip(e.target.dataset.title, true);
+            optionalFunctions.addTulip?.(e.target.dataset.title, true);
             runCalculations();
         }
     });
