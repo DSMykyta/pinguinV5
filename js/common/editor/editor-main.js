@@ -2,69 +2,46 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║              UNIVERSAL HIGHLIGHT EDITOR COMPONENT                        ║
+ * ║              UNIVERSAL HIGHLIGHT EDITOR                                  ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  🔒 ЯДРО (не видаляти):                                                  ║
+ * ║  ├── editor-main.js       — Фабрика, завантаження плагінів               ║
+ * ║  ├── editor-template.js   — HTML шаблон                                  ║
+ * ║  ├── editor-state.js      — State екземпляра                             ║
+ * ║  └── editor-mode.js       — Перемикання Text/Code                        ║
+ * ║                                                                          ║
+ * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
+ * ║  ├── editor-formatting.js — Bold, Italic, H1-H3, List                    ║
+ * ║  ├── editor-case.js       — Зміна регістру                               ║
+ * ║  ├── editor-undo.js       — Undo/Redo                                    ║
+ * ║  ├── editor-validation.js — Заборонені слова                             ║
+ * ║  ├── editor-find.js       — Find & Replace                               ║
+ * ║  ├── editor-stats.js      — Статистика                                   ║
+ * ║  └── editor-paste.js      — Обробка вставки                              ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Універсальний редактор тексту з підсвічуванням.
- *
- * ФУНКЦІОНАЛ:
- * - Два режими: Text (WYSIWYG) / Code (HTML)
- * - Toolbar: Bold, Italic, H1-H3, List, Case conversion
- * - Find & Replace
- * - Undo/Redo
- * - Валідація заборонених слів (опціонально)
- * - Підсвічування помилок (опціонально)
- * - Навігація по помилках (опціонально)
- * - Статистика тексту (опціонально)
- *
- * ВИКОРИСТАННЯ:
- * ```javascript
- * import { createHighlightEditor } from '../common/editor/editor-main.js';
- *
- * // З валідацією (для generator-highlight)
- * const editor = createHighlightEditor(container, {
- *     validation: true,
- *     showStats: true,
- *     placeholder: 'Введіть текст...'
- * });
- *
- * // Без валідації (для brands)
- * const editor = createHighlightEditor(container, {
- *     validation: false,
- *     showStats: false,
- *     placeholder: 'Опис бренду...'
- * });
- *
- * // API:
- * editor.getValue()          // Отримати HTML
- * editor.setValue(html)      // Встановити HTML
- * editor.getPlainText()      // Отримати plain text
- * editor.getMode()           // 'text' | 'code'
- * editor.setMode('code')     // Переключити режим
- * editor.focus()             // Фокус на редактор
- * editor.clear()             // Очистити
- * editor.destroy()           // Видалити
- * ```
  */
 
 import { createEditorTemplate } from './editor-template.js';
-import { initEditorCore } from './editor-core.js';
+import { createEditorState } from './editor-state.js';
+import { initEditorMode } from './editor-mode.js';
 
 let instanceCounter = 0;
 
+// Плагіни — можна видалити будь-який
+const PLUGINS = [
+    './editor-formatting.js',
+    './editor-case.js',
+    './editor-undo.js',
+    './editor-validation.js',
+    './editor-find.js',
+    './editor-stats.js',
+    './editor-paste.js',
+];
+
 /**
  * Створити екземпляр редактора
- * @param {HTMLElement} container - Контейнер для редактора
- * @param {Object} options - Опції
- * @param {boolean} options.validation - Чи включити валідацію заборонених слів (default: false)
- * @param {boolean} options.showStats - Чи показувати статистику (default: false)
- * @param {boolean} options.showFindReplace - Чи показувати Find & Replace (default: false)
- * @param {string} options.placeholder - Placeholder текст
- * @param {string} options.initialValue - Початкове значення HTML
- * @param {number} options.minHeight - Мінімальна висота редактора (px)
- * @param {Function} options.onChange - Callback при зміні контенту
- * @param {Function} options.onValidate - Callback після валідації
- * @returns {Object} API редактора
  */
 export function createHighlightEditor(container, options = {}) {
     if (!container || !(container instanceof HTMLElement)) {
@@ -72,7 +49,7 @@ export function createHighlightEditor(container, options = {}) {
         return null;
     }
 
-    const instanceId = `editor-${++instanceCounter}`;
+    const id = `editor-${++instanceCounter}`;
 
     const config = {
         validation: false,
@@ -82,18 +59,64 @@ export function createHighlightEditor(container, options = {}) {
         initialValue: '',
         minHeight: 200,
         onChange: null,
-        onValidate: null,
         ...options
     };
 
-    // Створити HTML структуру
-    const html = createEditorTemplate(instanceId, config);
+    // Створити HTML
+    const html = createEditorTemplate(id, config);
     container.innerHTML = html;
 
-    // Ініціалізувати логіку
-    const api = initEditorCore(instanceId, container, config);
+    // Створити state
+    const state = createEditorState(id, container, config);
 
-    return api;
+    // Ініціалізувати режими (core)
+    initEditorMode(state);
+
+    // Завантажити плагіни
+    loadPlugins(state);
+
+    // Початкове значення
+    if (config.initialValue) {
+        state.dom.editor.innerHTML = config.initialValue;
+        state.lastSavedContent = config.initialValue;
+    }
+
+    // Публічне API
+    return {
+        getValue: () => state.getCleanHtml(),
+        setValue: (html) => {
+            state.dom.editor.innerHTML = html || '';
+            state.lastSavedContent = html || '';
+            state.runHook('onValidate');
+        },
+        getPlainText: () => state.getPlainText(),
+        getMode: () => state.currentMode,
+        setMode: (mode) => state.setMode(mode),
+        focus: () => state.focus(),
+        clear: () => {
+            state.dom.editor.innerHTML = '';
+            state.dom.codeEditor.value = '';
+            state.lastSavedContent = '';
+            state.runHook('onValidate');
+        },
+        destroy: () => container.innerHTML = '',
+        getState: () => state,
+    };
+}
+
+async function loadPlugins(state) {
+    const results = await Promise.allSettled(
+        PLUGINS.map(path => import(path))
+    );
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(state);
+            console.log(`[Editor] ✅ ${PLUGINS[index]}`);
+        } else if (result.status === 'rejected') {
+            console.warn(`[Editor] ⚠️ ${PLUGINS[index]} — не завантажено`);
+        }
+    });
 }
 
 export default createHighlightEditor;
