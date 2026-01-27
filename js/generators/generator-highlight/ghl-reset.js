@@ -7,8 +7,6 @@
 import { getHighlightDOM } from './ghl-dom.js';
 import { resetUndoStack } from './ghl-undo.js';
 import { updateStats } from './ghl-stats.js';
-import { getSeoDOM } from '../generator-seo/gse-dom.js';
-import { runCalculations as runSeoCalculations } from '../generator-seo/gse-events.js';
 
 /**
  * Скинути редактор
@@ -26,16 +24,14 @@ export function resetEditor() {
     }
 
     // Очищаємо редактори
-    if (dom.editor) dom.editor.innerHTML = '';
+    if (dom.editor) {
+        dom.editor.innerHTML = '';
+        // Викликаємо input event — SEO сам оновиться через свій слухач
+        dom.editor.dispatchEvent(new Event('input', { bubbles: true }));
+    }
     if (dom.codeEditor) dom.codeEditor.value = '';
     if (dom.findInput) dom.findInput.value = '';
     if (dom.replaceInput) dom.replaceInput.value = '';
-
-    // Очищаємо SEO поля
-    const seoDom = getSeoDOM();
-    if (seoDom.brandNameInput) seoDom.brandNameInput.value = '';
-    if (seoDom.productNameInput) seoDom.productNameInput.value = '';
-    runSeoCalculations();
 
     // Скидаємо валідацію
     if (dom.validationResults) {
