@@ -1,0 +1,82 @@
+// js/common/editor/editor-paste.js
+
+/**
+ * 🔌 ПЛАГІН — Copy & Paste
+ *
+ * Можна видалити — редактор працюватиме з дефолтною поведінкою браузера.
+ * Рекомендується залишити для коректної обробки HTML.
+ */
+
+import { sanitizeHtml, sanitizeEditor, escapeHtml } from './editor-utils.js';
+
+export function init(state) {
+    const { dom } = state;
+    if (!dom.editor) return;
+
+    // Copy handler
+    dom.editor.addEventListener('copy', (e) => {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        const fragment = range.cloneContents();
+
+        // Видаляємо підсвічування з копії
+        const temp = document.createElement('div');
+        temp.appendChild(fragment);
+        temp.querySelectorAll('.highlight-error, .highlight-warning').forEach(el => {
+            const text = document.createTextNode(el.textContent);
+            el.parentNode.replaceChild(text, el);
+        });
+
+        // Санітизуємо HTML при копіюванні
+        const htmlCode = sanitizeHtml(temp.innerHTML);
+
+        e.preventDefault();
+        e.clipboardData.setData('text/plain', htmlCode);
+
+        showMessage('Скопійовано HTML код');
+    });
+
+    // Paste handler
+    dom.editor.addEventListener('paste', (e) => {
+        e.preventDefault();
+
+        // Сигнал для undo
+        state.runHook('onBeforeChange');
+
+        const clipboardData = e.clipboardData || window.clipboardData;
+        let text = clipboardData.getData('text/plain');
+
+        // Детекція HTML в plain text
+        const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
+
+        if (looksLikeHtml) {
+            const sanitized = sanitizeHtml(text);
+            document.execCommand('insertHTML', false, sanitized);
+        } else {
+            text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+            const lines = text.split('\n');
+            const html = lines
+                .map(line => line.trim() ? `<p>${escapeHtml(line)}</p>` : '')
+                .filter(Boolean)
+                .join('');
+
+            if (html) {
+                document.execCommand('insertHTML', false, html);
+            }
+        }
+
+        // Санітизуємо весь контент після вставки
+        setTimeout(() => {
+            sanitizeEditor(state);
+            state.runHook('onValidate');
+        }, 50);
+    });
+}
+
+function showMessage(text) {
+    import('../../common/ui-toast.js')
+        .then(module => module.showToast(text, 'success'))
+        .catch(() => {});
+}
