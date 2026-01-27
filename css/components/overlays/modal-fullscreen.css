@@ -1,0 +1,318 @@
+/**
+ * COMPONENT: Modal Fullscreen
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Повноекранні модальні вікна з бічною навігацією.
+ * Використовується для складних редакторів (продукти, категорії, ключові слова).
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="modal-overlay modal-fullscreen" data-modal-id="...">
+ *   <div class="modal-fullscreen-container modal-with-sidebar">
+ *     <header class="modal-fullscreen-header">
+ *       <div class="modal-fullscreen-header-left">
+ *         <button class="btn-icon">...</button>
+ *         <div class="modal-fullscreen-title"><h1>Title</h1></div>
+ *       </div>
+ *       <div class="modal-fullscreen-header-right">...</div>
+ *     </header>
+ *     <div class="modal-body-with-sidebar">
+ *       <nav class="sidebar-navigator">
+ *         <a class="sidebar-nav-item active">...</a>
+ *       </nav>
+ *       <main class="modal-fullscreen-content">...</main>
+ *     </div>
+ *   </div>
+ * </div>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - modal.css (базова структура)
+ * - root.css (CSS змінні)
+ */
+
+/* ============================================
+   FULLSCREEN OVERLAY
+   ============================================ */
+
+.modal-fullscreen {
+    background: var(--color-surface);
+}
+
+.modal-fullscreen.is-open {
+    backdrop-filter: none;
+}
+
+/* ============================================
+   FULLSCREEN CONTAINER
+   ============================================ */
+
+.modal-fullscreen-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+}
+
+/* ============================================
+   FULLSCREEN HEADER
+   ============================================ */
+
+.modal-fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-outline);
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.modal-fullscreen-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.modal-fullscreen-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-fullscreen-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-fullscreen-title h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-on-surface);
+}
+
+/* ============================================
+   SIDEBAR LAYOUT
+   ============================================ */
+
+.modal-with-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.modal-body-with-sidebar {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ============================================
+   SIDEBAR NAVIGATOR
+   ============================================ */
+
+.sidebar-navigator {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 12px;
+    background: var(--color-surface-c-low);
+    border-right: 1px solid var(--color-outline);
+    width: 180px;
+    min-width: 180px;
+    overflow-y: auto;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-m);
+    color: var(--color-on-surface-v);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 150ms ease;
+    cursor: pointer;
+}
+
+.sidebar-nav-item:hover {
+    background: var(--color-surface-c);
+    color: var(--color-on-surface);
+}
+
+.sidebar-nav-item.active {
+    background: var(--color-main-c);
+    color: var(--color-main);
+}
+
+.sidebar-nav-item .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.sidebar-nav-label {
+    white-space: nowrap;
+}
+
+/* ============================================
+   FULLSCREEN CONTENT
+   ============================================ */
+
+.modal-fullscreen-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+}
+
+/* Content width when used with sidebar */
+.modal-body-with-sidebar .modal-fullscreen-content {
+    flex: 1;
+    max-width: calc(100% - 180px);
+}
+
+/* Legacy: centered section navigator inside fullscreen */
+.modal-fullscreen-container .section-navigator:not(.sidebar-navigator) {
+    position: sticky;
+    top: 8px;
+    z-index: 200;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    padding: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2);
+    margin: 0 auto;
+}
+
+/* ============================================
+   FULLSCREEN SECTIONS (scroll-snap)
+   ============================================ */
+
+.product-section {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 8px 24px;
+    overflow: hidden;
+    padding-bottom: 72px;
+    scroll-snap-align: start;
+}
+
+.product-section .section-header {
+    flex: 0 0 auto;
+    padding-bottom: 16px;
+}
+
+.product-section .section-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 24px;
+    background-color: var(--color-surface-c-lowest, #fff);
+    border: 1px solid var(--color-outline);
+    border-radius: 12px;
+}
+
+.product-section .section-content.full-width {
+    max-width: none;
+}
+
+/* ============================================
+   FULLSCREEN FORM INPUTS
+   ============================================ */
+
+/* Remove spinners from number inputs */
+.modal-fullscreen input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.modal-fullscreen input[type="number"]::-webkit-outer-spin-button,
+.modal-fullscreen input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Custom input styling */
+.modal-fullscreen .form-group input[type="text"],
+.modal-fullscreen .form-group input[type="number"],
+.modal-fullscreen .form-group input[type="search"],
+.modal-fullscreen .form-group textarea {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    width: 100%;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.modal-fullscreen .form-group input:hover,
+.modal-fullscreen .form-group textarea:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.modal-fullscreen .form-group input:focus,
+.modal-fullscreen .form-group textarea:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+}
+
+.modal-fullscreen .form-group textarea {
+    min-height: 80px;
+    max-height: none;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* Custom select styling */
+.modal-fullscreen .form-group select {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    width: 100%;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    transition: border-color 150ms ease-in-out;
+}
+
+.modal-fullscreen .form-group select:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.modal-fullscreen .form-group select:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    outline: none;
+    padding: 7px 15px;
+    padding-right: 39px;
+}

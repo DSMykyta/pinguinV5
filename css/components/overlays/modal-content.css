@@ -1,83 +1,193 @@
 /**
- * COMPONENT: Modal Structure
+ * COMPONENT: Modal Content
  *
  * ПРИЗНАЧЕННЯ:
- * Структурні класи для контенту всередині модальних вікон.
- * Доповнення до component-modal.css.
- *
- * ВИКОРИСТАННЯ:
- * У template файлах модалок для організації контенту.
- *
- * HTML ПРИКЛАД:
- * <div class="modal-body-source">
- *   <form class="modal-form">
- *     <div class="form-group">...</div>
- *     <div class="modal-footer">
- *       <button class="btn-secondary">Скасувати</button>
- *       <button class="btn-primary">Зберегти</button>
- *     </div>
- *   </form>
- * </div>
- *
- * КЛАСИ:
- * - .modal-title-source - джерело заголовку (hidden)
- * - .modal-header-actions-source - джерело дій у header (hidden)
- * - .modal-body-source - джерело контенту тіла модалки
- * - .modal-form - форма всередині модалки
- * - .modal-footer - футер з кнопками
+ * Специфічні стилі для контенту модальних вікон:
+ * - Confirm модалі
+ * - Success state
+ * - Text viewer
+ * - Stats
+ * - Related items
+ * - Split layout
+ * - Article content
  *
  * ЗАЛЕЖНОСТІ:
- * - component-modal.css (базова структура modal)
- * - forms/form-group.css (групи форми)
- *
- * ЗАСТОСУВАННЯ:
- * - templates/modals/*.html (всі модалки)
+ * - modal.css (базова структура)
+ * - root.css (CSS змінні)
  */
 
-.modal-title-source,
-.modal-header-actions-source {
-    display: none;
+/* ============================================
+   CONFIRM MODAL
+   ============================================ */
+
+.modal-confirm-body {
+    padding: 24px;
+    text-align: center;
 }
 
-.modal-form {
-    display: flex;
-    flex-direction: column;
+.modal-confirm-message {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    color: var(--color-on-surface);
 }
 
-.modal-footer {
+.modal-confirm-actions {
     display: flex;
-    justify-content: flex-end;
     gap: 12px;
-    margin-top: 24px;
-    padding-top: 16px;
-}
-
-/* Центрування кнопок для confirm-модалів */
-.modal-footer.modal-footer-confirm {
     justify-content: center;
 }
 
 /* ============================================
-   MODAL SIZES (data-modal-size="small|medium|large")
+   SUCCESS STATE
    ============================================ */
 
-.modal-container.modal-small {
-    width: 320px;
-    max-width: 90vw;
+.success-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 48px 24px;
+    min-height: 300px;
 }
 
-.modal-container.modal-medium {
-    width: 60vw;
-    max-width: 90vw;
+.success-state-icon {
+    font-size: 96px;
+    color: var(--color-success, #4caf50);
+    animation: scaleIn 0.3s ease-out;
 }
 
-.modal-container.modal-large {
-    width: 80vw;
-    max-width: 95vw;
+#success-avatar-container img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    animation: scaleIn 0.3s ease-out;
+}
+
+.success-state-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin: 0;
+}
+
+.success-state-text {
+    font-size: 16px;
+    color: var(--color-on-surface-v);
+    margin: 0;
+    text-align: center;
+    max-width: 400px;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* ============================================
-   MODAL SECTIONS (для організації контенту)
+   PRODUCT TEXT VIEW
+   ============================================ */
+
+#product-text-field-pills {
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.product-text-content {
+    position: relative;
+    min-height: 300px;
+}
+
+.product-text-panel {
+    display: none;
+}
+
+.product-text-panel.active {
+    display: block;
+}
+
+.text-viewer {
+    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline-v);
+    border-radius: var(--radius-m);
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-on-surface);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Text stats */
+.product-text-stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: var(--color-surface-c-low);
+    border-radius: var(--radius-m);
+}
+
+.product-text-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--color-on-surface-v);
+}
+
+.product-text-stats .stat-item .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--color-main);
+}
+
+.product-text-stats .stat-item span:nth-child(2) {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+}
+
+.product-text-stats .stat-label {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* ============================================
+   TEMPLATE LIST
+   ============================================ */
+
+.template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.template-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--color-surface-c-low);
+}
+
+.template-actions {
+    display: flex;
+    gap: 4px;
+}
+
+/* ============================================
+   MODAL SECTIONS
    ============================================ */
 
 .modal-section-header {
@@ -104,17 +214,7 @@
 }
 
 /* ============================================
-   MODAL GRID (для форм з двома колонками)
-   ============================================ */
-
-.modal-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-/* ============================================
-   MODAL STATS (статистика/метрики)
+   MODAL STATS
    ============================================ */
 
 .modal-stats-container {
@@ -163,7 +263,7 @@
 }
 
 /* ============================================
-   MODAL TABS (для модалів з табами)
+   MODAL TABS
    ============================================ */
 
 .modal-tabs-container {
@@ -176,7 +276,7 @@
 }
 
 /* ============================================
-   MODAL BODY SPLIT (дві колонки з незалежною прокруткою)
+   MODAL SPLIT LAYOUT
    ============================================ */
 
 .modal-body.modal-body-split {
@@ -205,7 +305,6 @@
     background: var(--color-surface-c-lowest);
 }
 
-/* Заголовок секції в split модалі */
 .modal-split-section-title {
     display: flex;
     align-items: center;
@@ -223,7 +322,10 @@
     color: var(--color-primary);
 }
 
-/* Список пов'язаних елементів */
+/* ============================================
+   MODAL RELATED ITEMS
+   ============================================ */
+
 .modal-related-list {
     display: flex;
     flex-direction: column;
@@ -285,7 +387,7 @@
 }
 
 /* ============================================
-   MAGIC HINTS SIDEBAR (для модалі магічного парсингу)
+   MAGIC HINTS SIDEBAR
    ============================================ */
 
 .magic-hints-sidebar {
@@ -301,10 +403,8 @@
     max-height: 70vh;
     padding: 16px 0;
     overflow-y: auto;
-    /* Прихований scrollbar */
     scrollbar-width: none;
     -ms-overflow-style: none;
-    /* Fade зверху і знизу */
     mask-image: linear-gradient(
         to bottom,
         transparent 0%,
@@ -325,12 +425,10 @@
     display: none;
 }
 
-/* Приховуємо коли порожній */
 .magic-hints-sidebar:empty {
     display: none;
 }
 
-/* Адаптив */
 @media (max-width: 900px) {
     .magic-hints-sidebar {
         display: none;
@@ -338,7 +436,7 @@
 }
 
 /* ============================================
-   ARTICLE CONTENT (для інформаційних модалів)
+   ARTICLE CONTENT
    ============================================ */
 
 .article-content {
