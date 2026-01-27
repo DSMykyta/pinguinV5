@@ -74,11 +74,12 @@
 
 /* === COMPONENTS - OVERLAYS === */
 @import url('components/overlays/modal.css');
-@import url('components/overlays/modal-structure.css');
+@import url('components/overlays/modal-sizes.css');
+@import url('components/overlays/modal-fullscreen.css');
 @import url('components/overlays/modal-avatar.css');
+@import url('components/overlays/modal-content.css');
 @import url('components/overlays/dropdown.css');
 @import url('components/overlays/toast.css');
-@import url('components/overlays/context-menu.css');
 
 /* === COMPONENTS - FEEDBACK === */
 @import url('components/feedback/chip.css');

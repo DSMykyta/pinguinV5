@@ -1,48 +1,74 @@
-/* /css/component/component-modal.css */
+/**
+ * COMPONENT: Modal Base
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Базова структура модальних вікон - overlay, container, header, body, footer.
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="modal-overlay" data-modal-id="example">
+ *   <div class="modal-container modal-medium">
+ *     <header class="modal-header">
+ *       <h2 class="modal-title">Заголовок</h2>
+ *       <div class="modal-header-actions">...</div>
+ *     </header>
+ *     <div class="modal-body">...</div>
+ *   </div>
+ * </div>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (CSS змінні)
+ *
+ * ПОВ'ЯЗАНІ ФАЙЛИ:
+ * - modal-sizes.css (розміри: small, medium, large)
+ * - modal-fullscreen.css (повноекранні модалі)
+ * - modal-avatar.css (модалі з аватарами)
+ * - modal-content.css (специфічний контент)
+ */
 
-/* Блокування скролу на body, коли модал відкрито */
+/* ============================================
+   BODY STATE
+   ============================================ */
+
 body.is-modal-open {
     overflow: hidden;
 }
 
-/* Оверлей (фон) */
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: var(--color-modal-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 
-    /* --- ОНОВЛЕННЯ --- */
+    /* Анімація появи */
     opacity: 0;
     visibility: hidden;
     backdrop-filter: blur(0px);
-    /* Початковий стан розмиття */
     -webkit-backdrop-filter: blur(0px);
-    /* Для підтримки Safari */
     transition: opacity 0.2s ease, visibility 0s 0.2s linear, backdrop-filter 0.2s ease;
-    /* --- КІНЕЦЬ ОНОВЛЕННЯ --- */
 }
 
 .modal-overlay.is-open {
     opacity: 1;
     visibility: visible;
     transition-delay: 0s;
-
-    /* --- ОНОВЛЕННЯ --- */
     backdrop-filter: blur(4px);
-    /* Кінцеве значення розмиття */
     -webkit-backdrop-filter: blur(4px);
-    /* Для підтримки Safari */
-    /* --- КІНЕЦЬ ОНОВЛЕННЯ --- */
 }
 
-/* Контейнер модального вікна */
+/* ============================================
+   MODAL CONTAINER
+   ============================================ */
+
 .modal-container {
     background-color: var(--color-surface-c-low);
     border-radius: var(--radius-l);
@@ -53,14 +79,25 @@ body.is-modal-open {
     flex-direction: column;
     transform: scale(0.95);
     transition: transform 0.2s ease;
-    overflow: visible; /* Дозволити випадаючим меню виходити за межі */
+    overflow: visible;
 }
 
 .modal-overlay.is-open .modal-container {
     transform: scale(1);
 }
 
-/* Шапка модального вікна */
+/* Legacy: старий контейнер */
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 90vh;
+}
+
+/* ============================================
+   MODAL HEADER
+   ============================================ */
+
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -76,75 +113,7 @@ body.is-modal-open {
     color: var(--text-on-surface);
 }
 
-/* Налаштування для .connected-button-group в шапці */
-#modal-header-actions .segment {
-    height: 32px;
-}
-
-#modal-header-actions .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* Тіло модального вікна */
-.modal-body {
-    padding: var(--space-l);
-    overflow-y: auto;
-    overflow-x: visible; /* Дозволити випадаючим меню виходити за межі по горизонталі */
-    flex-grow: 1;
-}
-
-/* Футер (якщо є всередині .modal-body-source) */
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding-top: var(--space-l);
-}
-
-.template-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.template-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    border-radius: 4px;
-    background-color: var(--color-surface-c-low);
-}
-
-.template-actions {
-    display: flex;
-    gap: 4px;
-}
-
-/* ============================================ */
-/* ДОДАТКОВІ КЛАСИ МОДАЛЬНОГО ВІКНА */
-/* ============================================ */
-
-/* Модальний контент (використовується в старих модалах) */
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-height: 90vh;
-}
-
-/* Великий контейнер для модалів */
-.modal-container-large {
-    max-width: 1200px;
-    width: 95%;
-}
-
-/* Джерело заголовку (приховане) */
-.modal-title-source {
-    display: none !important;
-}
-
-/* Контейнер заголовку з іконкою */
+/* Заголовок з іконкою */
 .modal-title-container {
     display: flex;
     align-items: center;
@@ -156,7 +125,77 @@ body.is-modal-open {
     color: var(--color-main);
 }
 
-/* Textarea всередині модалу */
+/* Приховані джерела заголовку (для динамічного контенту) */
+.modal-title-source,
+.modal-header-actions-source {
+    display: none !important;
+}
+
+/* ============================================
+   MODAL HEADER ACTIONS
+   ============================================ */
+
+.modal-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.modal-header-actions .segment {
+    height: 32px;
+}
+
+.modal-header-actions .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Legacy: налаштування для #modal-header-actions */
+#modal-header-actions .segment {
+    height: 32px;
+}
+
+#modal-header-actions .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* ============================================
+   MODAL BODY
+   ============================================ */
+
+.modal-body {
+    padding: var(--space-l);
+    overflow-y: auto;
+    overflow-x: visible;
+    flex-grow: 1;
+}
+
+/* ============================================
+   MODAL FOOTER
+   ============================================ */
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+}
+
+/* Центровані кнопки для confirm-модалів */
+.modal-footer.modal-footer-confirm {
+    justify-content: center;
+}
+
+/* ============================================
+   MODAL FORM
+   ============================================ */
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Textarea в модалі */
 .modal-textarea {
     width: 100%;
     min-height: 120px;
@@ -174,217 +213,12 @@ body.is-modal-open {
     border-color: var(--color-main);
 }
 
-/* ============================================ */
-/* PRODUCT TEXT VIEW MODAL - Перегляд тексту товару */
-/* ============================================ */
+/* ============================================
+   MODAL GRID (для форм з колонками)
+   ============================================ */
 
-/* Використовуємо nav-icon (з layout-section-navigator.css) для табів */
-#product-text-field-pills {
-    margin-bottom: 16px;
-    display: flex;
-    gap: 8px;
-}
-
-/* Контент табів */
-.product-text-content {
-    position: relative;
-    min-height: 300px;
-}
-
-.product-text-panel {
-    display: none;
-}
-
-.product-text-panel.active {
-    display: block;
-}
-
-/* Вьюер тексту */
-.text-viewer {
-    padding: 16px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-outline-v);
-    border-radius: var(--radius-m);
-    min-height: 300px;
-    max-height: 500px;
-    overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--color-on-surface);
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-/* Статистика внизу модалу */
-.product-text-stats {
-    display: flex;
-    gap: 24px;
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: var(--color-surface-c-low);
-    border-radius: var(--radius-m);
-}
-
-.product-text-stats .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--color-on-surface-v);
-}
-
-.product-text-stats .stat-item .material-symbols-outlined {
-    font-size: 20px;
-    color: var(--color-main);
-}
-
-.product-text-stats .stat-item span:nth-child(2) {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-}
-
-.product-text-stats .stat-label {
-    font-size: 12px;
-    white-space: nowrap;
-}
-
-/* ============================================ */
-/* CONFIRM MODAL */
-/* ============================================ */
-
-/**
- * Тіло модалу підтвердження
- * Центроване відображення з відступами
- */
-.modal-confirm-body {
-    padding: 24px;
-    text-align: center;
-}
-
-/**
- * Повідомлення в confirm modal
- */
-.modal-confirm-message {
-    font-size: 16px;
-    margin: 0 0 24px 0;
-    color: var(--color-on-surface);
-}
-
-/**
- * Контейнер для кнопок дій в confirm modal
- * Центровані кнопки з проміжком
- */
-.modal-confirm-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-}
-
-/* ============================================ */
-/* MODAL SIZES */
-/* ============================================ */
-
-/* Small - для підтверджень, логіну */
-.modal-container.modal-small {
-    width: 400px;
-    max-width: 90vw;
-}
-
-/* Medium - за замовчуванням, для форм */
-.modal-container.modal-medium {
-    width: 60vw;
-    max-width: 90vw;
-}
-
-/* Large - для складних інтерфейсів, таблиць */
-.modal-container.modal-large {
-    width: 80vw;
-    max-width: 95vw;
-}
-
-/* XLarge - для імпорту та превью даних */
-.modal-container.modal-xlarge {
-    width: 90vw;
-    max-width: 1400px;
-    max-height: 90vh;
-}
-
-/* ============================================ */
-/* MODAL HEADER ACTIONS */
-/* ============================================ */
-
-/**
- * Контейнер для кнопок в header (замість close button)
- * Використовується для Save/Delete/Close кнопок
- */
-.modal-header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.modal-header-actions .segment {
-    height: 32px;
-}
-
-.modal-header-actions .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* ============================================ */
-/* SUCCESS STATE MODAL */
-/* ============================================ */
-
-/**
- * Контейнер для success модалів
- * Центроване відображення з аватаром
- */
-.success-state-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.modal-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    padding: 48px 24px;
-    min-height: 300px;
-}
-
-.success-state-icon {
-    font-size: 96px;
-    color: var(--color-success, #4caf50);
-    animation: scaleIn 0.3s ease-out;
-}
-
-#success-avatar-container img {
-    width: 140px;
-    height: 140px;
-    object-fit: contain;
-    animation: scaleIn 0.3s ease-out;
-}
-
-.success-state-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-    margin: 0;
-}
-
-.success-state-text {
-    font-size: 16px;
-    color: var(--color-on-surface-v);
-    margin: 0;
-    text-align: center;
-    max-width: 400px;
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
 }

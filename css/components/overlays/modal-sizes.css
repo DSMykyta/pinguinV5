@@ -1,0 +1,54 @@
+/**
+ * COMPONENT: Modal Sizes
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Розміри модальних вікон: small, medium, large.
+ * Fullscreen модалі - окремий файл modal-fullscreen.css
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="modal-container modal-small">...</div>
+ * <div class="modal-container modal-medium">...</div>
+ * <div class="modal-container modal-large">...</div>
+ *
+ * РОЗМІРИ:
+ * - small: 400px - для підтверджень, логіну
+ * - medium: 60vw - для стандартних форм
+ * - large: 80vw - для таблиць, списків, імпорту
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - modal.css (базова структура)
+ */
+
+/* ============================================
+   SMALL - підтвердження, логін, прості форми
+   ============================================ */
+
+.modal-container.modal-small {
+    width: 400px;
+    max-width: 90vw;
+}
+
+/* ============================================
+   MEDIUM - стандартні форми, редагування
+   ============================================ */
+
+.modal-container.modal-medium {
+    width: 60vw;
+    max-width: 90vw;
+}
+
+/* ============================================
+   LARGE - таблиці, списки, складні форми
+   ============================================ */
+
+.modal-container.modal-large {
+    width: 80vw;
+    max-width: 95vw;
+}
+
+/* Legacy: старий клас для великих модалів */
+.modal-container-large {
+    max-width: 1200px;
+    width: 95%;
+}
+
