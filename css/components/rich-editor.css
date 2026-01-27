@@ -35,6 +35,14 @@
     min-height: 44px;
 }
 
+/* Тулбар з chips навпроти кнопок */
+.toolbar-wrapper-spaced {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
 .toolbar-group {
     display: flex;
     align-items: center;
