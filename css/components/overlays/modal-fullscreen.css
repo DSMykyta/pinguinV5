@@ -180,7 +180,6 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    scroll-snap-type: y mandatory;
 }
 
 /* Content width when used with sidebar */
@@ -208,17 +207,16 @@
 }
 
 /* ============================================
-   FULLSCREEN SECTIONS (scroll-snap)
+   FULLSCREEN SECTIONS
    Оверрайди для стандартних section всередині модалу
    ============================================ */
 
 .modal-fullscreen-content section {
-    height: 100%;
-    overflow: hidden;
+    height: auto;
+    overflow: visible;
 }
 
 .modal-fullscreen-content section .section-header {
-    flex: 0 0 auto;
     padding-bottom: 16px;
 }
 
