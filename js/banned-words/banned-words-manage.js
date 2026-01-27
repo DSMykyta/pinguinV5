@@ -344,6 +344,19 @@ export async function openBannedWordModal(wordData = null) {
         if (severityTriggerIcon) severityTriggerIcon.textContent = config.icon;
     };
 
+    // Функція оновлення бейджа "Перевірено"
+    const updateCheckedBadge = (badge, isChecked) => {
+        const icon = badge.querySelector('.material-symbols-outlined');
+        const label = badge.querySelector('.badge-label');
+
+        badge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
+        badge.classList.remove('badge-neutral', 'badge-success');
+        badge.classList.add(isChecked ? 'badge-success' : 'badge-neutral');
+
+        if (icon) icon.textContent = isChecked ? 'check_circle' : 'cancel';
+        if (label) label.textContent = isChecked ? 'Так' : 'Ні';
+    };
+
     // Навішуємо слухачі на кнопки вибору рівня
     severityOptions.forEach(button => {
         button.addEventListener('click', (e) => {
@@ -386,20 +399,20 @@ export async function openBannedWordModal(wordData = null) {
         updateSeverityTrigger('high');
     }
 
-    // ДОДАНО: Логіка кнопки "Позначити перевіреним"
-    const markCheckedBtn = document.getElementById('banned-word-mark-checked');
-    if (markCheckedBtn) {
-        if (isEdit && wordData.cheaked_line !== 'TRUE') {
-            markCheckedBtn.classList.remove('u-hidden'); // Показуємо кнопку
-            
-            // Використовуємо .onclick для простоти (уникаємо накопичення слухачів)
-            markCheckedBtn.onclick = async () => {
-                await toggleCheckedStatus(wordData.local_id); // Використовуємо існуючу функцію
-                closeModal(); // Закриваємо модал
-            };
-        } else {
-            markCheckedBtn.classList.add('u-hidden'); // Ховаємо кнопку
-        }
+    // Логіка бейджа "Перевірено"
+    const checkedBadge = document.getElementById('banned-word-checked-badge');
+    if (checkedBadge) {
+        const isChecked = wordData?.cheaked_line === 'TRUE';
+        updateCheckedBadge(checkedBadge, isChecked);
+
+        // Обробник кліку для зміни статусу
+        checkedBadge.onclick = async () => {
+            if (!isEdit || !wordData?.local_id) return;
+
+            await toggleCheckedStatus(wordData.local_id);
+            const newStatus = wordData.cheaked_line !== 'TRUE';
+            updateCheckedBadge(checkedBadge, newStatus);
+        };
     }
 
 
