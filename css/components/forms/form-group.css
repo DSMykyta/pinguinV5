@@ -282,37 +282,55 @@
     margin-bottom: 8px;
 }
 
-/* Контейнер для об'єднаних інпутів */
+/* Контейнер - ІДЕНТИЧНИЙ стандартному .form-group input */
 .brand-link-inputs {
     display: flex;
+    align-items: center;
     flex: 1;
+    padding: 8px 16px;
     border: 1px solid var(--color-outline);
-    border-radius: var(--radius-xs, 4px);
-    overflow: hidden;
-    transition: border-color 150ms ease-in-out;
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    min-height: 40px;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.brand-link-inputs:hover {
+    border-color: var(--color-on-surface-v);
 }
 
 .brand-link-inputs:focus-within {
     border-color: var(--color-main);
     border-width: 2px;
+    padding: 7px 15px;
 }
 
-/* Інпут назви (ліва частина) */
-.brand-link-inputs .link-name {
-    flex: 0 0 100px;
+/* Внутрішні інпути - невидимі, тільки текст */
+.brand-link-inputs .link-name,
+.brand-link-inputs .link-url {
     border: none;
-    border-right: 1px solid var(--color-outline);
-    border-radius: 0;
-    padding: 8px 12px;
-    background: var(--color-surface-c-low);
-    min-height: 40px;
-}
-
-.brand-link-inputs .link-name:focus {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-on-surface);
     outline: none;
-    border: none;
+    height: auto;
+    min-height: auto;
+}
+
+.brand-link-inputs .link-name {
+    flex: 0 0 auto;
+    width: 50px;
+    text-align: center;
+    color: var(--color-on-surface-v);
     border-right: 1px solid var(--color-outline);
-    padding: 8px 12px;
+    padding-right: 12px;
+    margin-right: 12px;
+}
+
+.brand-link-inputs .link-url {
+    flex: 1;
 }
 
 /* Інпут URL (права частина) */
@@ -320,13 +338,14 @@
     flex: 1;
     border: none;
     border-radius: 0;
-    padding: 8px 12px;
-    min-height: 40px;
+    padding: 8px 16px;
+    background: transparent;
+    font-size: 14px;
+    color: var(--color-on-surface);
 }
 
 .brand-link-inputs .link-url:focus {
     outline: none;
-    border: none;
     padding: 8px 12px;
 }
 
