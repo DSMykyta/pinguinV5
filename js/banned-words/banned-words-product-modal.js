@@ -276,7 +276,13 @@ function renderProductModal(productData, columnNames) {
     // Отримати ID з productData або з метаданих модалу
     const displayId = productData.id || productData.ID || productData.Id ||
                       document.getElementById('product-modal-product-id')?.value || 'undefined';
-    idElement.textContent = `ID: ${displayId}`;
+    // Оновлюємо тільки <strong> всередині idElement
+    const idStrong = idElement.querySelector('strong');
+    if (idStrong) {
+        idStrong.textContent = displayId;
+    } else {
+        idElement.innerHTML = `ID: <strong>${displayId}</strong>`;
+    }
 
     // Отримати ВСІ заборонені слова (обидві мови) для підсвічування
     const allBannedWordsRaw = bannedWordsState.bannedWords.flatMap(w =>
@@ -444,10 +450,22 @@ function updateModalBadge(productId) {
 function setBadgeAppearance(badge, isChecked) {
     badge.classList.remove('badge-success', 'badge-neutral');
     badge.classList.add(isChecked ? 'badge-success' : 'badge-neutral');
-    badge.innerHTML = `
-        <span class="material-symbols-outlined" style="font-size: 16px;">${isChecked ? 'check_circle' : 'cancel'}</span>
-        ${isChecked ? 'Так' : 'Ні'}
-    `;
+
+    const icon = badge.querySelector('.material-symbols-outlined');
+    const label = badge.querySelector('.badge-label');
+
+    if (icon) icon.textContent = isChecked ? 'check_circle' : 'cancel';
+
+    // Підтримка обох структур: з .badge-label або без
+    if (label) {
+        label.textContent = isChecked ? 'Так' : 'Ні';
+    } else {
+        // Таблична структура - текст йде напряму після іконки
+        const textNode = Array.from(badge.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+        if (textNode) {
+            textNode.textContent = isChecked ? ' Так' : ' Ні';
+        }
+    }
 }
 
 /**
