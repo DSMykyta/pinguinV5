@@ -116,13 +116,28 @@
 .sidebar-navigator {
     display: flex;
     flex-direction: column;
-    gap: 4px;
     padding: 16px 12px;
     background: var(--color-surface-c-low);
     border-right: 1px solid var(--color-outline);
     width: 180px;
     min-width: 180px;
     overflow-y: auto;
+}
+
+.sidebar-nav-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.sidebar-nav-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-outline);
 }
 
 .sidebar-nav-item {
@@ -147,6 +162,18 @@
 .sidebar-nav-item.active {
     background: var(--color-main-c);
     color: var(--color-main);
+}
+
+/* Danger item (delete button) */
+.sidebar-nav-danger {
+    color: var(--color-error);
+    border: none;
+    background: transparent;
+}
+
+.sidebar-nav-danger:hover {
+    background: var(--color-error-c);
+    color: var(--color-error);
 }
 
 .sidebar-nav-item .material-symbols-outlined {
