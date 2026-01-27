@@ -260,7 +260,8 @@
 }
 
 /* ============================================ */
-/* DYNAMIC INPUT ROW (name — url з кнопками)   */
+/* DYNAMIC INPUT ROW                           */
+/* [name input] — [url input] [btn] [btn]      */
 /* ============================================ */
 
 .dynamic-input-row,

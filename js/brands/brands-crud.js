@@ -326,9 +326,20 @@ function addLinkRow(link = { name: '', url: '' }) {
         }
     };
 
-    row.querySelector('.btn-remove-link').onclick = () => {
-        row.remove();
-        updateLinksEmptyState();
+    row.querySelector('.btn-remove-link').onclick = async () => {
+        const linkName = row.querySelector('.link-name').value.trim() || 'це посилання';
+        const confirmed = await showConfirmModal({
+            title: 'Видалити посилання?',
+            message: `Ви впевнені, що хочете видалити "${linkName}"?`,
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+            confirmClass: 'btn-danger'
+        });
+
+        if (confirmed) {
+            row.remove();
+            updateLinksEmptyState();
+        }
     };
 
     container.appendChild(row);
