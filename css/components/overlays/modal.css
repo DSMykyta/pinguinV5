@@ -176,9 +176,16 @@ body.is-modal-open {
 .modal-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 12px;
-    margin-top: 24px;
-    padding-top: 16px;
+    padding: 16px var(--space-l);
+    border-top: 1px solid var(--color-outline-v);
+    background: var(--color-surface);
+    flex-shrink: 0;
+}
+
+.modal-footer:empty {
+    display: none;
 }
 
 /* Центровані кнопки для confirm-модалів */
