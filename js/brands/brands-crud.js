@@ -209,7 +209,7 @@ function initSectionNavigation() {
     if (!nav || !contentArea) return;
 
     const navLinks = nav.querySelectorAll('.sidebar-nav-item');
-    const sections = contentArea.querySelectorAll('.product-section[id]');
+    const sections = contentArea.querySelectorAll('section[id]');
 
     // Клік по навігації
     navLinks.forEach(link => {
@@ -372,11 +372,9 @@ function addLinkRow(link = { name: '', url: '' }) {
     const row = document.createElement('div');
     row.className = 'brand-link-row';
     row.innerHTML = `
-        <div class="form-group form-group-name">
-            <input type="text" class="input-main link-name" value="${escapeHtml(link.name)}" placeholder="Назва (ua, de...)">
-        </div>
-        <div class="form-group form-group-url">
-            <input type="url" class="input-main link-url" value="${escapeHtml(link.url)}" placeholder="https://...">
+        <div class="brand-link-inputs">
+            <input type="text" class="link-name" value="${escapeHtml(link.name)}" placeholder="ua, de...">
+            <input type="url" class="link-url" value="${escapeHtml(link.url)}" placeholder="https://...">
         </div>
         <button type="button" class="btn-icon btn-open-link" title="Відкрити">
             <span class="material-symbols-outlined">open_in_new</span>

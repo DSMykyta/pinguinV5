@@ -1334,7 +1334,7 @@ function initSectionNavigator() {
     });
 
     // Відстежуємо скрол для автоматичного оновлення активного пункту
-    const sections = container.querySelectorAll('.product-section');
+    const sections = container.querySelectorAll('section');
 
     const observerOptions = {
         root: contentArea,
