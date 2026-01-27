@@ -65,8 +65,6 @@ export function initImageToolLogic() {
             debounce(() => updateCanvasDisplay(activeItem.image), 100)();
         }
     });
-
-    console.log('✅ Логіка Image Tool ініціалізована (v2).');
 }
 
 /**
