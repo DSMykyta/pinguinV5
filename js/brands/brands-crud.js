@@ -21,7 +21,7 @@ import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './b
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { createEditor } from '../common/ui-editor.js';
+import { createHighlightEditor } from '../common/editor/editor-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -162,9 +162,11 @@ function initTextEditor() {
         textEditor = null;
     }
 
-    textEditor = createEditor(container, {
+    textEditor = createHighlightEditor(container, {
+        validation: false,      // БЕЗ перевірки заборонених слів
+        showStats: false,       // БЕЗ статистики
+        showFindReplace: false, // БЕЗ Find & Replace
         initialValue: '',
-        mode: 'text',
         placeholder: 'Введіть опис бренду...',
         minHeight: 300
     });
