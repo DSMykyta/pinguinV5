@@ -341,7 +341,7 @@ function initSectionNavigation(modalEl) {
     });
 
     // При скролі - оновлювати active в меню
-    const sections = modalEl.querySelectorAll('.mapper-section');
+    const sections = modalEl.querySelectorAll('section[id]');
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver((entries) => {

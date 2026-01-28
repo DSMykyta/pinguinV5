@@ -12,9 +12,6 @@
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
-                <button class="btn-icon u-hidden" id="delete-keyword" title="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
                 <button class="btn btn-primary" id="save-keyword">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
@@ -27,22 +24,30 @@
 
             <!-- SIDEBAR NAVIGATOR -->
             <nav class="sidebar-navigator" id="keyword-section-navigator">
-                <a href="#section-keyword-main" class="sidebar-nav-item active" aria-label="Основні дані">
-                    <span class="material-symbols-outlined">tune</span>
-                    <span class="sidebar-nav-label">Основні дані</span>
-                </a>
-                <a href="#section-keyword-names" class="sidebar-nav-item" aria-label="Назви">
-                    <span class="material-symbols-outlined">translate</span>
-                    <span class="sidebar-nav-label">Назви</span>
-                </a>
-                <a href="#section-keyword-keywords" class="sidebar-nav-item" aria-label="Ключові слова">
-                    <span class="material-symbols-outlined">label</span>
-                    <span class="sidebar-nav-label">Ключові слова</span>
-                </a>
-                <a href="#section-keyword-glossary" class="sidebar-nav-item" aria-label="Глосарій">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    <span class="sidebar-nav-label">Глосарій</span>
-                </a>
+                <div class="sidebar-nav-main">
+                    <a href="#section-keyword-main" class="sidebar-nav-item active" aria-label="Основні дані">
+                        <span class="material-symbols-outlined">tune</span>
+                        <span class="sidebar-nav-label">Основні дані</span>
+                    </a>
+                    <a href="#section-keyword-names" class="sidebar-nav-item" aria-label="Назви">
+                        <span class="material-symbols-outlined">translate</span>
+                        <span class="sidebar-nav-label">Назви</span>
+                    </a>
+                    <a href="#section-keyword-keywords" class="sidebar-nav-item" aria-label="Ключові слова">
+                        <span class="material-symbols-outlined">label</span>
+                        <span class="sidebar-nav-label">Ключові слова</span>
+                    </a>
+                    <a href="#section-keyword-glossary" class="sidebar-nav-item" aria-label="Глосарій">
+                        <span class="material-symbols-outlined">menu_book</span>
+                        <span class="sidebar-nav-label">Глосарій</span>
+                    </a>
+                </div>
+                <div class="sidebar-nav-footer">
+                    <button type="button" class="sidebar-nav-item btn-delete u-hidden" id="delete-keyword" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="sidebar-nav-label">Видалити</span>
+                    </button>
+                </div>
             </nav>
 
             <!-- CONTENT SECTIONS -->
@@ -53,7 +58,7 @@
                 <input type="hidden" id="keyword-param-type" value="">
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
-                <section id="section-keyword-main" class="mapper-section">
+                <section id="section-keyword-main" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -119,7 +124,7 @@
                 </section>
 
                 <!-- СЕКЦІЯ: НАЗВИ -->
-                <section id="section-keyword-names" class="mapper-section">
+                <section id="section-keyword-names" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -187,7 +192,7 @@
                 </section>
 
                 <!-- СЕКЦІЯ: КЛЮЧОВІ СЛОВА -->
-                <section id="section-keyword-keywords" class="mapper-section">
+                <section id="section-keyword-keywords" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -221,7 +226,7 @@
                 </section>
 
                 <!-- СЕКЦІЯ: ГЛОСАРІЙ -->
-                <section id="section-keyword-glossary" class="mapper-section">
+                <section id="section-keyword-glossary" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">

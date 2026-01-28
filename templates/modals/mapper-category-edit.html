@@ -12,9 +12,6 @@
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
-                <button class="btn-icon u-hidden" id="delete-mapper-category" title="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
                 <button class="btn btn-primary" id="save-mapper-category">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
@@ -27,22 +24,30 @@
 
             <!-- SIDEBAR NAVIGATOR -->
             <nav class="sidebar-navigator" id="category-section-navigator">
-                <a href="#section-category-main" class="sidebar-nav-item active" aria-label="Основні дані">
-                    <span class="material-symbols-outlined">edit</span>
-                    <span class="sidebar-nav-label">Основні дані</span>
-                </a>
-                <a href="#section-category-chars" class="sidebar-nav-item" aria-label="Характеристики">
-                    <span class="material-symbols-outlined">checklist</span>
-                    <span class="sidebar-nav-label">Характеристики</span>
-                </a>
-                <!-- Секції маркетплейсів додаються динамічно через JS -->
+                <div class="sidebar-nav-main">
+                    <a href="#section-category-main" class="sidebar-nav-item active" aria-label="Основні дані">
+                        <span class="material-symbols-outlined">edit</span>
+                        <span class="sidebar-nav-label">Основні дані</span>
+                    </a>
+                    <a href="#section-category-chars" class="sidebar-nav-item" aria-label="Характеристики">
+                        <span class="material-symbols-outlined">checklist</span>
+                        <span class="sidebar-nav-label">Характеристики</span>
+                    </a>
+                    <!-- Секції маркетплейсів додаються динамічно через JS -->
+                </div>
+                <div class="sidebar-nav-footer">
+                    <button type="button" class="sidebar-nav-item btn-delete u-hidden" id="delete-mapper-category" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="sidebar-nav-label">Видалити</span>
+                    </button>
+                </div>
             </nav>
 
             <!-- CONTENT SECTIONS -->
             <main class="modal-fullscreen-content">
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
-                <section id="section-category-main" class="mapper-section">
+                <section id="section-category-main" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -100,7 +105,7 @@
                 </section>
 
                 <!-- СЕКЦІЯ: ХАРАКТЕРИСТИКИ -->
-                <section id="section-category-chars" class="mapper-section">
+                <section id="section-category-chars" >
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
