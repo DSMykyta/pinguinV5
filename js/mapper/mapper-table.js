@@ -242,7 +242,7 @@ export function renderCategoriesTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showEditCategoryModal } = await import('./mapper-crud.js');
+                const { showEditCategoryModal } = await import('./mapper-categories.js');
                 await showEditCategoryModal(id);
             }
         });
@@ -255,7 +255,7 @@ export function renderCategoriesTable() {
             const id = button.dataset.id;
             console.log(`👁️ Клік на перегляд MP категорії: ${id}`);
             if (id) {
-                const { showViewMpCategoryModal } = await import('./mapper-crud.js');
+                const { showViewMpCategoryModal } = await import('./mapper-categories.js');
                 await showViewMpCategoryModal(id);
             }
         });
@@ -454,7 +454,7 @@ export function renderCharacteristicsTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showEditCharacteristicModal } = await import('./mapper-crud.js');
+                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
                 await showEditCharacteristicModal(id);
             }
         });
@@ -467,7 +467,7 @@ export function renderCharacteristicsTable() {
             const id = button.dataset.id;
             console.log(`👁️ Клік на перегляд MP характеристики: ${id}`);
             if (id) {
-                const { showViewMpCharacteristicModal } = await import('./mapper-crud.js');
+                const { showViewMpCharacteristicModal } = await import('./mapper-characteristics.js');
                 await showViewMpCharacteristicModal(id);
             }
         });
@@ -643,7 +643,7 @@ export function renderOptionsTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showEditOptionModal } = await import('./mapper-crud.js');
+                const { showEditOptionModal } = await import('./mapper-options.js');
                 await showEditOptionModal(id);
             }
         });
@@ -655,7 +655,7 @@ export function renderOptionsTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showViewMpOptionModal } = await import('./mapper-crud.js');
+                const { showViewMpOptionModal } = await import('./mapper-options.js');
                 await showViewMpOptionModal(id);
             }
         });
@@ -782,7 +782,7 @@ export function renderMarketplacesTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showEditMarketplaceModal } = await import('./mapper-crud.js');
+                const { showEditMarketplaceModal } = await import('./mapper-marketplaces.js');
                 await showEditMarketplaceModal(id);
             }
         });
@@ -793,7 +793,7 @@ export function renderMarketplacesTable() {
             e.stopPropagation();
             const id = button.dataset.id;
             if (id) {
-                const { showMarketplaceDataModal } = await import('./mapper-crud.js');
+                const { showMarketplaceDataModal } = await import('./mapper-marketplaces.js');
                 await showMarketplaceDataModal(id);
             }
         });
