@@ -275,6 +275,7 @@ export async function loadOptions() {
  * Завантажити маппінги для категорій
  */
 export async function loadMapCategories() {
+    console.log('📥 Завантаження маппінгів категорій...');
     try {
         const result = await callSheetsAPI('get', {
             range: `${SHEETS.MAP_CATEGORIES}!A:D`,
@@ -283,12 +284,13 @@ export async function loadMapCategories() {
 
         // Backend повертає масив напряму
         if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.log('⚠️ Маппінги категорій порожні або тільки заголовки');
             mapperState.mapCategories = [];
             return [];
         }
 
         const headers = result[0];
-        const rows = result.slice(1);
+        const rows = result.slice(1).filter(row => row[0]); // Фільтруємо порожні рядки
 
         mapperState.mapCategories = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -297,6 +299,11 @@ export async function loadMapCategories() {
             });
             return obj;
         });
+
+        console.log(`✅ Завантажено ${mapperState.mapCategories.length} маппінгів категорій`);
+        if (mapperState.mapCategories.length > 0) {
+            console.log('📊 Приклад маппінгу категорії:', mapperState.mapCategories[0]);
+        }
 
         return mapperState.mapCategories;
     } catch (error) {

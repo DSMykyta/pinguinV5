@@ -268,6 +268,22 @@ function deselectAll(tabId) {
     if (!data) return;
 
     data.selectedItems.clear();
+
+    // Визначити tab name для чекбоксів (mapper-categories -> categories)
+    const checkboxTabId = tabId.replace('mapper-', '');
+
+    // Зняти checked з усіх чекбоксів цього табу
+    document.querySelectorAll(`[data-tab="${checkboxTabId}"].row-checkbox`).forEach(cb => {
+        cb.checked = false;
+    });
+
+    // Зняти checked з "select all" чекбокса
+    const selectAllCheckbox = document.querySelector(`[data-tab="${checkboxTabId}"].select-all-checkbox`);
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    }
+
     updateVisibility(tabId);
 
     if (data.onSelectionChange) {
