@@ -9,7 +9,7 @@
  * сортування та фільтрації.
  */
 
-import { mapperState } from './mapper-init.js';
+import { mapperState } from './mapper-state.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
