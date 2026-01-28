@@ -1100,20 +1100,59 @@ export async function loadMpOptions() {
  * @param {string} mpCatId - ID MP категорії
  */
 export function isMpCategoryMapped(mpCatId) {
-    // Перевірити в таблиці маппінгів
+    // Знайти MP категорію щоб отримати external_id
+    const mpCat = mapperState.mpCategories.find(c => c.id === mpCatId);
+    const externalId = mpCat?.external_id;
+
+    // Перевірити в таблиці маппінгів (по id або external_id)
     const inMappingTable = mapperState.mapCategories.some(m =>
-        m.mp_category_id === mpCatId
+        m.mp_category_id === mpCatId || m.mp_category_id === externalId
     );
     if (inMappingTable) return true;
 
     // Перевірити в старому JSON форматі (data.our_category_id)
-    const mpCat = mapperState.mpCategories.find(c => c.id === mpCatId);
     if (mpCat) {
         const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
         if (data.our_category_id) return true;
     }
 
     return false;
+}
+
+/**
+ * Отримати всі MP категорії, які замаплені на власну категорію
+ * @param {string} ownCatId - ID власної категорії
+ */
+export function getMappedMpCategories(ownCatId) {
+    const result = [];
+    const addedIds = new Set();
+
+    // 1. З таблиці маппінгів
+    const mappings = mapperState.mapCategories.filter(m =>
+        m.category_id === ownCatId
+    );
+    mappings.forEach(mapping => {
+        // Шукаємо по id або external_id
+        const mpCat = mapperState.mpCategories.find(c =>
+            c.id === mapping.mp_category_id || c.external_id === mapping.mp_category_id
+        );
+        if (mpCat && !addedIds.has(mpCat.id)) {
+            result.push({ ...mpCat, _mappingId: mapping.id, _source: 'new' });
+            addedIds.add(mpCat.id);
+        }
+    });
+
+    // 2. Зі старого JSON формату (data.our_category_id)
+    mapperState.mpCategories.forEach(mpCat => {
+        if (addedIds.has(mpCat.id)) return;
+        const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+        if (data.our_category_id === ownCatId) {
+            result.push({ ...mpCat, _source: 'legacy' });
+            addedIds.add(mpCat.id);
+        }
+    });
+
+    return result;
 }
 
 /**
@@ -1159,6 +1198,39 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
         return newMapping;
     } catch (error) {
         console.error('❌ Помилка створення маппінгу категорії:', error);
+        throw error;
+    }
+}
+
+/**
+ * Видалити маппінг категорії
+ * @param {string} mappingId - ID маппінгу
+ */
+export async function deleteCategoryMapping(mappingId) {
+    console.log(`🗑️ Видалення маппінгу категорії: ${mappingId}`);
+
+    try {
+        const mapping = mapperState.mapCategories.find(m => m.id === mappingId);
+        if (!mapping) {
+            throw new Error(`Маппінг ${mappingId} не знайдено`);
+        }
+
+        // Видалити рядок (очистити)
+        await callSheetsAPI('update', {
+            range: `${SHEETS.MAP_CATEGORIES}!A${mapping._rowIndex}:D${mapping._rowIndex}`,
+            values: [['', '', '', '']],
+            spreadsheetType: 'main'
+        });
+
+        // Видалити з локального стану
+        const index = mapperState.mapCategories.findIndex(m => m.id === mappingId);
+        if (index !== -1) {
+            mapperState.mapCategories.splice(index, 1);
+        }
+
+        console.log(`✅ Маппінг категорії видалено: ${mappingId}`);
+    } catch (error) {
+        console.error('❌ Помилка видалення маппінгу категорії:', error);
         throw error;
     }
 }
@@ -1298,8 +1370,9 @@ export function getMappedMpCharacteristics(ownCharId) {
         m.characteristic_id === ownCharId
     );
     mappings.forEach(mapping => {
+        // Шукаємо по id або external_id
         const mpChar = mapperState.mpCharacteristics.find(c =>
-            c.id === mapping.mp_characteristic_id
+            c.id === mapping.mp_characteristic_id || c.external_id === mapping.mp_characteristic_id
         );
         if (mpChar && !addedIds.has(mpChar.id)) {
             result.push({ ...mpChar, _mappingId: mapping.id, _source: 'new' });
@@ -1325,14 +1398,17 @@ export function getMappedMpCharacteristics(ownCharId) {
  * @param {string} mpCharId - ID MP характеристики
  */
 export function isMpCharacteristicMapped(mpCharId) {
-    // Перевірити в новій таблиці маппінгів
+    // Знайти MP характеристику щоб отримати external_id
+    const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
+    const externalId = mpChar?.external_id;
+
+    // Перевірити в новій таблиці маппінгів (по id або external_id)
     const inNewTable = mapperState.mapCharacteristics.some(m =>
-        m.mp_characteristic_id === mpCharId
+        m.mp_characteristic_id === mpCharId || m.mp_characteristic_id === externalId
     );
     if (inNewTable) return true;
 
     // Перевірити в старому JSON форматі (data.our_char_id)
-    const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
     if (mpChar) {
         const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
         if (data.our_char_id) return true;
@@ -1457,8 +1533,9 @@ export function getMappedMpOptions(ownOptionId) {
         m.option_id === ownOptionId
     );
     mappings.forEach(mapping => {
+        // Шукаємо по id або external_id
         const mpOption = mapperState.mpOptions.find(o =>
-            o.id === mapping.mp_option_id
+            o.id === mapping.mp_option_id || o.external_id === mapping.mp_option_id
         );
         if (mpOption && !addedIds.has(mpOption.id)) {
             result.push({ ...mpOption, _mappingId: mapping.id, _source: 'new' });
@@ -1484,14 +1561,17 @@ export function getMappedMpOptions(ownOptionId) {
  * @param {string} mpOptionId - ID MP опції
  */
 export function isMpOptionMapped(mpOptionId) {
-    // Перевірити в новій таблиці маппінгів
+    // Знайти MP опцію щоб отримати external_id
+    const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
+    const externalId = mpOption?.external_id;
+
+    // Перевірити в новій таблиці маппінгів (по id або external_id)
     const inNewTable = mapperState.mapOptions.some(m =>
-        m.mp_option_id === mpOptionId
+        m.mp_option_id === mpOptionId || m.mp_option_id === externalId
     );
     if (inNewTable) return true;
 
     // Перевірити в старому JSON форматі (data.our_option_id)
-    const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
     if (mpOption) {
         const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
         if (data.our_option_id) return true;

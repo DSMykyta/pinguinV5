@@ -346,6 +346,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
         byMarketplace[mpId].items.push(mpOpt);
     });
 
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
     Object.entries(byMarketplace).forEach(([mpId, data]) => {
         const navItem = document.createElement('a');
         navItem.href = `#section-mp-opt-${mpId}`;
@@ -355,7 +358,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
             <span class="material-symbols-outlined">storefront</span>
             <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
         `;
-        nav.appendChild(navItem);
+        navTarget.appendChild(navItem);
 
         const section = document.createElement('section');
         section.id = `section-mp-opt-${mpId}`;

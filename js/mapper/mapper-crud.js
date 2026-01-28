@@ -554,6 +554,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
     });
 
     // Додати секції по маркетплейсах
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
     Object.entries(byMarketplace).forEach(([mpId, data]) => {
         // Меню
         const navItem = document.createElement('a');
@@ -564,7 +567,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
             <span class="material-symbols-outlined">storefront</span>
             <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
         `;
-        nav.appendChild(navItem);
+        navTarget.appendChild(navItem);
 
         // Секція
         const section = document.createElement('section');
@@ -776,6 +779,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
     });
 
     // Додати секції по маркетплейсах
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
     Object.entries(byMarketplace).forEach(([mpId, data]) => {
         // Меню
         const navItem = document.createElement('a');
@@ -786,7 +792,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
             <span class="material-symbols-outlined">storefront</span>
             <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
         `;
-        nav.appendChild(navItem);
+        navTarget.appendChild(navItem);
 
         // Секція
         const section = document.createElement('section');
