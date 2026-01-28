@@ -1370,8 +1370,9 @@ export function getMappedMpCharacteristics(ownCharId) {
         m.characteristic_id === ownCharId
     );
     mappings.forEach(mapping => {
+        // Шукаємо по id або external_id
         const mpChar = mapperState.mpCharacteristics.find(c =>
-            c.id === mapping.mp_characteristic_id
+            c.id === mapping.mp_characteristic_id || c.external_id === mapping.mp_characteristic_id
         );
         if (mpChar && !addedIds.has(mpChar.id)) {
             result.push({ ...mpChar, _mappingId: mapping.id, _source: 'new' });
@@ -1397,14 +1398,17 @@ export function getMappedMpCharacteristics(ownCharId) {
  * @param {string} mpCharId - ID MP характеристики
  */
 export function isMpCharacteristicMapped(mpCharId) {
-    // Перевірити в новій таблиці маппінгів
+    // Знайти MP характеристику щоб отримати external_id
+    const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
+    const externalId = mpChar?.external_id;
+
+    // Перевірити в новій таблиці маппінгів (по id або external_id)
     const inNewTable = mapperState.mapCharacteristics.some(m =>
-        m.mp_characteristic_id === mpCharId
+        m.mp_characteristic_id === mpCharId || m.mp_characteristic_id === externalId
     );
     if (inNewTable) return true;
 
     // Перевірити в старому JSON форматі (data.our_char_id)
-    const mpChar = mapperState.mpCharacteristics.find(c => c.id === mpCharId);
     if (mpChar) {
         const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
         if (data.our_char_id) return true;
@@ -1529,8 +1533,9 @@ export function getMappedMpOptions(ownOptionId) {
         m.option_id === ownOptionId
     );
     mappings.forEach(mapping => {
+        // Шукаємо по id або external_id
         const mpOption = mapperState.mpOptions.find(o =>
-            o.id === mapping.mp_option_id
+            o.id === mapping.mp_option_id || o.external_id === mapping.mp_option_id
         );
         if (mpOption && !addedIds.has(mpOption.id)) {
             result.push({ ...mpOption, _mappingId: mapping.id, _source: 'new' });
@@ -1556,14 +1561,17 @@ export function getMappedMpOptions(ownOptionId) {
  * @param {string} mpOptionId - ID MP опції
  */
 export function isMpOptionMapped(mpOptionId) {
-    // Перевірити в новій таблиці маппінгів
+    // Знайти MP опцію щоб отримати external_id
+    const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
+    const externalId = mpOption?.external_id;
+
+    // Перевірити в новій таблиці маппінгів (по id або external_id)
     const inNewTable = mapperState.mapOptions.some(m =>
-        m.mp_option_id === mpOptionId
+        m.mp_option_id === mpOptionId || m.mp_option_id === externalId
     );
     if (inNewTable) return true;
 
     // Перевірити в старому JSON форматі (data.our_option_id)
-    const mpOption = mapperState.mpOptions.find(o => o.id === mpOptionId);
     if (mpOption) {
         const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
         if (data.our_option_id) return true;
