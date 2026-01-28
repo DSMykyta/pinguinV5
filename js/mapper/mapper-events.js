@@ -267,8 +267,67 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    const { showSelectOwnCategoryModal } = await import('./mapper-crud.js');
-                    await showSelectOwnCategoryModal(selectedIds);
+                    // Розділити на власні та MP
+                    const ownIds = [];
+                    const mpIds = [];
+                    selectedIds.forEach(id => {
+                        const checkbox = document.querySelector(`[data-row-id="${id}"][data-tab="categories"]`);
+                        const source = checkbox?.dataset.source;
+                        if (source === 'own') {
+                            ownIds.push(id);
+                        } else {
+                            mpIds.push(id);
+                        }
+                    });
+
+                    // Якщо тільки власні - нічого робити
+                    if (mpIds.length === 0) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть MP категорії для маппінгу', 'warning');
+                        return;
+                    }
+
+                    // Якщо 1 власна + MP категорії - підтвердити і замапити
+                    if (ownIds.length === 1) {
+                        const { batchCreateCategoryMapping, getCategories } = await import('./mapper-data.js');
+                        const { showToast } = await import('../common/ui-toast.js');
+                        const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
+                        const { renderCurrentTab } = await import('./mapper-table.js');
+                        const { getBatchBar } = await import('../common/ui-batch-actions.js');
+
+                        const ownCat = getCategories().find(c => c.id === ownIds[0]);
+                        const ownName = ownCat?.name_ua || ownIds[0];
+
+                        const confirmed = await showConfirmModal({
+                            title: 'Замапити?',
+                            message: `Прив'язати ${mpIds.length} MP категорій до "${ownName}"?`,
+                            confirmText: 'Замапити',
+                            cancelText: 'Скасувати'
+                        });
+
+                        if (!confirmed) return;
+
+                        await batchCreateCategoryMapping(mpIds, ownIds[0]);
+
+                        mapperState.selectedRows.categories.clear();
+                        const batchBar = getBatchBar('mapper-categories');
+                        if (batchBar) batchBar.clearSelection();
+
+                        showToast(`Замаплено ${mpIds.length} категорій`, 'success');
+                        renderCurrentTab();
+                        return;
+                    }
+
+                    // Якщо кілька власних - попередження
+                    if (ownIds.length > 1) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть тільки одну власну категорію', 'warning');
+                        return;
+                    }
+
+                    // Тільки MP - показати модалку вибору
+                    const { showSelectOwnCategoryModal } = await import('./mapper-categories.js');
+                    await showSelectOwnCategoryModal(mpIds);
                 }
             }
         ],
@@ -287,8 +346,63 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    const { showSelectOwnCharacteristicModal } = await import('./mapper-crud.js');
-                    await showSelectOwnCharacteristicModal(selectedIds);
+                    // Розділити на власні та MP
+                    const ownIds = [];
+                    const mpIds = [];
+                    selectedIds.forEach(id => {
+                        const checkbox = document.querySelector(`[data-row-id="${id}"][data-tab="characteristics"]`);
+                        const source = checkbox?.dataset.source;
+                        if (source === 'own') {
+                            ownIds.push(id);
+                        } else {
+                            mpIds.push(id);
+                        }
+                    });
+
+                    if (mpIds.length === 0) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть MP характеристики для маппінгу', 'warning');
+                        return;
+                    }
+
+                    if (ownIds.length === 1) {
+                        const { batchCreateCharacteristicMapping, getCharacteristics } = await import('./mapper-data.js');
+                        const { showToast } = await import('../common/ui-toast.js');
+                        const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
+                        const { renderCurrentTab } = await import('./mapper-table.js');
+                        const { getBatchBar } = await import('../common/ui-batch-actions.js');
+
+                        const ownChar = getCharacteristics().find(c => c.id === ownIds[0]);
+                        const ownName = ownChar?.name_ua || ownIds[0];
+
+                        const confirmed = await showConfirmModal({
+                            title: 'Замапити?',
+                            message: `Прив'язати ${mpIds.length} MP характеристик до "${ownName}"?`,
+                            confirmText: 'Замапити',
+                            cancelText: 'Скасувати'
+                        });
+
+                        if (!confirmed) return;
+
+                        await batchCreateCharacteristicMapping(mpIds, ownIds[0]);
+
+                        mapperState.selectedRows.characteristics.clear();
+                        const batchBar = getBatchBar('mapper-characteristics');
+                        if (batchBar) batchBar.clearSelection();
+
+                        showToast(`Замаплено ${mpIds.length} характеристик`, 'success');
+                        renderCurrentTab();
+                        return;
+                    }
+
+                    if (ownIds.length > 1) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть тільки одну власну характеристику', 'warning');
+                        return;
+                    }
+
+                    const { showSelectOwnCharacteristicModal } = await import('./mapper-characteristics.js');
+                    await showSelectOwnCharacteristicModal(mpIds);
                 }
             },
             {
@@ -296,7 +410,7 @@ function initMapperBatchActions() {
                 label: 'Авто-маппінг',
                 icon: 'auto_fix_high',
                 handler: async (selectedIds, tabId) => {
-                    const { handleAutoMapCharacteristics } = await import('./mapper-crud.js');
+                    const { handleAutoMapCharacteristics } = await import('./mapper-characteristics.js');
                     await handleAutoMapCharacteristics(selectedIds);
                 }
             }
@@ -316,8 +430,63 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    const { showSelectOwnOptionModal } = await import('./mapper-crud.js');
-                    await showSelectOwnOptionModal(selectedIds);
+                    // Розділити на власні та MP
+                    const ownIds = [];
+                    const mpIds = [];
+                    selectedIds.forEach(id => {
+                        const checkbox = document.querySelector(`[data-row-id="${id}"][data-tab="options"]`);
+                        const source = checkbox?.dataset.source;
+                        if (source === 'own') {
+                            ownIds.push(id);
+                        } else {
+                            mpIds.push(id);
+                        }
+                    });
+
+                    if (mpIds.length === 0) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть MP опції для маппінгу', 'warning');
+                        return;
+                    }
+
+                    if (ownIds.length === 1) {
+                        const { batchCreateOptionMapping, getOptions } = await import('./mapper-data.js');
+                        const { showToast } = await import('../common/ui-toast.js');
+                        const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
+                        const { renderCurrentTab } = await import('./mapper-table.js');
+                        const { getBatchBar } = await import('../common/ui-batch-actions.js');
+
+                        const ownOpt = getOptions().find(o => o.id === ownIds[0]);
+                        const ownName = ownOpt?.value_ua || ownIds[0];
+
+                        const confirmed = await showConfirmModal({
+                            title: 'Замапити?',
+                            message: `Прив'язати ${mpIds.length} MP опцій до "${ownName}"?`,
+                            confirmText: 'Замапити',
+                            cancelText: 'Скасувати'
+                        });
+
+                        if (!confirmed) return;
+
+                        await batchCreateOptionMapping(mpIds, ownIds[0]);
+
+                        mapperState.selectedRows.options.clear();
+                        const batchBar = getBatchBar('mapper-options');
+                        if (batchBar) batchBar.clearSelection();
+
+                        showToast(`Замаплено ${mpIds.length} опцій`, 'success');
+                        renderCurrentTab();
+                        return;
+                    }
+
+                    if (ownIds.length > 1) {
+                        const { showToast } = await import('../common/ui-toast.js');
+                        showToast('Оберіть тільки одну власну опцію', 'warning');
+                        return;
+                    }
+
+                    const { showSelectOwnOptionModal } = await import('./mapper-options.js');
+                    await showSelectOwnOptionModal(mpIds);
                 }
             },
             {
@@ -325,7 +494,7 @@ function initMapperBatchActions() {
                 label: 'Авто-маппінг',
                 icon: 'auto_fix_high',
                 handler: async (selectedIds, tabId) => {
-                    const { handleAutoMapOptions } = await import('./mapper-crud.js');
+                    const { handleAutoMapOptions } = await import('./mapper-options.js');
                     await handleAutoMapOptions(selectedIds);
                 }
             }
