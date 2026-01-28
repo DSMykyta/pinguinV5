@@ -588,11 +588,9 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    ${item._mappingId ? `
                     <button class="btn-icon btn-unmap btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
-                    ` : ''}
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">
