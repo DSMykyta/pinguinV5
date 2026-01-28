@@ -3,10 +3,24 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    MAPPER - INITIALIZATION                               ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  🔒 ЯДРО (не видаляти):                                                  ║
+ * ║  ├── mapper-init.js       — Ініціалізація модуля                         ║
+ * ║  ├── mapper-main.js       — Точка входу, завантаження плагінів           ║
+ * ║  ├── mapper-state.js      — Централізований state + hooks                ║
+ * ║  ├── mapper-utils.js      — Спільні утиліти                              ║
+ * ║  ├── mapper-data.js       — API операції з даними                        ║
+ * ║  └── mapper-table.js      — Рендеринг таблиць                            ║
+ * ║                                                                          ║
+ * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
+ * ║  ├── mapper-categories.js      — Категорії CRUD + модалки                ║
+ * ║  ├── mapper-characteristics.js — Характеристики CRUD + модалки           ║
+ * ║  ├── mapper-options.js         — Опції CRUD + модалки                    ║
+ * ║  ├── mapper-marketplaces.js    — Маркетплейси CRUD + модалки             ║
+ * ║  └── mapper-import.js          — Імпорт даних (TODO)                     ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Головний файл ініціалізації модуля Marketplace Mapper.
- * Управління маппінгом власних даних до даних маркетплейсів.
  */
 
 import { loadMapperData } from './mapper-data.js';
@@ -15,85 +29,16 @@ import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import { loadMapperPlugins } from './mapper-main.js';
 
-/**
- * Глобальний стан для mapper модуля
- */
-export const mapperState = {
-    // Активний таб
-    activeTab: 'categories', // categories | characteristics | options | marketplaces
-
-    // Дані
-    categories: [],
-    characteristics: [],
-    options: [],
-    marketplaces: [],
-
-    // Дані маркетплейсів (для модалки перегляду)
-    mpCategories: [],
-    mpCharacteristics: [],
-    mpOptions: [],
-
-    // Маппінги
-    mapCategories: [],
-    mapCharacteristics: [],
-    mapOptions: [],
-
-    // Пошук
-    searchQuery: '',
-    searchColumns: {
-        categories: ['id', 'name_ua', 'name_ru'],
-        characteristics: ['id', 'name_ua', 'name_ru', 'type'],
-        options: ['id', 'value_ua', 'value_ru'],
-        marketplaces: ['id', 'name', 'slug']
-    },
-
-    // Фільтри (source: all|own|mp-xxx для фільтрації по джерелу)
-    filters: {
-        categories: { source: 'all' },
-        characteristics: { source: 'all' },
-        options: { source: 'all' },
-        marketplaces: { source: 'all' }
-    },
-
-    // Видимі колонки для кожного табу
-    visibleColumns: {
-        categories: ['id', '_nestingLevel', 'name_ua', 'parent_id'],
-        characteristics: ['id', 'category_ids', 'name_ua', 'type', 'is_global'],
-        options: ['id', 'characteristic_id', 'value_ua'],
-        marketplaces: ['id', 'name', 'slug', 'is_active']
-    },
-
-    // Сортування
-    sortKey: null,
-    sortOrder: 'asc', // asc | desc
-
-    // Пагінація
-    pagination: {
-        currentPage: 1,
-        pageSize: 25,
-        totalItems: 0
-    },
-
-    // API пагінації
-    paginationAPI: null,
-
-    // Вибраний маркетплейс для перегляду даних
-    selectedMarketplace: null,
-
-    // Вибрані рядки для batch операцій
-    selectedRows: {
-        categories: new Set(),
-        characteristics: new Set(),
-        options: new Set(),
-        marketplaces: new Set()
-    }
-};
+// Re-export mapperState для зворотної сумісності
+export { mapperState } from './mapper-state.js';
+import { mapperState } from './mapper-state.js';
 
 /**
  * Головна функція ініціалізації модуля Mapper
  */
-export function initMapper() {
+export async function initMapper() {
     console.log('🗺️ Ініціалізація Mapper...');
 
     // Ініціалізувати tooltip систему
@@ -107,6 +52,9 @@ export function initMapper() {
 
     // Ініціалізувати обробники табів
     initTabSwitching();
+
+    // Завантажити плагіни
+    await loadMapperPlugins();
 
     // Перевірити авторизацію та завантажити дані
     checkAuthAndLoadData();
@@ -320,7 +268,7 @@ async function loadAsideMapper() {
         const addCategoryBtn = document.getElementById('btn-add-category-aside');
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', async () => {
-                const { showAddCategoryModal } = await import('./mapper-crud.js');
+                const { showAddCategoryModal } = await import('./mapper-categories.js');
                 showAddCategoryModal();
             });
         }
@@ -328,7 +276,7 @@ async function loadAsideMapper() {
         const addCharacteristicBtn = document.getElementById('btn-add-characteristic-aside');
         if (addCharacteristicBtn) {
             addCharacteristicBtn.addEventListener('click', async () => {
-                const { showAddCharacteristicModal } = await import('./mapper-crud.js');
+                const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
                 showAddCharacteristicModal();
             });
         }
@@ -336,7 +284,7 @@ async function loadAsideMapper() {
         const addOptionBtn = document.getElementById('btn-add-option-aside');
         if (addOptionBtn) {
             addOptionBtn.addEventListener('click', async () => {
-                const { showAddOptionModal } = await import('./mapper-crud.js');
+                const { showAddOptionModal } = await import('./mapper-options.js');
                 showAddOptionModal();
             });
         }
@@ -345,6 +293,7 @@ async function loadAsideMapper() {
         const importBtn = document.getElementById('btn-import-aside');
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
+                // TODO: Перенести в mapper-import.js
                 const { showImportModal } = await import('./mapper-crud.js');
                 showImportModal();
             });

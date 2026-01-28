@@ -8,7 +8,7 @@
  * Обробники подій для Marketplace Mapper.
  */
 
-import { mapperState } from './mapper-init.js';
+import { mapperState } from './mapper-state.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
