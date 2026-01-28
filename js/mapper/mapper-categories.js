@@ -12,7 +12,7 @@ import { mapperState, registerHook, markPluginLoaded } from './mapper-state.js';
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
     getCharacteristics, getMpCategories, getMarketplaces,
-    batchCreateCategoryMapping
+    batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -114,6 +114,7 @@ export async function showEditCategoryModal(id) {
     if (modalEl) initCustomSelects(modalEl);
     fillCategoryForm(category);
     populateRelatedCharacteristics(id);
+    renderMappedMpCategoriesSections(id);
     initSectionNavigation('category-section-navigator');
 
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
@@ -507,4 +508,124 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
 
     const modalOverlay = createModalOverlay(modalHtml);
     setupModalCloseHandlers(modalOverlay, () => closeModalOverlay(modalOverlay));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MP СЕКЦІЇ
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderMappedMpCategoriesSections(ownCatId) {
+    const nav = document.getElementById('category-section-navigator');
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    content.querySelectorAll('section.mp-section').forEach(el => el.remove());
+
+    const mappedMpCats = getMappedMpCategories(ownCatId);
+    if (mappedMpCats.length === 0) return;
+
+    const marketplaces = getMarketplaces();
+    const byMarketplace = {};
+
+    mappedMpCats.forEach(mpCat => {
+        const mpId = mpCat.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            const marketplace = marketplaces.find(m => m.id === mpId);
+            byMarketplace[mpId] = {
+                name: marketplace?.name || mpId,
+                items: []
+            };
+        }
+        byMarketplace[mpId].items.push(mpCat);
+    });
+
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
+    Object.entries(byMarketplace).forEach(([mpId, data]) => {
+        const navItem = document.createElement('a');
+        navItem.href = `#section-mp-cat-${mpId}`;
+        navItem.className = 'sidebar-nav-item mp-nav-item';
+        navItem.setAttribute('aria-label', data.name);
+        navItem.innerHTML = `
+            <span class="material-symbols-outlined">storefront</span>
+            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
+        `;
+        navTarget.appendChild(navItem);
+
+        const section = document.createElement('section');
+        section.id = `section-mp-cat-${mpId}`;
+        section.className = 'mp-section';
+        section.innerHTML = renderMpCategorySectionContent(data);
+        content.appendChild(section);
+    });
+
+    content.querySelectorAll('.btn-unmap-cat').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const mappingId = btn.dataset.mappingId;
+            if (mappingId) {
+                try {
+                    await deleteCategoryMapping(mappingId);
+                    showToast('Маппінг видалено', 'success');
+                    renderMappedMpCategoriesSections(ownCatId);
+                    renderCurrentTab();
+                } catch (error) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                }
+            }
+        });
+    });
+}
+
+function renderMpCategorySectionContent(marketplaceData) {
+    const { name, items } = marketplaceData;
+
+    const itemsHtml = items.map(item => {
+        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+        return `
+            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
+                    ${item._mappingId ? `
+                    <button class="btn-icon btn-unmap btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                    ` : ''}
+                </div>
+                <div class="mp-item-fields">
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" class="input-main" value="${escapeHtml(data.name || '')}" readonly>
+                        </div>
+                        ${data.parent_name ? `
+                        <div class="form-group">
+                            <label>Батьківська</label>
+                            <input type="text" class="input-main" value="${escapeHtml(data.parent_name)}" readonly>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="section-header">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2>${escapeHtml(name)}</h2>
+                    <span class="badge badge-neutral">${items.length}</span>
+                </div>
+                <h3>Прив'язані категорії маркетплейсу</h3>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="mp-items-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
 }
