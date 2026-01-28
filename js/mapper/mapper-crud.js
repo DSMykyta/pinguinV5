@@ -531,7 +531,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
 
     // Очистити динамічні елементи
     nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
-    content.querySelectorAll('.mapper-section.mp-section').forEach(el => el.remove());
+    content.querySelectorAll('section.mp-section').forEach(el => el.remove());
 
     // Отримати замаплені MP характеристики
     const mappedMpChars = getMappedMpCharacteristics(ownCharId);
@@ -569,7 +569,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         // Секція
         const section = document.createElement('section');
         section.id = `section-mp-char-${mpId}`;
-        section.className = 'mapper-section mp-section';
+        section.className = 'mp-section';
         section.innerHTML = renderMpCharacteristicSectionContent(data);
         content.appendChild(section);
     });
@@ -722,7 +722,7 @@ function initSectionNavigation(navId) {
     });
 
     // При скролі - оновлювати active в меню
-    const sections = content.querySelectorAll('.mapper-section');
+    const sections = content.querySelectorAll('section[id]');
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver((entries) => {
@@ -753,7 +753,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
 
     // Очистити динамічні елементи
     nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
-    content.querySelectorAll('.mapper-section.mp-section').forEach(el => el.remove());
+    content.querySelectorAll('section.mp-section').forEach(el => el.remove());
 
     // Отримати замаплені MP опції
     const mappedMpOpts = getMappedMpOptions(ownOptionId);
@@ -791,7 +791,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
         // Секція
         const section = document.createElement('section');
         section.id = `section-mp-opt-${mpId}`;
-        section.className = 'mapper-section mp-section';
+        section.className = 'mp-section';
         section.innerHTML = renderMpOptionSectionContent(data);
         content.appendChild(section);
     });

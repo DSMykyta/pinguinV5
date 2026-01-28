@@ -1712,43 +1712,16 @@
 /* UTILITY CLASSES - defined earlier in this file */
 
 /* ==========================================================================
-   MAPPER SECTIONS (fullscreen modal for characteristics/options)
+   MP SECTION - read-only marketplace data (modifier for standard section)
    ========================================================================== */
 
-.mapper-section {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 8px 24px;
-    overflow: hidden;
-    padding-bottom: 72px;
-    scroll-snap-align: start;
-}
-
-.mapper-section .section-header {
-    flex: 0 0 auto;
-    padding-bottom: 16px;
-}
-
-.mapper-section .section-content {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    min-height: 0;
-    margin: 0;
-    padding: 24px;
-    background-color: var(--color-surface-c-lowest, #fff);
-    border: 1px solid var(--color-outline);
-    border-radius: 12px;
-}
-
-/* MP Section - read-only marketplace data */
-.mapper-section.mp-section .section-content {
+.mp-section .section-content {
     background: var(--color-surface-c-low);
 }
 
-.mapper-section.mp-section input,
-.mapper-section.mp-section select,
-.mapper-section.mp-section textarea {
+.mp-section input,
+.mp-section select,
+.mp-section textarea {
     pointer-events: none;
     opacity: 0.7;
 }
