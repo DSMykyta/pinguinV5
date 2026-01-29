@@ -322,6 +322,16 @@ function normalizeNutrientName(name) {
  * @returns {{left: string, right: string}}
  */
 function parseLine(line) {
+    // Спеціальна обробка для "Пищевая ценность" / "Харчова цінність"
+    // Вони можуть мати значення типу "2 таблетки", "100 г", "на порцию"
+    const headerMatch = line.match(/^(пищевая ценность|харчова цінність)\s+(.+)$/i);
+    if (headerMatch) {
+        return {
+            left: headerMatch[1].trim(),
+            right: headerMatch[2].trim()
+        };
+    }
+
     // Регулярка для знаходження числового значення в кінці рядка
     // Враховує: <, >, числа, одиниці виміру, але НЕ відсотки
     // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg"
