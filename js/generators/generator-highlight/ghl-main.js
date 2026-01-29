@@ -254,10 +254,11 @@ async function initHighlightGenerator() {
         }
         // Ctrl+Shift+C - копіювати тільки текст без розмітки
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
-            e.preventDefault();
             const selection = window.getSelection();
-            if (selection.rangeCount) {
-                const plainText = selection.toString();
+            const plainText = selection.toString();
+            // Only prevent default and copy if there's actual text selected
+            if (plainText) {
+                e.preventDefault();
                 navigator.clipboard.writeText(plainText).then(() => {
                     showToast('Скопійовано текст (без HTML)', 'success');
                 });
