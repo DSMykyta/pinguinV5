@@ -2,7 +2,7 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v7.0      ║
+ * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v7.1      ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  * * ПРИЗНАЧЕННЯ:
  * Обробляє найскладніші етикетки. Надійно об'єднує значення, розбирає
@@ -261,6 +261,48 @@ function parseText(text) {
 }
 
 /**
+ * Нормалізує назви нутрієнтів до стандартних форм.
+ * Видаляє двокрапку з кінця.
+ * @param {string} name - Назва нутрієнту
+ * @returns {string} - Нормалізована назва
+ */
+function normalizeNutrientName(name) {
+    // Видаляємо двокрапку з кінця
+    let normalized = name.replace(/:$/, '').trim();
+
+    // Мапа нормалізації (ключ - regex, значення - стандартна форма)
+    const normalizationMap = [
+        // Калории
+        [/^(калорийность|энергетическая ценность|калорій|енергетична цінність|calories|energy|kcal)$/i, 'Калории'],
+        // Жиры
+        [/^(жир|жиров|жири|жирів|fat|fats|total fat)$/i, 'Жиры'],
+        // Насыщенные жиры
+        [/^(насыщенные жиры|насыщенных жиров|насичені жири|saturated fat)$/i, 'Насыщенные жиры'],
+        // Углеводы
+        [/^(углеводов|вуглеводи|вуглеводів|carbohydrates|carbs|total carbohydrate)$/i, 'Углеводы'],
+        // Пищевые волокна
+        [/^(клетчатка|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i, 'Пищевые волокна'],
+        // Белок
+        [/^(белки|белков|білок|білка|білків|protein|proteins)$/i, 'Белок'],
+        // Сахар
+        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, 'Сахар'],
+        // Натрий
+        [/^(натрий|натрия|натрій|натрію|sodium)$/i, 'Натрий'],
+        // Холестерин
+        [/^(холестерин|холестерина|холестерол|cholesterol)$/i, 'Холестерин'],
+    ];
+
+    for (const [regex, standardName] of normalizationMap) {
+        if (regex.test(normalized)) {
+            return standardName;
+        }
+    }
+
+    // Якщо не знайдено в мапі - повертаємо без двокрапки
+    return normalized;
+}
+
+/**
  * Парсить один рядок тексту на left/right частини.
  * Враховує дужки з описами (не плутає їх з числовими значеннями).
  * @param {string} line - Рядок для парсингу
@@ -285,6 +327,9 @@ function parseLine(line) {
             right = ltGtMatch[2] + ' ' + right;
         }
 
+        // Нормалізуємо назву нутрієнту
+        left = normalizeNutrientName(left);
+
         return { left, right };
     }
 
@@ -303,12 +348,15 @@ function parseLine(line) {
         // Якщо right не містить одиницю виміру і left занадто короткий - це помилковий split
         const hasUnit = /(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)/i.test(right);
         if (!hasUnit && left.length < 3) {
-            return { left: line, right: '' };
+            return { left: normalizeNutrientName(line), right: '' };
         }
+
+        // Нормалізуємо назву нутрієнту
+        left = normalizeNutrientName(left);
 
         return { left, right };
     }
 
     // Якщо не знайдено числового значення - повертаємо весь рядок як left
-    return { left: line, right: '' };
+    return { left: normalizeNutrientName(line), right: '' };
 }
