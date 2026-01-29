@@ -104,7 +104,7 @@ export async function processAndFillInputs(text) {
             boldBtn?.classList.add('active');
         }
 
-        if (!entry.right && !entry.isSingle) {
+        if (!entry.right && !entry.isSingle && !entry.isHeader) {
             newRow.classList.add(ROW_CLASSES.COLSPAN2);
             const colspanBtn = newRow.querySelector(`[data-class="${ROW_CLASSES.COLSPAN2}"]`);
             colspanBtn?.classList.add('active');
