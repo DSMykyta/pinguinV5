@@ -57,6 +57,22 @@ const IHERB_SKIP_PATTERNS = [
 /** Символи для видалення */
 const CLEANUP_SYMBOLS = /\*\*|[†‡✝×®*•○◊■□▪▫]/g;
 
+/** Стандартні харчові цінності (для визначення де закінчується БЖВ) */
+const STANDARD_NUTRITION = new Set([
+    'калории', 'калорії', 'calories',
+    'жиры', 'жири', 'fat', 'fats',
+    ' - насыщенные', ' - насичені', ' - от жиров', ' - від жирів', ' - транс-жиры', ' - транс-жири',
+    'холестерин', 'cholesterol',
+    'натрий', 'натрій', 'sodium',
+    'углеводы', 'вуглеводи', 'carbohydrates', 'carbs',
+    ' - пищевые волокна', ' - харчові волокна', ' - сахар', ' - цукор', ' - добавленного сахара', ' - доданого цукру',
+    'белок', 'білок', 'protein',
+    'соль', 'сіль', 'salt'
+]);
+
+/** Regex для вітамінів та мінералів */
+const VITAMIN_MINERAL_PATTERN = /^(витамин|вітамін|vitamin|кальций|кальцій|calcium|железо|залізо|iron|калий|калій|potassium|магний|магній|magnesium|цинк|zinc|селен|selenium|медь|мідь|copper|марганец|марганець|manganese|хром|chromium|молибден|молібден|molybdenum|йод|iodine|фосфор|phosphorus)/i;
+
 // ============================================================================
 // НОРМАЛІЗАЦІЯ НАЗВ
 // ============================================================================
@@ -106,9 +122,9 @@ const NORMALIZATION_MAP = [
     [/^(добавленн?ый сахар|добавленного сахара|доданий цукор|added sugar|includes.*added)$/i,
      ' - добавленного сахара', ' - доданого цукру'],
 
-    // Пищевые волокна
+    // - пищевые волокна (підкатегорія вуглеводів)
     [/^(клетчатка|пищевые волокна|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i,
-     'Пищевые волокна', 'Харчові волокна'],
+     ' - пищевые волокна', ' - харчові волокна'],
 
     // Белок
     [/^(белок|белки|белков|білок|білка|білків|protein|proteins)$/i,
@@ -293,6 +309,9 @@ function parseText(text) {
         hasNutritionHeader = true;
     }
 
+    let wasInNutritionBlock = false; // Чи були в блоці стандартних харчових цінностей
+    let addedVitaminSeparator = false; // Чи вже додали розділювач перед вітамінами
+
     for (let i = 0; i < entries.length; i++) {
         const entry = entries[i];
         const nextEntry = entries[i + 1];
@@ -300,6 +319,22 @@ function parseText(text) {
         const isPishchevaya = /^(пищевая ценность|харчова цінність)$/i.test(entry.left.trim());
         const isIngredients = /^(ингредиенты|інгредієнти):?$/i.test(entry.left.trim());
         const isSostav = /^(состав|склад):?$/i.test(entry.left.trim());
+
+        // Перевіряємо чи це стандартна харчова цінність
+        const isStandardNutrition = STANDARD_NUTRITION.has(entry.left.toLowerCase().trim());
+        // Перевіряємо чи це вітамін/мінерал
+        const isVitaminMineral = VITAMIN_MINERAL_PATTERN.test(entry.left);
+
+        // Якщо перейшли від стандартних харчових цінностей до вітамінів - додаємо розділювач
+        if (wasInNutritionBlock && isVitaminMineral && !addedVitaminSeparator && entry.right) {
+            result.push({ left: '', right: '', isSeparator: true });
+            addedVitaminSeparator = true;
+        }
+
+        // Оновлюємо стан
+        if (isStandardNutrition || isPishchevaya) {
+            wasInNutritionBlock = true;
+        }
 
         // === ПИЩЕВАЯ ЦЕННОСТЬ ===
         if (isPishchevaya) {
