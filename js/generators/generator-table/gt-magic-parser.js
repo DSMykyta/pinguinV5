@@ -2,12 +2,46 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v7.1      ║
+ * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v8.0      ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  * * ПРИЗНАЧЕННЯ:
  * Обробляє найскладніші етикетки. Надійно об'єднує значення, розбирає
  * рядки та коректно видаляє відсоткові значення.
+ *
+ * v8.0: Додано підтримку формату iHerb, автоматичне розділення таблиць
+ *       (харчова цінність / інгредієнти), авто-додавання "ккал".
  */
+
+// Список харчових цінностей для розпізнавання (нормалізовані назви)
+const NUTRITIONAL_FACTS = new Set([
+    // Російські
+    'калории', 'калорийность', 'энергетическая ценность',
+    'жиры', 'жир', 'жиров', 'насыщенные жиры', 'насыщенных жиров', 'транс-жиры',
+    '- от жиров', '- насыщенные', '- транс-жиры',
+    'углеводы', 'углеводов', 'общее количество углеводов',
+    'белок', 'белки', 'белков',
+    'сахар', 'сахара', '- сахар',
+    'холестерин', 'холестерина',
+    'натрий', 'натрия',
+    'соль', 'пищевые волокна', 'клетчатка',
+    // Українські
+    'калорії', 'калорій', 'енергетична цінність',
+    'жири', 'жирів', 'насичені жири', 'транс-жири',
+    '- від жирів', '- насичені', '- транс-жири',
+    'вуглеводи', 'вуглеводів',
+    'білок', 'білка', 'білків',
+    'цукор', 'цукру', '- цукор',
+    'холестерин',
+    'натрій', 'натрію',
+    'сіль', 'харчові волокна',
+    // English
+    'calories', 'total fat', 'fat', 'saturated fat', 'trans fat',
+    'total carbohydrate', 'carbohydrates', 'carbs',
+    'protein', 'proteins',
+    'sugar', 'sugars', 'total sugars',
+    'cholesterol', 'sodium', 'salt',
+    'dietary fiber', 'fiber', 'fibre'
+]);
 
 import { createAndAppendRow } from './gt-row-manager.js';
 import { ROW_CLASSES } from './gt-config.js';
@@ -52,9 +86,9 @@ export async function processAndFillInputs(text) {
                 const isSameHeaderValue = isSameHeader(firstLeftInput.value, entry.left);
 
                 if (isEmptyHeader || isSameHeaderValue) {
-                    // Оновлюємо текст заголовка на поточну мову
+                    // Оновлюємо текст заголовка на поточну мову та значення порції
                     firstLeftInput.value = entry.left;
-                    firstRightInput.value = '';
+                    firstRightInput.value = entry.right || '';
 
                     // Додаємо клас single якщо потрібно
                     if (entry.isSingle && !firstHeader.classList.contains(ROW_CLASSES.SINGLE)) {
@@ -140,27 +174,67 @@ function isSameHeader(header1, header2) {
 }
 
 /**
+ * Перевіряє чи назва є харчовою цінністю
+ * @param {string} name - Назва для перевірки
+ * @returns {boolean}
+ */
+function isNutritionalFact(name) {
+    const normalized = name.toLowerCase().replace(/:$/, '').trim();
+    return NUTRITIONAL_FACTS.has(normalized);
+}
+
+/**
  * Головна функція, що перетворює сирий текст на масив логічних записів.
  * @param {string} text - Вхідний текст.
  * @returns {Array<{left: string, right: string, isHeader?: boolean, isSeparator?: boolean, isSingle?: boolean, isBold?: boolean}>}
  */
 function parseText(text) {
+    // 0. Витягуємо розмір порції з формату iHerb
+    let servingSize = '';
+    const servingSizeMatch = text.match(/размер порции[:\s]+(.+?)(?:\n|$)/i) ||
+                             text.match(/розмір порції[:\s]+(.+?)(?:\n|$)/i) ||
+                             text.match(/serving size[:\s]+(.+?)(?:\n|$)/i);
+    if (servingSizeMatch) {
+        servingSize = servingSizeMatch[1].trim();
+    }
+
     // 1. Попереднє очищення та розбивка на рядки
     let lines = text
-        // Видаляємо зайві символи: **, †, ®, ✝, ×, ‡, *, зірочки
-        .replace(/\*\*|[†‡✝×®*]/g, '')
+        // Видаляємо зайві символи: **, †, ®, ✝, ×, ‡, *, •, ○, зірочки
+        .replace(/\*\*|[†‡✝×®*•○◊■□▪▫]/g, '')
+        // Видаляємо відсотки в кінці (включаючи з комами): 16,667% або 50%
+        .replace(/\s+[\d,.]+%\s*$/gm, '')
+        // Замінюємо табуляції на пробіли
+        .replace(/\t+/g, ' ')
         // Видаляємо тисячні роздільники (1,000 -> 1000)
         .replace(/(\d),(\d{3})/g, '$1$2')
         .split('\n')
         .map(line => line.trim())
-        .filter(line => line);
+        // Видаляємо множинні пробіли
+        .map(line => line.replace(/\s{2,}/g, ' '))
+        .filter(line => line)
+        // Видаляємо рядки iHerb, які не потрібні
+        .filter(line => {
+            const lower = line.toLowerCase();
+            // Пропускаємо "Размер порции: ..."
+            if (/^(размер порции|розмір порції|serving size)[:\s]/i.test(line)) return false;
+            // Пропускаємо "Количество порций в упаковке: ..."
+            if (/^(количество порций|кількість порцій|servings per)/i.test(line)) return false;
+            // Пропускаємо заголовок колонок "Количество на порцию | % от суточной нормы"
+            if (/^(количество на порцию|кількість на порцію|amount per)/i.test(line)) return false;
+            // Пропускаємо "% от суточной нормы" або "% Daily Value"
+            if (/^%\s*(от суточной|від добової|daily value)/i.test(line)) return false;
+            return true;
+        });
 
     // 2. "Склеювання" значень знизу вгору
-    const valueOnlyRegex = /^[<>]?\d[\d,.]*(\s*[\w()-]+)?$/;
+    // Regex для рядка що є ТІЛЬКИ значенням (число + одиниця виміру)
+    // Включає: Billion/Million CFU для пробіотиків, стандартні одиниці
+    const valueOnlyRegex = /^[<>]?\s*[\d,.]+\s*(?:billion|million|bil|mil|тыс|тис|млн|млрд)?\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО)$/i;
     const standardEntryRegex = /\D+\s+[\d,.]+/;
 
     for (let i = lines.length - 1; i > 0; i--) {
-        if (valueOnlyRegex.test(lines[i]) && !lines[i].match(/[a-zA-Z]{4,}/)) {
+        if (valueOnlyRegex.test(lines[i])) {
             for (let j = i - 1; j >= 0; j--) {
                 if (!standardEntryRegex.test(lines[j])) {
                     lines[j] += ' ' + lines[i];
@@ -180,6 +254,8 @@ function parseText(text) {
 
     // 4. Обробка спеціальних блоків (Пищевая ценность, Ингредиенты тощо)
     const processedEntries = [];
+    let isInNutritionSection = false; // Чи ми в секції харчової цінності
+    let hasAddedNutritionHeader = false; // Чи вже додали заголовок Пищевая ценность
 
     for (let i = 0; i < finalEntries.length; i++) {
         const entry = finalEntries[i];
@@ -189,21 +265,47 @@ function parseText(text) {
         const isIngredients = /^(ингредиенты|інгредієнти):?$/i.test(entry.left.trim());
         const isSostav = /^(состав|склад):?$/i.test(entry.left.trim());
 
-        // Обробка "Пищевая ценность" - тільки заголовок, right йде в наступний рядок
+        // Перевіряємо чи це харчова цінність
+        const isCurrentNutrition = isNutritionalFact(entry.left);
+
+        // Автоматичне розділення: якщо були в секції харчової цінності і тепер НЕ харчова цінність
+        if (isInNutritionSection && !isCurrentNutrition && !isPishchevayaTsennost && !isIngredients && !isSostav) {
+            // Це інгредієнт після харчової цінності - додаємо розділювач
+            processedEntries.push({
+                left: '',
+                right: '',
+                isSeparator: true
+            });
+            isInNutritionSection = false;
+        }
+
+        // Обробка "Пищевая ценность" - заголовок зі значенням в правій колонці
         if (isPishchevayaTsennost) {
-            // Заголовок
+            let rightValue = entry.right || '';
+
+            // Якщо right порожній, використовуємо servingSize з iHerb формату
+            if (!rightValue && servingSize) {
+                rightValue = servingSize;
+            }
+
+            // Якщо right порожній, перевіряємо чи наступний рядок - це значення порції
+            if (!rightValue && nextEntry) {
+                const isNextPortion = /^(\d+\s*(г|g|мл|ml|таблетк|капсул|порц|serving)|на\s+\d|per\s+\d|в\s+\d)/i.test(nextEntry.left);
+                const isNextSpecial = /^(калори|жир|белок|білок|углевод|вуглевод|холестерин|натрий|натрій)/i.test(nextEntry.left);
+
+                if (isNextPortion && !isNextSpecial) {
+                    rightValue = nextEntry.left + (nextEntry.right ? ' ' + nextEntry.right : '');
+                    i++; // Пропускаємо наступний entry
+                }
+            }
+
             processedEntries.push({
                 left: entry.left,
-                right: '',
+                right: rightValue,
                 isHeader: true
             });
-            // Якщо є right (наприклад "1 капсула"), додаємо як окремий рядок
-            if (entry.right) {
-                processedEntries.push({
-                    left: '',
-                    right: entry.right
-                });
-            }
+            isInNutritionSection = true;
+            hasAddedNutritionHeader = true;
         }
         // Обробка "Ингредиенты"
         else if (isIngredients) {
@@ -253,6 +355,10 @@ function parseText(text) {
         }
         // Звичайний рядок
         else {
+            // Якщо це харчова цінність - позначаємо що ми в секції
+            if (isCurrentNutrition) {
+                isInNutritionSection = true;
+            }
             processedEntries.push(entry);
         }
     }
@@ -270,32 +376,34 @@ function normalizeNutrientName(name) {
     // Видаляємо двокрапку з кінця
     let normalized = name.replace(/:$/, '').trim();
 
-    // Визначаємо мову за характерними українськими літерами
-    const isUkrainian = /[іїєґ]/i.test(normalized);
+    // Визначаємо мову: українські літери АБО українські слова без і/ї/є/ґ
+    const hasUkrainianLetters = /[іїєґ]/i.test(normalized);
+    const isUkrainianWord = /^(цукор|цукру|жири|жирів|вуглеводи|вуглеводів|білок|білка|білків|калорії|калорій|сіль|солі)$/i.test(normalized);
+    const isUkrainian = hasUkrainianLetters || isUkrainianWord;
 
     // Мапа нормалізації: [regex, російська форма, українська форма]
+    // Всі з великої літери, крім "- сахар"/"- цукор" (підкатегорія)
     const normalizationMap = [
         // Калории / Калорії
-        [/^(калорийность|энергетическая ценность|калорій|енергетична цінність|calories|energy|kcal)$/i, 'калории', 'калорії'],
+        [/^(калорийность|энергетическая ценность|калорій|енергетична цінність|calories|energy|kcal)$/i, 'Калории', 'Калорії'],
         // Жиры / Жири
-        [/^(жир|жиров|жири|жирів|fat|fats|total fat)$/i, 'жиры', 'жири'],
+        [/^(жир|жиров|жири|жирів|fat|fats|total fat)$/i, 'Жиры', 'Жири'],
         // Насыщенные жиры / Насичені жири
-        [/^(насыщенные жиры|насыщенных жиров|насичені жири|saturated fat)$/i, 'насыщенные жиры', 'насичені жири'],
+        [/^(насыщенные жиры|насыщенных жиров|насичені жири|saturated fat)$/i, 'Насыщенные жиры', 'Насичені жири'],
         // Углеводы / Вуглеводи
-        [/^(углеводы|углеводов|вуглеводи|вуглеводів|carbohydrates|carbs|total carbohydrate)$/i, 'углеводы', 'вуглеводи'],
+        [/^(углеводы|углеводов|вуглеводи|вуглеводів|carbohydrates|carbs|total carbohydrate|общее количество углеводов|загальна кількість вуглеводів)$/i, 'Углеводы', 'Вуглеводи'],
         // Пищевые волокна / Харчові волокна
-        [/^(клетчатка|пищевые волокна|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i, 'пищевые волокна', 'харчові волокна'],
+        [/^(клетчатка|пищевые волокна|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i, 'Пищевые волокна', 'Харчові волокна'],
         // Белок / Білок
-        [/^(белок|белки|белков|білок|білка|білків|protein|proteins)$/i, 'белок', 'білок'],
-        // Сахар / Цукор
-        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, 'сахар', 'цукор'],
+        [/^(белок|белки|белков|білок|білка|білків|protein|proteins)$/i, 'Белок', 'Білок'],
+        // - сахар / - цукор - підкатегорія з тире
+        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, '- сахар', '- цукор'],
         // Натрий / Натрій
-        [/^(натрий|натрия|натрій|натрію|sodium)$/i, 'натрий', 'натрій'],
+        [/^(натрий|натрия|натрій|натрію|sodium)$/i, 'Натрий', 'Натрій'],
         // Холестерин / Холестерин
-        [/^(холестерин|холестерина|холестерол|cholesterol)$/i, 'холестерин', 'холестерин'],
+        [/^(холестерин|холестерина|холестерол|cholesterol)$/i, 'Холестерин', 'Холестерин'],
         // Соль / Сіль
-        [/^(соль|солі|salt)$/i, 'соль', 'сіль'],
-        // Витамин / Вітамін (залишаємо як є, бо може бути A, B, C тощо)
+        [/^(соль|солі|salt)$/i, 'Соль', 'Сіль'],
     ];
 
     for (const [regex, ruForm, uaForm] of normalizationMap) {
@@ -315,10 +423,22 @@ function normalizeNutrientName(name) {
  * @returns {{left: string, right: string}}
  */
 function parseLine(line) {
+    // Спеціальна обробка для "Пищевая ценность" / "Харчова цінність"
+    // Вони можуть мати значення типу "2 таблетки", "100 г", "на порцию"
+    const headerMatch = line.match(/^(пищевая ценность|харчова цінність)\s+(.+)$/i);
+    if (headerMatch) {
+        return {
+            left: headerMatch[1].trim(),
+            right: headerMatch[2].trim()
+        };
+    }
+
     // Регулярка для знаходження числового значення в кінці рядка
-    // Враховує: <, >, числа, одиниці виміру, але НЕ відсотки
-    // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg"
-    const valueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
+    // ЖАДІБНИЙ .+ шукає значення з КІНЦЯ (backtracking)
+    // Це правильно обробляє назви з цифрами: "Омега 369", "Vitamin D3"
+    // Підтримує: Billion/Million CFU для пробіотиків
+    // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg", "65 Billion CFU"
+    const valueRegex = /^(.+)\s+([<>]?\s*[\d,.]+\s*(?:billion|million|bil|mil|тыс|тис|млн|млрд)?\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
 
     const match = line.match(valueRegex);
 
@@ -339,30 +459,17 @@ function parseLine(line) {
         return { left, right };
     }
 
-    // Альтернативна регулярка для простіших випадків (число + текст)
-    const simpleValueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*.+?)(?:\s+\d+\s*%)?$/;
-    const simpleMatch = line.match(simpleValueRegex);
-
-    if (simpleMatch) {
-        let left = simpleMatch[1].trim();
-        let right = simpleMatch[2].trim();
-
-        // Видаляємо відсотки з правої частини
-        right = right.replace(/\s+\d+\s*%\s*$/, '').trim();
-
-        // Перевіряємо чи right не є просто частиною назви (наприклад "B12")
-        // Якщо right не містить одиницю виміру і left занадто короткий - це помилковий split
-        const hasUnit = /(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)/i.test(right);
-        if (!hasUnit && left.length < 3) {
-            return { left: normalizeNutrientName(line), right: '' };
-        }
-
-        // Нормалізуємо назву нутрієнту
-        left = normalizeNutrientName(left);
-
-        return { left, right };
+    // Спеціальна обробка для Калорій без одиниці виміру: "Calories 5" або "Калории 5"
+    // Автоматично додаємо "ккал"
+    const caloriesMatch = line.match(/^(калории|калорії|calories)\s+(\d+)\s*$/i);
+    if (caloriesMatch) {
+        const isUkrainian = /[іїєґ]/i.test(caloriesMatch[1]);
+        return {
+            left: isUkrainian ? 'Калорії' : 'Калории',
+            right: caloriesMatch[2] + ' ккал'
+        };
     }
 
-    // Якщо не знайдено числового значення - повертаємо весь рядок як left
+    // Якщо не знайдено числового значення з одиницею виміру - повертаємо весь рядок як left
     return { left: normalizeNutrientName(line), right: '' };
 }

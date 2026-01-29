@@ -9,28 +9,18 @@
  */
 
 import { debounce } from '../../utils/common-utils.js';
+import { showToast } from '../../common/ui-toast.js';
 
 /**
  * Копіює переданий текст у буфер обміну.
  * @param {string} text - Текст для копіювання.
- * @param {HTMLElement} [cardElement] - Елемент картки для візуального фідбеку.
  */
-export function copyToClipboard(text, cardElement) {
+export function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        if (cardElement) {
-            const status = cardElement.querySelector('.result-status');
-            if (status) {
-                const originalText = status.textContent;
-                status.textContent = 'Скопійовано!';
-                cardElement.classList.add('copied');
-                setTimeout(() => {
-                    status.textContent = originalText;
-                    cardElement.classList.remove('copied');
-                }, 2000);
-            }
-        }
+        showToast('Скопійовано', 'success', 2000);
     }).catch(err => {
         console.error('Не вдалося скопіювати текст: ', err);
+        showToast('Помилка копіювання', 'error', 2000);
     });
 }
 

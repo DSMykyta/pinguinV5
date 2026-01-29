@@ -48,17 +48,13 @@ export function setupEventListeners() {
                 'add-nutrition-btn': () => addSampleList(getNutritionFacts()),
                 'add-vitamins-btn': () => addSampleList(getVitamins()),
                 'add-aminos-btn': () => addSampleList(getAminoAcids()),
-                'result-card-html': (e) => {
-                    if (!e.target.closest('[data-dropdown-trigger]')) {
-                        if (checkForEmptyNutritionFacts()) return;
-                        copyToClipboard(generateHtmlTable(), target);
-                    }
+                'result-card-html': () => {
+                    if (checkForEmptyNutritionFacts()) return;
+                    copyToClipboard(generateHtmlTable());
                 },
-                'result-card-br': (e) => {
-                    if (!e.target.closest('[data-dropdown-trigger]')) {
-                        if (checkForEmptyNutritionFacts()) return;
-                        copyToClipboard(generateBrText(), target);
-                    }
+                'result-card-br': () => {
+                    if (checkForEmptyNutritionFacts()) return;
+                    copyToClipboard(generateBrText());
                 }
             };
             if (actions[target.id]) actions[target.id](event);
