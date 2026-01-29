@@ -189,21 +189,13 @@ function parseText(text) {
         const isIngredients = /^(ингредиенты|інгредієнти):?$/i.test(entry.left.trim());
         const isSostav = /^(состав|склад):?$/i.test(entry.left.trim());
 
-        // Обробка "Пищевая ценность" - тільки заголовок, right йде в наступний рядок
+        // Обробка "Пищевая ценность" - заголовок зі значенням в правій колонці
         if (isPishchevayaTsennost) {
-            // Заголовок
             processedEntries.push({
                 left: entry.left,
-                right: '',
+                right: entry.right || '',  // Значення (наприклад "100 г") йде в праву колонку
                 isHeader: true
             });
-            // Якщо є right (наприклад "1 капсула"), додаємо як окремий рядок
-            if (entry.right) {
-                processedEntries.push({
-                    left: '',
-                    right: entry.right
-                });
-            }
         }
         // Обробка "Ингредиенты"
         else if (isIngredients) {
@@ -288,8 +280,8 @@ function normalizeNutrientName(name) {
         [/^(клетчатка|пищевые волокна|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i, 'Пищевые волокна', 'Харчові волокна'],
         // Белок / Білок
         [/^(белок|белки|белков|білок|білка|білків|protein|proteins)$/i, 'Белок', 'Білок'],
-        // сахар / цукор - ЄДИНЕ з маленької літери!
-        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, 'сахар', 'цукор'],
+        // - сахар / - цукор - підкатегорія з тире
+        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, '- сахар', '- цукор'],
         // Натрий / Натрій
         [/^(натрий|натрия|натрій|натрію|sodium)$/i, 'Натрий', 'Натрій'],
         // Холестерин / Холестерин
