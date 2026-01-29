@@ -2,7 +2,7 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v6.3      ║
+ * ║             TABLE GENERATOR - "МАГІЧНИЙ" ПАРСЕР (MAGIC PARSER) v7.1      ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  * * ПРИЗНАЧЕННЯ:
  * Обробляє найскладніші етикетки. Надійно об'єднує значення, розбирає
@@ -30,7 +30,8 @@ export async function processAndFillInputs(text) {
             continue;
         }
 
-        if (!entry.left) continue;
+        // Пропускаємо тільки якщо обидва поля порожні
+        if (!entry.left && !entry.right) continue;
 
         // Якщо це заголовок секції - перевіряємо чи вже не існує такого заголовка
         if (entry.isHeader) {
@@ -104,7 +105,7 @@ export async function processAndFillInputs(text) {
             boldBtn?.classList.add('active');
         }
 
-        if (!entry.right && !entry.isSingle) {
+        if (!entry.right && !entry.isSingle && !entry.isHeader) {
             newRow.classList.add(ROW_CLASSES.COLSPAN2);
             const colspanBtn = newRow.querySelector(`[data-class="${ROW_CLASSES.COLSPAN2}"]`);
             colspanBtn?.classList.add('active');
@@ -146,15 +147,16 @@ function isSameHeader(header1, header2) {
 function parseText(text) {
     // 1. Попереднє очищення та розбивка на рядки
     let lines = text
-        // НЕ видаляємо відсотки! Вони потрібні для tooltip
-        .replace(/\*\*|†|®/g, '')
+        // Видаляємо зайві символи: **, †, ®, ✝, ×, ‡, *, зірочки
+        .replace(/\*\*|[†‡✝×®*]/g, '')
+        // Видаляємо тисячні роздільники (1,000 -> 1000)
         .replace(/(\d),(\d{3})/g, '$1$2')
         .split('\n')
         .map(line => line.trim())
         .filter(line => line);
 
     // 2. "Склеювання" значень знизу вгору
-    const valueOnlyRegex = /^[<]?\d[\d,.]*(\s*[\w()-]+)?$/;
+    const valueOnlyRegex = /^[<>]?\d[\d,.]*(\s*[\w()-]+)?$/;
     const standardEntryRegex = /\D+\s+[\d,.]+/;
 
     for (let i = lines.length - 1; i > 0; i--) {
@@ -172,27 +174,8 @@ function parseText(text) {
     // 3. Фінальний розбір кожного логічного рядка
     const finalEntries = [];
     for (const line of lines) {
-        const parenthesizedValueRegex = /\(([\d,.]+\s*[\w-]+)\)/g;
-        const matches = [...line.matchAll(parenthesizedValueRegex)];
-
-        if (matches.length > 1) {
-            let lastIndex = 0;
-            matches.forEach(match => {
-                const name = line.substring(lastIndex, match.index).replace(/,$/, '').trim();
-                const value = match[1].trim();
-                if (name) {
-                    finalEntries.push({ left: name, right: value });
-                }
-                lastIndex = match.index + match[0].length;
-            });
-        } else {
-            const splitMatch = line.match(/(.*?)\s+([\d,.]+.+)$/);
-            if (splitMatch) {
-                finalEntries.push({ left: splitMatch[1].trim(), right: splitMatch[2].trim() });
-            } else {
-                finalEntries.push({ left: line, right: '' });
-            }
-        }
+        const parsed = parseLine(line);
+        finalEntries.push(parsed);
     }
 
     // 4. Обробка спеціальних блоків (Пищевая ценность, Ингредиенты тощо)
@@ -202,30 +185,25 @@ function parseText(text) {
         const entry = finalEntries[i];
         const nextEntry = finalEntries[i + 1];
 
-        const isPishchevayaTsennost = /пищевая ценность|харчова цінність/i.test(entry.left);
-        const isIngredients = /ингредиенты|інгредієнти/i.test(entry.left);
-        const isSostav = /состав|склад/i.test(entry.left);
+        const isPishchevayaTsennost = /^(пищевая ценность|харчова цінність)$/i.test(entry.left.trim());
+        const isIngredients = /^(ингредиенты|інгредієнти):?$/i.test(entry.left.trim());
+        const isSostav = /^(состав|склад):?$/i.test(entry.left.trim());
 
-        // Обробка "Пищевая ценность"
-        if (isPishchevayaTsennost && entry.right) {
-            // Створюємо заголовковий рядок
+        // Обробка "Пищевая ценность" - тільки заголовок, right йде в наступний рядок
+        if (isPishchevayaTsennost) {
+            // Заголовок
             processedEntries.push({
                 left: entry.left,
                 right: '',
                 isHeader: true
             });
-            // Створюємо рядок зі значенням
-            processedEntries.push({
-                left: entry.left,
-                right: entry.right
-            });
-        } else if (isPishchevayaTsennost && !entry.right) {
-            // Якщо це просто заголовок без значення
-            processedEntries.push({
-                left: entry.left,
-                right: '',
-                isHeader: true
-            });
+            // Якщо є right (наприклад "1 капсула"), додаємо як окремий рядок
+            if (entry.right) {
+                processedEntries.push({
+                    left: '',
+                    right: entry.right
+                });
+            }
         }
         // Обробка "Ингредиенты"
         else if (isIngredients) {
@@ -235,24 +213,25 @@ function parseText(text) {
                 right: '',
                 isSeparator: true
             });
-            // Створюємо заголовок БЕЗ single (має бути звичайний заголовок)
+            // Створюємо заголовок
             processedEntries.push({
-                left: entry.left,
+                left: entry.left.replace(/:$/, ''),
                 right: '',
                 isHeader: true
             });
-            // Якщо є наступний рядок з текстом інгредієнтів - ВІН має бути single
+            // Якщо є наступний рядок - перевіряємо чи це текст інгредієнтів
             if (nextEntry) {
-                const isNextIngredients = /ингредиенты|інгредієнти/i.test(nextEntry.left);
-                const isNextSostav = /состав|склад/i.test(nextEntry.left);
+                const isNextSpecial = /^(ингредиенты|інгредієнти|состав|склад|пищевая ценность|харчова цінність)/i.test(nextEntry.left);
+                // Якщо наступний рядок НЕ спеціальний і НЕ містить числове значення - це текст інгредієнтів
+                const hasNumericValue = /\d+\s*(г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме)/i.test(nextEntry.right);
 
-                if (!isNextIngredients && !isNextSostav) {
+                if (!isNextSpecial && !hasNumericValue) {
                     processedEntries.push({
                         left: nextEntry.left,
                         right: nextEntry.right || '',
                         isSingle: true
                     });
-                    i++; // Пропускаємо наступний entry, бо вже обробили
+                    i++; // Пропускаємо наступний entry
                 }
             }
         }
@@ -266,7 +245,7 @@ function parseText(text) {
             });
             // Створюємо рядок з текстом
             processedEntries.push({
-                left: entry.left,
+                left: entry.left.replace(/:$/, ''),
                 right: entry.right || '',
                 isSingle: true,
                 isBold: true
@@ -279,4 +258,111 @@ function parseText(text) {
     }
 
     return processedEntries;
+}
+
+/**
+ * Нормалізує назви нутрієнтів до стандартних форм.
+ * Видаляє двокрапку з кінця. Зберігає мову (укр/рос).
+ * @param {string} name - Назва нутрієнту
+ * @returns {string} - Нормалізована назва
+ */
+function normalizeNutrientName(name) {
+    // Видаляємо двокрапку з кінця
+    let normalized = name.replace(/:$/, '').trim();
+
+    // Визначаємо мову за характерними українськими літерами
+    const isUkrainian = /[іїєґ]/i.test(normalized);
+
+    // Мапа нормалізації: [regex, російська форма, українська форма]
+    const normalizationMap = [
+        // Калории / Калорії
+        [/^(калорийность|энергетическая ценность|калорій|енергетична цінність|calories|energy|kcal)$/i, 'калории', 'калорії'],
+        // Жиры / Жири
+        [/^(жир|жиров|жири|жирів|fat|fats|total fat)$/i, 'жиры', 'жири'],
+        // Насыщенные жиры / Насичені жири
+        [/^(насыщенные жиры|насыщенных жиров|насичені жири|saturated fat)$/i, 'насыщенные жиры', 'насичені жири'],
+        // Углеводы / Вуглеводи
+        [/^(углеводы|углеводов|вуглеводи|вуглеводів|carbohydrates|carbs|total carbohydrate)$/i, 'углеводы', 'вуглеводи'],
+        // Пищевые волокна / Харчові волокна
+        [/^(клетчатка|пищевые волокна|пищевых волокон|харчові волокна|dietary fiber|fiber|fibre)$/i, 'пищевые волокна', 'харчові волокна'],
+        // Белок / Білок
+        [/^(белок|белки|белков|білок|білка|білків|protein|proteins)$/i, 'белок', 'білок'],
+        // Сахар / Цукор
+        [/^(сахар|сахара|цукор|цукру|sugar|sugars|total sugars)$/i, 'сахар', 'цукор'],
+        // Натрий / Натрій
+        [/^(натрий|натрия|натрій|натрію|sodium)$/i, 'натрий', 'натрій'],
+        // Холестерин / Холестерин
+        [/^(холестерин|холестерина|холестерол|cholesterol)$/i, 'холестерин', 'холестерин'],
+        // Соль / Сіль
+        [/^(соль|солі|salt)$/i, 'соль', 'сіль'],
+        // Витамин / Вітамін (залишаємо як є, бо може бути A, B, C тощо)
+    ];
+
+    for (const [regex, ruForm, uaForm] of normalizationMap) {
+        if (regex.test(normalized)) {
+            return isUkrainian ? uaForm : ruForm;
+        }
+    }
+
+    // Якщо не знайдено в мапі - повертаємо без двокрапки
+    return normalized;
+}
+
+/**
+ * Парсить один рядок тексту на left/right частини.
+ * Враховує дужки з описами (не плутає їх з числовими значеннями).
+ * @param {string} line - Рядок для парсингу
+ * @returns {{left: string, right: string}}
+ */
+function parseLine(line) {
+    // Регулярка для знаходження числового значення в кінці рядка
+    // Враховує: <, >, числа, одиниці виміру, але НЕ відсотки
+    // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg"
+    const valueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
+
+    const match = line.match(valueRegex);
+
+    if (match) {
+        let left = match[1].trim();
+        let right = match[2].trim();
+
+        // Переносимо знак < або > з left в right якщо він там залишився
+        const ltGtMatch = left.match(/^(.+?)\s*([<>])\s*$/);
+        if (ltGtMatch) {
+            left = ltGtMatch[1].trim();
+            right = ltGtMatch[2] + ' ' + right;
+        }
+
+        // Нормалізуємо назву нутрієнту
+        left = normalizeNutrientName(left);
+
+        return { left, right };
+    }
+
+    // Альтернативна регулярка для простіших випадків (число + текст)
+    const simpleValueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*.+?)(?:\s+\d+\s*%)?$/;
+    const simpleMatch = line.match(simpleValueRegex);
+
+    if (simpleMatch) {
+        let left = simpleMatch[1].trim();
+        let right = simpleMatch[2].trim();
+
+        // Видаляємо відсотки з правої частини
+        right = right.replace(/\s+\d+\s*%\s*$/, '').trim();
+
+        // Перевіряємо чи right не є просто частиною назви (наприклад "B12")
+        // Якщо right не містить одиницю виміру і left занадто короткий - це помилковий split
+        const hasUnit = /(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)/i.test(right);
+        if (!hasUnit && left.length < 3) {
+            return { left: normalizeNutrientName(line), right: '' };
+        }
+
+        // Нормалізуємо назву нутрієнту
+        left = normalizeNutrientName(left);
+
+        return { left, right };
+    }
+
+    // Якщо не знайдено числового значення - повертаємо весь рядок як left
+    return { left: normalizeNutrientName(line), right: '' };
 }
