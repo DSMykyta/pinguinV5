@@ -156,11 +156,13 @@ function parseText(text) {
         .filter(line => line);
 
     // 2. "Склеювання" значень знизу вгору
-    const valueOnlyRegex = /^[<>]?\d[\d,.]*(\s*[\w()-]+)?$/;
+    // Regex для рядка що є ТІЛЬКИ значенням (число + одиниця виміру)
+    // Включає: Billion/Million CFU для пробіотиків, стандартні одиниці
+    const valueOnlyRegex = /^[<>]?\s*[\d,.]+\s*(?:billion|million|bil|mil|тыс|тис|млн|млрд)?\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО)$/i;
     const standardEntryRegex = /\D+\s+[\d,.]+/;
 
     for (let i = lines.length - 1; i > 0; i--) {
-        if (valueOnlyRegex.test(lines[i]) && !lines[i].match(/[a-zA-Z]{4,}/)) {
+        if (valueOnlyRegex.test(lines[i])) {
             for (let j = i - 1; j >= 0; j--) {
                 if (!standardEntryRegex.test(lines[j])) {
                     lines[j] += ' ' + lines[i];
@@ -335,8 +337,9 @@ function parseLine(line) {
     // Регулярка для знаходження числового значення в кінці рядка
     // ЖАДІБНИЙ .+ шукає значення з КІНЦЯ (backtracking)
     // Це правильно обробляє назви з цифрами: "Омега 369", "Vitamin D3"
-    // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg"
-    const valueRegex = /^(.+)\s+([<>]?\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
+    // Підтримує: Billion/Million CFU для пробіотиків
+    // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg", "65 Billion CFU"
+    const valueRegex = /^(.+)\s+([<>]?\s*[\d,.]+\s*(?:billion|million|bil|mil|тыс|тис|млн|млрд)?\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
 
     const match = line.match(valueRegex);
 
