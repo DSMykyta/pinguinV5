@@ -333,9 +333,10 @@ function parseLine(line) {
     }
 
     // Регулярка для знаходження числового значення в кінці рядка
-    // Враховує: <, >, числа, одиниці виміру, але НЕ відсотки
+    // ЖАДІБНИЙ .+ шукає значення з КІНЦЯ (backtracking)
+    // Це правильно обробляє назви з цифрами: "Омега 369", "Vitamin D3"
     // Приклади: "10 мг", "< 1 г", "100 ккал", "2.5 mcg"
-    const valueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
+    const valueRegex = /^(.+)\s+([<>]?\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)(?:\s*\/\s*[\d,.]+\s*(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ))?)\s*(?:\d+\s*%)?$/i;
 
     const match = line.match(valueRegex);
 
@@ -356,30 +357,6 @@ function parseLine(line) {
         return { left, right };
     }
 
-    // Альтернативна регулярка для простіших випадків (число + текст)
-    const simpleValueRegex = /^(.+?)\s+([<>]?\s*[\d,.]+\s*.+?)(?:\s+\d+\s*%)?$/;
-    const simpleMatch = line.match(simpleValueRegex);
-
-    if (simpleMatch) {
-        let left = simpleMatch[1].trim();
-        let right = simpleMatch[2].trim();
-
-        // Видаляємо відсотки з правої частини
-        right = right.replace(/\s+\d+\s*%\s*$/, '').trim();
-
-        // Перевіряємо чи right не є просто частиною назви (наприклад "B12")
-        // Якщо right не містить одиницю виміру і left занадто короткий - це помилковий split
-        const hasUnit = /(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ)/i.test(right);
-        if (!hasUnit && left.length < 3) {
-            return { left: normalizeNutrientName(line), right: '' };
-        }
-
-        // Нормалізуємо назву нутрієнту
-        left = normalizeNutrientName(left);
-
-        return { left, right };
-    }
-
-    // Якщо не знайдено числового значення - повертаємо весь рядок як left
+    // Якщо не знайдено числового значення з одиницею виміру - повертаємо весь рядок як left
     return { left: normalizeNutrientName(line), right: '' };
 }
