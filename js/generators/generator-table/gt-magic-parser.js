@@ -331,11 +331,12 @@ function parseText(text) {
                 right: '',
                 isSeparator: true
             });
-            // Створюємо заголовок
+            // Створюємо заголовок (single - одна колонка на всю ширину)
             processedEntries.push({
                 left: entry.left.replace(/:$/, ''),
                 right: '',
-                isHeader: true
+                isHeader: true,
+                isSingle: true
             });
             // Якщо є наступний рядок - перевіряємо чи це текст інгредієнтів
             if (nextEntry) {
