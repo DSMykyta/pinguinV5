@@ -202,8 +202,8 @@ function parseText(text) {
     let lines = text
         // Видаляємо зайві символи: **, †, ®, ✝, ×, ‡, *, •, ○, зірочки
         .replace(/\*\*|[†‡✝×®*•○◊■□▪▫]/g, '')
-        // Видаляємо відсотки в кінці (включаючи з комами): 16,667% або 50%
-        .replace(/\s+[\d,.]+%\s*$/gm, '')
+        // Видаляємо відсотки в кінці (включаючи з < > та комами): <1%, 16,667%, 50%
+        .replace(/\s+[<>]?\s*[\d,.]+%\s*$/gm, '')
         // Замінюємо табуляції на пробіли
         .replace(/\t+/g, ' ')
         // Видаляємо тисячні роздільники (1,000 -> 1000)
@@ -254,8 +254,24 @@ function parseText(text) {
 
     // 4. Обробка спеціальних блоків (Пищевая ценность, Ингредиенты тощо)
     const processedEntries = [];
-    let isInNutritionSection = false; // Чи ми в секції харчової цінності
     let hasAddedNutritionHeader = false; // Чи вже додали заголовок Пищевая ценность
+    let lastWasNutrition = false; // Чи попередній елемент був харчовою цінністю
+
+    // Перевіряємо чи є "Пищевая ценность" в тексті
+    const hasPishchevayaInText = finalEntries.some(e =>
+        /^(пищевая ценность|харчова цінність)$/i.test(e.left.trim())
+    );
+
+    // Якщо є servingSize але немає "Пищевая ценность" - додаємо заголовок на початку
+    if (servingSize && !hasPishchevayaInText) {
+        processedEntries.push({
+            left: 'Пищевая ценность',
+            right: servingSize,
+            isHeader: true
+        });
+        hasAddedNutritionHeader = true;
+        lastWasNutrition = true;
+    }
 
     for (let i = 0; i < finalEntries.length; i++) {
         const entry = finalEntries[i];
@@ -265,18 +281,18 @@ function parseText(text) {
         const isIngredients = /^(ингредиенты|інгредієнти):?$/i.test(entry.left.trim());
         const isSostav = /^(состав|склад):?$/i.test(entry.left.trim());
 
-        // Перевіряємо чи це харчова цінність
-        const isCurrentNutrition = isNutritionalFact(entry.left);
+        // Перевіряємо чи це інгредієнт (має латинську назву в дужках)
+        const hasLatinName = /\([A-Za-z][a-z]+\s+[a-z\-]+/i.test(entry.left);
 
-        // Автоматичне розділення: якщо були в секції харчової цінності і тепер НЕ харчова цінність
-        if (isInNutritionSection && !isCurrentNutrition && !isPishchevayaTsennost && !isIngredients && !isSostav) {
-            // Це інгредієнт після харчової цінності - додаємо розділювач
+        // Автоматичне розділення ТІЛЬКИ коли бачимо явний інгредієнт з латинською назвою
+        // після звичайних рядків (не після заголовків)
+        if (hasLatinName && lastWasNutrition && !isPishchevayaTsennost && !isIngredients && !isSostav) {
             processedEntries.push({
                 left: '',
                 right: '',
                 isSeparator: true
             });
-            isInNutritionSection = false;
+            lastWasNutrition = false;
         }
 
         // Обробка "Пищевая ценность" - заголовок зі значенням в правій колонці
@@ -304,7 +320,7 @@ function parseText(text) {
                 right: rightValue,
                 isHeader: true
             });
-            isInNutritionSection = true;
+            lastWasNutrition = true;
             hasAddedNutritionHeader = true;
         }
         // Обробка "Ингредиенты"
@@ -355,9 +371,9 @@ function parseText(text) {
         }
         // Звичайний рядок
         else {
-            // Якщо це харчова цінність - позначаємо що ми в секції
-            if (isCurrentNutrition) {
-                isInNutritionSection = true;
+            // Якщо рядок має значення (числове) - це ймовірно харчова цінність
+            if (entry.right) {
+                lastWasNutrition = true;
             }
             processedEntries.push(entry);
         }
