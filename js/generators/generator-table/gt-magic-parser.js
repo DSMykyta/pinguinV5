@@ -191,9 +191,22 @@ function parseText(text) {
 
         // Обробка "Пищевая ценность" - заголовок зі значенням в правій колонці
         if (isPishchevayaTsennost) {
+            let rightValue = entry.right || '';
+
+            // Якщо right порожній, перевіряємо чи наступний рядок - це значення порції
+            if (!rightValue && nextEntry) {
+                const isNextPortion = /^(\d+\s*(г|g|мл|ml|таблетк|капсул|порц|serving)|на\s+\d|per\s+\d|в\s+\d)/i.test(nextEntry.left);
+                const isNextSpecial = /^(калори|жир|белок|білок|углевод|вуглевод|холестерин|натрий|натрій)/i.test(nextEntry.left);
+
+                if (isNextPortion && !isNextSpecial) {
+                    rightValue = nextEntry.left + (nextEntry.right ? ' ' + nextEntry.right : '');
+                    i++; // Пропускаємо наступний entry
+                }
+            }
+
             processedEntries.push({
                 left: entry.left,
-                right: entry.right || '',  // Значення (наприклад "100 г") йде в праву колонку
+                right: rightValue,
                 isHeader: true
             });
         }
@@ -262,11 +275,13 @@ function normalizeNutrientName(name) {
     // Видаляємо двокрапку з кінця
     let normalized = name.replace(/:$/, '').trim();
 
-    // Визначаємо мову за характерними українськими літерами
-    const isUkrainian = /[іїєґ]/i.test(normalized);
+    // Визначаємо мову: українські літери АБО українські слова без і/ї/є/ґ
+    const hasUkrainianLetters = /[іїєґ]/i.test(normalized);
+    const isUkrainianWord = /^(цукор|цукру|жири|жирів|вуглеводи|вуглеводів|білок|білка|білків|калорії|калорій|сіль|солі)$/i.test(normalized);
+    const isUkrainian = hasUkrainianLetters || isUkrainianWord;
 
     // Мапа нормалізації: [regex, російська форма, українська форма]
-    // Всі з великої літери, крім "сахар"/"цукор"
+    // Всі з великої літери, крім "- сахар"/"- цукор" (підкатегорія)
     const normalizationMap = [
         // Калории / Калорії
         [/^(калорийность|энергетическая ценность|калорій|енергетична цінність|calories|energy|kcal)$/i, 'Калории', 'Калорії'],
