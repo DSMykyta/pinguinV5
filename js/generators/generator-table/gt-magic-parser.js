@@ -437,11 +437,7 @@ export async function processAndFillInputs(text) {
 
                     if (entry.isSingle && !firstHeader.classList.contains(ROW_CLASSES.SINGLE)) {
                         applyClass(firstHeader, ROW_CLASSES.SINGLE);
-                        const fieldRadio = firstHeader.querySelector('input[type="radio"][value="field"]');
-                        if (fieldRadio) {
-                            fieldRadio.checked = true;
-                            handleInputTypeSwitch(firstHeader, 'field');
-                        }
+                        // Заголовки залишаються як input (строка), не textarea
                     }
                     continue;
                 }
@@ -462,10 +458,13 @@ export async function processAndFillInputs(text) {
         // Single (одна колонка)
         if (entry.isSingle) {
             applyClass(newRow, ROW_CLASSES.SINGLE);
-            const fieldRadio = newRow.querySelector('input[type="radio"][value="field"]');
-            if (fieldRadio) {
-                fieldRadio.checked = true;
-                handleInputTypeSwitch(newRow, 'field');
+            // Textarea тільки для НЕ-заголовків (текст інгредієнтів, складу)
+            if (!entry.isHeader) {
+                const fieldRadio = newRow.querySelector('input[type="radio"][value="field"]');
+                if (fieldRadio) {
+                    fieldRadio.checked = true;
+                    handleInputTypeSwitch(newRow, 'field');
+                }
             }
         }
 
