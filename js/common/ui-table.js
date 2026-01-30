@@ -5,6 +5,301 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
 /**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    PSEUDO TABLE - UNIVERSAL API                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Універсальний API для роботи з таблицями.
+ * Підтримує повний рендеринг та оновлення тільки рядків (зберігає заголовок).
+ *
+ * @example
+ * const tableAPI = createPseudoTable(container, {
+ *     columns: [...],
+ *     rowActionsCustom: (row) => `<button>Edit</button>`,
+ *     getRowId: (row) => row.local_id,
+ *     emptyState: { message: 'Немає даних' }
+ * });
+ *
+ * // Початковий рендер
+ * tableAPI.render(data);
+ *
+ * // Оновлення тільки рядків (заголовок залишається)
+ * tableAPI.updateRows(filteredData);
+ */
+export function createPseudoTable(container, options) {
+    const {
+        columns = [],
+        visibleColumns = null,
+        rowActions = [],
+        rowActionsCustom = null,
+        rowActionsHeader = null,
+        emptyState = null,
+        onRowClick = null,
+        withContainer = true,
+        noHeaderSort = false,
+        getRowId = (row, index) => row.id || row.local_id || row.code || index,
+        // Callback після рендерингу (для кастомних обробників)
+        onAfterRender = null
+    } = options;
+
+    // Поточні дані та стан
+    let currentData = [];
+    let currentVisibleColumns = visibleColumns;
+
+    // ==================== ДОПОМІЖНІ ФУНКЦІЇ ====================
+
+    const isColumnVisible = (columnId) => {
+        if (!currentVisibleColumns) return true;
+        return currentVisibleColumns.includes(columnId);
+    };
+
+    const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
+
+    // ==================== ГЕНЕРАЦІЯ HTML ====================
+
+    /**
+     * Генерація HTML заголовка таблиці
+     */
+    function generateHeaderHTML() {
+        return `
+            <div class="pseudo-table-header">
+                ${rowActions.length > 0 || rowActionsCustom ? `
+                    <div class="pseudo-table-cell cell-actions header-actions-cell">
+                        ${rowActionsHeader !== undefined ? rowActionsHeader : ''}
+                    </div>
+                ` : ''}
+                ${columns.map(col => {
+                    const cellClass = col.className || '';
+                    const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
+                    const filterableClass = col.filterable ? ' filterable' : '';
+
+                    return `
+                        <div class="pseudo-table-cell ${cellClass}${sortableClass}${filterableClass}${hiddenClass(col.id)}"
+                             ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
+                             data-column="${col.id}">
+                            <span>${col.label || col.id}</span>
+                            ${!noHeaderSort && col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    /**
+     * Генерація HTML для одного рядка
+     */
+    function generateRowHTML(row, rowIndex) {
+        const rowId = getRowId(row, rowIndex);
+        const rowClasses = ['pseudo-table-row'];
+        if (onRowClick) rowClasses.push('clickable');
+
+        return `
+            <div class="${rowClasses.join(' ')}" data-row-id="${rowId}">
+                ${rowActionsCustom ? `
+                    <div class="pseudo-table-cell cell-actions">
+                        ${rowActionsCustom(row)}
+                    </div>
+                ` : rowActions.length > 0 ? `
+                    <div class="pseudo-table-cell cell-actions">
+                        ${rowActions.map(action => `
+                            <button class="btn-icon btn-${action.icon}"
+                                    data-row-id="${rowId}"
+                                    data-action="${action.icon}"
+                                    title="${action.title || action.icon}">
+                                <span class="material-symbols-outlined">${action.icon}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                ${columns.map(col => {
+                    const value = row[col.id];
+                    const cellClass = col.className || '';
+                    const tooltipAttr = col.tooltip !== false && value ?
+                        `data-tooltip="${escapeHtml(String(value))}"` : '';
+
+                    let cellContent;
+                    if (col.render && typeof col.render === 'function') {
+                        cellContent = col.render(value, row);
+                    } else {
+                        cellContent = escapeHtml(value || '-');
+                    }
+
+                    return `
+                        <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
+                             data-column="${col.id}"
+                             ${tooltipAttr}>
+                            ${cellContent}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    /**
+     * Генерація HTML для всіх рядків
+     */
+    function generateRowsHTML(data) {
+        return data.map((row, index) => generateRowHTML(row, index)).join('');
+    }
+
+    // ==================== ОБРОБНИКИ ПОДІЙ ====================
+
+    /**
+     * Додати обробники подій для кнопок у рядках
+     */
+    function attachEventHandlers() {
+        // Обробники для rowActions (з handler)
+        if (rowActions.length > 0) {
+            rowActions.forEach(action => {
+                if (!action.handler) return;
+
+                container.querySelectorAll(`.btn-${action.icon}`).forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const rowId = btn.dataset.rowId;
+                        const rowData = currentData.find(r => String(getRowId(r)) === String(rowId));
+                        if (rowData) {
+                            action.handler(rowData, e);
+                        }
+                    });
+                });
+            });
+        }
+
+        // Обробник кліків на рядки
+        if (onRowClick) {
+            container.querySelectorAll('.pseudo-table-row.clickable').forEach(rowEl => {
+                rowEl.addEventListener('click', (e) => {
+                    const rowId = rowEl.dataset.rowId;
+                    const rowData = currentData.find(r => String(getRowId(r)) === String(rowId));
+                    if (rowData) {
+                        onRowClick(rowData, e);
+                    }
+                });
+            });
+        }
+    }
+
+    // ==================== ПУБЛІЧНІ МЕТОДИ ====================
+
+    /**
+     * Повний рендеринг таблиці (заголовок + рядки)
+     * @param {Array} data - Дані для відображення
+     */
+    function render(data = []) {
+        currentData = data;
+
+        // Якщо немає даних - показати empty state
+        if (data.length === 0 && emptyState) {
+            container.innerHTML = renderAvatarState('empty', {
+                message: emptyState.message || 'Немає даних для відображення',
+                size: 'medium',
+                containerClass: 'empty-state-container',
+                avatarClass: 'empty-state-avatar',
+                messageClass: 'avatar-state-message',
+                showMessage: true
+            });
+            return;
+        }
+
+        const headerHTML = generateHeaderHTML();
+        const rowsHTML = generateRowsHTML(data);
+        const tableHTML = headerHTML + rowsHTML;
+
+        if (withContainer) {
+            container.innerHTML = `<div class="pseudo-table-container">${tableHTML}</div>`;
+        } else {
+            container.innerHTML = tableHTML;
+        }
+
+        attachEventHandlers();
+
+        // Викликаємо callback після рендерингу
+        if (onAfterRender) {
+            onAfterRender(container, currentData);
+        }
+    }
+
+    /**
+     * Оновити ТІЛЬКИ рядки (заголовок залишається)
+     * Використовувати при фільтрації/сортуванні/пагінації
+     * @param {Array} data - Нові дані для відображення
+     */
+    function updateRows(data = []) {
+        currentData = data;
+
+        // Видаляємо тільки рядки (не заголовок!)
+        container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
+
+        // Якщо немає даних - залишаємо порожню таблицю з заголовком
+        if (data.length === 0) {
+            return;
+        }
+
+        // Генеруємо нові рядки
+        const rowsHTML = generateRowsHTML(data);
+
+        // Вставляємо після заголовка
+        const header = container.querySelector('.pseudo-table-header');
+        if (header) {
+            header.insertAdjacentHTML('afterend', rowsHTML);
+        }
+
+        attachEventHandlers();
+
+        // Викликаємо callback після рендерингу
+        if (onAfterRender) {
+            onAfterRender(container, currentData);
+        }
+    }
+
+    /**
+     * Оновити видимість колонок
+     * @param {Array} newVisibleColumns - Масив ID видимих колонок
+     */
+    function setVisibleColumns(newVisibleColumns) {
+        currentVisibleColumns = newVisibleColumns;
+        container.querySelectorAll('[data-column]').forEach(cell => {
+            const columnId = cell.dataset.column;
+            if (isColumnVisible(columnId)) {
+                cell.classList.remove('column-hidden');
+            } else {
+                cell.classList.add('column-hidden');
+            }
+        });
+    }
+
+    /**
+     * Отримати поточні дані
+     */
+    function getData() {
+        return currentData;
+    }
+
+    /**
+     * Отримати контейнер
+     */
+    function getContainer() {
+        return container;
+    }
+
+    // Повертаємо публічний API
+    return {
+        render,
+        updateRows,
+        setVisibleColumns,
+        getData,
+        getContainer,
+        // Для доступу до генераторів (якщо потрібно кастомне використання)
+        generateRowHTML,
+        generateRowsHTML,
+        attachEventHandlers
+    };
+}
+
+/**
  * Відрендерити псевдо-таблицю з даними
  * @param {HTMLElement} container - Контейнер для таблиці
  * @param {Object} options - Опції рендерингу

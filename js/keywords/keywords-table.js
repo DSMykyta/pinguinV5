@@ -4,16 +4,20 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    KEYWORDS - TABLE RENDERING                            ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Використовує універсальний createPseudoTable API для рендерингу таблиці.
  */
 
 import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
-import { renderPseudoTable } from '../common/ui-table.js';
+import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
 
 // Прапорець для запобігання рекурсивного виклику
 let isRendering = false;
+
+// Table API instance
+let tableAPI = null;
 
 // Мапа типів параметрів для відображення
 const PARAM_TYPE_LABELS = {
@@ -87,106 +91,44 @@ export function getColumns() {
 }
 
 /**
- * Генерувати HTML для одного рядка
+ * Ініціалізувати таблицю (викликається один раз)
  */
-function generateKeywordRowHTML(row, rowId) {
-    const columns = getColumns();
+function initTableAPI() {
+    const container = document.getElementById('keywords-table-container');
+    if (!container || tableAPI) return;
+
     const visibleCols = keywordsState.visibleColumns.length > 0
         ? keywordsState.visibleColumns
         : ['local_id', 'param_type', 'name_uk', 'trigers'];
 
-    const isColumnVisible = (columnId) => visibleCols.includes(columnId);
-    const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
+    tableAPI = createPseudoTable(container, {
+        columns: getColumns(),
+        visibleColumns: visibleCols,
+        rowActionsHeader: ' ',
+        rowActionsCustom: (row) => {
+            const hasGlossary = row.glossary_text && row.glossary_text.trim();
+            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
 
-    const hasGlossary = row.glossary_text && row.glossary_text.trim();
-    const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
-
-    return `
-        <div class="pseudo-table-row" data-row-id="${rowId}">
-            <div class="pseudo-table-cell cell-actions">
+            return `
                 <button class="btn-icon btn-view-glossary ${eyeClass}" data-keyword-id="${escapeHtml(row.local_id)}" title="Переглянути глосарій">
                     <span class="material-symbols-outlined">visibility</span>
                 </button>
                 <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
-            </div>
-            ${columns.map(col => {
-                const value = row[col.id];
-                const cellClass = col.className || '';
-                const tooltipAttr = col.tooltip !== false && value ?
-                    `data-tooltip="${escapeHtml(value)}"` : '';
+            `;
+        },
+        getRowId: (row) => row.local_id,
+        emptyState: {
+            icon: 'key',
+            message: 'Ключові слова не знайдено'
+        },
+        withContainer: false,
+        onAfterRender: attachRowEventHandlers
+    });
 
-                let cellContent;
-                if (col.render && typeof col.render === 'function') {
-                    cellContent = col.render(value, row);
-                } else {
-                    cellContent = escapeHtml(value || '-');
-                }
-
-                return `
-                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
-                         data-column="${col.id}"
-                         ${tooltipAttr}>
-                        ${cellContent}
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
-/**
- * Перерендерити ТІЛЬКИ рядки таблиці (без заголовка)
- * Викликається при фільтрації/сортуванні щоб не знищувати dropdown-и в заголовках
- */
-export function renderKeywordsTableRowsOnly() {
-    const container = document.getElementById('keywords-table-container');
-    if (!container) return;
-
-    const keywords = getKeywords();
-    const filteredKeywords = applyFilters(keywords);
-
-    // Видаляємо тільки рядки (не заголовок!)
-    container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
-
-    // Якщо немає даних - залишаємо порожню таблицю з заголовками
-    if (!filteredKeywords || filteredKeywords.length === 0) {
-        updateStats(0, keywords.length);
-        return;
-    }
-
-    // Отримуємо пагіновані дані
-    const { currentPage, pageSize } = keywordsState.pagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filteredKeywords.length);
-    const paginatedKeywords = filteredKeywords.slice(start, end);
-
-    // Оновлюємо пагінацію
-    if (keywordsState.paginationAPI) {
-        keywordsState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems: filteredKeywords.length
-        });
-    }
-
-    // Генеруємо нові рядки
-    const rowsHTML = paginatedKeywords.map((row, rowIndex) => {
-        const rowId = row.id || row.local_id || rowIndex;
-        return generateKeywordRowHTML(row, rowId);
-    }).join('');
-
-    // Вставляємо після заголовка
-    const header = container.querySelector('.pseudo-table-header');
-    if (header) {
-        header.insertAdjacentHTML('afterend', rowsHTML);
-    }
-
-    // Додаємо обробники подій для нових кнопок
-    attachRowEventHandlers(container);
-
-    updateStats(filteredKeywords.length, keywords.length);
+    // Зберігаємо в state для доступу з інших модулів
+    keywordsState.tableAPI = tableAPI;
 }
 
 /**
@@ -218,6 +160,56 @@ function attachRowEventHandlers(container) {
     });
 }
 
+/**
+ * Отримати відфільтровані та пагіновані дані
+ */
+function getFilteredPaginatedData() {
+    const keywords = getKeywords();
+    const filteredKeywords = applyFilters(keywords);
+
+    const { currentPage, pageSize } = keywordsState.pagination;
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredKeywords.length);
+
+    return {
+        all: keywords,
+        filtered: filteredKeywords,
+        paginated: filteredKeywords.slice(start, end)
+    };
+}
+
+/**
+ * Оновити тільки рядки таблиці (заголовок залишається)
+ * Використовується при фільтрації/сортуванні/пагінації/пошуку
+ */
+export function renderKeywordsTableRowsOnly() {
+    if (!tableAPI) {
+        // Якщо API ще не створено - робимо повний рендер
+        renderKeywordsTable();
+        return;
+    }
+
+    const { all, filtered, paginated } = getFilteredPaginatedData();
+
+    // Оновлюємо пагінацію
+    if (keywordsState.paginationAPI) {
+        keywordsState.paginationAPI.update({
+            currentPage: keywordsState.pagination.currentPage,
+            pageSize: keywordsState.pagination.pageSize,
+            totalItems: filtered.length
+        });
+    }
+
+    // Оновлюємо тільки рядки
+    tableAPI.updateRows(paginated);
+
+    updateStats(filtered.length, all.length);
+}
+
+/**
+ * Повний рендеринг таблиці (заголовок + рядки)
+ * Використовується при початковому завантаженні та refresh
+ */
 export function renderKeywordsTable() {
     // Запобігаємо рекурсивному виклику
     if (isRendering) return;
@@ -231,68 +223,41 @@ export function renderKeywordsTable() {
         return;
     }
 
-    const keywords = getKeywords();
-    if (!keywords || keywords.length === 0) {
+    // Ініціалізуємо API якщо потрібно
+    if (!tableAPI) {
+        initTableAPI();
+    }
+
+    const { all, filtered, paginated } = getFilteredPaginatedData();
+
+    if (!all || all.length === 0) {
         renderEmptyState();
         isRendering = false;
         return;
     }
 
-    let filteredKeywords = applyFilters(keywords);
-
-    const { currentPage, pageSize } = keywordsState.pagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedKeywords = filteredKeywords.slice(start, end);
-
+    // Оновлюємо пагінацію
     if (keywordsState.paginationAPI) {
         keywordsState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems: filteredKeywords.length
+            currentPage: keywordsState.pagination.currentPage,
+            pageSize: keywordsState.pagination.pageSize,
+            totalItems: filtered.length
         });
     }
 
-    // Нові колонки за замовчуванням: id, тип, назва, тригери
-    const visibleCols = keywordsState.visibleColumns.length > 0
-        ? keywordsState.visibleColumns
-        : ['local_id', 'param_type', 'name_uk', 'trigers'];
+    // Повний рендер таблиці
+    tableAPI.render(paginated);
 
-    renderPseudoTable(container, {
-        data: paginatedKeywords,
-        columns: getColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
-            const hasGlossary = row.glossary_text && row.glossary_text.trim();
-            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
+    updateStats(filtered.length, all.length);
 
-            return `
-                <button class="btn-icon btn-view-glossary ${eyeClass}" data-keyword-id="${escapeHtml(row.local_id)}" title="Переглянути глосарій">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
-                <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `;
-        },
-        emptyState: {
-            icon: 'key',
-            message: 'Ключові слова не знайдено'
-        },
-        withContainer: false
-    });
-
-    // Додаємо обробники подій для кнопок
-    attachRowEventHandlers(container);
-
-    updateStats(filteredKeywords.length, keywords.length);
-
-    console.log(`✅ Відрендерено ${paginatedKeywords.length} з ${filteredKeywords.length} ключових слів`);
+    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} ключових слів`);
 
     isRendering = false;
 }
 
+/**
+ * Застосувати фільтри до даних
+ */
 function applyFilters(keywords) {
     let filtered = [...keywords];
 
@@ -340,26 +305,40 @@ function applyFilters(keywords) {
     return filtered;
 }
 
+/**
+ * Показати порожній стан
+ */
 function renderEmptyState() {
     const container = document.getElementById('keywords-table-container');
     if (!container) return;
 
-    // Використовуємо глобальну систему аватарів
-    const avatarHtml = renderAvatarState('empty', {
-        size: 'medium',
-        containerClass: 'empty-state-container',
-        avatarClass: 'empty-state-avatar',
-        messageClass: 'avatar-state-message',
-        showMessage: true
+    import('../utils/avatar-states.js').then(({ renderAvatarState }) => {
+        container.innerHTML = renderAvatarState('empty', {
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
     });
 
-    container.innerHTML = avatarHtml;
     updateStats(0, 0);
 }
 
+/**
+ * Оновити статистику
+ */
 function updateStats(visible, total) {
     const statsEl = document.getElementById('tab-stats-keywords');
     if (!statsEl) return;
 
     statsEl.textContent = `Показано ${visible} з ${total}`;
+}
+
+/**
+ * Скинути tableAPI (для реініціалізації)
+ */
+export function resetTableAPI() {
+    tableAPI = null;
+    keywordsState.tableAPI = null;
 }
