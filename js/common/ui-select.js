@@ -222,19 +222,111 @@ class CustomSelect {
             return;
         }
 
-        const chips = selectedOptions.map(option => this._createChip(option));
+        // Smart overflow: показати скільки влазить + "+N"
+        this._smartOverflowChips(selectedOptions);
+    }
 
-        // Перевірка на переповнення
-        chips.forEach(chip => this.valueContainer.appendChild(chip));
-        const isOverflowing = this.valueContainer.scrollHeight > this.valueContainer.clientHeight;
+    /**
+     * Розумне відображення чіпів з overflow
+     * Показує максимум чіпів що влазять + "+N" для решти
+     */
+    _smartOverflowChips(selectedOptions) {
+        this.valueContainer.innerHTML = '';
+        this.overflowChipContainer.innerHTML = '';
+        this.overflowChipContainer.style.display = 'none';
 
-        if (isOverflowing) {
-            this.valueContainer.innerHTML = '';
+        const containerWidth = this.valueContainer.clientWidth;
+        const GAP = 4; // gap між чіпами
+        const MIN_CHIP_WIDTH = 40; // мінімальна ширина чіпа
+        const COUNTER_WIDTH = 32; // ширина "+N" чіпа
+
+        // Тимчасовий контейнер для вимірювання
+        const measureContainer = this._createElement('div', {
+            class: 'custom-select-measure-container',
+            style: 'position: absolute; visibility: hidden; white-space: nowrap;'
+        });
+        this.wrapper.appendChild(measureContainer);
+
+        let usedWidth = 0;
+        let fittingCount = 0;
+        const chips = [];
+        const chipWidths = [];
+
+        // Створюємо чіпи і вимірюємо їх ширину
+        selectedOptions.forEach((option, index) => {
+            const chip = this._createChip(option);
+            measureContainer.appendChild(chip);
+            const chipWidth = chip.offsetWidth;
+            chipWidths.push(chipWidth);
+            chips.push(chip);
+            measureContainer.innerHTML = '';
+        });
+
+        // Видаляємо тимчасовий контейнер
+        measureContainer.remove();
+
+        // Визначаємо скільки чіпів влазить
+        const totalChips = chips.length;
+        let needsCounter = false;
+
+        for (let i = 0; i < totalChips; i++) {
+            const chipWidth = chipWidths[i];
+            const remainingChips = totalChips - i - 1;
+            const spaceNeeded = chipWidth + (usedWidth > 0 ? GAP : 0);
+
+            // Якщо є ще чіпи після цього - резервуємо місце для лічильника
+            const reservedForCounter = remainingChips > 0 ? COUNTER_WIDTH + GAP : 0;
+
+            if (usedWidth + spaceNeeded + reservedForCounter <= containerWidth) {
+                usedWidth += spaceNeeded;
+                fittingCount++;
+            } else {
+                needsCounter = remainingChips > 0 || fittingCount === 0;
+                break;
+            }
+        }
+
+        // Якщо нічого не влазить - показати тільки кількість
+        if (fittingCount === 0) {
             const summaryChip = this._createElement('div', { class: 'custom-select-chip is-summary' });
-            summaryChip.textContent = selectedOptions.length;
+            summaryChip.textContent = totalChips;
             this.valueContainer.appendChild(summaryChip);
 
-            chips.forEach(chip => this.overflowChipContainer.appendChild(chip));
+            // Показати всі чіпи в overflow
+            chips.forEach(chip => {
+                const overflowChip = this._createChip(selectedOptions[chips.indexOf(chip)]);
+                this.overflowChipContainer.appendChild(overflowChip);
+            });
+            this.overflowChipContainer.style.display = 'flex';
+            return;
+        }
+
+        // Якщо влазить один чіп але він дуже довгий - обрізаємо з blur
+        if (fittingCount === 1 && totalChips === 1 && chipWidths[0] > containerWidth - 10) {
+            const chip = chips[0];
+            chip.classList.add('is-truncated');
+            chip.style.maxWidth = `${containerWidth - 20}px`; // -20 для кнопки видалення
+            this.valueContainer.appendChild(chip);
+            return;
+        }
+
+        // Додаємо чіпи що влазять
+        for (let i = 0; i < fittingCount; i++) {
+            this.valueContainer.appendChild(chips[i]);
+        }
+
+        // Додаємо лічильник якщо є більше чіпів
+        const hiddenCount = totalChips - fittingCount;
+        if (hiddenCount > 0) {
+            const counterChip = this._createElement('div', { class: 'custom-select-chip is-counter' });
+            counterChip.textContent = `+${hiddenCount}`;
+            this.valueContainer.appendChild(counterChip);
+
+            // Показати приховані чіпи в overflow
+            for (let i = fittingCount; i < totalChips; i++) {
+                const overflowChip = this._createChip(selectedOptions[i]);
+                this.overflowChipContainer.appendChild(overflowChip);
+            }
             this.overflowChipContainer.style.display = 'flex';
         }
     }

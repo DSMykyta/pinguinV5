@@ -14,9 +14,12 @@ import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrandLines } from './lines-data.js';
 import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
-import { renderPseudoTable } from '../common/ui-table.js';
+import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+
+// Table API instance
+let linesTableAPI = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -72,11 +75,112 @@ export function getLinesColumns() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TABLE API INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізувати таблицю лінійок (викликається один раз)
+ */
+function initLinesTableAPI() {
+    const container = document.getElementById('lines-table-container');
+    if (!container || linesTableAPI) return;
+
+    const visibleCols = brandsState.linesVisibleColumns.length > 0
+        ? brandsState.linesVisibleColumns
+        : ['line_id', 'brand_id', 'name_uk'];
+
+    linesTableAPI = createPseudoTable(container, {
+        columns: getLinesColumns(),
+        visibleColumns: visibleCols,
+        rowActionsHeader: ' ',
+        rowActionsCustom: (row) => {
+            return `
+                <button class="btn-icon btn-edit-line" data-line-id="${escapeHtml(row.line_id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
+        getRowId: (row) => row.line_id,
+        emptyState: {
+            icon: 'category',
+            message: 'Лінійки не знайдено'
+        },
+        withContainer: false,
+        onAfterRender: attachLinesRowEventHandlers
+    });
+
+    // Зберігаємо в state
+    brandsState.linesTableAPI = linesTableAPI;
+}
+
+/**
+ * Додати обробники подій для кнопок у рядках
+ */
+function attachLinesRowEventHandlers(container) {
+    container.querySelectorAll('.btn-edit-line').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const lineId = button.dataset.lineId;
+            if (lineId) {
+                const { showEditLineModal } = await import('./lines-crud.js');
+                await showEditLineModal(lineId);
+            }
+        });
+    });
+}
+
+/**
+ * Отримати пагіновані дані лінійок
+ */
+function getLinesPagedData() {
+    const lines = getBrandLines();
+    const filteredLines = applyFilters(lines);
+
+    const { currentPage, pageSize } = brandsState.linesPagination;
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredLines.length);
+
+    return {
+        all: lines,
+        filtered: filteredLines,
+        paginated: filteredLines.slice(start, end)
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Рендерити таблицю лінійок
+ * Оновити тільки рядки таблиці лінійок (заголовок залишається)
+ */
+export function renderLinesTableRowsOnly() {
+    if (brandsState.activeTab !== 'lines') return;
+
+    if (!linesTableAPI) {
+        renderLinesTable();
+        return;
+    }
+
+    const { all, filtered, paginated } = getLinesPagedData();
+
+    // Оновлюємо пагінацію
+    if (brandsState.paginationAPI) {
+        brandsState.paginationAPI.update({
+            currentPage: brandsState.linesPagination.currentPage,
+            pageSize: brandsState.linesPagination.pageSize,
+            totalItems: filtered.length
+        });
+    }
+
+    // Оновлюємо тільки рядки
+    linesTableAPI.updateRows(paginated);
+
+    updateStats(filtered.length, all.length);
+}
+
+/**
+ * Рендерити таблицю лінійок (повний рендер)
  */
 export function renderLinesTable() {
     // Перевіряємо чи активний таб лінійок
@@ -95,65 +199,29 @@ export function renderLinesTable() {
         return;
     }
 
-    // Застосувати фільтри
-    let filteredLines = applyFilters(lines);
+    // Ініціалізуємо API якщо потрібно
+    if (!linesTableAPI) {
+        initLinesTableAPI();
+    }
 
-    // Застосувати пагінацію
-    const { currentPage, pageSize } = brandsState.linesPagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedLines = filteredLines.slice(start, end);
+    const { all, filtered, paginated } = getLinesPagedData();
 
     // Оновити пагінацію
     if (brandsState.paginationAPI) {
         brandsState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems: filteredLines.length
+            currentPage: brandsState.linesPagination.currentPage,
+            pageSize: brandsState.linesPagination.pageSize,
+            totalItems: filtered.length
         });
     }
 
-    // Визначити які колонки показувати
-    const visibleCols = brandsState.linesVisibleColumns.length > 0
-        ? brandsState.linesVisibleColumns
-        : ['line_id', 'brand_id', 'name_uk'];
-
-    // Рендерити таблицю через універсальний компонент
-    renderPseudoTable(container, {
-        data: paginatedLines,
-        columns: getLinesColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
-            return `
-                <button class="btn-icon btn-edit-line" data-line-id="${escapeHtml(row.line_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `;
-        },
-        emptyState: {
-            icon: 'category',
-            message: 'Лінійки не знайдено'
-        },
-        withContainer: false
-    });
-
-    // Додати обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-line').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = button.dataset.lineId;
-            if (lineId) {
-                const { showEditLineModal } = await import('./lines-crud.js');
-                await showEditLineModal(lineId);
-            }
-        });
-    });
+    // Повний рендер таблиці
+    linesTableAPI.render(paginated);
 
     // Оновити статистику
-    updateStats(filteredLines.length, lines.length);
+    updateStats(filtered.length, all.length);
 
-    console.log(`✅ Відрендерено ${paginatedLines.length} з ${filteredLines.length} лінійок`);
+    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} лінійок`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -226,6 +294,14 @@ function updateStats(visible, total) {
     if (!statsEl) return;
 
     statsEl.textContent = `Показано ${visible} з ${total}`;
+}
+
+/**
+ * Скинути linesTableAPI (для реініціалізації)
+ */
+export function resetLinesTableAPI() {
+    linesTableAPI = null;
+    brandsState.linesTableAPI = null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

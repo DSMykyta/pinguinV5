@@ -5,7 +5,10 @@
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
-import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import { createPseudoTable, renderPseudoTable, renderBadge } from '../common/ui-table.js';
+
+// Table API instances
+const productsTableAPIs = new Map();
 
 // Data services
 import {
