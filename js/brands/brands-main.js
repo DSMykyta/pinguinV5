@@ -30,7 +30,16 @@
  * │ E       │ brand_text         │ HTML текст                              │
  * │ F       │ brand_status       │ active | inactive                       │
  * │ G       │ brand_links        │ JSON масив: [{name, url}, ...]          │
+ * │ H       │ mapper_option_id   │ ID опції Mapper (зарезервовано)         │
+ * │ I       │ brand_logo_url     │ URL логотипу (зарезервовано)            │
  * └─────────┴────────────────────┴─────────────────────────────────────────┘
+ *
+ * МІГРАЦІЯ ДАНИХ:
+ * Якщо дані в старому форматі (URL як текст, names_alt як текст):
+ * 1. Відкрийте консоль браузера (F12)
+ * 2. import('./brands/brands-migration.js')
+ * 3. previewMigration() - превью змін
+ * 4. migrateBrandsData() - виконати міграцію
  *
  * СТРУКТУРА ДАНИХ БРЕНДУ (в JS):
  * {
@@ -44,6 +53,8 @@
  *     { name: "ua", url: "https://..." },
  *     { name: "de", url: "https://..." }
  *   ],
+ *   mapper_option_id: "",                        // ID опції Mapper (зарезервовано)
+ *   brand_logo_url: "",                          // URL логотипу (зарезервовано)
  *   _rowIndex: 2                                 // Внутрішній індекс рядка
  * }
  */
