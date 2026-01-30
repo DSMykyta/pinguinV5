@@ -23,7 +23,6 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { escapeHtml } from '../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
