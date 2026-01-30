@@ -157,9 +157,10 @@ export function updateSortIndicators(container, activeSortKey, direction) {
  * @param {Array} data - Масив даних
  * @param {string} columnId - ID колонки
  * @param {string} filterType - Тип фільтра ('values' або 'exists')
+ * @param {Object} labelMap - Мапа для перетворення значень в labels (опційно)
  * @returns {Array} Масив {value, label, count}
  */
-function getUniqueValues(data, columnId, filterType) {
+function getUniqueValues(data, columnId, filterType, labelMap = null) {
     if (filterType === 'exists') {
         return [
             { value: '__exists__', label: 'Наявно', count: data.filter(item => item[columnId] && item[columnId].toString().trim() !== '').length },
@@ -182,11 +183,14 @@ function getUniqueValues(data, columnId, filterType) {
         .sort((a, b) => {
             if (a[0] === '__empty__') return 1;
             if (b[0] === '__empty__') return -1;
-            return a[0].localeCompare(b[0], 'uk');
+            // Сортуємо по label якщо є labelMap
+            const labelA = labelMap?.[a[0]] || a[0];
+            const labelB = labelMap?.[b[0]] || b[0];
+            return labelA.localeCompare(labelB, 'uk');
         })
         .map(([value, count]) => ({
             value,
-            label: value === '__empty__' ? 'Пусто' : value,
+            label: value === '__empty__' ? 'Пусто' : (labelMap?.[value] || value),
             count
         }));
 }
@@ -259,8 +263,8 @@ function createHoverDropdown(header, columnConfig, handlers) {
     const columnId = header.dataset.sortKey || header.dataset.column;
     const columnLabel = columnConfig?.label || header.querySelector('span')?.textContent || columnId;
 
-    // Отримуємо унікальні значення для фільтра
-    const uniqueValues = getUniqueValues(dataSource(), columnId, columnConfig?.filterType);
+    // Отримуємо унікальні значення для фільтра (з labelMap для перекладу)
+    const uniqueValues = getUniqueValues(dataSource(), columnId, columnConfig?.filterType, columnConfig?.labelMap);
 
     // Ініціалізуємо фільтр якщо потрібно
     if (!activeFilters.has(columnId)) {
