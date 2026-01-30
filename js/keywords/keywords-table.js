@@ -21,15 +21,6 @@ const PARAM_TYPE_LABELS = {
     'other': 'Інше'
 };
 
-// Мапа кольорів для типів
-const PARAM_TYPE_COLORS = {
-    'category': 'badge-primary',
-    'characteristic': 'badge-success',
-    'option': 'badge-warning',
-    'marketing': 'badge-info',
-    'other': 'badge-neutral'
-};
-
 /**
  * Отримати конфігурацію колонок для таблиці ключових слів
  */
@@ -50,12 +41,11 @@ export function getColumns() {
             sortable: true,
             searchable: true,
             filterable: true,
-            filterOptions: Object.entries(PARAM_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+            filterType: 'values',
             render: (value) => {
                 if (!value) return '<span class="text-muted">—</span>';
                 const label = PARAM_TYPE_LABELS[value] || value;
-                const colorClass = PARAM_TYPE_COLORS[value] || 'badge-neutral';
-                return `<span class="badge ${colorClass}">${escapeHtml(label)}</span>`;
+                return `<span>${escapeHtml(label)}</span>`;
             }
         },
         {
@@ -76,15 +66,13 @@ export function getColumns() {
                 if (!value) return '<span class="text-muted">—</span>';
                 const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
 
-                // Обмежити до 5 тригерів, решту показати як +N
-                const maxVisible = 5;
-                const visibleTriggers = triggers.slice(0, maxVisible);
-                const hiddenCount = triggers.length - maxVisible;
+                if (triggers.length === 0) return '<span class="text-muted">—</span>';
 
-                let chipsHtml = visibleTriggers
-                    .map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`)
-                    .join(' ');
+                // Показувати тільки перший тригер + "+N" якщо є більше
+                const firstTrigger = `<span class="word-chip primary">${escapeHtml(triggers[0])}</span>`;
+                const hiddenCount = triggers.length - 1;
 
+                let chipsHtml = firstTrigger;
                 if (hiddenCount > 0) {
                     chipsHtml += ` <span class="word-chip neutral">+${hiddenCount}</span>`;
                 }
@@ -184,9 +172,32 @@ export function renderKeywordsTable() {
 function applyFilters(keywords) {
     let filtered = [...keywords];
 
-    // Застосувати фільтр типів
+    // Застосувати фільтр типів з кнопок header
     if (keywordsState.paramTypeFilter && keywordsState.paramTypeFilter !== 'all') {
         filtered = filtered.filter(entry => entry.param_type === keywordsState.paramTypeFilter);
+    }
+
+    // Застосувати фільтри по колонках (з dropdown в заголовках)
+    if (keywordsState.columnFilters && Object.keys(keywordsState.columnFilters).length > 0) {
+        filtered = filtered.filter(item => {
+            for (const [columnId, allowedValues] of Object.entries(keywordsState.columnFilters)) {
+                const itemValue = item[columnId];
+                const allowedSet = new Set(allowedValues);
+
+                const normalizedValue = itemValue ? itemValue.toString().trim() : '';
+
+                if (normalizedValue) {
+                    if (!allowedSet.has(normalizedValue)) {
+                        return false;
+                    }
+                } else {
+                    if (!allowedSet.has('__empty__')) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
     }
 
     // Застосувати пошук
