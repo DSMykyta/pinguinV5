@@ -38,7 +38,7 @@ export async function showAddKeywordModal() {
     initGlossaryEditor();
 
     // Ініціалізувати навігацію по секціях
-    initSectionNavigation(modalEl);
+    initSectionNavigation();
 
     // Обробник закриття
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
@@ -90,7 +90,7 @@ export async function showEditKeywordModal(localId) {
     fillKeywordForm(keyword);
 
     // Ініціалізувати навігацію по секціях
-    initSectionNavigation(modalEl);
+    initSectionNavigation();
 
     // Обробник закриття
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
@@ -230,7 +230,7 @@ function getFormData() {
         trigers: document.getElementById('keyword-trigers')?.value.trim() || '',
         keywords_ua: document.getElementById('keyword-keywords-ua')?.value.trim() || '',
         keywords_ru: document.getElementById('keyword-keywords-ru')?.value.trim() || '',
-        glossary_text: glossaryEditor ? glossaryEditor.getHTML() : ''
+        glossary_text: glossaryEditor ? glossaryEditor.getValue() : ''
     };
 }
 
@@ -251,7 +251,7 @@ function fillKeywordForm(keyword) {
 
     // Заповнити редактор глосарію
     if (glossaryEditor) {
-        glossaryEditor.setHTML(keyword.glossary_text || '');
+        glossaryEditor.setValue(keyword.glossary_text || '');
     }
 }
 
@@ -272,7 +272,7 @@ function clearKeywordForm() {
 
     // Очистити редактор глосарію
     if (glossaryEditor) {
-        glossaryEditor.setHTML('');
+        glossaryEditor.setValue('');
     }
 }
 
@@ -358,50 +358,50 @@ async function initModalSelects() {
 
 /**
  * Ініціалізувати навігацію по секціях модалу
- * @param {HTMLElement} modalEl - Елемент модалу
  */
-function initSectionNavigation(modalEl) {
-    if (!modalEl) return;
+function initSectionNavigation() {
+    const nav = document.getElementById('keyword-section-navigator');
+    const contentArea = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !contentArea) return;
 
-    const content = modalEl.querySelector('.modal-fullscreen-content');
-    const navItems = modalEl.querySelectorAll('.sidebar-nav-item');
+    const navLinks = nav.querySelectorAll('.sidebar-nav-item[href]');
+    const sections = contentArea.querySelectorAll('section[id]');
 
-    if (!content || navItems.length === 0) return;
-
-    // Клік по меню - прокрутка до секції
-    navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+    // Клік по навігації
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
             e.preventDefault();
-            const targetId = item.getAttribute('href')?.slice(1);
-            if (!targetId) return;
 
-            const section = modalEl.querySelector(`#${targetId}`);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
+            // Оновити активний пункт
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // Скролити до секції
+            const targetId = link.getAttribute('href').substring(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
     });
 
-    // При скролі - оновлювати active в меню
-    const sections = modalEl.querySelectorAll('section[id]');
-    if (sections.length === 0) return;
+    // Scroll spy - оновлення активного пункту при прокрутці
+    const observerOptions = {
+        root: contentArea,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0
+    };
 
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const sectionId = entry.target.id;
-                navItems.forEach(item => {
-                    item.classList.toggle('active',
-                        item.getAttribute('href') === `#${sectionId}`);
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
                 });
             }
         });
-    }, {
-        root: content,
-        threshold: 0.3
-    });
+    }, observerOptions);
 
-    sections.forEach(section => {
-        observer.observe(section);
-    });
+    sections.forEach(section => observer.observe(section));
 }
