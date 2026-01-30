@@ -86,6 +86,138 @@ export function getColumns() {
     ];
 }
 
+/**
+ * Генерувати HTML для одного рядка
+ */
+function generateKeywordRowHTML(row, rowId) {
+    const columns = getColumns();
+    const visibleCols = keywordsState.visibleColumns.length > 0
+        ? keywordsState.visibleColumns
+        : ['local_id', 'param_type', 'name_uk', 'trigers'];
+
+    const isColumnVisible = (columnId) => visibleCols.includes(columnId);
+    const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
+
+    const hasGlossary = row.glossary_text && row.glossary_text.trim();
+    const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
+
+    return `
+        <div class="pseudo-table-row" data-row-id="${rowId}">
+            <div class="pseudo-table-cell cell-actions">
+                <button class="btn-icon btn-view-glossary ${eyeClass}" data-keyword-id="${escapeHtml(row.local_id)}" title="Переглянути глосарій">
+                    <span class="material-symbols-outlined">visibility</span>
+                </button>
+                <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            </div>
+            ${columns.map(col => {
+                const value = row[col.id];
+                const cellClass = col.className || '';
+                const tooltipAttr = col.tooltip !== false && value ?
+                    `data-tooltip="${escapeHtml(value)}"` : '';
+
+                let cellContent;
+                if (col.render && typeof col.render === 'function') {
+                    cellContent = col.render(value, row);
+                } else {
+                    cellContent = escapeHtml(value || '-');
+                }
+
+                return `
+                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
+                         data-column="${col.id}"
+                         ${tooltipAttr}>
+                        ${cellContent}
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+/**
+ * Перерендерити ТІЛЬКИ рядки таблиці (без заголовка)
+ * Викликається при фільтрації/сортуванні щоб не знищувати dropdown-и в заголовках
+ */
+export function renderKeywordsTableRowsOnly() {
+    const container = document.getElementById('keywords-table-container');
+    if (!container) return;
+
+    const keywords = getKeywords();
+    const filteredKeywords = applyFilters(keywords);
+
+    // Видаляємо тільки рядки (не заголовок!)
+    container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
+
+    // Якщо немає даних - залишаємо порожню таблицю з заголовками
+    if (!filteredKeywords || filteredKeywords.length === 0) {
+        updateStats(0, keywords.length);
+        return;
+    }
+
+    // Отримуємо пагіновані дані
+    const { currentPage, pageSize } = keywordsState.pagination;
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredKeywords.length);
+    const paginatedKeywords = filteredKeywords.slice(start, end);
+
+    // Оновлюємо пагінацію
+    if (keywordsState.paginationAPI) {
+        keywordsState.paginationAPI.update({
+            currentPage,
+            pageSize,
+            totalItems: filteredKeywords.length
+        });
+    }
+
+    // Генеруємо нові рядки
+    const rowsHTML = paginatedKeywords.map((row, rowIndex) => {
+        const rowId = row.id || row.local_id || rowIndex;
+        return generateKeywordRowHTML(row, rowId);
+    }).join('');
+
+    // Вставляємо після заголовка
+    const header = container.querySelector('.pseudo-table-header');
+    if (header) {
+        header.insertAdjacentHTML('afterend', rowsHTML);
+    }
+
+    // Додаємо обробники подій для нових кнопок
+    attachRowEventHandlers(container);
+
+    updateStats(filteredKeywords.length, keywords.length);
+}
+
+/**
+ * Додати обробники подій для кнопок у рядках
+ */
+function attachRowEventHandlers(container) {
+    // Обробник кнопки редагування
+    container.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const keywordId = button.dataset.keywordId;
+            if (keywordId) {
+                const { showEditKeywordModal } = await import('./keywords-crud.js');
+                await showEditKeywordModal(keywordId);
+            }
+        });
+    });
+
+    // Обробник кнопки перегляду глосарію
+    container.querySelectorAll('.btn-view-glossary').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const keywordId = button.dataset.keywordId;
+            if (keywordId) {
+                const { showGlossaryModal } = await import('./keywords-crud.js');
+                await showGlossaryModal(keywordId);
+            }
+        });
+    });
+}
+
 export function renderKeywordsTable() {
     // Запобігаємо рекурсивному виклику
     if (isRendering) return;
@@ -151,39 +283,14 @@ export function renderKeywordsTable() {
         withContainer: false
     });
 
-    // Обробник кнопки редагування
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const keywordId = button.dataset.keywordId;
-            if (keywordId) {
-                const { showEditKeywordModal } = await import('./keywords-crud.js');
-                await showEditKeywordModal(keywordId);
-            }
-        });
-    });
-
-    // Обробник кнопки перегляду глосарію
-    container.querySelectorAll('.btn-view-glossary').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const keywordId = button.dataset.keywordId;
-            if (keywordId) {
-                const { showGlossaryModal } = await import('./keywords-crud.js');
-                await showGlossaryModal(keywordId);
-            }
-        });
-    });
+    // Додаємо обробники подій для кнопок
+    attachRowEventHandlers(container);
 
     updateStats(filteredKeywords.length, keywords.length);
 
     console.log(`✅ Відрендерено ${paginatedKeywords.length} з ${filteredKeywords.length} ключових слів`);
 
-    // Реініціалізуємо сортування та фільтрацію для нових заголовків
     isRendering = false;
-    import('./keywords-events.js').then(({ reinitKeywordsSorting }) => {
-        reinitKeywordsSorting();
-    });
 }
 
 function applyFilters(keywords) {

@@ -7,7 +7,7 @@
  */
 
 import { keywordsState } from './keywords-init.js';
-import { renderKeywordsTable, getColumns } from './keywords-table.js';
+import { renderKeywordsTable, renderKeywordsTableRowsOnly, getColumns } from './keywords-table.js';
 import { loadKeywords, getKeywords } from './keywords-data.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
 
@@ -17,9 +17,27 @@ export function initKeywordsEvents() {
     const refreshBtn = document.getElementById('refresh-tab-keywords');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', async () => {
-            console.log('🔄 Оновлення даних Keywords...');
-            await loadKeywords();
-            renderKeywordsTable();
+            const icon = refreshBtn.querySelector('.material-symbols-outlined');
+            if (icon) icon.classList.add('is-spinning');
+
+            try {
+                console.log('🔄 Оновлення даних Keywords...');
+                await loadKeywords();
+                renderKeywordsTable();
+                // Реініціалізуємо сортування після повного рендерингу
+                reinitKeywordsSorting();
+
+                // Оновлюємо пагінацію
+                if (keywordsState.paginationAPI) {
+                    keywordsState.paginationAPI.update({
+                        totalItems: keywordsState.keywords.length
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Помилка оновлення:', error);
+            } finally {
+                if (icon) icon.classList.remove('is-spinning');
+            }
         });
     }
 
@@ -32,7 +50,8 @@ export function initKeywordsSearch(searchInput) {
     searchInput.addEventListener('input', (e) => {
         keywordsState.searchQuery = e.target.value.trim();
         keywordsState.pagination.currentPage = 1;
-        renderKeywordsTable();
+        // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+        renderKeywordsTableRowsOnly();
     });
 
     console.log('✅ Пошук ініціалізовано');
@@ -80,12 +99,14 @@ export function initKeywordsSorting() {
         onSort: async (sortedData) => {
             keywordsState.keywords = sortedData;
             keywordsState.pagination.currentPage = 1;
-            await renderKeywordsTable();
+            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+            renderKeywordsTableRowsOnly();
         },
         onFilter: (activeFilters) => {
             keywordsState.columnFilters = activeFilters;
             keywordsState.pagination.currentPage = 1;
-            renderKeywordsTable();
+            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+            renderKeywordsTableRowsOnly();
         }
     });
 
@@ -96,7 +117,8 @@ export function initKeywordsSorting() {
 }
 
 /**
- * Реініціалізувати сортування та фільтрацію після рендерингу таблиці
+ * Реініціалізувати сортування та фільтрацію після повного рендерингу таблиці
+ * Викликається тільки після renderKeywordsTable (коли заголовок перестворено)
  */
 export function reinitKeywordsSorting() {
     const container = document.getElementById('keywords-table-container');
@@ -139,12 +161,14 @@ export function reinitKeywordsSorting() {
         onSort: async (sortedData) => {
             keywordsState.keywords = sortedData;
             keywordsState.pagination.currentPage = 1;
-            await renderKeywordsTable();
+            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+            renderKeywordsTableRowsOnly();
         },
         onFilter: (activeFilters) => {
             keywordsState.columnFilters = activeFilters;
             keywordsState.pagination.currentPage = 1;
-            renderKeywordsTable();
+            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+            renderKeywordsTableRowsOnly();
         }
     });
 
