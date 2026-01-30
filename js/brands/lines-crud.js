@@ -17,7 +17,7 @@ import { getBrandLineById, addBrandLine, updateBrandLine, deleteBrandLine } from
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { initCustomSelects } from '../common/ui-custom-select.js';
+import { initCustomSelects } from '../common/ui-select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
