@@ -169,20 +169,43 @@ export function setupInfoButtonTooltip() {
 // EDITOR TOOLTIPS
 // ============================================================================
 
+let currentHighlight = null;
+
 export function setupEditorTooltips() {
     const dom = getHighlightDOM();
     if (!dom.editor) return;
 
+    // Використовуємо mouseover з відстеженням поточного елемента
     dom.editor.addEventListener('mouseover', (e) => {
         const highlight = e.target.closest('.highlight-banned-word');
-        if (highlight) {
+        if (highlight && highlight !== currentHighlight) {
+            currentHighlight = highlight;
             const wordInfo = findBannedWordInfo(highlight.textContent.toLowerCase());
             if (wordInfo) showTooltip(highlight, wordInfo);
         }
     });
 
+    // Використовуємо mouseout з перевіркою relatedTarget
     dom.editor.addEventListener('mouseout', (e) => {
-        if (e.target.closest('.highlight-banned-word')) hideTooltip();
+        const highlight = e.target.closest('.highlight-banned-word');
+        if (!highlight) return;
+
+        // Перевіряємо чи миша вийшла за межі highlight елемента
+        const relatedTarget = e.relatedTarget;
+        const isStillInHighlight = relatedTarget && highlight.contains(relatedTarget);
+
+        if (!isStillInHighlight && highlight === currentHighlight) {
+            currentHighlight = null;
+            hideTooltip();
+        }
+    });
+
+    // Додаткова перевірка - ховаємо tooltip коли миша залишає редактор повністю
+    dom.editor.addEventListener('mouseleave', () => {
+        if (currentHighlight) {
+            currentHighlight = null;
+            hideTooltip();
+        }
     });
 }
 
