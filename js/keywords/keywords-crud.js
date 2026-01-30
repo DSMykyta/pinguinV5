@@ -73,7 +73,7 @@ export async function showEditKeywordModal(localId) {
     const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати ключове слово';
+    if (title) title.textContent = `Редагувати ${keyword.name_uk}`;
 
     const deleteBtn = document.getElementById('delete-keyword');
     if (deleteBtn) {
@@ -251,16 +251,21 @@ async function fillKeywordForm(keyword) {
 
     // Встановити тип параметра і оновити селект
     const paramTypeSelect = document.getElementById('keyword-param-type-select');
+    const { reinitializeCustomSelect } = await import('../common/ui-select.js');
+
     if (paramTypeSelect && keyword.param_type) {
         paramTypeSelect.value = keyword.param_type;
+        // Оновити кастомний селект типу
+        reinitializeCustomSelect(paramTypeSelect);
+
         // Завантажити сутності для цього типу
         await loadEntitiesForType(keyword.param_type);
+
         // Встановити значення entity
         const entitySelect = document.getElementById('keyword-entity-id');
         if (entitySelect && keyword.entity_identity_id) {
             entitySelect.value = keyword.entity_identity_id;
             // Оновити кастомний селект
-            const { reinitializeCustomSelect } = await import('../common/ui-select.js');
             reinitializeCustomSelect(entitySelect);
         }
     }
@@ -269,7 +274,6 @@ async function fillKeywordForm(keyword) {
     const parentSelect = document.getElementById('keyword-parent-local-id');
     if (parentSelect && keyword.parent_local_id) {
         parentSelect.value = keyword.parent_local_id;
-        const { reinitializeCustomSelect } = await import('../common/ui-select.js');
         reinitializeCustomSelect(parentSelect);
     }
 
