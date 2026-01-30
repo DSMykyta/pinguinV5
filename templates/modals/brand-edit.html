@@ -42,6 +42,10 @@
                         <span class="material-symbols-outlined">settings</span>
                         <span class="sidebar-nav-label">Налаштування</span>
                     </a>
+                    <a href="#section-brand-lines" class="sidebar-nav-item" aria-label="Лінійки">
+                        <span class="material-symbols-outlined">category</span>
+                        <span class="sidebar-nav-label">Лінійки</span>
+                    </a>
                 </div>
                 <div class="sidebar-nav-footer">
                     <button type="button" class="sidebar-nav-item btn-delete u-hidden" id="btn-delete-brand" aria-label="Видалити">
@@ -207,6 +211,35 @@
                                 </div>
                                 <input type="hidden" id="brand-mapper-option-id">
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 5: ЛІНІЙКИ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-lines" >
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Лінійки бренду</h2>
+                            </div>
+                            <h3>Продуктові лінійки цього бренду</h3>
+                        </div>
+                        <button class="btn btn-outline" id="btn-add-brand-line">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>Додати лінійку</span>
+                        </button>
+                    </div>
+
+                    <div class="section-content">
+                        <div id="brand-lines-container" class="brand-lines-list">
+                            <!-- Динамічний список лінійок додається через JS -->
+                        </div>
+
+                        <div id="brand-lines-empty" class="empty-state-inline">
+                            <span class="material-symbols-outlined">category</span>
+                            <span>Лінійки відсутні</span>
                         </div>
                     </div>
                 </section>

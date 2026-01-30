@@ -101,6 +101,20 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
+
+        <!-- НАВІГАЦІЯ ТАБІВ -->
+        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+            <button class="nav-icon active" aria-label="Бренди" data-tab-target="tab-brands">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                <span class="nav-icon-label">Бренди</span>
+            </button>
+
+            <button class="nav-icon" aria-label="Лінійки" data-tab-target="tab-lines">
+                <span class="material-symbols-outlined">category</span>
+                <span class="nav-icon-label">Лінійки</span>
+            </button>
+        </nav>
+
         <!-- TAB: УПРАВЛІННЯ БРЕНДАМИ -->
         <div class="tab-content active" data-tab-content="tab-brands" id="tab-brands">
 
@@ -136,6 +150,45 @@
 
             <!-- Table Container -->
             <div id="brands-table-container" class="pseudo-table-container">
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
+
+        <!-- TAB: ЛІНІЙКИ БРЕНДІВ -->
+        <div class="tab-content" data-tab-content="tab-lines" id="tab-lines">
+
+            <div class="section-header u-align-end">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Лінійки брендів</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3 id="tab-stats-lines">Показано 0 з 0</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-lines" class="btn-icon" aria-label="Оновити таб">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+
+                    <div class="dropdown-wrapper">
+                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
+                            <span class="material-symbols-outlined">view_column</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="dropdown-header">Показати колонки</div>
+                            <div id="table-columns-list-lines" class="dropdown-body">
+                                <!-- Чекбокси додаються динамічно -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div id="lines-table-container" class="pseudo-table-container">
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
