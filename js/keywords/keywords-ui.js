@@ -43,13 +43,13 @@ export function populateTableColumns() {
     console.log('✅ Колонки таблиці заповнено');
 }
 
-// Фіксовані типи параметрів
+// Фіксовані типи параметрів (порядок і іконки як в Mapper)
 const PARAM_TYPES = [
-    { value: 'category', label: 'Категорія', icon: 'category' },
-    { value: 'characteristic', label: 'Характеристика', icon: 'tune' },
-    { value: 'option', label: 'Опція', icon: 'toggle_on' },
-    { value: 'marketing', label: 'Маркетинг', icon: 'campaign' },
-    { value: 'other', label: 'Інше', icon: 'more_horiz' }
+    { value: 'category', label: 'Категорія', icon: 'square' },
+    { value: 'characteristic', label: 'Характеристика', icon: 'change_history' },
+    { value: 'option', label: 'Опція', icon: 'circle' },
+    { value: 'marketing', label: 'Маркетинг', icon: 'sell' },
+    { value: 'other', label: 'Інше', icon: 'star' }
 ];
 
 /**
