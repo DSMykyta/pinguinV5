@@ -7,7 +7,7 @@
  */
 
 import { loadKeywords } from './keywords-data.js';
-import { renderKeywordsTable } from './keywords-table.js';
+import { renderKeywordsTable, renderKeywordsTableRowsOnly } from './keywords-table.js';
 import { initKeywordsEvents, initKeywordsSearch, initKeywordsSorting } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
@@ -94,7 +94,8 @@ function initKeywordsPagination() {
         onPageChange: (page, pageSize) => {
             keywordsState.pagination.currentPage = page;
             keywordsState.pagination.pageSize = pageSize;
-            renderKeywordsTable();
+            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+            renderKeywordsTableRowsOnly();
         }
     });
 
@@ -169,7 +170,8 @@ async function loadAsideKeywords() {
                 keywordsState.searchQuery = '';
                 keywordsState.pagination.currentPage = 1;
                 clearSearchBtn.classList.add('u-hidden');
-                renderKeywordsTable();
+                // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
+                renderKeywordsTableRowsOnly();
             });
 
             searchInput.addEventListener('input', () => {
