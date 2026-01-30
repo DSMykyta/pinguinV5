@@ -392,7 +392,8 @@ async function loadEntitiesForType(type) {
     // Завантажити дані з Mapper (якщо ще не завантажено)
     if (!mapperDataCache) {
         try {
-            const { mapperState, loadMapperData } = await import('../mapper/mapper-data.js');
+            const { mapperState } = await import('../mapper/mapper-state.js');
+            const { loadMapperData } = await import('../mapper/mapper-data.js');
 
             // Перевіряємо чи є дані
             if (!mapperState.categories?.length) {

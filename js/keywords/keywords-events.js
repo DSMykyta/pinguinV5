@@ -7,7 +7,7 @@
  */
 
 import { keywordsState } from './keywords-init.js';
-import { renderKeywordsTable } from './keywords-table.js';
+import { renderKeywordsTable, getColumns } from './keywords-table.js';
 import { loadKeywords, getKeywords } from './keywords-data.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
 
@@ -45,24 +45,41 @@ export function initKeywordsSorting() {
         return null;
     }
 
+    // Отримуємо конфігурацію колонок для фільтрів
+    const columns = getColumns();
+
+    // Колонки з фільтрами (для hover dropdown)
+    const filterColumns = columns
+        .filter(col => col.filterable)
+        .map(col => ({
+            id: col.id,
+            label: col.label,
+            filterType: col.filterType || 'values'
+        }));
+
     const sortAPI = initTableSorting(container, {
         dataSource: () => getKeywords(),
+        columnTypes: {
+            local_id: 'id-text',
+            param_type: 'string',
+            name_uk: 'string',
+            trigers: 'string'
+        },
+        filterColumns,
         onSort: async (sortedData) => {
             keywordsState.keywords = sortedData;
+            keywordsState.pagination.currentPage = 1;
             await renderKeywordsTable();
-
-            const sortState = sortAPI.getState();
-            if (sortState.key && sortState.order) {
-                const header = container.querySelector(`[data-sort-key="${sortState.key}"]`);
-                if (header) {
-                    header.classList.add('is-sorted', sortState.order === 'asc' ? 'is-asc' : 'is-desc');
-                }
-            }
+        },
+        onFilter: (activeFilters) => {
+            keywordsState.columnFilters = activeFilters;
+            keywordsState.pagination.currentPage = 1;
+            renderKeywordsTable();
         }
     });
 
     keywordsState.sortAPI = sortAPI;
 
-    console.log('✅ Сортування ініціалізовано');
+    console.log('✅ Сортування та фільтрація ініціалізовано');
     return sortAPI;
 }

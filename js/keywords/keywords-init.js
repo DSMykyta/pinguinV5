@@ -20,6 +20,7 @@ export const keywordsState = {
     searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     paramTypeFilter: 'all',
+    columnFilters: {},       // Фільтри по колонках { columnId: ['value1', 'value2'] }
     sortKey: null,
     sortOrder: 'asc',
     pagination: {
@@ -27,7 +28,8 @@ export const keywordsState = {
         pageSize: 10,
         totalItems: 0
     },
-    paginationAPI: null
+    paginationAPI: null,
+    sortAPI: null
 };
 
 export function initKeywords() {
