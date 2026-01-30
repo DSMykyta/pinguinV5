@@ -14,25 +14,37 @@
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
  * ║  ├── brands-table.js    — Рендеринг таблиці брендів                      ║
  * ║  ├── brands-crud.js     — Модальні вікна (додати/редагувати/видалити)    ║
- * ║  ├── brands-search.js   — Пошук та фільтрація (в brands-events.js)       ║
+ * ║  ├── brands-events.js   — Обробники подій (пошук, оновлення, сортування) ║
  * ║  └── brands-ui.js       — UI компоненти (чекбокси колонок і т.д.)        ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * СТРУКТУРА ДАНИХ БРЕНДУ:
+ * СТРУКТУРА КОЛОНОК В GOOGLE SHEETS (Brands):
+ * ┌─────────┬────────────────────┬─────────────────────────────────────────┐
+ * │ Колонка │ Поле               │ Формат                                  │
+ * ├─────────┼────────────────────┼─────────────────────────────────────────┤
+ * │ A       │ brand_id           │ bran-XXXXXX                             │
+ * │ B       │ name_uk            │ текст                                   │
+ * │ C       │ names_alt          │ JSON масив: ["alt1", "alt2"]            │
+ * │ D       │ country_option_id  │ текст (Польша, США, ...)                │
+ * │ E       │ brand_text         │ HTML текст                              │
+ * │ F       │ brand_status       │ active | inactive                       │
+ * │ G       │ brand_links        │ JSON масив: [{name, url}, ...]          │
+ * └─────────┴────────────────────┴─────────────────────────────────────────┘
+ *
+ * СТРУКТУРА ДАНИХ БРЕНДУ (в JS):
  * {
  *   brand_id: "bran-000001",
  *   name_uk: "Optimum Nutrition",
  *   names_alt: ["ON", "Optimum", "Оптимум"],     // JSON масив
- *   country_option_id: "США",                    // Поки текст, потім select
+ *   country_option_id: "США",
+ *   brand_text: "<p>HTML опис...</p>",
  *   brand_status: "active",                      // active | inactive
- *   brand_logo_url: "",                          // Зарезервовано для диску
  *   brand_links: [                               // JSON масив посилань
  *     { name: "ua", url: "https://..." },
  *     { name: "de", url: "https://..." }
  *   ],
- *   brand_text: "<p>HTML опис...</p>",
- *   mapper_option_id: ""                         // Зарезервовано для mapper
+ *   _rowIndex: 2                                 // Внутрішній індекс рядка
  * }
  */
 
@@ -213,6 +225,43 @@ async function loadAsideBrands() {
         panelRightContent.innerHTML = html;
 
         console.log('✅ aside-brands.html завантажено');
+
+        // Ініціалізувати пошук
+        const searchInput = document.getElementById('search-brands');
+        if (searchInput) {
+            const { initBrandsSearch } = await import('./brands-events.js');
+            initBrandsSearch(searchInput);
+        }
+
+        // Ініціалізувати кнопку "Додати бренд"
+        const addBtn = document.getElementById('btn-add-brand-aside');
+        if (addBtn) {
+            addBtn.addEventListener('click', async () => {
+                const { showAddBrandModal } = await import('./brands-crud.js');
+                showAddBrandModal();
+            });
+        }
+
+        // Ініціалізувати кнопку очистки пошуку
+        const clearSearchBtn = document.getElementById('clear-search-brands');
+        if (clearSearchBtn && searchInput) {
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                brandsState.searchQuery = '';
+                brandsState.pagination.currentPage = 1;
+                clearSearchBtn.classList.add('u-hidden');
+                runHook('onRender');
+            });
+
+            // Показати/сховати кнопку очистки при введенні
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.trim()) {
+                    clearSearchBtn.classList.remove('u-hidden');
+                } else {
+                    clearSearchBtn.classList.add('u-hidden');
+                }
+            });
+        }
     } catch (error) {
         console.error('❌ Помилка завантаження aside-brands.html:', error);
     }

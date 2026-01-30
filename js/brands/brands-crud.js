@@ -472,11 +472,11 @@ function getBrandFormData() {
         name_uk: document.getElementById('brand-name-uk')?.value.trim() || '',
         names_alt: getAltNames(),
         country_option_id: document.getElementById('brand-country')?.value.trim() || '',
-        brand_status: document.querySelector('input[name="brand-status"]:checked')?.value || 'active',
-        brand_logo_url: document.getElementById('brand-logo-url')?.value || '',
-        brand_links: getLinks(),
         brand_text: textEditor ? textEditor.getValue() : '',
-        mapper_option_id: document.getElementById('brand-mapper-option-id')?.value || ''
+        brand_status: document.querySelector('input[name="brand-status"]:checked')?.value || 'active',
+        brand_links: getLinks(),
+        mapper_option_id: document.getElementById('brand-mapper-option-id')?.value.trim() || '',
+        brand_logo_url: document.getElementById('brand-logo-url')?.value.trim() || ''
     };
 }
 
@@ -519,16 +519,17 @@ function fillBrandForm(brand) {
         textEditor.setValue(brand.brand_text || '');
     }
 
-    // Логотип
-    const logoField = document.getElementById('brand-logo-url');
-    if (logoField) logoField.value = brand.brand_logo_url || '';
+    // Mapper option ID (зарезервовано)
+    const mapperIdField = document.getElementById('brand-mapper-option-id');
+    if (mapperIdField) mapperIdField.value = brand.mapper_option_id || '';
 
-    // Mapper
-    const mapperField = document.getElementById('brand-mapper-option-id');
-    if (mapperField) mapperField.value = brand.mapper_option_id || '';
+    // Відображення mapper ID
+    const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
+    if (mapperIdDisplay) mapperIdDisplay.textContent = brand.mapper_option_id || '—';
 
-    const mapperDisplay = document.getElementById('brand-mapper-id-display');
-    if (mapperDisplay) mapperDisplay.textContent = brand.mapper_option_id || '—';
+    // Logo URL (зарезервовано)
+    const logoUrlField = document.getElementById('brand-logo-url');
+    if (logoUrlField) logoUrlField.value = brand.brand_logo_url || '';
 }
 
 /**
@@ -564,18 +565,19 @@ function clearBrandForm() {
     // Посилання
     setLinks([]);
 
+    // Mapper option ID (зарезервовано)
+    const mapperIdField = document.getElementById('brand-mapper-option-id');
+    if (mapperIdField) mapperIdField.value = '';
+
+    // Відображення mapper ID
+    const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
+    if (mapperIdDisplay) mapperIdDisplay.textContent = '—';
+
+    // Logo URL (зарезервовано)
+    const logoUrlField = document.getElementById('brand-logo-url');
+    if (logoUrlField) logoUrlField.value = '';
+
     // Текст - буде очищено при ініціалізації редактора
-
-    // Логотип
-    const logoField = document.getElementById('brand-logo-url');
-    if (logoField) logoField.value = '';
-
-    // Mapper
-    const mapperField = document.getElementById('brand-mapper-option-id');
-    if (mapperField) mapperField.value = '';
-
-    const mapperDisplay = document.getElementById('brand-mapper-id-display');
-    if (mapperDisplay) mapperDisplay.textContent = '—';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
