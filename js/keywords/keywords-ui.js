@@ -43,8 +43,17 @@ export function populateTableColumns() {
     console.log('✅ Колонки таблиці заповнено');
 }
 
+// Фіксовані типи параметрів
+const PARAM_TYPES = [
+    { value: 'category', label: 'Категорія', icon: 'category' },
+    { value: 'characteristic', label: 'Характеристика', icon: 'tune' },
+    { value: 'option', label: 'Опція', icon: 'toggle_on' },
+    { value: 'marketing', label: 'Маркетинг', icon: 'campaign' },
+    { value: 'other', label: 'Інше', icon: 'more_horiz' }
+];
+
 /**
- * Ініціалізувати фільтри за типами (динамічно з даних)
+ * Ініціалізувати фільтри за типами (фіксовані типи)
  */
 export function initParamTypeFilters() {
     const container = document.getElementById('param-type-filters-header');
@@ -54,9 +63,6 @@ export function initParamTypeFilters() {
         return;
     }
 
-    // Отримати унікальні типи з даних
-    const uniqueTypes = [...new Set(keywordsState.keywords.map(k => k.param_type).filter(Boolean))];
-
     // Створити HTML для кнопок
     let buttonsHTML = `
         <button class="nav-icon active" data-filter="all" data-filter-type="param_type">
@@ -65,12 +71,11 @@ export function initParamTypeFilters() {
         </button>
     `;
 
-    uniqueTypes.sort().forEach(type => {
-        const label = type.charAt(0).toUpperCase() + type.slice(1);
+    PARAM_TYPES.forEach(type => {
         buttonsHTML += `
-            <button class="nav-icon" data-filter="${type}" data-filter-type="param_type">
-                <span class="material-symbols-outlined">label</span>
-                <span class="nav-icon-label">${label}</span>
+            <button class="nav-icon" data-filter="${type.value}" data-filter-type="param_type">
+                <span class="material-symbols-outlined">${type.icon}</span>
+                <span class="nav-icon-label">${type.label}</span>
             </button>
         `;
     });
