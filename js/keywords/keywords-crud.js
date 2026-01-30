@@ -19,6 +19,7 @@ import { createHighlightEditor } from '../common/editor/editor-main.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 let glossaryEditor = null; // UI Editor instance для глосарію
+let mapperDataCache = null; // Кеш даних Mapper
 
 export async function showAddKeywordModal() {
     console.log('➕ Відкриття модального вікна для додавання ключового слова');
@@ -36,6 +37,7 @@ export async function showAddKeywordModal() {
     clearKeywordForm();
     await initModalSelects();
     initGlossaryEditor();
+    initParamTypeChangeHandler();
 
     // Ініціалізувати навігацію по секціях
     initSectionNavigation();
@@ -85,9 +87,10 @@ export async function showEditKeywordModal(localId) {
     // Ініціалізувати селекти та заповнити їх
     await initModalSelects();
     initGlossaryEditor();
+    initParamTypeChangeHandler();
 
-    // Заповнити форму даними
-    fillKeywordForm(keyword);
+    // Заповнити форму даними (включаючи завантаження сутностей для типу)
+    await fillKeywordForm(keyword);
 
     // Ініціалізувати навігацію по секціях
     initSectionNavigation();
@@ -221,7 +224,7 @@ function getFormData() {
         local_id: document.getElementById('keyword-local-id')?.value.trim() || '',
         param_type: document.getElementById('keyword-param-type-select')?.value || '',
         parent_local_id: document.getElementById('keyword-parent-local-id')?.value || '',
-        characteristics_local_id: document.getElementById('keyword-characteristics-local-id')?.value.trim() || '',
+        entity_identity_id: document.getElementById('keyword-entity-id')?.value || '',
         name_uk: document.getElementById('keyword-name-uk')?.value.trim() || '',
         name_ru: document.getElementById('keyword-name-ru')?.value.trim() || '',
         name_en: document.getElementById('keyword-name-en')?.value.trim() || '',
@@ -234,12 +237,9 @@ function getFormData() {
     };
 }
 
-function fillKeywordForm(keyword) {
+async function fillKeywordForm(keyword) {
     // Заповнити всі поля
     document.getElementById('keyword-local-id').value = keyword.local_id || '';
-    document.getElementById('keyword-param-type-select').value = keyword.param_type || '';
-    document.getElementById('keyword-parent-local-id').value = keyword.parent_local_id || '';
-    document.getElementById('keyword-characteristics-local-id').value = keyword.characteristics_local_id || '';
     document.getElementById('keyword-name-uk').value = keyword.name_uk || '';
     document.getElementById('keyword-name-ru').value = keyword.name_ru || '';
     document.getElementById('keyword-name-en').value = keyword.name_en || '';
@@ -249,6 +249,30 @@ function fillKeywordForm(keyword) {
     document.getElementById('keyword-keywords-ua').value = keyword.keywords_ua || '';
     document.getElementById('keyword-keywords-ru').value = keyword.keywords_ru || '';
 
+    // Встановити тип параметра і оновити селект
+    const paramTypeSelect = document.getElementById('keyword-param-type-select');
+    if (paramTypeSelect && keyword.param_type) {
+        paramTypeSelect.value = keyword.param_type;
+        // Завантажити сутності для цього типу
+        await loadEntitiesForType(keyword.param_type);
+        // Встановити значення entity
+        const entitySelect = document.getElementById('keyword-entity-id');
+        if (entitySelect && keyword.entity_identity_id) {
+            entitySelect.value = keyword.entity_identity_id;
+            // Оновити кастомний селект
+            const { reinitializeCustomSelect } = await import('../common/ui-select.js');
+            reinitializeCustomSelect(entitySelect);
+        }
+    }
+
+    // Встановити батьківський елемент
+    const parentSelect = document.getElementById('keyword-parent-local-id');
+    if (parentSelect && keyword.parent_local_id) {
+        parentSelect.value = keyword.parent_local_id;
+        const { reinitializeCustomSelect } = await import('../common/ui-select.js');
+        reinitializeCustomSelect(parentSelect);
+    }
+
     // Заповнити редактор глосарію
     if (glossaryEditor) {
         glossaryEditor.setValue(keyword.glossary_text || '');
@@ -257,18 +281,45 @@ function fillKeywordForm(keyword) {
 
 function clearKeywordForm() {
     // Очистити всі поля
-    document.getElementById('keyword-local-id').value = '';
-    document.getElementById('keyword-param-type-select').value = '';
-    document.getElementById('keyword-parent-local-id').value = '';
-    document.getElementById('keyword-characteristics-local-id').value = '';
-    document.getElementById('keyword-name-uk').value = '';
-    document.getElementById('keyword-name-ru').value = '';
-    document.getElementById('keyword-name-en').value = '';
-    document.getElementById('keyword-name-lat').value = '';
-    document.getElementById('keyword-name-alt').value = '';
-    document.getElementById('keyword-trigers').value = '';
-    document.getElementById('keyword-keywords-ua').value = '';
-    document.getElementById('keyword-keywords-ru').value = '';
+    const localIdEl = document.getElementById('keyword-local-id');
+    if (localIdEl) localIdEl.value = '';
+
+    const paramTypeEl = document.getElementById('keyword-param-type-select');
+    if (paramTypeEl) paramTypeEl.value = '';
+
+    const parentEl = document.getElementById('keyword-parent-local-id');
+    if (parentEl) parentEl.value = '';
+
+    const entityEl = document.getElementById('keyword-entity-id');
+    if (entityEl) {
+        // Скинути до початкового стану
+        entityEl.innerHTML = '<option value="">-- Спочатку оберіть тип --</option>';
+        entityEl.disabled = true;
+    }
+
+    const nameUkEl = document.getElementById('keyword-name-uk');
+    if (nameUkEl) nameUkEl.value = '';
+
+    const nameRuEl = document.getElementById('keyword-name-ru');
+    if (nameRuEl) nameRuEl.value = '';
+
+    const nameEnEl = document.getElementById('keyword-name-en');
+    if (nameEnEl) nameEnEl.value = '';
+
+    const nameLatEl = document.getElementById('keyword-name-lat');
+    if (nameLatEl) nameLatEl.value = '';
+
+    const nameAltEl = document.getElementById('keyword-name-alt');
+    if (nameAltEl) nameAltEl.value = '';
+
+    const trigersEl = document.getElementById('keyword-trigers');
+    if (trigersEl) trigersEl.value = '';
+
+    const keywordsUaEl = document.getElementById('keyword-keywords-ua');
+    if (keywordsUaEl) keywordsUaEl.value = '';
+
+    const keywordsRuEl = document.getElementById('keyword-keywords-ru');
+    if (keywordsRuEl) keywordsRuEl.value = '';
 
     // Очистити редактор глосарію
     if (glossaryEditor) {
@@ -302,10 +353,109 @@ function initGlossaryEditor() {
 }
 
 /**
+ * Ініціалізувати обробник зміни типу параметра
+ */
+function initParamTypeChangeHandler() {
+    const paramTypeSelect = document.getElementById('keyword-param-type-select');
+    if (!paramTypeSelect) return;
+
+    paramTypeSelect.addEventListener('change', async (e) => {
+        const type = e.target.value;
+        await loadEntitiesForType(type);
+    });
+}
+
+/**
+ * Завантажити сутності з Mapper для вибраного типу
+ */
+async function loadEntitiesForType(type) {
+    const entitySelect = document.getElementById('keyword-entity-id');
+    if (!entitySelect) return;
+
+    const { reinitializeCustomSelect } = await import('../common/ui-select.js');
+
+    // Очистити попередні опції
+    entitySelect.innerHTML = '';
+
+    // Якщо тип не обраний або marketing/other - вимкнути select
+    if (!type || type === 'marketing' || type === 'other') {
+        entitySelect.innerHTML = '<option value="">-- Не застосовується --</option>';
+        entitySelect.disabled = true;
+        reinitializeCustomSelect(entitySelect);
+        return;
+    }
+
+    // Завантажити дані з Mapper (якщо ще не завантажено)
+    if (!mapperDataCache) {
+        try {
+            const { mapperState, loadMapperData } = await import('../mapper/mapper-data.js');
+
+            // Перевіряємо чи є дані
+            if (!mapperState.categories?.length) {
+                await loadMapperData();
+            }
+
+            mapperDataCache = mapperState;
+        } catch (error) {
+            console.warn('⚠️ Не вдалося завантажити дані Mapper:', error);
+            entitySelect.innerHTML = '<option value="">-- Помилка завантаження --</option>';
+            entitySelect.disabled = true;
+            reinitializeCustomSelect(entitySelect);
+            return;
+        }
+    }
+
+    // Вибрати відповідний масив даних
+    let entities = [];
+    let labelField = 'name_ua';
+
+    switch (type) {
+        case 'category':
+            entities = mapperDataCache.categories || [];
+            labelField = 'name_ua';
+            break;
+        case 'characteristic':
+            entities = mapperDataCache.characteristics || [];
+            labelField = 'name_ua';
+            break;
+        case 'option':
+            entities = mapperDataCache.options || [];
+            labelField = 'value_ua';
+            break;
+    }
+
+    // Заповнити select
+    entitySelect.disabled = false;
+    entitySelect.innerHTML = '<option value="">-- Оберіть сутність --</option>';
+
+    entities.forEach(entity => {
+        const option = document.createElement('option');
+        option.value = entity.id;
+        option.textContent = entity[labelField] || entity.id;
+        entitySelect.appendChild(option);
+    });
+
+    reinitializeCustomSelect(entitySelect);
+}
+
+/**
  * Ініціалізувати всі кастомні селекти в модальному вікні
  */
 async function initModalSelects() {
     const { reinitializeCustomSelect } = await import('../common/ui-select.js');
+
+    // Ініціалізувати селект типу параметра
+    const paramTypeSelect = document.getElementById('keyword-param-type-select');
+    if (paramTypeSelect) {
+        reinitializeCustomSelect(paramTypeSelect);
+    }
+
+    // Ініціалізувати селект сутності (спочатку вимкнений)
+    const entitySelect = document.getElementById('keyword-entity-id');
+    if (entitySelect) {
+        entitySelect.disabled = true;
+        reinitializeCustomSelect(entitySelect);
+    }
 
     // Заповнити parent_local_id селект
     const parentSelect = document.getElementById('keyword-parent-local-id');
@@ -327,32 +477,6 @@ async function initModalSelects() {
 
         // Ініціалізувати кастомний селект
         reinitializeCustomSelect(parentSelect);
-    }
-
-    // Заповнити param_type селект унікальними типами з даних
-    const paramTypeSelect = document.getElementById('keyword-param-type-select');
-    if (paramTypeSelect) {
-        const keywords = getKeywords();
-
-        // Очистити попередні опції (крім першої)
-        while (paramTypeSelect.options.length > 1) {
-            paramTypeSelect.remove(1);
-        }
-
-        // Отримати унікальні типи з даних
-        const uniqueTypes = [...new Set(keywords.map(k => k.param_type).filter(Boolean))];
-        uniqueTypes.sort();
-
-        // Додати типи як опції
-        uniqueTypes.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-            paramTypeSelect.appendChild(option);
-        });
-
-        // Ініціалізувати кастомний селект
-        reinitializeCustomSelect(paramTypeSelect);
     }
 }
 
