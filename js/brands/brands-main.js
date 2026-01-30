@@ -54,6 +54,7 @@
 
 import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
+import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
@@ -68,6 +69,8 @@ const PLUGINS = [
     './brands-crud.js',
     './brands-events.js',
     './brands-ui.js',
+    './lines-table.js',
+    './lines-crud.js',
 ];
 
 /**
@@ -111,6 +114,9 @@ export async function initBrands() {
     // Ініціалізувати пагінацію
     initBrandsPagination();
 
+    // Ініціалізувати перемикання табів
+    initTabSwitching();
+
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
 
@@ -133,8 +139,11 @@ async function checkAuthAndLoadData() {
         console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         try {
-            // Завантажити бренди
-            await loadBrands();
+            // Завантажити бренди та лінійки паралельно
+            await Promise.all([
+                loadBrands(),
+                loadBrandLines()
+            ]);
 
             // Запустити хук onInit для плагінів
             await runHookAsync('onInit', brandsState.brands);
@@ -165,8 +174,14 @@ function initBrandsPagination() {
         pageSize: brandsState.pagination.pageSize,
         totalItems: brandsState.pagination.totalItems,
         onPageChange: (page, pageSize) => {
-            brandsState.pagination.currentPage = page;
-            brandsState.pagination.pageSize = pageSize;
+            // Визначити яку пагінацію оновлювати
+            if (brandsState.activeTab === 'lines') {
+                brandsState.linesPagination.currentPage = page;
+                brandsState.linesPagination.pageSize = pageSize;
+            } else {
+                brandsState.pagination.currentPage = page;
+                brandsState.pagination.pageSize = pageSize;
+            }
             runHook('onRender');
         }
     });
@@ -174,6 +189,58 @@ function initBrandsPagination() {
     brandsState.paginationAPI = paginationAPI;
 
     console.log('✅ Пагінація ініціалізована');
+}
+
+/**
+ * Ініціалізувати перемикання табів
+ */
+function initTabSwitching() {
+    const tabButtons = document.querySelectorAll('[data-tab-target]');
+    const tabContents = document.querySelectorAll('[data-tab-content]');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tabTarget;
+
+            // Оновити активну кнопку
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Оновити видимий контент
+            tabContents.forEach(content => {
+                if (content.dataset.tabContent === targetTab) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            // Оновити стан
+            const tabName = targetTab.replace('tab-', '');
+            brandsState.activeTab = tabName;
+
+            // Оновити пагінацію для нового табу
+            if (brandsState.paginationAPI) {
+                const pagination = tabName === 'lines'
+                    ? brandsState.linesPagination
+                    : brandsState.pagination;
+
+                brandsState.paginationAPI.update({
+                    currentPage: pagination.currentPage,
+                    pageSize: pagination.pageSize,
+                    totalItems: pagination.totalItems
+                });
+            }
+
+            // Запустити хук
+            runHook('onTabChange', tabName);
+            runHook('onRender');
+
+            console.log(`📑 Переключено на таб: ${tabName}`);
+        });
+    });
+
+    console.log('✅ Перемикання табів ініціалізовано');
 }
 
 /**
@@ -238,11 +305,20 @@ async function loadAsideBrands() {
         }
 
         // Ініціалізувати кнопку "Додати бренд"
-        const addBtn = document.getElementById('btn-add-brand-aside');
-        if (addBtn) {
-            addBtn.addEventListener('click', async () => {
+        const addBrandBtn = document.getElementById('btn-add-brand-aside');
+        if (addBrandBtn) {
+            addBrandBtn.addEventListener('click', async () => {
                 const { showAddBrandModal } = await import('./brands-crud.js');
                 showAddBrandModal();
+            });
+        }
+
+        // Ініціалізувати кнопку "Додати лінійку"
+        const addLineBtn = document.getElementById('btn-add-line-aside');
+        if (addLineBtn) {
+            addLineBtn.addEventListener('click', async () => {
+                const { showAddLineModal } = await import('./lines-crud.js');
+                showAddLineModal();
             });
         }
 

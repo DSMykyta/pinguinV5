@@ -18,10 +18,12 @@
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
+import { getBrandLinesByBrandId } from './lines-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -103,6 +105,9 @@ export async function showEditBrandModal(brandId) {
     // Заповнити форму даними
     fillBrandForm(brand);
 
+    // Заповнити секцію лінійок
+    populateBrandLines(brandId);
+
     runHook('onModalOpen', brand);
 }
 
@@ -143,6 +148,7 @@ function initModalComponents() {
     initTextEditor();
     initAltNamesHandlers();
     initLinksHandlers();
+    initBrandLinesHandler();
     initSaveHandler();
     initSectionNavigation();
 }
@@ -188,6 +194,64 @@ function initLinksHandlers() {
     if (addBtn) {
         addBtn.onclick = () => addLinkRow({ name: '', url: '' });
     }
+}
+
+/**
+ * Ініціалізувати обробник лінійок бренду
+ */
+function initBrandLinesHandler() {
+    const addBtn = document.getElementById('btn-add-brand-line');
+    if (addBtn) {
+        addBtn.onclick = async () => {
+            // Відкрити модал створення лінійки з попередньо обраним брендом
+            const { showAddLineModal } = await import('./lines-crud.js');
+            showAddLineModal(currentBrandId);
+        };
+    }
+}
+
+/**
+ * Заповнити секцію лінійок бренду
+ * @param {string} brandId - ID бренду
+ */
+function populateBrandLines(brandId) {
+    const container = document.getElementById('brand-lines-container');
+    const emptyState = document.getElementById('brand-lines-empty');
+    if (!container) return;
+
+    const lines = getBrandLinesByBrandId(brandId);
+
+    if (!lines || lines.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('u-hidden');
+        return;
+    }
+
+    if (emptyState) emptyState.classList.add('u-hidden');
+
+    container.innerHTML = lines.map(line => `
+        <div class="brand-line-item" data-line-id="${escapeHtml(line.line_id)}">
+            <div class="brand-line-info">
+                <span class="material-symbols-outlined">category</span>
+                <span class="brand-line-name">${escapeHtml(line.name_uk)}</span>
+            </div>
+            <button class="btn-icon btn-edit-brand-line" data-line-id="${escapeHtml(line.line_id)}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+        </div>
+    `).join('');
+
+    // Додати обробники для кнопок редагування
+    container.querySelectorAll('.btn-edit-brand-line').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const lineId = btn.dataset.lineId;
+            if (lineId) {
+                const { showEditLineModal } = await import('./lines-crud.js');
+                await showEditLineModal(lineId);
+            }
+        });
+    });
 }
 
 /**
@@ -576,6 +640,13 @@ function clearBrandForm() {
     // Logo URL (зарезервовано)
     const logoUrlField = document.getElementById('brand-logo-url');
     if (logoUrlField) logoUrlField.value = '';
+
+    // Лінійки - очистити для нового бренду
+    const linesContainer = document.getElementById('brand-lines-container');
+    if (linesContainer) linesContainer.innerHTML = '';
+
+    const linesEmpty = document.getElementById('brand-lines-empty');
+    if (linesEmpty) linesEmpty.classList.remove('u-hidden');
 
     // Текст - буде очищено при ініціалізації редактора
 }
