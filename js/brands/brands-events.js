@@ -8,10 +8,10 @@
  * Обробники подій для сторінки брендів.
  */
 
-import { brandsState } from './brands-init.js';
+import { brandsState } from './brands-state.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
-import { loadBrands } from './brands-data.js';
-import { getBrands } from './brands-data.js';
+import { loadBrands, getBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
 
@@ -107,6 +107,18 @@ export function initBrandsSearch(searchInput) {
     searchInput.addEventListener('input', (e) => {
         brandsState.searchQuery = e.target.value.trim();
         brandsState.pagination.currentPage = 1; // Скинути на першу сторінку
-        renderBrandsTable();
+        runHook('onRender');
     });
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Реєструємо на хук onInit — ініціалізуємо обробники подій
+registerBrandsPlugin('onInit', () => {
+    initBrandsEvents();
+    initBrandsSorting();
+});
+
+console.log('[Brands Events] Плагін завантажено');

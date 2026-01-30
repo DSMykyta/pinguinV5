@@ -10,19 +10,30 @@
  *
  * 🔒 ЯДРО — цей файл не можна видаляти!
  *
+ * СТРУКТУРА КОЛОНОК В GOOGLE SHEETS (Brands):
+ * ┌─────────┬────────────────────┬─────────────────────────────────────────┐
+ * │ Колонка │ Поле               │ Формат                                  │
+ * ├─────────┼────────────────────┼─────────────────────────────────────────┤
+ * │ A       │ brand_id           │ bran-XXXXXX                             │
+ * │ B       │ name_uk            │ текст                                   │
+ * │ C       │ names_alt          │ JSON масив: ["alt1", "alt2"]            │
+ * │ D       │ country_option_id  │ текст (Польша, США, ...)                │
+ * │ E       │ brand_text         │ HTML текст                              │
+ * │ F       │ brand_status       │ active | inactive                       │
+ * │ G       │ brand_links        │ JSON масив: [{name, url}, ...]          │
+ * └─────────┴────────────────────┴─────────────────────────────────────────┘
+ *
  * СТРУКТУРА ДАНИХ (після парсингу):
  * {
  *   brand_id: "bran-000001",
  *   name_uk: "Optimum Nutrition",
  *   names_alt: ["ON", "Optimum"],           // Масив (парситься з JSON)
  *   country_option_id: "США",
- *   brand_status: "active",
- *   brand_logo_url: "",
+ *   brand_text: "<p>...</p>",               // HTML опис
+ *   brand_status: "active",                 // active | inactive
  *   brand_links: [                          // Масив (парситься з JSON)
  *     { name: "ua", url: "https://..." }
  *   ],
- *   brand_text: "<p>...</p>",
- *   mapper_option_id: "",
  *   _rowIndex: 2                            // Внутрішній індекс рядка
  * }
  */
@@ -78,22 +89,16 @@ function parseNamesAlt(value) {
 }
 
 /**
- * Парсинг brand_links - може бути JSON масивом або одним URL
- * @param {string} value - Значення з таблиці
- * @param {string} fallbackUrl - Старе поле brand_site_link для сумісності
+ * Парсинг brand_links - JSON масив посилань
+ * @param {string} value - Значення з таблиці (JSON)
  * @returns {Array<{name: string, url: string}>} Масив посилань
  */
-function parseBrandLinks(value, fallbackUrl = '') {
-    if (value) {
-        // Спробувати JSON
-        const parsed = safeJsonParse(value, null);
-        if (Array.isArray(parsed)) return parsed;
-    }
+function parseBrandLinks(value) {
+    if (!value) return [];
 
-    // Fallback: використати старе поле brand_site_link
-    if (fallbackUrl && typeof fallbackUrl === 'string' && fallbackUrl.trim()) {
-        return [{ name: 'site', url: fallbackUrl.trim() }];
-    }
+    // Спробувати JSON
+    const parsed = safeJsonParse(value, null);
+    if (Array.isArray(parsed)) return parsed;
 
     return [];
 }
@@ -153,16 +158,15 @@ export async function loadBrands() {
         }
 
         // Трансформувати дані
+        // Порядок колонок: A:brand_id, B:name_uk, C:names_alt, D:country_option_id, E:brand_text, F:brand_status, G:brand_links
         brandsState.brands = rows.map((row, index) => ({
             brand_id: row.brand_id || '',
             name_uk: row.name_uk || '',
             names_alt: parseNamesAlt(row.names_alt),
             country_option_id: row.country_option_id || '',
-            brand_status: row.brand_status || 'active',
-            brand_logo_url: row.brand_logo_url || '',
-            brand_links: parseBrandLinks(row.brand_links, row.brand_site_link),
             brand_text: row.brand_text || '',
-            mapper_option_id: row.mapper_option_id || '',
+            brand_status: row.brand_status || 'active',
+            brand_links: parseBrandLinks(row.brand_links),
             _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
         }));
 
@@ -217,20 +221,19 @@ function generateBrandId() {
 
 /**
  * Підготувати рядок для збереження в Google Sheets
+ * Порядок колонок: A:brand_id, B:name_uk, C:names_alt, D:country_option_id, E:brand_text, F:brand_status, G:brand_links
  * @param {Object} brand - Об'єкт бренду
  * @returns {Array} Масив значень для рядка
  */
 function prepareBrandRow(brand) {
     return [
-        brand.brand_id || '',
-        brand.name_uk || '',
-        serializeNamesAlt(brand.names_alt),
-        brand.country_option_id || '',
-        brand.brand_status || 'active',
-        brand.brand_logo_url || '',
-        serializeBrandLinks(brand.brand_links),
-        brand.brand_text || '',
-        brand.mapper_option_id || ''
+        brand.brand_id || '',              // A: brand_id
+        brand.name_uk || '',               // B: name_uk
+        serializeNamesAlt(brand.names_alt),// C: names_alt (JSON)
+        brand.country_option_id || '',     // D: country_option_id
+        brand.brand_text || '',            // E: brand_text
+        brand.brand_status || 'active',    // F: brand_status
+        serializeBrandLinks(brand.brand_links) // G: brand_links (JSON)
     ];
 }
 
@@ -250,18 +253,16 @@ export async function addBrand(brandData) {
             name_uk: brandData.name_uk || '',
             names_alt: Array.isArray(brandData.names_alt) ? brandData.names_alt : [],
             country_option_id: brandData.country_option_id || '',
-            brand_status: brandData.brand_status || 'active',
-            brand_logo_url: brandData.brand_logo_url || '',
-            brand_links: Array.isArray(brandData.brand_links) ? brandData.brand_links : [],
             brand_text: brandData.brand_text || '',
-            mapper_option_id: brandData.mapper_option_id || '',
+            brand_status: brandData.brand_status || 'active',
+            brand_links: Array.isArray(brandData.brand_links) ? brandData.brand_links : [],
             _rowIndex: brandsState.brands.length + 2
         };
 
         const newRow = prepareBrandRow(newBrand);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:I`,
+            range: `${SHEET_NAME}!A:G`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -297,14 +298,12 @@ export async function updateBrand(brandId, updates) {
             name_uk: updates.name_uk !== undefined ? updates.name_uk : brand.name_uk,
             names_alt: updates.names_alt !== undefined ? updates.names_alt : brand.names_alt,
             country_option_id: updates.country_option_id !== undefined ? updates.country_option_id : brand.country_option_id,
-            brand_status: updates.brand_status !== undefined ? updates.brand_status : brand.brand_status,
-            brand_logo_url: updates.brand_logo_url !== undefined ? updates.brand_logo_url : brand.brand_logo_url,
-            brand_links: updates.brand_links !== undefined ? updates.brand_links : brand.brand_links,
             brand_text: updates.brand_text !== undefined ? updates.brand_text : brand.brand_text,
-            mapper_option_id: updates.mapper_option_id !== undefined ? updates.mapper_option_id : brand.mapper_option_id,
+            brand_status: updates.brand_status !== undefined ? updates.brand_status : brand.brand_status,
+            brand_links: updates.brand_links !== undefined ? updates.brand_links : brand.brand_links,
         };
 
-        const range = `${SHEET_NAME}!A${brand._rowIndex}:I${brand._rowIndex}`;
+        const range = `${SHEET_NAME}!A${brand._rowIndex}:G${brand._rowIndex}`;
         const updatedRow = prepareBrandRow(updatedBrand);
 
         await callSheetsAPI('update', {
@@ -340,10 +339,10 @@ export async function deleteBrand(brandId) {
 
         const brand = brandsState.brands[brandIndex];
 
-        const range = `${SHEET_NAME}!A${brand._rowIndex}:I${brand._rowIndex}`;
+        const range = `${SHEET_NAME}!A${brand._rowIndex}:G${brand._rowIndex}`;
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 

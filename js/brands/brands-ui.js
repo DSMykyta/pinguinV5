@@ -5,12 +5,15 @@
  * ║                    BRANDS - UI MANAGEMENT                                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
+ * 🔌 ПЛАГІН — можна видалити, система працюватиме без UI компонентів.
+ *
  * Відповідає за UI компоненти: селектори колонок, фільтри пошуку тощо
  */
 
-import { brandsState } from './brands-init.js';
+import { brandsState } from './brands-state.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
-import { renderBrandsTable, getColumns } from './brands-table.js';
+import { getColumns } from './brands-table.js';
 
 /**
  * Заповнити колонки для пошуку в aside
@@ -39,8 +42,20 @@ export function populateTableColumns() {
         searchColumnsContainerId: 'search-columns-list-brands',
         onVisibilityChange: async (selectedIds) => {
             // Перемальовати таблицю
-            renderBrandsTable();
+            runHook('onRender');
         }
     });
     console.log('✅ Колонки таблиці заповнено');
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Реєструємо на хук onInit — заповнюємо UI компоненти
+registerBrandsPlugin('onInit', () => {
+    populateSearchColumns();
+    populateTableColumns();
+});
+
+console.log('[Brands UI] Плагін завантажено');

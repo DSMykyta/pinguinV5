@@ -2,17 +2,17 @@
 // Запускач для сторінки brands.html
 
 import { initCore } from './main-core.js';
-import { initBrands } from './brands/brands-init.js';
+import { initBrands } from './brands/brands-main.js';
 
 // Ініціалізація при завантаженні DOM
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Ініціалізація сторінки Brands...');
 
     // Спочатку ініціалізуємо core функціональність
     initCore();
 
-    // Потім ініціалізуємо специфічні для brands функції
-    initBrands();
+    // Потім ініціалізуємо специфічні для brands функції (нова система з плагінами)
+    await initBrands();
 
     console.log('✅ Сторінка Brands готова');
 });
