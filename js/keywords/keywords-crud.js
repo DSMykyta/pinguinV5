@@ -12,6 +12,13 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import { createHighlightEditor } from '../common/editor/editor-main.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+let glossaryEditor = null; // UI Editor instance для глосарію
 
 export async function showAddKeywordModal() {
     console.log('➕ Відкриття модального вікна для додавання ключового слова');
@@ -28,6 +35,7 @@ export async function showAddKeywordModal() {
 
     clearKeywordForm();
     await initModalSelects();
+    initGlossaryEditor();
 
     // Ініціалізувати навігацію по секціях
     initSectionNavigation(modalEl);
@@ -76,6 +84,7 @@ export async function showEditKeywordModal(localId) {
 
     // Ініціалізувати селекти та заповнити їх
     await initModalSelects();
+    initGlossaryEditor();
 
     // Заповнити форму даними
     fillKeywordForm(keyword);
@@ -221,7 +230,7 @@ function getFormData() {
         trigers: document.getElementById('keyword-trigers')?.value.trim() || '',
         keywords_ua: document.getElementById('keyword-keywords-ua')?.value.trim() || '',
         keywords_ru: document.getElementById('keyword-keywords-ru')?.value.trim() || '',
-        glossary_text: document.getElementById('keyword-glossary-text')?.value.trim() || ''
+        glossary_text: glossaryEditor ? glossaryEditor.getHTML() : ''
     };
 }
 
@@ -239,7 +248,11 @@ function fillKeywordForm(keyword) {
     document.getElementById('keyword-trigers').value = keyword.trigers || '';
     document.getElementById('keyword-keywords-ua').value = keyword.keywords_ua || '';
     document.getElementById('keyword-keywords-ru').value = keyword.keywords_ru || '';
-    document.getElementById('keyword-glossary-text').value = keyword.glossary_text || '';
+
+    // Заповнити редактор глосарію
+    if (glossaryEditor) {
+        glossaryEditor.setHTML(keyword.glossary_text || '');
+    }
 }
 
 function clearKeywordForm() {
@@ -256,7 +269,36 @@ function clearKeywordForm() {
     document.getElementById('keyword-trigers').value = '';
     document.getElementById('keyword-keywords-ua').value = '';
     document.getElementById('keyword-keywords-ru').value = '';
-    document.getElementById('keyword-glossary-text').value = '';
+
+    // Очистити редактор глосарію
+    if (glossaryEditor) {
+        glossaryEditor.setHTML('');
+    }
+}
+
+/**
+ * Ініціалізувати текстовий редактор для глосарію
+ */
+function initGlossaryEditor() {
+    const container = document.getElementById('keyword-glossary-editor-container');
+    if (!container) return;
+
+    // Очистити попередній редактор
+    container.innerHTML = '';
+
+    if (glossaryEditor) {
+        glossaryEditor.destroy();
+        glossaryEditor = null;
+    }
+
+    glossaryEditor = createHighlightEditor(container, {
+        validation: false,      // БЕЗ перевірки заборонених слів
+        showStats: false,       // БЕЗ статистики
+        showFindReplace: false, // БЕЗ Find & Replace
+        initialValue: '',
+        placeholder: 'Введіть опис терміну для глосарію...',
+        minHeight: 300
+    });
 }
 
 /**
