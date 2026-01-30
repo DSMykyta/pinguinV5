@@ -38,6 +38,15 @@ export function initKeywordsSearch(searchInput) {
     console.log('✅ Пошук ініціалізовано');
 }
 
+// Мапа типів параметрів для відображення в dropdown фільтрі
+const PARAM_TYPE_LABELS = {
+    'category': 'Категорія',
+    'characteristic': 'Характеристика',
+    'option': 'Опція',
+    'marketing': 'Маркетинг',
+    'other': 'Інше'
+};
+
 export function initKeywordsSorting() {
     const container = document.getElementById('keywords-table-container');
     if (!container) {
@@ -54,7 +63,9 @@ export function initKeywordsSorting() {
         .map(col => ({
             id: col.id,
             label: col.label,
-            filterType: col.filterType || 'values'
+            filterType: col.filterType || 'values',
+            // Додаємо labelMap для param_type
+            labelMap: col.id === 'param_type' ? PARAM_TYPE_LABELS : null
         }));
 
     const sortAPI = initTableSorting(container, {
@@ -82,4 +93,65 @@ export function initKeywordsSorting() {
 
     console.log('✅ Сортування та фільтрація ініціалізовано');
     return sortAPI;
+}
+
+/**
+ * Реініціалізувати сортування та фільтрацію після рендерингу таблиці
+ */
+export function reinitKeywordsSorting() {
+    const container = document.getElementById('keywords-table-container');
+    if (!container) return;
+
+    // Перевіряємо чи є заголовок таблиці
+    const hasHeader = container.querySelector('.pseudo-table-header');
+    if (!hasHeader) return;
+
+    // Знищуємо старий API
+    if (keywordsState.sortAPI) {
+        keywordsState.sortAPI.destroy();
+    }
+
+    // Зберігаємо поточні фільтри
+    const savedFilters = keywordsState.columnFilters ? { ...keywordsState.columnFilters } : null;
+
+    // Отримуємо конфігурацію колонок для фільтрів
+    const columns = getColumns();
+
+    // Колонки з фільтрами (для hover dropdown)
+    const filterColumns = columns
+        .filter(col => col.filterable)
+        .map(col => ({
+            id: col.id,
+            label: col.label,
+            filterType: col.filterType || 'values',
+            labelMap: col.id === 'param_type' ? PARAM_TYPE_LABELS : null
+        }));
+
+    const sortAPI = initTableSorting(container, {
+        dataSource: () => getKeywords(),
+        columnTypes: {
+            local_id: 'id-text',
+            param_type: 'string',
+            name_uk: 'string',
+            trigers: 'string'
+        },
+        filterColumns,
+        onSort: async (sortedData) => {
+            keywordsState.keywords = sortedData;
+            keywordsState.pagination.currentPage = 1;
+            await renderKeywordsTable();
+        },
+        onFilter: (activeFilters) => {
+            keywordsState.columnFilters = activeFilters;
+            keywordsState.pagination.currentPage = 1;
+            renderKeywordsTable();
+        }
+    });
+
+    // Відновлюємо фільтри
+    if (savedFilters && Object.keys(savedFilters).length > 0) {
+        sortAPI.setFilters(savedFilters);
+    }
+
+    keywordsState.sortAPI = sortAPI;
 }

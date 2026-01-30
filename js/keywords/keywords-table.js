@@ -12,6 +12,9 @@ import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
+// Прапорець для запобігання рекурсивного виклику
+let isRendering = false;
+
 // Мапа типів параметрів для відображення
 const PARAM_TYPE_LABELS = {
     'category': 'Категорія',
@@ -84,14 +87,22 @@ export function getColumns() {
 }
 
 export function renderKeywordsTable() {
+    // Запобігаємо рекурсивному виклику
+    if (isRendering) return;
+    isRendering = true;
+
     console.log('🎨 Рендеринг таблиці ключових слів...');
 
     const container = document.getElementById('keywords-table-container');
-    if (!container) return;
+    if (!container) {
+        isRendering = false;
+        return;
+    }
 
     const keywords = getKeywords();
     if (!keywords || keywords.length === 0) {
         renderEmptyState();
+        isRendering = false;
         return;
     }
 
@@ -167,6 +178,12 @@ export function renderKeywordsTable() {
     updateStats(filteredKeywords.length, keywords.length);
 
     console.log(`✅ Відрендерено ${paginatedKeywords.length} з ${filteredKeywords.length} ключових слів`);
+
+    // Реініціалізуємо сортування та фільтрацію для нових заголовків
+    isRendering = false;
+    import('./keywords-events.js').then(({ reinitKeywordsSorting }) => {
+        reinitKeywordsSorting();
+    });
 }
 
 function applyFilters(keywords) {
