@@ -101,7 +101,7 @@ export async function addKeyword(keywordData) {
             local_id,
             keywordData.param_type || '',
             keywordData.parent_local_id || '',
-            keywordData.characteristics_local_id || '',
+            keywordData.entity_identity_id || '',
             keywordData.name_uk || '',
             keywordData.name_ru || '',
             keywordData.name_en || '',
@@ -149,7 +149,7 @@ export async function updateKeyword(localId, updates) {
             entry.local_id, // ID не змінюється
             updates.param_type !== undefined ? updates.param_type : entry.param_type,
             updates.parent_local_id !== undefined ? updates.parent_local_id : entry.parent_local_id,
-            updates.characteristics_local_id !== undefined ? updates.characteristics_local_id : entry.characteristics_local_id,
+            updates.entity_identity_id !== undefined ? updates.entity_identity_id : entry.entity_identity_id,
             updates.name_uk !== undefined ? updates.name_uk : entry.name_uk,
             updates.name_ru !== undefined ? updates.name_ru : entry.name_ru,
             updates.name_en !== undefined ? updates.name_en : entry.name_en,

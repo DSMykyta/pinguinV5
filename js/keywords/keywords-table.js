@@ -12,12 +12,28 @@ import { renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 
+// Мапа типів параметрів для відображення
+const PARAM_TYPE_LABELS = {
+    'category': 'Категорія',
+    'characteristic': 'Характеристика',
+    'option': 'Опція',
+    'marketing': 'Маркетинг',
+    'other': 'Інше'
+};
+
+// Мапа кольорів для типів
+const PARAM_TYPE_COLORS = {
+    'category': 'badge-primary',
+    'characteristic': 'badge-success',
+    'option': 'badge-warning',
+    'marketing': 'badge-info',
+    'other': 'badge-neutral'
+};
+
 /**
  * Отримати конфігурацію колонок для таблиці ключових слів
  */
 export function getColumns() {
-    const keywords = getKeywords();
-
     return [
         {
             id: 'local_id',
@@ -30,104 +46,50 @@ export function getColumns() {
         {
             id: 'param_type',
             label: 'Тип',
-            className: 'cell-id',
+            className: 'cell-type',
             sortable: true,
             searchable: true,
-            render: (value) => value ? `<span class="word-chip">${escapeHtml(value)}</span>` : '-'
-        },
-        {
-            id: 'parent_local_id',
-            label: 'Батьківський елемент',
-            className: 'cell-main-name',
-            sortable: true,
-            searchable: true,
+            filterable: true,
+            filterOptions: Object.entries(PARAM_TYPE_LABELS).map(([value, label]) => ({ value, label })),
             render: (value) => {
-                if (!value) return '-';
-                const parent = keywords.find(k => k.local_id === value);
-                return parent ? escapeHtml(parent.name_uk || value) : escapeHtml(value);
+                if (!value) return '<span class="text-muted">—</span>';
+                const label = PARAM_TYPE_LABELS[value] || value;
+                const colorClass = PARAM_TYPE_COLORS[value] || 'badge-neutral';
+                return `<span class="badge ${colorClass}">${escapeHtml(label)}</span>`;
             }
         },
         {
-            id: 'characteristics_local_id',
-            label: 'Характеристика',
-            className: 'cell-id',
-            sortable: true,
-            searchable: true,
-            render: (value) => value ? escapeHtml(value) : '-'
-        },
-        {
             id: 'name_uk',
-            label: 'Назва (UA)',
+            label: 'Назва',
             sortable: true,
             searchable: true,
             className: 'cell-main-name',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
-            id: 'name_ru',
-            label: 'Назва (RU)',
-            sortable: true,
-            searchable: true,
-            className: 'cell-main-name',
-            render: (value) => value ? escapeHtml(value) : '-'
-        },
-        {
-            id: 'name_en',
-            label: 'Назва (EN)',
-            sortable: true,
-            searchable: true,
-            className: 'cell-main-name',
-            render: (value) => value ? escapeHtml(value) : '-'
-        },
-        {
-            id: 'name_lat',
-            label: 'Назва (LAT)',
-            sortable: true,
-            searchable: true,
-            className: 'cell-main-name',
-            render: (value) => value ? escapeHtml(value) : '-'
-        },
-        {
-            id: 'name_alt',
-            label: 'Альтернативні назви',
-            sortable: true,
-            searchable: true,
-            className: 'cell-context',
-            render: (value) => value ? escapeHtml(value) : '-'
-        },
-        {
             id: 'trigers',
             label: 'Тригери',
-            className: 'cell-id',
+            className: 'cell-triggers',
             sortable: true,
             searchable: true,
             render: (value) => {
-                if (!value) return '-';
+                if (!value) return '<span class="text-muted">—</span>';
                 const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
-                const chipsHtml = triggers.map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`).join(' ');
+
+                // Обмежити до 5 тригерів, решту показати як +N
+                const maxVisible = 5;
+                const visibleTriggers = triggers.slice(0, maxVisible);
+                const hiddenCount = triggers.length - maxVisible;
+
+                let chipsHtml = visibleTriggers
+                    .map(t => `<span class="word-chip primary">${escapeHtml(t)}</span>`)
+                    .join(' ');
+
+                if (hiddenCount > 0) {
+                    chipsHtml += ` <span class="word-chip neutral">+${hiddenCount}</span>`;
+                }
+
                 return `<div class="cell-words-list">${chipsHtml}</div>`;
-            }
-        },
-        {
-            id: 'keywords_ua',
-            label: 'Ключові слова (UA)',
-            className: 'cell-context',
-            sortable: true,
-            searchable: true,
-            render: (value) => {
-                if (!value) return '<span class="text-muted">—</span>';
-                return `<div class="context-fragment">${escapeHtml(value)}</div>`;
-            }
-        },
-        {
-            id: 'keywords_ru',
-            label: 'Ключові слова (RU)',
-            className: 'cell-context',
-            sortable: true,
-            searchable: true,
-            render: (value) => {
-                if (!value) return '<span class="text-muted">—</span>';
-                return `<div class="context-fragment">${escapeHtml(value)}</div>`;
             }
         }
     ];
@@ -160,9 +122,10 @@ export function renderKeywordsTable() {
         });
     }
 
+    // Нові колонки за замовчуванням: id, тип, назва, тригери
     const visibleCols = keywordsState.visibleColumns.length > 0
         ? keywordsState.visibleColumns
-        : ['local_id', 'name_uk', 'trigers', 'keywords_ua'];
+        : ['local_id', 'param_type', 'name_uk', 'trigers'];
 
     renderPseudoTable(container, {
         data: paginatedKeywords,
@@ -229,7 +192,7 @@ function applyFilters(keywords) {
     // Застосувати пошук
     if (keywordsState.searchQuery) {
         const query = keywordsState.searchQuery.toLowerCase();
-        const columns = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers', 'keywords_ua'];
+        const columns = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers'];
 
         filtered = filtered.filter(entry => {
             return columns.some(column => {
