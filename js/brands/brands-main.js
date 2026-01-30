@@ -30,6 +30,8 @@
  * │ E       │ brand_text         │ HTML текст                              │
  * │ F       │ brand_status       │ active | inactive                       │
  * │ G       │ brand_links        │ JSON масив: [{name, url}, ...]          │
+ * │ H       │ mapper_option_id   │ ID опції Mapper (зарезервовано)         │
+ * │ I       │ brand_logo_url     │ URL логотипу (зарезервовано)            │
  * └─────────┴────────────────────┴─────────────────────────────────────────┘
  *
  * СТРУКТУРА ДАНИХ БРЕНДУ (в JS):
@@ -44,6 +46,8 @@
  *     { name: "ua", url: "https://..." },
  *     { name: "de", url: "https://..." }
  *   ],
+ *   mapper_option_id: "",                        // ID опції Mapper (зарезервовано)
+ *   brand_logo_url: "",                          // URL логотипу (зарезервовано)
  *   _rowIndex: 2                                 // Внутрішній індекс рядка
  * }
  */
