@@ -7,6 +7,24 @@ import { initCustomSelects } from '../common/ui-select.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { createPseudoTable, renderBadge, renderSeverityBadge } from '../common/ui-table.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('banned-words-manage', {
+    edit: (rowId) => {
+        const word = bannedWordsState.bannedWords.find(w => w.local_id === rowId);
+        if (word) {
+            openBannedWordModal(word);
+        }
+    }
+});
 
 // Table API instance
 let manageTableAPI = null;
@@ -114,9 +132,7 @@ function initManageTableAPI() {
             const isChecked = selectedSet.has(row.local_id);
             return `
                 <input type="checkbox" class="row-checkbox" data-product-id="${escapeHtml(row.local_id)}" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-edit" data-row-id="${escapeHtml(row.local_id)}" data-action="edit" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                ${actionButton({ action: 'edit', rowId: row.local_id, context: 'banned-words-manage' })}
             `;
         },
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
@@ -136,6 +152,9 @@ function initManageTableAPI() {
  * Додати обробники подій для рядків таблиці управління
  */
 async function attachManageRowEventHandlers(container) {
+    // Ініціалізувати ui-actions
+    initActionHandlers(container, 'banned-words-manage');
+
     // Додати обробник кліків на clickable badges
     container.querySelectorAll('.badge.clickable').forEach(badge => {
         badge.addEventListener('click', async (e) => {
@@ -143,17 +162,6 @@ async function attachManageRowEventHandlers(container) {
             const wordId = badge.dataset.badgeId;
             if (wordId) {
                 await toggleCheckedStatus(wordId);
-            }
-        });
-    });
-
-    // Додати обробник для кнопок редагування
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', () => {
-            const wordId = button.dataset.rowId;
-            const word = bannedWordsState.bannedWords.find(w => w.local_id === wordId);
-            if (word) {
-                openBannedWordModal(word);
             }
         });
     });

@@ -6,6 +6,24 @@
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
 import { createPseudoTable, renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('products', {
+    edit: (rowId) => {
+        openEditModal(rowId);
+    },
+    variants: (rowId) => {
+        openVariantsModal(rowId);
+    }
+});
 
 // Table API instances
 const productsTableAPIs = new Map();
@@ -183,7 +201,7 @@ function renderProductsTable(products) {
                 label: 'Варіанти',
                 sortable: false,
                 className: 'cell-variants',
-                render: (value, row) => `<button class="btn-variants-count" data-product-id="${row.id}" title="Переглянути варіанти">${value}</button>`
+                render: (value, row) => actionButton({ action: 'variants', rowId: row.id, context: 'products', label: value, extraClass: 'btn-variants-count' })
             },
             {
                 id: 'status',
@@ -211,9 +229,7 @@ function renderProductsTable(products) {
             const isChecked = selectedProducts.has(row.id);
             return `
                 <input type="checkbox" class="row-checkbox" data-product-id="${row.id}" aria-label="Вибрати" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-icon-sm btn-edit-product" data-product-id="${row.id}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'products', extraClass: 'btn-icon-sm' })}
             `;
         },
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">',
@@ -223,6 +239,9 @@ function renderProductsTable(products) {
         },
         withContainer: false // Контейнер вже має клас pseudo-table-container
     });
+
+    // Ініціалізуємо обробники дій
+    initActionHandlers(container, 'products');
 
     // Додаємо обробники сортування
     initSortableHeaders();
@@ -597,27 +616,10 @@ function renderGroupsTab() {
 
 /**
  * Ініціалізація обробників подій
+ * ПРИМІТКА: Обробники btn-edit-product та btn-variants-count тепер через ui-actions
  */
 function initEventHandlers() {
-    // Клік по кнопці редагування
     document.addEventListener('click', (e) => {
-        const editBtn = e.target.closest('.btn-edit-product');
-        if (editBtn) {
-            e.stopPropagation();
-            const productId = editBtn.dataset.productId;
-            openEditModal(productId);
-            return;
-        }
-
-        // Клік по кількості варіантів
-        const variantsBtn = e.target.closest('.btn-variants-count');
-        if (variantsBtn) {
-            e.stopPropagation();
-            const productId = variantsBtn.dataset.productId;
-            openVariantsModal(productId);
-            return;
-        }
-
         // Чекбокс в рядку
         const checkbox = e.target.closest('.row-checkbox');
         if (checkbox) {

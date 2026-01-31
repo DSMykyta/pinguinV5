@@ -16,6 +16,22 @@ import { brandsState } from './brands-state.js';
 import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('brands', {
+    edit: async (rowId) => {
+        const { showEditBrandModal } = await import('./brands-crud.js');
+        await showEditBrandModal(rowId);
+    }
+});
 
 // Table API instance
 let tableAPI = null;
@@ -121,40 +137,22 @@ function initTableAPI() {
         columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
-            return `
-                <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `;
-        },
+        rowActionsCustom: (row) => actionButton({
+            action: 'edit',
+            rowId: row.brand_id,
+            context: 'brands'
+        }),
         getRowId: (row) => row.brand_id,
         emptyState: {
             icon: 'shopping_bag',
             message: 'Бренди не знайдено'
         },
         withContainer: false,
-        onAfterRender: attachRowEventHandlers
+        onAfterRender: (container) => initActionHandlers(container, 'brands')
     });
 
     // Зберігаємо в state для доступу з інших модулів
     brandsState.tableAPI = tableAPI;
-}
-
-/**
- * Додати обробники подій для кнопок у рядках
- */
-function attachRowEventHandlers(container) {
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const brandId = button.dataset.brandId;
-            if (brandId) {
-                const { showEditBrandModal } = await import('./brands-crud.js');
-                await showEditBrandModal(brandId);
-            }
-        });
-    });
 }
 
 /**

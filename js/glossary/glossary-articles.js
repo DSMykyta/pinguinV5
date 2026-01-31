@@ -3,6 +3,30 @@
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('glossary', {
+    edit: async (rowId) => {
+        const { loadKeywords } = await import('../keywords/keywords-data.js');
+        await loadKeywords();
+        const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
+        await showEditKeywordModal(rowId);
+    },
+    add: async (rowId) => {
+        const { loadKeywords } = await import('../keywords/keywords-data.js');
+        await loadKeywords();
+        const { showEditKeywordModal } = await import('../keywords/keywords-crud.js');
+        await showEditKeywordModal(rowId);
+    }
+});
 
 /**
  * Створює HTML для empty state з аватаром користувача
@@ -20,10 +44,7 @@ function createEmptyStateHtml(itemId) {
     // Додаємо кнопку після аватара
     return avatarHtml.replace(
         '</div>',
-        `<button class="btn-primary btn-add-glossary-text" data-item-id="${itemId}">
-            <span class="material-symbols-outlined">add</span>
-            <span>Додати</span>
-        </button>
+        `${actionButton({ action: 'add', rowId: itemId, context: 'glossary', label: 'Додати', extraClass: 'btn-primary' })}
         </div>`
     );
 }
@@ -60,9 +81,7 @@ function createArticleHtml(item) {
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2>${item.name}</h2>
-                        <button class="btn-icon btn-edit-glossary-item" data-item-id="${item.id}" title="Редагувати">
-                            <span class="material-symbols-outlined">edit</span>
-                        </button>
+                        ${actionButton({ action: 'edit', rowId: item.id, context: 'glossary' })}
                     </div>
                     <h3>${item.id}</h3>
                 </div>
@@ -116,6 +135,9 @@ export function renderGlossaryArticles() {
 
     const articlesHtml = data.map(item => createArticleHtml(item));
     dom.contentContainer.innerHTML = articlesHtml.join('');
+
+    // Ініціалізувати обробники дій
+    initActionHandlers(dom.contentContainer, 'glossary');
 }
 
 export function initGlossaryArticles() {

@@ -418,21 +418,30 @@ class CustomSelect {
         }
 
         // Закриття з затримкою при виході мишки
+        // PORTAL FIX: Слухаємо і на wrapper і на panel (бо panel може бути в body)
         let closeTimeout = null;
-        this.wrapper.addEventListener('mouseleave', () => {
+
+        const startCloseTimeout = () => {
             if (this.wrapper.classList.contains('is-open')) {
                 closeTimeout = setTimeout(() => {
                     this._closePanel();
                 }, 300);
             }
-        });
+        };
 
-        this.wrapper.addEventListener('mouseenter', () => {
+        const cancelCloseTimeout = () => {
             if (closeTimeout) {
                 clearTimeout(closeTimeout);
                 closeTimeout = null;
             }
-        });
+        };
+
+        this.wrapper.addEventListener('mouseleave', startCloseTimeout);
+        this.wrapper.addEventListener('mouseenter', cancelCloseTimeout);
+
+        // PORTAL FIX: Те саме для panel (коли він в body)
+        this.panel.addEventListener('mouseleave', startCloseTimeout);
+        this.panel.addEventListener('mouseenter', cancelCloseTimeout);
 
         // При наведенні мишки - вимикаємо keyboard mode
         this.optionsList.addEventListener('mousemove', (e) => {
