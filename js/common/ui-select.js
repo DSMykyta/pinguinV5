@@ -431,6 +431,22 @@ class CustomSelect {
             }
         });
 
+        // При наведенні мишки - вимикаємо keyboard mode
+        this.optionsList.addEventListener('mousemove', (e) => {
+            const optionEl = e.target.closest('.custom-select-option');
+            if (optionEl) {
+                // Вимикаємо keyboard mode - тепер працює hover
+                this.wrapper.classList.remove('is-keyboard-nav');
+                // Скидаємо всі is-focused
+                this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.classList.remove('is-focused');
+                });
+                // Оновлюємо індекс для клавіатури (продовжить звідси)
+                const visibleOptions = this._getVisibleOptions();
+                this.focusedIndex = visibleOptions.indexOf(optionEl);
+            }
+        });
+
         // Обробник клавіатури
         this._keyDownHandler = (e) => this._handleKeyDown(e);
     }
@@ -481,6 +497,9 @@ class CustomSelect {
      * Переміщення фокусу на наступний/попередній елемент
      */
     _moveFocus(direction, visibleOptions) {
+        // Вмикаємо keyboard mode - відключає hover
+        this.wrapper.classList.add('is-keyboard-nav');
+
         // Скидаємо попередній фокус
         visibleOptions.forEach(opt => opt.classList.remove('is-focused'));
 
