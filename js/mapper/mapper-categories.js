@@ -30,6 +30,7 @@ import {
     setupModalCloseHandlers
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
 
@@ -257,7 +258,7 @@ function populateRelatedCharacteristics(categoryId) {
     if (!container) return;
 
     const characteristics = getCharacteristics();
-    const relatedChars = characteristics.filter(char => {
+    let charsData = characteristics.filter(char => {
         if (!char.category_ids) return false;
         const ids = Array.isArray(char.category_ids)
             ? char.category_ids
@@ -265,44 +266,65 @@ function populateRelatedCharacteristics(categoryId) {
         return ids.includes(categoryId);
     });
 
-    if (countEl) countEl.textContent = relatedChars.length || '';
+    if (countEl) countEl.textContent = charsData.length || '';
 
-    // Рендеримо таблицю як на основних табах
-    renderPseudoTable(container, {
-        data: relatedChars,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'name_ua',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-name',
-                render: (value, row) => escapeHtml(value || row.id || '-')
-            }
-        ],
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
-        emptyState: { message: 'Характеристики відсутні' },
-        withContainer: false
-    });
+    // Конфігурація колонок
+    const columns = [
+        {
+            id: 'id',
+            label: 'ID',
+            sortable: true,
+            className: 'cell-id',
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'name_ua',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-name',
+            render: (value, row) => escapeHtml(value || row.id || '-')
+        }
+    ];
 
-    // Обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-char').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const charId = btn.dataset.id;
-            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-            await showEditCharacteristicModal(charId);
+    // Функція рендерингу таблиці
+    const renderTable = (data) => {
+        renderPseudoTable(container, {
+            data,
+            columns,
+            rowActionsCustom: (row) => `
+                <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `,
+            emptyState: { message: 'Характеристики відсутні' },
+            withContainer: false
         });
+
+        // Обробники для кнопок редагування
+        container.querySelectorAll('.btn-edit-char').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const charId = btn.dataset.id;
+                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+                await showEditCharacteristicModal(charId);
+            });
+        });
+    };
+
+    // Перший рендер
+    renderTable(charsData);
+
+    // Ініціалізація сортування
+    initTableSorting(container, {
+        dataSource: () => charsData,
+        onSort: (sortedData) => {
+            charsData = sortedData;
+            renderTable(charsData);
+        },
+        columnTypes: {
+            id: 'id-text',
+            name_ua: 'string'
+        }
     });
 }
 
