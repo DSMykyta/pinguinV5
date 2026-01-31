@@ -807,6 +807,9 @@ function renderMappedMpCategoriesSections(ownCatId) {
         content.appendChild(section);
     });
 
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('category-section-navigator');
+
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();

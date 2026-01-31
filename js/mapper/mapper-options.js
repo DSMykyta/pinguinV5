@@ -442,6 +442,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
         content.appendChild(section);
     });
 
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('option-section-navigator');
+
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();

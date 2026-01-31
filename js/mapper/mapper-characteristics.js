@@ -587,6 +587,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         content.appendChild(section);
     });
 
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('char-section-navigator');
+
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();

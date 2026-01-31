@@ -28,6 +28,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { showLoader } from '../common/ui-loading.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { initSectionNavigation } from './mapper-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
@@ -585,6 +586,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         content.appendChild(section);
     });
 
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('char-section-navigator');
+
     // Додати обробники для кнопок відв'язування
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -809,6 +813,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
         section.innerHTML = renderMpOptionSectionContent(data);
         content.appendChild(section);
     });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('option-section-navigator');
 
     // Додати обробники для кнопок відв'язування
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
