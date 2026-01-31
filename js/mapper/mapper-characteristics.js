@@ -23,12 +23,16 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { createPseudoTable } from '../common/ui-table.js';
 import {
     initSectionNavigation,
     createModalOverlay,
     closeModalOverlay,
     setupModalCloseHandlers
 } from './mapper-utils.js';
+
+// Таблиця для related options
+let relatedOptionsTableAPI = null;
 
 export const PLUGIN_NAME = 'mapper-characteristics';
 
@@ -426,6 +430,7 @@ function clearRelatedOptions() {
     const countEl = document.getElementById('char-options-count');
     if (!container) return;
 
+    relatedOptionsTableAPI = null;
     container.innerHTML = `
         <div class="empty-state-container">
             <div class="empty-state-message">Опції з'являться після збереження</div>
@@ -443,6 +448,7 @@ function populateRelatedOptions(characteristicId) {
     const relatedOptions = options.filter(opt => opt.characteristic_id === characteristicId);
 
     if (relatedOptions.length === 0) {
+        relatedOptionsTableAPI = null;
         container.innerHTML = `
             <div class="empty-state-container">
                 <div class="empty-state-message">Опції відсутні</div>
@@ -454,31 +460,45 @@ function populateRelatedOptions(characteristicId) {
 
     if (countEl) countEl.textContent = relatedOptions.length;
 
-    container.innerHTML = relatedOptions.map(opt => `
-        <div class="inputs-bloc td" data-id="${opt.id}">
-            <div class="inputs-line">
-                <div class="left">
-                    <span class="item-name">${escapeHtml(opt.value_ua || opt.id)}</span>
-                </div>
-                <div class="right">
-                    <span class="item-id">${opt.id}</span>
-                </div>
-            </div>
-            <button class="btn-icon btn-edit-item" data-id="${opt.id}" title="Редагувати">
+    // Створюємо таблицю з createPseudoTable
+    relatedOptionsTableAPI = createPseudoTable(container, {
+        columns: [
+            {
+                id: 'id',
+                label: 'ID',
+                sortable: true,
+                className: 'cell-id',
+                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: 'value_ua',
+                label: 'Назва',
+                sortable: true,
+                className: 'cell-name',
+                render: (value, row) => escapeHtml(value || row.id || '-')
+            }
+        ],
+        rowActionsCustom: (row) => `
+            <button class="btn-icon btn-edit" data-id="${row.id}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
-        </div>
-    `).join('');
-
-    container.querySelectorAll('.btn-edit-item').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const optId = btn.dataset.id;
-            // Не закриваємо батьківський модал - відкриваємо поверх
-            const { showEditOptionModal } = await import('./mapper-options.js');
-            await showEditOptionModal(optId);
-        });
+        `,
+        getRowId: (row) => row.id,
+        emptyState: { message: 'Опції відсутні' },
+        onAfterRender: (cont) => {
+            // Обробники для кнопок редагування
+            cont.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const optId = btn.dataset.id;
+                    const { showEditOptionModal } = await import('./mapper-options.js');
+                    await showEditOptionModal(optId);
+                });
+            });
+        }
     });
+
+    relatedOptionsTableAPI.render(relatedOptions);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -29,8 +29,12 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers
 } from './mapper-utils.js';
+import { createPseudoTable } from '../common/ui-table.js';
 
 export const PLUGIN_NAME = 'mapper-options';
+
+// Таблиця для related dependent characteristics
+let relatedDependentCharsTableAPI = null;
 
 /**
  * Ініціалізація плагіна
@@ -288,6 +292,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         return ids.includes(optionId);
     });
 
+    // Приховуємо/показуємо секцію залежно від наявності залежних характеристик
     if (dependentChars.length === 0) {
         if (navItem) navItem.classList.add('u-hidden');
         if (section) section.classList.add('u-hidden');
@@ -299,31 +304,47 @@ function populateRelatedDependentCharacteristics(optionId) {
     if (section) section.classList.remove('u-hidden');
     if (countEl) countEl.textContent = dependentChars.length;
 
-    container.innerHTML = dependentChars.map(char => `
-        <div class="inputs-bloc td" data-id="${char.id}">
-            <div class="inputs-line">
-                <div class="left">
-                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
-                </div>
-                <div class="right">
-                    <span class="item-id">${char.id}</span>
-                </div>
-            </div>
-            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+    // Створюємо таблицю з пошуком та сортуванням
+    relatedDependentCharsTableAPI = createPseudoTable(container, {
+        columns: [
+            {
+                id: 'id',
+                label: 'ID',
+                sortable: true,
+                className: 'cell-id',
+                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: 'name_ua',
+                label: 'Назва',
+                sortable: true,
+                className: 'cell-name',
+                render: (value, row) => escapeHtml(value || row.id || '-')
+            }
+        ],
+        rowActionsCustom: (row) => `
+            <button class="btn-icon btn-edit" data-id="${row.id}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
-        </div>
-    `).join('');
-
-    container.querySelectorAll('.btn-edit-item').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const charId = btn.dataset.id;
-            // Не закриваємо батьківський модал - відкриваємо поверх
-            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-            await showEditCharacteristicModal(charId);
-        });
+        `,
+        getRowId: (row) => row.id,
+        emptyState: {
+            message: 'Залежні характеристики відсутні'
+        },
+        onAfterRender: (cont) => {
+            cont.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const charId = btn.dataset.id;
+                    // Не закриваємо батьківський модал - відкриваємо поверх
+                    const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+                    await showEditCharacteristicModal(charId);
+                });
+            });
+        }
     });
+
+    relatedDependentCharsTableAPI.render(dependentChars);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

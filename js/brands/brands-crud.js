@@ -23,6 +23,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
+import { createPseudoTable } from '../common/ui-table.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -30,6 +31,7 @@ import { createHighlightEditor } from '../common/editor/editor-main.js';
 
 let textEditor = null; // UI Editor instance
 let currentBrandId = null; // ID бренду, що редагується (null = новий)
+let brandLinesTableAPI = null; // Таблиця лінійок бренду
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -216,70 +218,84 @@ function initBrandLinesHandler() {
 function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
     const emptyState = document.getElementById('brand-lines-empty');
+    const countEl = document.getElementById('brand-lines-count');
     if (!container) return;
 
     const lines = getBrandLinesByBrandId(brandId);
 
-    if (!lines || lines.length === 0) {
-        container.innerHTML = '';
-        if (emptyState) emptyState.classList.remove('u-hidden');
-        return;
-    }
+    // Оновлюємо counter
+    if (countEl) countEl.textContent = lines?.length || '';
 
+    // Приховуємо empty state, таблиця сама покаже пустий стан
     if (emptyState) emptyState.classList.add('u-hidden');
 
-    container.innerHTML = lines.map(line => `
-        <div class="inputs-bloc td" data-line-id="${escapeHtml(line.line_id)}">
-            <div class="inputs-line">
-                <div class="left">
-                    <span class="item-name">${escapeHtml(line.name_uk)}</span>
-                </div>
-                <div class="right">
-                    <span class="item-id">${escapeHtml(line.line_id)}</span>
-                </div>
-            </div>
-            <button class="btn-icon btn-edit-line" data-line-id="${escapeHtml(line.line_id)}" title="Редагувати">
+    // Створюємо таблицю з пошуком та сортуванням
+    brandLinesTableAPI = createPseudoTable(container, {
+        columns: [
+            {
+                id: 'line_id',
+                label: 'ID',
+                sortable: true,
+                className: 'cell-id',
+                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: 'name_uk',
+                label: 'Назва',
+                sortable: true,
+                className: 'cell-name',
+                render: (value, row) => escapeHtml(value || row.line_id || '-')
+            }
+        ],
+        rowActionsCustom: (row) => `
+            <button class="btn-icon btn-edit" data-line-id="${row.line_id}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
-            <button class="btn-icon btn-delete-line" data-line-id="${escapeHtml(line.line_id)}" title="Видалити">
+            <button class="btn-icon btn-delete" data-line-id="${row.line_id}" title="Видалити">
                 <span class="material-symbols-outlined">close</span>
             </button>
-        </div>
-    `).join('');
-
-    // Обробники для редагування
-    container.querySelectorAll('.btn-edit-line').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = btn.dataset.lineId;
-            if (lineId) {
-                const { showEditLineModal } = await import('./lines-crud.js');
-                await showEditLineModal(lineId);
-            }
-        });
-    });
-
-    // Обробники для видалення
-    container.querySelectorAll('.btn-delete-line').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = btn.dataset.lineId;
-            if (lineId) {
-                const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
-                const confirmed = await showConfirmModal({
-                    title: 'Видалити лінійку?',
-                    message: 'Цю дію неможливо скасувати.',
-                    confirmText: 'Видалити',
-                    danger: true
+        `,
+        getRowId: (row) => row.line_id,
+        emptyState: {
+            message: 'Лінійки відсутні'
+        },
+        onAfterRender: (cont) => {
+            // Обробники для редагування
+            cont.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const lineId = btn.dataset.lineId;
+                    if (lineId) {
+                        const { showEditLineModal } = await import('./lines-crud.js');
+                        await showEditLineModal(lineId);
+                    }
                 });
-                if (confirmed) {
-                    const { deleteLine } = await import('./lines-crud.js');
-                    await deleteLine(lineId);
-                    renderBrandLines(document.getElementById('brand-id')?.value);
-                }
-            }
-        });
+            });
+
+            // Обробники для видалення
+            cont.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const lineId = btn.dataset.lineId;
+                    if (lineId) {
+                        const confirmed = await showConfirmModal({
+                            title: 'Видалити лінійку?',
+                            message: 'Цю дію неможливо скасувати.',
+                            confirmText: 'Видалити',
+                            danger: true
+                        });
+                        if (confirmed) {
+                            const { deleteLine } = await import('./lines-crud.js');
+                            await deleteLine(lineId);
+                            populateBrandLines(brandId);
+                        }
+                    }
+                });
+            });
+        }
     });
+
+    brandLinesTableAPI.render(lines || []);
 }
 
 /**
