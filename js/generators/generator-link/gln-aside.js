@@ -14,7 +14,6 @@ function initAsideButtons() {
     const addButton = document.getElementById('btn-add-brand-links');
     if (addButton) {
         addButton.addEventListener('click', async () => {
-            console.log('🆕 Відкриття модалу додавання бренду');
 
             // Завантажити дані перед відкриттям модалу
             const { loadBrands } = await import('../../brands/brands-data.js');

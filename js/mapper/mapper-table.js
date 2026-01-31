@@ -130,7 +130,6 @@ export function renderCurrentTab() {
  * Рендерити таблицю категорій
  */
 export function renderCategoriesTable() {
-    console.log('🎨 Рендеринг таблиці категорій...');
 
     const container = document.getElementById('mapper-categories-table-container');
     if (!container) return;
@@ -299,14 +298,12 @@ export function renderCategoriesTable() {
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} категорій (власних: ${ownCategories.length}, MP: ${mpCategories.length})`);
 }
 
 /**
  * Рендерити таблицю характеристик (власні + MP)
  */
 export function renderCharacteristicsTable() {
-    console.log('🎨 Рендеринг таблиці характеристик...');
 
     const container = document.getElementById('mapper-characteristics-table-container');
     if (!container) return;
@@ -483,14 +480,12 @@ export function renderCharacteristicsTable() {
     // Оновити статистику
     updateStats('characteristics', filteredData.length, allCharacteristics.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} характеристик (власних: ${ownCharacteristics.length}, MP: ${mpCharacteristics.length})`);
 }
 
 /**
  * Рендерити таблицю опцій (власні + MP)
  */
 export function renderOptionsTable() {
-    console.log('🎨 Рендеринг таблиці опцій...');
 
     const container = document.getElementById('mapper-options-table-container');
     if (!container) return;
@@ -644,14 +639,12 @@ export function renderOptionsTable() {
     // Оновити статистику
     updateStats('options', filteredData.length, allOptions.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} опцій (власних: ${ownOptions.length}, MP: ${mpOptions.length})`);
 }
 
 /**
  * Рендерити таблицю маркетплейсів
  */
 export function renderMarketplacesTable() {
-    console.log('🎨 Рендеринг таблиці маркетплейсів...');
 
     const container = document.getElementById('mapper-marketplaces-table-container');
     if (!container) return;
@@ -758,7 +751,6 @@ export function renderMarketplacesTable() {
     // Оновити статистику
     updateStats('marketplaces', filteredData.length, marketplaces.length);
 
-    console.log(`✅ Відрендерено ${paginatedData.length} з ${filteredData.length} маркетплейсів`);
 }
 
 /**
@@ -848,7 +840,6 @@ function updateSourceFilterButtons(tabName, marketplaces) {
             // Перерендерити таблицю
             renderCurrentTab();
 
-            console.log(`🔍 Фільтр джерела ${tab}: ${source}`);
         });
     });
 }
@@ -1181,11 +1172,9 @@ function initTableCheckboxes(container, tabName, data) {
         const batchBar = getBatchBar(batchBarId);
         if (batchBar) {
             // Синхронізуємо batch bar з selectedSet
-            console.log(`🔄 Синхронізація batch bar: ${selectedSet.size} елементів`);
             batchBar.deselectAll();
             selectedSet.forEach(id => batchBar.selectItem(id));
         } else {
-            console.log(`⚠️ Batch bar для ${batchBarId} ще не створено`);
         }
     };
 
@@ -1215,7 +1204,6 @@ function initTableCheckboxes(container, tabName, data) {
         });
 
         updateBatchBar();
-        console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
     });
 
     // Обробник для рядкових чекбоксів
@@ -1231,7 +1219,6 @@ function initTableCheckboxes(container, tabName, data) {
 
             updateSelectAllState();
             updateBatchBar();
-            console.log(`📦 Вибрано ${selectedSet.size} ${tabName}`);
         });
     });
 

@@ -22,9 +22,6 @@ export async function fetchGlossaryData() {
         const csvText = await response.text();
         const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
 
-        console.log('[ГЛОСАРІЙ]: Перший рядок з таблиці:', parsedData[0]);
-        console.log('[ГЛОСАРІЙ]: Назви всіх колонок:', Object.keys(parsedData[0] || {}));
-        console.log('[ГЛОСАРІЙ]: Значення glossary_text першого рядка:', parsedData[0]?.glossary_text);
 
         // Очищаємо перед заповненням
         glossaryData = [];
@@ -79,8 +76,6 @@ export async function fetchGlossaryData() {
         // Додаємо кореневі елементи в дерево під ключем 'root'
         glossaryTree['root'] = rootItems;
 
-        console.log('[ГЛОСАРІЙ]: Дані завантажено та оброблено. Карта:', glossaryMap);
-        console.log('[ГЛОСАРІЙ]: Структура дерева:', glossaryTree);
 
     } catch (error) {
         console.error('Помилка при завантаженні даних Глосарію:', error);

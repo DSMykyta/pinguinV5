@@ -19,11 +19,9 @@ import { initTableSorting } from '../common/ui-table-controls.js';
  * Ініціалізувати всі обробники подій
  */
 export function initBrandsEvents() {
-    console.log('🎯 Ініціалізація обробників подій для брендів...');
 
     initRefreshButton();
 
-    console.log('✅ Обробники подій ініціалізовано');
 }
 
 /**
@@ -65,7 +63,6 @@ export function initBrandsSorting() {
 
     brandsState.sortAPI = sortAPI;
 
-    console.log('✅ Сортування ініціалізовано');
     return sortAPI;
 }
 
@@ -121,4 +118,3 @@ registerBrandsPlugin('onInit', () => {
     initBrandsSorting();
 });
 
-console.log('[Brands Events] Плагін завантажено');

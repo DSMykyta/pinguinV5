@@ -88,7 +88,6 @@ export async function batchUpdate(config) {
     }
 
     try {
-        console.log(`📦 Batch update: ${updates.length} комірок...`);
 
         // Визначити тип таблиці
         const spreadsheetType = getSpreadsheetType(spreadsheetId);
@@ -110,7 +109,6 @@ export async function batchUpdate(config) {
             };
         });
 
-        console.log(`📋 Перші 3 оновлення:`, data.slice(0, 3));
 
         // Перевірити наявність API client
         if (!window.apiClient || !window.apiClient.sheets || !window.apiClient.sheets.batchUpdate) {
@@ -124,7 +122,6 @@ export async function batchUpdate(config) {
         const result = response.data || response;
         const updatedCells = result.totalUpdatedCells || updates.length;
 
-        console.log(`✅ Batch update complete: ${updatedCells} комірок оновлено`);
 
         return {
             updatedCells,
@@ -177,7 +174,6 @@ export async function batchGet(config) {
     }
 
     try {
-        console.log(`📦 Batch get: ${ranges.length} діапазонів...`);
 
         // Визначити тип таблиці
         const spreadsheetType = getSpreadsheetType(spreadsheetId);
@@ -193,7 +189,6 @@ export async function batchGet(config) {
         // response.data містить масив valueRanges
         const valueRanges = response.data || response.result?.valueRanges || [];
 
-        console.log(`✅ Batch get complete: ${valueRanges.length} діапазонів прочитано`);
 
         // Повернути дані для кожного діапазону
         return valueRanges.map((vr, index) => ({
@@ -236,7 +231,6 @@ export async function batchClear(config) {
     }
 
     try {
-        console.log(`📦 Batch clear: ${ranges.length} діапазонів...`);
 
         // Визначити тип таблиці
         const spreadsheetType = getSpreadsheetType(spreadsheetId);
@@ -258,7 +252,6 @@ export async function batchClear(config) {
         const result = response.data || response;
         const clearedRanges = ranges.length;
 
-        console.log(`✅ Batch clear complete: ${clearedRanges} діапазонів очищено`);
 
         return {
             clearedRanges,
@@ -314,7 +307,6 @@ export async function batchUpdateChunked(config) {
 
     // Розбити на частини
     const chunks = chunkUpdates(updates, chunkSize);
-    console.log(`📦 Batch update (chunked): ${updates.length} оновлень, ${chunks.length} пакетів`);
 
     let totalUpdatedCells = 0;
 
@@ -334,7 +326,6 @@ export async function batchUpdateChunked(config) {
         totalUpdatedCells += result.updatedCells;
     }
 
-    console.log(`✅ Batch update (chunked) complete: ${totalUpdatedCells} комірок оновлено`);
 
     return {
         updatedCells: totalUpdatedCells,

@@ -42,7 +42,6 @@ let currentBrandId = null; // ID бренду, що редагується (null
  * Показати модальне вікно для додавання бренду
  */
 export async function showAddBrandModal() {
-    console.log('➕ Відкриття модального вікна для додавання бренду');
 
     currentBrandId = null;
 
@@ -75,7 +74,6 @@ export async function showAddBrandModal() {
  * @param {string} brandId - ID бренду
  */
 export async function showEditBrandModal(brandId) {
-    console.log(`✏️ Відкриття модального вікна для редагування бренду ${brandId}`);
 
     const brand = getBrandById(brandId);
     if (!brand) {
@@ -118,7 +116,6 @@ export async function showEditBrandModal(brandId) {
  * @param {string} brandId - ID бренду
  */
 export async function showDeleteBrandConfirm(brandId) {
-    console.log(`🗑️ Підтвердження видалення бренду ${brandId}`);
 
     const brand = getBrandById(brandId);
     if (!brand) {
@@ -756,7 +753,6 @@ function clearBrandForm() {
  * Обробник збереження бренду
  */
 async function handleSaveBrand() {
-    console.log('💾 Збереження бренду...');
 
     const brandData = getBrandFormData();
 
@@ -793,7 +789,6 @@ async function handleSaveBrand() {
  * @param {string} brandId - ID бренду
  */
 async function handleDeleteBrand(brandId) {
-    console.log(`🗑️ Видалення бренду ${brandId}...`);
 
     try {
         await deleteBrand(brandId);
@@ -839,4 +834,3 @@ function generateBrandIdForUI() {
 // Цей файл — плагін, тому не потрібно реєструвати хуки
 // Експортуємо функції для виклику з інших модулів
 
-console.log('[Brands CRUD] Плагін завантажено');

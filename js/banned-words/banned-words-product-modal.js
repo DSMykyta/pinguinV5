@@ -52,8 +52,6 @@ function getFieldIcon(columnName) {
  */
 export async function showProductTextModal(productId, sheetName, rowIndex, columnName, allSheets = [], allColumns = []) {
     try {
-        console.log(`📄 Відкриття модалу для товару: ${productId} (${sheetName}), колонка:`, columnName);
-        console.log(`📊 Всі аркуші: ${allSheets.join(', ')}, всі колонки: ${allColumns.join(', ')}`);
 
         // Скинути стан
         allSheetsData = {};
@@ -69,7 +67,6 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         // Колонки - фільтруємо пусті значення
         availableColumns = (allColumns.length > 0 ? allColumns : (Array.isArray(columnName) ? columnName : [columnName])).filter(c => c && c.trim());
 
-        console.log(`📊 Аркуші з результатами для ${productId}:`, availableSheets);
 
         // Встановити активний аркуш та колонку
         activeSheet = sheetName;
@@ -110,7 +107,6 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         // Зберегти в кеш аркушів
         allSheetsData[sheetName] = { productData, loaded: true, rowIndex };
 
-        console.log('✅ Дані товару завантажені:', productData);
 
         // 5. Відрендерити модал з даними
         renderProductModal(productData, availableColumns);
@@ -144,14 +140,12 @@ function setupSheetTabs() {
     // Якщо тільки 1 аркуш - приховати контейнер
     if (availableSheets.length <= 1) {
         sheetPillsContainer.classList.add('u-hidden');
-        console.log('📊 Тільки 1 аркуш - таби аркушів приховано');
         return;
     }
 
     // Показати контейнер і створити таби
     sheetPillsContainer.classList.remove('u-hidden');
 
-    console.log(`📊 Створюємо ${availableSheets.length} табів аркушів`);
 
     availableSheets.forEach((sheet, index) => {
         // Пропустити пусті назви аркушів
@@ -171,7 +165,6 @@ function setupSheetTabs() {
         }
 
         sheetPillsContainer.appendChild(button);
-        console.log(`✅ Створено таб аркуша: ${sheet}`);
     });
 }
 
@@ -180,7 +173,6 @@ function setupSheetTabs() {
  * @param {string|string[]} columnNames - Назва колонки або масив назв (для майбутніх комплексних перевірок)
  */
 function setupFieldTabs(columnNames) {
-    console.log('🎯 setupFieldTabs викликано з:', columnNames);
 
     // Нормалізувати до масиву (для сумісності з майбутніми комплексними перевірками)
     const columnsArray = Array.isArray(columnNames) ? columnNames : [columnNames];
@@ -197,7 +189,6 @@ function setupFieldTabs(columnNames) {
     pillsContainer.innerHTML = '';
     contentContainer.innerHTML = '';
 
-    console.log(`📊 Створюємо ${columnsArray.length} піл(ів) динамічно`);
 
     // ДИНАМІЧНО створити піли та панелі для кожної колонки
     columnsArray.forEach((columnName, index) => {
@@ -229,10 +220,8 @@ function setupFieldTabs(columnNames) {
 
         contentContainer.appendChild(panel);
 
-        console.log(`✅ Створено піл і панель для: ${columnName}`);
     });
 
-    console.log(`✅ Створено ${columnsArray.length} піл(ів): ${columnsArray.join(', ')}`);
 }
 
 /**
@@ -243,7 +232,6 @@ function showModalLoader() {
     // Ця функція залишена для сумісності
     const viewers = document.querySelectorAll('.text-viewer');
     if (viewers.length > 0) {
-        console.log(`📊 Loader вже показаний для ${viewers.length} панелей`);
     }
 }
 
@@ -253,7 +241,6 @@ function showModalLoader() {
  * @param {string|string[]} columnNames - Назва колонки або масив назв колонок що перевірялись
  */
 function renderProductModal(productData, columnNames) {
-    console.log('🎨 Рендеримо модал з даними:', productData);
 
     // Нормалізувати до масиву
     const columnsArray = Array.isArray(columnNames) ? columnNames : [columnNames];
@@ -292,7 +279,6 @@ function renderProductModal(productData, columnNames) {
     // ДЕДУПЛІКАЦІЯ: одне слово може бути в кількох рядках таблиці banned, але рахуємо як одне
     const allBannedWords = [...new Set(allBannedWordsRaw.map(w => w.toLowerCase()))];
 
-    console.log(`🔍 Пошук серед ${allBannedWords.length} унікальних заборонених слів (було ${allBannedWordsRaw.length})`);
 
 
     // Мапінг полів модалу до полів Google Sheets
@@ -305,8 +291,6 @@ function renderProductModal(productData, columnNames) {
         'short_descriptionRos': productData.short_descriptionRos || productData.shortDescriptionRos || ''
     };
 
-    console.log('📦 Доступні дані товару:', Object.keys(productData));
-    console.log('📋 Field mapping:', fieldMapping);
 
     // Очистити попередню статистику
     fieldStats = {};
@@ -350,11 +334,9 @@ function renderProductModal(productData, columnNames) {
                 totalMatches += f.count;
             });
 
-            console.log(`🔴 Поле ${field}: знайдено ${foundWords.length} слів, ${totalMatches} входжень`);
         } else {
             // Немає заборонених слів - просто показати текст
             viewer.textContent = text;
-            console.log(`✅ Поле ${field}: заборонених слів не знайдено`);
         }
 
         // Зберегти статистику для цього поля
@@ -384,7 +366,6 @@ function updateModalStats(fieldName) {
     const { wordCountsMap, totalMatches } = stats;
     const totalBannedWords = wordCountsMap.size;
 
-    console.log(`📊 Статистика для ${fieldName}: ${totalBannedWords} слів, ${totalMatches} входжень`);
 
     // Оновити статистику
     const bannedCountEl = document.getElementById('product-modal-banned-count');
@@ -479,7 +460,6 @@ function syncTableBadge(productId, isChecked) {
     if (tableBadge) {
         tableBadge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
         setBadgeAppearance(tableBadge, isChecked);
-        console.log(`✅ Badge в таблиці синхронізовано для ${productId}`);
     }
 }
 
@@ -546,11 +526,9 @@ async function handleSheetTabClick(button) {
     }
 
     if (newSheet === activeSheet) {
-        console.log(`📊 Аркуш "${newSheet}" вже активний`);
         return;
     }
 
-    console.log(`🔄 Перемикання на аркуш: ${newSheet}`);
 
     // Оновити активний таб
     const sheetButtons = document.querySelectorAll('#product-sheet-pills .filter-pill');
@@ -565,7 +543,6 @@ async function handleSheetTabClick(button) {
 
     // Перевірити чи є кешовані дані для цього аркуша
     if (allSheetsData[newSheet]?.loaded) {
-        console.log(`📦 Використовуємо кешовані дані для аркуша "${newSheet}"`);
         currentProductData = allSheetsData[newSheet].productData;
         renderProductModal(currentProductData, availableColumns);
         return;
@@ -592,7 +569,6 @@ async function handleSheetTabClick(button) {
         }
 
         const rowIndex = parseInt(result._rowIndex);
-        console.log(`📥 Завантаження даних з аркуша "${newSheet}", рядок ${rowIndex}`);
 
         const productData = await loadProductFullData(newSheet, rowIndex);
         currentProductData = productData;
@@ -603,7 +579,6 @@ async function handleSheetTabClick(button) {
         // Відрендерити
         renderProductModal(productData, availableColumns);
 
-        console.log(`✅ Дані для аркуша "${newSheet}" завантажені`);
 
     } catch (error) {
         console.error(`❌ Помилка завантаження даних аркуша "${newSheet}":`, error);
@@ -644,7 +619,6 @@ async function handleModalBadgeClick() {
             columnsArray = [columnNameRaw];
         }
 
-        console.log(`🔄 Зміна статусу для ${productId}: ${currentStatus} → ${newStatus}`);
 
         // Оновити статус в Google Sheets для всіх перевірених колонок
         for (const columnName of columnsArray) {
@@ -674,7 +648,6 @@ async function handleModalBadgeClick() {
         const statusText = isChecked ? 'перевіреним' : 'неперевіреним';
         showToast(`Товар позначено як ${statusText}`, 'success');
 
-        console.log('✅ Статус оновлено');
 
     } catch (error) {
         console.error('❌ Помилка оновлення статусу:', error);
@@ -711,7 +684,6 @@ function handleCopyText() {
     // Копіювати в буфер обміну
     navigator.clipboard.writeText(textToCopy)
         .then(() => {
-            console.log('✅ Текст скопійовано в буфер обміну');
             showToast('Текст скопійовано', 'success');
         })
         .catch(err => {
@@ -888,5 +860,4 @@ function initBannedWordTooltips() {
         });
     });
 
-    console.log(`✅ Tooltip ініціалізовано для ${highlightedWords.length} слів та ${chipErrors.length} чіпів`);
 }

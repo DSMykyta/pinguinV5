@@ -202,7 +202,6 @@ export function renderKeywordsTable() {
     if (isRendering) return;
     isRendering = true;
 
-    console.log('🎨 Рендеринг таблиці ключових слів...');
 
     const container = document.getElementById('keywords-table-container');
     if (!container) {
@@ -237,7 +236,6 @@ export function renderKeywordsTable() {
 
     updateStats(filtered.length, all.length);
 
-    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} ключових слів`);
 
     isRendering = false;
 }

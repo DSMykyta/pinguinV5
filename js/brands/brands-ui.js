@@ -26,7 +26,6 @@ export function populateSearchColumns() {
         state: brandsState,
         checkboxPrefix: 'search-col-brands'
     });
-    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
@@ -49,7 +48,6 @@ export function populateTableColumns() {
             runHook('onRender');
         }
     });
-    console.log('✅ Колонки таблиці заповнено');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -62,4 +60,3 @@ registerBrandsPlugin('onInit', () => {
     populateTableColumns();
 });
 
-console.log('[Brands UI] Плагін завантажено');

@@ -49,7 +49,6 @@ async function loadPlugins() {
 
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
-            console.log(`[SEO] Плагін ${PLUGINS[index]} не завантажено`);
         }
     });
 }
@@ -63,7 +62,6 @@ async function initSeoGenerator() {
     runHook('onInit', { runCalculations });
     runCalculations();
 
-    console.log('✅ SEO Generator ініціалізовано', getRegisteredPlugins());
 }
 
 registerPanelInitializer('aside-seo', initSeoGenerator);

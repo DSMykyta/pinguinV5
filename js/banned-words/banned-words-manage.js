@@ -94,12 +94,10 @@ export function getColumns() {
  * Рендер табу управління забороненими словами
  */
 export async function renderBannedWordsManageTab() {
-    console.log('📋 Рендер табу управління...');
 
     // Рендер таблиці
     await renderBannedWordsTable();
 
-    console.log('✅ Таб управління відрендерений');
 }
 
 /**
@@ -328,7 +326,6 @@ async function toggleCheckedStatus(wordId) {
     const newStatus = word.cheaked_line === 'TRUE' ? 'FALSE' : 'TRUE';
     word.cheaked_line = newStatus;
 
-    console.log(`🔄 Перемикання статусу "${wordId}": ${newStatus}`);
 
     try {
         // Оновити в Google Sheets
@@ -345,7 +342,6 @@ async function toggleCheckedStatus(wordId) {
             checkedEl.textContent = checkedCount;
         }
 
-        console.log('✅ Статус оновлено');
     } catch (error) {
         console.error('❌ Помилка оновлення статусу:', error);
         // Відкат змін у разі помилки
@@ -361,7 +357,6 @@ async function toggleCheckedStatus(wordId) {
 export async function openBannedWordModal(wordData = null) {
     const isEdit = !!wordData;
 
-    console.log(isEdit ? '✏️ Відкриття модалу редагування' : '➕ Відкриття модалу створення');
 
     // Відкрити модал
     await showModal('banned-word-edit', null);
@@ -554,7 +549,6 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
         return;
     }
 
-    console.log('💾 Збереження заборонного слова:', formData);
 
     try {
         // Імпортувати функцію збереження
@@ -592,7 +586,6 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
         const { showToast } = await import('../common/ui-toast.js');
         showToast(isEdit ? 'Заборонене слово оновлено' : 'Заборонене слово додано', 'success');
 
-        console.log('✅ Заборонене слово збережено');
 
     } catch (error) {
         console.error('❌ Помилка збереження:', error);
@@ -631,9 +624,7 @@ export function initManageTabFilters() {
             // Перерендерити таблицю з новим фільтром
             await renderBannedWordsTable();
 
-            console.log(`🔎 Фільтр застосовано: "${filter}" для табу управління`);
         });
     });
 
-    console.log('✅ Фільтри ініціалізовано для табу управління');
 }

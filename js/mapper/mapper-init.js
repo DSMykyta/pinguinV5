@@ -39,7 +39,6 @@ import { mapperState } from './mapper-state.js';
  * Головна функція ініціалізації модуля Mapper
  */
 export async function initMapper() {
-    console.log('🗺️ Ініціалізація Mapper...');
 
     // Ініціалізувати tooltip систему
     initTooltips();
@@ -61,7 +60,6 @@ export async function initMapper() {
 
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
-        console.log('🔐 Подія auth-state-changed:', event.detail);
         if (event.detail.isAuthorized) {
             checkAuthAndLoadData();
         }
@@ -93,7 +91,6 @@ function initTabSwitching() {
 
             renderCurrentTab();
 
-            console.log(`📑 Переключено на таб: ${tabName}`);
         });
     });
 }
@@ -102,11 +99,9 @@ function initTabSwitching() {
  * Перевірити авторизацію та завантажити дані
  */
 async function checkAuthAndLoadData() {
-    console.log('🔐 Перевірка авторизації...');
 
     // Перевіряємо глобальний стан авторизації
     if (window.isAuthorized) {
-        console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         try {
             // Завантажити основні дані
@@ -136,13 +131,11 @@ async function checkAuthAndLoadData() {
             // Ініціалізувати сортування таблиць
             initMapperSorting();
 
-            console.log('✅ Mapper готовий до роботи');
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
             renderErrorState();
         }
     } else {
-        console.log('⚠️ Користувач не авторизований');
         renderAuthRequiredState();
     }
 }
@@ -170,7 +163,6 @@ function initMapperPagination() {
 
     mapperState.paginationAPI = paginationAPI;
 
-    console.log('✅ Пагінація ініціалізована');
 }
 
 /**
@@ -235,7 +227,6 @@ async function loadAsideMapper() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
-        console.log('✅ aside-mapper.html завантажено');
 
         // Ініціалізувати пошук
         const searchInput = document.getElementById('search-mapper');

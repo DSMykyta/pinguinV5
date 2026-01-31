@@ -208,7 +208,6 @@ export function renderBrandsTableRowsOnly() {
  * Рендерити таблицю брендів (повний рендер)
  */
 export function renderBrandsTable() {
-    console.log('🎨 Рендеринг таблиці брендів...');
 
     const container = document.getElementById('brands-table-container');
     if (!container) return;
@@ -241,7 +240,6 @@ export function renderBrandsTable() {
     // Оновити статистику
     updateStats(filtered.length, all.length);
 
-    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} брендів`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -336,4 +334,3 @@ registerBrandsPlugin('onRender', () => {
     renderBrandsTable();
 });
 
-console.log('[Brands Table] Плагін завантажено');

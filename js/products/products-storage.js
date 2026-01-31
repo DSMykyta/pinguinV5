@@ -93,7 +93,6 @@ export function saveProducts(products) {
             updatedAt: new Date().toISOString()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        console.log(`💾 Збережено ${products.length} товарів`);
     } catch (error) {
         console.error('❌ Помилка збереження в localStorage:', error);
         // Якщо localStorage переповнений
@@ -194,7 +193,6 @@ export function addProduct(productData) {
     products.unshift(newProduct);
     saveProducts(products);
 
-    console.log(`✅ Товар #${newId} створено:`, newProduct.name_short);
     return newProduct;
 }
 
@@ -226,7 +224,6 @@ export function updateProduct(id, updates) {
     }
 
     saveProducts(products);
-    console.log(`✅ Товар #${id} оновлено`);
     return products[index];
 }
 
@@ -246,7 +243,6 @@ export function deleteProduct(id) {
 
     products.splice(index, 1);
     saveProducts(products);
-    console.log(`🗑️ Товар #${id} видалено`);
     return true;
 }
 
@@ -290,7 +286,6 @@ export function duplicateProduct(id) {
  */
 export function clearProducts() {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('🧹 Всі товари видалено з localStorage');
 }
 
 /**
@@ -334,7 +329,6 @@ export function importProductsJSON(jsonString) {
         const merged = [...imported, ...products];
         saveProducts(merged);
 
-        console.log(`✅ Імпортовано ${imported.length} товарів`);
         return true;
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);
@@ -368,11 +362,9 @@ export function getProductsStats() {
 export function initWithDemoData(demoProducts) {
     const existing = getProducts();
     if (existing.length > 0) {
-        console.log(`📦 Знайдено ${existing.length} збережених товарів`);
         return existing;
     }
 
-    console.log('📦 Ініціалізація з демо-даними...');
     saveProducts(demoProducts);
     return demoProducts;
 }

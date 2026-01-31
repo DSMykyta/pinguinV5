@@ -33,11 +33,9 @@ window.customAuthInitialized = window.customAuthInitialized || false;
 async function initCustomAuth() {
   // Перевіряємо чи вже ініціалізовано
   if (window.customAuthInitialized) {
-    console.log('✅ Custom auth already initialized, skipping...');
     return;
   }
 
-  console.log('🔐 Initializing custom auth...');
   window.customAuthInitialized = true;
 
   // Ініціалізуємо обробники кнопок (logout, login trigger)
@@ -55,7 +53,6 @@ async function initCustomAuth() {
     const isValid = await verifyToken(token);
 
     if (isValid) {
-      console.log('✅ Token is valid, user is authorized');
       window.isAuthorized = true;
       window.currentUser = getUserData();
       updateAuthUI(true);
@@ -70,12 +67,10 @@ async function initCustomAuth() {
         window.onAuthSuccess();
       }
     } else {
-      console.log('⚠️ Token is invalid or expired');
       clearAuthData();
       updateAuthUI(false);
     }
   } else {
-    console.log('ℹ️ No token found, user is not authorized');
     updateAuthUI(false);
   }
 
@@ -220,11 +215,9 @@ function updateAuthUI(isAuthorized) {
 
     // Заповнюємо дані користувача
     const user = getUserData();
-    console.log('👤 User data from localStorage:', user);
 
     // Показуємо display_name якщо є, інакше username
     const displayText = user.display_name || user.username || '';
-    console.log('📝 Display text:', displayText, '(display_name:', user.display_name, ', username:', user.username, ')');
     if (usernameDisplay) usernameDisplay.textContent = displayText;
 
     if (userRoleDisplay) {
@@ -250,7 +243,6 @@ function updateAuthUI(isAuthorized) {
  * Оновлює аватар користувача в auth-user-info
  */
 function updateUserAvatar(avatarName) {
-  console.log('🖼️ updateUserAvatar called with:', avatarName);
 
   // Знаходимо контейнер для аватара (це тепер span.panel-item-icon)
   const avatarContainer = document.getElementById('auth-user-avatar-container');
@@ -260,12 +252,10 @@ function updateUserAvatar(avatarName) {
     return;
   }
 
-  console.log('📦 Found avatar container');
 
   if (avatarName) {
     // Є аватар - показуємо його
     const avatarPath = getAvatarPath(avatarName, 'calm');
-    console.log('🎨 Avatar path:', avatarPath);
 
     avatarContainer.innerHTML = `
       <div class="auth-avatar">
@@ -274,7 +264,6 @@ function updateUserAvatar(avatarName) {
     `;
   } else {
     // Немає аватара - показуємо іконку person
-    console.log('⚠️ No avatar name provided, showing person icon');
     avatarContainer.innerHTML = `
       <span class="material-symbols-outlined">person</span>
     `;
@@ -285,14 +274,11 @@ function updateUserAvatar(avatarName) {
  * Налаштування кнопки входу (тригер модалу)
  */
 function setupLoginTrigger() {
-  console.log('🔧 setupLoginTrigger() викликано');
 
   const loginTriggerButton = document.getElementById('auth-login-trigger-btn');
 
   if (loginTriggerButton) {
-    console.log('✅ Додаємо обробник на кнопку "Увійти"');
     loginTriggerButton.addEventListener('click', (e) => {
-      console.log('🖱️ КЛІК на кнопку "Увійти"!');
       e.preventDefault();
 
       // Відкриваємо модал (розмір вже вказаний в шаблоні)
@@ -315,7 +301,6 @@ function handleModalOpened(event) {
     return;
   }
 
-  console.log('🔓 Модал входу відкрито, налаштовуємо обробники форми...');
 
   // Знаходимо елементи форми в завантаженому модалі
   const loginForm = bodyTarget.querySelector('#auth-login-form');
@@ -326,7 +311,6 @@ function handleModalOpened(event) {
   const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
   const avatarMessage = bodyTarget.querySelector('#auth-login-avatar-message');
 
-  console.log('🔍 Елементи форми в модалі:', {
     loginForm: !!loginForm,
     usernameInput: !!usernameInput,
     passwordInput: !!passwordInput,
@@ -353,7 +337,6 @@ function handleModalOpened(event) {
   setTimeout(() => {
     if (usernameInput) {
       usernameInput.focus();
-      console.log('✅ Фокус встановлено на поле логіну');
     }
   }, 100);
 
@@ -382,7 +365,6 @@ function handleModalOpened(event) {
     const result = await handleSignIn(username, password);
 
     if (result.success) {
-      console.log('✅ Вхід успішний');
       // UI оновиться автоматично через updateAuthUI
       // Модал закриється в handleSignIn()
     } else {
@@ -432,11 +414,9 @@ function handleStorageChange(event) {
   if (event.key === AUTH_TOKEN_KEY) {
     if (!event.newValue) {
       // Токен видалено - виходимо
-      console.log('Token removed in another tab, signing out');
       window.location.reload();
     } else {
       // Токен оновлено - перевіряємо його
-      console.log('Token updated in another tab, verifying');
       initCustomAuth();
     }
   }
@@ -491,4 +471,3 @@ window.handleSignOut = handleSignOut;
 window.getAuthToken = getAuthToken;
 window.getUserData = getUserData;
 
-console.log('Custom Auth Module loaded');

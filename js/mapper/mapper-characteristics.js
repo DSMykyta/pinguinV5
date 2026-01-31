@@ -43,7 +43,6 @@ export const PLUGIN_NAME = 'mapper-characteristics';
  * Ініціалізація плагіна
  */
 export function init() {
-    console.log(`🔌 [${PLUGIN_NAME}] Ініціалізація...`);
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -55,7 +54,6 @@ export function init() {
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
-    console.log('➕ Відкриття модального вікна для додавання характеристики');
 
     await showModal('mapper-characteristic-edit', null);
 
@@ -94,7 +92,6 @@ export async function showAddCharacteristicModal() {
  * Показати модальне вікно для редагування характеристики
  */
 export async function showEditCharacteristicModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування характеристики ${id}`);
 
     const characteristics = getCharacteristics();
     const characteristic = characteristics.find(c => c.id === id);
@@ -713,7 +710,6 @@ function renderMpDataFields(data) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function showSelectOwnCharacteristicModal(selectedIds) {
-    console.log(`🔗 Batch маппінг характеристик: ${selectedIds.length} обрано`);
 
     const mpChars = getMpCharacteristics();
     const ownChars = getCharacteristics();
@@ -835,7 +831,6 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
 }
 
 export async function handleAutoMapCharacteristics(selectedIds) {
-    console.log(`🤖 Автоматичний маппінг характеристик: ${selectedIds.length} обрано`);
 
     try {
         const result = await autoMapCharacteristics(selectedIds);
@@ -860,7 +855,6 @@ export async function handleAutoMapCharacteristics(selectedIds) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function showViewMpCharacteristicModal(mpCharIdOrData) {
-    console.log(`👁️ Перегляд MP характеристики`, mpCharIdOrData);
 
     let mpChar;
 

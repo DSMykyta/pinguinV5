@@ -36,7 +36,6 @@ export function initPaginationForPrice() {
         }
     });
 
-    console.log('✅ Price pagination initialized');
 }
 
 /**

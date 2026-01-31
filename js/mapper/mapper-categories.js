@@ -43,7 +43,6 @@ export const PLUGIN_NAME = 'mapper-categories';
  * Ініціалізація плагіна
  */
 export function init() {
-    console.log(`🔌 [${PLUGIN_NAME}] Ініціалізація...`);
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -55,7 +54,6 @@ export function init() {
  * Показати модальне вікно для додавання категорії
  */
 export async function showAddCategoryModal() {
-    console.log('➕ Відкриття модального вікна для додавання категорії');
 
     await showModal('mapper-category-edit', null);
 
@@ -91,7 +89,6 @@ export async function showAddCategoryModal() {
  * Показати модальне вікно для редагування категорії
  */
 export async function showEditCategoryModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування категорії ${id}`);
 
     const categories = getCategories();
     const category = categories.find(c => c.id === id);
@@ -546,7 +543,6 @@ function populateRelatedCharacteristics(categoryId) {
  * Показати модалку вибору власної категорії для маппінгу MP категорій
  */
 export async function showSelectOwnCategoryModal(selectedMpCatIds) {
-    console.log(`🔗 Вибір власної категорії для ${selectedMpCatIds.length} MP категорій`);
 
     const ownCategories = getCategories();
 
@@ -638,7 +634,6 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
  * Показати read-only модалку для MP категорії
  */
 export async function showViewMpCategoryModal(mpCatIdOrData) {
-    console.log(`👁️ Перегляд MP категорії`, mpCatIdOrData);
 
     let mpCat;
 

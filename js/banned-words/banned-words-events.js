@@ -15,7 +15,6 @@ export function initBannedWordsEvents() {
     // ПРИМІТКА: Сортування ініціалізується окремо через initBannedWordsSorting() та initCheckTabSorting()
     // ПРИМІТКА: Фільтри і пошук обробляються в banned-words-aside.js
 
-    console.log('✅ Обробники подій Banned Words ініціалізовано');
 }
 
 /**
@@ -131,7 +130,6 @@ export function initBannedWordsSorting() {
         }
     });
 
-    console.log('✅ Сортування заборонених слів (tab-manage) ініціалізовано');
     return sortAPI;
 }
 
@@ -178,6 +176,5 @@ export function initCheckTabSorting(tabId) {
         }
     });
 
-    console.log(`✅ Сортування для check tab ${tabId} ініціалізовано`);
     return sortAPI;
 }

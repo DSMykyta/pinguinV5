@@ -54,7 +54,6 @@ export function populateReserveTabs() {
         reserveTabsContainer.appendChild(tab);
     });
 
-    console.log(`✅ Заповнено ${priceState.reserveNames.length} табів резервів`);
 }
 
 
@@ -69,7 +68,6 @@ export function populateSearchColumns() {
         state: priceState,
         checkboxPrefix: 'search-col-price'
     });
-    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
@@ -100,7 +98,6 @@ export function populateTableColumns() {
             initPriceColumnFilters();
         }
     });
-    console.log('✅ Колонки таблиці заповнено');
 }
 
 /**

@@ -77,7 +77,6 @@ const PLUGINS = [
  * Завантажити плагіни динамічно
  */
 async function loadPlugins() {
-    console.log('[Brands] Завантаження плагінів...');
 
     const results = await Promise.allSettled(
         PLUGINS.map(path => import(path))
@@ -85,7 +84,6 @@ async function loadPlugins() {
 
     results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
-            console.log(`[Brands] ✅ Плагін завантажено: ${PLUGINS[index]}`);
         } else {
             console.warn(`[Brands] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
         }
@@ -100,7 +98,6 @@ async function loadPlugins() {
  * Головна функція ініціалізації модуля Brands
  */
 export async function initBrands() {
-    console.log('📋 Ініціалізація Brands...');
 
     // Ініціалізувати базові UI компоненти
     initTooltips();
@@ -122,7 +119,6 @@ export async function initBrands() {
 
     // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', async (event) => {
-        console.log('🔐 Подія auth-state-changed:', event.detail);
         if (event.detail.isAuthorized) {
             await checkAuthAndLoadData();
         }
@@ -133,10 +129,8 @@ export async function initBrands() {
  * Перевірити авторизацію та завантажити дані
  */
 async function checkAuthAndLoadData() {
-    console.log('🔐 Перевірка авторизації...');
 
     if (window.isAuthorized) {
-        console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         try {
             // Завантажити бренди та лінійки паралельно
@@ -148,13 +142,11 @@ async function checkAuthAndLoadData() {
             // Запустити хук onInit для плагінів
             await runHookAsync('onInit', brandsState.brands);
 
-            console.log('✅ Brands готовий до роботи');
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
             renderErrorState();
         }
     } else {
-        console.log('⚠️ Користувач не авторизований');
         renderAuthRequiredState();
     }
 }
@@ -188,7 +180,6 @@ function initBrandsPagination() {
 
     brandsState.paginationAPI = paginationAPI;
 
-    console.log('✅ Пагінація ініціалізована');
 }
 
 /**
@@ -236,11 +227,9 @@ function initTabSwitching() {
             runHook('onTabChange', tabName);
             runHook('onRender');
 
-            console.log(`📑 Переключено на таб: ${tabName}`);
         });
     });
 
-    console.log('✅ Перемикання табів ініціалізовано');
 }
 
 /**
@@ -295,7 +284,6 @@ async function loadAsideBrands() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
-        console.log('✅ aside-brands.html завантажено');
 
         // Ініціалізувати пошук
         const searchInput = document.getElementById('search-brands');

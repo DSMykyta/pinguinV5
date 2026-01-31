@@ -32,14 +32,12 @@ export function initPaginationForBannedWords() {
             await renderBannedWordsTable();
         }
     };
-    console.log('✅ tab-manage зареєстровано в tabPaginations');
 
     const paginationAPI = initPagination(footer, {
         currentPage: bannedWordsState.tabPaginations['tab-manage'].currentPage,
         pageSize: bannedWordsState.tabPaginations['tab-manage'].pageSize,
         totalItems: bannedWordsState.tabPaginations['tab-manage'].totalItems,
         onPageChange: async (page, pageSize) => {
-            console.log(`📄 Pagination: сторінка ${page}, розмір ${pageSize}`);
 
             // 1. Знайти активний таб
             const activeTab = document.querySelector('.tab-content.active');
@@ -48,7 +46,6 @@ export function initPaginationForBannedWords() {
             if (!activeTab) {
                 console.warn('⚠️ Не знайдено активного табу, використовую tab-manage за замовчуванням');
             } else {
-                console.log(`🎯 Активний таб: ${tabId}`);
             }
 
             // 2. Отримати пагінацію для цього табу
@@ -70,7 +67,6 @@ export function initPaginationForBannedWords() {
 
             // 4. Викликати функцію рендерингу для цього табу
             if (tabPagination.renderFn) {
-                console.log(`🔄 Виклик renderFn для табу ${tabId}`);
                 await tabPagination.renderFn();
             } else {
                 console.warn(`⚠️ Не знайдено renderFn для табу ${tabId}`);
@@ -99,5 +95,4 @@ export function registerCheckTabPagination(tabId, totalItems, renderFn) {
         totalItems: totalItems,
         renderFn: renderFn
     };
-    console.log(`✅ Пагінація для ${tabId} зареєстрована (${totalItems} елементів, сторінка ${bannedWordsState.tabPaginations[tabId].currentPage})`);
 }

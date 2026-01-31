@@ -43,7 +43,6 @@ export function registerBrandsPlugin(hookName, callback, priority = 10) {
     hooks[hookName].push({ callback, priority });
     hooks[hookName].sort((a, b) => a.priority - b.priority);
 
-    console.log(`[Brands Plugins] Зареєстровано плагін для хука: ${hookName}`);
 }
 
 /**
@@ -99,5 +98,4 @@ export const optionalFunctions = {};
  */
 export function registerOptionalFunction(name, func) {
     optionalFunctions[name] = func;
-    console.log(`[Brands Plugins] Зареєстровано функцію: ${name}`);
 }

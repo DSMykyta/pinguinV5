@@ -24,5 +24,4 @@ export function initChipTooltips() {
         tooltip.style.setProperty('--tooltip-left', `${left}px`);
     });
 
-    console.log('✅ Chip tooltips ініціалізовано');
 }

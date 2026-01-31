@@ -64,18 +64,15 @@ export async function performCheck(sheetName, wordId, columnName) {
     }
 
     try {
-        console.log(`🔍 Початок перевірки: аркуші=${selectedSheets.join(', ')}, слова=[${selectedWords.join(', ')}], колонки=${selectedColumns.join(', ')}`);
 
         // ТИМЧАСОВО: інвалідувати кеш для тестування нової агрегації
         invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
-        console.log(`🗑️ Кеш інвалідовано для тестування: ${sheetsKey}/${wordsKey}/${columnsKey}`);
 
         // Перевірити кеш (ключ враховує всі обрані аркуші, слова та колонки)
         loader.updateProgress(5, 'Перевірка кешу...');
         const cachedResults = getCachedCheckResults(sheetsKey, wordsKey, columnsKey);
 
         if (cachedResults) {
-            console.log(`📦 Використовуємо кешовані результати (${cachedResults.length} записів)`);
             loader.updateProgress(50, 'Використання кешованих результатів...');
 
             // Зберегти результати в state
@@ -141,7 +138,6 @@ export async function performCheck(sheetName, wordId, columnName) {
         const uniqueUkrWords = [...new Set(allUkrWords)];
         const uniqueRusWords = [...new Set(allRusWords)];
 
-        console.log(`📝 Об'єднано ${bannedWordObjects.length} слів: ${uniqueUkrWords.length} UA фраз, ${uniqueRusWords.length} RU фраз`);
 
         // Сформувати назву для прогрес-бара (назви груп замість кількості)
         const groupNames = bannedWordObjects.map(w => w.group_name_ua || w.local_id).slice(0, 3);
@@ -170,12 +166,10 @@ export async function performCheck(sheetName, wordId, columnName) {
                     searchWordsArray = uniqueRusWords;
                     langLabel = 'RU';
                 } else {
-                    console.log(`⏭️ Пропускаємо ${col} - невідома мова`);
                     continue;
                 }
 
                 if (!searchWordsArray || searchWordsArray.length === 0) {
-                    console.log(`⏭️ Пропускаємо ${col} - немає слів для мови ${langLabel}`);
                     continue;
                 }
 
@@ -191,7 +185,6 @@ export async function performCheck(sheetName, wordId, columnName) {
                     const sheetData = await loadSheetDataForCheck(sheet, col);
                     validCombinations++;
 
-                    console.log(`📥 ${sheet}/${col}: завантажено ${sheetData.length} рядків, шукаємо ${searchWordsArray.length} слів`);
 
                     // Перевірити кожен рядок
                     sheetData.forEach(item => {
@@ -230,13 +223,11 @@ export async function performCheck(sheetName, wordId, columnName) {
             }
         }
 
-        console.log(`✅ Перевірено ${validCombinations} валідних комбінацій аркуш/колонка`);
 
         // Агрегувати результати - якщо один товар знайдено в кількох колонках
         loader.updateProgress(85, 'Агрегація результатів...');
         const aggregatedResults = aggregateResultsByProduct(allResults);
 
-        console.log(`✅ Перевірка завершена. Знайдено ${aggregatedResults.length} унікальних товарів`);
 
         // Зберегти результати в state
         bannedWordsState.checkResults = aggregatedResults;
@@ -247,7 +238,6 @@ export async function performCheck(sheetName, wordId, columnName) {
         // Визначити колонки з помилками (для показу в UI)
         const columnsWithErrors = [...new Set(allResults.map(r => r.columnName))];
         bannedWordsState.columnsWithErrors = columnsWithErrors;
-        console.log(`📊 Колонки з помилками: ${columnsWithErrors.join(', ')}`);
 
         // Зберегти результати в кеш (ключ використовує wordsKey для всіх слів)
         setCachedCheckResults(sheetsKey, wordsKey, columnsKey, aggregatedResults);
@@ -303,7 +293,6 @@ function aggregateResultsByProduct(results) {
     // ВАЖЛИВО: товари з однаковим ID на РІЗНИХ аркушах - це РІЗНІ записи!
     const productMap = new Map();
 
-    console.log(`📊 Агрегація: отримано ${results.length} результатів`);
 
     for (const result of results) {
         // Перевірка на пусті значення
@@ -316,7 +305,6 @@ function aggregateResultsByProduct(results) {
         const key = `${result.sheetName}::${result.id}`;
         const resultMatchCount = result.matchCount || 0;
 
-        console.log(`  -> ${key}: matchCount=${resultMatchCount}, foundWords=${result.foundWordsList?.length || 0}`);
 
         if (!productMap.has(key)) {
             // Новий товар на цьому аркуші
@@ -368,11 +356,9 @@ function aggregateResultsByProduct(results) {
         // Дедуплікація знайдених слів
         item.foundWordsList = [...new Set(item.foundWordsList)];
 
-        console.log(`📊 [${item.sheetName}] ${item.id}: ${item.columnNames.length} колонок, ${item.matchCount} входжень`);
         return item;
     });
 
-    console.log(`📊 Агрегація завершена: ${aggregated.length} унікальних товарів`);
     return aggregated;
 }
 
@@ -478,7 +464,6 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
                 return;
             }
 
-            console.log('📄 Відкриття модалу для товару:', productId);
 
             const { showProductTextModal } = await import('./banned-words-product-modal.js');
 
@@ -538,7 +523,6 @@ async function attachCheckRowEventHandlers(container, tabId) {
             const currentStatus = badge.dataset.status;
             const newStatus = currentStatus === 'TRUE' ? 'FALSE' : 'TRUE';
 
-            console.log(`🔄 Зміна статусу для ${productId}: ${currentStatus} → ${newStatus}`);
 
             try {
                 await updateProductStatus(
@@ -564,7 +548,6 @@ async function attachCheckRowEventHandlers(container, tabId) {
                 const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
                 await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
 
-                console.log('✅ Статус оновлено');
 
             } catch (error) {
                 console.error('❌ Помилка оновлення статусу:', error);
@@ -788,11 +771,9 @@ export function initCheckTabFilters(tabId) {
             const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
             await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
 
-            console.log(`🔎 Фільтр застосовано: "${filter}" для табу "${tabId}"`);
         });
     });
 
-    console.log(`✅ Фільтри ініціалізовано для табу "${tabId}"`);
 }
 
 // escapeHtml, renderBadge та обробники статусу видалено - використовуються компоненти з ui-table.js

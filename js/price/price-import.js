@@ -26,7 +26,6 @@ export function initPriceImport() {
     initFileInput();
     initAsideImport();
 
-    console.log('✅ Price import initialized');
 }
 
 /**
@@ -130,7 +129,6 @@ async function handleFile(file) {
         return;
     }
 
-    console.log(`📁 Обробка файлу: ${file.name}`);
 
     try {
         // Читаємо файл
@@ -223,7 +221,6 @@ function readXlsxFile(file) {
                 }
 
                 const headers = jsonData[HEADER_ROW];
-                console.log('📋 Заголовки XLSX (рядок 6):', headers);
 
                 // Фіксований мапінг колонок XLSX:
                 // A(0)=Код, B(1)=артикул, C(2)=виробник, D(3)=категорія,
@@ -315,7 +312,6 @@ function readXlsxFile(file) {
                     parsedData.push(item);
                 }
 
-                console.log(`✅ Розпарсено ${parsedData.length} рядків з XLSX`);
                 resolve(parsedData);
 
             } catch (error) {

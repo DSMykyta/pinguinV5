@@ -95,7 +95,6 @@ async function fetchBannedWords() {
  */
 export async function initValidator() {
     await fetchBannedWords();
-    console.log(`✅ Завантажено ${bannedWords.length} заборонених слів`);
 }
 
 /**

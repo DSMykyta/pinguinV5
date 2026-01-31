@@ -136,7 +136,6 @@ function serializeBrandLinks(links) {
  * @returns {Promise<Array>} Масив брендів
  */
 export async function loadBrands() {
-    console.log('📥 Завантаження брендів з Google Sheets...');
 
     try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
@@ -176,7 +175,6 @@ export async function loadBrands() {
             _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
         }));
 
-        console.log(`✅ Завантажено ${brandsState.brands.length} брендів`);
         return brandsState.brands;
     } catch (error) {
         console.error('❌ Помилка завантаження брендів:', error);
@@ -251,7 +249,6 @@ function prepareBrandRow(brand) {
  * @returns {Promise<Object>} Доданий бренд
  */
 export async function addBrand(brandData) {
-    console.log('➕ Додавання нового бренду:', brandData);
 
     try {
         const newId = generateBrandId();
@@ -279,7 +276,6 @@ export async function addBrand(brandData) {
 
         brandsState.brands.push(newBrand);
 
-        console.log('✅ Бренд додано:', newBrand);
         return newBrand;
     } catch (error) {
         console.error('❌ Помилка додавання бренду:', error);
@@ -294,7 +290,6 @@ export async function addBrand(brandData) {
  * @returns {Promise<Object>} Оновлений бренд
  */
 export async function updateBrand(brandId, updates) {
-    console.log(`📝 Оновлення бренду ${brandId}:`, updates);
 
     try {
         const brand = brandsState.brands.find(b => b.brand_id === brandId);
@@ -327,7 +322,6 @@ export async function updateBrand(brandId, updates) {
         // Оновити state
         Object.assign(brand, updatedBrand);
 
-        console.log('✅ Бренд оновлено:', brand);
         return brand;
     } catch (error) {
         console.error('❌ Помилка оновлення бренду:', error);
@@ -341,7 +335,6 @@ export async function updateBrand(brandId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrand(brandId) {
-    console.log(`🗑️ Видалення бренду ${brandId}`);
 
     try {
         const brandIndex = brandsState.brands.findIndex(b => b.brand_id === brandId);
@@ -360,7 +353,6 @@ export async function deleteBrand(brandId) {
 
         brandsState.brands.splice(brandIndex, 1);
 
-        console.log('✅ Бренд видалено');
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);
         throw error;

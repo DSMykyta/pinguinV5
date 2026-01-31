@@ -15,7 +15,6 @@ export function initBatchActionsBar(tabId) {
     // Перевірити чи вже існує панель
     const existingBar = getBatchBar(tabId);
     if (existingBar) {
-        console.log(`✅ Batch bar для ${tabId} вже існує`);
         return existingBar;
     }
 
@@ -50,7 +49,6 @@ export function initBatchActionsBar(tabId) {
         tabId,
         actions,
         onSelectionChange: (count) => {
-            console.log(`📊 ${tabId}: вибрано ${count} елементів`);
 
             // Синхронізувати зовнішній state при зняті всіх виборів
             if (count === 0 && bannedWordsState.selectedProducts[tabId]) {
@@ -62,7 +60,6 @@ export function initBatchActionsBar(tabId) {
         }
     });
 
-    console.log(`✅ Batch bar ініціалізовано для ${tabId}`);
     return batchBar;
 }
 
@@ -279,7 +276,6 @@ async function batchMarkChecked(selectedIds, tabId) {
                 return;
             }
 
-            console.log(`📍 Використовую колонку ${columnLetter} для таблиці "Banned"`);
         } else {
             // Для check табів оновлюємо результати перевірки
             dataSource = bannedWordsState.checkResults;
@@ -294,7 +290,6 @@ async function batchMarkChecked(selectedIds, tabId) {
                 return;
             }
 
-            console.log(`📍 Використовую колонку ${columnLetter} для аркуша "${sheetName}"`);
         }
 
         // Зібрати елементи для оновлення
@@ -316,7 +311,6 @@ async function batchMarkChecked(selectedIds, tabId) {
 
             // Пропустити якщо вже перевірено
             if (item.cheaked_line === 'TRUE' || item.cheaked_line === true) {
-                console.log(`ℹ️ ${id} вже перевірено`);
                 successCount++;
                 continue;
             }
@@ -340,7 +334,6 @@ async function batchMarkChecked(selectedIds, tabId) {
                 value: 'TRUE'
             }));
 
-            console.log(`📦 Batch update: ${updates.length} комірок...`);
 
             try {
                 // Один запит замість багатьох!
@@ -350,7 +343,6 @@ async function batchMarkChecked(selectedIds, tabId) {
                 itemsToUpdate.forEach(item => {
                     item.cheaked_line = 'TRUE';
                     successCount++;
-                    console.log(`✅ ${item.id || item.local_id} позначено як перевірене`);
                 });
 
             } catch (error) {

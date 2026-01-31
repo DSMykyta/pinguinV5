@@ -40,7 +40,6 @@ const MODAL_AVATAR_MAPPING = {
  * Ініціалізація автоматичного рендерингу аватарів
  */
 export function initModalAvatars() {
-    console.log('🎨 Ініціалізація автоматичного рендерингу аватарів в модалах...');
 
     // Слухаємо подію відкриття модалу
     document.addEventListener('modal-opened', handleModalOpened);
@@ -58,7 +57,6 @@ function handleModalOpened(event) {
         return; // Не наш модал
     }
 
-    console.log(`🎨 Рендеринг аватара для модалу: ${modalId}`);
 
     // Знаходимо контейнери в повній структурі модалу
     const avatarContainer = modalElement.querySelector(`#${mapping.avatarContainerId}`);
@@ -82,7 +80,6 @@ function handleModalOpened(event) {
         messageContainer.textContent = state.message;
     }
 
-    console.log(`✅ Аватар відрендерено для ${modalId}`);
 }
 
 // Автоматична ініціалізація при завантаженні модуля

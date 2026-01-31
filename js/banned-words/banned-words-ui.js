@@ -55,7 +55,6 @@ export function showAsidePanels() {
  * Заповнити selects в aside для перевірки (аркуші та слова)
  */
 export function populateCheckSelects() {
-    console.log(`📊 Заповнення селектів: ${bannedWordsState.sheetNames.length} аркушів, ${bannedWordsState.bannedWords.length} слів`);
 
     // Заповнити аркуші
     populateSelect('aside-select-sheet',
@@ -73,7 +72,6 @@ export function populateCheckSelects() {
          { placeholder: '-- Оберіть слово --' }
      );
 
-    console.log('✅ Селекти для перевірки заповнено');
 }
 
 /**
@@ -87,7 +85,6 @@ export function populateSearchColumns() {
         state: bannedWordsState,
         checkboxPrefix: 'search-col-banned'
     });
-    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
@@ -111,7 +108,6 @@ export function populateTableColumns() {
             await renderBannedWordsTable();
         }
     });
-    console.log('✅ Колонки таблиці заповнено');
 }
 
 /**
@@ -130,12 +126,10 @@ export function initHideCheckedToggle() {
 
     hideCheckedToggle.addEventListener('change', async (e) => {
         bannedWordsState.hideChecked = e.target.checked;
-        console.log(`🔍 Приховати перевірені: ${bannedWordsState.hideChecked}`);
 
         // Перемальовати таблицю
         const { renderBannedWordsTable } = await import('./banned-words-manage.js');
         await renderBannedWordsTable();
     });
 
-    console.log('✅ Чекбокс приховування ініціалізовано');
 }

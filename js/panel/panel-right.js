@@ -40,7 +40,6 @@ function showActivePanel(templateName) {
  * Сканує сторінку, знаходить всі потрібні панелі і завантажує їх у фоні.
  */
 async function preloadAllPanels() {
-    console.log('🔍 preloadAllPanels: початок завантаження панелей');
 
     const contentContainer = document.getElementById('panel-right-content');
     if (!contentContainer) {
@@ -56,11 +55,9 @@ async function preloadAllPanels() {
         if (templateName) templateNames.add(templateName);
     });
 
-    console.log('📋 Знайдені шаблони:', Array.from(templateNames));
 
     // Створюємо масив промісів для паралельного завантаження
     const loadingPromises = Array.from(templateNames).map(async (name) => {
-        console.log(`🔄 Завантаження панелі: ${name}`);
         const wrapper = document.createElement('div');
         wrapper.id = name; // Використовуємо назву як ID для легкого доступу
         wrapper.className = 'panel-fragment'; // Клас для стилізації (ховаємо за замовчуванням)
@@ -69,11 +66,9 @@ async function preloadAllPanels() {
         // Завантажуємо HTML у цей контейнер
         const templateUrl = `templates/aside/${name}.html`;
         await loadHTML(templateUrl, wrapper);
-        console.log(`✅ Завантажено HTML для: ${name}`);
 
         // Після завантаження HTML, викликаємо відповідний ініціалізатор з "реєстру"
         if (panelInitializers[name]) {
-            console.log(`🚀 Викликаємо ініціалізатор для: ${name}`);
             panelInitializers[name]();
         } else {
             console.warn(`⚠️ Ініціалізатор не знайдено для: ${name}`);
@@ -152,10 +147,8 @@ export async function loadAsideTemplate(templateName) {
 
     try {
         await loadHTML(templateUrl, wrapper);
-        console.log(`✅ Завантажено HTML для: ${templateName}`);
 
         if (panelInitializers[templateName]) {
-            console.log(`🚀 Викликаємо ініціалізатор для: ${templateName}`);
             panelInitializers[templateName]();
         }
 

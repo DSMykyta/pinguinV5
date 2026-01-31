@@ -91,7 +91,6 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
 
     // Захист від race conditions - якщо таб вже створюється, чекаємо
     if (tabsBeingCreated.has(tabId)) {
-        console.log(`⚠️ Таб "${tabId}" вже створюється, пропускаємо...`);
         return;
     }
 
@@ -147,7 +146,6 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     const refreshButton = tabContent.querySelector(`#refresh-check-${tabId}`);
     if (refreshButton) {
         refreshButton.addEventListener('click', async () => {
-            console.log(`🔄 Оновлення даних для табу "${tabId}"`);
 
             // Отримати збережені параметри перевірки з кнопки табу
             const sheet = tabButton.dataset.checkSheet;
@@ -179,9 +177,6 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
         });
     }
 
-    console.log(`📋 Таб створено: кнопка="${tabId}", контент створено`);
-    console.log(`📋 Кнопка додана до DOM:`, tabsContainer.contains(tabButton));
-    console.log(`📋 Контент додано до DOM:`, contentContainer.contains(tabContent));
 
     // Зберегти стан табу для відновлення після перезавантаження (з масивами для мультиселекту)
     addTabToState(tabId, selectedSheet, selectedWord, selectedColumn, true, {
@@ -197,11 +192,9 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     // ВИПРАВЛЕНО: Пропустити автоактивацію при відновленні табів
     if (!skipAutoActivate) {
         setTimeout(() => {
-            console.log(`🖱️ Імітуємо клік по табу "${tabId}"`);
             tabButton.click();
         }, 50);
     } else {
-        console.log(`⏭️ Автоактивацію пропущено для табу "${tabId}"`);
     }
 }
 
@@ -220,11 +213,9 @@ const tabsBeingCreated = new Set();
  */
 export function initTabHandlers() {
     if (handlersInitialized) {
-        console.log('⚠️ Обробники табів вже ініціалізовані, пропускаємо...');
         return;
     }
 
-    console.log('🎯 Ініціалізація обробників табів...');
     handlersInitialized = true;
 
     // Обробник для кнопки закриття табу (використовуємо CAPTURE фазу для гарантованого першого виклику)
@@ -239,7 +230,6 @@ export function initTabHandlers() {
 
         // Захист від повторних кліків поки модал відкритий
         if (isClosingTab) {
-            console.log('⚠️ Закриття табу вже в процесі, ігноруємо клік');
             return;
         }
 
@@ -250,7 +240,6 @@ export function initTabHandlers() {
         const tabId = tabButton.dataset.tabTarget;
         if (!tabId || tabId === 'tab-manage') return; // Не дозволяємо закрити головний таб
 
-        console.log(`🗑️ Спроба закрити таб: ${tabId}`);
 
         isClosingTab = true;
 
@@ -293,7 +282,6 @@ export function initTabHandlers() {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log(`🔄 Перемикання на таб: "${tabId}"`);
 
         // Знімаємо active з ВСІХ кнопок
         tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
@@ -330,7 +318,6 @@ export function initTabHandlers() {
                         pageSize: tabPagination.pageSize,
                         totalItems: tabPagination.totalItems
                     });
-                    console.log(`🔄 Відновлено пагінацію для табу ${tabId}:`, {
                         currentPage: tabPagination.currentPage,
                         pageSize: tabPagination.pageSize,
                         totalItems: tabPagination.totalItems
@@ -347,7 +334,6 @@ export function initTabHandlers() {
 
                 // Якщо це check таб і пагінація відсутня - завантажити дані
                 if (tabId.startsWith('check-') && tabButton.dataset.checkSheet) {
-                    console.log(`🔄 Автоматичне завантаження даних для табу "${tabId}"`);
 
                     const sheet = tabButton.dataset.checkSheet;
                     const word = tabButton.dataset.checkWord;
@@ -401,7 +387,6 @@ export function initTabHandlers() {
         }
     });
 
-    console.log('✅ Обробники табів ініціалізовано (глобально на document)');
 }
 
 /**
@@ -409,7 +394,6 @@ export function initTabHandlers() {
  * @param {string} tabId - ID табу для видалення
  */
 export function removeCheckTab(tabId) {
-    console.log(`🗑️ Видалення табу: ${tabId}`);
 
     // Знайти кнопку табу
     const tabButton = document.querySelector(`[data-tab-target="${tabId}"]`);
@@ -421,30 +405,25 @@ export function removeCheckTab(tabId) {
     // Видалити з DOM
     if (tabButton) {
         tabButton.remove();
-        console.log(`✅ Кнопка табу видалена`);
     }
 
     if (tabContent) {
         tabContent.remove();
-        console.log(`✅ Контент табу видалений`);
     }
 
     // Видалити пагінацію з state
     if (bannedWordsState.tabPaginations[tabId]) {
         delete bannedWordsState.tabPaginations[tabId];
-        console.log(`✅ Пагінація табу видалена`);
     }
 
     // Видалити фільтри з state
     if (bannedWordsState.tabFilters[tabId]) {
         delete bannedWordsState.tabFilters[tabId];
-        console.log(`✅ Фільтри табу видалені`);
     }
 
     // Видалити вибрані продукти з state
     if (bannedWordsState.selectedProducts[tabId]) {
         delete bannedWordsState.selectedProducts[tabId];
-        console.log(`✅ Вибрані продукти табу видалені`);
     }
 
     // Видалити таб зі збереженого стану
@@ -456,12 +435,10 @@ export function removeCheckTab(tabId) {
         if (manageTab) {
             setTimeout(() => {
                 manageTab.click();
-                console.log(`🔄 Переключено на таб управління`);
             }, 100);
         }
     }
 
-    console.log(`✅ Таб ${tabId} успішно видалено`);
 }
 
 /**
@@ -472,16 +449,13 @@ export async function restoreSavedTabs() {
     const savedState = loadTabsState();
 
     if (!savedState || !savedState.openTabs || savedState.openTabs.length === 0) {
-        console.log('📭 Немає збережених табів для відновлення');
         return;
     }
 
-    console.log(`🔄 Відновлення ${savedState.openTabs.length} збережених табів...`);
 
     // Відновити кожен таб (некоректні таби вже відфільтровані в loadTabsState)
     for (const tab of savedState.openTabs) {
         try {
-            console.log(`📂 Відновлення табу: ${tab.tabId}`);
 
             // Відновити масиви (з fallback на одиничні значення для старих збережень)
             const sheets = tab.sheets || [tab.sheetName];
@@ -518,7 +492,6 @@ export async function restoreSavedTabs() {
             const { performCheck } = await import('./banned-words-check.js');
             await performCheck(tab.sheetName, tab.wordId, tab.columnName);
 
-            console.log(`✅ Таб відновлено: ${tab.tabId}`);
         } catch (error) {
             console.error(`❌ Помилка відновлення табу ${tab.tabId}:`, error);
         }
@@ -530,10 +503,8 @@ export async function restoreSavedTabs() {
             const activeTabButton = document.querySelector(`[data-tab-target="${savedState.activeTabId}"]`);
             if (activeTabButton) {
                 activeTabButton.click();
-                console.log(`✅ Активовано збережений таб: ${savedState.activeTabId}`);
             }
         }, 500);
     }
 
-    console.log(`✅ Відновлення табів завершено`);
 }

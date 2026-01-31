@@ -21,7 +21,6 @@ export function populateSearchColumns() {
         state: keywordsState,
         checkboxPrefix: 'search-col-keywords'
     });
-    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
@@ -44,7 +43,6 @@ export function populateTableColumns() {
             renderKeywordsTable();
         }
     });
-    console.log('✅ Колонки таблиці заповнено');
 }
 
 // Фіксовані типи параметрів (порядок і іконки як в Mapper)
@@ -112,9 +110,7 @@ export function initParamTypeFilters() {
             // Перерендерити таблицю з новим фільтром
             renderKeywordsTable();
 
-            console.log(`🔎 Фільтр за типом застосовано: "${filter}"`);
         });
     });
 
-    console.log('✅ Фільтри типів ініціалізовано');
 }

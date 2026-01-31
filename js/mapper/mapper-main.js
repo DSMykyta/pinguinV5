@@ -36,7 +36,6 @@ const PLUGINS = [
  * Завантажити всі плагіни
  */
 export async function loadMapperPlugins() {
-    console.log('🔌 Завантаження плагінів Mapper...');
 
     const results = await Promise.allSettled(
         PLUGINS.map(path => import(path))
@@ -58,7 +57,6 @@ export async function loadMapperPlugins() {
         }
     });
 
-    console.log(`✅ Mapper плагіни завантажено: ${mapperState.loadedPlugins.size}/${PLUGINS.length}`);
 }
 
 /**

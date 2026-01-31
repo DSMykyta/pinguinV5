@@ -13,7 +13,6 @@ export function initGlossarySearch() {
         return;
     }
 
-    console.log('🔍 [Glossary Search] Ініціалізація пошуку');
 
     // Слухаємо зміни в полі пошуку
     searchInput.addEventListener('input', handleSearch);
@@ -68,7 +67,6 @@ function handleSearch(event) {
         removeNoResultsState();
     }
 
-    console.log(`🔍 [Search] Запит: "${query}", Знайдено: ${visibleCount}`);
 }
 
 /**

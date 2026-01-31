@@ -6,7 +6,6 @@ import { initGlossaryPage } from './glossary/glossary-init.js';
 
 async function initializeApp() {
     try {
-        console.log('Ініціалізація глосарію...');
         
         // Initialize core functionality
         initCore(); 
@@ -17,7 +16,6 @@ async function initializeApp() {
         // Initialize glossary-specific functionality
         await initGlossaryPage();
         
-        console.log('Глосарій успішно ініціалізовано.');
     } catch (error) {
         console.error('Критична помилка під час ініціалізації:', error);
     }

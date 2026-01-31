@@ -12,7 +12,6 @@ import { loadKeywords, getKeywords } from './keywords-data.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
 
 export function initKeywordsEvents() {
-    console.log('🎯 Ініціалізація обробників подій для ключових слів...');
 
     const refreshBtn = document.getElementById('refresh-tab-keywords');
     if (refreshBtn) {
@@ -21,7 +20,6 @@ export function initKeywordsEvents() {
             if (icon) icon.classList.add('is-spinning');
 
             try {
-                console.log('🔄 Оновлення даних Keywords...');
                 await loadKeywords();
                 renderKeywordsTable();
                 // Реініціалізуємо сортування після повного рендерингу
@@ -41,7 +39,6 @@ export function initKeywordsEvents() {
         });
     }
 
-    console.log('✅ Обробники подій ініціалізовано');
 }
 
 export function initKeywordsSearch(searchInput) {
@@ -54,7 +51,6 @@ export function initKeywordsSearch(searchInput) {
         renderKeywordsTableRowsOnly();
     });
 
-    console.log('✅ Пошук ініціалізовано');
 }
 
 // Мапа типів параметрів для відображення в dropdown фільтрі
@@ -112,7 +108,6 @@ export function initKeywordsSorting() {
 
     keywordsState.sortAPI = sortAPI;
 
-    console.log('✅ Сортування та фільтрація ініціалізовано');
     return sortAPI;
 }
 

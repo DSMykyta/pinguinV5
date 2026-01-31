@@ -144,7 +144,6 @@ export function initDynamicTabs(tabsContainer, options = {}) {
             contentContainer.appendChild(tabContent);
         }
 
-        console.log(`✅ Tab created: ${tabId}`);
         return true;
     }
 
@@ -201,7 +200,6 @@ export function initDynamicTabs(tabsContainer, options = {}) {
             }
         }
 
-        console.log(`✅ Tab removed: ${tabId}`);
         return true;
     }
 

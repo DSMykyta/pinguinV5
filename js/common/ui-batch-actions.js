@@ -103,7 +103,6 @@ export function createBatchActionsBar(config) {
         onSelectionChange
     };
 
-    console.log(`✅ Batch bar створено для ${tabId}`);
 
     // Повернути API
     return getBatchBarAPI(tabId);
@@ -360,7 +359,6 @@ function destroyBatchBar(tabId) {
     // Видалити з сховища
     delete batchBars[tabId];
 
-    console.log(`🗑️ Batch bar видалено для ${tabId}`);
 }
 
 /**

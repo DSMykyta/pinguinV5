@@ -45,7 +45,6 @@ const SHEET_GIDS = {
  * Завантажити всі дані для Mapper
  */
 export async function loadMapperData() {
-    console.log('📥 Завантаження даних Mapper...');
 
     try {
         // Завантажуємо паралельно всі необхідні дані
@@ -56,7 +55,6 @@ export async function loadMapperData() {
             loadOptions()
         ]);
 
-        console.log('✅ Всі дані Mapper завантажено');
     } catch (error) {
         console.error('❌ Помилка завантаження даних Mapper:', error);
         throw error;
@@ -67,7 +65,6 @@ export async function loadMapperData() {
  * Завантажити маркетплейси
  */
 export async function loadMarketplaces() {
-    console.log('📥 Завантаження маркетплейсів...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -102,7 +99,6 @@ export async function loadMarketplaces() {
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
-        console.log(`✅ Завантажено ${mapperState.marketplaces.length} маркетплейсів`);
         return mapperState.marketplaces;
     } catch (error) {
         console.error('❌ Помилка завантаження маркетплейсів:', error);
@@ -115,7 +111,6 @@ export async function loadMarketplaces() {
  * Завантажити власні категорії
  */
 export async function loadCategories() {
-    console.log('📥 Завантаження категорій...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -147,7 +142,6 @@ export async function loadCategories() {
             return obj;
         });
 
-        console.log(`✅ Завантажено ${mapperState.categories.length} категорій`);
         return mapperState.categories;
     } catch (error) {
         console.error('❌ Помилка завантаження категорій:', error);
@@ -160,7 +154,6 @@ export async function loadCategories() {
  * Завантажити власні характеристики
  */
 export async function loadCharacteristics() {
-    console.log('📥 Завантаження характеристик...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -216,7 +209,6 @@ export async function loadCharacteristics() {
             return obj;
         });
 
-        console.log(`✅ Завантажено ${mapperState.characteristics.length} характеристик`);
         return mapperState.characteristics;
     } catch (error) {
         console.error('❌ Помилка завантаження характеристик:', error);
@@ -229,7 +221,6 @@ export async function loadCharacteristics() {
  * Завантажити власні опції
  */
 export async function loadOptions() {
-    console.log('📥 Завантаження опцій...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -262,7 +253,6 @@ export async function loadOptions() {
             return obj;
         });
 
-        console.log(`✅ Завантажено ${mapperState.options.length} опцій`);
         return mapperState.options;
     } catch (error) {
         console.error('❌ Помилка завантаження опцій:', error);
@@ -275,7 +265,6 @@ export async function loadOptions() {
  * Завантажити маппінги для категорій
  */
 export async function loadMapCategories() {
-    console.log('📥 Завантаження маппінгів категорій...');
     try {
         const result = await callSheetsAPI('get', {
             range: `${SHEETS.MAP_CATEGORIES}!A:D`,
@@ -284,7 +273,6 @@ export async function loadMapCategories() {
 
         // Backend повертає масив напряму
         if (!result || !Array.isArray(result) || result.length <= 1) {
-            console.log('⚠️ Маппінги категорій порожні або тільки заголовки');
             mapperState.mapCategories = [];
             return [];
         }
@@ -300,9 +288,7 @@ export async function loadMapCategories() {
             return obj;
         });
 
-        console.log(`✅ Завантажено ${mapperState.mapCategories.length} маппінгів категорій`);
         if (mapperState.mapCategories.length > 0) {
-            console.log('📊 Приклад маппінгу категорії:', mapperState.mapCategories[0]);
         }
 
         return mapperState.mapCategories;
@@ -317,7 +303,6 @@ export async function loadMapCategories() {
  * Завантажити маппінги для характеристик
  */
 export async function loadMapCharacteristics() {
-    console.log('📥 Завантаження маппінгів характеристик...');
     try {
         const result = await callSheetsAPI('get', {
             range: `${SHEETS.MAP_CHARACTERISTICS}!A:D`,
@@ -326,13 +311,11 @@ export async function loadMapCharacteristics() {
 
         // Backend повертає масив напряму
         if (!result || !Array.isArray(result) || result.length <= 1) {
-            console.log('⚠️ Таблиця маппінгів характеристик порожня');
             mapperState.mapCharacteristics = [];
             return [];
         }
 
         const headers = result[0];
-        console.log('📋 Колонки маппінгів характеристик:', headers);
         const rows = result.slice(1);
 
         mapperState.mapCharacteristics = rows
@@ -345,9 +328,7 @@ export async function loadMapCharacteristics() {
                 return obj;
             });
 
-        console.log(`✅ Завантажено ${mapperState.mapCharacteristics.length} маппінгів характеристик`);
         if (mapperState.mapCharacteristics.length > 0) {
-            console.log('📊 Приклад маппінгу:', mapperState.mapCharacteristics[0]);
         }
         return mapperState.mapCharacteristics;
     } catch (error) {
@@ -419,7 +400,6 @@ function generateId(prefix, items) {
  * Додати нову категорію
  */
 export async function addCategory(data) {
-    console.log('➕ Додавання категорії:', data);
 
     try {
         const newId = generateId('cat', mapperState.categories);
@@ -451,7 +431,6 @@ export async function addCategory(data) {
         };
 
         mapperState.categories.push(newCategory);
-        console.log('✅ Категорію додано:', newCategory);
         return newCategory;
     } catch (error) {
         console.error('❌ Помилка додавання категорії:', error);
@@ -463,7 +442,6 @@ export async function addCategory(data) {
  * Оновити категорію
  */
 export async function updateCategory(id, updates) {
-    console.log(`📝 Оновлення категорії ${id}:`, updates);
 
     try {
         const category = mapperState.categories.find(c => c.id === id);
@@ -490,7 +468,6 @@ export async function updateCategory(id, updates) {
         });
 
         Object.assign(category, updates, { updated_at: timestamp });
-        console.log('✅ Категорію оновлено:', category);
         return category;
     } catch (error) {
         console.error('❌ Помилка оновлення категорії:', error);
@@ -502,7 +479,6 @@ export async function updateCategory(id, updates) {
  * Видалити категорію
  */
 export async function deleteCategory(id) {
-    console.log(`🗑️ Видалення категорії ${id}`);
 
     try {
         const index = mapperState.categories.findIndex(c => c.id === id);
@@ -520,7 +496,6 @@ export async function deleteCategory(id) {
         });
 
         mapperState.categories.splice(index, 1);
-        console.log('✅ Категорію видалено');
     } catch (error) {
         console.error('❌ Помилка видалення категорії:', error);
         throw error;
@@ -531,7 +506,6 @@ export async function deleteCategory(id) {
  * Додати нову характеристику
  */
 export async function addCharacteristic(data) {
-    console.log('➕ Додавання характеристики:', data);
 
     try {
         const newId = generateId('char', mapperState.characteristics);
@@ -572,7 +546,6 @@ export async function addCharacteristic(data) {
         };
 
         mapperState.characteristics.push(newCharacteristic);
-        console.log('✅ Характеристику додано:', newCharacteristic);
         return newCharacteristic;
     } catch (error) {
         console.error('❌ Помилка додавання характеристики:', error);
@@ -584,7 +557,6 @@ export async function addCharacteristic(data) {
  * Оновити характеристику
  */
 export async function updateCharacteristic(id, updates) {
-    console.log(`📝 Оновлення характеристики ${id}:`, updates);
 
     try {
         const characteristic = mapperState.characteristics.find(c => c.id === id);
@@ -616,7 +588,6 @@ export async function updateCharacteristic(id, updates) {
         });
 
         Object.assign(characteristic, updates, { updated_at: timestamp });
-        console.log('✅ Характеристику оновлено:', characteristic);
         return characteristic;
     } catch (error) {
         console.error('❌ Помилка оновлення характеристики:', error);
@@ -628,7 +599,6 @@ export async function updateCharacteristic(id, updates) {
  * Видалити характеристику
  */
 export async function deleteCharacteristic(id) {
-    console.log(`🗑️ Видалення характеристики ${id}`);
 
     try {
         const index = mapperState.characteristics.findIndex(c => c.id === id);
@@ -646,7 +616,6 @@ export async function deleteCharacteristic(id) {
         });
 
         mapperState.characteristics.splice(index, 1);
-        console.log('✅ Характеристику видалено');
     } catch (error) {
         console.error('❌ Помилка видалення характеристики:', error);
         throw error;
@@ -657,7 +626,6 @@ export async function deleteCharacteristic(id) {
  * Додати нову опцію
  */
 export async function addOption(data) {
-    console.log('➕ Додавання опції:', data);
 
     try {
         const newId = generateId('opt', mapperState.options);
@@ -690,7 +658,6 @@ export async function addOption(data) {
         };
 
         mapperState.options.push(newOption);
-        console.log('✅ Опцію додано:', newOption);
         return newOption;
     } catch (error) {
         console.error('❌ Помилка додавання опції:', error);
@@ -702,7 +669,6 @@ export async function addOption(data) {
  * Оновити опцію
  */
 export async function updateOption(id, updates) {
-    console.log(`📝 Оновлення опції ${id}:`, updates);
 
     try {
         const option = mapperState.options.find(o => o.id === id);
@@ -729,7 +695,6 @@ export async function updateOption(id, updates) {
         });
 
         Object.assign(option, updates);
-        console.log('✅ Опцію оновлено:', option);
         return option;
     } catch (error) {
         console.error('❌ Помилка оновлення опції:', error);
@@ -741,7 +706,6 @@ export async function updateOption(id, updates) {
  * Видалити опцію
  */
 export async function deleteOption(id) {
-    console.log(`🗑️ Видалення опції ${id}`);
 
     try {
         const index = mapperState.options.findIndex(o => o.id === id);
@@ -759,7 +723,6 @@ export async function deleteOption(id) {
         });
 
         mapperState.options.splice(index, 1);
-        console.log('✅ Опцію видалено');
     } catch (error) {
         console.error('❌ Помилка видалення опції:', error);
         throw error;
@@ -770,7 +733,6 @@ export async function deleteOption(id) {
  * Додати новий маркетплейс
  */
 export async function addMarketplace(data) {
-    console.log('➕ Додавання маркетплейсу:', data);
 
     try {
         const newId = generateId('mp', mapperState.marketplaces);
@@ -804,7 +766,6 @@ export async function addMarketplace(data) {
         };
 
         mapperState.marketplaces.push(newMarketplace);
-        console.log('✅ Маркетплейс додано:', newMarketplace);
         return newMarketplace;
     } catch (error) {
         console.error('❌ Помилка додавання маркетплейсу:', error);
@@ -816,7 +777,6 @@ export async function addMarketplace(data) {
  * Оновити маркетплейс
  */
 export async function updateMarketplace(id, updates) {
-    console.log(`📝 Оновлення маркетплейсу ${id}:`, updates);
 
     try {
         const marketplace = mapperState.marketplaces.find(m => m.id === id);
@@ -843,7 +803,6 @@ export async function updateMarketplace(id, updates) {
         });
 
         Object.assign(marketplace, updates);
-        console.log('✅ Маркетплейс оновлено:', marketplace);
         return marketplace;
     } catch (error) {
         console.error('❌ Помилка оновлення маркетплейсу:', error);
@@ -855,7 +814,6 @@ export async function updateMarketplace(id, updates) {
  * Видалити маркетплейс
  */
 export async function deleteMarketplace(id) {
-    console.log(`🗑️ Видалення маркетплейсу ${id}`);
 
     try {
         const index = mapperState.marketplaces.findIndex(m => m.id === id);
@@ -873,7 +831,6 @@ export async function deleteMarketplace(id) {
         });
 
         mapperState.marketplaces.splice(index, 1);
-        console.log('✅ Маркетплейс видалено');
     } catch (error) {
         console.error('❌ Помилка видалення маркетплейсу:', error);
         throw error;
@@ -933,7 +890,6 @@ export function getMpOptions() {
  * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
  */
 export async function loadMpCategories() {
-    console.log('📥 Завантаження MP категорій...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -974,7 +930,6 @@ export async function loadMpCategories() {
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
-        console.log(`✅ Завантажено ${mapperState.mpCategories.length} MP категорій`);
         return mapperState.mpCategories;
     } catch (error) {
         console.error('❌ Помилка завантаження MP категорій:', error);
@@ -988,7 +943,6 @@ export async function loadMpCategories() {
  * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
  */
 export async function loadMpCharacteristics() {
-    console.log('📥 Завантаження MP характеристик...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -997,14 +951,7 @@ export async function loadMpCharacteristics() {
         });
 
         // DEBUG: Показуємо що API повернуло
-        console.log('🔍 DEBUG loadMpCharacteristics API response:');
-        console.log('  - result type:', typeof result);
-        console.log('  - result is array:', Array.isArray(result));
-        console.log('  - result length:', result?.length || 0);
         if (result && result.length > 0) {
-            console.log('  - headers:', result[0]);
-            console.log('  - first data row:', result[1] || '(none)');
-            console.log('  - last data row:', result[result.length - 1] || '(none)');
         }
 
         if (!result || !Array.isArray(result) || result.length <= 1) {
@@ -1035,7 +982,6 @@ export async function loadMpCharacteristics() {
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
-        console.log(`✅ Завантажено ${mapperState.mpCharacteristics.length} MP характеристик`);
         return mapperState.mpCharacteristics;
     } catch (error) {
         console.error('❌ Помилка завантаження MP характеристик:', error);
@@ -1049,7 +995,6 @@ export async function loadMpCharacteristics() {
  * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
  */
 export async function loadMpOptions() {
-    console.log('📥 Завантаження MP опцій...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -1085,7 +1030,6 @@ export async function loadMpOptions() {
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
-        console.log(`✅ Завантажено ${mapperState.mpOptions.length} MP опцій`);
         return mapperState.mpOptions;
     } catch (error) {
         console.error('❌ Помилка завантаження MP опцій:', error);
@@ -1168,7 +1112,6 @@ export function getMappedMpCategories(ownCatId) {
  * @param {string} mpCatId - ID MP категорії
  */
 export async function createCategoryMapping(ownCatId, mpCatId) {
-    console.log(`🔗 Створення маппінгу категорії: ${ownCatId} <-> ${mpCatId}`);
 
     try {
         // Перевірити чи вже існує
@@ -1176,7 +1119,6 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
             m.category_id === ownCatId && m.mp_category_id === mpCatId
         );
         if (existing) {
-            console.log(`⚠️ Маппінг вже існує: ${existing.id}`);
             return existing;
         }
 
@@ -1201,7 +1143,6 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
         };
         mapperState.mapCategories.push(newMapping);
 
-        console.log(`✅ Маппінг категорії створено: ${newId}`);
         return newMapping;
     } catch (error) {
         console.error('❌ Помилка створення маппінгу категорії:', error);
@@ -1214,7 +1155,6 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteCategoryMapping(mappingId) {
-    console.log(`🗑️ Видалення маппінгу категорії: ${mappingId}`);
 
     try {
         const mapping = mapperState.mapCategories.find(m => m.id === mappingId);
@@ -1235,7 +1175,6 @@ export async function deleteCategoryMapping(mappingId) {
             mapperState.mapCategories.splice(index, 1);
         }
 
-        console.log(`✅ Маппінг категорії видалено: ${mappingId}`);
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу категорії:', error);
         throw error;
@@ -1248,7 +1187,6 @@ export async function deleteCategoryMapping(mappingId) {
  * @param {string} ownCatId - ID власної категорії
  */
 export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
-    console.log(`🔗 Batch маппінг ${mpCatIds.length} MP категорій -> ${ownCatId}`);
 
     const results = {
         success: [],
@@ -1265,7 +1203,6 @@ export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
         }
     }
 
-    console.log(`✅ Batch маппінг категорій завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
     return results;
 }
 
@@ -1279,7 +1216,6 @@ export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
  * @param {string} mpCharId - ID MP характеристики
  */
 export async function createCharacteristicMapping(ownCharId, mpCharId) {
-    console.log(`🔗 Створення маппінгу: ${ownCharId} <-> ${mpCharId}`);
 
     try {
         // Перевірити чи вже існує
@@ -1287,7 +1223,6 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
             m.characteristic_id === ownCharId && m.mp_characteristic_id === mpCharId
         );
         if (existing) {
-            console.log(`⚠️ Маппінг вже існує: ${existing.id}`);
             return existing;
         }
 
@@ -1312,7 +1247,6 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
         };
         mapperState.mapCharacteristics.push(newMapping);
 
-        console.log(`✅ Маппінг створено: ${newId}`);
         return newMapping;
     } catch (error) {
         console.error('❌ Помилка створення маппінгу:', error);
@@ -1325,7 +1259,6 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteCharacteristicMapping(mappingId) {
-    console.log(`🗑️ Видалення маппінгу: ${mappingId}`);
 
     try {
         const mapping = mapperState.mapCharacteristics.find(m => m.id === mappingId);
@@ -1346,7 +1279,6 @@ export async function deleteCharacteristicMapping(mappingId) {
             mapperState.mapCharacteristics.splice(index, 1);
         }
 
-        console.log(`✅ Маппінг видалено`);
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу:', error);
         throw error;
@@ -1442,7 +1374,6 @@ export function getCharacteristicMappingByMpId(mpCharId) {
  * @param {string} mpOptionId - ID MP опції
  */
 export async function createOptionMapping(ownOptionId, mpOptionId) {
-    console.log(`🔗 Створення маппінгу опції: ${ownOptionId} <-> ${mpOptionId}`);
 
     try {
         // Перевірити чи вже існує
@@ -1450,7 +1381,6 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
             m.option_id === ownOptionId && m.mp_option_id === mpOptionId
         );
         if (existing) {
-            console.log(`⚠️ Маппінг вже існує: ${existing.id}`);
             return existing;
         }
 
@@ -1475,7 +1405,6 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
         };
         mapperState.mapOptions.push(newMapping);
 
-        console.log(`✅ Маппінг опції створено: ${newId}`);
         return newMapping;
     } catch (error) {
         console.error('❌ Помилка створення маппінгу опції:', error);
@@ -1488,7 +1417,6 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteOptionMapping(mappingId) {
-    console.log(`🗑️ Видалення маппінгу опції: ${mappingId}`);
 
     try {
         const mapping = mapperState.mapOptions.find(m => m.id === mappingId);
@@ -1509,7 +1437,6 @@ export async function deleteOptionMapping(mappingId) {
             mapperState.mapOptions.splice(index, 1);
         }
 
-        console.log(`✅ Маппінг опції видалено`);
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу опції:', error);
         throw error;
@@ -1601,7 +1528,6 @@ export function getOptionMappingByMpId(mpOptionId) {
  * @param {string} ownCharId - ID власної характеристики
  */
 export async function batchCreateCharacteristicMapping(mpCharIds, ownCharId) {
-    console.log(`🔗 Batch маппінг ${mpCharIds.length} MP характеристик -> ${ownCharId}`);
 
     const results = {
         success: [],
@@ -1618,7 +1544,6 @@ export async function batchCreateCharacteristicMapping(mpCharIds, ownCharId) {
         }
     }
 
-    console.log(`✅ Batch маппінг завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
     return results;
 }
 
@@ -1628,7 +1553,6 @@ export async function batchCreateCharacteristicMapping(mpCharIds, ownCharId) {
  * @param {string} ownOptionId - ID власної опції
  */
 export async function batchCreateOptionMapping(mpOptionIds, ownOptionId) {
-    console.log(`🔗 Batch маппінг ${mpOptionIds.length} MP опцій -> ${ownOptionId}`);
 
     const results = {
         success: [],
@@ -1645,7 +1569,6 @@ export async function batchCreateOptionMapping(mpOptionIds, ownOptionId) {
         }
     }
 
-    console.log(`✅ Batch маппінг завершено: ${results.success.length} успішно, ${results.failed.length} помилок`);
     return results;
 }
 
@@ -1654,7 +1577,6 @@ export async function batchCreateOptionMapping(mpOptionIds, ownOptionId) {
  * @param {Array<string>} mpCharIds - Масив ID MP характеристик для автомаппінгу
  */
 export async function autoMapCharacteristics(mpCharIds) {
-    console.log(`🤖 Авто-маппінг ${mpCharIds.length} MP характеристик...`);
 
     const results = {
         mapped: [],
@@ -1699,7 +1621,6 @@ export async function autoMapCharacteristics(mpCharIds) {
         }
     }
 
-    console.log(`✅ Авто-маппінг завершено: ${results.mapped.length} замаплено, ${results.notFound.length} не знайдено, ${results.failed.length} помилок`);
     return results;
 }
 
@@ -1708,7 +1629,6 @@ export async function autoMapCharacteristics(mpCharIds) {
  * @param {Array<string>} mpOptionIds - Масив ID MP опцій для автомаппінгу
  */
 export async function autoMapOptions(mpOptionIds) {
-    console.log(`🤖 Авто-маппінг ${mpOptionIds.length} MP опцій...`);
 
     const results = {
         mapped: [],
@@ -1753,6 +1673,5 @@ export async function autoMapOptions(mpOptionIds) {
         }
     }
 
-    console.log(`✅ Авто-маппінг завершено: ${results.mapped.length} замаплено, ${results.notFound.length} не знайдено, ${results.failed.length} помилок`);
     return results;
 }

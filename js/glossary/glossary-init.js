@@ -8,7 +8,6 @@ import { initGlossaryModals } from './glossary-modals.js';
 import { initGlossarySearch } from './glossary-search.js';
 
 export async function initGlossaryPage() {
-    console.log('Ініціалізація сторінки глосарію...');
 
     // 1. Завантажуємо дані
     await fetchGlossaryData();
@@ -27,5 +26,4 @@ export async function initGlossaryPage() {
     initSearchClear('glossary-search-input');
     initGlossarySearch();
 
-    console.log('Глосарій успішно ініціалізовано.');
 }

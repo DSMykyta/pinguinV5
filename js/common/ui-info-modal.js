@@ -48,7 +48,6 @@ async function loadSectionInfo() {
         });
 
         sectionInfoCache = infoMap;
-        console.log(`✅ Завантажено інформацію для ${infoMap.size} секцій`);
 
         return infoMap;
     } catch (error) {
@@ -118,14 +117,12 @@ export function initInfoButtons() {
         const sectionKey = findSectionKey(infoButton);
 
         if (sectionKey) {
-            console.log(`ℹ️ Показуємо інформацію для секції: ${sectionKey}`);
             await showInfoModal(sectionKey);
         } else {
             console.warn('⚠️ Не вдалося визначити секцію для кнопки "Інформація"');
         }
     });
 
-    console.log('✅ Info buttons initialized');
 }
 
 /**
@@ -133,7 +130,6 @@ export function initInfoButtons() {
  */
 export function clearInfoCache() {
     sectionInfoCache = null;
-    console.log('✅ Кеш інформації очищено');
 }
 
 // Експорт для window (backward compatibility)

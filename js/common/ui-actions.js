@@ -90,7 +90,6 @@ export function registerActionHandlers(context, handlers) {
         }
     });
 
-    console.log(`📋 [Actions] Зареєстровано ${Object.keys(handlers).length} дій для "${context}"`);
 }
 
 /**

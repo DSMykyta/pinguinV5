@@ -91,7 +91,6 @@ function createArticleHtml(item) {
             <div class="section-content">
                 <div class="article-text">
                     ${(() => {
-                        console.log(`[ГЛОСАРІЙ] item.id=${item.id}, item.text="${item.text}", довжина=${item.text?.length || 0}`);
                         return item.text ? item.text : createEmptyStateHtml(item.id);
                     })()}
                 </div>

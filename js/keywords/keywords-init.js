@@ -33,7 +33,6 @@ export const keywordsState = {
 };
 
 export function initKeywords() {
-    console.log('📋 Ініціалізація Keywords...');
 
     initTooltips();
     loadAsideKeywords();
@@ -41,7 +40,6 @@ export function initKeywords() {
     checkAuthAndLoadData();
 
     document.addEventListener('auth-state-changed', (event) => {
-        console.log('🔐 Подія auth-state-changed:', event.detail);
         if (event.detail.isAuthorized) {
             checkAuthAndLoadData();
         }
@@ -49,10 +47,8 @@ export function initKeywords() {
 }
 
 async function checkAuthAndLoadData() {
-    console.log('🔐 Перевірка авторизації...');
 
     if (window.isAuthorized) {
-        console.log('✅ Користувач авторизований, завантажуємо дані...');
 
         try {
             await loadKeywords();
@@ -69,13 +65,11 @@ async function checkAuthAndLoadData() {
             initKeywordsSorting();
             initKeywordsEvents();
 
-            console.log('✅ Keywords готовий до роботи');
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
             renderErrorState();
         }
     } else {
-        console.log('⚠️ Користувач не авторизований');
         renderAuthRequiredState();
     }
 }
@@ -101,7 +95,6 @@ function initKeywordsPagination() {
 
     keywordsState.paginationAPI = paginationAPI;
 
-    console.log('✅ Пагінація ініціалізована');
 }
 
 function renderAuthRequiredState() {
@@ -149,7 +142,6 @@ async function loadAsideKeywords() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
-        console.log('✅ aside-keywords.html завантажено');
 
         const searchInput = document.getElementById('search-keywords');
         if (searchInput) {
