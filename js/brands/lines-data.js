@@ -22,6 +22,7 @@ import { callSheetsAPI } from '../utils/api-client.js';
 
 const SHEET_NAME = 'BrandLines';
 const SHEET_GID = '1150452478';
+const SPREADSHEET_ID = '1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GETTERS
@@ -58,34 +59,39 @@ export function getBrandLinesByBrandId(brandId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Завантажити лінійки з Google Sheets
+ * Завантажити лінійки з Google Sheets через CSV export (без авторизації)
  */
 export async function loadBrandLines() {
     console.log('📂 Завантаження лінійок брендів...');
 
     try {
-        const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:D`,
-            spreadsheetType: 'main'
-        });
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        const response = await fetch(csvUrl);
 
-        const rows = result.values || [];
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        if (rows.length <= 1) {
-            console.log('⚠️ Таблиця лінійок порожня або містить тільки заголовки');
+        const csvText = await response.text();
+
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library is not loaded');
+        }
+
+        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = parsedData.data;
+
+        if (!rows || rows.length === 0) {
+            console.warn('⚠️ Таблиця лінійок порожня');
             brandsState.brandLines = [];
             return [];
         }
 
-        // Пропустити заголовок, парсити дані
-        const headers = rows[0];
-        const dataRows = rows.slice(1);
-
-        brandsState.brandLines = dataRows.map((row, index) => ({
-            line_id: row[0] || '',
-            brand_id: row[1] || '',
-            name_uk: row[2] || '',
-            line_logo_url: row[3] || '',
+        brandsState.brandLines = rows.map((row, index) => ({
+            line_id: row.line_id || '',
+            brand_id: row.brand_id || '',
+            name_uk: row.name_uk || '',
+            line_logo_url: row.brand_logo_url || row.line_logo_url || '',
             _rowIndex: index + 2
         }));
 
