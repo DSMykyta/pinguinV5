@@ -11,7 +11,7 @@
 import { mapperState, registerHook, markPluginLoaded } from './mapper-state.js';
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
-    getCharacteristics, getMpCategories, getMarketplaces,
+    getCharacteristics, updateCharacteristic, getMpCategories, getMarketplaces,
     batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
@@ -258,19 +258,24 @@ function populateRelatedCharacteristics(categoryId) {
     const searchInput = document.getElementById('category-chars-search');
     if (!container) return;
 
-    const characteristics = getCharacteristics();
-    const allData = characteristics.filter(char => {
-        if (!char.category_ids) return false;
-        const ids = Array.isArray(char.category_ids)
-            ? char.category_ids
-            : String(char.category_ids).split(',').map(id => id.trim());
-        return ids.includes(categoryId);
-    });
+    // Отримуємо дані
+    const loadData = () => {
+        const characteristics = getCharacteristics();
+        return characteristics.filter(char => {
+            if (!char.category_ids) return false;
+            const ids = Array.isArray(char.category_ids)
+                ? char.category_ids
+                : String(char.category_ids).split(',').map(id => id.trim());
+            return ids.includes(categoryId);
+        });
+    };
+
+    let allData = loadData();
     let filteredData = [...allData];
 
     // Функція оновлення статистики
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    const updateStats = (count) => {
+        if (statsEl) statsEl.textContent = `Прив'язано ${count}`;
     };
 
     // Конфігурація колонок
@@ -300,13 +305,16 @@ function populateRelatedCharacteristics(categoryId) {
                 <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
+                <button class="btn-icon btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
+                    <span class="material-symbols-outlined">link_off</span>
+                </button>
             `,
             emptyState: { message: 'Характеристики відсутні' },
             withContainer: false
         });
 
         // Оновлюємо статистику
-        updateStats(data.length, allData.length);
+        updateStats(allData.length);
 
         // Обробники для кнопок редагування
         container.querySelectorAll('.btn-edit-char').forEach(btn => {
@@ -317,6 +325,60 @@ function populateRelatedCharacteristics(categoryId) {
                 await showEditCharacteristicModal(charId);
             });
         });
+
+        // Обробники для кнопок відв'язування
+        container.querySelectorAll('.btn-unlink-char').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const charId = btn.dataset.id;
+                const charName = btn.dataset.name;
+                await handleUnlinkCharacteristic(charId, charName, categoryId);
+            });
+        });
+    };
+
+    // Обробник відв'язування
+    const handleUnlinkCharacteristic = async (charId, charName, catId) => {
+        const confirmed = await showConfirmModal({
+            title: 'Відв\'язати характеристику?',
+            message: `Ви впевнені, що хочете відв'язати характеристику "${charName}" від цієї категорії?`,
+            confirmText: 'Відв\'язати',
+            cancelText: 'Скасувати',
+            confirmClass: 'btn-warning',
+            avatarState: 'confirmClose',
+            avatarSize: 'small'
+        });
+
+        if (confirmed) {
+            try {
+                // Отримуємо поточну характеристику
+                const characteristics = getCharacteristics();
+                const char = characteristics.find(c => c.id === charId);
+                if (!char) return;
+
+                // Видаляємо categoryId зі списку
+                const currentIds = char.category_ids
+                    ? String(char.category_ids).split(',').map(id => id.trim()).filter(id => id)
+                    : [];
+                const newIds = currentIds.filter(id => id !== catId);
+
+                // Оновлюємо характеристику
+                await updateCharacteristic(charId, {
+                    ...char,
+                    category_ids: newIds.join(',')
+                });
+
+                showToast('Характеристику відв\'язано', 'success');
+
+                // Перезавантажуємо дані
+                allData = loadData();
+                filteredData = [...allData];
+                renderTable(filteredData);
+            } catch (error) {
+                console.error('❌ Помилка відв\'язування:', error);
+                showToast('Помилка відв\'язування характеристики', 'error');
+            }
+        }
     };
 
     // Функція пошуку
