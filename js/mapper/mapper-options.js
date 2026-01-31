@@ -300,15 +300,25 @@ function populateRelatedDependentCharacteristics(optionId) {
     if (countEl) countEl.textContent = dependentChars.length;
 
     container.innerHTML = dependentChars.map(char => `
-        <div class="modal-related-item" data-id="${char.id}">
-            <span class="modal-related-item-name">${escapeHtml(char.name_ua || char.id)}</span>
-            <span class="modal-related-item-id">${char.id}</span>
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const charId = item.dataset.id;
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.id;
             closeModal();
             const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
             await showEditCharacteristicModal(charId);
