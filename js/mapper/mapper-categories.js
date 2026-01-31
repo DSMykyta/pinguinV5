@@ -401,7 +401,7 @@ function populateRelatedCharacteristics(categoryId) {
             sortable: false,
             className: 'cell-actions-end',
             render: (value, row) => `
-                <button class="btn-icon btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
+                <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
                     <span class="material-symbols-outlined">link_off</span>
                 </button>
             `
@@ -414,7 +414,7 @@ function populateRelatedCharacteristics(categoryId) {
             data,
             columns,
             rowActionsCustom: (row) => `
-                <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
+                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             `,
@@ -426,20 +426,20 @@ function populateRelatedCharacteristics(categoryId) {
         updateStats(allData.length);
 
         // Обробники для кнопок редагування
-        container.querySelectorAll('.btn-edit-char').forEach(btn => {
+        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const charId = btn.dataset.id;
+                const charId = btn.dataset.rowId;
                 const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
                 await showEditCharacteristicModal(charId);
             });
         });
 
         // Обробники для кнопок відв'язування
-        container.querySelectorAll('.btn-unlink-char').forEach(btn => {
+        container.querySelectorAll('[data-action="unlink"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const charId = btn.dataset.id;
+                const charId = btn.dataset.rowId;
                 const charName = btn.dataset.name;
                 await handleUnlinkCharacteristic(charId, charName, categoryId);
             });
@@ -807,7 +807,7 @@ function renderMappedMpCategoriesSections(ownCatId) {
         content.appendChild(section);
     });
 
-    content.querySelectorAll('.btn-unmap-cat').forEach(btn => {
+    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const mappingId = btn.dataset.mappingId;
@@ -834,7 +834,7 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
