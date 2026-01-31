@@ -121,7 +121,7 @@
 .custom-select-option {
     padding: 10px 16px;
     cursor: pointer;
-    transition: background-color 150ms ease-in-out;
+    transition: background-color 150ms ease-in-out, letter-spacing 150ms ease-in-out, font-style 150ms ease-in-out;
     font-size: 14px;
     color: var(--color-on-surface);
     user-select: none;
@@ -129,7 +129,9 @@
 
 .custom-select-option:hover,
 .custom-select-option.is-focused {
-    background-color: var(--color-surface-c-high);
+    background-color: var(--color-surface-c);
+    letter-spacing: 0.5px;
+    font-style: italic;
 }
 
 .custom-select-option.is-selected {
