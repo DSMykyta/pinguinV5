@@ -29,12 +29,9 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers
 } from './mapper-utils.js';
-import { createPseudoTable } from '../common/ui-table.js';
+import { renderPseudoTable } from '../common/ui-table.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
-
-// Таблиця для related characteristics
-let relatedCharsTableAPI = null;
 
 /**
  * Ініціалізація плагіна
@@ -270,8 +267,9 @@ function populateRelatedCharacteristics(categoryId) {
 
     if (countEl) countEl.textContent = relatedChars.length || '';
 
-    // Створюємо таблицю з пошуком та сортуванням
-    relatedCharsTableAPI = createPseudoTable(container, {
+    // Рендеримо таблицю як на основних табах
+    renderPseudoTable(container, {
+        data: relatedChars,
         columns: [
             {
                 id: 'id',
@@ -289,28 +287,23 @@ function populateRelatedCharacteristics(categoryId) {
             }
         ],
         rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit" data-id="${row.id}" title="Редагувати">
+            <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
         `,
-        getRowId: (row) => row.id,
-        emptyState: {
-            message: 'Характеристики відсутні'
-        },
-        onAfterRender: (cont) => {
-            cont.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const charId = btn.dataset.id;
-                    // Не закриваємо батьківський модал - відкриваємо поверх
-                    const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-                    await showEditCharacteristicModal(charId);
-                });
-            });
-        }
+        emptyState: { message: 'Характеристики відсутні' },
+        withContainer: false
     });
 
-    relatedCharsTableAPI.render(relatedChars);
+    // Обробники для кнопок редагування
+    container.querySelectorAll('.btn-edit-char').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.id;
+            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+            await showEditCharacteristicModal(charId);
+        });
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -607,7 +600,7 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                    <button class="btn-icon btn-unmap btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>

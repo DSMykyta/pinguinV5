@@ -23,16 +23,13 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createPseudoTable } from '../common/ui-table.js';
+import { renderPseudoTable } from '../common/ui-table.js';
 import {
     initSectionNavigation,
     createModalOverlay,
     closeModalOverlay,
     setupModalCloseHandlers
 } from './mapper-utils.js';
-
-// Таблиця для related options
-let relatedOptionsTableAPI = null;
 
 export const PLUGIN_NAME = 'mapper-characteristics';
 
@@ -447,21 +444,11 @@ function populateRelatedOptions(characteristicId) {
     const options = getOptions();
     const relatedOptions = options.filter(opt => opt.characteristic_id === characteristicId);
 
-    if (relatedOptions.length === 0) {
-        relatedOptionsTableAPI = null;
-        container.innerHTML = `
-            <div class="empty-state-container">
-                <div class="empty-state-message">Опції відсутні</div>
-            </div>
-        `;
-        if (countEl) countEl.textContent = '';
-        return;
-    }
+    if (countEl) countEl.textContent = relatedOptions.length || '';
 
-    if (countEl) countEl.textContent = relatedOptions.length;
-
-    // Створюємо таблицю з createPseudoTable
-    relatedOptionsTableAPI = createPseudoTable(container, {
+    // Рендеримо таблицю як на основних табах
+    renderPseudoTable(container, {
+        data: relatedOptions,
         columns: [
             {
                 id: 'id',
@@ -479,26 +466,23 @@ function populateRelatedOptions(characteristicId) {
             }
         ],
         rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit" data-id="${row.id}" title="Редагувати">
+            <button class="btn-icon btn-edit-option" data-id="${row.id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
         `,
-        getRowId: (row) => row.id,
         emptyState: { message: 'Опції відсутні' },
-        onAfterRender: (cont) => {
-            // Обробники для кнопок редагування
-            cont.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const optId = btn.dataset.id;
-                    const { showEditOptionModal } = await import('./mapper-options.js');
-                    await showEditOptionModal(optId);
-                });
-            });
-        }
+        withContainer: false
     });
 
-    relatedOptionsTableAPI.render(relatedOptions);
+    // Обробники для кнопок редагування
+    container.querySelectorAll('.btn-edit-option').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const optId = btn.dataset.id;
+            const { showEditOptionModal } = await import('./mapper-options.js');
+            await showEditOptionModal(optId);
+        });
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -579,7 +563,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-char" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                    <button class="btn-icon btn-unmap btn-unmap-char" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
