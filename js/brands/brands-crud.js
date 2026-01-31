@@ -18,7 +18,7 @@
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
-import { getBrandLinesByBrandId } from './lines-data.js';
+import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
@@ -257,6 +257,9 @@ function populateBrandLines(brandId) {
                 <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
+                <button class="btn-icon" data-row-id="${row.line_id}" data-action="unlink" data-tooltip="Відв'язати від бренду">
+                    <span class="material-symbols-outlined">link_off</span>
+                </button>
             `,
             emptyState: { message: 'Лінійки відсутні' },
             withContainer: false
@@ -273,6 +276,38 @@ function populateBrandLines(brandId) {
                 if (lineId) {
                     const { showEditLineModal } = await import('./lines-crud.js');
                     await showEditLineModal(lineId);
+                }
+            });
+        });
+
+        // Обробники для відв'язування
+        container.querySelectorAll('[data-action="unlink"]').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const lineId = btn.dataset.rowId;
+                if (!lineId) return;
+
+                const line = data.find(l => l.line_id === lineId);
+                const lineName = line?.name_uk || lineId;
+
+                const confirmed = await showConfirmModal({
+                    title: 'Відв\'язати лінійку?',
+                    message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
+                    confirmText: 'Відв\'язати',
+                    cancelText: 'Скасувати',
+                    confirmClass: 'btn-warning'
+                });
+
+                if (confirmed) {
+                    try {
+                        await updateBrandLine(lineId, { brand_id: '' });
+                        showToast('Лінійку відв\'язано від бренду', 'success');
+                        // Оновити таблицю
+                        populateBrandLines(brandId);
+                    } catch (error) {
+                        console.error('❌ Помилка відв\'язування лінійки:', error);
+                        showToast('Помилка відв\'язування лінійки', 'error');
+                    }
                 }
             });
         });
