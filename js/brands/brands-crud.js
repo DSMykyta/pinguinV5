@@ -229,22 +229,17 @@ function populateBrandLines(brandId) {
     if (emptyState) emptyState.classList.add('u-hidden');
 
     container.innerHTML = lines.map(line => `
-        <div class="brand-line-item" data-line-id="${escapeHtml(line.line_id)}">
-            <div class="brand-line-info">
-                <span class="material-symbols-outlined">category</span>
-                <span class="brand-line-name">${escapeHtml(line.name_uk)}</span>
-            </div>
-            <button class="btn-icon btn-edit-brand-line" data-line-id="${escapeHtml(line.line_id)}" title="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
+        <div class="modal-related-item" data-line-id="${escapeHtml(line.line_id)}">
+            <span class="material-symbols-outlined">category</span>
+            <span class="modal-related-item-name">${escapeHtml(line.name_uk)}</span>
+            <span class="modal-related-item-id">${escapeHtml(line.line_id)}</span>
         </div>
     `).join('');
 
-    // Додати обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-brand-line').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = btn.dataset.lineId;
+    // Додати обробники для кліку на елемент
+    container.querySelectorAll('.modal-related-item').forEach(item => {
+        item.addEventListener('click', async (e) => {
+            const lineId = item.dataset.lineId;
             if (lineId) {
                 const { showEditLineModal } = await import('./lines-crud.js');
                 await showEditLineModal(lineId);
