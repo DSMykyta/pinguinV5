@@ -149,6 +149,8 @@
     font-weight: 500;
     gap: 4px;
     max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .custom-select-chip__label {
