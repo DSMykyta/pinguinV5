@@ -29,7 +29,7 @@ export async function showAddKeywordModal() {
     const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
 
     const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Додати ключове слово';
+    if (title) title.textContent = 'Додати дані';
 
     const deleteBtn = document.getElementById('delete-keyword');
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
