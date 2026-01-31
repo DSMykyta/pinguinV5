@@ -28,7 +28,7 @@ export async function showAddKeywordModal() {
 
     const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('keyword-modal-title');
     if (title) title.textContent = 'Додати дані';
 
     const deleteBtn = document.getElementById('delete-keyword');
@@ -72,7 +72,7 @@ export async function showEditKeywordModal(localId) {
 
     const modalEl = document.querySelector('[data-modal-id="keywords-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('keyword-modal-title');
     if (title) title.textContent = `Редагувати ${keyword.name_uk}`;
 
     const deleteBtn = document.getElementById('delete-keyword');

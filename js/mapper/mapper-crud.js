@@ -43,7 +43,7 @@ export async function showAddCategoryModal() {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('category-modal-title');
     if (title) title.textContent = 'Додати категорію';
 
     const deleteBtn = document.getElementById('delete-mapper-category');
@@ -93,7 +93,7 @@ export async function showEditCategoryModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('category-modal-title');
     if (title) title.textContent = `Категорія ${category.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-category');
@@ -342,7 +342,7 @@ export async function showAddCharacteristicModal() {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('char-modal-title');
     if (title) title.textContent = 'Додати характеристику';
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
@@ -414,7 +414,7 @@ export async function showEditCharacteristicModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('char-modal-title');
     if (title) title.textContent = `Характеристика ${characteristic.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
@@ -637,7 +637,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>${escapeHtml(name)}</h2>
-                    <span class="badge badge-neutral">${items.length}</span>
+                    <span class="word-chip">${items.length}</span>
                 </div>
                 <h3>Прив'язані характеристики маркетплейсу</h3>
             </div>
@@ -862,7 +862,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>${escapeHtml(name)}</h2>
-                    <span class="badge badge-neutral">${items.length}</span>
+                    <span class="word-chip">${items.length}</span>
                 </div>
                 <h3>Прив'язані опції маркетплейсу</h3>
             </div>
@@ -1220,7 +1220,7 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('option-modal-title');
     if (title) title.textContent = 'Додати опцію';
 
     const deleteBtn = document.getElementById('delete-mapper-option');
@@ -1280,7 +1280,7 @@ export async function showEditOptionModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('option-modal-title');
     if (title) title.textContent = `Опція ${option.value_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-option');

@@ -54,7 +54,7 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('option-modal-title');
     if (title) title.textContent = 'Додати опцію';
 
     const deleteBtn = document.getElementById('delete-mapper-option');
@@ -107,7 +107,7 @@ export async function showEditOptionModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('option-modal-title');
     if (title) title.textContent = `Опція ${option.value_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-option');
@@ -422,7 +422,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>${escapeHtml(name)}</h2>
-                    <span class="badge badge-neutral">${items.length}</span>
+                    <span class="word-chip">${items.length}</span>
                 </div>
                 <h3>Прив'язані опції маркетплейсу</h3>
             </div>
