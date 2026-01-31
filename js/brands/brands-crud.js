@@ -254,7 +254,7 @@ function populateBrandLines(brandId) {
             data,
             columns,
             rowActionsCustom: (row) => `
-                <button class="btn-icon btn-edit-line" data-line-id="${row.line_id}" data-tooltip="Редагувати">
+                <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             `,
@@ -266,10 +266,10 @@ function populateBrandLines(brandId) {
         updateStats(data.length, allData.length);
 
         // Обробники для редагування
-        container.querySelectorAll('.btn-edit-line').forEach(btn => {
+        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const lineId = btn.dataset.lineId;
+                const lineId = btn.dataset.rowId;
                 if (lineId) {
                     const { showEditLineModal } = await import('./lines-crud.js');
                     await showEditLineModal(lineId);

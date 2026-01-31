@@ -332,7 +332,7 @@ function populateRelatedDependentCharacteristics(optionId) {
             data,
             columns,
             rowActionsCustom: (row) => `
-                <button class="btn-icon btn-edit-dep-char" data-id="${row.id}" data-tooltip="Редагувати">
+                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
             `,
@@ -344,10 +344,10 @@ function populateRelatedDependentCharacteristics(optionId) {
         updateStats(data.length, allData.length);
 
         // Обробники для кнопок редагування
-        container.querySelectorAll('.btn-edit-dep-char').forEach(btn => {
+        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const charId = btn.dataset.id;
+                const charId = btn.dataset.rowId;
                 const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
                 await showEditCharacteristicModal(charId);
             });
@@ -442,7 +442,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
         content.appendChild(section);
     });
 
-    content.querySelectorAll('.btn-unmap-opt').forEach(btn => {
+    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const mappingId = btn.dataset.mappingId;
@@ -469,7 +469,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
