@@ -36,6 +36,10 @@ export function populateTableColumns() {
         checkboxPrefix: 'keywords-col',
         searchColumnsContainerId: 'search-columns-list-keywords',
         onVisibilityChange: async (selectedIds) => {
+            // Оновити visible columns в tableAPI якщо він існує
+            if (keywordsState.tableAPI) {
+                keywordsState.tableAPI.setVisibleColumns(selectedIds);
+            }
             // Перемальовати таблицю
             renderKeywordsTable();
         }

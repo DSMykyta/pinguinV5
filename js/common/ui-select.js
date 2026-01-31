@@ -361,10 +361,10 @@ class CustomSelect {
 
     _bindEvents() {
         this.trigger.addEventListener('click', () => {
-            this.wrapper.classList.toggle('is-open');
-            // Автофокус на пошук при відкритті
-            if (this.wrapper.classList.contains('is-open') && this.searchInput) {
-                setTimeout(() => this.searchInput.focus(), 0);
+            if (this.wrapper.classList.contains('is-open')) {
+                this._closePanel();
+            } else {
+                this._openPanel();
             }
         });
 
@@ -390,7 +390,7 @@ class CustomSelect {
                     option.selected = !option.selected;
                 } else {
                     this.originalSelect.value = option.value;
-                    this.wrapper.classList.remove('is-open');
+                    this._closePanel();
                 }
                 this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
                 this._updateSelection();
@@ -398,7 +398,7 @@ class CustomSelect {
         });
 
         document.addEventListener('click', (e) => {
-            if (!this.wrapper.contains(e.target)) this.wrapper.classList.remove('is-open');
+            if (!this.wrapper.contains(e.target)) this._closePanel();
         });
 
         if (this.searchInput) {
@@ -418,7 +418,7 @@ class CustomSelect {
         this.wrapper.addEventListener('mouseleave', () => {
             if (this.wrapper.classList.contains('is-open')) {
                 closeTimeout = setTimeout(() => {
-                    this.wrapper.classList.remove('is-open');
+                    this._closePanel();
                 }, 300);
             }
         });
@@ -429,6 +429,113 @@ class CustomSelect {
                 closeTimeout = null;
             }
         });
+    }
+
+    /**
+     * Відкрити панель з position: fixed
+     * Вирішує проблему обрізання overflow: hidden на батьківських контейнерах
+     */
+    _openPanel() {
+        if (this.wrapper.classList.contains('is-open')) return;
+
+        const triggerRect = this.trigger.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        // Спочатку показуємо панель для отримання її розмірів
+        this.panel.style.visibility = 'hidden';
+        this.panel.style.display = 'flex';
+        const panelHeight = this.panel.scrollHeight || 250;
+        const panelWidth = triggerRect.width;
+
+        // Визначаємо чи відкривати вгору чи вниз
+        const spaceBelow = viewportHeight - triggerRect.bottom - 8;
+        const spaceAbove = triggerRect.top - 8;
+        const openUpward = spaceBelow < panelHeight && spaceAbove > spaceBelow;
+
+        // Встановлюємо fixed позиціонування
+        this.panel.style.position = 'fixed';
+        this.panel.style.left = `${triggerRect.left}px`;
+        this.panel.style.width = `${panelWidth}px`;
+        this.panel.style.maxHeight = `${Math.min(250, openUpward ? spaceAbove : spaceBelow)}px`;
+
+        if (openUpward) {
+            this.panel.style.top = 'auto';
+            this.panel.style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
+            this.wrapper.classList.add('is-open-upward');
+        } else {
+            this.panel.style.top = `${triggerRect.bottom + 4}px`;
+            this.panel.style.bottom = 'auto';
+            this.wrapper.classList.remove('is-open-upward');
+        }
+
+        // Перевіряємо чи панель не виходить за праву межу
+        if (triggerRect.left + panelWidth > viewportWidth) {
+            this.panel.style.left = `${viewportWidth - panelWidth - 8}px`;
+        }
+
+        this.panel.style.visibility = '';
+        this.panel.style.display = '';
+        this.wrapper.classList.add('is-open');
+
+        // Автофокус на пошук при відкритті
+        if (this.searchInput) {
+            setTimeout(() => this.searchInput.focus(), 0);
+        }
+
+        // Закриваємо при скролі батьківських контейнерів
+        this._scrollParents = this._getScrollParents(this.wrapper);
+        this._scrollHandler = () => this._closePanel();
+        this._scrollParents.forEach(parent => {
+            parent.addEventListener('scroll', this._scrollHandler, { passive: true });
+        });
+        window.addEventListener('scroll', this._scrollHandler, { passive: true });
+        window.addEventListener('resize', this._scrollHandler, { passive: true });
+    }
+
+    /**
+     * Закрити панель і скинути fixed стилі
+     */
+    _closePanel() {
+        if (!this.wrapper.classList.contains('is-open')) return;
+
+        this.wrapper.classList.remove('is-open');
+        this.wrapper.classList.remove('is-open-upward');
+
+        // Скидаємо fixed стилі
+        this.panel.style.position = '';
+        this.panel.style.top = '';
+        this.panel.style.bottom = '';
+        this.panel.style.left = '';
+        this.panel.style.width = '';
+        this.panel.style.maxHeight = '';
+
+        // Видаляємо слухачі скролу
+        if (this._scrollParents) {
+            this._scrollParents.forEach(parent => {
+                parent.removeEventListener('scroll', this._scrollHandler);
+            });
+            window.removeEventListener('scroll', this._scrollHandler);
+            window.removeEventListener('resize', this._scrollHandler);
+            this._scrollParents = null;
+            this._scrollHandler = null;
+        }
+    }
+
+    /**
+     * Отримати всі батьківські елементи зі скролом
+     */
+    _getScrollParents(element) {
+        const parents = [];
+        let parent = element.parentElement;
+        while (parent && parent !== document.body) {
+            const style = getComputedStyle(parent);
+            if (/(auto|scroll)/.test(style.overflow + style.overflowY + style.overflowX)) {
+                parents.push(parent);
+            }
+            parent = parent.parentElement;
+        }
+        return parents;
     }
 
     _createArrowSVG() {

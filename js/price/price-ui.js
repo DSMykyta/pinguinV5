@@ -111,6 +111,10 @@ export function populateTableColumns() {
         checkboxPrefix: 'price-col',
         searchColumnsContainerId: 'search-columns-list-price',
         onVisibilityChange: async (selectedIds) => {
+            // Оновити visible columns в tableAPI якщо він існує
+            if (priceState.tableAPI) {
+                priceState.tableAPI.setVisibleColumns(selectedIds);
+            }
             // Повний перерендер бо змінюється структура таблиці
             const { renderPriceTable } = await import('./price-table.js');
             await renderPriceTable();

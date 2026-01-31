@@ -41,6 +41,10 @@ export function populateTableColumns() {
         checkboxPrefix: 'brands-col',
         searchColumnsContainerId: 'search-columns-list-brands',
         onVisibilityChange: async (selectedIds) => {
+            // Оновити visible columns в tableAPI якщо він існує
+            if (brandsState.tableAPI) {
+                brandsState.tableAPI.setVisibleColumns(selectedIds);
+            }
             // Перемальовати таблицю
             runHook('onRender');
         }

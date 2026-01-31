@@ -63,14 +63,13 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 9999; /* Високий z-index для fixed позиціонування */
     background-color: var(--color-surface-c-high);
     border-radius: var(--radius-m, 8px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     opacity: 0;
-    transform: translateY(-10px);
     pointer-events: none;
-    transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+    transition: opacity 150ms ease-in-out;
     max-height: 250px;
     display: flex;
     flex-direction: column;
@@ -79,8 +78,13 @@
 
 .custom-select-wrapper.is-open .custom-select-panel {
     opacity: 1;
-    transform: translateY(0);
     pointer-events: auto;
+}
+
+/* Відкриття вгору */
+.custom-select-wrapper.is-open-upward .custom-select-panel {
+    border-radius: var(--radius-m, 8px);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Search Input */
