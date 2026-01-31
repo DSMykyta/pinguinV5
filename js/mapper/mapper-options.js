@@ -275,32 +275,38 @@ function populateCharacteristicSelect(preselectedId = null) {
 
 function populateRelatedDependentCharacteristics(optionId) {
     const container = document.getElementById('option-related-chars');
-    const countEl = document.getElementById('option-chars-count');
+    const statsEl = document.getElementById('option-chars-stats');
+    const searchInput = document.getElementById('option-chars-search');
     const navItem = document.getElementById('nav-option-dependent');
     const section = document.getElementById('section-option-dependent');
 
     if (!container) return;
 
     const characteristics = getCharacteristics();
-    let charsData = characteristics.filter(char => {
+    const allData = characteristics.filter(char => {
         if (!char.parent_option_id) return false;
         const ids = Array.isArray(char.parent_option_id)
             ? char.parent_option_id
             : String(char.parent_option_id).split(',').map(id => id.trim());
         return ids.includes(optionId);
     });
+    let filteredData = [...allData];
+
+    // Функція оновлення статистики
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
 
     // Приховуємо/показуємо секцію залежно від наявності залежних характеристик
-    if (charsData.length === 0) {
+    if (allData.length === 0) {
         if (navItem) navItem.classList.add('u-hidden');
         if (section) section.classList.add('u-hidden');
-        if (countEl) countEl.textContent = '';
+        if (statsEl) statsEl.textContent = 'Показано 0 з 0';
         return;
     }
 
     if (navItem) navItem.classList.remove('u-hidden');
     if (section) section.classList.remove('u-hidden');
-    if (countEl) countEl.textContent = charsData.length;
 
     // Конфігурація колонок
     const columns = [
@@ -334,6 +340,9 @@ function populateRelatedDependentCharacteristics(optionId) {
             withContainer: false
         });
 
+        // Оновлюємо статистику
+        updateStats(data.length, allData.length);
+
         // Обробники для кнопок редагування
         container.querySelectorAll('.btn-edit-dep-char').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -345,15 +354,35 @@ function populateRelatedDependentCharacteristics(optionId) {
         });
     };
 
+    // Функція пошуку
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(row =>
+                (row.id && row.id.toLowerCase().includes(q)) ||
+                (row.name_ua && row.name_ua.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    // Підключаємо пошук
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
     // Перший рендер
-    renderTable(charsData);
+    renderTable(filteredData);
 
     // Ініціалізація сортування
     initTableSorting(container, {
-        dataSource: () => charsData,
+        dataSource: () => filteredData,
         onSort: (sortedData) => {
-            charsData = sortedData;
-            renderTable(charsData);
+            filteredData = sortedData;
+            renderTable(filteredData);
         },
         columnTypes: {
             id: 'id-text',

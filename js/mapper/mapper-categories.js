@@ -254,19 +254,24 @@ function populateParentCategorySelect(excludeId = null) {
 
 function populateRelatedCharacteristics(categoryId) {
     const container = document.getElementById('category-related-chars');
-    const countEl = document.getElementById('category-chars-count');
+    const statsEl = document.getElementById('category-chars-stats');
+    const searchInput = document.getElementById('category-chars-search');
     if (!container) return;
 
     const characteristics = getCharacteristics();
-    let charsData = characteristics.filter(char => {
+    const allData = characteristics.filter(char => {
         if (!char.category_ids) return false;
         const ids = Array.isArray(char.category_ids)
             ? char.category_ids
             : String(char.category_ids).split(',').map(id => id.trim());
         return ids.includes(categoryId);
     });
+    let filteredData = [...allData];
 
-    if (countEl) countEl.textContent = charsData.length || '';
+    // Функція оновлення статистики
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
 
     // Конфігурація колонок
     const columns = [
@@ -300,6 +305,9 @@ function populateRelatedCharacteristics(categoryId) {
             withContainer: false
         });
 
+        // Оновлюємо статистику
+        updateStats(data.length, allData.length);
+
         // Обробники для кнопок редагування
         container.querySelectorAll('.btn-edit-char').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -311,15 +319,35 @@ function populateRelatedCharacteristics(categoryId) {
         });
     };
 
+    // Функція пошуку
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(row =>
+                (row.id && row.id.toLowerCase().includes(q)) ||
+                (row.name_ua && row.name_ua.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    // Підключаємо пошук
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
     // Перший рендер
-    renderTable(charsData);
+    renderTable(filteredData);
 
     // Ініціалізація сортування
     initTableSorting(container, {
-        dataSource: () => charsData,
+        dataSource: () => filteredData,
         onSort: (sortedData) => {
-            charsData = sortedData;
-            renderTable(charsData);
+            filteredData = sortedData;
+            renderTable(filteredData);
         },
         columnTypes: {
             id: 'id-text',
