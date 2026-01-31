@@ -472,9 +472,7 @@ export async function showEditCharacteristicModal(id) {
     const addOptionBtn = document.getElementById('btn-add-char-option');
     if (addOptionBtn) {
         addOptionBtn.onclick = async () => {
-            // Закрити поточну модалку
-            closeModal();
-            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики
+            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики (поверх поточної)
             await showAddOptionModal(id);
         };
     }

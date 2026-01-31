@@ -148,7 +148,6 @@ export async function showEditCharacteristicModal(id) {
     const addOptionBtn = document.getElementById('btn-add-char-option');
     if (addOptionBtn) {
         addOptionBtn.onclick = async () => {
-            closeModal();
             const { showAddOptionModal } = await import('./mapper-options.js');
             await showAddOptionModal(id);
         };
