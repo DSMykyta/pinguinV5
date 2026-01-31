@@ -129,7 +129,7 @@
 
 .custom-select-option:hover,
 .custom-select-option.is-focused {
-    background-color: var(--color-surface-c-highest);
+    background-color: var(--color-surface-c-high);
 }
 
 .custom-select-option.is-selected {
