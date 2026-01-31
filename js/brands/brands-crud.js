@@ -24,6 +24,7 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderPseudoTable } from '../common/ui-table.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -220,52 +221,74 @@ function populateBrandLines(brandId) {
     const countEl = document.getElementById('brand-lines-count');
     if (!container) return;
 
-    const lines = getBrandLinesByBrandId(brandId);
+    // Дані для таблиці (мутуються при сортуванні)
+    let linesData = getBrandLinesByBrandId(brandId) || [];
 
     // Оновлюємо counter
-    if (countEl) countEl.textContent = lines?.length || '';
+    if (countEl) countEl.textContent = linesData.length || '';
 
-    // Приховуємо empty state, таблиця сама покаже пустий стан
+    // Приховуємо empty state
     if (emptyState) emptyState.classList.add('u-hidden');
 
-    // Рендеримо таблицю як на основних табах
-    renderPseudoTable(container, {
-        data: lines || [],
-        columns: [
-            {
-                id: 'line_id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'name_uk',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-name',
-                render: (value, row) => escapeHtml(value || row.line_id || '-')
-            }
-        ],
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-line" data-line-id="${row.line_id}" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
-        emptyState: { message: 'Лінійки відсутні' },
-        withContainer: false
-    });
+    // Конфігурація колонок
+    const columns = [
+        {
+            id: 'line_id',
+            label: 'ID',
+            sortable: true,
+            className: 'cell-id',
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'name_uk',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-name',
+            render: (value, row) => escapeHtml(value || row.line_id || '-')
+        }
+    ];
 
-    // Обробники для редагування
-    container.querySelectorAll('.btn-edit-line').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = btn.dataset.lineId;
-            if (lineId) {
-                const { showEditLineModal } = await import('./lines-crud.js');
-                await showEditLineModal(lineId);
-            }
+    // Функція рендерингу таблиці
+    const renderTable = (data) => {
+        renderPseudoTable(container, {
+            data,
+            columns,
+            rowActionsCustom: (row) => `
+                <button class="btn-icon btn-edit-line" data-line-id="${row.line_id}" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `,
+            emptyState: { message: 'Лінійки відсутні' },
+            withContainer: false
         });
+
+        // Обробники для редагування
+        container.querySelectorAll('.btn-edit-line').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const lineId = btn.dataset.lineId;
+                if (lineId) {
+                    const { showEditLineModal } = await import('./lines-crud.js');
+                    await showEditLineModal(lineId);
+                }
+            });
+        });
+    };
+
+    // Перший рендер
+    renderTable(linesData);
+
+    // Ініціалізація сортування
+    initTableSorting(container, {
+        dataSource: () => linesData,
+        onSort: (sortedData) => {
+            linesData = sortedData;
+            renderTable(linesData);
+        },
+        columnTypes: {
+            line_id: 'id-text',
+            name_uk: 'string'
+        }
     });
 }
 

@@ -24,6 +24,7 @@ import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -442,46 +443,67 @@ function populateRelatedOptions(characteristicId) {
     if (!container) return;
 
     const options = getOptions();
-    const relatedOptions = options.filter(opt => opt.characteristic_id === characteristicId);
+    let optionsData = options.filter(opt => opt.characteristic_id === characteristicId);
 
-    if (countEl) countEl.textContent = relatedOptions.length || '';
+    if (countEl) countEl.textContent = optionsData.length || '';
 
-    // Рендеримо таблицю як на основних табах
-    renderPseudoTable(container, {
-        data: relatedOptions,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'value_ua',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-name',
-                render: (value, row) => escapeHtml(value || row.id || '-')
-            }
-        ],
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-option" data-id="${row.id}" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
-        emptyState: { message: 'Опції відсутні' },
-        withContainer: false
-    });
+    // Конфігурація колонок
+    const columns = [
+        {
+            id: 'id',
+            label: 'ID',
+            sortable: true,
+            className: 'cell-id',
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'value_ua',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-name',
+            render: (value, row) => escapeHtml(value || row.id || '-')
+        }
+    ];
 
-    // Обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-option').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const optId = btn.dataset.id;
-            const { showEditOptionModal } = await import('./mapper-options.js');
-            await showEditOptionModal(optId);
+    // Функція рендерингу таблиці
+    const renderTable = (data) => {
+        renderPseudoTable(container, {
+            data,
+            columns,
+            rowActionsCustom: (row) => `
+                <button class="btn-icon btn-edit-option" data-id="${row.id}" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `,
+            emptyState: { message: 'Опції відсутні' },
+            withContainer: false
         });
+
+        // Обробники для кнопок редагування
+        container.querySelectorAll('.btn-edit-option').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const optId = btn.dataset.id;
+                const { showEditOptionModal } = await import('./mapper-options.js');
+                await showEditOptionModal(optId);
+            });
+        });
+    };
+
+    // Перший рендер
+    renderTable(optionsData);
+
+    // Ініціалізація сортування
+    initTableSorting(container, {
+        dataSource: () => optionsData,
+        onSort: (sortedData) => {
+            optionsData = sortedData;
+            renderTable(optionsData);
+        },
+        columnTypes: {
+            id: 'id-text',
+            value_ua: 'string'
+        }
     });
 }
 

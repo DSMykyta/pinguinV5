@@ -30,6 +30,7 @@ import {
     setupModalCloseHandlers
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
+import { initTableSorting } from '../common/ui-table-controls.js';
 
 export const PLUGIN_NAME = 'mapper-options';
 
@@ -281,7 +282,7 @@ function populateRelatedDependentCharacteristics(optionId) {
     if (!container) return;
 
     const characteristics = getCharacteristics();
-    const dependentChars = characteristics.filter(char => {
+    let charsData = characteristics.filter(char => {
         if (!char.parent_option_id) return false;
         const ids = Array.isArray(char.parent_option_id)
             ? char.parent_option_id
@@ -290,7 +291,7 @@ function populateRelatedDependentCharacteristics(optionId) {
     });
 
     // Приховуємо/показуємо секцію залежно від наявності залежних характеристик
-    if (dependentChars.length === 0) {
+    if (charsData.length === 0) {
         if (navItem) navItem.classList.add('u-hidden');
         if (section) section.classList.add('u-hidden');
         if (countEl) countEl.textContent = '';
@@ -299,44 +300,65 @@ function populateRelatedDependentCharacteristics(optionId) {
 
     if (navItem) navItem.classList.remove('u-hidden');
     if (section) section.classList.remove('u-hidden');
-    if (countEl) countEl.textContent = dependentChars.length;
+    if (countEl) countEl.textContent = charsData.length;
 
-    // Рендеримо таблицю як на основних табах
-    renderPseudoTable(container, {
-        data: dependentChars,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-id',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'name_ua',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-name',
-                render: (value, row) => escapeHtml(value || row.id || '-')
-            }
-        ],
-        rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit-dep-char" data-id="${row.id}" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
-        emptyState: { message: 'Залежні характеристики відсутні' },
-        withContainer: false
-    });
+    // Конфігурація колонок
+    const columns = [
+        {
+            id: 'id',
+            label: 'ID',
+            sortable: true,
+            className: 'cell-id',
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: 'name_ua',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-name',
+            render: (value, row) => escapeHtml(value || row.id || '-')
+        }
+    ];
 
-    // Обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-dep-char').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const charId = btn.dataset.id;
-            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-            await showEditCharacteristicModal(charId);
+    // Функція рендерингу таблиці
+    const renderTable = (data) => {
+        renderPseudoTable(container, {
+            data,
+            columns,
+            rowActionsCustom: (row) => `
+                <button class="btn-icon btn-edit-dep-char" data-id="${row.id}" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `,
+            emptyState: { message: 'Залежні характеристики відсутні' },
+            withContainer: false
         });
+
+        // Обробники для кнопок редагування
+        container.querySelectorAll('.btn-edit-dep-char').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const charId = btn.dataset.id;
+                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+                await showEditCharacteristicModal(charId);
+            });
+        });
+    };
+
+    // Перший рендер
+    renderTable(charsData);
+
+    // Ініціалізація сортування
+    initTableSorting(container, {
+        dataSource: () => charsData,
+        onSort: (sortedData) => {
+            charsData = sortedData;
+            renderTable(charsData);
+        },
+        columnTypes: {
+            id: 'id-text',
+            name_ua: 'string'
+        }
     });
 }
 
