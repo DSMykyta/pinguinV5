@@ -102,6 +102,10 @@ export function populateTableColumns() {
         checkboxPrefix: 'banned-col',
         searchColumnsContainerId: 'search-columns-list',
         onVisibilityChange: async (selectedIds) => {
+            // Оновити visible columns в tableAPI якщо він існує
+            if (bannedWordsState.manageTableAPI) {
+                bannedWordsState.manageTableAPI.setVisibleColumns(selectedIds);
+            }
             // Перемальовати таблицю
             const { renderBannedWordsTable } = await import('./banned-words-manage.js');
             await renderBannedWordsTable();
