@@ -31,6 +31,11 @@ import {
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
 
 export const PLUGIN_NAME = 'mapper-options';
 
@@ -327,15 +332,22 @@ function populateRelatedDependentCharacteristics(optionId) {
     ];
 
     // Функція рендерингу таблиці
+    // Реєструємо обробники дій
+    registerActionHandlers('option-dependent-chars', {
+        edit: async (rowId) => {
+            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+            await showEditCharacteristicModal(rowId);
+        }
+    });
+
     const renderTable = (data) => {
         renderPseudoTable(container, {
             data,
             columns,
-            rowActionsCustom: (row) => `
-                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `,
+            rowActionsCustom: (row) => actionButton({
+                action: 'edit',
+                rowId: row.id
+            }),
             emptyState: { message: 'Залежні характеристики відсутні' },
             withContainer: false
         });
@@ -343,15 +355,8 @@ function populateRelatedDependentCharacteristics(optionId) {
         // Оновлюємо статистику
         updateStats(data.length, allData.length);
 
-        // Обробники для кнопок редагування
-        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const charId = btn.dataset.rowId;
-                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-                await showEditCharacteristicModal(charId);
-            });
-        });
+        // Ініціалізуємо обробники дій
+        initActionHandlers(container, 'option-dependent-chars');
     };
 
     // Функція пошуку

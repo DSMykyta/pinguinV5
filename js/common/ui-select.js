@@ -617,6 +617,8 @@ class CustomSelect {
         this.panel.style.visibility = '';
         this.panel.style.display = '';
         this.wrapper.classList.add('is-open');
+        // PORTAL FIX: Додаємо клас безпосередньо на panel (бо CSS селектор .wrapper.is-open .panel не працює коли panel в body)
+        this.panel.classList.add('is-open');
 
         // Автофокус на пошук при відкритті
         if (this.searchInput) {
@@ -646,6 +648,8 @@ class CustomSelect {
 
         this.wrapper.classList.remove('is-open');
         this.wrapper.classList.remove('is-open-upward');
+        // PORTAL FIX: Знімаємо клас з panel
+        this.panel.classList.remove('is-open');
 
         // Скидаємо fixed стилі
         this.panel.style.position = '';

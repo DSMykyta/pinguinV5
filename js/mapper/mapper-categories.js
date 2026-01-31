@@ -31,6 +31,11 @@ import {
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
 
@@ -400,24 +405,34 @@ function populateRelatedCharacteristics(categoryId) {
             label: '',
             sortable: false,
             className: 'cell-actions-end',
-            render: (value, row) => `
-                <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
-                    <span class="material-symbols-outlined">link_off</span>
-                </button>
-            `
+            render: (value, row) => actionButton({
+                action: 'unlink',
+                rowId: row.id,
+                data: { name: row.name_ua || row.id }
+            })
         }
     ];
+
+    // Реєструємо обробники дій для цього контексту
+    registerActionHandlers('category-characteristics', {
+        edit: async (rowId) => {
+            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+            await showEditCharacteristicModal(rowId);
+        },
+        unlink: async (rowId, data) => {
+            await handleUnlinkCharacteristic(rowId, data.name, categoryId);
+        }
+    });
 
     // Функція рендерингу таблиці
     const renderTable = (data) => {
         renderPseudoTable(container, {
             data,
             columns,
-            rowActionsCustom: (row) => `
-                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `,
+            rowActionsCustom: (row) => actionButton({
+                action: 'edit',
+                rowId: row.id
+            }),
             emptyState: { message: 'Характеристики відсутні' },
             withContainer: false
         });
@@ -425,25 +440,8 @@ function populateRelatedCharacteristics(categoryId) {
         // Оновлюємо статистику
         updateStats(allData.length);
 
-        // Обробники для кнопок редагування
-        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const charId = btn.dataset.rowId;
-                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-                await showEditCharacteristicModal(charId);
-            });
-        });
-
-        // Обробники для кнопок відв'язування
-        container.querySelectorAll('[data-action="unlink"]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const charId = btn.dataset.rowId;
-                const charName = btn.dataset.name;
-                await handleUnlinkCharacteristic(charId, charName, categoryId);
-            });
-        });
+        // Ініціалізуємо обробники дій (делегування)
+        initActionHandlers(container, 'category-characteristics');
     };
 
     // Обробник відв'язування
@@ -810,22 +808,20 @@ function renderMappedMpCategoriesSections(ownCatId) {
     // Перезапускаємо навігацію щоб включити нові секції
     initSectionNavigation('category-section-navigator');
 
-    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const mappingId = btn.dataset.mappingId;
-            if (mappingId) {
-                try {
-                    await deleteCategoryMapping(mappingId);
-                    showToast('Маппінг видалено', 'success');
-                    renderMappedMpCategoriesSections(ownCatId);
-                    renderCurrentTab();
-                } catch (error) {
-                    showToast('Помилка видалення маппінгу', 'error');
-                }
+    // Реєструємо обробники для маппінгів категорій
+    registerActionHandlers('mp-category-mapping', {
+        unmap: async (rowId, data) => {
+            if (data.mappingId) {
+                await deleteCategoryMapping(data.mappingId);
+                showToast('Маппінг видалено', 'success');
+                renderMappedMpCategoriesSections(ownCatId);
+                renderCurrentTab();
             }
-        });
+        }
     });
+
+    // Ініціалізуємо обробники дій
+    initActionHandlers(content, 'mp-category-mapping');
 }
 
 function renderMpCategorySectionContent(marketplaceData) {
@@ -837,9 +833,11 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
-                        <span class="material-symbols-outlined">link_off</span>
-                    </button>
+                    ${actionButton({
+                        action: 'unmap',
+                        rowId: item.id,
+                        data: { mappingId: item._mappingId }
+                    })}
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">

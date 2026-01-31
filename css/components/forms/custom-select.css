@@ -76,7 +76,8 @@
     overflow: hidden;
 }
 
-.custom-select-wrapper.is-open .custom-select-panel {
+.custom-select-wrapper.is-open .custom-select-panel,
+.custom-select-panel.is-open {
     opacity: 1;
     pointer-events: auto;
 }

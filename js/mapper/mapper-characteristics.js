@@ -31,6 +31,11 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers
 } from './mapper-utils.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
 
 export const PLUGIN_NAME = 'mapper-characteristics';
 
@@ -471,16 +476,23 @@ function populateRelatedOptions(characteristicId) {
         }
     ];
 
+    // Реєструємо обробники дій
+    registerActionHandlers('characteristic-options', {
+        edit: async (rowId) => {
+            const { showEditOptionModal } = await import('./mapper-options.js');
+            await showEditOptionModal(rowId);
+        }
+    });
+
     // Функція рендерингу таблиці
     const renderTable = (data) => {
         renderPseudoTable(container, {
             data,
             columns,
-            rowActionsCustom: (row) => `
-                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `,
+            rowActionsCustom: (row) => actionButton({
+                action: 'edit',
+                rowId: row.id
+            }),
             emptyState: { message: 'Опції відсутні' },
             withContainer: false
         });
@@ -488,15 +500,8 @@ function populateRelatedOptions(characteristicId) {
         // Оновлюємо статистику
         updateStats(data.length, allData.length);
 
-        // Обробники для кнопок редагування
-        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const optId = btn.dataset.rowId;
-                const { showEditOptionModal } = await import('./mapper-options.js');
-                await showEditOptionModal(optId);
-            });
-        });
+        // Ініціалізуємо обробники дій
+        initActionHandlers(container, 'characteristic-options');
     };
 
     // Функція пошуку
@@ -590,22 +595,20 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
     // Перезапускаємо навігацію щоб включити нові секції
     initSectionNavigation('char-section-navigator');
 
-    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const mappingId = btn.dataset.mappingId;
-            if (mappingId) {
-                try {
-                    await deleteCharacteristicMapping(mappingId);
-                    showToast('Маппінг видалено', 'success');
-                    renderMappedMpCharacteristicsSections(ownCharId);
-                    renderCurrentTab();
-                } catch (error) {
-                    showToast('Помилка видалення маппінгу', 'error');
-                }
+    // Реєструємо обробники для маппінгів характеристик
+    registerActionHandlers('mp-characteristic-mapping', {
+        unmap: async (rowId, data) => {
+            if (data.mappingId) {
+                await deleteCharacteristicMapping(data.mappingId);
+                showToast('Маппінг видалено', 'success');
+                renderMappedMpCharacteristicsSections(ownCharId);
+                renderCurrentTab();
             }
-        });
+        }
     });
+
+    // Ініціалізуємо обробники дій
+    initActionHandlers(content, 'mp-characteristic-mapping');
 }
 
 function renderMpCharacteristicSectionContent(marketplaceData) {
@@ -617,9 +620,11 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
-                        <span class="material-symbols-outlined">link_off</span>
-                    </button>
+                    ${actionButton({
+                        action: 'unmap',
+                        rowId: item.id,
+                        data: { mappingId: item._mappingId }
+                    })}
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">
