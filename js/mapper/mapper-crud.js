@@ -501,7 +501,7 @@ function populateRelatedOptions(characteristicId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedOptions.length})`;
+    if (countEl) countEl.textContent = relatedOptions.length;
 
     container.innerHTML = relatedOptions.map(opt => `
         <div class="modal-related-item" data-id="${opt.id}">
@@ -893,7 +893,7 @@ function populateRelatedCharacteristics(categoryId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedChars.length})`;
+    if (countEl) countEl.textContent = relatedChars.length;
 
     container.innerHTML = relatedChars.map(char => `
         <div class="modal-related-item" data-id="${char.id}">
@@ -944,7 +944,7 @@ function populateRelatedDependentCharacteristics(optionId) {
     // Є залежні — показуємо секцію та пункт меню
     if (navItem) navItem.classList.remove('u-hidden');
     if (section) section.classList.remove('u-hidden');
-    if (countEl) countEl.textContent = `(${dependentChars.length})`;
+    if (countEl) countEl.textContent = dependentChars.length;
 
     container.innerHTML = dependentChars.map(char => `
         <div class="modal-related-item" data-id="${char.id}">

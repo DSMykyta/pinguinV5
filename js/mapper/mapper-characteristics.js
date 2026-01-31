@@ -452,7 +452,7 @@ function populateRelatedOptions(characteristicId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedOptions.length})`;
+    if (countEl) countEl.textContent = relatedOptions.length;
 
     container.innerHTML = relatedOptions.map(opt => `
         <div class="modal-related-item" data-id="${opt.id}">

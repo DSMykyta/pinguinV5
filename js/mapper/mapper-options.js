@@ -297,7 +297,7 @@ function populateRelatedDependentCharacteristics(optionId) {
 
     if (navItem) navItem.classList.remove('u-hidden');
     if (section) section.classList.remove('u-hidden');
-    if (countEl) countEl.textContent = `(${dependentChars.length})`;
+    if (countEl) countEl.textContent = dependentChars.length;
 
     container.innerHTML = dependentChars.map(char => `
         <div class="modal-related-item" data-id="${char.id}">

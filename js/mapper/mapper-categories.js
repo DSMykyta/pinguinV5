@@ -274,7 +274,7 @@ function populateRelatedCharacteristics(categoryId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedChars.length})`;
+    if (countEl) countEl.textContent = relatedChars.length;
 
     container.innerHTML = relatedChars.map(char => `
         <div class="modal-related-item" data-id="${char.id}">
