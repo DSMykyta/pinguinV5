@@ -148,7 +148,6 @@ export async function showEditCharacteristicModal(id) {
     const addOptionBtn = document.getElementById('btn-add-char-option');
     if (addOptionBtn) {
         addOptionBtn.onclick = async () => {
-            closeModal();
             const { showAddOptionModal } = await import('./mapper-options.js');
             await showAddOptionModal(id);
         };
@@ -587,6 +586,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         section.innerHTML = renderMpCharacteristicSectionContent(data);
         content.appendChild(section);
     });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('char-section-navigator');
 
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {

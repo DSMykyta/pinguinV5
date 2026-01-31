@@ -28,6 +28,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { showLoader } from '../common/ui-loading.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { initSectionNavigation } from './mapper-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КАТЕГОРІЇ
@@ -472,9 +473,7 @@ export async function showEditCharacteristicModal(id) {
     const addOptionBtn = document.getElementById('btn-add-char-option');
     if (addOptionBtn) {
         addOptionBtn.onclick = async () => {
-            // Закрити поточну модалку
-            closeModal();
-            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики
+            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики (поверх поточної)
             await showAddOptionModal(id);
         };
     }
@@ -586,6 +585,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         section.innerHTML = renderMpCharacteristicSectionContent(data);
         content.appendChild(section);
     });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('char-section-navigator');
 
     // Додати обробники для кнопок відв'язування
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
@@ -811,6 +813,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
         section.innerHTML = renderMpOptionSectionContent(data);
         content.appendChild(section);
     });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('option-section-navigator');
 
     // Додати обробники для кнопок відв'язування
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {

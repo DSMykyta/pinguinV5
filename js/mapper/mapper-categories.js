@@ -386,14 +386,14 @@ function populateRelatedCharacteristics(categoryId) {
             label: 'ID',
             sortable: true,
             className: 'cell-id',
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            render: (value) => `<span class="word-chip">${escapeHtml(value || ' ')}</span>`
         },
         {
             id: 'name_ua',
             label: 'Назва',
             sortable: true,
             className: 'cell-name',
-            render: (value, row) => escapeHtml(value || row.id || '-')
+            render: (value, row) => escapeHtml(value || row.id || ' ')
         },
         {
             id: '_unlink',
@@ -806,6 +806,9 @@ function renderMappedMpCategoriesSections(ownCatId) {
         section.innerHTML = renderMpCategorySectionContent(data);
         content.appendChild(section);
     });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('category-section-navigator');
 
     content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
         btn.addEventListener('click', async (e) => {

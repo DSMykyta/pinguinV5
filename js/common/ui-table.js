@@ -122,7 +122,7 @@ export function createPseudoTable(container, options) {
                     if (col.render && typeof col.render === 'function') {
                         cellContent = col.render(value, row);
                     } else {
-                        cellContent = escapeHtml(value || '-');
+                        cellContent = escapeHtml(value ?? ' ');
                     }
 
                     return `
@@ -422,7 +422,7 @@ export function renderPseudoTable(container, options) {
                     if (col.render && typeof col.render === 'function') {
                         cellContent = col.render(value, row);
                     } else {
-                        cellContent = escapeHtml(value || '-');
+                        cellContent = escapeHtml(value ?? ' ');
                     }
 
                     return `
