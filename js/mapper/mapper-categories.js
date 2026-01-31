@@ -266,8 +266,8 @@ function populateRelatedCharacteristics(categoryId) {
 
     if (relatedChars.length === 0) {
         container.innerHTML = `
-            <div class="modal-related-empty">
-                <span class="modal-related-empty-text">Характеристики відсутні</span>
+            <div class="empty-state-container">
+                <div class="empty-state-message">Характеристики відсутні</div>
             </div>
         `;
         if (countEl) countEl.textContent = '';
