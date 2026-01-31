@@ -25,6 +25,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -830,20 +831,6 @@ function generateBrandIdForUI() {
     return `bran-${String(newNum).padStart(6, '0')}`;
 }
 
-/**
- * Екранувати HTML
- * @param {string} str - Рядок
- * @returns {string} Екранований рядок
- */
-function escapeHtml(str) {
-    if (!str) return '';
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLUGIN REGISTRATION

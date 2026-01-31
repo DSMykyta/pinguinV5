@@ -7,6 +7,9 @@
  * Якщо видалити — плагіни paste, undo можуть не працювати.
  */
 
+// Re-export escapeHtml from central text-utils
+export { escapeHtml } from '../../utils/text-utils.js';
+
 /**
  * Зберегти позицію курсора
  */
@@ -67,14 +70,6 @@ export function restoreCaretPosition(element, position) {
     }
 }
 
-/**
- * Екранування HTML символів
- */
-export function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 /**
  * Очищення HTML рядка
