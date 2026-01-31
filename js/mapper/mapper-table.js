@@ -38,9 +38,12 @@ function getCategoryNames(categoryIdsStr) {
 
     return names.join(', ');
 }
-import { renderPseudoTable } from '../common/ui-table.js';
+import { createPseudoTable, renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+
+// Map для зберігання tableAPI для кожного табу mapper
+const mapperTableAPIs = new Map();
 
 /**
  * Рендерити поточний активний таб
@@ -966,6 +969,241 @@ function updateStats(tabName, visible, total) {
     if (!statsEl) return;
 
     statsEl.textContent = `Показано ${visible} з ${total}`;
+}
+
+/**
+ * Скинути всі mapperTableAPIs (для реініціалізації)
+ */
+export function resetMapperTableAPIs() {
+    mapperTableAPIs.clear();
+}
+
+/**
+ * Отримати tableAPI для табу
+ * @param {string} tabName - Назва табу
+ * @returns {Object|null} tableAPI або null
+ */
+export function getMapperTableAPI(tabName) {
+    return mapperTableAPIs.get(tabName) || null;
+}
+
+/**
+ * Рендерити тільки рядки поточного активного табу (заголовок залишається)
+ */
+export function renderCurrentTabRowsOnly() {
+    const activeTab = mapperState.activeTab;
+    const tableAPI = mapperTableAPIs.get(activeTab);
+
+    if (!tableAPI) {
+        // Якщо API ще не створено - робимо повний рендер
+        renderCurrentTab();
+        return;
+    }
+
+    // Отримуємо дані залежно від табу
+    switch (activeTab) {
+        case 'categories':
+            renderCategoriesTableRowsOnly();
+            break;
+        case 'characteristics':
+            renderCharacteristicsTableRowsOnly();
+            break;
+        case 'options':
+            renderOptionsTableRowsOnly();
+            break;
+        case 'marketplaces':
+            renderMarketplacesTableRowsOnly();
+            break;
+    }
+}
+
+/**
+ * Оновити тільки рядки таблиці категорій
+ */
+export function renderCategoriesTableRowsOnly() {
+    const tableAPI = mapperTableAPIs.get('categories');
+    if (!tableAPI) {
+        renderCategoriesTable();
+        return;
+    }
+
+    const marketplaces = getMarketplaces();
+    const ownCategories = getCategories().map(cat => ({
+        ...cat,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+    const mpCategories = getMpCategories()
+        .filter(mpCat => !isMpCategoryMapped(mpCat.id))
+        .map(mpCat => {
+            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+            const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
+            return {
+                id: mpCat.id,
+                external_id: mpCat.external_id,
+                marketplace_id: mpCat.marketplace_id,
+                name_ua: data.name || '',
+                name_ru: '',
+                parent_id: data.parent_id || '',
+                our_category_id: data.our_category_id || '',
+                _source: mpCat.marketplace_id,
+                _sourceLabel: marketplace?.name || mpCat.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
+
+    const categories = [...ownCategories, ...mpCategories];
+    let filteredData = applyFilters(categories, 'categories');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    tableAPI.updateRows(paginatedData);
+    updateStats('categories', filteredData.length, categories.length);
+}
+
+/**
+ * Оновити тільки рядки таблиці характеристик
+ */
+export function renderCharacteristicsTableRowsOnly() {
+    const tableAPI = mapperTableAPIs.get('characteristics');
+    if (!tableAPI) {
+        renderCharacteristicsTable();
+        return;
+    }
+
+    const marketplaces = getMarketplaces();
+    const ownCharacteristics = getCharacteristics().map(char => ({
+        ...char,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+    const mpCharacteristics = getMpCharacteristics()
+        .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
+        .map(mpChar => {
+            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+            return {
+                id: mpChar.id,
+                external_id: mpChar.external_id,
+                marketplace_id: mpChar.marketplace_id,
+                name_ua: data.name || '',
+                name_ru: '',
+                type: data.type || '',
+                unit: data.unit || '',
+                is_global: data.is_global === 'Так' || data.is_global === true,
+                category_ids: data.category_id || '',
+                filter_type: data.filter_type || '',
+                our_char_id: data.our_char_id || '',
+                _source: mpChar.marketplace_id,
+                _sourceLabel: marketplace?.name || mpChar.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
+
+    const allCharacteristics = [...ownCharacteristics, ...mpCharacteristics];
+    let filteredData = applyFilters(allCharacteristics, 'characteristics');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    tableAPI.updateRows(paginatedData);
+    updateStats('characteristics', filteredData.length, allCharacteristics.length);
+}
+
+/**
+ * Оновити тільки рядки таблиці опцій
+ */
+export function renderOptionsTableRowsOnly() {
+    const tableAPI = mapperTableAPIs.get('options');
+    if (!tableAPI) {
+        renderOptionsTable();
+        return;
+    }
+
+    const marketplaces = getMarketplaces();
+    const characteristics = getCharacteristics();
+    const mpCharacteristicsData = getMpCharacteristics();
+
+    const ownOptions = getOptions().map(opt => ({
+        ...opt,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    const mpOptions = getMpOptions()
+        .filter(mpOpt => !isMpOptionMapped(mpOpt.id))
+        .map(mpOpt => {
+            let data = {};
+            if (mpOpt.data) {
+                try {
+                    data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
+                } catch (e) {
+                    data = {};
+                }
+            }
+            const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
+            let charName = data.char_id || '';
+            const mpChar = mpCharacteristicsData.find(c =>
+                c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
+            );
+            if (mpChar) {
+                const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+                charName = charData.name || data.char_id;
+            }
+
+            return {
+                id: mpOpt.id,
+                external_id: mpOpt.external_id,
+                marketplace_id: mpOpt.marketplace_id,
+                characteristic_id: data.char_id || '',
+                characteristic_name: charName,
+                value_ua: data.name || '',
+                value_ru: '',
+                sort_order: '0',
+                our_option_id: data.our_option_id || '',
+                _source: mpOpt.marketplace_id,
+                _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
+                _editable: false,
+                _mpData: data
+            };
+        });
+
+    const allOptions = [...ownOptions, ...mpOptions];
+    let filteredData = applyFilters(allOptions, 'options');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    tableAPI.updateRows(paginatedData);
+    updateStats('options', filteredData.length, allOptions.length);
+}
+
+/**
+ * Оновити тільки рядки таблиці маркетплейсів
+ */
+export function renderMarketplacesTableRowsOnly() {
+    const tableAPI = mapperTableAPIs.get('marketplaces');
+    if (!tableAPI) {
+        renderMarketplacesTable();
+        return;
+    }
+
+    const marketplaces = getMarketplaces().map(mp => ({
+        ...mp,
+        _source: 'own',
+        _sourceLabel: 'Власний',
+        _editable: true
+    }));
+
+    let filteredData = applyFilters(marketplaces, 'marketplaces');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    tableAPI.updateRows(paginatedData);
+    updateStats('marketplaces', filteredData.length, marketplaces.length);
 }
 
 /**

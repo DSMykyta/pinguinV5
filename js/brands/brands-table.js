@@ -13,9 +13,12 @@
 import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { brandsState } from './brands-state.js';
-import { renderPseudoTable } from '../common/ui-table.js';
+import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+
+// Table API instance
+let tableAPI = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -100,11 +103,111 @@ export function getColumns() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// TABLE API INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізувати таблицю (викликається один раз)
+ */
+function initTableAPI() {
+    const container = document.getElementById('brands-table-container');
+    if (!container || tableAPI) return;
+
+    const visibleCols = brandsState.visibleColumns.length > 0
+        ? brandsState.visibleColumns
+        : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
+
+    tableAPI = createPseudoTable(container, {
+        columns: getColumns(),
+        visibleColumns: visibleCols,
+        rowActionsHeader: ' ',
+        rowActionsCustom: (row) => {
+            return `
+                <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+            `;
+        },
+        getRowId: (row) => row.brand_id,
+        emptyState: {
+            icon: 'shopping_bag',
+            message: 'Бренди не знайдено'
+        },
+        withContainer: false,
+        onAfterRender: attachRowEventHandlers
+    });
+
+    // Зберігаємо в state для доступу з інших модулів
+    brandsState.tableAPI = tableAPI;
+}
+
+/**
+ * Додати обробники подій для кнопок у рядках
+ */
+function attachRowEventHandlers(container) {
+    container.querySelectorAll('.btn-edit').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const brandId = button.dataset.brandId;
+            if (brandId) {
+                const { showEditBrandModal } = await import('./brands-crud.js');
+                await showEditBrandModal(brandId);
+            }
+        });
+    });
+}
+
+/**
+ * Отримати пагіновані дані
+ */
+function getPaginatedData() {
+    const brands = getBrands();
+    const filteredBrands = applyFilters(brands);
+
+    const { currentPage, pageSize } = brandsState.pagination;
+    const start = (currentPage - 1) * pageSize;
+    const end = Math.min(start + pageSize, filteredBrands.length);
+
+    return {
+        all: brands,
+        filtered: filteredBrands,
+        paginated: filteredBrands.slice(start, end)
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Рендерити таблицю брендів
+ * Оновити тільки рядки таблиці (заголовок залишається)
+ * Використовується при фільтрації/сортуванні/пагінації/пошуку
+ */
+export function renderBrandsTableRowsOnly() {
+    if (!tableAPI) {
+        renderBrandsTable();
+        return;
+    }
+
+    const { all, filtered, paginated } = getPaginatedData();
+
+    // Оновлюємо пагінацію
+    if (brandsState.paginationAPI) {
+        brandsState.paginationAPI.update({
+            currentPage: brandsState.pagination.currentPage,
+            pageSize: brandsState.pagination.pageSize,
+            totalItems: filtered.length
+        });
+    }
+
+    // Оновлюємо тільки рядки
+    tableAPI.updateRows(paginated);
+
+    updateStats(filtered.length, all.length);
+}
+
+/**
+ * Рендерити таблицю брендів (повний рендер)
  */
 export function renderBrandsTable() {
     console.log('🎨 Рендеринг таблиці брендів...');
@@ -118,65 +221,29 @@ export function renderBrandsTable() {
         return;
     }
 
-    // Застосувати фільтри
-    let filteredBrands = applyFilters(brands);
+    // Ініціалізуємо API якщо потрібно
+    if (!tableAPI) {
+        initTableAPI();
+    }
 
-    // Застосувати пагінацію
-    const { currentPage, pageSize } = brandsState.pagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const paginatedBrands = filteredBrands.slice(start, end);
+    const { all, filtered, paginated } = getPaginatedData();
 
     // Оновити пагінацію
     if (brandsState.paginationAPI) {
         brandsState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems: filteredBrands.length
+            currentPage: brandsState.pagination.currentPage,
+            pageSize: brandsState.pagination.pageSize,
+            totalItems: filtered.length
         });
     }
 
-    // Визначити які колонки показувати
-    const visibleCols = brandsState.visibleColumns.length > 0
-        ? brandsState.visibleColumns
-        : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
-
-    // Рендерити таблицю через універсальний компонент
-    renderPseudoTable(container, {
-        data: paginatedBrands,
-        columns: getColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
-            return `
-                <button class="btn-icon btn-edit" data-brand-id="${escapeHtml(row.brand_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `;
-        },
-        emptyState: {
-            icon: 'shopping_bag',
-            message: 'Бренди не знайдено'
-        },
-        withContainer: false
-    });
-
-    // Додати обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const brandId = button.dataset.brandId;
-            if (brandId) {
-                const { showEditBrandModal } = await import('./brands-crud.js');
-                await showEditBrandModal(brandId);
-            }
-        });
-    });
+    // Повний рендер таблиці
+    tableAPI.render(paginated);
 
     // Оновити статистику
-    updateStats(filteredBrands.length, brands.length);
+    updateStats(filtered.length, all.length);
 
-    console.log(`✅ Відрендерено ${paginatedBrands.length} з ${filteredBrands.length} брендів`);
+    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} брендів`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -247,6 +314,14 @@ function updateStats(visible, total) {
     if (!statsEl) return;
 
     statsEl.textContent = `Показано ${visible} з ${total}`;
+}
+
+/**
+ * Скинути tableAPI (для реініціалізації)
+ */
+export function resetTableAPI() {
+    tableAPI = null;
+    brandsState.tableAPI = null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

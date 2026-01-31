@@ -5,13 +5,16 @@
  * ║                      PRICE - TABLE RENDERING                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Рендеринг таблиці прайсу з використанням універсального ui-table.
+ * Використовує універсальний createPseudoTable API для рендерингу таблиці.
  */
 
 import { priceState } from './price-init.js';
-import { renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import { createPseudoTable, renderBadge } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
+
+// Table API instance
+let tableAPI = null;
 
 /**
  * Застосувати фільтри до рядків таблиці БЕЗ перемальовування
@@ -49,138 +52,19 @@ export function applyFiltersToTableRows() {
 }
 
 /**
- * Перерендерити ТІЛЬКИ рядки таблиці (без заголовка)
- * Викликається при фільтрації/сортуванні щоб не знищувати dropdown-и в заголовках
+ * Ініціалізувати таблицю (викликається один раз)
  */
-export async function renderPriceTableRowsOnly() {
+function initTableAPI() {
     const container = document.getElementById('price-table-container');
-    if (!container) return;
+    if (!container || tableAPI) return;
 
-    const items = priceState.filteredItems;
-
-    // Видаляємо тільки рядки (не заголовок!)
-    container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
-
-    // Якщо немає даних - залишаємо порожню таблицю з заголовками
-    if (!items || items.length === 0) {
-        updateStats(0, priceState.priceItems.length);
-        return;
-    }
-
-    // Отримуємо пагіновані дані
-    const { currentPage, pageSize } = priceState.pagination;
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, items.length);
-    const pageItems = items.slice(startIndex, endIndex);
-
-    // Генеруємо нові рядки
-    const rowsHTML = pageItems.map((row, rowIndex) => {
-        const rowId = row.code || row.id || row.local_id || rowIndex;
-        return generateRowHTML(row, rowId);
-    }).join('');
-
-    // Вставляємо після заголовка
-    const header = container.querySelector('.pseudo-table-header');
-    if (header) {
-        header.insertAdjacentHTML('afterend', rowsHTML);
-    }
-
-    updateStats(items.length, priceState.priceItems.length);
-}
-
-/**
- * Генерувати HTML для одного рядка
- */
-function generateRowHTML(row, rowId) {
-    const columns = getColumns();
-    const visibleColumns = priceState.visibleColumns.length > 0
+    const visibleCols = priceState.visibleColumns.length > 0
         ? priceState.visibleColumns
         : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'];
 
-    const isColumnVisible = (columnId) => visibleColumns.includes(columnId);
-    const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
-
-    return `
-        <div class="pseudo-table-row" data-row-id="${rowId}">
-            <div class="pseudo-table-cell cell-actions">
-                <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
-                <button class="btn-icon btn-edit" data-code="${escapeHtml(row.code)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            </div>
-            ${columns.map(col => {
-                const value = row[col.id];
-                const cellClass = col.className || '';
-                const tooltipAttr = col.tooltip !== false && value ?
-                    `data-tooltip="${escapeHtml(value)}"` : '';
-
-                let cellContent;
-                if (col.render && typeof col.render === 'function') {
-                    cellContent = col.render(value, row);
-                } else {
-                    cellContent = escapeHtml(value || '-');
-                }
-
-                return `
-                    <div class="pseudo-table-cell ${cellClass}${hiddenClass(col.id)}"
-                         data-column="${col.id}"
-                         ${tooltipAttr}>
-                        ${cellContent}
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
-/**
- * Рендерити таблицю прайсу
- */
-export async function renderPriceTable() {
-    const container = document.getElementById('price-table-container');
-    if (!container) return;
-
-    const items = priceState.filteredItems;
-
-    // Якщо немає даних
-    if (!items || items.length === 0) {
-        renderPseudoTable(container, {
-            data: [],
-            columns: getColumns(),
-            emptyState: {
-                icon: 'receipt_long',
-                message: 'Немає даних для відображення'
-            },
-            withContainer: false
-        });
-        updateStats(0, 0);
-        return;
-    }
-
-    // Отримуємо пагіновані дані
-    const { currentPage, pageSize } = priceState.pagination;
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, items.length);
-    const pageItems = items.slice(startIndex, endIndex);
-
-    // Оновити пагінацію
-    if (priceState.paginationAPI) {
-        priceState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems: items.length
-        });
-    }
-
-    // Рендерити таблицю через універсальний компонент
-    // Сортування: клік по заголовку = сортування
-    // Фільтрація: hover 2 сек на заголовку з .filterable = dropdown
-    renderPseudoTable(container, {
-        data: pageItems,
+    tableAPI = createPseudoTable(container, {
         columns: getColumns(),
-        visibleColumns: priceState.visibleColumns.length > 0
-            ? priceState.visibleColumns
-            : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'],
+        visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
         rowActionsCustom: (row) => `
             <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
@@ -188,6 +72,7 @@ export async function renderPriceTable() {
                 <span class="material-symbols-outlined">edit</span>
             </button>
         `,
+        getRowId: (row) => row.code,
         emptyState: {
             icon: 'receipt_long',
             message: 'Немає даних для відображення'
@@ -195,7 +80,82 @@ export async function renderPriceTable() {
         withContainer: false
     });
 
-    updateStats(items.length, priceState.priceItems.length);
+    // Зберігаємо в state для доступу з інших модулів
+    priceState.tableAPI = tableAPI;
+}
+
+/**
+ * Отримати пагіновані дані
+ */
+function getPaginatedData() {
+    const items = priceState.filteredItems;
+
+    const { currentPage, pageSize } = priceState.pagination;
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, items.length);
+
+    return {
+        all: priceState.priceItems,
+        filtered: items,
+        paginated: items.slice(startIndex, endIndex)
+    };
+}
+
+/**
+ * Перерендерити ТІЛЬКИ рядки таблиці (без заголовка)
+ * Викликається при фільтрації/сортуванні щоб не знищувати dropdown-и в заголовках
+ */
+export async function renderPriceTableRowsOnly() {
+    if (!tableAPI) {
+        // Якщо API ще не створено - робимо повний рендер
+        await renderPriceTable();
+        return;
+    }
+
+    const { all, filtered, paginated } = getPaginatedData();
+
+    // Оновлюємо пагінацію
+    if (priceState.paginationAPI) {
+        priceState.paginationAPI.update({
+            currentPage: priceState.pagination.currentPage,
+            pageSize: priceState.pagination.pageSize,
+            totalItems: filtered.length
+        });
+    }
+
+    // Оновлюємо тільки рядки
+    tableAPI.updateRows(paginated);
+
+    updateStats(filtered.length, all.length);
+}
+
+/**
+ * Рендерити таблицю прайсу (повний рендер)
+ */
+export async function renderPriceTable() {
+    const container = document.getElementById('price-table-container');
+    if (!container) return;
+
+    // Ініціалізуємо API якщо потрібно
+    if (!tableAPI) {
+        initTableAPI();
+    }
+
+    const { all, filtered, paginated } = getPaginatedData();
+
+    // Оновити пагінацію
+    if (priceState.paginationAPI) {
+        priceState.paginationAPI.update({
+            currentPage: priceState.pagination.currentPage,
+            pageSize: priceState.pagination.pageSize,
+            totalItems: filtered.length
+        });
+    }
+
+    // Повний рендер таблиці
+    tableAPI.render(paginated);
+
+    updateStats(filtered.length, all.length);
 }
 
 /**
@@ -382,6 +342,14 @@ function updateStats(shown, total) {
     if (statsEl) {
         statsEl.textContent = `Показано ${shown} з ${total}`;
     }
+}
+
+/**
+ * Скинути tableAPI (для реініціалізації)
+ */
+export function resetTableAPI() {
+    tableAPI = null;
+    priceState.tableAPI = null;
 }
 
 // Експорт для window
