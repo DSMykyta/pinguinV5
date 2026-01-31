@@ -127,7 +127,8 @@
     user-select: none;
 }
 
-.custom-select-option:hover {
+.custom-select-option:hover,
+.custom-select-option.is-focused {
     background-color: var(--color-surface-c-highest);
 }
 
