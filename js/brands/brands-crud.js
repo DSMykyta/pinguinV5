@@ -217,18 +217,18 @@ function initBrandLinesHandler() {
  */
 function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
-    const emptyState = document.getElementById('brand-lines-empty');
-    const countEl = document.getElementById('brand-lines-count');
+    const statsEl = document.getElementById('brand-lines-stats');
+    const searchInput = document.getElementById('brand-lines-search');
     if (!container) return;
 
-    // Дані для таблиці (мутуються при сортуванні)
-    let linesData = getBrandLinesByBrandId(brandId) || [];
+    // Дані для таблиці
+    const allData = getBrandLinesByBrandId(brandId) || [];
+    let filteredData = [...allData];
 
-    // Оновлюємо counter
-    if (countEl) countEl.textContent = linesData.length || '';
-
-    // Приховуємо empty state
-    if (emptyState) emptyState.classList.add('u-hidden');
+    // Функція оновлення статистики
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
 
     // Конфігурація колонок
     const columns = [
@@ -262,6 +262,9 @@ function populateBrandLines(brandId) {
             withContainer: false
         });
 
+        // Оновлюємо статистику
+        updateStats(data.length, allData.length);
+
         // Обробники для редагування
         container.querySelectorAll('.btn-edit-line').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -275,15 +278,35 @@ function populateBrandLines(brandId) {
         });
     };
 
+    // Функція пошуку
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(row =>
+                (row.line_id && row.line_id.toLowerCase().includes(q)) ||
+                (row.name_uk && row.name_uk.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    // Підключаємо пошук
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
     // Перший рендер
-    renderTable(linesData);
+    renderTable(filteredData);
 
     // Ініціалізація сортування
     initTableSorting(container, {
-        dataSource: () => linesData,
+        dataSource: () => filteredData,
         onSort: (sortedData) => {
-            linesData = sortedData;
-            renderTable(linesData);
+            filteredData = sortedData;
+            renderTable(filteredData);
         },
         columnTypes: {
             line_id: 'id-text',

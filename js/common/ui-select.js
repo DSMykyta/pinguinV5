@@ -399,7 +399,10 @@ class CustomSelect {
         });
 
         document.addEventListener('click', (e) => {
-            if (!this.wrapper.contains(e.target)) this._closePanel();
+            // PORTAL: Перевіряємо і wrapper і panel (бо panel може бути в body)
+            if (!this.wrapper.contains(e.target) && !this.panel.contains(e.target)) {
+                this._closePanel();
+            }
         });
 
         if (this.searchInput) {
@@ -567,6 +570,7 @@ class CustomSelect {
     /**
      * Відкрити панель з position: fixed
      * Вирішує проблему обрізання overflow: hidden на батьківських контейнерах
+     * PORTAL: Переміщуємо панель в body щоб уникнути проблем з transform на модалах
      */
     _openPanel() {
         if (this.wrapper.classList.contains('is-open')) return;
@@ -574,6 +578,9 @@ class CustomSelect {
         const triggerRect = this.trigger.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
+
+        // PORTAL: Переміщуємо панель в body
+        document.body.appendChild(this.panel);
 
         // Спочатку показуємо панель для отримання її розмірів
         this.panel.style.visibility = 'hidden';
@@ -632,6 +639,7 @@ class CustomSelect {
 
     /**
      * Закрити панель і скинути fixed стилі
+     * PORTAL: Повертаємо панель назад до wrapper
      */
     _closePanel() {
         if (!this.wrapper.classList.contains('is-open')) return;
@@ -646,6 +654,11 @@ class CustomSelect {
         this.panel.style.left = '';
         this.panel.style.width = '';
         this.panel.style.maxHeight = '';
+
+        // PORTAL: Повертаємо панель назад до wrapper
+        if (this.panel.parentNode === document.body) {
+            this.wrapper.appendChild(this.panel);
+        }
 
         // Скидаємо фокус з опцій
         this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {

@@ -425,7 +425,8 @@ function populateParentOptionsSelect(selectedOptionIds = []) {
 
 function clearRelatedOptions() {
     const container = document.getElementById('char-related-options');
-    const countEl = document.getElementById('char-options-count');
+    const statsEl = document.getElementById('char-options-stats');
+    const searchInput = document.getElementById('char-options-search');
     if (!container) return;
 
     relatedOptionsTableAPI = null;
@@ -434,18 +435,24 @@ function clearRelatedOptions() {
             <div class="empty-state-message">Опції з'являться після збереження</div>
         </div>
     `;
-    if (countEl) countEl.textContent = '';
+    if (statsEl) statsEl.textContent = 'Показано 0 з 0';
+    if (searchInput) searchInput.value = '';
 }
 
 function populateRelatedOptions(characteristicId) {
     const container = document.getElementById('char-related-options');
-    const countEl = document.getElementById('char-options-count');
+    const statsEl = document.getElementById('char-options-stats');
+    const searchInput = document.getElementById('char-options-search');
     if (!container) return;
 
     const options = getOptions();
-    let optionsData = options.filter(opt => opt.characteristic_id === characteristicId);
+    const allData = options.filter(opt => opt.characteristic_id === characteristicId);
+    let filteredData = [...allData];
 
-    if (countEl) countEl.textContent = optionsData.length || '';
+    // Функція оновлення статистики
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
 
     // Конфігурація колонок
     const columns = [
@@ -479,6 +486,9 @@ function populateRelatedOptions(characteristicId) {
             withContainer: false
         });
 
+        // Оновлюємо статистику
+        updateStats(data.length, allData.length);
+
         // Обробники для кнопок редагування
         container.querySelectorAll('.btn-edit-option').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -490,15 +500,35 @@ function populateRelatedOptions(characteristicId) {
         });
     };
 
+    // Функція пошуку
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(row =>
+                (row.id && row.id.toLowerCase().includes(q)) ||
+                (row.value_ua && row.value_ua.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    // Підключаємо пошук
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
     // Перший рендер
-    renderTable(optionsData);
+    renderTable(filteredData);
 
     // Ініціалізація сортування
     initTableSorting(container, {
-        dataSource: () => optionsData,
+        dataSource: () => filteredData,
         onSort: (sortedData) => {
-            optionsData = sortedData;
-            renderTable(optionsData);
+            filteredData = sortedData;
+            renderTable(filteredData);
         },
         columnTypes: {
             id: 'id-text',
