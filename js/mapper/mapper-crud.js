@@ -513,7 +513,7 @@ function populateRelatedOptions(characteristicId) {
                     <span class="item-id">${opt.id}</span>
                 </div>
             </div>
-            <button class="btn-icon btn-edit-item" data-id="${opt.id}" title="Редагувати">
+            <button class="btn-icon btn-edit-item" data-id="${opt.id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
         </div>
@@ -619,7 +619,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-char" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                    <button class="btn-icon btn-unmap btn-unmap-char" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
@@ -844,7 +844,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" title="Відв'язати">
+                    <button class="btn-icon btn-unmap btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
@@ -915,7 +915,7 @@ function populateRelatedCharacteristics(categoryId) {
                     <span class="item-id">${char.id}</span>
                 </div>
             </div>
-            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
         </div>
@@ -976,7 +976,7 @@ function populateRelatedDependentCharacteristics(optionId) {
                     <span class="item-id">${char.id}</span>
                 </div>
             </div>
-            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
         </div>

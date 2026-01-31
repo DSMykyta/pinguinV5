@@ -23,7 +23,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { createPseudoTable } from '../common/ui-table.js';
+import { renderPseudoTable } from '../common/ui-table.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -31,7 +31,6 @@ import { createPseudoTable } from '../common/ui-table.js';
 
 let textEditor = null; // UI Editor instance
 let currentBrandId = null; // ID бренду, що редагується (null = новий)
-let brandLinesTableAPI = null; // Таблиця лінійок бренду
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -229,8 +228,9 @@ function populateBrandLines(brandId) {
     // Приховуємо empty state, таблиця сама покаже пустий стан
     if (emptyState) emptyState.classList.add('u-hidden');
 
-    // Створюємо таблицю з пошуком та сортуванням
-    brandLinesTableAPI = createPseudoTable(container, {
+    // Рендеримо таблицю як на основних табах
+    renderPseudoTable(container, {
+        data: lines || [],
         columns: [
             {
                 id: 'line_id',
@@ -248,54 +248,25 @@ function populateBrandLines(brandId) {
             }
         ],
         rowActionsCustom: (row) => `
-            <button class="btn-icon btn-edit" data-line-id="${row.line_id}" title="Редагувати">
+            <button class="btn-icon btn-edit-line" data-line-id="${row.line_id}" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
             </button>
-            <button class="btn-icon btn-delete" data-line-id="${row.line_id}" title="Видалити">
-                <span class="material-symbols-outlined">close</span>
-            </button>
         `,
-        getRowId: (row) => row.line_id,
-        emptyState: {
-            message: 'Лінійки відсутні'
-        },
-        onAfterRender: (cont) => {
-            // Обробники для редагування
-            cont.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const lineId = btn.dataset.lineId;
-                    if (lineId) {
-                        const { showEditLineModal } = await import('./lines-crud.js');
-                        await showEditLineModal(lineId);
-                    }
-                });
-            });
-
-            // Обробники для видалення
-            cont.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const lineId = btn.dataset.lineId;
-                    if (lineId) {
-                        const confirmed = await showConfirmModal({
-                            title: 'Видалити лінійку?',
-                            message: 'Цю дію неможливо скасувати.',
-                            confirmText: 'Видалити',
-                            danger: true
-                        });
-                        if (confirmed) {
-                            const { deleteLine } = await import('./lines-crud.js');
-                            await deleteLine(lineId);
-                            populateBrandLines(brandId);
-                        }
-                    }
-                });
-            });
-        }
+        emptyState: { message: 'Лінійки відсутні' },
+        withContainer: false
     });
 
-    brandLinesTableAPI.render(lines || []);
+    // Обробники для редагування
+    container.querySelectorAll('.btn-edit-line').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const lineId = btn.dataset.lineId;
+            if (lineId) {
+                const { showEditLineModal } = await import('./lines-crud.js');
+                await showEditLineModal(lineId);
+            }
+        });
+    });
 }
 
 /**
@@ -384,7 +355,7 @@ function addAltNameInput(value = '', isEmpty = false) {
         // Заповнений інпут з кнопкою видалення
         row.innerHTML = `
             <input type="text" class="input-main alt-name-input" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
-            <button type="button" class="btn-icon btn-remove-alt-name" title="Видалити">
+            <button type="button" class="btn-icon btn-remove-alt-name" data-tooltip="Видалити">
                 <span class="material-symbols-outlined">close</span>
             </button>
         `;
@@ -484,10 +455,10 @@ function addLinkRow(link = { name: '', url: '' }) {
             <input type="text" class="link-name" value="${escapeHtml(link.name)}" placeholder="ua, de...">
             <input type="url" class="link-url" value="${escapeHtml(link.url)}" placeholder="https://...">
         </div>
-        <button type="button" class="btn-icon btn-open-link" title="Відкрити">
+        <button type="button" class="btn-icon btn-open-link" data-tooltip="Відкрити">
             <span class="material-symbols-outlined">open_in_new</span>
         </button>
-        <button type="button" class="btn-icon btn-remove-link" title="Видалити">
+        <button type="button" class="btn-icon btn-remove-link" data-tooltip="Видалити">
             <span class="material-symbols-outlined">close</span>
         </button>
     `;
