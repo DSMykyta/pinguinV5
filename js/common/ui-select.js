@@ -107,6 +107,7 @@ class CustomSelect {
         this.originalSelect.customSelect = this;
         this.isMultiSelect = originalSelect.multiple;
         this.hasSelectAll = originalSelect.dataset.selectAll === 'true';
+        this.focusedIndex = -1; // Індекс поточного сфокусованого елемента
 
         this._buildDOM();
         this._populateOptions();
@@ -429,6 +430,119 @@ class CustomSelect {
                 closeTimeout = null;
             }
         });
+
+        // Обробник клавіатури
+        this._keyDownHandler = (e) => this._handleKeyDown(e);
+    }
+
+    /**
+     * Обробка клавіатурної навігації
+     */
+    _handleKeyDown(e) {
+        if (!this.wrapper.classList.contains('is-open')) return;
+
+        const visibleOptions = this._getVisibleOptions();
+        if (visibleOptions.length === 0) return;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                this._moveFocus(1, visibleOptions);
+                break;
+
+            case 'ArrowUp':
+                e.preventDefault();
+                this._moveFocus(-1, visibleOptions);
+                break;
+
+            case 'Enter':
+                e.preventDefault();
+                if (this.focusedIndex >= 0 && this.focusedIndex < visibleOptions.length) {
+                    this._selectFocusedOption(visibleOptions[this.focusedIndex]);
+                }
+                break;
+
+            case 'Escape':
+                e.preventDefault();
+                this._closePanel();
+                break;
+        }
+    }
+
+    /**
+     * Отримати видимі опції (не приховані пошуком)
+     */
+    _getVisibleOptions() {
+        return Array.from(this.optionsList.querySelectorAll('.custom-select-option'))
+            .filter(opt => opt.style.display !== 'none');
+    }
+
+    /**
+     * Переміщення фокусу на наступний/попередній елемент
+     */
+    _moveFocus(direction, visibleOptions) {
+        // Скидаємо попередній фокус
+        visibleOptions.forEach(opt => opt.classList.remove('is-focused'));
+
+        // Обчислюємо новий індекс
+        if (this.focusedIndex === -1) {
+            // Якщо фокус ще не встановлений
+            this.focusedIndex = direction === 1 ? 0 : visibleOptions.length - 1;
+        } else {
+            this.focusedIndex += direction;
+
+            // Циклічна навігація
+            if (this.focusedIndex < 0) {
+                this.focusedIndex = visibleOptions.length - 1;
+            } else if (this.focusedIndex >= visibleOptions.length) {
+                this.focusedIndex = 0;
+            }
+        }
+
+        // Встановлюємо фокус на новий елемент
+        const focusedOption = visibleOptions[this.focusedIndex];
+        if (focusedOption) {
+            focusedOption.classList.add('is-focused');
+            // Прокрутка до елемента
+            focusedOption.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    /**
+     * Вибір сфокусованого елемента
+     */
+    _selectFocusedOption(optionEl) {
+        if (!optionEl || !('value' in optionEl.dataset)) return;
+
+        const value = optionEl.dataset.value;
+
+        // Обробка кліку на "Всі"
+        if (value === '__select_all__') {
+            const allOptions = Array.from(this.originalSelect.options).filter(opt => opt.value);
+            const selectedCount = allOptions.filter(opt => opt.selected).length;
+            const shouldSelectAll = selectedCount < allOptions.length;
+
+            allOptions.forEach(opt => opt.selected = shouldSelectAll);
+            this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            this._updateSelection();
+            return;
+        }
+
+        const option = Array.from(this.originalSelect.options).find(opt => opt.value === value);
+        if (!option) return;
+
+        if (this.isMultiSelect) {
+            // Мультиселект - тільки toggle
+            option.selected = !option.selected;
+            this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            this._updateSelection();
+        } else {
+            // Звичайний селект - вибрати і закрити
+            this.originalSelect.value = option.value;
+            this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            this._updateSelection();
+            this._closePanel();
+        }
     }
 
     /**
@@ -491,6 +605,10 @@ class CustomSelect {
         });
         window.addEventListener('scroll', this._scrollHandler, { passive: true });
         window.addEventListener('resize', this._scrollHandler, { passive: true });
+
+        // Додаємо слухач клавіатури
+        this.focusedIndex = -1;
+        document.addEventListener('keydown', this._keyDownHandler);
     }
 
     /**
@@ -509,6 +627,15 @@ class CustomSelect {
         this.panel.style.left = '';
         this.panel.style.width = '';
         this.panel.style.maxHeight = '';
+
+        // Скидаємо фокус з опцій
+        this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
+            opt.classList.remove('is-focused');
+        });
+        this.focusedIndex = -1;
+
+        // Видаляємо слухач клавіатури
+        document.removeEventListener('keydown', this._keyDownHandler);
 
         // Видаляємо слухачі скролу
         if (this._scrollParents) {
