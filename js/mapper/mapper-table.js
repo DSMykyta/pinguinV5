@@ -41,6 +41,63 @@ function getCategoryNames(categoryIdsStr) {
 import { createPseudoTable, renderPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Категорії
+registerActionHandlers('mapper-categories', {
+    edit: async (rowId) => {
+        const { showEditCategoryModal } = await import('./mapper-categories.js');
+        await showEditCategoryModal(rowId);
+    },
+    view: async (rowId) => {
+        const { showViewMpCategoryModal } = await import('./mapper-categories.js');
+        await showViewMpCategoryModal(rowId);
+    }
+});
+
+// Характеристики
+registerActionHandlers('mapper-characteristics', {
+    edit: async (rowId) => {
+        const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
+        await showEditCharacteristicModal(rowId);
+    },
+    view: async (rowId) => {
+        const { showViewMpCharacteristicModal } = await import('./mapper-characteristics.js');
+        await showViewMpCharacteristicModal(rowId);
+    }
+});
+
+// Опції
+registerActionHandlers('mapper-options', {
+    edit: async (rowId) => {
+        const { showEditOptionModal } = await import('./mapper-options.js');
+        await showEditOptionModal(rowId);
+    },
+    view: async (rowId) => {
+        const { showViewMpOptionModal } = await import('./mapper-options.js');
+        await showViewMpOptionModal(rowId);
+    }
+});
+
+// Маркетплейси
+registerActionHandlers('mapper-marketplaces', {
+    edit: async (rowId) => {
+        const { showEditMarketplaceModal } = await import('./mapper-marketplaces.js');
+        await showEditMarketplaceModal(rowId);
+    },
+    view: async (rowId) => {
+        const { showMarketplaceDataModal } = await import('./mapper-marketplaces.js');
+        await showMarketplaceDataModal(rowId);
+    }
+});
 
 // Map для зберігання tableAPI для кожного табу mapper
 const mapperTableAPIs = new Map();
@@ -220,16 +277,10 @@ export function renderCategoriesTable() {
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.categories || new Set();
             const isChecked = selectedSet.has(row.id);
-            const actionBtn = row._editable
-                ? `<button class="btn-icon btn-edit-category" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                       <span class="material-symbols-outlined">edit</span>
-                   </button>`
-                : `<button class="btn-icon btn-view-mp-category" data-id="${escapeHtml(row.id)}" title="Переглянути">
-                       <span class="material-symbols-outlined">visibility</span>
-                   </button>`;
+            const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
-                ${actionBtn}
+                ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
             `;
         },
         emptyState: {
@@ -239,30 +290,8 @@ export function renderCategoriesTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування власних
-    container.querySelectorAll('.btn-edit-category').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showEditCategoryModal } = await import('./mapper-categories.js');
-                await showEditCategoryModal(id);
-            }
-        });
-    });
-
-    // Додати обробники для кнопок перегляду MP
-    container.querySelectorAll('.btn-view-mp-category').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            console.log(`👁️ Клік на перегляд MP категорії: ${id}`);
-            if (id) {
-                const { showViewMpCategoryModal } = await import('./mapper-categories.js');
-                await showViewMpCategoryModal(id);
-            }
-        });
-    });
+    // Ініціалізувати обробники дій
+    initActionHandlers(container, 'mapper-categories');
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'categories', paginatedData);
@@ -432,16 +461,10 @@ export function renderCharacteristicsTable() {
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.characteristics || new Set();
             const isChecked = selectedSet.has(row.id);
-            const actionBtn = row._editable
-                ? `<button class="btn-icon btn-edit-characteristic" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                       <span class="material-symbols-outlined">edit</span>
-                   </button>`
-                : `<button class="btn-icon btn-view-mp-characteristic" data-id="${escapeHtml(row.id)}" title="Переглянути">
-                       <span class="material-symbols-outlined">visibility</span>
-                   </button>`;
+            const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
-                ${actionBtn}
+                ${actionButton({ action, rowId: row.id, context: 'mapper-characteristics' })}
             `;
         },
         emptyState: {
@@ -451,30 +474,8 @@ export function renderCharacteristicsTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування власних
-    container.querySelectorAll('.btn-edit-characteristic').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-                await showEditCharacteristicModal(id);
-            }
-        });
-    });
-
-    // Додати обробники для кнопок перегляду MP
-    container.querySelectorAll('.btn-view-mp-characteristic').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            console.log(`👁️ Клік на перегляд MP характеристики: ${id}`);
-            if (id) {
-                const { showViewMpCharacteristicModal } = await import('./mapper-characteristics.js');
-                await showViewMpCharacteristicModal(id);
-            }
-        });
-    });
+    // Ініціалізувати обробники дій
+    initActionHandlers(container, 'mapper-characteristics');
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'characteristics', paginatedData);
@@ -621,16 +622,10 @@ export function renderOptionsTable() {
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.options || new Set();
             const isChecked = selectedSet.has(row.id);
-            const actionBtn = row._editable
-                ? `<button class="btn-icon btn-edit-option" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                       <span class="material-symbols-outlined">edit</span>
-                   </button>`
-                : `<button class="btn-icon btn-view-mp-option" data-id="${escapeHtml(row.id)}" title="Переглянути">
-                       <span class="material-symbols-outlined">visibility</span>
-                   </button>`;
+            const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
-                ${actionBtn}
+                ${actionButton({ action, rowId: row.id, context: 'mapper-options' })}
             `;
         },
         emptyState: {
@@ -640,29 +635,8 @@ export function renderOptionsTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок редагування власних
-    container.querySelectorAll('.btn-edit-option').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showEditOptionModal } = await import('./mapper-options.js');
-                await showEditOptionModal(id);
-            }
-        });
-    });
-
-    // Додати обробники для кнопок перегляду MP
-    container.querySelectorAll('.btn-view-mp-option').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showViewMpOptionModal } = await import('./mapper-options.js');
-                await showViewMpOptionModal(id);
-            }
-        });
-    });
+    // Ініціалізувати обробники дій
+    initActionHandlers(container, 'mapper-options');
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'options', paginatedData);
@@ -764,12 +738,8 @@ export function renderMarketplacesTable() {
             const isChecked = selectedSet.has(row.id);
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-view-marketplace" data-id="${escapeHtml(row.id)}" title="Переглянути дані">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
-                <button class="btn-icon btn-edit-marketplace" data-id="${escapeHtml(row.id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-marketplaces' })}
             `;
         },
         emptyState: {
@@ -779,28 +749,8 @@ export function renderMarketplacesTable() {
         withContainer: false
     });
 
-    // Додати обробники для кнопок
-    container.querySelectorAll('.btn-edit-marketplace').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showEditMarketplaceModal } = await import('./mapper-marketplaces.js');
-                await showEditMarketplaceModal(id);
-            }
-        });
-    });
-
-    container.querySelectorAll('.btn-view-marketplace').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const id = button.dataset.id;
-            if (id) {
-                const { showMarketplaceDataModal } = await import('./mapper-marketplaces.js');
-                await showMarketplaceDataModal(id);
-            }
-        });
-    });
+    // Ініціалізувати обробники дій
+    initActionHandlers(container, 'mapper-marketplaces');
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'marketplaces', paginatedData);

@@ -450,10 +450,10 @@ function renderMappedMpOptionsSections(ownOptionId) {
     // Перезапускаємо навігацію щоб включити нові секції
     initSectionNavigation('option-section-navigator');
 
-    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const mappingId = btn.dataset.mappingId;
+    // Реєструємо обробник unmap з замиканням на ownOptionId
+    registerActionHandlers('mp-option-mapping', {
+        unmap: async (rowId, data) => {
+            const mappingId = data.mappingId;
             if (mappingId) {
                 try {
                     await deleteOptionMapping(mappingId);
@@ -464,8 +464,11 @@ function renderMappedMpOptionsSections(ownOptionId) {
                     showToast('Помилка видалення маппінгу', 'error');
                 }
             }
-        });
+        }
     });
+
+    // Ініціалізуємо обробники дій
+    initActionHandlers(content, 'mp-option-mapping');
 }
 
 function renderMpOptionSectionContent(marketplaceData) {
@@ -477,9 +480,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
-                        <span class="material-symbols-outlined">link_off</span>
-                    </button>
+                    ${actionButton({ action: 'unmap', rowId: item.id, data: { mappingId: item._mappingId } })}
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">

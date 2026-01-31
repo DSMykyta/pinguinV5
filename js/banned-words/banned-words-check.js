@@ -8,6 +8,11 @@ import { showToast } from '../common/ui-toast.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { createPseudoTable, renderBadge } from '../common/ui-table.js';
 import { registerCheckTabPagination } from './banned-words-pagination.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
 
 // AbortController для скасування завантаження
 let currentAbortController = null;
@@ -462,6 +467,38 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
 
     const columns = getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErrors);
 
+    // Реєструємо обробник view для цього табу
+    registerActionHandlers(`banned-words-check-${tabId}`, {
+        view: async (rowId, data) => {
+            const productId = rowId;
+            const rowIndex = data.rowIndex;
+
+            if (!productId || !rowIndex) {
+                console.error('❌ Відсутні дані товару');
+                return;
+            }
+
+            console.log('📄 Відкриття модалу для товару:', productId);
+
+            const { showProductTextModal } = await import('./banned-words-product-modal.js');
+
+            const result = bannedWordsState.checkResults.find(r => r.id === productId);
+            const sheetName = result?.sheetName || bannedWordsState.selectedSheet;
+
+            const columnsForProduct = result?.columnNames || [result?.columnName || bannedWordsState.selectedColumn];
+            const columnName = columnsForProduct[0];
+
+            await showProductTextModal(
+                productId,
+                sheetName,
+                parseInt(rowIndex),
+                columnName,
+                bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet],
+                columnsForProduct
+            );
+        }
+    });
+
     const tableAPI = createPseudoTable(container, {
         columns,
         rowActionsCustom: (row) => {
@@ -469,9 +506,7 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
             const isChecked = selectedSet.has(row.id);
             return `
                 <input type="checkbox" class="row-checkbox" data-product-id="${escapeHtml(row.id)}" ${isChecked ? 'checked' : ''}>
-                <button class="btn-icon btn-view-product" data-product-id="${escapeHtml(row.id)}" data-row-index="${row._rowIndex}" title="Переглянути повний текст">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
+                ${actionButton({ action: 'view', rowId: row.id, context: `banned-words-check-${tabId}`, data: { rowIndex: row._rowIndex }, title: 'Переглянути повний текст' })}
             `;
         },
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
@@ -492,6 +527,9 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
  * Додати обробники подій для рядків таблиці перевірки
  */
 async function attachCheckRowEventHandlers(container, tabId) {
+    // Ініціалізувати ui-actions
+    initActionHandlers(container, `banned-words-check-${tabId}`);
+
     // Додати обробник кліків на clickable badges
     container.querySelectorAll('.badge.clickable').forEach(badge => {
         badge.addEventListener('click', async (e) => {
@@ -532,40 +570,6 @@ async function attachCheckRowEventHandlers(container, tabId) {
                 console.error('❌ Помилка оновлення статусу:', error);
                 alert('Помилка при оновленні статусу: ' + error.message);
             }
-        });
-    });
-
-    // Додати обробник кліків на кнопки перегляду товару
-    container.querySelectorAll('.btn-view-product').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-
-            const productId = button.dataset.productId;
-            const rowIndex = button.dataset.rowIndex;
-
-            if (!productId || !rowIndex) {
-                console.error('❌ Відсутні дані товару');
-                return;
-            }
-
-            console.log('📄 Відкриття модалу для товару:', productId);
-
-            const { showProductTextModal } = await import('./banned-words-product-modal.js');
-
-            const result = bannedWordsState.checkResults.find(r => r.id === productId);
-            const sheetName = result?.sheetName || bannedWordsState.selectedSheet;
-
-            const columnsForProduct = result?.columnNames || [result?.columnName || bannedWordsState.selectedColumn];
-            const columnName = columnsForProduct[0];
-
-            await showProductTextModal(
-                productId,
-                sheetName,
-                parseInt(rowIndex),
-                columnName,
-                bannedWordsState.selectedSheets || [bannedWordsState.selectedSheet],
-                columnsForProduct
-            );
         });
     });
 

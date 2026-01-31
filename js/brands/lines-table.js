@@ -17,6 +17,22 @@ import { brandsState } from './brands-state.js';
 import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('brand-lines', {
+    edit: async (rowId) => {
+        const { showEditLineModal } = await import('./lines-crud.js');
+        await showEditLineModal(rowId);
+    }
+});
 
 // Table API instance
 let linesTableAPI = null;
@@ -93,40 +109,22 @@ function initLinesTableAPI() {
         columns: getLinesColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
-            return `
-                <button class="btn-icon btn-edit-line" data-line-id="${escapeHtml(row.line_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `;
-        },
+        rowActionsCustom: (row) => actionButton({
+            action: 'edit',
+            rowId: row.line_id,
+            context: 'brand-lines'
+        }),
         getRowId: (row) => row.line_id,
         emptyState: {
             icon: 'category',
             message: 'Лінійки не знайдено'
         },
         withContainer: false,
-        onAfterRender: attachLinesRowEventHandlers
+        onAfterRender: (container) => initActionHandlers(container, 'brand-lines')
     });
 
     // Зберігаємо в state
     brandsState.linesTableAPI = linesTableAPI;
-}
-
-/**
- * Додати обробники подій для кнопок у рядках
- */
-function attachLinesRowEventHandlers(container) {
-    container.querySelectorAll('.btn-edit-line').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const lineId = button.dataset.lineId;
-            if (lineId) {
-                const { showEditLineModal } = await import('./lines-crud.js');
-                await showEditLineModal(lineId);
-            }
-        });
-    });
 }
 
 /**

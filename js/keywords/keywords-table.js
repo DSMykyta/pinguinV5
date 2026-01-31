@@ -12,6 +12,26 @@ import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
 import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('keywords', {
+    edit: async (rowId) => {
+        const { showEditKeywordModal } = await import('./keywords-crud.js');
+        await showEditKeywordModal(rowId);
+    },
+    view: async (rowId) => {
+        const { showGlossaryModal } = await import('./keywords-crud.js');
+        await showGlossaryModal(rowId);
+    }
+});
 
 // Прапорець для запобігання рекурсивного виклику
 let isRendering = false;
@@ -107,15 +127,11 @@ function initTableAPI() {
         rowActionsHeader: ' ',
         rowActionsCustom: (row) => {
             const hasGlossary = row.glossary_text && row.glossary_text.trim();
-            const eyeClass = hasGlossary ? 'severity-low' : 'severity-high';
+            const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
 
             return `
-                <button class="btn-icon btn-view-glossary ${eyeClass}" data-keyword-id="${escapeHtml(row.local_id)}" title="Переглянути глосарій">
-                    <span class="material-symbols-outlined">visibility</span>
-                </button>
-                <button class="btn-icon btn-edit" data-keyword-id="${escapeHtml(row.local_id)}" title="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
+                ${actionButton({ action: 'view', rowId: row.local_id, context: 'keywords', extraClass, title: 'Переглянути глосарій' })}
+                ${actionButton({ action: 'edit', rowId: row.local_id, context: 'keywords' })}
             `;
         },
         getRowId: (row) => row.local_id,
@@ -124,40 +140,11 @@ function initTableAPI() {
             message: 'Ключові слова не знайдено'
         },
         withContainer: false,
-        onAfterRender: attachRowEventHandlers
+        onAfterRender: (container) => initActionHandlers(container, 'keywords')
     });
 
     // Зберігаємо в state для доступу з інших модулів
     keywordsState.tableAPI = tableAPI;
-}
-
-/**
- * Додати обробники подій для кнопок у рядках
- */
-function attachRowEventHandlers(container) {
-    // Обробник кнопки редагування
-    container.querySelectorAll('.btn-edit').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const keywordId = button.dataset.keywordId;
-            if (keywordId) {
-                const { showEditKeywordModal } = await import('./keywords-crud.js');
-                await showEditKeywordModal(keywordId);
-            }
-        });
-    });
-
-    // Обробник кнопки перегляду глосарію
-    container.querySelectorAll('.btn-view-glossary').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const keywordId = button.dataset.keywordId;
-            if (keywordId) {
-                const { showGlossaryModal } = await import('./keywords-crud.js');
-                await showGlossaryModal(keywordId);
-            }
-        });
-    });
 }
 
 /**
