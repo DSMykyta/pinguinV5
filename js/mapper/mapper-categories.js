@@ -305,7 +305,7 @@ function populateRelatedCharacteristics(categoryId) {
                 <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
                 </button>
-                <button class="btn-icon btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
+                <button class="btn-icon btn-unmap btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
                     <span class="material-symbols-outlined">link_off</span>
                 </button>
             `,
