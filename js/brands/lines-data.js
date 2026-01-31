@@ -74,17 +74,16 @@ export async function loadBrandLines() {
             spreadsheetType: 'main'
         });
 
-        const rows = result.values || [];
-
-        if (rows.length <= 1) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.log('⚠️ Таблиця лінійок порожня або містить тільки заголовки');
             brandsState.brandLines = [];
             return [];
         }
 
         // Пропустити заголовок, парсити дані
-        const headers = rows[0];
-        const dataRows = rows.slice(1);
+        const headers = result[0];
+        const dataRows = result.slice(1);
 
         brandsState.brandLines = dataRows.map((row, index) => ({
             line_id: row[0] || '',
