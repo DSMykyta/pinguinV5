@@ -54,7 +54,7 @@ export async function showAddCharacteristicModal() {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('char-modal-title');
     if (title) title.textContent = 'Додати характеристику';
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
@@ -101,7 +101,7 @@ export async function showEditCharacteristicModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('char-modal-title');
     if (title) title.textContent = `Характеристика ${characteristic.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-characteristic');
@@ -577,7 +577,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>${escapeHtml(name)}</h2>
-                    <span class="badge badge-neutral">${items.length}</span>
+                    <span class="word-chip">${items.length}</span>
                 </div>
                 <h3>Прив'язані характеристики маркетплейсу</h3>
             </div>

@@ -169,6 +169,11 @@
     margin-top: -1px;
 }
 
+/* Для flexbox контейнерів - прибираємо верхній border */
+.inputs-bloc-container > .inputs-bloc.td + .inputs-bloc.td .inputs-line {
+    border-top: none;
+}
+
 /* Звичайний рядок */
 .td .inputs-line {
     background-color: transparent;

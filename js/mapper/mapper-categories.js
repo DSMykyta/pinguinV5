@@ -54,7 +54,7 @@ export async function showAddCategoryModal() {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('category-modal-title');
     if (title) title.textContent = 'Додати категорію';
 
     const deleteBtn = document.getElementById('delete-mapper-category');
@@ -98,7 +98,7 @@ export async function showEditCategoryModal(id) {
 
     const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('category-modal-title');
     if (title) title.textContent = `Категорія ${category.name_ua || ''}`;
 
     const deleteBtn = document.getElementById('delete-mapper-category');
@@ -624,7 +624,7 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>${escapeHtml(name)}</h2>
-                    <span class="badge badge-neutral">${items.length}</span>
+                    <span class="word-chip">${items.length}</span>
                 </div>
                 <h3>Прив'язані категорії маркетплейсу</h3>
             </div>

@@ -16,8 +16,12 @@ import { escapeHtml } from '../utils/text-utils.js';
  */
 export function initSectionNavigation(navId) {
     const nav = document.getElementById(navId);
-    const content = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !content) return;
+    if (!nav) return;
+
+    // Шукаємо content в межах того ж модалу
+    const modalContainer = nav.closest('.modal-fullscreen-container');
+    const content = modalContainer?.querySelector('.modal-fullscreen-content');
+    if (!content) return;
 
     const navItems = nav.querySelectorAll('.sidebar-nav-item');
 
@@ -27,7 +31,8 @@ export function initSectionNavigation(navId) {
             e.preventDefault();
             const targetId = item.getAttribute('href')?.slice(1);
             if (!targetId) return;
-            const section = document.getElementById(targetId);
+            // Шукаємо секцію в межах поточного модалу
+            const section = content.querySelector(`#${targetId}`);
             if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
             }
