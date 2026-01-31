@@ -218,7 +218,9 @@ function populateBrandLines(brandId) {
     const emptyState = document.getElementById('brand-lines-empty');
     if (!container) return;
 
+    console.log('🔍 populateBrandLines - brandId:', brandId);
     const lines = getBrandLinesByBrandId(brandId);
+    console.log('🔍 populateBrandLines - знайдено ліній:', lines.length, lines);
 
     if (!lines || lines.length === 0) {
         container.innerHTML = '';

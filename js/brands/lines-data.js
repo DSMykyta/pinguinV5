@@ -50,6 +50,11 @@ export function getBrandLineById(lineId) {
  * @returns {Array} Масив лінійок бренду
  */
 export function getBrandLinesByBrandId(brandId) {
+    console.log('🔍 getBrandLinesByBrandId - шукаємо:', brandId);
+    console.log('🔍 Всього ліній в state:', brandsState.brandLines.length);
+    if (brandsState.brandLines.length > 0) {
+        console.log('🔍 Доступні brand_id:', brandsState.brandLines.map(l => l.brand_id));
+    }
     return brandsState.brandLines.filter(l => l.brand_id === brandId);
 }
 
