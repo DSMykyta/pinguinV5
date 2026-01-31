@@ -252,6 +252,107 @@ function populateParentCategorySelect(excludeId = null) {
     reinitializeCustomSelect(select);
 }
 
+/**
+ * Показати модалку вибору характеристики для прив'язки до категорії
+ */
+async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
+    const allCharacteristics = getCharacteristics();
+
+    // Фільтруємо - показуємо тільки ті, що ще не прив'язані
+    const availableChars = allCharacteristics.filter(char => {
+        if (!char.category_ids) return true;
+        const ids = Array.isArray(char.category_ids)
+            ? char.category_ids
+            : String(char.category_ids).split(',').map(id => id.trim());
+        return !ids.includes(categoryId);
+    });
+
+    if (availableChars.length === 0) {
+        showToast('Всі характеристики вже прив\'язані до цієї категорії', 'info');
+        return;
+    }
+
+    // Створюємо модалку
+    const modalHtml = `
+        <div class="modal-overlay is-open">
+            <div class="modal-container modal-small">
+                <div class="modal-header">
+                    <h2 class="modal-title">Додати характеристику</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="select-char-to-add">Оберіть характеристику</label>
+                        <select id="select-char-to-add" data-custom-select placeholder="Оберіть характеристику">
+                            <option value="">-- Оберіть --</option>
+                            ${availableChars.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name_ua || c.id)}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline modal-cancel-btn">Скасувати</button>
+                    <button class="btn btn-primary modal-confirm-btn">Додати</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const overlay = createModalOverlay(modalHtml);
+    document.body.appendChild(overlay);
+    initCustomSelects(overlay);
+
+    const closeBtn = overlay.querySelector('.modal-close-btn');
+    const cancelBtn = overlay.querySelector('.modal-cancel-btn');
+    const confirmBtn = overlay.querySelector('.modal-confirm-btn');
+    const selectEl = overlay.querySelector('#select-char-to-add');
+
+    const cleanup = () => {
+        overlay.remove();
+    };
+
+    closeBtn?.addEventListener('click', cleanup);
+    cancelBtn?.addEventListener('click', cleanup);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cleanup();
+    });
+
+    confirmBtn?.addEventListener('click', async () => {
+        const charId = selectEl?.value;
+        if (!charId) {
+            showToast('Оберіть характеристику', 'warning');
+            return;
+        }
+
+        try {
+            // Отримуємо характеристику і додаємо categoryId
+            const char = allCharacteristics.find(c => c.id === charId);
+            if (!char) return;
+
+            let categoryIds = [];
+            if (char.category_ids) {
+                categoryIds = Array.isArray(char.category_ids)
+                    ? [...char.category_ids]
+                    : String(char.category_ids).split(',').map(id => id.trim());
+            }
+            categoryIds.push(categoryId);
+
+            await updateCharacteristic(charId, { category_ids: categoryIds });
+            showToast('Характеристику прив\'язано', 'success');
+            cleanup();
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            console.error('❌ Помилка прив\'язування:', error);
+            showToast('Помилка прив\'язування характеристики', 'error');
+        }
+    });
+}
+
 function populateRelatedCharacteristics(categoryId) {
     const container = document.getElementById('category-related-chars');
     const statsEl = document.getElementById('category-chars-stats');
@@ -293,6 +394,17 @@ function populateRelatedCharacteristics(categoryId) {
             sortable: true,
             className: 'cell-name',
             render: (value, row) => escapeHtml(value || row.id || '-')
+        },
+        {
+            id: '_unlink',
+            label: '',
+            sortable: false,
+            className: 'cell-actions-end',
+            render: (value, row) => `
+                <button class="btn-icon btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
+                    <span class="material-symbols-outlined">link_off</span>
+                </button>
+            `
         }
     ];
 
@@ -304,9 +416,6 @@ function populateRelatedCharacteristics(categoryId) {
             rowActionsCustom: (row) => `
                 <button class="btn-icon btn-edit-char" data-id="${row.id}" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button class="btn-icon btn-unmap btn-unlink-char" data-id="${row.id}" data-name="${escapeHtml(row.name_ua || row.id)}" data-tooltip="Відв'язати">
-                    <span class="material-symbols-outlined">link_off</span>
                 </button>
             `,
             emptyState: { message: 'Характеристики відсутні' },
@@ -399,6 +508,19 @@ function populateRelatedCharacteristics(categoryId) {
     if (searchInput) {
         searchInput.value = '';
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
+    // Кнопка "Додати" - прив'язати характеристику до категорії
+    const addBtn = document.getElementById('btn-add-category-char');
+    if (addBtn) {
+        addBtn.addEventListener('click', async () => {
+            await showAddCharacteristicToCategoryModal(categoryId, () => {
+                // Колбек після прив'язки - оновлюємо дані
+                allData = loadData();
+                filteredData = [...allData];
+                renderTable(filteredData);
+            });
+        });
     }
 
     // Перший рендер
@@ -712,7 +834,7 @@ function renderMpCategorySectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                    <button class="btn-icon btn-unmap-cat" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>

@@ -469,7 +469,7 @@ function renderMpOptionSectionContent(marketplaceData) {
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <button class="btn-icon btn-unmap btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                    <button class="btn-icon btn-unmap-opt" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
                 </div>
