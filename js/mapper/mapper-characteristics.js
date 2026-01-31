@@ -474,7 +474,7 @@ function populateRelatedOptions(characteristicId) {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const optId = btn.dataset.id;
-            closeModal();
+            // Не закриваємо батьківський модал - відкриваємо поверх
             const { showEditOptionModal } = await import('./mapper-options.js');
             await showEditOptionModal(optId);
         });

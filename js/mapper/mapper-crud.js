@@ -524,7 +524,7 @@ function populateRelatedOptions(characteristicId) {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const optId = btn.dataset.id;
-            closeModal();
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditOptionModal(optId);
         });
     });
@@ -926,7 +926,7 @@ function populateRelatedCharacteristics(categoryId) {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const charId = btn.dataset.id;
-            closeModal();
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditCharacteristicModal(charId);
         });
     });
@@ -987,7 +987,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const charId = btn.dataset.id;
-            closeModal();
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditCharacteristicModal(charId);
         });
     });

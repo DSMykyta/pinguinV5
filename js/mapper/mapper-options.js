@@ -319,7 +319,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const charId = btn.dataset.id;
-            closeModal();
+            // Не закриваємо батьківський модал - відкриваємо поверх
             const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
             await showEditCharacteristicModal(charId);
         });
