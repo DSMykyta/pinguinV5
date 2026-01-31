@@ -501,20 +501,30 @@ function populateRelatedOptions(characteristicId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedOptions.length})`;
+    if (countEl) countEl.textContent = relatedOptions.length;
 
     container.innerHTML = relatedOptions.map(opt => `
-        <div class="modal-related-item" data-id="${opt.id}">
-            <span class="modal-related-item-name">${opt.value_ua || opt.id}</span>
-            <span class="modal-related-item-id">${opt.id}</span>
+        <div class="inputs-bloc td" data-id="${opt.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(opt.value_ua || opt.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${opt.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${opt.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    // Додаємо обробники для відкриття опції
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const optId = item.dataset.id;
-            closeModal();
+    // Додаємо обробники для редагування опції
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const optId = btn.dataset.id;
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditOptionModal(optId);
         });
     });
@@ -893,20 +903,30 @@ function populateRelatedCharacteristics(categoryId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedChars.length})`;
+    if (countEl) countEl.textContent = relatedChars.length;
 
     container.innerHTML = relatedChars.map(char => `
-        <div class="modal-related-item" data-id="${char.id}">
-            <span class="modal-related-item-name">${escapeHtml(char.name_ua || char.id)}</span>
-            <span class="modal-related-item-id">${char.id}</span>
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    // Додаємо обробники для відкриття характеристики
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const charId = item.dataset.id;
-            closeModal();
+    // Додаємо обробники для редагування характеристики
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.id;
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditCharacteristicModal(charId);
         });
     });
@@ -944,20 +964,30 @@ function populateRelatedDependentCharacteristics(optionId) {
     // Є залежні — показуємо секцію та пункт меню
     if (navItem) navItem.classList.remove('u-hidden');
     if (section) section.classList.remove('u-hidden');
-    if (countEl) countEl.textContent = `(${dependentChars.length})`;
+    if (countEl) countEl.textContent = dependentChars.length;
 
     container.innerHTML = dependentChars.map(char => `
-        <div class="modal-related-item" data-id="${char.id}">
-            <span class="modal-related-item-name">${escapeHtml(char.name_ua || char.id)}</span>
-            <span class="modal-related-item-id">${char.id}</span>
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    // Додаємо обробники для відкриття характеристики
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const charId = item.dataset.id;
-            closeModal();
+    // Додаємо обробники для редагування характеристики
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.id;
+            // Не закриваємо батьківський модал - відкриваємо поверх
             await showEditCharacteristicModal(charId);
         });
     });

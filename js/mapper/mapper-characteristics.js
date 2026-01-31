@@ -452,19 +452,29 @@ function populateRelatedOptions(characteristicId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedOptions.length})`;
+    if (countEl) countEl.textContent = relatedOptions.length;
 
     container.innerHTML = relatedOptions.map(opt => `
-        <div class="modal-related-item" data-id="${opt.id}">
-            <span class="modal-related-item-name">${opt.value_ua || opt.id}</span>
-            <span class="modal-related-item-id">${opt.id}</span>
+        <div class="inputs-bloc td" data-id="${opt.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(opt.value_ua || opt.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${opt.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${opt.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const optId = item.dataset.id;
-            closeModal();
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const optId = btn.dataset.id;
+            // Не закриваємо батьківський модал - відкриваємо поверх
             const { showEditOptionModal } = await import('./mapper-options.js');
             await showEditOptionModal(optId);
         });

@@ -229,25 +229,54 @@ function populateBrandLines(brandId) {
     if (emptyState) emptyState.classList.add('u-hidden');
 
     container.innerHTML = lines.map(line => `
-        <div class="brand-line-item" data-line-id="${escapeHtml(line.line_id)}">
-            <div class="brand-line-info">
-                <span class="material-symbols-outlined">category</span>
-                <span class="brand-line-name">${escapeHtml(line.name_uk)}</span>
+        <div class="inputs-bloc td" data-line-id="${escapeHtml(line.line_id)}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(line.name_uk)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${escapeHtml(line.line_id)}</span>
+                </div>
             </div>
-            <button class="btn-icon btn-edit-brand-line" data-line-id="${escapeHtml(line.line_id)}" title="Редагувати">
+            <button class="btn-icon btn-edit-line" data-line-id="${escapeHtml(line.line_id)}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="btn-icon btn-delete-line" data-line-id="${escapeHtml(line.line_id)}" title="Видалити">
+                <span class="material-symbols-outlined">close</span>
             </button>
         </div>
     `).join('');
 
-    // Додати обробники для кнопок редагування
-    container.querySelectorAll('.btn-edit-brand-line').forEach(btn => {
+    // Обробники для редагування
+    container.querySelectorAll('.btn-edit-line').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const lineId = btn.dataset.lineId;
             if (lineId) {
                 const { showEditLineModal } = await import('./lines-crud.js');
                 await showEditLineModal(lineId);
+            }
+        });
+    });
+
+    // Обробники для видалення
+    container.querySelectorAll('.btn-delete-line').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const lineId = btn.dataset.lineId;
+            if (lineId) {
+                const { showConfirmModal } = await import('../common/ui-modal-confirm.js');
+                const confirmed = await showConfirmModal({
+                    title: 'Видалити лінійку?',
+                    message: 'Цю дію неможливо скасувати.',
+                    confirmText: 'Видалити',
+                    danger: true
+                });
+                if (confirmed) {
+                    const { deleteLine } = await import('./lines-crud.js');
+                    await deleteLine(lineId);
+                    renderBrandLines(document.getElementById('brand-id')?.value);
+                }
             }
         });
     });

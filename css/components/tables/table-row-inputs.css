@@ -48,7 +48,8 @@
 /* БАЗОВА СТРУКТУРА РЯДКА */
 /* ============================================ */
 
-#rows-container .inputs-bloc {
+#rows-container .inputs-bloc,
+.inputs-bloc-container .inputs-bloc {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -281,4 +282,29 @@
 .inputs-bloc:first-child:not(.new-table):not(.h2):has(+ .inputs-bloc.new-table) .inputs-line,
 .inputs-bloc:first-child:not(.new-table):not(.h2):has(+ .inputs-bloc.h2) .inputs-line {
     border-radius: 8px;
+}
+
+/* ============================================ */
+/* ТЕКСТОВИЙ РЕЖИМ (для related items)         */
+/* ============================================ */
+
+/* Назва елемента */
+.inputs-bloc .item-name {
+    font-size: 12px;
+    padding: 0 4px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    color: var(--color-on-surface);
+}
+
+/* ID елемента */
+.inputs-bloc .item-id {
+    font-size: 11px;
+    padding: 0 4px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    color: var(--color-on-surface-v);
+    font-family: var(--font-mono);
 }

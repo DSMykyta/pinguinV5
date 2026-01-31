@@ -274,20 +274,29 @@ function populateRelatedCharacteristics(categoryId) {
         return;
     }
 
-    if (countEl) countEl.textContent = `(${relatedChars.length})`;
+    if (countEl) countEl.textContent = relatedChars.length;
 
     container.innerHTML = relatedChars.map(char => `
-        <div class="modal-related-item" data-id="${char.id}">
-            <span class="modal-related-item-name">${escapeHtml(char.name_ua || char.id)}</span>
-            <span class="modal-related-item-id">${char.id}</span>
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon btn-edit-item" data-id="${char.id}" title="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
         </div>
     `).join('');
 
-    container.querySelectorAll('.modal-related-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const charId = item.dataset.id;
-            closeModal();
-            // Динамічний імпорт щоб уникнути циклічних залежностей
+    container.querySelectorAll('.btn-edit-item').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.id;
+            // Не закриваємо батьківський модал - відкриваємо поверх
             const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
             await showEditCharacteristicModal(charId);
         });
