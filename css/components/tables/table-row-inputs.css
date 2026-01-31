@@ -45,6 +45,24 @@
  */
 
 /* ============================================ */
+/* КОНТЕЙНЕР ДЛЯ INPUTS-BLOC (модалі)          */
+/* ============================================ */
+
+.inputs-bloc-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Пусте повідомлення */
+.inputs-bloc-container .empty-state-container {
+    padding: 24px;
+    text-align: center;
+    color: var(--color-on-surface-v);
+    font-size: 14px;
+}
+
+/* ============================================ */
 /* БАЗОВА СТРУКТУРА РЯДКА */
 /* ============================================ */
 

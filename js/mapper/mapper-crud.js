@@ -389,8 +389,8 @@ function clearRelatedOptions() {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="modal-related-empty">
-            <span class="modal-related-empty-text">Опції з'являться після збереження</span>
+        <div class="empty-state-container">
+            <div class="empty-state-message">Опції з'являться після збереження</div>
         </div>
     `;
     if (countEl) countEl.textContent = '';
@@ -493,8 +493,8 @@ function populateRelatedOptions(characteristicId) {
 
     if (relatedOptions.length === 0) {
         container.innerHTML = `
-            <div class="modal-related-empty">
-                <span class="modal-related-empty-text">Опції відсутні</span>
+            <div class="empty-state-container">
+                <div class="empty-state-message">Опції відсутні</div>
             </div>
         `;
         if (countEl) countEl.textContent = '';
@@ -895,8 +895,8 @@ function populateRelatedCharacteristics(categoryId) {
 
     if (relatedChars.length === 0) {
         container.innerHTML = `
-            <div class="modal-related-empty">
-                <span class="modal-related-empty-text">Характеристики відсутні</span>
+            <div class="empty-state-container">
+                <div class="empty-state-message">Характеристики відсутні</div>
             </div>
         `;
         if (countEl) countEl.textContent = '';
