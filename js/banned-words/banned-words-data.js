@@ -28,7 +28,6 @@ const BANNED_SHEET_GID = '1742878044'; // GID для аркуша Banned
  */
 export async function loadBannedWords() {
     try {
-        console.log('📥 Завантаження заборонених слів...');
 
         const csvUrl = `https://docs.google.com/spreadsheets/d/${BANNED_SPREADSHEET_ID}/export?format=csv&gid=${BANNED_SHEET_GID}`;
         const response = await fetch(csvUrl);
@@ -53,7 +52,6 @@ export async function loadBannedWords() {
             return;
         }
 
-        console.log('📋 Перший рядок даних:', rows[0]);
 
         // Отримати заголовки та знайти індекс колонки cheaked_line
         const headers = parsedData.meta.fields || [];
@@ -65,7 +63,6 @@ export async function loadBannedWords() {
                 bannedWordsState.sheetCheckedColumns = {};
             }
             bannedWordsState.sheetCheckedColumns['Banned'] = checkedCol;
-            console.log(`💾 Збережено колонку cheaked_line для "Banned": ${checkedCol} (індекс ${cheakedIndex})`);
         } else {
             console.warn('⚠️ Колонка cheaked_line не знайдена в таблиці Banned');
         }
@@ -96,7 +93,6 @@ export async function loadBannedWords() {
             (item.group_name_ua && item.group_name_ua.trim() !== '')
         );
 
-        console.log(`✅ Завантажено ${bannedWordsState.bannedWords.length} заборонених слів`);
 
     } catch (error) {
         console.error('❌ Помилка завантаження Banned:', error);
@@ -111,13 +107,11 @@ export async function loadBannedWords() {
  */
 export async function loadSheetNames() {
     try {
-        console.log('📥 Завантаження списку аркушів...');
 
         const result = await callSheetsAPI('getSheetNames', { spreadsheetType: 'texts' });
         // Backend повертає [{title, sheetId, index}], витягуємо тільки title
         bannedWordsState.sheetNames = (result || []).map(sheet => sheet.title);
 
-        console.log(`✅ Знайдено ${bannedWordsState.sheetNames.length} аркушів:`, bannedWordsState.sheetNames);
 
     } catch (error) {
         console.error('❌ Помилка отримання списку аркушів:', error);
@@ -133,7 +127,6 @@ export async function loadSheetNames() {
  */
 export async function loadSheetColumn(sheetName, columnName) {
     try {
-        console.log(`📥 Завантаження колонки "${columnName}" з аркуша "${sheetName}"...`);
 
         // Спочатку отримуємо заголовки для знаходження індексу потрібної колонки
         const headerResult = await callSheetsAPI('get', {
@@ -143,7 +136,6 @@ export async function loadSheetColumn(sheetName, columnName) {
 
         // Backend повертає масив напряму, а не {values: [...]}
         const headers = Array.isArray(headerResult) && headerResult.length > 0 ? headerResult[0] : [];
-        console.log('📋 Заголовки:', headers);
 
         // Знайти індекс ID та потрібної колонки
         const idIndex = headers.findIndex(h => h.toLowerCase() === 'id' || h.toLowerCase() === 'product_id');
@@ -157,8 +149,6 @@ export async function loadSheetColumn(sheetName, columnName) {
             throw new Error(`Колонка "${columnName}" не знайдена в таблиці`);
         }
 
-        console.log(`🔍 ID у колонці ${String.fromCharCode(65 + idIndex)} (індекс ${idIndex})`);
-        console.log(`🔍 ${columnName} у колонці ${String.fromCharCode(65 + columnIndex)} (індекс ${columnIndex})`);
 
         // Конвертуємо індекси в букви колонок (A, B, C, ...)
         const idColumnLetter = columnIndexToLetter(idIndex);
@@ -166,7 +156,6 @@ export async function loadSheetColumn(sheetName, columnName) {
 
         // Завантажити тільки ці дві колонки
         const range = `${sheetName}!${idColumnLetter}:${idColumnLetter},${targetColumnLetter}:${targetColumnLetter}`;
-        console.log(`📥 Завантажуємо діапазон: ${range}`);
 
         const dataResult = await callSheetsAPI('get', {
             range: range,
@@ -198,7 +187,6 @@ export async function loadSheetColumn(sheetName, columnName) {
             }
         }
 
-        console.log(`✅ Завантажено ${data.length} рядків`);
 
         return data;
 
@@ -217,7 +205,6 @@ export async function loadSheetColumn(sheetName, columnName) {
 export async function loadSheetDataForCheck(sheetName, targetColumn) {
     const startTime = performance.now();
     try {
-        console.log(`📥 Завантаження даних для перевірки з аркуша "${sheetName}"...`);
 
         // Отримуємо заголовки через backend API
         const headerResult = await callSheetsAPI('get', {
@@ -227,7 +214,6 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
 
         // Backend повертає масив напряму, а не {values: [...]}
         const headers = Array.isArray(headerResult) && headerResult.length > 0 ? headerResult[0] : [];
-        console.log('📋 Заголовки:', headers);
 
         // Знайти індекси потрібних колонок
         const idIndex = headers.findIndex(h => h.toLowerCase() === 'id' || h.toLowerCase() === 'product_id');
@@ -243,9 +229,7 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
         const titleColumnName = hasTitle ? headers[titleIndex] : null;
 
         if (hasTitle) {
-            console.log(`🔍 Знайдено колонки: id=${idIndex}, title=${titleIndex} (${titleColumnName}), cheaked_line=${cheakedIndex}, ${targetColumn}=${targetIndex}`);
         } else {
-            console.log(`🔍 Знайдено колонки: id=${idIndex}, title=НЕМАЄ (буде ID+фрагмент), cheaked_line=${cheakedIndex}, ${targetColumn}=${targetIndex}`);
         }
 
         // Завантажити потрібні колонки через batchGet
@@ -258,7 +242,6 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
             bannedWordsState.sheetCheckedColumns = {};
         }
         bannedWordsState.sheetCheckedColumns[sheetName] = checkedCol;
-        console.log(`💾 Збережено колонку cheaked_line для "${sheetName}": ${checkedCol}`);
 
         const ranges = [
             `${sheetName}!${idCol}2:${idCol}`,
@@ -270,16 +253,13 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
         if (hasTitle) {
             const titleCol = columnIndexToLetter(titleIndex);
             ranges.splice(1, 0, `${sheetName}!${titleCol}2:${titleCol}`);
-            console.log(`⏳ Завантаження 4 колонок: ${idCol}, ${titleCol}, ${targetCol}, ${checkedCol}...`);
         } else {
-            console.log(`⏳ Завантаження 3 колонок: ${idCol}, ${targetCol}, ${checkedCol}...`);
         }
 
         const dataResult = await callSheetsAPI('batchGet', {
             ranges: ranges,
             spreadsheetType: 'texts'
         });
-        console.log(`✅ Дані отримано з API`);
 
         // Backend повертає масив valueRanges напряму
         const valueRanges = dataResult;
@@ -309,7 +289,6 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
             targetColumnData.length,
             checkedColumnData.length
         );
-        console.log(`🔄 Обробка ${rowCount} рядків...`);
 
         // Парсимо дані
         const data = [];
@@ -339,7 +318,6 @@ export async function loadSheetDataForCheck(sheetName, targetColumn) {
 
         const endTime = performance.now();
         const duration = ((endTime - startTime) / 1000).toFixed(2);
-        console.log(`✅ Завантажено ${data.length} рядків для перевірки за ${duration}с`);
         return data;
 
     } catch (error) {
@@ -370,7 +348,6 @@ function columnIndexToLetter(index) {
  */
 export async function saveBannedWord(wordData, isEdit) {
     try {
-        console.log(`💾 ${isEdit ? 'Оновлення' : 'Створення'} заборонного слова:`, wordData);
 
         // Цей масив 'values' тепер точно відповідає вашій структурі з 9 колонок:
         // [local_id, group_name_ua, name_uk, name_ru, banned_type, banned_explaine, banned_hint, severity, cheaked_line]
@@ -410,7 +387,6 @@ export async function saveBannedWord(wordData, isEdit) {
                 spreadsheetType: 'banned'
             });
 
-            console.log('✅ Заборонене слово оновлено в рядку:', targetRowIndex);
 
         } else {
             // Додати новий рядок
@@ -420,7 +396,6 @@ export async function saveBannedWord(wordData, isEdit) {
                 spreadsheetType: 'banned'
             });
 
-            console.log('✅ Заборонене слово додано');
         }
 
     } catch (error) {
@@ -438,7 +413,6 @@ export async function saveBannedWord(wordData, isEdit) {
  */
 export async function updateProductStatus(sheetName, productId, columnName, status) {
     try {
-        console.log(`💾 Оновлення статусу для ${productId} в "${sheetName}"...`);
 
         // Знайти рядок продукту через backend API
         const idResult = await callSheetsAPI('get', {
@@ -483,7 +457,6 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
             spreadsheetType: 'texts'
         });
 
-        console.log(`✅ Статус оновлено для ${productId}: ${status}`);
 
     } catch (error) {
         console.error('❌ Помилка оновлення статусу:', error);
@@ -500,7 +473,6 @@ export async function updateProductStatus(sheetName, productId, columnName, stat
  */
 export async function getSheetHeaders(sheetName) {
     try {
-        console.log(`📥 Завантаження заголовків аркуша "${sheetName}"...`);
 
         const result = await callSheetsAPI('get', {
             range: `${sheetName}!1:1`,
@@ -510,7 +482,6 @@ export async function getSheetHeaders(sheetName) {
         // Backend повертає масив напряму
         const headers = Array.isArray(result) && result.length > 0 ? result[0] : [];
 
-        console.log(`✅ Знайдено ${headers.length} колонок в аркуші "${sheetName}"`);
 
         return headers;
     } catch (error) {
@@ -527,7 +498,6 @@ export async function getSheetHeaders(sheetName) {
  */
 export async function loadProductFullData(sheetName, rowIndex) {
     try {
-        console.log(`📥 Завантаження повних даних товару з аркуша "${sheetName}", рядок ${rowIndex}...`);
 
         // Завантажити заголовки
         const headers = await getSheetHeaders(sheetName);
@@ -554,7 +524,6 @@ export async function loadProductFullData(sheetName, rowIndex) {
         // Додати rowIndex для можливості оновлення
         productData._rowIndex = rowIndex;
 
-        console.log('✅ Повні дані товару завантажені:', productData);
 
         return productData;
 

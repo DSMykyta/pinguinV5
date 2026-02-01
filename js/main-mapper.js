@@ -6,7 +6,6 @@ import { initMapper } from './mapper/mapper-init.js';
 
 // Ініціалізація при завантаженні DOM
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Ініціалізація сторінки Mapper...');
 
     // Спочатку ініціалізуємо core функціональність
     initCore();
@@ -14,5 +13,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Потім ініціалізуємо специфічні для mapper функції
     initMapper();
 
-    console.log('✅ Сторінка Mapper готова');
 });

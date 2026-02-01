@@ -45,7 +45,6 @@ export async function loadAside() {
             searchFilterBtn.classList.toggle('u-hidden', !(tabId === 'tab-manage'));
         }
 
-        console.log('✅ Aside завантажено');
     } catch (error) {
         console.error('❌ Помилка завантаження aside:', error);
     }
@@ -182,7 +181,6 @@ async function loadColumnsForSelectedSheets() {
 
         columnSelect.disabled = false;
 
-        console.log(`✅ Завантажено ${textColumns.length} унікальних текстових колонок з ${selectedSheets.length} аркушів`);
     } catch (error) {
         console.error('❌ Помилка завантаження колонок:', error);
         columnSelect.innerHTML = '';
@@ -233,7 +231,6 @@ export async function loadSheetColumns(sheetName) {
 
         columnSelect.disabled = false;
 
-        console.log(`✅ Завантажено ${textColumns.length} текстових колонок з аркуша "${sheetName}"`);
     } catch (error) {
         console.error('❌ Помилка завантаження колонок:', error);
         columnSelect.innerHTML = '<option value="">-- Помилка завантаження --</option>';
@@ -304,7 +301,6 @@ export function initManageTabEvents() {
     const refreshTabButton = document.getElementById('refresh-tab-manage');
     if (refreshTabButton) {
         refreshTabButton.addEventListener('click', async () => {
-            console.log('🔄 Оновлення табу...');
 
             // Додати клас обертання до іконки
             refreshTabButton.disabled = true;
@@ -324,7 +320,6 @@ export function initManageTabEvents() {
                     bannedWordsState.paginationAPI.updateTotalItems(bannedWordsState.bannedWords.length);
                 }
 
-                console.log('✅ Таб оновлено');
             } catch (error) {
                 console.error('❌ Помилка оновлення:', error);
             } finally {
@@ -346,7 +341,6 @@ export function initRefreshButton() {
 
     button.addEventListener('click', async () => {
         button.disabled = true;
-        console.log('🔄 Оновлення заборонених слів...');
 
         try {
             // Очистити кеш перевірок
@@ -365,7 +359,6 @@ export function initRefreshButton() {
             // Оновити селекти
             populateCheckSelects();
 
-            console.log('✅ Заборонені слова оновлено');
         } catch (error) {
             console.error('❌ Помилка оновлення:', error);
         } finally {

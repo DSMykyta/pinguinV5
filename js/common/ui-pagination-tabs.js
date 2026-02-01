@@ -49,7 +49,6 @@ export function initMultiTabPagination(footerElement, options) {
             renderFn
         };
 
-        console.log(`📋 Registered pagination for tab: ${tabId}`, tabPaginations[tabId]);
 
         // Якщо це активний таб - оновити footer
         if (getActiveTab() === tabId) {
@@ -91,7 +90,6 @@ export function initMultiTabPagination(footerElement, options) {
 
         updateFooterUI(tabId);
 
-        console.log(`🔄 Restored pagination for tab: ${tabId}`, pagination);
         return true;
     }
 
@@ -101,7 +99,6 @@ export function initMultiTabPagination(footerElement, options) {
     function removeTab(tabId) {
         if (tabPaginations[tabId]) {
             delete tabPaginations[tabId];
-            console.log(`🗑️ Removed pagination for tab: ${tabId}`);
             return true;
         }
         return false;

@@ -30,7 +30,6 @@ export async function loadAside() {
         const html = await response.text();
         panelContent.innerHTML = html;
 
-        console.log('✅ Aside-price завантажено');
 
     } catch (error) {
         console.error('❌ Помилка завантаження aside-price:', error);

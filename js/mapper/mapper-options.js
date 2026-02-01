@@ -43,7 +43,6 @@ export const PLUGIN_NAME = 'mapper-options';
  * Ініціалізація плагіна
  */
 export function init() {
-    console.log(`🔌 [${PLUGIN_NAME}] Ініціалізація...`);
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -55,7 +54,6 @@ export function init() {
  * Показати модальне вікно для додавання опції
  */
 export async function showAddOptionModal(preselectedCharacteristicId = null) {
-    console.log('➕ Відкриття модального вікна для додавання опції', preselectedCharacteristicId ? `для характеристики ${preselectedCharacteristicId}` : '');
 
     await showModal('mapper-option-edit', null);
 
@@ -100,7 +98,6 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
  * Показати модальне вікно для редагування опції
  */
 export async function showEditOptionModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування опції ${id}`);
 
     const options = getOptions();
     const option = options.find(o => o.id === id);
@@ -550,7 +547,6 @@ function renderMpDataFields(data) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function showSelectOwnOptionModal(selectedIds) {
-    console.log(`🔗 Batch маппінг опцій: ${selectedIds.length} обрано`);
 
     const mpOpts = getMpOptions();
     const ownOpts = getOptions();
@@ -672,7 +668,6 @@ export async function showSelectOwnOptionModal(selectedIds) {
 }
 
 export async function handleAutoMapOptions(selectedIds) {
-    console.log(`🤖 Автоматичний маппінг опцій: ${selectedIds.length} обрано`);
 
     try {
         const result = await autoMapOptions(selectedIds);
@@ -697,7 +692,6 @@ export async function handleAutoMapOptions(selectedIds) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function showViewMpOptionModal(mpOptionIdOrData) {
-    console.log(`👁️ Перегляд MP опції`, mpOptionIdOrData);
 
     let mpOption;
 

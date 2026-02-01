@@ -25,6 +25,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -41,7 +42,6 @@ let currentBrandId = null; // ID бренду, що редагується (null
  * Показати модальне вікно для додавання бренду
  */
 export async function showAddBrandModal() {
-    console.log('➕ Відкриття модального вікна для додавання бренду');
 
     currentBrandId = null;
 
@@ -74,7 +74,6 @@ export async function showAddBrandModal() {
  * @param {string} brandId - ID бренду
  */
 export async function showEditBrandModal(brandId) {
-    console.log(`✏️ Відкриття модального вікна для редагування бренду ${brandId}`);
 
     const brand = getBrandById(brandId);
     if (!brand) {
@@ -117,7 +116,6 @@ export async function showEditBrandModal(brandId) {
  * @param {string} brandId - ID бренду
  */
 export async function showDeleteBrandConfirm(brandId) {
-    console.log(`🗑️ Підтвердження видалення бренду ${brandId}`);
 
     const brand = getBrandById(brandId);
     if (!brand) {
@@ -755,7 +753,6 @@ function clearBrandForm() {
  * Обробник збереження бренду
  */
 async function handleSaveBrand() {
-    console.log('💾 Збереження бренду...');
 
     const brandData = getBrandFormData();
 
@@ -792,7 +789,6 @@ async function handleSaveBrand() {
  * @param {string} brandId - ID бренду
  */
 async function handleDeleteBrand(brandId) {
-    console.log(`🗑️ Видалення бренду ${brandId}...`);
 
     try {
         await deleteBrand(brandId);
@@ -830,20 +826,6 @@ function generateBrandIdForUI() {
     return `bran-${String(newNum).padStart(6, '0')}`;
 }
 
-/**
- * Екранувати HTML
- * @param {string} str - Рядок
- * @returns {string} Екранований рядок
- */
-function escapeHtml(str) {
-    if (!str) return '';
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLUGIN REGISTRATION
@@ -852,4 +834,3 @@ function escapeHtml(str) {
 // Цей файл — плагін, тому не потрібно реєструвати хуки
 // Експортуємо функції для виклику з інших модулів
 
-console.log('[Brands CRUD] Плагін завантажено');

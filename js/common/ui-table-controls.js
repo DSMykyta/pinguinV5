@@ -529,7 +529,6 @@ export function initTableSorting(container, options) {
             await onSort(sortedData);
         }
 
-        console.log(`↕️ Сортування: ${sortKey} ${state.sortDirection}`);
     };
 
     container.addEventListener('click', clickHandler);
@@ -539,7 +538,6 @@ export function initTableSorting(container, options) {
         setupHoverDropdowns(container, handlers);
     }
 
-    console.log(`✅ Table sorting initialized`);
 
     // API
     return {
@@ -753,7 +751,6 @@ export function initTableFilters(container, options) {
                     }
 
                     wrapper.classList.remove('is-open');
-                    console.log(`↕️ Сортування: ${column.id} ${direction}`);
                 });
             });
         }
@@ -826,7 +823,6 @@ export function initTableFilters(container, options) {
     // Ініціалізуємо dropdown
     initDropdowns();
 
-    console.log(`✅ Table filters initialized (legacy)`);
 
     return {
         getSortState: () => ({ column: state.sortColumn, direction: state.sortDirection }),

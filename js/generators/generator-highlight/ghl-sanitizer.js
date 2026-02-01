@@ -8,6 +8,9 @@ import { getHighlightDOM } from './ghl-dom.js';
 import { getCurrentMode } from './ghl-mode.js';
 import { saveCaretPosition, restoreCaretPosition } from './ghl-caret.js';
 
+// Re-export escapeHtml from central text-utils
+export { escapeHtml } from '../../utils/text-utils.js';
+
 // Флаг для пропуску відновлення курсора (після Enter)
 let skipCaretRestore = false;
 
@@ -24,14 +27,6 @@ export function setSkipCaretRestore(value) {
     }
 }
 
-/**
- * Екранування HTML символів
- */
-export function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 /**
  * Очищення HTML рядка

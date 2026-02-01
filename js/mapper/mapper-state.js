@@ -155,7 +155,6 @@ export function setActiveTab(tabName) {
  */
 export function markPluginLoaded(pluginName) {
     mapperState.loadedPlugins.add(pluginName);
-    console.log(`[Mapper] ✅ Plugin loaded: ${pluginName}`);
 }
 
 /**

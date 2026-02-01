@@ -93,5 +93,4 @@ function showMessage(text) {
     // Спробувати використати toast якщо доступний
     import('../../common/ui-toast.js')
         .then(module => module.showToast(text, 'success'))
-        .catch(() => console.log('[Editor Find]', text));
 }

@@ -186,7 +186,6 @@ export function renderLinesTable() {
         return;
     }
 
-    console.log('🎨 Рендеринг таблиці лінійок...');
 
     const container = document.getElementById('lines-table-container');
     if (!container) return;
@@ -219,7 +218,6 @@ export function renderLinesTable() {
     // Оновити статистику
     updateStats(filtered.length, all.length);
 
-    console.log(`✅ Відрендерено ${paginated.length} з ${filtered.length} лінійок`);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -327,4 +325,3 @@ registerBrandsPlugin('onTabChange', (tab) => {
     }
 });
 
-console.log('[Lines Table] Плагін завантажено');

@@ -37,7 +37,6 @@ function columnIndexToLetter(index) {
  */
 export async function loadPriceData() {
     try {
-        console.log('📥 Завантаження даних прайсу...');
 
         // Завантажуємо всі дані починаючи з рядка 7
         const result = await callSheetsAPI('get', {
@@ -63,7 +62,6 @@ export async function loadPriceData() {
 
         // Перший рядок - заголовки
         const headers = rows[0];
-        console.log('📋 Заголовки прайсу:', headers);
 
         // Створюємо мапу індексів колонок
         columnIndices = {};
@@ -72,7 +70,6 @@ export async function loadPriceData() {
                 columnIndices[header.toLowerCase()] = index;
             }
         });
-        console.log('📋 Індекси колонок:', columnIndices);
 
         // Парсимо дані
         const data = [];
@@ -123,7 +120,6 @@ export async function loadPriceData() {
         priceState.filteredItems = [...data];
         priceState.reserveNames = Array.from(reserveSet).sort();
 
-        console.log(`✅ Завантажено ${data.length} товарів, ${priceState.reserveNames.length} резервів`);
 
     } catch (error) {
         console.error('❌ Помилка завантаження прайсу:', error);
@@ -148,7 +144,6 @@ export function getColumnLetter(columnName) {
  */
 export async function updateItemStatus(code, field, value) {
     try {
-        console.log(`💾 Оновлення ${field} для ${code}: ${value}`);
 
         // Знаходимо товар в state
         const item = priceState.priceItems.find(i => i.code === code);
@@ -194,7 +189,6 @@ export async function updateItemStatus(code, field, value) {
             item[dateField] = currentDate;
         }
 
-        console.log(`✅ ${field} оновлено для ${code}`);
 
         return { success: true };
 
@@ -211,7 +205,6 @@ export async function updateItemStatus(code, field, value) {
  */
 export async function updateItemArticle(code, article) {
     try {
-        console.log(`💾 Оновлення артикулу для ${code}: ${article}`);
 
         const item = priceState.priceItems.find(i => i.code === code);
         if (!item) {
@@ -233,7 +226,6 @@ export async function updateItemArticle(code, article) {
         // Оновлюємо локальний state
         item.article = article;
 
-        console.log(`✅ Артикул оновлено для ${code}`);
 
     } catch (error) {
         console.error('❌ Помилка оновлення артикулу:', error);
@@ -248,7 +240,6 @@ export async function updateItemArticle(code, article) {
  */
 export async function reserveItem(code, reserveName) {
     try {
-        console.log(`💾 Резервування ${code} для ${reserveName}`);
 
         const item = priceState.priceItems.find(i => i.code === code);
         if (!item) {
@@ -276,7 +267,6 @@ export async function reserveItem(code, reserveName) {
             priceState.reserveNames.sort();
         }
 
-        console.log(`✅ Товар ${code} зарезервовано для ${reserveName}`);
 
     } catch (error) {
         console.error('❌ Помилка резервування:', error);
@@ -293,14 +283,10 @@ export async function reserveItem(code, reserveName) {
  */
 export async function importDataToSheet(importedData) {
     try {
-        console.log(`📤 Імпорт ${importedData.length} рядків...`);
 
         // 1. Завантажити існуючі дані
-        console.log('📥 Завантаження існуючих даних...');
         await loadPriceData();
-        console.log('✅ Існуючі дані завантажено');
         const existingItems = priceState.priceItems;
-        console.log(`📊 Існуючих записів: ${existingItems.length}`);
 
         // 2. Створити мапи
         const existingMap = new Map();
@@ -373,7 +359,6 @@ export async function importDataToSheet(importedData) {
             }
         }
 
-        console.log(`📊 Оновлення: ${updates.length}, Нових: ${newItems.length}, Ненаявно: ${unavailable.length}`);
 
         // 4. Batch update існуючих записів
         if (updates.length > 0) {
@@ -400,22 +385,18 @@ export async function importDataToSheet(importedData) {
             }
 
             if (batchData.length > 0) {
-                console.log(`📤 Відправка batch update (${batchData.length} операцій)...`);
                 await callSheetsAPI('batchUpdate', {
                     data: batchData,
                     spreadsheetType: 'price'
                 });
-                console.log(`✅ Оновлено ${updates.length} існуючих записів`);
             }
         }
 
         // 5. Додати нові записи
         if (newItems.length > 0) {
-            console.log(`📤 Додавання ${newItems.length} нових записів...`);
 
             // Якщо таблиця була порожня - спочатку додаємо заголовки
             if (existingItems.length === 0) {
-                console.log('📋 Додаємо заголовки...');
                 const headers = ['code', 'article', 'brand', 'category', 'name', 'packaging', 'flavor', 'shiping_date', 'reserve', 'status', 'status_date', 'check', 'check_date', 'payment', 'payment_date', 'update_date'];
                 await callSheetsAPI('update', {
                     range: `${PRICE_SHEET_NAME}!A${PRICE_START_ROW}`,
@@ -448,7 +429,6 @@ export async function importDataToSheet(importedData) {
                 values: newRows,
                 spreadsheetType: 'price'
             });
-            console.log(`✅ Додано ${newItems.length} нових записів`);
         }
 
         // 6. Позначити "ненаявно" для записів яких немає в імпорті
@@ -477,7 +457,6 @@ export async function importDataToSheet(importedData) {
                     data: unavailBatch,
                     spreadsheetType: 'price'
                 });
-                console.log(`✅ Позначено "ненаявно" для ${unavailable.length} записів`);
             }
         }
 
@@ -533,7 +512,6 @@ export function filterByReserve(reserveFilter) {
  */
 export async function updateItemFields(code, fields) {
     try {
-        console.log(`💾 Оновлення полів для ${code}:`, fields);
 
         const item = priceState.priceItems.find(i => i.code === code);
         if (!item) {
@@ -572,7 +550,6 @@ export async function updateItemFields(code, fields) {
             });
         }
 
-        console.log(`✅ Поля оновлено для ${code}`);
 
     } catch (error) {
         console.error('❌ Помилка оновлення полів:', error);
@@ -586,7 +563,6 @@ export async function updateItemFields(code, fields) {
  */
 export async function loadUsersData() {
     try {
-        console.log('👥 Завантаження даних користувачів...');
 
         // Пробуємо різні назви аркушів
         const sheetNames = ['Users', 'Sheet1', 'Лист1', 'Аркуш1', 'users'];
@@ -595,18 +571,15 @@ export async function loadUsersData() {
 
         for (const sheetName of sheetNames) {
             try {
-                console.log(`📝 Пробуємо аркуш: "${sheetName}"`);
                 result = await callSheetsAPI('get', {
                     range: `${sheetName}!A1:H`,
                     spreadsheetType: 'users'
                 });
                 if (result && result.length > 0) {
-                    console.log(`✅ Знайдено аркуш: "${sheetName}", рядків: ${result.length}`);
                     foundSheet = sheetName;
                     break;
                 }
             } catch (e) {
-                console.log(`❌ Аркуш "${sheetName}" не знайдено:`, e.message);
             }
         }
 
@@ -615,7 +588,6 @@ export async function loadUsersData() {
             return {};
         }
 
-        console.log('📊 Users result:', result?.length, 'rows, headers:', result?.[0]);
 
         const rows = result || [];
         if (rows.length <= 1) {
@@ -647,7 +619,6 @@ export async function loadUsersData() {
         }
 
         priceState.usersMap = usersMap;
-        console.log(`✅ Завантажено користувачів з аватарами:`, Object.keys(usersMap).filter(k => k !== k.toLowerCase()));
 
         return usersMap;
 

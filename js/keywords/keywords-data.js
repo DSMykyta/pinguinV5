@@ -20,7 +20,6 @@ const SHEET_GID = '90240383'; // GID для Glossary
  * Завантажити ключові слова через CSV export (без авторизації)
  */
 export async function loadKeywords() {
-    console.log('📥 Завантаження ключових слів з Google Sheets (Glossary)...');
 
     try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
@@ -51,7 +50,6 @@ export async function loadKeywords() {
             _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
         }));
 
-        console.log(`✅ Завантажено ${keywordsState.keywords.length} ключових слів`);
         return keywordsState.keywords;
     } catch (error) {
         console.error('❌ Помилка завантаження ключових слів:', error);
@@ -86,12 +84,10 @@ function generateLocalId() {
     // Форматувати з нулями на початку (6 цифр) та дефісом
     const localId = 'glo-' + String(newNum).padStart(6, '0');
 
-    console.log(`📝 Згенеровано local_id: ${localId}`);
     return localId;
 }
 
 export async function addKeyword(keywordData) {
-    console.log('➕ Додавання нового ключового слова:', keywordData);
 
     try {
         // Генерувати local_id автоматично
@@ -127,7 +123,6 @@ export async function addKeyword(keywordData) {
 
         keywordsState.keywords.push(newEntry);
 
-        console.log('✅ Ключове слово додано:', newEntry);
         return newEntry;
     } catch (error) {
         console.error('❌ Помилка додавання ключового слова:', error);
@@ -136,7 +131,6 @@ export async function addKeyword(keywordData) {
 }
 
 export async function updateKeyword(localId, updates) {
-    console.log(`📝 Оновлення ключового слова ${localId}:`, updates);
 
     try {
         const entry = keywordsState.keywords.find(e => e.local_id === localId);
@@ -170,7 +164,6 @@ export async function updateKeyword(localId, updates) {
         // Оновити локальні дані
         Object.assign(entry, updates);
 
-        console.log('✅ Ключове слово оновлено:', entry);
         return entry;
     } catch (error) {
         console.error('❌ Помилка оновлення ключового слова:', error);
@@ -179,7 +172,6 @@ export async function updateKeyword(localId, updates) {
 }
 
 export async function deleteKeyword(localId) {
-    console.log(`🗑️ Видалення ключового слова ${localId}`);
 
     try {
         const entryIndex = keywordsState.keywords.findIndex(e => e.local_id === localId);
@@ -198,7 +190,6 @@ export async function deleteKeyword(localId) {
 
         keywordsState.keywords.splice(entryIndex, 1);
 
-        console.log('✅ Ключове слово видалено');
     } catch (error) {
         console.error('❌ Помилка видалення ключового слова:', error);
         throw error;

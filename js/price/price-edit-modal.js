@@ -10,6 +10,7 @@ import { updateItemStatus, updateItemArticle, reserveItem } from './price-data.j
 import { showToast } from '../common/ui-toast.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatar, getAvatarPath } from '../utils/avatar-loader.js';
+import { getInitials, getAvatarColor } from '../utils/avatar-utils.js';
 
 let currentItem = null;
 
@@ -67,34 +68,6 @@ function getUserAvatar(displayName, size = 'sm') {
     return `<span class="avatar avatar-${size}" style="background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; width: 24px; height: 24px; border-radius: 50%;">${initials}</span>`;
 }
 
-/**
- * Отримати ініціали з імені
- */
-function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-}
-
-/**
- * Генерувати колір аватарки на основі імені
- */
-function getAvatarColor(name) {
-    const colors = [
-        '#f44336', '#e91e63', '#9c27b0', '#673ab7',
-        '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4',
-        '#009688', '#4caf50', '#8bc34a', '#cddc39',
-        '#ffc107', '#ff9800', '#ff5722', '#795548'
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-}
 
 /**
  * Форматувати назву продукту

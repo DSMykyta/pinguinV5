@@ -53,7 +53,6 @@ const columnConfigs = {
  * Ініціалізувати всі обробники подій
  */
 export function initMapperEvents() {
-    console.log('📋 Ініціалізація обробників подій Mapper...');
 
     // Кнопки оновлення табів
     initRefreshButtons();
@@ -72,7 +71,6 @@ export function initMapperEvents() {
 
     // Примітка: Фільтри по джерелу тепер генеруються динамічно в mapper-table.js
 
-    console.log('✅ Обробники подій Mapper ініціалізовано');
 }
 
 /**
@@ -103,7 +101,6 @@ function initColumnSelectors() {
         });
     });
 
-    console.log('✅ Селектори колонок ініціалізовано');
 }
 
 /**
@@ -126,7 +123,6 @@ export function initMapperSearch(searchInput) {
         }
     });
 
-    console.log('✅ Пошук ініціалізовано');
 }
 
 /**
@@ -139,7 +135,6 @@ function initRefreshButtons() {
         const btn = document.getElementById(`refresh-tab-mapper-${tab}`);
         if (btn) {
             btn.addEventListener('click', async () => {
-                console.log(`🔄 Оновлення табу ${tab}...`);
 
                 // Показати стан завантаження
                 btn.disabled = true;
@@ -247,7 +242,6 @@ function initFilterPills() {
                 // Перерендерити
                 renderCurrentTab();
 
-                console.log(`📋 Фільтр ${tabName}: ${filter}`);
             });
         });
     });
@@ -332,7 +326,6 @@ function initMapperBatchActions() {
             }
         ],
         onSelectionChange: (count) => {
-            console.log(`📦 Вибрано ${count} категорій`);
         }
     });
 
@@ -416,7 +409,6 @@ function initMapperBatchActions() {
             }
         ],
         onSelectionChange: (count) => {
-            console.log(`📦 Вибрано ${count} характеристик`);
         }
     });
 
@@ -500,11 +492,9 @@ function initMapperBatchActions() {
             }
         ],
         onSelectionChange: (count) => {
-            console.log(`📦 Вибрано ${count} опцій`);
         }
     });
 
-    console.log('✅ Batch actions bars ініціалізовано');
 }
 
 /**
@@ -554,7 +544,6 @@ export function initCategoriesSorting() {
         }
     });
 
-    console.log('✅ Сортування категорій ініціалізовано');
     return sortAPIs.categories;
 }
 
@@ -587,7 +576,6 @@ export function initCharacteristicsSorting() {
         }
     });
 
-    console.log('✅ Сортування характеристик ініціалізовано');
     return sortAPIs.characteristics;
 }
 
@@ -619,7 +607,6 @@ export function initOptionsSorting() {
         }
     });
 
-    console.log('✅ Сортування опцій ініціалізовано');
     return sortAPIs.options;
 }
 
@@ -650,6 +637,5 @@ export function initMarketplacesSorting() {
         }
     });
 
-    console.log('✅ Сортування маркетплейсів ініціалізовано');
     return sortAPIs.marketplaces;
 }

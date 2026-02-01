@@ -38,7 +38,6 @@ import { initSectionNavigation } from './mapper-utils.js';
  * Показати модальне вікно для додавання категорії
  */
 export async function showAddCategoryModal() {
-    console.log('➕ Відкриття модального вікна для додавання категорії');
 
     await showModal('mapper-category-edit', null);
 
@@ -80,7 +79,6 @@ export async function showAddCategoryModal() {
  * Показати модальне вікно для редагування категорії
  */
 export async function showEditCategoryModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування категорії ${id}`);
 
     const categories = getCategories();
     const category = categories.find(c => c.id === id);
@@ -337,7 +335,6 @@ function populateParentOptionsSelect(selectedOptionIds = []) {
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
-    console.log('➕ Відкриття модального вікна для додавання характеристики');
 
     await showModal('mapper-characteristic-edit', null);
 
@@ -401,7 +398,6 @@ function clearRelatedOptions() {
  * Показати модальне вікно для редагування характеристики
  */
 export async function showEditCharacteristicModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування характеристики ${id}`);
 
     const characteristics = getCharacteristics();
     const characteristic = characteristics.find(c => c.id === id);
@@ -1219,7 +1215,6 @@ function clearCharacteristicForm() {
  * Показати модальне вікно для додавання опції
  */
 export async function showAddOptionModal(preselectedCharacteristicId = null) {
-    console.log('➕ Відкриття модального вікна для додавання опції', preselectedCharacteristicId ? `для характеристики ${preselectedCharacteristicId}` : '');
 
     await showModal('mapper-option-edit', null);
 
@@ -1271,7 +1266,6 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
  * Показати модальне вікно для редагування опції
  */
 export async function showEditOptionModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування опції ${id}`);
 
     const options = getOptions();
     const option = options.find(o => o.id === id);
@@ -1461,7 +1455,6 @@ function populateCharacteristicSelect(preselectedId = null) {
  * Показати модальне вікно для додавання маркетплейсу
  */
 export async function showAddMarketplaceModal() {
-    console.log('➕ Відкриття модального вікна для додавання маркетплейсу');
 
     await showModal('mapper-marketplace-edit', null);
 
@@ -1486,7 +1479,6 @@ export async function showAddMarketplaceModal() {
  * Показати модальне вікно для редагування маркетплейсу
  */
 export async function showEditMarketplaceModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування маркетплейсу ${id}`);
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
@@ -1536,7 +1528,6 @@ const mpDataModalState = {
  * Показати дані маркетплейсу
  */
 export async function showMarketplaceDataModal(id) {
-    console.log(`👁️ Перегляд даних маркетплейсу ${id}`);
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
@@ -1600,7 +1591,6 @@ async function loadMpDataForModal(marketplaceId) {
     if (charCount) charCount.textContent = mpDataModalState.characteristics.length;
     if (optCount) optCount.textContent = mpDataModalState.options.length;
 
-    console.log(`✅ Завантажено: ${mpDataModalState.categories.length} категорій, ${mpDataModalState.characteristics.length} характеристик, ${mpDataModalState.options.length} опцій`);
 }
 
 /**
@@ -1652,7 +1642,6 @@ function renderMpDataModalTable() {
     }
 
     const { activeTab, filter, searchQuery } = mpDataModalState;
-    console.log(`📊 Rendering tab: ${activeTab}, filter: ${filter}, search: "${searchQuery}"`);
 
     // Отримуємо дані для поточного табу
     let data = [];
@@ -1669,7 +1658,6 @@ function renderMpDataModalTable() {
         columns = getMpOptionsColumns();
     }
 
-    console.log(`📊 Initial data count: ${data.length}`);
 
     // Фільтр по прив'язці
     if (filter === 'mapped') {
@@ -1698,7 +1686,6 @@ function renderMpDataModalTable() {
     }
 
     const filteredCount = data.length;
-    console.log(`📊 After filters: ${filteredCount}`);
 
     // Оновлюємо статистику
     const statsEl = document.getElementById('mp-data-stats-text');
@@ -1758,7 +1745,6 @@ function renderMpDataModalTable() {
         }
 
         container.innerHTML = tableHtml;
-        console.log(`✅ Table rendered with ${displayData.length} rows`);
     } catch (error) {
         console.error('❌ Error rendering table:', error);
         container.innerHTML = `
@@ -1905,7 +1891,6 @@ function getMarketplaceFormData() {
     // Отримуємо значення з radio buttons
     const activeYes = document.getElementById('mapper-mp-active-yes');
     const isActive = activeYes?.checked ?? true;
-    console.log('getMarketplaceFormData: is_active =', isActive);
 
     return {
         name: document.getElementById('mapper-mp-name')?.value.trim() || '',
@@ -1939,7 +1924,6 @@ function clearMarketplaceForm() {
     // За замовчуванням - активний
     if (activeYes) activeYes.checked = true;
     if (activeNo) activeNo.checked = false;
-    console.log('clearMarketplaceForm: form cleared, active = true');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1966,7 +1950,6 @@ let importState = {
  * Показати модальне вікно імпорту
  */
 export async function showImportModal() {
-    console.log('📥 Відкриття модального вікна імпорту');
 
     // Скинути стан
     importState = {
@@ -2076,7 +2059,6 @@ function handleMarketplaceChange(e) {
             // Для Rozetka ховаємо вибір типу - все визначається автоматично
             if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
             importState.dataType = 'rozetka_pack'; // Спеціальний тип для Rozetka
-            console.log('🟠 Rozetka формат: категорія + характеристики + опції з одного файлу');
         } else {
             // Для інших маркетплейсів показуємо вибір типу
             if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
@@ -2165,7 +2147,6 @@ function loadSavedMapping(marketplaceId) {
             if (savedMapping[importState.dataType]) {
                 importState.mapping = savedMapping[importState.dataType];
                 applyMappingToSelects();
-                console.log('📋 Завантажено збережений маппінг:', importState.mapping);
             }
         } catch (e) {
             console.warn('⚠️ Помилка парсингу збереженого маппінгу:', e);
@@ -2218,7 +2199,6 @@ function initFileDropzone() {
 }
 
 async function handleFileSelect(file) {
-    console.log('📄 Обрано файл:', file.name);
 
     const fileNameEl = document.getElementById('mapper-import-filename');
     if (fileNameEl) {
@@ -2232,7 +2212,6 @@ async function handleFileSelect(file) {
         const rawData = await parseFileRaw(file);
         importState.rawData = rawData;
 
-        console.log(`✅ Файл прочитано: ${rawData.length} рядків`);
 
         // Показуємо вибір рядка заголовків
         document.getElementById('header-row-group')?.classList.remove('u-hidden');
@@ -2287,7 +2266,6 @@ function parseRozetkaCategory(fileName, rawData) {
         name: categoryName.trim()
     };
 
-    console.log(`🟠 Rozetka категорія: ID=${categoryId}, Назва="${categoryName}"`);
 
     // Показуємо інформацію про категорію
     showRozetkaCategoryInfo();
@@ -2348,7 +2326,6 @@ function applyHeaderRow() {
     importState.fileHeaders = headers;
     importState.parsedData = rows;
 
-    console.log(`📋 Заголовки з рядка ${headerRow}: ${headers.map(h => h.name).join(', ')}`);
 
     // Показуємо крок 2 (маппінг)
     document.getElementById('import-step-2')?.classList.remove('u-hidden');
@@ -2608,7 +2585,6 @@ function handleDynamicMappingChange(e) {
         importState.mapping[systemField] = columnIndex;
     }
 
-    console.log('📋 Оновлений маппінг:', importState.mapping);
     validateImport();
     updatePreviewTable();
 }
@@ -2687,7 +2663,6 @@ function autoDetectMapping(headers) {
     if (Object.keys(importState.mapping).length === 0) {
         importState.mapping = detectedMapping;
         applyDynamicMappingToSelects();
-        console.log('🔍 Автовизначений маппінг:', detectedMapping);
     }
 
     validateImport();
@@ -2796,7 +2771,6 @@ function updateRequiredFieldsIndicator(requiredFields) {
             const sf = systemFields.find(s => s.key === f);
             return sf ? sf.label : f;
         });
-        console.log('⚠️ Не призначені обов\'язкові поля:', missingLabels.join(', '));
     }
 }
 
@@ -2875,7 +2849,6 @@ function updatePreviewTable() {
  * Виконати імпорт
  */
 async function executeImport() {
-    console.log('📥 Виконання імпорту...');
 
     const importBtn = document.getElementById('execute-mapper-import');
     const modalContent = document.querySelector('#modal-mapper-import .modal-body');
@@ -2979,7 +2952,6 @@ async function saveColumnMapping() {
         column_mapping: JSON.stringify(columnMapping)
     });
 
-    console.log('💾 Маппінг збережено');
 }
 
 /**
@@ -2992,14 +2964,7 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     onProgress(10, 'Обробка даних файлу...');
 
     // DEBUG: Виводимо стан імпорту
-    console.log('📊 DEBUG importCharacteristicsAndOptions:');
-    console.log('  - mapping:', JSON.stringify(importState.mapping));
-    console.log('  - parsedData rows:', importState.parsedData.length);
-    console.log('  - fileHeaders:', importState.fileHeaders.map(h => h.name).join(', '));
-    console.log('  - isRozetkaFormat:', importState.isRozetkaFormat);
-    console.log('  - rozetkaCategory:', importState.rozetkaCategory);
     if (importState.parsedData.length > 0) {
-        console.log('  - first row sample:', importState.parsedData[0]);
     }
 
     // Отримуємо індекси колонок з маппінгу
@@ -3007,7 +2972,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const charIdCol = m.char_id;
     const charNameCol = m.char_name;
 
-    console.log('  - charIdCol:', charIdCol, '| charNameCol:', charNameCol);
     const charTypeCol = m.char_type;
     const charFilterTypeCol = m.char_filter_type;
     const charUnitCol = m.char_unit;
@@ -3073,7 +3037,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     });
 
     const characteristicsList = Array.from(mpCharacteristics.values());
-    console.log(`📊 Характеристик: ${characteristicsList.length}, Опцій: ${mpOptions.length}`);
 
     onProgress(30, 'Перевірка існуючих даних...');
 
@@ -3101,14 +3064,9 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const newCharacteristics = characteristicsList.filter(c => !existingCharIds.has(c.mp_char_id));
     const newOptions = mpOptions.filter(o => !existingOptIds.has(`${o.mp_char_id}-${o.mp_option_id}`));
 
-    console.log(`🆕 Нових характеристик: ${newCharacteristics.length} (з ${characteristicsList.length})`);
-    console.log(`🆕 Нових опцій: ${newOptions.length} (з ${mpOptions.length})`);
 
     // DEBUG: показуємо існуючі ID для перевірки
-    console.log(`📋 existingCharIds:`, Array.from(existingCharIds).slice(0, 5), '...');
-    console.log(`📋 existingOptIds:`, Array.from(existingOptIds).slice(0, 5), '...');
     if (characteristicsList.length > 0) {
-        console.log(`📋 First parsed characteristic:`, characteristicsList[0]);
     }
 
     onProgress(50, `Запис ${newCharacteristics.length} нових характеристик...`);
@@ -3145,8 +3103,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             ];
         });
 
-        console.log(`📤 Записую ${charRows.length} характеристик...`);
-        console.log(`📤 Sample row:`, charRows[0]);
 
         const charResult = await callSheetsAPI('append', {
             range: 'Mapper_MP_Characteristics!A:G',
@@ -3154,9 +3110,7 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             spreadsheetType: 'main'
         });
 
-        console.log(`✅ Результат запису характеристик:`, charResult);
     } else {
-        console.log('⏭️ Всі характеристики вже існують, пропускаємо');
     }
 
     onProgress(75, `Запис ${newOptions.length} нових опцій...`);
@@ -3193,7 +3147,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             spreadsheetType: 'main'
         });
     } else {
-        console.log('⏭️ Всі опції вже існують, пропускаємо');
     }
 
     onProgress(100, 'Готово!');
@@ -3206,18 +3159,15 @@ async function importRozetkaCategory() {
     const { callSheetsAPI } = await import('../utils/api-client.js');
 
     if (!importState.rozetkaCategory) {
-        console.log('⚠️ Rozetka категорія не визначена');
         return;
     }
 
     const { id: catId, name: catName } = importState.rozetkaCategory;
 
     if (!catId || !catName) {
-        console.log('⚠️ Rozetka категорія не має ID або назви');
         return;
     }
 
-    console.log(`📂 Rozetka категорія: ${catName} (ID: ${catId})`);
 
     // Перевіряємо чи категорія вже існує
     const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
@@ -3230,7 +3180,6 @@ async function importRozetkaCategory() {
     );
 
     if (alreadyExists) {
-        console.log(`⏭️ Категорія ${catName} вже існує, пропускаємо`);
         return;
     }
 
@@ -3259,7 +3208,6 @@ async function importRozetkaCategory() {
         spreadsheetType: 'main'
     });
 
-    console.log(`✅ Категорія ${catName} створена`);
 }
 
 /**
@@ -3292,7 +3240,6 @@ async function importCategories(onProgress = () => { }) {
         }
     });
 
-    console.log(`📊 Категорій: ${mpCategories.length}`);
 
     onProgress(30, 'Перевірка існуючих даних...');
 
@@ -3312,7 +3259,6 @@ async function importCategories(onProgress = () => { }) {
     // Фільтруємо тільки нові категорії
     const newCategories = mpCategories.filter(c => !existingCatIds.has(c.mp_cat_id));
 
-    console.log(`🆕 Нових категорій: ${newCategories.length} (з ${mpCategories.length})`);
 
     onProgress(50, `Запис ${newCategories.length} нових категорій...`);
 
@@ -3349,7 +3295,6 @@ async function importCategories(onProgress = () => { }) {
             spreadsheetType: 'main'
         });
     } else {
-        console.log('⏭️ Всі категорії вже існують, пропускаємо');
     }
 
     onProgress(100, 'Готово!');
@@ -3446,7 +3391,6 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => { }) {
         }
     });
 
-    console.log(`📊 Характеристик: ${characteristics.size}, Опцій: ${options.length}, Категорій: ${categoryNamesToCreate.size}`);
 
     // === КРОК 1: Створюємо категорії, яких немає ===
     const existingCategories = getCategories();
@@ -3477,7 +3421,6 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => { }) {
                     parent_id: ''
                 });
                 categoryNameToId.set(catName.toLowerCase(), newCat.id);
-                console.log(`✅ Створено категорію: ${catName} -> ${newCat.id}`);
             } catch (e) {
                 console.warn(`⚠️ Не вдалося створити категорію "${catName}":`, e);
             }
@@ -3579,7 +3522,6 @@ async function importOwnCategories(onProgress = () => { }) {
         }
     });
 
-    console.log(`📊 Категорій: ${categories.size}`);
 
     // Створюємо категорії в правильному порядку (спочатку без батьківських)
     const catIdMap = new Map(); // name_ua -> id
@@ -3641,8 +3583,6 @@ async function importOwnCategories(onProgress = () => { }) {
  * @param {Array<string>} selectedIds - Масив ID вибраних характеристик (власних + MP)
  */
 export async function showSelectOwnCharacteristicModal(selectedIds) {
-    console.log(`🔗 Batch маппінг характеристик: ${selectedIds.length} обрано`);
-    console.log('  - selectedIds:', selectedIds);
 
     const mpChars = getMpCharacteristics();
     const ownChars = getCharacteristics();
@@ -3651,8 +3591,6 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
     const selectedOwnIds = selectedIds.filter(id => ownChars.some(c => c.id === id));
     const selectedMpIds = selectedIds.filter(id => mpChars.some(c => c.id === id));
 
-    console.log('  - selectedOwnIds:', selectedOwnIds);
-    console.log('  - selectedMpIds:', selectedMpIds);
 
     // Якщо немає MP характеристик для маппінгу
     if (selectedMpIds.length === 0) {
@@ -3668,7 +3606,6 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
     if (selectedOwnIds.length === 1) {
         targetOwnCharId = selectedOwnIds[0];
         needSelectTarget = false;
-        console.log(`  - Автоматично вибрано ціль: ${targetOwnCharId}`);
     } else if (selectedOwnIds.length > 1) {
         showToast('Оберіть тільки одну власну характеристику як ціль', 'warning');
         return;
@@ -3793,7 +3730,6 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
  * @param {Array<string>} selectedIds - Масив ID вибраних MP опцій
  */
 export async function showSelectOwnOptionModal(selectedIds) {
-    console.log(`🔗 Batch маппінг опцій: ${selectedIds.length} обрано`);
 
     // Фільтруємо тільки MP опції (не власні)
     const mpIds = selectedIds.filter(id => {
@@ -3904,7 +3840,6 @@ export async function showSelectOwnOptionModal(selectedIds) {
  * @param {Array<string>} selectedIds - Масив ID вибраних MP характеристик
  */
 export async function handleAutoMapCharacteristics(selectedIds) {
-    console.log(`🤖 Авто-маппінг характеристик: ${selectedIds.length} обрано`);
 
     // Фільтруємо тільки MP характеристики
     const mpIds = selectedIds.filter(id => {
@@ -3948,7 +3883,6 @@ export async function handleAutoMapCharacteristics(selectedIds) {
  * @param {Array<string>} selectedIds - Масив ID вибраних MP опцій
  */
 export async function handleAutoMapOptions(selectedIds) {
-    console.log(`🤖 Авто-маппінг опцій: ${selectedIds.length} обрано`);
 
     // Фільтруємо тільки MP опції
     const mpIds = selectedIds.filter(id => {
@@ -3996,7 +3930,6 @@ export async function handleAutoMapOptions(selectedIds) {
  * @param {string|Object} mpCharIdOrData - ID MP характеристики або об'єкт з даними
  */
 export async function showViewMpCharacteristicModal(mpCharIdOrData) {
-    console.log(`👁️ Перегляд MP характеристики`, mpCharIdOrData);
 
     let mpChar;
 
@@ -4005,14 +3938,12 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
         mpChar = mpCharIdOrData;
     } else {
         const mpChars = getMpCharacteristics();
-        console.log(`📊 Всього MP характеристик: ${mpChars.length}, шукаємо ID: ${mpCharIdOrData}`);
         mpChar = mpChars.find(c => c.id === mpCharIdOrData);
 
         if (!mpChar) {
             // Спробуємо пошук за external_id
             mpChar = mpChars.find(c => c.external_id === mpCharIdOrData);
             if (mpChar) {
-                console.log(`✅ Знайдено за external_id`);
             }
         }
     }
@@ -4130,7 +4061,6 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
  * @param {string|Object} mpOptionIdOrData - ID MP опції або об'єкт з даними
  */
 export async function showViewMpOptionModal(mpOptionIdOrData) {
-    console.log(`👁️ Перегляд MP опції`, mpOptionIdOrData);
 
     let mpOption;
 
@@ -4139,14 +4069,12 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
         mpOption = mpOptionIdOrData;
     } else {
         const mpOpts = getMpOptions();
-        console.log(`📊 Всього MP опцій: ${mpOpts.length}, шукаємо ID: ${mpOptionIdOrData}`);
         mpOption = mpOpts.find(o => o.id === mpOptionIdOrData);
 
         if (!mpOption) {
             // Спробуємо пошук за external_id
             mpOption = mpOpts.find(o => o.external_id === mpOptionIdOrData);
             if (mpOption) {
-                console.log(`✅ Знайдено за external_id`);
             }
         }
     }
@@ -4250,7 +4178,6 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
  * @param {string[]} selectedMpCatIds - Масив ID вибраних MP категорій
  */
 export async function showSelectOwnCategoryModal(selectedMpCatIds) {
-    console.log(`🔗 Вибір власної категорії для ${selectedMpCatIds.length} MP категорій`);
 
     const ownCategories = getCategories();
 
@@ -4372,7 +4299,6 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
  * @param {string|Object} mpCatIdOrData - ID MP категорії або об'єкт з даними
  */
 export async function showViewMpCategoryModal(mpCatIdOrData) {
-    console.log(`👁️ Перегляд MP категорії`, mpCatIdOrData);
 
     let mpCat;
 
@@ -4381,15 +4307,12 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
         mpCat = mpCatIdOrData;
     } else {
         const mpCats = getMpCategories();
-        console.log(`📊 Всього MP категорій: ${mpCats.length}, шукаємо ID: ${mpCatIdOrData}`);
-        console.log(`📊 Наявні ID:`, mpCats.map(c => c.id));
         mpCat = mpCats.find(c => c.id === mpCatIdOrData);
 
         if (!mpCat) {
             // Спробуємо пошук за external_id
             mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
             if (mpCat) {
-                console.log(`✅ Знайдено за external_id`);
             }
         }
 
@@ -4397,7 +4320,6 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
             // Спробуємо пошук за частковим співпаданням ID (для випадків mpc-mp-000001-cat-274390 -> mpc-mp-000001)
             mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
             if (mpCat) {
-                console.log(`✅ Знайдено за частковим ID: ${mpCat.id}`);
             }
         }
     }

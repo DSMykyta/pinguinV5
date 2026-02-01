@@ -78,7 +78,6 @@ let sheetsData = {
  * Ініціалізація сторінки
  */
 async function initProductsPage() {
-    console.log('🚀 Products page initializing...');
 
     // Завантажуємо aside панель
     await loadAsidePanel();
@@ -86,14 +85,12 @@ async function initProductsPage() {
     // Завантажуємо дані з Google Sheets
     try {
         sheetsData = await loadAllData();
-        console.log('📊 Дані з таблиць:', sheetsData);
     } catch (error) {
         console.warn('⚠️ Не вдалося завантажити дані з таблиць:', error);
     }
 
     // Завантажуємо товари з localStorage (без демо-даних)
     productsData = getProducts();
-    console.log(`📦 Завантажено ${productsData.length} товарів`);
 
     // Рендеримо таблицю товарів
     renderProductsTable(productsData);
@@ -113,7 +110,6 @@ async function initProductsPage() {
     // Додаємо batch actions bar
     createBatchActionsBar();
 
-    console.log('✅ Products page initialized');
 }
 
 /**
@@ -1128,7 +1124,6 @@ async function populateWizardSelects(container) {
         }
     }
 
-    console.log('✅ Селекти wizard наповнено даними з таблиць');
 }
 
 /**
@@ -2248,7 +2243,6 @@ function clearAllProducts() {
         productsData = [];
         renderProductsTable(productsData);
         showToast('Всі товари видалено', 'info');
-        console.log('🧹 Всі товари очищено');
     }
 }
 

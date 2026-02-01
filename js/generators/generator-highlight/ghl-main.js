@@ -273,7 +273,6 @@ async function initHighlightGenerator() {
     dom.validationResults?.addEventListener('scroll', updateValidationScrollFade);
 
     validateAndHighlight();
-    console.log('✅ Highlight Generator ініціалізовано');
 }
 
 registerPanelInitializer('aside-highlight', initHighlightGenerator);

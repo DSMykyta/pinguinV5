@@ -34,7 +34,6 @@ export function saveTabsState(tabsState) {
             timestamp: Date.now()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-        console.log('💾 Стан табів збережено:', stateToSave);
     } catch (error) {
         console.error('❌ Помилка збереження стану табів:', error);
     }
@@ -49,7 +48,6 @@ export function loadTabsState(maxAge = 24 * 60 * 60 * 1000) {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (!saved) {
-            console.log('📭 Немає збереженого стану табів');
             return null;
         }
 
@@ -57,7 +55,6 @@ export function loadTabsState(maxAge = 24 * 60 * 60 * 1000) {
 
         // Перевірити чи не застарілий стан
         if (state.timestamp && (Date.now() - state.timestamp > maxAge)) {
-            console.log('⏰ Збережений стан табів застарілий, видаляємо');
             clearTabsState();
             return null;
         }
@@ -80,7 +77,6 @@ export function loadTabsState(maxAge = 24 * 60 * 60 * 1000) {
             }
         }
 
-        console.log('📂 Завантажено стан табів:', state);
         return state;
     } catch (error) {
         console.error('❌ Помилка завантаження стану табів:', error);
@@ -94,7 +90,6 @@ export function loadTabsState(maxAge = 24 * 60 * 60 * 1000) {
 export function clearTabsState() {
     try {
         localStorage.removeItem(STORAGE_KEY);
-        console.log('🗑️ Стан табів очищено');
     } catch (error) {
         console.error('❌ Помилка очищення стану табів:', error);
     }
@@ -150,7 +145,6 @@ export function removeTabFromState(tabId) {
         }
 
         saveTabsState(state);
-        console.log(`🗑️ Таб ${tabId} видалено зі стану`);
     } catch (error) {
         console.error('❌ Помилка видалення табу зі стану:', error);
     }
@@ -212,7 +206,6 @@ export function addTabToState(tabId, sheetName, wordId, columnName, setActive = 
         const existingIndex = state.openTabs.findIndex(tab => tab.tabId === tabId);
 
         if (existingIndex !== -1) {
-            console.log(`ℹ️ Таб ${tabId} вже існує в стані`);
             if (setActive) {
                 setActiveTab(tabId);
             }
@@ -250,7 +243,6 @@ export function addTabToState(tabId, sheetName, wordId, columnName, setActive = 
         }
 
         saveTabsState(state);
-        console.log(`➕ Таб ${tabId} додано до стану`);
     } catch (error) {
         console.error('❌ Помилка додавання табу до стану:', error);
     }

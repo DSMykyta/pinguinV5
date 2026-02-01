@@ -44,7 +44,6 @@ export function initPriceEvents() {
     // Обробник batch actions
     initBatchActions();
 
-    console.log('✅ Price events initialized');
 }
 
 /**
@@ -836,7 +835,6 @@ export function initPriceColumnFilters() {
     });
 
     priceState.columnFiltersAPI = sortAPI;
-    console.log('✅ Сортування та фільтрація колонок прайсу ініціалізовано');
     return sortAPI;
 }
 
@@ -856,7 +854,6 @@ function reinitColumnFiltersAfterRender() {
     // Перевіряємо чи є заголовок таблиці (якщо таблиця порожня - не реініціалізуємо)
     const hasHeader = container.querySelector('.pseudo-table-header');
     if (!hasHeader) {
-        console.log('ℹ️ Таблиця порожня, пропускаємо реініціалізацію');
         return;
     }
 
@@ -938,6 +935,5 @@ function reinitColumnFiltersAfterRender() {
  * Deprecated: Ініціалізація сортування (тепер інтегровано в initPriceColumnFilters)
  */
 export function initPriceSorting() {
-    console.log('ℹ️ initPriceSorting deprecated - сортування тепер в dropdown меню фільтрів');
     return null;
 }

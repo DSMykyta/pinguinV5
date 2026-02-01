@@ -205,7 +205,6 @@ function dispatchModalEvent(eventName, modalId, triggerElement, modalElement) {
  */
 export function clearModalCache() {
     modalTemplateCache.clear();
-    console.log('✅ Кеш модальних вікон очищено');
 }
 
 // Експорт для backward compatibility

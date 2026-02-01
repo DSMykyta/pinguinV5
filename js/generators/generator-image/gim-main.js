@@ -48,7 +48,6 @@ async function loadPlugins() {
 
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
-            console.log(`[Image] Плагін ${PLUGINS[index]} не завантажено`);
         }
     });
 }
@@ -60,7 +59,6 @@ async function initImageToolGenerator() {
     initImageToolLogic();
     runHook('onInit');
 
-    console.log('✅ Image Tool Generator ініціалізовано', getRegisteredPlugins());
 }
 
 registerPanelInitializer('aside-image-tool', initImageToolGenerator);

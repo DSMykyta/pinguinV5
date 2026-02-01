@@ -108,7 +108,6 @@ export async function fetchLinksData() {
         if (linksData.length === 0) {
             console.warn('[gln-data] Список посилань порожній після обробки');
         } else {
-            console.log(`[gln-data] Завантажено ${linksData.length} посилань`);
         }
 
     } catch (error) {

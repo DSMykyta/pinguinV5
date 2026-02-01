@@ -34,7 +34,6 @@ let currentLineId = null; // ID лінійки, що редагується (nul
  * @param {string} [preselectedBrandId] - Попередньо обраний бренд (опціонально)
  */
 export async function showAddLineModal(preselectedBrandId = null) {
-    console.log('➕ Відкриття модального вікна для додавання лінійки');
 
     currentLineId = null;
 
@@ -72,7 +71,6 @@ export async function showAddLineModal(preselectedBrandId = null) {
  * @param {string} lineId - ID лінійки
  */
 export async function showEditLineModal(lineId) {
-    console.log(`✏️ Відкриття модального вікна для редагування лінійки ${lineId}`);
 
     const line = getBrandLineById(lineId);
     if (!line) {
@@ -122,7 +120,6 @@ export async function showEditLineModal(lineId) {
  * @param {string} lineId - ID лінійки
  */
 export async function showDeleteLineConfirm(lineId) {
-    console.log(`🗑️ Підтвердження видалення лінійки ${lineId}`);
 
     const line = getBrandLineById(lineId);
     if (!line) {
@@ -232,7 +229,6 @@ function clearLineForm() {
  * Обробник збереження лінійки
  */
 async function handleSaveLine() {
-    console.log('💾 Збереження лінійки...');
 
     const lineData = getLineFormData();
 
@@ -273,7 +269,6 @@ async function handleSaveLine() {
  * @param {string} lineId - ID лінійки
  */
 async function handleDeleteLine(lineId) {
-    console.log(`🗑️ Видалення лінійки ${lineId}...`);
 
     try {
         await deleteBrandLine(lineId);
@@ -290,4 +285,3 @@ async function handleDeleteLine(lineId) {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-console.log('[Lines CRUD] Плагін завантажено');

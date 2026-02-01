@@ -57,5 +57,4 @@ export function initSectionNavigator() {
     // Починаємо спостереження за всіма секціями
     sections.forEach(section => observer.observe(section));
 
-    console.log('✅ Фіксований навігатор секцій ініціалізовано.');
 }

@@ -1,6 +1,7 @@
 // js/glossary/glossary-search.js
 
 import { renderAvatarState, getRandomMessage } from '../utils/avatar-states.js';
+import { escapeHtml } from '../utils/text-utils.js';
 
 /**
  * Ініціалізує пошук по секціях глосарію
@@ -12,7 +13,6 @@ export function initGlossarySearch() {
         return;
     }
 
-    console.log('🔍 [Glossary Search] Ініціалізація пошуку');
 
     // Слухаємо зміни в полі пошуку
     searchInput.addEventListener('input', handleSearch);
@@ -67,7 +67,6 @@ function handleSearch(event) {
         removeNoResultsState();
     }
 
-    console.log(`🔍 [Search] Запит: "${query}", Знайдено: ${visibleCount}`);
 }
 
 /**
@@ -108,11 +107,3 @@ function removeNoResultsState() {
     }
 }
 
-/**
- * Екранує HTML для безпеки
- */
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}

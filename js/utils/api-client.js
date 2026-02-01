@@ -406,4 +406,3 @@ window.sheetsBatchUpdate = sheetsBatchUpdate;
 window.sheetsBatchUpdateSpreadsheet = sheetsBatchUpdateSpreadsheet;
 window.sheetsGetSheetNames = sheetsGetSheetNames;
 
-console.log('✅ API Client initialized (unified)');

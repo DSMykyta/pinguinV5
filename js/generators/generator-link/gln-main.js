@@ -42,7 +42,6 @@ async function loadPlugins() {
 
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
-            console.log(`[Links] Плагін ${PLUGINS[index]} не завантажено`);
         }
     });
 }
@@ -57,7 +56,6 @@ async function initLinksGenerator() {
     runHook('onInit', { updateLinksUI });
     updateLinksUI();
 
-    console.log('✅ Links Generator ініціалізовано', getRegisteredPlugins());
 }
 
 registerPanelInitializer('aside-links', initLinksGenerator);

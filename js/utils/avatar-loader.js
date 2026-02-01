@@ -56,7 +56,6 @@ export async function loadAvailableAvatars() {
             suspicionPath: `resources/avatars/${name}-suspicion.png`
         }));
 
-        console.log('✅ Завантажено аватари:', availableAvatars);
         return availableAvatars;
     } catch (error) {
         console.error('❌ Помилка завантаження аватарів:', error);

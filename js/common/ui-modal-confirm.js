@@ -106,7 +106,6 @@ export async function showConfirmModal(options = {}) {
                 showMessage: false // Не показуємо текст з аватара, бо є окреме повідомлення
             });
             avatarContainer.innerHTML = html;
-            console.log('🎨 Avatar rendered for confirmation:', avatarState);
         }
 
         if (cancelBtn) {

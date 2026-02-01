@@ -197,7 +197,6 @@ export function setupSearchColumnsSelector(config) {
         filterBy: allowedSearchColumns,
         onChange: (selectedIds) => {
             state.searchColumns = selectedIds;
-            console.log('🔍 Колонки пошуку:', state.searchColumns);
         }
     });
 
@@ -245,7 +244,6 @@ export function setupTableColumnsSelector(config) {
         checkboxPrefix,
         onChange: async (selectedIds) => {
             state.visibleColumns = selectedIds;
-            console.log('📋 Видимі колонки:', state.visibleColumns);
 
             // Оновлюємо колонки пошуку якщо задано контейнер
             if (searchColumnsContainerId) {

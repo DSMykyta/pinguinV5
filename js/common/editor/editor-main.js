@@ -112,7 +112,6 @@ async function loadPlugins(state) {
     results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value.init) {
             result.value.init(state);
-            console.log(`[Editor] ✅ ${PLUGINS[index]}`);
         } else if (result.status === 'rejected') {
             console.warn(`[Editor] ⚠️ ${PLUGINS[index]} — не завантажено`);
         }

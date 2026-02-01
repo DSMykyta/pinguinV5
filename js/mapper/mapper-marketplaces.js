@@ -27,7 +27,6 @@ export const PLUGIN_NAME = 'mapper-marketplaces';
  * Ініціалізація плагіна
  */
 export function init() {
-    console.log(`🔌 [${PLUGIN_NAME}] Ініціалізація...`);
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -39,7 +38,6 @@ export function init() {
  * Показати модальне вікно для додавання маркетплейсу
  */
 export async function showAddMarketplaceModal() {
-    console.log('➕ Відкриття модального вікна для додавання маркетплейсу');
 
     await showModal('mapper-marketplace-edit', null);
     await new Promise(resolve => requestAnimationFrame(resolve));
@@ -62,7 +60,6 @@ export async function showAddMarketplaceModal() {
  * Показати модальне вікно для редагування маркетплейсу
  */
 export async function showEditMarketplaceModal(id) {
-    console.log(`✏️ Відкриття модального вікна для редагування маркетплейсу ${id}`);
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
@@ -225,7 +222,6 @@ const MP_DATA_PAGE_SIZE = 100;
  * Показати дані маркетплейсу
  */
 export async function showMarketplaceDataModal(id) {
-    console.log(`👁️ Перегляд даних маркетплейсу ${id}`);
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
@@ -273,7 +269,6 @@ async function loadMpDataForModal(marketplaceId) {
     if (charCount) charCount.textContent = mpDataModalState.characteristics.length;
     if (optCount) optCount.textContent = mpDataModalState.options.length;
 
-    console.log(`✅ Завантажено: ${mpDataModalState.categories.length} категорій, ${mpDataModalState.characteristics.length} характеристик, ${mpDataModalState.options.length} опцій`);
 }
 
 function initMpDataModalEvents() {

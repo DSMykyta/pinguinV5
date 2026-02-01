@@ -9,7 +9,6 @@ export function initGlossaryModals() {
     const addKeywordBtn = document.getElementById('btn-add-keyword-aside');
     if (addKeywordBtn) {
         addKeywordBtn.addEventListener('click', async () => {
-            console.log('🆕 Клік на "Додати ключове слово" в глосарії');
             const { showAddKeywordModal } = await import('../keywords/keywords-crud.js');
             await showAddKeywordModal();
         });

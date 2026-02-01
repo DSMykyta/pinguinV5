@@ -22,7 +22,6 @@ let glossaryEditor = null; // UI Editor instance для глосарію
 let mapperDataCache = null; // Кеш даних Mapper
 
 export async function showAddKeywordModal() {
-    console.log('➕ Відкриття модального вікна для додавання ключового слова');
 
     await showModal('keywords-edit', null);
 
@@ -58,7 +57,6 @@ export async function showAddKeywordModal() {
 }
 
 export async function showEditKeywordModal(localId) {
-    console.log(`✏️ Відкриття модального вікна для редагування ключового слова ${localId}`);
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);
@@ -111,7 +109,6 @@ export async function showEditKeywordModal(localId) {
 }
 
 export async function showDeleteKeywordConfirm(localId) {
-    console.log(`🗑️ Підтвердження видалення ключового слова ${localId}`);
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);
@@ -135,7 +132,6 @@ export async function showDeleteKeywordConfirm(localId) {
 }
 
 export async function showGlossaryModal(localId) {
-    console.log(`👁️ Відкриття модального вікна глосарію для ${localId}`);
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);

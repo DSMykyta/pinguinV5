@@ -14,7 +14,6 @@ function initAsideButtons() {
     const addKeywordBtn = document.getElementById('btn-add-keyword-seo');
     if (addKeywordBtn) {
         addKeywordBtn.addEventListener('click', async () => {
-            console.log('🆕 Відкриття модалу додавання ключового слова з SEO');
 
             // Завантажити дані перед відкриттям модалу
             const { loadKeywords } = await import('../../keywords/keywords-data.js');

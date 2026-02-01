@@ -83,7 +83,6 @@ export async function loadCategories(forceRefresh = false) {
         return dataCache.categories;
     }
 
-    console.log('📥 Завантаження категорій...');
 
     try {
         const rows = await fetchSheetCSV(SHEET_GIDS.categories);
@@ -98,7 +97,6 @@ export async function loadCategories(forceRefresh = false) {
         })).filter(cat => cat.id && cat.name_ua);
 
         dataCache.lastFetch.categories = Date.now();
-        console.log(`✅ Завантажено ${dataCache.categories.length} категорій`);
 
         return dataCache.categories;
     } catch (error) {
@@ -117,7 +115,6 @@ export async function loadCharacteristics(forceRefresh = false) {
         return dataCache.characteristics;
     }
 
-    console.log('📥 Завантаження характеристик...');
 
     try {
         const rows = await fetchSheetCSV(SHEET_GIDS.characteristics);
@@ -137,7 +134,6 @@ export async function loadCharacteristics(forceRefresh = false) {
         })).filter(char => char.id && char.name_ua);
 
         dataCache.lastFetch.characteristics = Date.now();
-        console.log(`✅ Завантажено ${dataCache.characteristics.length} характеристик`);
 
         return dataCache.characteristics;
     } catch (error) {
@@ -156,7 +152,6 @@ export async function loadOptions(forceRefresh = false) {
         return dataCache.options;
     }
 
-    console.log('📥 Завантаження опцій...');
 
     try {
         const rows = await fetchSheetCSV(SHEET_GIDS.options);
@@ -172,7 +167,6 @@ export async function loadOptions(forceRefresh = false) {
         })).filter(opt => opt.id && opt.value_ua);
 
         dataCache.lastFetch.options = Date.now();
-        console.log(`✅ Завантажено ${dataCache.options.length} опцій`);
 
         return dataCache.options;
     } catch (error) {
@@ -191,7 +185,6 @@ export async function loadBrands(forceRefresh = false) {
         return dataCache.brands;
     }
 
-    console.log('📥 Завантаження брендів...');
 
     try {
         const rows = await fetchSheetCSV(SHEET_GIDS.brands);
@@ -206,7 +199,6 @@ export async function loadBrands(forceRefresh = false) {
         })).filter(brand => brand.id && brand.name_uk);
 
         dataCache.lastFetch.brands = Date.now();
-        console.log(`✅ Завантажено ${dataCache.brands.length} брендів`);
 
         return dataCache.brands;
     } catch (error) {
@@ -221,7 +213,6 @@ export async function loadBrands(forceRefresh = false) {
  * @returns {Promise<Object>}
  */
 export async function loadAllData(forceRefresh = false) {
-    console.log('📥 Завантаження всіх даних для товарів...');
 
     const [categories, characteristics, options, brands] = await Promise.all([
         loadCategories(forceRefresh),
@@ -230,7 +221,6 @@ export async function loadAllData(forceRefresh = false) {
         loadBrands(forceRefresh)
     ]);
 
-    console.log('✅ Всі дані завантажено');
 
     return { categories, characteristics, options, brands };
 }
@@ -292,7 +282,6 @@ export function clearCache() {
     dataCache.options = null;
     dataCache.brands = null;
     dataCache.lastFetch = {};
-    console.log('🧹 Кеш даних очищено');
 }
 
 /**

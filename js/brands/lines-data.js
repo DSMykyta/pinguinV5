@@ -61,7 +61,6 @@ export function getBrandLinesByBrandId(brandId) {
  * Завантажити лінійки з Google Sheets
  */
 export async function loadBrandLines() {
-    console.log('📂 Завантаження лінійок брендів...');
 
     try {
         const result = await callSheetsAPI('get', {
@@ -71,7 +70,6 @@ export async function loadBrandLines() {
 
         // Backend повертає масив напряму, а не {values: [...]}
         if (!result || !Array.isArray(result) || result.length <= 1) {
-            console.log('⚠️ Таблиця лінійок порожня або містить тільки заголовки');
             brandsState.brandLines = [];
             return [];
         }
@@ -88,7 +86,6 @@ export async function loadBrandLines() {
             _rowIndex: index + 2
         }));
 
-        console.log(`✅ Завантажено ${brandsState.brandLines.length} лінійок`);
         return brandsState.brandLines;
 
     } catch (error) {
@@ -145,7 +142,6 @@ function prepareLineRow(line) {
  * @returns {Promise<Object>} Додана лінійка
  */
 export async function addBrandLine(lineData) {
-    console.log('➕ Додавання нової лінійки:', lineData);
 
     try {
         const newId = generateLineId();
@@ -168,7 +164,6 @@ export async function addBrandLine(lineData) {
 
         brandsState.brandLines.push(newLine);
 
-        console.log('✅ Лінійку додано:', newLine);
         return newLine;
     } catch (error) {
         console.error('❌ Помилка додавання лінійки:', error);
@@ -183,7 +178,6 @@ export async function addBrandLine(lineData) {
  * @returns {Promise<Object>} Оновлена лінійка
  */
 export async function updateBrandLine(lineId, updates) {
-    console.log(`📝 Оновлення лінійки ${lineId}:`, updates);
 
     try {
         const line = brandsState.brandLines.find(l => l.line_id === lineId);
@@ -211,7 +205,6 @@ export async function updateBrandLine(lineId, updates) {
         // Оновити state
         Object.assign(line, updatedLine);
 
-        console.log('✅ Лінійку оновлено:', line);
         return line;
     } catch (error) {
         console.error('❌ Помилка оновлення лінійки:', error);
@@ -225,7 +218,6 @@ export async function updateBrandLine(lineId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrandLine(lineId) {
-    console.log(`🗑️ Видалення лінійки ${lineId}`);
 
     try {
         const lineIndex = brandsState.brandLines.findIndex(l => l.line_id === lineId);
@@ -244,7 +236,6 @@ export async function deleteBrandLine(lineId) {
 
         brandsState.brandLines.splice(lineIndex, 1);
 
-        console.log('✅ Лінійку видалено');
     } catch (error) {
         console.error('❌ Помилка видалення лінійки:', error);
         throw error;

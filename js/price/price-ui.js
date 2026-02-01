@@ -11,6 +11,7 @@
 import { priceState } from './price-init.js';
 import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
 import { getAvatarPath } from '../utils/avatar-loader.js';
+import { getInitials, getAvatarColor } from '../utils/avatar-utils.js';
 import { getColumns } from './price-table.js';
 
 /**
@@ -53,37 +54,8 @@ export function populateReserveTabs() {
         reserveTabsContainer.appendChild(tab);
     });
 
-    console.log(`✅ Заповнено ${priceState.reserveNames.length} табів резервів`);
 }
 
-/**
- * Отримати ініціали з імені
- */
-function getInitials(name) {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-}
-
-/**
- * Генерувати колір аватарки на основі імені
- */
-function getAvatarColor(name) {
-    const colors = [
-        '#f44336', '#e91e63', '#9c27b0', '#673ab7',
-        '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4',
-        '#009688', '#4caf50', '#8bc34a', '#cddc39',
-        '#ffc107', '#ff9800', '#ff5722', '#795548'
-    ];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-}
 
 /**
  * Заповнити колонки для пошуку в aside
@@ -96,7 +68,6 @@ export function populateSearchColumns() {
         state: priceState,
         checkboxPrefix: 'search-col-price'
     });
-    console.log('✅ Колонки пошуку заповнено');
 }
 
 /**
@@ -127,7 +98,6 @@ export function populateTableColumns() {
             initPriceColumnFilters();
         }
     });
-    console.log('✅ Колонки таблиці заповнено');
 }
 
 /**
