@@ -429,24 +429,25 @@ function positionDropdown(wrapper, header) {
     const headerRect = header.getBoundingClientRect();
     const dropdown = wrapper.querySelector('.dropdown-menu');
 
-    // Fixed позиціонування
-    wrapper.style.position = 'fixed';
-    wrapper.style.left = `${headerRect.left}px`;
-    wrapper.style.top = `${headerRect.bottom + 4}px`;
-    wrapper.style.zIndex = '10001';
+    // Скидаємо стилі dropdown-menu щоб уникнути конфліктів з CSS
+    dropdown.style.position = 'fixed';
+    dropdown.style.top = `${headerRect.bottom + 4}px`;
+    dropdown.style.left = `${headerRect.left}px`;
+    dropdown.style.right = 'auto';
+    dropdown.style.marginTop = '0';
 
     // Перевірка чи не виходить за межі екрану
     requestAnimationFrame(() => {
         const dropdownRect = dropdown.getBoundingClientRect();
 
-        // Корекція по горизонталі
+        // Корекція по горизонталі - якщо виходить за праву межу
         if (dropdownRect.right > window.innerWidth - 8) {
-            wrapper.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
+            dropdown.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
         }
 
         // Корекція по вертикалі - якщо не вміщується знизу, показати зверху
         if (dropdownRect.bottom > window.innerHeight - 8) {
-            wrapper.style.top = `${headerRect.top - dropdownRect.height - 4}px`;
+            dropdown.style.top = `${headerRect.top - dropdownRect.height - 4}px`;
         }
     });
 }
