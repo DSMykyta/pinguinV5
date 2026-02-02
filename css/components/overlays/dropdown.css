@@ -163,6 +163,42 @@
     font-variation-settings: 'FILL' 1;
 }
 
+/* ============================================ */
+/* HOVER FILTER DROPDOWN (появляється при наведенні) */
+/* ============================================ */
+
+/* Wrapper для hover dropdown - fixed позиціонування */
+.filter-dropdown-hover {
+    position: fixed;
+    pointer-events: auto;
+}
+
+/* Початковий стан - прихований */
+.filter-dropdown-hover .dropdown-menu {
+    display: block;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+/* Відкритий стан */
+.filter-dropdown-hover.is-open .dropdown-menu {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Виділення активного header при hover */
+.sortable-header.filterable.filter-hover-active {
+    background-color: var(--color-surface-c-high);
+}
+
+/* Курсор для filterable колонок */
+.sortable-header.filterable {
+    cursor: pointer;
+}
+
 /* Розділювач в фільтрі */
 .dropdown-separator {
     height: 1px;

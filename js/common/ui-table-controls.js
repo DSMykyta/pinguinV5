@@ -300,9 +300,15 @@ export function filterData(data, filters, columns = []) {
  */
 const hoverState = {
     activeHeader: null,
-    hoverTimeout: null,
-    activeDropdown: null
+    showTimeout: null,
+    hideTimeout: null,
+    activeDropdown: null,
+    isMouseOverDropdown: false
 };
+
+// Константи для тайміників
+const HOVER_SHOW_DELAY = 400;  // Затримка перед показом (мс)
+const HOVER_HIDE_DELAY = 200;  // Затримка перед закриттям (мс)
 
 /**
  * Створити dropdown HTML для колонки
@@ -323,9 +329,9 @@ function createHoverDropdown(header, columnConfig, handlers) {
     const currentFilter = activeFilters.get(columnId);
     const allSelected = uniqueValues.every(v => currentFilter.has(v.value));
 
-    // Створюємо wrapper з існуючими класами
+    // Створюємо wrapper з fixed позиціонуванням
     const wrapper = document.createElement('div');
-    wrapper.className = 'dropdown-wrapper filter-dropdown is-open';
+    wrapper.className = 'dropdown-wrapper filter-dropdown filter-dropdown-hover';
 
     const dropdown = document.createElement('div');
     dropdown.className = 'dropdown-menu';
@@ -397,23 +403,81 @@ function createHoverDropdown(header, columnConfig, handlers) {
     // Запобігаємо закриттю при кліку всередині dropdown
     dropdown.addEventListener('click', (e) => e.stopPropagation());
 
+    // Обробники hover на dropdown
+    wrapper.addEventListener('mouseenter', () => {
+        hoverState.isMouseOverDropdown = true;
+        // Скасувати закриття якщо заплановано
+        if (hoverState.hideTimeout) {
+            clearTimeout(hoverState.hideTimeout);
+            hoverState.hideTimeout = null;
+        }
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+        hoverState.isMouseOverDropdown = false;
+        scheduleHideDropdown();
+    });
+
     wrapper.appendChild(dropdown);
     return wrapper;
 }
 
 /**
- * Показати hover dropdown
+ * Позиціонувати dropdown відносно header
+ */
+function positionDropdown(wrapper, header) {
+    const headerRect = header.getBoundingClientRect();
+    const dropdown = wrapper.querySelector('.dropdown-menu');
+
+    // Fixed позиціонування
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = `${headerRect.left}px`;
+    wrapper.style.top = `${headerRect.bottom + 4}px`;
+    wrapper.style.zIndex = '10001';
+
+    // Перевірка чи не виходить за межі екрану
+    requestAnimationFrame(() => {
+        const dropdownRect = dropdown.getBoundingClientRect();
+
+        // Корекція по горизонталі
+        if (dropdownRect.right > window.innerWidth - 8) {
+            wrapper.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
+        }
+
+        // Корекція по вертикалі - якщо не вміщується знизу, показати зверху
+        if (dropdownRect.bottom > window.innerHeight - 8) {
+            wrapper.style.top = `${headerRect.top - dropdownRect.height - 4}px`;
+        }
+    });
+}
+
+/**
+ * Показати hover dropdown з анімацією
  */
 function showHoverDropdown(header, columnConfig, handlers) {
-    hideHoverDropdown();
+    // Якщо вже показується для цього header - не робимо нічого
+    if (hoverState.activeHeader === header && hoverState.activeDropdown) {
+        return;
+    }
+
+    hideHoverDropdown(true); // true = миттєво, без анімації
 
     const wrapper = createHoverDropdown(header, columnConfig, handlers);
 
-    // Додаємо всередину header cell (не до body)
-    header.appendChild(wrapper);
+    // Додаємо до body для правильного позиціонування
+    document.body.appendChild(wrapper);
+
+    // Позиціонуємо
+    positionDropdown(wrapper, header);
+
+    // Плавна поява - спочатку показуємо, потім додаємо клас
+    requestAnimationFrame(() => {
+        wrapper.classList.add('is-open');
+    });
 
     hoverState.activeDropdown = wrapper;
     hoverState.activeHeader = header;
+    header.classList.add('filter-hover-active');
 
     // Закриття при кліку поза dropdown
     setTimeout(() => {
@@ -422,14 +486,58 @@ function showHoverDropdown(header, columnConfig, handlers) {
 }
 
 /**
+ * Заплановане приховування dropdown
+ */
+function scheduleHideDropdown() {
+    // Скасуємо попередній таймер
+    if (hoverState.hideTimeout) {
+        clearTimeout(hoverState.hideTimeout);
+    }
+
+    hoverState.hideTimeout = setTimeout(() => {
+        // Перевіряємо чи миша не повернулась на dropdown або header
+        if (!hoverState.isMouseOverDropdown) {
+            hideHoverDropdown();
+        }
+    }, HOVER_HIDE_DELAY);
+}
+
+/**
  * Приховати hover dropdown
  */
-function hideHoverDropdown() {
+function hideHoverDropdown(immediate = false) {
+    // Скасуємо всі таймери
+    if (hoverState.showTimeout) {
+        clearTimeout(hoverState.showTimeout);
+        hoverState.showTimeout = null;
+    }
+    if (hoverState.hideTimeout) {
+        clearTimeout(hoverState.hideTimeout);
+        hoverState.hideTimeout = null;
+    }
+
     if (hoverState.activeDropdown) {
-        hoverState.activeDropdown.remove();
+        if (immediate) {
+            hoverState.activeDropdown.remove();
+        } else {
+            // Плавне зникнення
+            hoverState.activeDropdown.classList.remove('is-open');
+            const dropdown = hoverState.activeDropdown;
+            setTimeout(() => {
+                if (dropdown.parentNode) {
+                    dropdown.remove();
+                }
+            }, 150); // Час анімації
+        }
         hoverState.activeDropdown = null;
     }
+
+    if (hoverState.activeHeader) {
+        hoverState.activeHeader.classList.remove('filter-hover-active');
+    }
     hoverState.activeHeader = null;
+    hoverState.isMouseOverDropdown = false;
+
     document.removeEventListener('click', handleOutsideClick);
 }
 
@@ -452,38 +560,45 @@ function setupHoverDropdowns(container, handlers) {
         const columnId = header.dataset.sortKey || header.dataset.column;
         const columnConfig = handlers.filterColumns?.find(c => c.id === columnId);
 
-        // Hover - миттєва поява
+        // Hover з затримкою перед показом
         header.addEventListener('mouseenter', () => {
-            showHoverDropdown(header, columnConfig, handlers);
+            // Скасуємо заплановане закриття
+            if (hoverState.hideTimeout) {
+                clearTimeout(hoverState.hideTimeout);
+                hoverState.hideTimeout = null;
+            }
+
+            // Якщо dropdown вже відкритий для цього header - не робимо нічого
+            if (hoverState.activeHeader === header) {
+                return;
+            }
+
+            // Запланувати показ з затримкою
+            if (hoverState.showTimeout) {
+                clearTimeout(hoverState.showTimeout);
+            }
+
+            hoverState.showTimeout = setTimeout(() => {
+                showHoverDropdown(header, columnConfig, handlers);
+            }, HOVER_SHOW_DELAY);
         });
 
         header.addEventListener('mouseleave', (e) => {
-            // Скасовуємо таймер
-            if (hoverState.hoverTimeout) {
-                clearTimeout(hoverState.hoverTimeout);
-                hoverState.hoverTimeout = null;
+            // Скасовуємо заплановане відкриття
+            if (hoverState.showTimeout) {
+                clearTimeout(hoverState.showTimeout);
+                hoverState.showTimeout = null;
             }
 
-            // Не закриваємо якщо перейшли на dropdown
-            if (hoverState.activeDropdown) {
-                const toElement = e.relatedTarget;
-                if (toElement && hoverState.activeDropdown.contains(toElement)) {
-                    return;
-                }
-            }
-        });
-    });
-
-    // Закриваємо dropdown при виході з нього
-    document.addEventListener('mouseleave', (e) => {
-        if (hoverState.activeDropdown && e.target === hoverState.activeDropdown) {
+            // Не закриваємо одразу - даємо час перейти на dropdown
             const toElement = e.relatedTarget;
-            if (toElement && hoverState.activeHeader && hoverState.activeHeader.contains(toElement)) {
+            if (toElement && hoverState.activeDropdown && hoverState.activeDropdown.contains(toElement)) {
                 return;
             }
-            hideHoverDropdown();
-        }
-    }, true);
+
+            scheduleHideDropdown();
+        });
+    });
 }
 
 /**
