@@ -357,24 +357,33 @@ function getCharacteristicsData() {
     const mpCharacteristics = getMpCharacteristics()
         .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
         .map(mpChar => {
-            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            // Дані вже розпарсовані в loadMpCharacteristics через Object.assign
+            // Але для сумісності також перевіряємо raw data
+            const rawData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
             const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+
+            // Перевірка is_global з різних джерел
+            const isGlobalValue = mpChar.is_global || rawData.is_global;
+            const isGlobal = isGlobalValue === true ||
+                             String(isGlobalValue).toLowerCase() === 'true' ||
+                             String(isGlobalValue).toLowerCase() === 'yes';
+
             return {
                 id: mpChar.id,
                 external_id: mpChar.external_id,
                 marketplace_id: mpChar.marketplace_id,
-                name_ua: data.name || '',
+                name_ua: mpChar.name || rawData.name || '',
                 name_ru: '',
-                type: data.type || '',
-                unit: data.unit || '',
-                is_global: data.is_global === 'Так' || data.is_global === true,
-                category_ids: data.category_id || '',
-                filter_type: data.filter_type || '',
-                our_char_id: data.our_char_id || '',
+                type: mpChar.type || rawData.type || '',
+                unit: mpChar.unit || rawData.unit || '',
+                is_global: isGlobal,
+                category_ids: mpChar.category_id || rawData.category_id || '',
+                filter_type: mpChar.filter_type || rawData.filter_type || '',
+                our_char_id: mpChar.our_char_id || rawData.our_char_id || '',
                 _source: mpChar.marketplace_id,
                 _sourceLabel: marketplace?.name || mpChar.marketplace_id,
                 _editable: false,
-                _mpData: data
+                _mpData: rawData
             };
         });
 
