@@ -38,6 +38,7 @@ import {
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
+import { showLoader, hideLoader } from '../common/ui-loading.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { escapeHtml } from '../utils/text-utils.js';
 
