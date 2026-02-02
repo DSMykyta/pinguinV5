@@ -305,7 +305,7 @@ function initMapperBatchActions() {
 
                         mapperState.selectedRows.categories.clear();
                         const batchBar = getBatchBar('mapper-categories');
-                        if (batchBar) batchBar.clearSelection();
+                        if (batchBar) batchBar.deselectAll();
 
                         showToast(`Замаплено ${mpIds.length} категорій`, 'success');
                         renderCurrentTab();
@@ -381,7 +381,7 @@ function initMapperBatchActions() {
 
                         mapperState.selectedRows.characteristics.clear();
                         const batchBar = getBatchBar('mapper-characteristics');
-                        if (batchBar) batchBar.clearSelection();
+                        if (batchBar) batchBar.deselectAll();
 
                         showToast(`Замаплено ${mpIds.length} характеристик`, 'success');
                         renderCurrentTab();
@@ -464,7 +464,7 @@ function initMapperBatchActions() {
 
                         mapperState.selectedRows.options.clear();
                         const batchBar = getBatchBar('mapper-options');
-                        if (batchBar) batchBar.clearSelection();
+                        if (batchBar) batchBar.deselectAll();
 
                         showToast(`Замаплено ${mpIds.length} опцій`, 'success');
                         renderCurrentTab();
