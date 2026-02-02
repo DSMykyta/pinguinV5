@@ -1422,22 +1422,19 @@ function getCategoryLabelMap() {
     });
 
     // MP категорії (для фільтрації MP характеристик)
+    // Структура: id | marketplace_id | external_id | source | data (JSON з name, parent_id) | ...
+    // Після loadMpCategories: data розпарсено через Object.assign, тому cat.name доступний напряму
     const mpCategories = getMpCategories();
     mpCategories.forEach(cat => {
-        // Парсимо data якщо це JSON
-        let catData = cat;
-        if (cat.data) {
-            try {
-                catData = typeof cat.data === 'string' ? JSON.parse(cat.data) : cat.data;
-            } catch (e) {
-                catData = cat;
-            }
-        }
-        // Використовуємо mp_id як ключ (це те що зберігається в category_id характеристик)
-        const mpId = cat.mp_id || cat.id;
-        const name = catData.name || catData.name_ua || cat.name || mpId;
-        if (!labelMap[mpId]) {
-            labelMap[mpId] = name;
+        // external_id - це ID категорії в маркетплейсі (напр. "4653724")
+        // Це значення використовується в category_id характеристик
+        const externalId = cat.external_id || cat.mp_id;
+
+        // name вже розпарсено з data при завантаженні
+        const name = cat.name || cat.name_ua || externalId;
+
+        if (externalId && !labelMap[externalId]) {
+            labelMap[externalId] = name;
         }
     });
 
