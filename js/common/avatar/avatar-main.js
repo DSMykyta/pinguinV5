@@ -1,4 +1,4 @@
-// js/lego/avatar/avatar-main.js
+// js/common/avatar/avatar-main.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -20,12 +20,12 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * ВИКОРИСТАННЯ:
- * import { initAvatarSystem } from './lego/avatar/avatar-main.js';
+ * import { initAvatarSystem } from './common/avatar/avatar-main.js';
  * await initAvatarSystem();
  *
  * // Або окремі функції з плагінів
- * import { renderAvatar } from './lego/avatar/avatar-user.js';
- * import { renderAvatarState } from './lego/avatar/avatar-ui-states.js';
+ * import { renderAvatar } from './common/avatar/avatar-user.js';
+ * import { renderAvatarState } from './common/avatar/avatar-ui-states.js';
  */
 
 import { avatarState, runHook, runHookAsync, setCurrentUser } from './avatar-state.js';
@@ -68,7 +68,7 @@ async function loadPlugins() {
  *
  * @example
  * // В main-core.js
- * import { initAvatarSystem } from './lego/avatar/avatar-main.js';
+ * import { initAvatarSystem } from './common/avatar/avatar-main.js';
  * await initAvatarSystem();
  */
 export async function initAvatarSystem() {

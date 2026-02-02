@@ -10,8 +10,8 @@
 
 import { priceState } from './price-init.js';
 import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
-import { getAvatarPath } from '../lego/avatar/avatar-user.js';
-import { getInitials, getAvatarColor } from '../lego/avatar/avatar-text.js';
+import { getAvatarPath } from '../common/avatar/avatar-user.js';
+import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
 import { getColumns } from './price-table.js';
 
 /**

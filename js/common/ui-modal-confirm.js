@@ -20,11 +20,11 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - ui-modal.js (базові функції модалів)
- * - lego/avatar/avatar-ui-states.js (рендеринг аватарів)
+ * - avatar/avatar-ui-states.js (рендеринг аватарів)
  */
 
 import { showModal, closeModal } from './ui-modal.js';
-import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
+import { renderAvatarState } from './avatar/avatar-ui-states.js';
 
 /**
  * Типи кнопок з відповідними станами аватарів

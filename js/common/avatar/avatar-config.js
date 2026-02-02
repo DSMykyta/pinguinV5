@@ -1,4 +1,4 @@
-// js/lego/avatar/avatar-config.js
+// js/common/avatar/avatar-config.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

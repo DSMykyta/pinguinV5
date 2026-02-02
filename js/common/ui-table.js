@@ -2,7 +2,7 @@
 // Універсальний компонент для рендерингу таблиць
 
 import { escapeHtml } from '../utils/text-utils.js';
-import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
+import { renderAvatarState } from './avatar/avatar-ui-states.js';
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -15,7 +15,7 @@ import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
 import { initPaginationForBannedWords } from './banned-words-pagination.js';
-import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 /**
  * Глобальний state для banned words модуля

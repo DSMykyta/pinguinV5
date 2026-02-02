@@ -1,4 +1,4 @@
-// js/lego/avatar/avatar-modal.js
+// js/common/avatar/avatar-modal.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
