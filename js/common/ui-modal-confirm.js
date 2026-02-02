@@ -9,19 +9,44 @@
  * Функції для створення простих діалогів підтвердження дій (Так/Ні).
  * Використовує базову інфраструктуру модальних вікон.
  *
+ * ВАЖЛИВО: Всі модалі підтвердження автоматично отримують аватари!
+ * Це забезпечує консистентність UI.
+ *
  * ЕКСПОРТОВАНІ ФУНКЦІЇ:
  * - showConfirmModal(options) - Показати діалог підтвердження
+ * - showDeleteConfirm(options) - Shortcut для видалення
+ * - showResetConfirm(options) - Shortcut для скидання
+ * - showCloseConfirm(options) - Shortcut для закриття
  *
  * ЗАЛЕЖНОСТІ:
  * - ui-modal.js (базові функції модалів)
- * - templates/modals/modal-confirm.html
+ * - lego/avatar/avatar-ui-states.js (рендеринг аватарів)
  */
 
 import { showModal, closeModal } from './ui-modal.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
+
+/**
+ * Типи кнопок з відповідними станами аватарів
+ * Автоматично визначає який аватар показати
+ */
+const BUTTON_TO_AVATAR_STATE = {
+    'btn-danger': 'confirmDelete',
+    'btn-warning': 'confirmReset',
+    'btn-primary': 'confirmClose',
+    'btn-secondary': 'confirmClose'
+};
+
+/**
+ * Дефолтний стан аватара для модалів підтвердження
+ */
+const DEFAULT_AVATAR_STATE = 'confirmClose';
 
 /**
  * Показати просте підтвердження з кнопками Так/Ні
+ *
+ * ВАЖЛИВО: Всі модалі підтвердження автоматично отримують аватари!
+ * Якщо не вказано avatarState - визначається автоматично на основі confirmClass.
  *
  * @param {Object} options - Опції підтвердження
  * @param {string} options.title - Заголовок вікна (за замовчуванням 'Підтвердження')
@@ -29,35 +54,43 @@ import { renderAvatarState } from '../utils/avatar-states.js';
  * @param {string} options.confirmText - Текст кнопки підтвердження (за замовчуванням 'Так')
  * @param {string} options.cancelText - Текст кнопки скасування (за замовчуванням 'Ні')
  * @param {string} options.confirmClass - Клас для кнопки підтвердження (за замовчуванням 'btn-danger')
- * @param {string} options.avatarState - Тип стану аватара: 'confirmClose', 'confirmReload', 'confirmReset', або null (без аватара)
- * @param {string} options.avatarSize - Розмір аватара: 'small', 'medium', 'large' (за замовчуванням 'medium')
+ * @param {string|false} options.avatarState - Тип стану аватара або false для вимкнення
+ *   - 'confirmClose' - закриття
+ *   - 'confirmReset' - скидання
+ *   - 'confirmDelete' - видалення
+ *   - 'confirmReload' - перезавантаження
+ *   - false - без аватара (не рекомендується для консистентності)
+ * @param {string} options.avatarSize - Розмір аватара: 'sm', 'md', 'lg' (за замовчуванням 'lg')
  *
  * @returns {Promise<boolean>} Promise що резолвиться в true якщо підтверджено, false якщо скасовано
  *
  * @example
- * // З аватаром
- * const confirmed = await showConfirmModal({
- *   title: 'Закрити без збереження?',
- *   message: 'Всі незбережені зміни буде втрачено',
- *   confirmText: 'Закрити',
- *   cancelText: 'Скасувати',
- *   confirmClass: 'btn-danger',
- *   avatarState: 'confirmClose',
- *   avatarSize: 'small'
- * });
- *
- * // Без аватара (стандартний режим)
+ * // Стандартне підтвердження видалення (аватар визначиться автоматично)
  * const confirmed = await showConfirmModal({
  *   title: 'Видалити елемент?',
  *   message: 'Ця дія незворотна. Ви впевнені?',
  *   confirmText: 'Видалити',
  *   cancelText: 'Скасувати',
- *   confirmClass: 'btn-danger'
+ *   confirmClass: 'btn-danger'  // → автоматично avatarState: 'confirmDelete'
  * });
  *
- * if (confirmed) {
- *   // Виконати дію
- * }
+ * @example
+ * // З явним вказанням стану аватара
+ * const confirmed = await showConfirmModal({
+ *   title: 'Закрити без збереження?',
+ *   message: 'Всі незбережені зміни буде втрачено',
+ *   confirmText: 'Закрити',
+ *   avatarState: 'confirmClose',
+ *   avatarSize: 'md'
+ * });
+ *
+ * @example
+ * // Вимкнення аватара (не рекомендується)
+ * const confirmed = await showConfirmModal({
+ *   title: 'Простий діалог',
+ *   message: 'Без аватара',
+ *   avatarState: false
+ * });
  */
 export async function showConfirmModal(options = {}) {
     const {
@@ -66,8 +99,8 @@ export async function showConfirmModal(options = {}) {
         confirmText = 'Так',
         cancelText = 'Ні',
         confirmClass = 'btn-danger',
-        avatarState = null,
-        avatarSize = 'medium'
+        avatarState = null,  // null = автовизначення
+        avatarSize = 'lg'
     } = options;
 
     return new Promise(async (resolve) => {
@@ -96,9 +129,17 @@ export async function showConfirmModal(options = {}) {
             messageElement.textContent = message;
         }
 
-        // Вставляємо аватар якщо вказано
-        if (avatarContainer && avatarState) {
-            const html = renderAvatarState(avatarState, {
+        // Визначаємо стан аватара
+        let effectiveAvatarState = avatarState;
+
+        if (avatarState === null) {
+            // Автовизначення на основі confirmClass
+            effectiveAvatarState = BUTTON_TO_AVATAR_STATE[confirmClass] || DEFAULT_AVATAR_STATE;
+        }
+
+        // Вставляємо аватар (за замовчуванням - завжди, якщо не вимкнено явно)
+        if (avatarContainer && effectiveAvatarState !== false) {
+            const html = renderAvatarState(effectiveAvatarState, {
                 size: avatarSize,
                 containerClass: 'modal-confirm-avatar',
                 avatarClass: 'modal-confirm-avatar-image',
@@ -124,7 +165,7 @@ export async function showConfirmModal(options = {}) {
             const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
 
             if (action === 'confirm') {
-                e.stopPropagation(); // Запобігаємо поширенню до інших обробників
+                e.stopPropagation();
                 e.preventDefault();
                 if (resolved) return;
                 resolved = true;
@@ -132,7 +173,7 @@ export async function showConfirmModal(options = {}) {
                 closeModal();
                 resolve(true);
             } else if (action === 'cancel') {
-                e.stopPropagation(); // Запобігаємо поширенню до інших обробників
+                e.stopPropagation();
                 e.preventDefault();
                 if (resolved) return;
                 resolved = true;
@@ -159,5 +200,82 @@ export async function showConfirmModal(options = {}) {
         // Додати слухачі
         document.addEventListener('click', handleClick);
         document.addEventListener('modal-closed', handleModalClose);
+    });
+}
+
+/**
+ * Показати діалог підтвердження видалення
+ * Shortcut для showConfirmModal з налаштуваннями для видалення
+ *
+ * @param {Object} options
+ * @param {string} options.itemName - Назва елемента для видалення
+ * @param {string} options.title - Кастомний заголовок
+ * @param {string} options.message - Кастомне повідомлення
+ * @returns {Promise<boolean>}
+ */
+export async function showDeleteConfirm(options = {}) {
+    const {
+        itemName = '',
+        title = null,
+        message = null
+    } = options;
+
+    return showConfirmModal({
+        title: title || `Видалити${itemName ? ` "${itemName}"` : ''}?`,
+        message: message || 'Ця дія незворотна. Ви впевнені?',
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger',
+        avatarState: 'confirmDelete'
+    });
+}
+
+/**
+ * Показати діалог підтвердження скидання
+ * Shortcut для showConfirmModal з налаштуваннями для скидання
+ *
+ * @param {Object} options
+ * @param {string} options.title - Кастомний заголовок
+ * @param {string} options.message - Кастомне повідомлення
+ * @returns {Promise<boolean>}
+ */
+export async function showResetConfirm(options = {}) {
+    const {
+        title = 'Скинути зміни?',
+        message = 'Всі незбережені зміни буде втрачено.'
+    } = options;
+
+    return showConfirmModal({
+        title,
+        message,
+        confirmText: 'Скинути',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-warning',
+        avatarState: 'confirmReset'
+    });
+}
+
+/**
+ * Показати діалог підтвердження закриття
+ * Shortcut для showConfirmModal з налаштуваннями для закриття
+ *
+ * @param {Object} options
+ * @param {string} options.title - Кастомний заголовок
+ * @param {string} options.message - Кастомне повідомлення
+ * @returns {Promise<boolean>}
+ */
+export async function showCloseConfirm(options = {}) {
+    const {
+        title = 'Закрити без збереження?',
+        message = 'Всі незбережені зміни буде втрачено.'
+    } = options;
+
+    return showConfirmModal({
+        title,
+        message,
+        confirmText: 'Закрити',
+        cancelText: 'Залишити',
+        confirmClass: 'btn-danger',
+        avatarState: 'confirmClose'
     });
 }

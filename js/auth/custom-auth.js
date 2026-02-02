@@ -5,8 +5,8 @@
  */
 
 import { showModal, closeModal } from '../common/ui-modal.js';
-import { getAvatarPath } from '../utils/avatar-loader.js';
-import { renderAvatarState, getAvatarState } from '../utils/avatar-states.js';
+import { getAvatarPath } from '../lego/avatar/avatar-user.js';
+import { renderAvatarState, getAvatarState } from '../lego/avatar/avatar-ui-states.js';
 
 // Константи
 const AUTH_TOKEN_KEY = 'auth_token';

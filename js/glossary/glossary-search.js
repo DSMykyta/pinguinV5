@@ -1,6 +1,6 @@
 // js/glossary/glossary-search.js
 
-import { renderAvatarState, getRandomMessage } from '../utils/avatar-states.js';
+import { renderAvatarState, getRandomMessage } from '../lego/avatar/avatar-ui-states.js';
 import { escapeHtml } from '../utils/text-utils.js';
 
 /**

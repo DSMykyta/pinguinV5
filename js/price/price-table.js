@@ -11,8 +11,8 @@
 import { priceState } from './price-init.js';
 import { createPseudoTable, renderBadge } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { getAvatarPath } from '../utils/avatar-loader.js';
-import { getInitials, getAvatarColor } from '../utils/avatar-utils.js';
+import { getAvatarPath } from '../lego/avatar/avatar-user.js';
+import { getInitials, getAvatarColor } from '../lego/avatar/avatar-text.js';
 
 // Table API instance
 let tableAPI = null;

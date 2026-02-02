@@ -58,7 +58,7 @@ import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме

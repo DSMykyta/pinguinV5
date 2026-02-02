@@ -12,7 +12,7 @@
 import { initTooltips } from '../common/ui-tooltip.js';
 import { loadAside, initAsideEvents } from './price-aside.js';
 import { initPriceImport } from './price-import.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
 
 /**
  * Глобальний state для price модуля

@@ -16,7 +16,7 @@ import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
 import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../lego/avatar/avatar-ui-states.js';
 import {
     registerActionHandlers,
     initActionHandlers,
