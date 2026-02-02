@@ -162,7 +162,7 @@ function initAddButtons() {
     const addCategoryBtn = document.getElementById('btn-add-mapper-category');
     if (addCategoryBtn) {
         addCategoryBtn.addEventListener('click', async () => {
-            const { showAddCategoryModal } = await import('./mapper-categories.js');
+            const { showAddCategoryModal } = await import('./mapper-crud.js');
             showAddCategoryModal();
         });
     }
@@ -171,7 +171,7 @@ function initAddButtons() {
     const addCharacteristicBtn = document.getElementById('btn-add-mapper-characteristic');
     if (addCharacteristicBtn) {
         addCharacteristicBtn.addEventListener('click', async () => {
-            const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
+            const { showAddCharacteristicModal } = await import('./mapper-crud.js');
             showAddCharacteristicModal();
         });
     }
@@ -180,7 +180,7 @@ function initAddButtons() {
     const addOptionBtn = document.getElementById('btn-add-mapper-option');
     if (addOptionBtn) {
         addOptionBtn.addEventListener('click', async () => {
-            const { showAddOptionModal } = await import('./mapper-options.js');
+            const { showAddOptionModal } = await import('./mapper-crud.js');
             showAddOptionModal();
         });
     }
@@ -189,7 +189,7 @@ function initAddButtons() {
     const addMarketplaceBtn = document.getElementById('btn-add-mapper-marketplace');
     if (addMarketplaceBtn) {
         addMarketplaceBtn.addEventListener('click', async () => {
-            const { showAddMarketplaceModal } = await import('./mapper-marketplaces.js');
+            const { showAddMarketplaceModal } = await import('./mapper-crud.js');
             showAddMarketplaceModal();
         });
     }
@@ -202,7 +202,7 @@ function initImportButton() {
     const importBtn = document.getElementById('btn-import-mapper');
     if (importBtn) {
         importBtn.addEventListener('click', async () => {
-            const { showImportModal } = await import('./mapper-import.js');
+            const { showImportModal } = await import('./mapper-crud.js');
             showImportModal();
         });
     }
