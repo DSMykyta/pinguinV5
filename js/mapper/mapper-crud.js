@@ -2167,21 +2167,24 @@ async function handleFileSelect(file) {
         const rawData = await parseFileRaw(file);
         importState.rawData = rawData;
 
-
-        // Показуємо вибір рядка заголовків
-        document.getElementById('header-row-group')?.classList.remove('u-hidden');
-
-        // Для Rozetka - парсимо категорію з файлу
+        // Для Rozetka - парсимо категорію з файлу і пропускаємо налаштування
         if (importState.isRozetkaFormat) {
             parseRozetkaCategory(file.name, rawData);
             // Для Rozetka заголовки в рядку 2
             importState.headerRow = 2;
-            const headerRowInput = document.getElementById('mapper-import-header-row');
-            if (headerRowInput) {
-                headerRowInput.value = 2;
-                headerRowInput.max = rawData.length;
-            }
+
+            // Приховуємо елементи налаштування - не потрібні для Rozetka
+            document.getElementById('header-row-group')?.classList.add('u-hidden');
+            document.getElementById('import-step-2')?.classList.add('u-hidden');
+
+            // Застосовуємо рядок заголовків (це також виконає autoDetectMapping)
+            applyHeaderRowSilent();
+
+            showToast(`Файл Rozetka прочитано: ${rawData.length - 2} записів`, 'success');
         } else {
+            // Показуємо вибір рядка заголовків для інших форматів
+            document.getElementById('header-row-group')?.classList.remove('u-hidden');
+
             // Скидаємо до рядка 1
             const headerRowInput = document.getElementById('mapper-import-header-row');
             if (headerRowInput) {
@@ -2189,12 +2192,12 @@ async function handleFileSelect(file) {
                 headerRowInput.max = rawData.length;
             }
             importState.headerRow = 1;
+
+            // Застосовуємо рядок заголовків
+            applyHeaderRow();
+
+            showToast(`Файл прочитано: ${rawData.length} рядків`, 'success');
         }
-
-        // Застосовуємо рядок заголовків
-        applyHeaderRow();
-
-        showToast(`Файл прочитано: ${rawData.length} рядків`, 'success');
 
     } catch (error) {
         console.error('❌ Помилка парсингу файлу:', error);
@@ -2290,6 +2293,80 @@ function applyHeaderRow() {
 
     // Спробуємо автоматично визначити маппінг
     autoDetectMapping(headers);
+}
+
+/**
+ * Застосувати рядок заголовків без показу UI (для Rozetka формату)
+ * Rozetka формат має фіксовану структуру, тому маппінг виконується автоматично
+ */
+function applyHeaderRowSilent() {
+    const headerRow = importState.headerRow || 2;
+
+    importState.mapping = {}; // Скидаємо маппінг
+
+    // Заголовки - це рядок headerRow (1-based), дані - всі рядки після нього
+    const headerRowData = importState.rawData[headerRow - 1];
+    const headers = headerRowData.map((h, i) => ({
+        index: i,
+        name: String(h || `Колонка ${i + 1}`).trim()
+    }));
+
+    const rows = importState.rawData.slice(headerRow).map(row =>
+        headers.map((_, i) => String(row[i] || '').trim())
+    );
+
+    importState.fileHeaders = headers;
+    importState.parsedData = rows;
+
+    // Автоматично визначаємо маппінг без показу UI
+    autoDetectMappingSilent(headers);
+
+    // Валідуємо імпорт (активує кнопку якщо все OK)
+    validateImport();
+}
+
+/**
+ * Автоматичне визначення маппінгу без UI (для Rozetka формату)
+ */
+function autoDetectMappingSilent(headers) {
+    const patterns = {
+        char_id: ['id параметра', 'id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id', 'ідентифікатор параметра'],
+        char_name: ['назва параметра', 'назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
+        char_type: ['тип параметра', 'тип характеристики', 'param_type', 'attribute_type'],
+        char_filter_type: ['тип фільтра', 'filter_type', 'фільтр'],
+        char_unit: ['одиниця', 'одиниця виміру', 'unit', 'од.'],
+        char_is_global: ['наскрізний', 'глобальний', 'is_global', 'global'],
+        option_id: ['id значення', 'id опції', 'опція id', 'option_id', 'value_id'],
+        option_name: ['назва значення', 'назва опції', 'опція', 'option', 'value', 'значення'],
+        category_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
+        category_name: ['назва категорії', 'категорія', 'category', 'cat_name']
+    };
+
+    const availableFields = getSystemFields().map(f => f.key);
+    const detectedMapping = {};
+
+    headers.forEach(header => {
+        const headerLower = header.name.toLowerCase().trim();
+
+        for (const field of availableFields) {
+            if (detectedMapping[field] !== undefined) continue;
+
+            const fieldPatterns = patterns[field] || [];
+
+            for (const pattern of fieldPatterns) {
+                if (headerLower.includes(pattern.toLowerCase()) ||
+                    pattern.toLowerCase().includes(headerLower)) {
+                    detectedMapping[field] = header.index;
+                    break;
+                }
+            }
+
+            if (detectedMapping[field] !== undefined) break;
+        }
+    });
+
+    importState.mapping = detectedMapping;
+    console.log('🔄 Rozetka auto-mapping:', detectedMapping);
 }
 
 /**
