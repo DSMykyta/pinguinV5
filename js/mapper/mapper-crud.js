@@ -1,27 +1,1887 @@
-// js/mapper/mapper-import.js
+// js/mapper/mapper-crud.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    MAPPER - IMPORT PLUGIN                                ║
- * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔌 ПЛАГІН — Імпорт даних з файлів (CSV, XLSX)                          ║
+ * ║                    MAPPER - CRUD OPERATIONS                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Модальні вікна для додавання, редагування та видалення в Mapper.
  */
 
-import { mapperState } from './mapper-state.js';
-import { registerMapperPlugin } from './mapper-plugins.js';
 import {
-    getCategories, getCharacteristics, getOptions, getMarketplaces,
-    addMpCategory, addMpCharacteristic, addMpOption,
-    addCategory, addCharacteristic, addOption
+    addCategory, updateCategory, deleteCategory, getCategories,
+    addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
+    addOption, updateOption, deleteOption, getOptions,
+    addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
+    getMpCategories, getMpCharacteristics, getMpOptions,
+    batchCreateCategoryMapping, batchCreateCharacteristicMapping, batchCreateOptionMapping,
+    autoMapCharacteristics, autoMapOptions,
+    getMappedMpCharacteristics, getMappedMpOptions,
+    deleteCharacteristicMapping, deleteOptionMapping
 } from './mapper-data.js';
+import { mapperState } from './mapper-init.js';
+import { getBatchBar } from '../common/ui-batch-actions.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
+import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { showLoader } from '../common/ui-loading.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { initSectionNavigation } from './mapper-utils.js';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// КАТЕГОРІЇ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Показати модальне вікно для додавання категорії
+ */
+export async function showAddCategoryModal() {
+
+    await showModal('mapper-category-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
+
+    const title = document.getElementById('category-modal-title');
+    if (title) title.textContent = 'Додати категорію';
+
+    const deleteBtn = document.getElementById('delete-mapper-category');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
+    clearCategoryForm();
+
+    // Спочатку заповнюємо селекти
+    populateParentCategorySelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('category-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-category');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveNewCategory;
+    }
+}
+
+/**
+ * Показати модальне вікно для редагування категорії
+ */
+export async function showEditCategoryModal(id) {
+
+    const categories = getCategories();
+    const category = categories.find(c => c.id === id);
+
+    if (!category) {
+        showToast('Категорію не знайдено', 'error');
+        return;
+    }
+
+    await showModal('mapper-category-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-category-edit"]');
+
+    const title = document.getElementById('category-modal-title');
+    if (title) title.textContent = `Категорія ${category.name_ua || ''}`;
+
+    const deleteBtn = document.getElementById('delete-mapper-category');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => {
+            closeModal();
+            showDeleteCategoryConfirm(id);
+        };
+    }
+
+    // Спочатку заповнюємо селекти
+    populateParentCategorySelect(id);
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    fillCategoryForm(category);
+
+    // Заповнюємо список пов'язаних характеристик
+    populateRelatedCharacteristics(id);
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('category-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-category');
+    if (saveBtn) {
+        saveBtn.onclick = () => handleUpdateCategory(id);
+    }
+}
+
+/**
+ * Показати підтвердження видалення категорії
+ */
+async function showDeleteCategoryConfirm(id) {
+    const categories = getCategories();
+    const category = categories.find(c => c.id === id);
+
+    if (!category) {
+        showToast('Категорію не знайдено', 'error');
+        return;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: 'Видалити категорію?',
+        message: `Ви впевнені, що хочете видалити категорію "${category.name_ua}"?`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger'
+    });
+
+    if (confirmed) {
+        try {
+            await deleteCategory(id);
+            showToast('Категорію видалено', 'success');
+            renderCurrentTab();
+        } catch (error) {
+            showToast('Помилка видалення категорії', 'error');
+        }
+    }
+}
+
+async function handleSaveNewCategory() {
+    const data = getCategoryFormData();
+
+    if (!data.name_ua) {
+        showToast('Введіть назву категорії', 'error');
+        return;
+    }
+
+    try {
+        await addCategory(data);
+        showToast('Категорію додано', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка додавання категорії', 'error');
+    }
+}
+
+async function handleUpdateCategory(id) {
+    const data = getCategoryFormData();
+
+    if (!data.name_ua) {
+        showToast('Введіть назву категорії', 'error');
+        return;
+    }
+
+    try {
+        await updateCategory(id, data);
+        showToast('Категорію оновлено', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка оновлення категорії', 'error');
+    }
+}
+
+function getCategoryFormData() {
+    return {
+        name_ua: document.getElementById('mapper-category-name-ua')?.value.trim() || '',
+        name_ru: document.getElementById('mapper-category-name-ru')?.value.trim() || '',
+        parent_id: document.getElementById('mapper-category-parent')?.value || ''
+    };
+}
+
+function fillCategoryForm(category) {
+    const nameUaField = document.getElementById('mapper-category-name-ua');
+    const nameRuField = document.getElementById('mapper-category-name-ru');
+    const parentField = document.getElementById('mapper-category-parent');
+
+    if (nameUaField) nameUaField.value = category.name_ua || '';
+    if (nameRuField) nameRuField.value = category.name_ru || '';
+    if (parentField) parentField.value = category.parent_id || '';
+}
+
+function clearCategoryForm() {
+    const nameUaField = document.getElementById('mapper-category-name-ua');
+    const nameRuField = document.getElementById('mapper-category-name-ru');
+    const parentField = document.getElementById('mapper-category-parent');
+
+    if (nameUaField) nameUaField.value = '';
+    if (nameRuField) nameRuField.value = '';
+    if (parentField) parentField.value = '';
+}
+
+function populateParentCategorySelect(excludeId = null) {
+    const select = document.getElementById('mapper-category-parent');
+    if (!select) return;
+
+    const categories = getCategories();
+
+    select.innerHTML = '<option value="">— Без батьківської —</option>';
+
+    categories.forEach(cat => {
+        if (cat.id !== excludeId) {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name_ua || cat.id;
+            select.appendChild(option);
+        }
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ХАРАКТЕРИСТИКИ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Заповнити мульти-селект категорій
+ */
+function populateCategorySelect(selectedIds = []) {
+    const select = document.getElementById('mapper-char-categories');
+    if (!select) return;
+
+    const categories = getCategories();
+
+    select.innerHTML = '';
+
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = cat.name_ua || cat.id;
+        if (selectedIds.includes(cat.id)) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+/**
+ * Заповнити мульти-селект батьківських опцій (для залежних характеристик)
+ */
+function populateParentOptionsSelect(selectedOptionIds = []) {
+    const select = document.getElementById('mapper-char-parent-option');
+    if (!select) return;
+
+    const options = getOptions();
+    const characteristics = getCharacteristics();
+
+    // Створюємо мапу характеристик за ID для швидкого пошуку
+    const charMap = new Map();
+    characteristics.forEach(char => {
+        charMap.set(char.id, char);
+    });
+
+    select.innerHTML = '';
+
+    // Групуємо опції за характеристиками
+    const optionsByChar = new Map();
+    options.forEach(opt => {
+        if (!opt.characteristic_id) return;
+        if (!optionsByChar.has(opt.characteristic_id)) {
+            optionsByChar.set(opt.characteristic_id, []);
+        }
+        optionsByChar.get(opt.characteristic_id).push(opt);
+    });
+
+    // Додаємо опції, згруповані за характеристиками
+    optionsByChar.forEach((opts, charId) => {
+        const char = charMap.get(charId);
+        const charName = char ? (char.name_ua || charId) : charId;
+
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = charName;
+
+        opts.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.id;
+            option.textContent = opt.value_ua || opt.id;
+            if (selectedOptionIds.includes(opt.id)) {
+                option.selected = true;
+            }
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+/**
+ * Показати модальне вікно для додавання характеристики
+ */
+export async function showAddCharacteristicModal() {
+
+    await showModal('mapper-characteristic-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
+
+    const title = document.getElementById('char-modal-title');
+    if (title) title.textContent = 'Додати характеристику';
+
+    const deleteBtn = document.getElementById('delete-mapper-characteristic');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
+    clearCharacteristicForm();
+
+    // Спочатку заповнюємо селекти, потім ініціалізуємо кастомні селекти
+    populateCategorySelect();
+    populateParentOptionsSelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
+
+    clearRelatedOptions();
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('char-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-characteristic');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveNewCharacteristic;
+    }
+}
+
+/**
+ * Очистити список пов'язаних опцій (для нової характеристики)
+ */
+function clearRelatedOptions() {
+    const container = document.getElementById('char-related-options');
+    const countEl = document.getElementById('char-options-count');
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="empty-state-container">
+            <div class="empty-state-message">Опції з'являться після збереження</div>
+        </div>
+    `;
+    if (countEl) countEl.textContent = '';
+}
+
+/**
+ * Показати модальне вікно для редагування характеристики
+ */
+export async function showEditCharacteristicModal(id) {
+
+    const characteristics = getCharacteristics();
+    const characteristic = characteristics.find(c => c.id === id);
+
+    if (!characteristic) {
+        showToast('Характеристику не знайдено', 'error');
+        return;
+    }
+
+    await showModal('mapper-characteristic-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
+
+    const title = document.getElementById('char-modal-title');
+    if (title) title.textContent = `Характеристика ${characteristic.name_ua || ''}`;
+
+    const deleteBtn = document.getElementById('delete-mapper-characteristic');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => {
+            closeModal();
+            showDeleteCharacteristicConfirm(id);
+        };
+    }
+
+    // Спочатку заповнюємо селекти
+    const selectedCategoryIds = characteristic.category_ids
+        ? characteristic.category_ids.split(',').map(id => id.trim()).filter(id => id)
+        : [];
+    populateCategorySelect(selectedCategoryIds);
+
+    const selectedParentOptionIds = characteristic.parent_option_id
+        ? characteristic.parent_option_id.split(',').map(id => id.trim()).filter(id => id)
+        : [];
+    populateParentOptionsSelect(selectedParentOptionIds);
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Ініціалізувати перемикач глобальності
+    initGlobalToggleHandler();
+
+    fillCharacteristicForm(characteristic);
+
+    // Заповнюємо список пов'язаних опцій
+    populateRelatedOptions(id);
+
+    // Отримати прив'язані MP характеристики та відрендерити секції маркетплейсів
+    renderMappedMpCharacteristicsSections(id);
+
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('char-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-characteristic');
+    if (saveBtn) {
+        saveBtn.onclick = () => handleUpdateCharacteristic(id);
+    }
+
+    // Обробник кнопки "Додати опцію"
+    const addOptionBtn = document.getElementById('btn-add-char-option');
+    if (addOptionBtn) {
+        addOptionBtn.onclick = async () => {
+            // Відкрити модалку додавання опції з прив'язкою до цієї характеристики (поверх поточної)
+            await showAddOptionModal(id);
+        };
+    }
+}
+
+/**
+ * Заповнити список пов'язаних опцій для характеристики
+ */
+function populateRelatedOptions(characteristicId) {
+    const container = document.getElementById('char-related-options');
+    const countEl = document.getElementById('char-options-count');
+    if (!container) return;
+
+    const options = getOptions();
+    const relatedOptions = options.filter(opt => opt.characteristic_id === characteristicId);
+
+    if (relatedOptions.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="empty-state-message">Опції відсутні</div>
+            </div>
+        `;
+        if (countEl) countEl.textContent = '';
+        return;
+    }
+
+    if (countEl) countEl.textContent = relatedOptions.length;
+
+    container.innerHTML = relatedOptions.map(opt => `
+        <div class="inputs-bloc td" data-id="${opt.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(opt.value_ua || opt.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${opt.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon" data-row-id="${opt.id}" data-action="edit" data-tooltip="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+        </div>
+    `).join('');
+
+    // Додаємо обробники для редагування опції
+    container.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const optId = btn.dataset.rowId;
+            // Не закриваємо батьківський модал - відкриваємо поверх
+            await showEditOptionModal(optId);
+        });
+    });
+}
+
+/**
+ * Рендерити секції маркетплейсів для замаплених MP характеристик
+ * @param {string} ownCharId - ID власної характеристики
+ */
+function renderMappedMpCharacteristicsSections(ownCharId) {
+    const nav = document.getElementById('char-section-navigator');
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    // Очистити динамічні елементи
+    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    content.querySelectorAll('section.mp-section').forEach(el => el.remove());
+
+    // Отримати замаплені MP характеристики
+    const mappedMpChars = getMappedMpCharacteristics(ownCharId);
+    if (mappedMpChars.length === 0) return;
+
+    // Згрупувати по маркетплейсах
+    const marketplaces = getMarketplaces();
+    const byMarketplace = {};
+
+    mappedMpChars.forEach(mpChar => {
+        const mpId = mpChar.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            const marketplace = marketplaces.find(m => m.id === mpId);
+            byMarketplace[mpId] = {
+                name: marketplace?.name || mpId,
+                items: []
+            };
+        }
+        byMarketplace[mpId].items.push(mpChar);
+    });
+
+    // Додати секції по маркетплейсах
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
+    Object.entries(byMarketplace).forEach(([mpId, data]) => {
+        // Меню
+        const navItem = document.createElement('a');
+        navItem.href = `#section-mp-char-${mpId}`;
+        navItem.className = 'sidebar-nav-item mp-nav-item';
+        navItem.setAttribute('aria-label', data.name);
+        navItem.innerHTML = `
+            <span class="material-symbols-outlined">storefront</span>
+            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
+        `;
+        navTarget.appendChild(navItem);
+
+        // Секція
+        const section = document.createElement('section');
+        section.id = `section-mp-char-${mpId}`;
+        section.className = 'mp-section';
+        section.innerHTML = renderMpCharacteristicSectionContent(data);
+        content.appendChild(section);
+    });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('char-section-navigator');
+
+    // Додати обробники для кнопок відв'язування
+    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const mappingId = btn.dataset.mappingId;
+            if (mappingId) {
+                try {
+                    await deleteCharacteristicMapping(mappingId);
+                    showToast('Маппінг видалено', 'success');
+                    // Перерендерити секції
+                    renderMappedMpCharacteristicsSections(ownCharId);
+                    renderCurrentTab();
+                } catch (error) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Рендерити контент секції маркетплейсу для характеристик
+ */
+function renderMpCharacteristicSectionContent(marketplaceData) {
+    const { name, items } = marketplaceData;
+
+    const itemsHtml = items.map(item => {
+        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+        return `
+            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
+                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                </div>
+                <div class="mp-item-fields">
+                    <div class="form-grid form-grid-2">
+                        ${renderMpDataFields(data)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="section-header">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2>${escapeHtml(name)}</h2>
+                    <span class="word-chip">${items.length}</span>
+                </div>
+                <h3>Прив'язані характеристики маркетплейсу</h3>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="mp-items-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Рендерити JSON дані як read-only поля
+ */
+function renderMpDataFields(data) {
+    const knownFields = ['name', 'type', 'unit', 'is_global', 'filter_type', 'category_id'];
+    const fields = [];
+
+    // Спочатку відомі поля
+    if (data.name) {
+        fields.push(`
+            <div class="form-group">
+                <label>Назва</label>
+                <input type="text" value="${escapeHtml(data.name)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.type) {
+        fields.push(`
+            <div class="form-group">
+                <label>Тип</label>
+                <input type="text" value="${escapeHtml(data.type)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.unit) {
+        fields.push(`
+            <div class="form-group">
+                <label>Одиниця</label>
+                <input type="text" value="${escapeHtml(data.unit)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.is_global !== undefined) {
+        fields.push(`
+            <div class="form-group">
+                <label>Глобальна</label>
+                <input type="text" value="${data.is_global === true || data.is_global === 'Так' ? 'Так' : 'Ні'}" readonly>
+            </div>
+        `);
+    }
+
+    // Решта полів (крім службових)
+    const skipFields = [...knownFields, 'our_char_id', 'our_option_id'];
+    Object.entries(data).forEach(([key, value]) => {
+        if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
+            fields.push(`
+                <div class="form-group">
+                    <label>${escapeHtml(key)}</label>
+                    <input type="text" value="${escapeHtml(String(value))}" readonly>
+                </div>
+            `);
+        }
+    });
+
+    return fields.join('');
+}
+
+/**
+ * Рендерити секції маркетплейсів для замаплених MP опцій
+ * @param {string} ownOptionId - ID власної опції
+ */
+function renderMappedMpOptionsSections(ownOptionId) {
+    const nav = document.getElementById('option-section-navigator');
+    const content = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !content) return;
+
+    // Очистити динамічні елементи
+    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    content.querySelectorAll('section.mp-section').forEach(el => el.remove());
+
+    // Отримати замаплені MP опції
+    const mappedMpOpts = getMappedMpOptions(ownOptionId);
+    if (mappedMpOpts.length === 0) return;
+
+    // Згрупувати по маркетплейсах
+    const marketplaces = getMarketplaces();
+    const byMarketplace = {};
+
+    mappedMpOpts.forEach(mpOpt => {
+        const mpId = mpOpt.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            const marketplace = marketplaces.find(m => m.id === mpId);
+            byMarketplace[mpId] = {
+                name: marketplace?.name || mpId,
+                items: []
+            };
+        }
+        byMarketplace[mpId].items.push(mpOpt);
+    });
+
+    // Додати секції по маркетплейсах
+    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navTarget = navMain || nav;
+
+    Object.entries(byMarketplace).forEach(([mpId, data]) => {
+        // Меню
+        const navItem = document.createElement('a');
+        navItem.href = `#section-mp-opt-${mpId}`;
+        navItem.className = 'sidebar-nav-item mp-nav-item';
+        navItem.setAttribute('aria-label', data.name);
+        navItem.innerHTML = `
+            <span class="material-symbols-outlined">storefront</span>
+            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
+        `;
+        navTarget.appendChild(navItem);
+
+        // Секція
+        const section = document.createElement('section');
+        section.id = `section-mp-opt-${mpId}`;
+        section.className = 'mp-section';
+        section.innerHTML = renderMpOptionSectionContent(data);
+        content.appendChild(section);
+    });
+
+    // Перезапускаємо навігацію щоб включити нові секції
+    initSectionNavigation('option-section-navigator');
+
+    // Додати обробники для кнопок відв'язування
+    content.querySelectorAll('[data-action="unmap"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const mappingId = btn.dataset.mappingId;
+            if (mappingId) {
+                try {
+                    await deleteOptionMapping(mappingId);
+                    showToast('Маппінг видалено', 'success');
+                    // Перерендерити секції
+                    renderMappedMpOptionsSections(ownOptionId);
+                    renderCurrentTab();
+                } catch (error) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Рендерити контент секції маркетплейсу для опцій
+ */
+function renderMpOptionSectionContent(marketplaceData) {
+    const { name, items } = marketplaceData;
+
+    const itemsHtml = items.map(item => {
+        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+        return `
+            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
+                    <button class="btn-icon" data-action="unmap" data-mapping-id="${escapeHtml(item._mappingId)}" data-tooltip="Відв'язати">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                </div>
+                <div class="mp-item-fields">
+                    <div class="form-grid form-grid-2">
+                        ${renderMpDataFields(data)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="section-header">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2>${escapeHtml(name)}</h2>
+                    <span class="word-chip">${items.length}</span>
+                </div>
+                <h3>Прив'язані опції маркетплейсу</h3>
+            </div>
+        </div>
+        <div class="section-content">
+            <div class="mp-items-list">
+                ${itemsHtml}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Заповнити список пов'язаних характеристик для категорії
+ */
+function populateRelatedCharacteristics(categoryId) {
+    const container = document.getElementById('category-related-chars');
+    const countEl = document.getElementById('category-chars-count');
+    if (!container) return;
+
+    const characteristics = getCharacteristics();
+    // Характеристики, у яких ця категорія вибрана в category_ids
+    const relatedChars = characteristics.filter(char => {
+        if (!char.category_ids) return false;
+        const ids = Array.isArray(char.category_ids)
+            ? char.category_ids
+            : String(char.category_ids).split(',').map(id => id.trim());
+        return ids.includes(categoryId);
+    });
+
+    if (relatedChars.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="empty-state-message">Характеристики відсутні</div>
+            </div>
+        `;
+        if (countEl) countEl.textContent = '';
+        return;
+    }
+
+    if (countEl) countEl.textContent = relatedChars.length;
+
+    container.innerHTML = relatedChars.map(char => `
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon" data-row-id="${char.id}" data-action="edit" data-tooltip="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+        </div>
+    `).join('');
+
+    // Додаємо обробники для редагування характеристики
+    container.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.rowId;
+            // Не закриваємо батьківський модал - відкриваємо поверх
+            await showEditCharacteristicModal(charId);
+        });
+    });
+}
+
+/**
+ * Заповнити список залежних характеристик для опції
+ */
+function populateRelatedDependentCharacteristics(optionId) {
+    const container = document.getElementById('option-related-chars');
+    const countEl = document.getElementById('option-chars-count');
+    const navItem = document.getElementById('nav-option-dependent');
+    const section = document.getElementById('section-option-dependent');
+
+    if (!container) return;
+
+    const characteristics = getCharacteristics();
+    // Характеристики, у яких ця опція вибрана в parent_option_id
+    const dependentChars = characteristics.filter(char => {
+        if (!char.parent_option_id) return false;
+        const ids = Array.isArray(char.parent_option_id)
+            ? char.parent_option_id
+            : String(char.parent_option_id).split(',').map(id => id.trim());
+        return ids.includes(optionId);
+    });
+
+    // Якщо немає залежних — ховаємо секцію та пункт меню
+    if (dependentChars.length === 0) {
+        if (navItem) navItem.classList.add('u-hidden');
+        if (section) section.classList.add('u-hidden');
+        if (countEl) countEl.textContent = '';
+        return;
+    }
+
+    // Є залежні — показуємо секцію та пункт меню
+    if (navItem) navItem.classList.remove('u-hidden');
+    if (section) section.classList.remove('u-hidden');
+    if (countEl) countEl.textContent = dependentChars.length;
+
+    container.innerHTML = dependentChars.map(char => `
+        <div class="inputs-bloc td" data-id="${char.id}">
+            <div class="inputs-line">
+                <div class="left">
+                    <span class="item-name">${escapeHtml(char.name_ua || char.id)}</span>
+                </div>
+                <div class="right">
+                    <span class="item-id">${char.id}</span>
+                </div>
+            </div>
+            <button class="btn-icon" data-row-id="${char.id}" data-action="edit" data-tooltip="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+        </div>
+    `).join('');
+
+    // Додаємо обробники для редагування характеристики
+    container.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const charId = btn.dataset.rowId;
+            // Не закриваємо батьківський модал - відкриваємо поверх
+            await showEditCharacteristicModal(charId);
+        });
+    });
+}
+
+async function showDeleteCharacteristicConfirm(id) {
+    const characteristics = getCharacteristics();
+    const characteristic = characteristics.find(c => c.id === id);
+
+    if (!characteristic) {
+        showToast('Характеристику не знайдено', 'error');
+        return;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: 'Видалити характеристику?',
+        message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger'
+    });
+
+    if (confirmed) {
+        try {
+            await deleteCharacteristic(id);
+            showToast('Характеристику видалено', 'success');
+            renderCurrentTab();
+        } catch (error) {
+            showToast('Помилка видалення характеристики', 'error');
+        }
+    }
+}
+
+async function handleSaveNewCharacteristic() {
+    const data = getCharacteristicFormData();
+
+    if (!data.name_ua) {
+        showToast('Введіть назву характеристики', 'error');
+        return;
+    }
+
+    try {
+        await addCharacteristic(data);
+        showToast('Характеристику додано', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка додавання характеристики', 'error');
+    }
+}
+
+async function handleUpdateCharacteristic(id) {
+    const data = getCharacteristicFormData();
+
+    if (!data.name_ua) {
+        showToast('Введіть назву характеристики', 'error');
+        return;
+    }
+
+    try {
+        await updateCharacteristic(id, data);
+        showToast('Характеристику оновлено', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка оновлення характеристики', 'error');
+    }
+}
+
+function getCharacteristicFormData() {
+    // Отримуємо вибрані категорії з мульти-селекту
+    const categoriesSelect = document.getElementById('mapper-char-categories');
+    const selectedCategories = categoriesSelect
+        ? Array.from(categoriesSelect.selectedOptions).map(opt => opt.value)
+        : [];
+
+    // Отримуємо значення глобальності з radio buttons
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const isGlobal = globalYes?.checked ?? false;
+
+    // Отримуємо вибрані батьківські опції з мульти-селекту
+    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
+    const selectedParentOptions = parentOptionSelect
+        ? Array.from(parentOptionSelect.selectedOptions).map(opt => opt.value)
+        : [];
+
+    return {
+        name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
+        name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
+        type: document.getElementById('mapper-char-type')?.value || 'TextInput',
+        unit: document.getElementById('mapper-char-unit')?.value.trim() || '',
+        filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
+        block_number: document.getElementById('mapper-char-block')?.value || '',
+        is_global: isGlobal,
+        // Якщо глобальна - категорії не потрібні
+        category_ids: isGlobal ? '' : selectedCategories.join(','),
+        parent_option_id: selectedParentOptions.join(',')
+    };
+}
+
+/**
+ * Перемикач видимості поля категорій залежно від глобальності
+ */
+function toggleCategoriesField(isGlobal) {
+    const categoriesGroup = document.getElementById('mapper-char-categories')?.closest('.form-group');
+    if (categoriesGroup) {
+        if (isGlobal) {
+            categoriesGroup.style.display = 'none';
+        } else {
+            categoriesGroup.style.display = '';
+        }
+    }
+}
+
+/**
+ * Ініціалізувати обробники для перемикача глобальності
+ */
+function initGlobalToggleHandler() {
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
+
+    if (globalYes) {
+        globalYes.addEventListener('change', () => {
+            if (globalYes.checked) toggleCategoriesField(true);
+        });
+    }
+    if (globalNo) {
+        globalNo.addEventListener('change', () => {
+            if (globalNo.checked) toggleCategoriesField(false);
+        });
+    }
+}
+
+function fillCharacteristicForm(characteristic) {
+    const nameUaField = document.getElementById('mapper-char-name-ua');
+    const nameRuField = document.getElementById('mapper-char-name-ru');
+    const typeField = document.getElementById('mapper-char-type');
+    const unitField = document.getElementById('mapper-char-unit');
+    const filterField = document.getElementById('mapper-char-filter');
+    const blockField = document.getElementById('mapper-char-block');
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
+
+    // Підтримуємо обидві назви полів (нові та старі)
+    if (nameUaField) nameUaField.value = characteristic.name_ua || characteristic.name_uk || '';
+    if (nameRuField) nameRuField.value = characteristic.name_ru || '';
+    if (unitField) unitField.value = characteristic.unit || '';
+
+    // Встановлюємо значення та оновлюємо кастомні селекти
+    // Підтримуємо type та param_type
+    if (typeField) {
+        const typeValue = characteristic.type || characteristic.param_type || 'TextInput';
+        typeField.value = typeValue;
+        reinitializeCustomSelect(typeField);
+    }
+    if (filterField) {
+        filterField.value = characteristic.filter_type || 'disable';
+        reinitializeCustomSelect(filterField);
+    }
+    if (blockField) {
+        blockField.value = characteristic.block_number || '';
+        reinitializeCustomSelect(blockField);
+    }
+
+    // Підтримуємо різні формати: true, 'true', 'TRUE', TRUE
+    const isGlobal = characteristic.is_global === true ||
+        String(characteristic.is_global).toLowerCase() === 'true';
+    if (globalYes) globalYes.checked = isGlobal;
+    if (globalNo) globalNo.checked = !isGlobal;
+
+    // Ховаємо категорії якщо глобальна
+    toggleCategoriesField(isGlobal);
+}
+
+function clearCharacteristicForm() {
+    const nameUaField = document.getElementById('mapper-char-name-ua');
+    const nameRuField = document.getElementById('mapper-char-name-ru');
+    const typeField = document.getElementById('mapper-char-type');
+    const unitField = document.getElementById('mapper-char-unit');
+    const filterField = document.getElementById('mapper-char-filter');
+    const globalYes = document.getElementById('mapper-char-global-yes');
+    const globalNo = document.getElementById('mapper-char-global-no');
+    const categoriesSelect = document.getElementById('mapper-char-categories');
+
+    if (nameUaField) nameUaField.value = '';
+    if (nameRuField) nameRuField.value = '';
+    if (unitField) unitField.value = '';
+    // За замовчуванням - не глобальна
+    if (globalYes) globalYes.checked = false;
+    if (globalNo) globalNo.checked = true;
+
+    // Встановлюємо значення та оновлюємо кастомні селекти
+    if (typeField) {
+        typeField.value = 'TextInput';
+        reinitializeCustomSelect(typeField);
+    }
+    if (filterField) {
+        filterField.value = 'disable';
+        reinitializeCustomSelect(filterField);
+    }
+
+    // Скидаємо вибір категорій
+    if (categoriesSelect) {
+        Array.from(categoriesSelect.options).forEach(opt => opt.selected = false);
+        reinitializeCustomSelect(categoriesSelect);
+    }
+
+    // Скидаємо вибір батьківських опцій
+    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
+    if (parentOptionSelect) {
+        Array.from(parentOptionSelect.options).forEach(opt => opt.selected = false);
+        reinitializeCustomSelect(parentOptionSelect);
+    }
+
+    // Показуємо поле категорій (бо за замовчуванням не глобальна)
+    toggleCategoriesField(false);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ОПЦІЇ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Показати модальне вікно для додавання опції
+ */
+export async function showAddOptionModal(preselectedCharacteristicId = null) {
+
+    await showModal('mapper-option-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
+
+    const title = document.getElementById('option-modal-title');
+    if (title) title.textContent = 'Додати опцію';
+
+    const deleteBtn = document.getElementById('delete-mapper-option');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
+    clearOptionForm();
+
+    // Спочатку заповнюємо селекти
+    populateCharacteristicSelect(preselectedCharacteristicId);
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    // Якщо є preselected характеристика - оновити кастомний селект
+    if (preselectedCharacteristicId) {
+        const charSelect = document.getElementById('mapper-option-char');
+        if (charSelect) {
+            charSelect.value = preselectedCharacteristicId;
+            // Оновити візуальне відображення кастомного селекта
+            reinitializeCustomSelect(charSelect);
+        }
+    }
+
+    // Ініціалізувати навігацію по секціях
+    initSectionNavigation('option-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-option');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveNewOption;
+    }
+}
+
+/**
+ * Показати модальне вікно для редагування опції
+ */
+export async function showEditOptionModal(id) {
+
+    const options = getOptions();
+    const option = options.find(o => o.id === id);
+
+    if (!option) {
+        showToast('Опцію не знайдено', 'error');
+        return;
+    }
+
+    await showModal('mapper-option-edit', null);
+
+    const modalEl = document.querySelector('[data-modal-id="mapper-option-edit"]');
+
+    const title = document.getElementById('option-modal-title');
+    if (title) title.textContent = `Опція ${option.value_ua || ''}`;
+
+    const deleteBtn = document.getElementById('delete-mapper-option');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => {
+            closeModal();
+            showDeleteOptionConfirm(id);
+        };
+    }
+
+    // Спочатку заповнюємо селекти
+    populateCharacteristicSelect();
+
+    // Ініціалізувати кастомні селекти ПІСЛЯ заповнення даними
+    if (modalEl) initCustomSelects(modalEl);
+
+    fillOptionForm(option);
+
+    // Заповнюємо список залежних характеристик
+    populateRelatedDependentCharacteristics(id);
+
+    // Отримати прив'язані MP опції та відрендерити секції маркетплейсів
+    renderMappedMpOptionsSections(id);
+
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('option-section-navigator');
+
+    // Обробник закриття
+    modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        };
+    });
+
+    const saveBtn = document.getElementById('save-mapper-option');
+    if (saveBtn) {
+        saveBtn.onclick = () => handleUpdateOption(id);
+    }
+}
+
+async function showDeleteOptionConfirm(id) {
+    const options = getOptions();
+    const option = options.find(o => o.id === id);
+
+    if (!option) {
+        showToast('Опцію не знайдено', 'error');
+        return;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: 'Видалити опцію?',
+        message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger'
+    });
+
+    if (confirmed) {
+        try {
+            await deleteOption(id);
+            showToast('Опцію видалено', 'success');
+            renderCurrentTab();
+        } catch (error) {
+            showToast('Помилка видалення опції', 'error');
+        }
+    }
+}
+
+async function handleSaveNewOption() {
+    const data = getOptionFormData();
+
+    if (!data.value_ua) {
+        showToast('Введіть значення опції', 'error');
+        return;
+    }
+
+    if (!data.characteristic_id) {
+        showToast('Оберіть характеристику', 'error');
+        return;
+    }
+
+    try {
+        await addOption(data);
+        showToast('Опцію додано', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка додавання опції', 'error');
+    }
+}
+
+async function handleUpdateOption(id) {
+    const data = getOptionFormData();
+
+    if (!data.value_ua) {
+        showToast('Введіть значення опції', 'error');
+        return;
+    }
+
+    try {
+        await updateOption(id, data);
+        showToast('Опцію оновлено', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка оновлення опції', 'error');
+    }
+}
+
+function getOptionFormData() {
+    return {
+        characteristic_id: document.getElementById('mapper-option-char')?.value || '',
+        value_ua: document.getElementById('mapper-option-value-ua')?.value.trim() || '',
+        value_ru: document.getElementById('mapper-option-value-ru')?.value.trim() || '',
+        sort_order: document.getElementById('mapper-option-order')?.value || '0'
+    };
+}
+
+function fillOptionForm(option) {
+    const charField = document.getElementById('mapper-option-char');
+    const valueUaField = document.getElementById('mapper-option-value-ua');
+    const valueRuField = document.getElementById('mapper-option-value-ru');
+    const orderField = document.getElementById('mapper-option-order');
+
+    if (charField) charField.value = option.characteristic_id || '';
+    if (valueUaField) valueUaField.value = option.value_ua || '';
+    if (valueRuField) valueRuField.value = option.value_ru || '';
+    if (orderField) orderField.value = option.sort_order || '0';
+}
+
+function clearOptionForm() {
+    const charField = document.getElementById('mapper-option-char');
+    const valueUaField = document.getElementById('mapper-option-value-ua');
+    const valueRuField = document.getElementById('mapper-option-value-ru');
+    const orderField = document.getElementById('mapper-option-order');
+
+    if (charField) charField.value = '';
+    if (valueUaField) valueUaField.value = '';
+    if (valueRuField) valueRuField.value = '';
+    if (orderField) orderField.value = '0';
+}
+
+function populateCharacteristicSelect(preselectedId = null) {
+    const select = document.getElementById('mapper-option-char');
+    if (!select) return;
+
+    const characteristics = getCharacteristics();
+
+    select.innerHTML = '<option value="">— Оберіть характеристику —</option>';
+
+    characteristics.forEach(char => {
+        const option = document.createElement('option');
+        option.value = char.id;
+        option.textContent = char.name_ua || char.id;
+        if (preselectedId && char.id === preselectedId) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+
+    // Оновити кастомний селект після заповнення
+    reinitializeCustomSelect(select);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// МАРКЕТПЛЕЙСИ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Показати модальне вікно для додавання маркетплейсу
+ */
+export async function showAddMarketplaceModal() {
+
+    await showModal('mapper-marketplace-edit', null);
+
+    // Затримка для коректного рендерингу DOM
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = 'Додати маркетплейс';
+
+    const deleteBtn = document.getElementById('delete-mapper-marketplace');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
+    clearMarketplaceForm();
+
+    const saveBtn = document.getElementById('save-mapper-marketplace');
+    if (saveBtn) {
+        saveBtn.onclick = handleSaveNewMarketplace;
+    }
+}
+
+/**
+ * Показати модальне вікно для редагування маркетплейсу
+ */
+export async function showEditMarketplaceModal(id) {
+
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === id);
+
+    if (!marketplace) {
+        showToast('Маркетплейс не знайдено', 'error');
+        return;
+    }
+
+    await showModal('mapper-marketplace-edit', null);
+
+    const title = document.getElementById('modal-title');
+    if (title) title.textContent = 'Редагувати маркетплейс';
+
+    const deleteBtn = document.getElementById('delete-mapper-marketplace');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => {
+            closeModal();
+            showDeleteMarketplaceConfirm(id);
+        };
+    }
+
+    fillMarketplaceForm(marketplace);
+
+    const saveBtn = document.getElementById('save-mapper-marketplace');
+    if (saveBtn) {
+        saveBtn.onclick = () => handleUpdateMarketplace(id);
+    }
+}
+
+/**
+ * Стан модалки даних маркетплейсу
+ */
+const mpDataModalState = {
+    marketplaceId: null,
+    marketplaceName: '',
+    activeTab: 'categories', // categories | characteristics | options
+    filter: 'all', // all | mapped | unmapped
+    searchQuery: '',
+    categories: [],
+    characteristics: [],
+    options: []
+};
+
+/**
+ * Показати дані маркетплейсу
+ */
+export async function showMarketplaceDataModal(id) {
+
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === id);
+
+    if (!marketplace) {
+        showToast('Маркетплейс не знайдено', 'error');
+        return;
+    }
+
+    // Ініціалізуємо стан
+    mpDataModalState.marketplaceId = id;
+    mpDataModalState.marketplaceName = marketplace.name;
+    mpDataModalState.activeTab = 'categories';
+    mpDataModalState.filter = 'all';
+    mpDataModalState.searchQuery = '';
+
+    // Відкриваємо модалку
+    await showModal('mapper-mp-data', null);
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    // Встановлюємо заголовок
+    const title = document.getElementById('mp-data-modal-title');
+    if (title) title.textContent = `${marketplace.name} - Дані`;
+
+    // Завантажуємо дані
+    await loadMpDataForModal(id);
+
+    // Ініціалізуємо обробники
+    initMpDataModalEvents();
+
+    // Рендеримо таблицю
+    renderMpDataModalTable();
+}
+
+/**
+ * Завантажити MP дані для модалки
+ */
+async function loadMpDataForModal(marketplaceId) {
+    const { loadMpCategories, loadMpCharacteristics, loadMpOptions, getMpCategories, getMpCharacteristics, getMpOptions } = await import('./mapper-data.js');
+
+    // Завантажуємо якщо ще не завантажено
+    const allCats = getMpCategories();
+    const allChars = getMpCharacteristics();
+    const allOpts = getMpOptions();
+
+    if (allCats.length === 0) await loadMpCategories();
+    if (allChars.length === 0) await loadMpCharacteristics();
+    if (allOpts.length === 0) await loadMpOptions();
+
+    // Фільтруємо по маркетплейсу
+    mpDataModalState.categories = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
+    mpDataModalState.characteristics = getMpCharacteristics().filter(c => c.marketplace_id === marketplaceId);
+    mpDataModalState.options = getMpOptions().filter(o => o.marketplace_id === marketplaceId);
+
+    // Оновлюємо бейджі кількості
+    const catCount = document.getElementById('mp-data-cat-count');
+    const charCount = document.getElementById('mp-data-char-count');
+    const optCount = document.getElementById('mp-data-opt-count');
+
+    if (catCount) catCount.textContent = mpDataModalState.categories.length;
+    if (charCount) charCount.textContent = mpDataModalState.characteristics.length;
+    if (optCount) optCount.textContent = mpDataModalState.options.length;
+
+}
+
+/**
+ * Ініціалізувати обробники подій модалки
+ */
+function initMpDataModalEvents() {
+    // Таби
+    const tabButtons = document.querySelectorAll('#mp-data-tabs [data-mp-tab]');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            mpDataModalState.activeTab = btn.dataset.mpTab;
+            renderMpDataModalTable();
+        });
+    });
+
+    // Фільтри
+    const filterButtons = document.querySelectorAll('#mp-data-filter-pills [data-mp-filter]');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            mpDataModalState.filter = btn.dataset.mpFilter;
+            renderMpDataModalTable();
+        });
+    });
+
+    // Пошук
+    const searchInput = document.getElementById('mp-data-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            mpDataModalState.searchQuery = e.target.value.toLowerCase();
+            renderMpDataModalTable();
+        });
+    }
+}
+
+/**
+ * Рендерити таблицю в модалці
+ */
+const MP_DATA_PAGE_SIZE = 100; // Ліміт рядків на сторінку
+
+function renderMpDataModalTable() {
+    const container = document.getElementById('mp-data-table-container');
+    if (!container) {
+        console.error('❌ Container not found: mp-data-table-container');
+        return;
+    }
+
+    const { activeTab, filter, searchQuery } = mpDataModalState;
+
+    // Отримуємо дані для поточного табу
+    let data = [];
+    let columns = [];
+
+    if (activeTab === 'categories') {
+        data = [...mpDataModalState.categories];
+        columns = getMpCategoriesColumns();
+    } else if (activeTab === 'characteristics') {
+        data = [...mpDataModalState.characteristics];
+        columns = getMpCharacteristicsColumns();
+    } else if (activeTab === 'options') {
+        data = [...mpDataModalState.options];
+        columns = getMpOptionsColumns();
+    }
+
+
+    // Фільтр по прив'язці
+    if (filter === 'mapped') {
+        data = data.filter(item => {
+            if (activeTab === 'categories') return !!item.our_cat_id;
+            if (activeTab === 'characteristics') return !!item.our_char_id;
+            if (activeTab === 'options') return !!item.our_option_id;
+            return true;
+        });
+    } else if (filter === 'unmapped') {
+        data = data.filter(item => {
+            if (activeTab === 'categories') return !item.our_cat_id;
+            if (activeTab === 'characteristics') return !item.our_char_id;
+            if (activeTab === 'options') return !item.our_option_id;
+            return true;
+        });
+    }
+
+    // Пошук
+    if (searchQuery) {
+        data = data.filter(item => {
+            const name = (item.name || '').toLowerCase();
+            const extId = (item.external_id || '').toLowerCase();
+            return name.includes(searchQuery) || extId.includes(searchQuery);
+        });
+    }
+
+    const filteredCount = data.length;
+
+    // Оновлюємо статистику
+    const statsEl = document.getElementById('mp-data-stats-text');
+    const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
+        activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
+            mpDataModalState.options.length;
+
+    // Рендеримо таблицю
+    if (data.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="avatar-state-message">Дані відсутні</div>
+            </div>
+        `;
+        if (statsEl) statsEl.textContent = `Показано 0 з ${totalCount}`;
+        return;
+    }
+
+    // Обмежуємо кількість рядків для продуктивності
+    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
+    const hasMore = data.length > MP_DATA_PAGE_SIZE;
+
+    if (statsEl) {
+        if (hasMore) {
+            statsEl.textContent = `Показано ${displayData.length} з ${filteredCount} (всього ${totalCount})`;
+        } else {
+            statsEl.textContent = `Показано ${filteredCount} з ${totalCount}`;
+        }
+    }
+
+    try {
+        // Формуємо HTML таблиці
+        const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
+        const rowsHtml = displayData.map(item => {
+            const cellsHtml = columns.map(col => {
+                const value = item[col.id];
+                const rendered = col.render ? col.render(value, item) : escapeHtml(value || '-');
+                return `<div class="cell ${col.className || ''}">${rendered}</div>`;
+            }).join('');
+            return `<div class="pseudo-table-row" data-id="${escapeHtml(item.id || '')}">${cellsHtml}</div>`;
+        }).join('');
+
+        let tableHtml = `
+            <div class="pseudo-table">
+                <div class="pseudo-table-header">${headerHtml}</div>
+                <div class="pseudo-table-body">${rowsHtml}</div>
+            </div>
+        `;
+
+        // Додаємо повідомлення якщо є ще дані
+        if (hasMore) {
+            tableHtml += `
+                <div class="mp-data-more-hint" style="text-align: center; padding: 1rem; color: var(--color-text-tertiary);">
+                    Показано перші ${MP_DATA_PAGE_SIZE} записів. Використовуйте пошук для фільтрації.
+                </div>
+            `;
+        }
+
+        container.innerHTML = tableHtml;
+    } catch (error) {
+        console.error('❌ Error rendering table:', error);
+        container.innerHTML = `
+            <div class="empty-state-container">
+                <div class="avatar-state-message">Помилка відображення: ${error.message}</div>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Колонки для категорій MP
+ */
+function getMpCategoriesColumns() {
+    const categories = getCategories();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'parent_name', label: 'Батьківська' },
+        {
+            id: 'our_cat_id',
+            label: 'Наша категорія',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const cat = categories.find(c => c.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(cat?.name_ua || v)}</span>`;
+            }
+        }
+    ];
+}
+
+/**
+ * Колонки для характеристик MP
+ */
+function getMpCharacteristicsColumns() {
+    const characteristics = getCharacteristics();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'type', label: 'Тип', render: (v) => `<code>${escapeHtml(v || '-')}</code>` },
+        {
+            id: 'our_char_id',
+            label: 'Наша характ.',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const char = characteristics.find(c => c.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(char?.name_ua || v)}</span>`;
+            }
+        }
+    ];
+}
+
+/**
+ * Колонки для опцій MP
+ */
+function getMpOptionsColumns() {
+    const options = getOptions();
+    return [
+        { id: 'external_id', label: 'ID', className: 'cell-id' },
+        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'char_id', label: 'Характеристика' },
+        {
+            id: 'our_option_id',
+            label: 'Наша опція',
+            render: (v) => {
+                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
+                const opt = options.find(o => o.id === v);
+                return `<span class="severity-badge severity-low">${escapeHtml(opt?.value_ua || v)}</span>`;
+            }
+        }
+    ];
+}
+
+async function showDeleteMarketplaceConfirm(id) {
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === id);
+
+    if (!marketplace) {
+        showToast('Маркетплейс не знайдено', 'error');
+        return;
+    }
+
+    const confirmed = await showConfirmModal({
+        title: 'Видалити маркетплейс?',
+        message: `Ви впевнені, що хочете видалити маркетплейс "${marketplace.name}"?`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
+        confirmClass: 'btn-danger'
+    });
+
+    if (confirmed) {
+        try {
+            await deleteMarketplace(id);
+            showToast('Маркетплейс видалено', 'success');
+            renderCurrentTab();
+        } catch (error) {
+            showToast('Помилка видалення маркетплейсу', 'error');
+        }
+    }
+}
+
+async function handleSaveNewMarketplace() {
+    const data = getMarketplaceFormData();
+
+    if (!data.name) {
+        showToast('Введіть назву маркетплейсу', 'error');
+        return;
+    }
+
+    if (!data.slug) {
+        showToast('Введіть slug маркетплейсу', 'error');
+        return;
+    }
+
+    try {
+        await addMarketplace(data);
+        showToast('Маркетплейс додано', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка додавання маркетплейсу', 'error');
+    }
+}
+
+async function handleUpdateMarketplace(id) {
+    const data = getMarketplaceFormData();
+
+    if (!data.name) {
+        showToast('Введіть назву маркетплейсу', 'error');
+        return;
+    }
+
+    try {
+        await updateMarketplace(id, data);
+        showToast('Маркетплейс оновлено', 'success');
+        closeModal();
+        renderCurrentTab();
+    } catch (error) {
+        showToast('Помилка оновлення маркетплейсу', 'error');
+    }
+}
+
+function getMarketplaceFormData() {
+    // Отримуємо значення з radio buttons
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const isActive = activeYes?.checked ?? true;
+
+    return {
+        name: document.getElementById('mapper-mp-name')?.value.trim() || '',
+        slug: document.getElementById('mapper-mp-slug')?.value.trim() || '',
+        is_active: isActive
+    };
+}
+
+function fillMarketplaceForm(marketplace) {
+    const nameField = document.getElementById('mapper-mp-name');
+    const slugField = document.getElementById('mapper-mp-slug');
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const activeNo = document.getElementById('mapper-mp-active-no');
+
+    if (nameField) nameField.value = marketplace.name || '';
+    if (slugField) slugField.value = marketplace.slug || '';
+
+    const isActive = marketplace.is_active === true || String(marketplace.is_active).toLowerCase() === 'true';
+    if (activeYes) activeYes.checked = isActive;
+    if (activeNo) activeNo.checked = !isActive;
+}
+
+function clearMarketplaceForm() {
+    const nameField = document.getElementById('mapper-mp-name');
+    const slugField = document.getElementById('mapper-mp-slug');
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const activeNo = document.getElementById('mapper-mp-active-no');
+
+    if (nameField) nameField.value = '';
+    if (slugField) slugField.value = '';
+    // За замовчуванням - активний
+    if (activeYes) activeYes.checked = true;
+    if (activeNo) activeNo.checked = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ІМПОРТ
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -2339,7 +4199,339 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
     const marketplace = marketplaces.find(m => m.id === mpOption.marketplace_id);
     const mpName = marketplace ? marketplace.name : mpOption.marketplace_id;
 
-// Реєстрація плагіна
-export function init() {
-    console.log('[Mapper Import] Plugin initialized');
+    // Знаходимо назву прив'язаної опції
+    let mappedToName = '';
+    if (optData.our_option_id) {
+        const ownOpts = getOptions();
+        const ownOpt = ownOpts.find(o => o.id === optData.our_option_id);
+        mappedToName = ownOpt ? (ownOpt.value_ua || ownOpt.id) : optData.our_option_id;
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Опція маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Значення</label>
+                            <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+}
+
+/**
+ * Показати модалку вибору власної категорії для маппінгу MP категорій
+ * @param {string[]} selectedMpCatIds - Масив ID вибраних MP категорій
+ */
+export async function showSelectOwnCategoryModal(selectedMpCatIds) {
+
+    const ownCategories = getCategories();
+
+    if (ownCategories.length === 0) {
+        showToast('Немає власних категорій для маппінгу', 'warning');
+        return;
+    }
+
+    // Групуємо по рівнях вкладеності
+    const buildTree = (categories, parentId = '') => {
+        return categories
+            .filter(c => (c.parent_id || '') === parentId)
+            .map(cat => ({
+                ...cat,
+                children: buildTree(categories, cat.id)
+            }));
+    };
+
+    const renderTreeOptions = (tree, level = 0) => {
+        let html = '';
+        tree.forEach(cat => {
+            const indent = '—'.repeat(level);
+            const prefix = level > 0 ? `${indent} ` : '';
+            html += `<option value="${escapeHtml(cat.id)}">${prefix}${escapeHtml(cat.name_ua || cat.id)}</option>`;
+            if (cat.children.length > 0) {
+                html += renderTreeOptions(cat.children, level + 1);
+            }
+        });
+        return html;
+    };
+
+    const categoryTree = buildTree(ownCategories);
+    const optionsHtml = renderTreeOptions(categoryTree);
+
+    const modalHtml = `
+        <div class="modal-overlay is-open">
+            <div class="modal-container modal-small">
+                <div class="modal-header">
+                    <h2 class="modal-title">Замапити до категорії</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <p class="u-mb-16">Вибрано ${selectedMpCatIds.length} MP категорій для маппінгу</p>
+                    <div class="form-group">
+                        <label>Власна категорія</label>
+                        <select id="select-own-category" class="input-main">
+                            <option value="">Оберіть категорію...</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn btn-primary" id="btn-confirm-category-mapping">
+                        <span class="material-symbols-outlined">link</span>
+                        <span>Замапити</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    const closeThisModal = () => modalOverlay.remove();
+
+    modalOverlay.querySelectorAll('.modal-close-btn').forEach(btn => {
+        btn.addEventListener('click', closeThisModal);
+    });
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+
+    const confirmBtn = document.getElementById('btn-confirm-category-mapping');
+    const selectEl = document.getElementById('select-own-category');
+
+    confirmBtn.addEventListener('click', async () => {
+        const ownCatId = selectEl.value;
+        if (!ownCatId) {
+            showToast('Оберіть категорію', 'warning');
+            return;
+        }
+
+        try {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">progress_activity</span><span>Маппінг...</span>';
+
+            await batchCreateCategoryMapping(selectedMpCatIds, ownCatId);
+
+            closeThisModal();
+
+            // Очистити виділення
+            mapperState.selectedRows.categories.clear();
+            const batchBar = getBatchBar('mapper-categories');
+            if (batchBar) batchBar.clearSelection();
+
+            showToast(`Замаплено ${selectedMpCatIds.length} категорій`, 'success');
+            renderCurrentTab();
+        } catch (error) {
+            console.error('❌ Помилка маппінгу:', error);
+            showToast('Помилка маппінгу категорій', 'error');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined">link</span><span>Замапити</span>';
+        }
+    });
+}
+
+/**
+ * Показати read-only модалку для MP категорії
+ * @param {string|Object} mpCatIdOrData - ID MP категорії або об'єкт з даними
+ */
+export async function showViewMpCategoryModal(mpCatIdOrData) {
+
+    let mpCat;
+
+    // Приймаємо як ID (string), так і об'єкт
+    if (typeof mpCatIdOrData === 'object' && mpCatIdOrData !== null) {
+        mpCat = mpCatIdOrData;
+    } else {
+        const mpCats = getMpCategories();
+        mpCat = mpCats.find(c => c.id === mpCatIdOrData);
+
+        if (!mpCat) {
+            // Спробуємо пошук за external_id
+            mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
+            if (mpCat) {
+            }
+        }
+
+        if (!mpCat) {
+            // Спробуємо пошук за частковим співпаданням ID (для випадків mpc-mp-000001-cat-274390 -> mpc-mp-000001)
+            mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
+            if (mpCat) {
+            }
+        }
+    }
+
+    if (!mpCat) {
+        showToast('MP категорію не знайдено', 'error');
+        console.error(`❌ MP категорію не знайдено: ${mpCatIdOrData}`);
+        return;
+    }
+
+    // Парсимо data якщо потрібно
+    let catData = mpCat;
+    if (mpCat.data && typeof mpCat.data === 'string') {
+        try {
+            catData = { ...mpCat, ...JSON.parse(mpCat.data) };
+        } catch (e) {
+            // Залишаємо як є
+        }
+    }
+
+    // Знаходимо назву маркетплейсу
+    const marketplaces = getMarketplaces();
+    const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
+    const mpName = marketplace ? marketplace.name : mpCat.marketplace_id;
+
+    // Знаходимо назву прив'язаної категорії
+    let mappedToName = '';
+    if (catData.our_category_id) {
+        const ownCats = getCategories();
+        const ownCat = ownCats.find(c => c.id === catData.our_category_id);
+        mappedToName = ownCat ? (ownCat.name_ua || ownCat.id) : catData.our_category_id;
+    }
+
+    // Знаходимо батьківську категорію (якщо є)
+    let parentName = '';
+    if (catData.parent_id) {
+        const mpCats = getMpCategories();
+        const parent = mpCats.find(c => c.external_id === catData.parent_id && c.marketplace_id === mpCat.marketplace_id);
+        if (parent) {
+            const parentData = typeof parent.data === 'string' ? JSON.parse(parent.data || '{}') : (parent.data || {});
+            parentName = parentData.name || catData.parent_id;
+        } else {
+            parentName = catData.parent_id;
+        }
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay is-open">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Категорія маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpCat.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Назва</label>
+                            <input type="text" class="input-main" value="${escapeHtml(catData.name || '')}" readonly>
+                        </div>
+                        ${parentName ? `
+                        <div class="form-group">
+                            <label>Батьківська категорія</label>
+                            <input type="text" class="input-main" value="${escapeHtml(parentName)}" readonly>
+                        </div>
+                        ` : ''}
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
 }

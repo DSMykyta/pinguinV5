@@ -264,15 +264,17 @@ function initCategoriesTableAPI(container, allCategories) {
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
         rowActionsCustom: (row) => {
-            const selectedSet = mapperState.selectedRows.categories || new Set();
-            const isChecked = selectedSet.has(row.id);
             const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}">
                 ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
             `;
         },
         getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'folder',
+            message: 'Категорії відсутні'
+        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-categories');
@@ -490,15 +492,17 @@ function initCharacteristicsTableAPI(container, categoriesList) {
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
-            const selectedSet = mapperState.selectedRows.characteristics || new Set();
-            const isChecked = selectedSet.has(row.id);
             const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}">
                 ${actionButton({ action, rowId: row.id, context: 'mapper-characteristics' })}
             `;
         },
         getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'tune',
+            message: 'Характеристики відсутні'
+        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-characteristics');
@@ -678,15 +682,17 @@ function initOptionsTableAPI(container, characteristicsList) {
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
-            const selectedSet = mapperState.selectedRows.options || new Set();
-            const isChecked = selectedSet.has(row.id);
             const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}">
                 ${actionButton({ action, rowId: row.id, context: 'mapper-options' })}
             `;
         },
         getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'check_box',
+            message: 'Опції відсутні'
+        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-options');
@@ -819,15 +825,17 @@ function initMarketplacesTableAPI(container) {
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
         rowActionsCustom: (row) => {
-            const selectedSet = mapperState.selectedRows.marketplaces || new Set();
-            const isChecked = selectedSet.has(row.id);
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces" ${isChecked ? 'checked' : ''}>
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces">
                 ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-marketplaces' })}
             `;
         },
         getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'storefront',
+            message: 'Маркетплейси відсутні'
+        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-marketplaces');
