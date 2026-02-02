@@ -156,7 +156,7 @@ export function updateSortIndicators(container, activeSortKey, direction) {
  * Отримати унікальні значення для фільтра
  * @param {Array} data - Масив даних
  * @param {string} columnId - ID колонки
- * @param {string} filterType - Тип фільтра ('values' або 'exists')
+ * @param {string} filterType - Тип фільтра ('values', 'exists', 'contains')
  * @param {Object} labelMap - Мапа для перетворення значень в labels (опційно)
  * @returns {Array} Масив {value, label, count}
  */
@@ -166,6 +166,38 @@ function getUniqueValues(data, columnId, filterType, labelMap = null) {
             { value: '__exists__', label: 'Наявно', count: data.filter(item => item[columnId] && item[columnId].toString().trim() !== '').length },
             { value: '__empty__', label: 'Пусто', count: data.filter(item => !item[columnId] || item[columnId].toString().trim() === '').length }
         ];
+    }
+
+    // Для типу 'contains' - розбиваємо значення по комі і рахуємо кожне окремо
+    if (filterType === 'contains') {
+        const valueCounts = new Map();
+
+        data.forEach(item => {
+            const rawValue = item[columnId];
+            if (!rawValue || rawValue.toString().trim() === '') {
+                valueCounts.set('__empty__', (valueCounts.get('__empty__') || 0) + 1);
+            } else {
+                // Розбиваємо по комі
+                const values = rawValue.toString().split(',').map(v => v.trim()).filter(v => v);
+                values.forEach(v => {
+                    valueCounts.set(v, (valueCounts.get(v) || 0) + 1);
+                });
+            }
+        });
+
+        return Array.from(valueCounts.entries())
+            .sort((a, b) => {
+                if (a[0] === '__empty__') return 1;
+                if (b[0] === '__empty__') return -1;
+                const labelA = labelMap?.[a[0]] || a[0];
+                const labelB = labelMap?.[b[0]] || b[0];
+                return labelA.localeCompare(labelB, 'uk');
+            })
+            .map(([value, count]) => ({
+                value,
+                label: value === '__empty__' ? 'Пусто' : (labelMap?.[value] || value),
+                count
+            }));
     }
 
     const valueCounts = new Map();
@@ -224,6 +256,23 @@ export function filterData(data, filters, columns = []) {
                     return false;
                 } else if (!allowedSet.has('__exists__') && !allowedSet.has('__empty__')) {
                     return false;
+                }
+            } else if (column?.filterType === 'contains') {
+                // Для 'contains' - перевіряємо чи хоча б одне з allowed значень міститься в списку
+                const normalizedValue = itemValue ? itemValue.toString().trim() : '';
+
+                if (!normalizedValue) {
+                    // Пусте значення - перевіряємо чи дозволено __empty__
+                    if (!allowedSet.has('__empty__')) {
+                        return false;
+                    }
+                } else {
+                    // Розбиваємо по комі і перевіряємо чи є перетин
+                    const itemValues = normalizedValue.split(',').map(v => v.trim()).filter(v => v);
+                    const hasMatch = itemValues.some(v => allowedSet.has(v));
+                    if (!hasMatch) {
+                        return false;
+                    }
                 }
             } else {
                 const normalizedValue = itemValue ? itemValue.toString().trim() : '';
