@@ -202,7 +202,7 @@ function initImportButton() {
     const importBtn = document.getElementById('btn-import-mapper');
     if (importBtn) {
         importBtn.addEventListener('click', async () => {
-            const { showImportModal } = await import('./mapper-crud.js');
+            const { showImportModal } = await import('./mapper-import.js');
             showImportModal();
         });
     }
