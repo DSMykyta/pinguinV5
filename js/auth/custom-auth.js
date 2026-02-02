@@ -311,15 +311,6 @@ function handleModalOpened(event) {
   const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
   const avatarMessage = bodyTarget.querySelector('#auth-login-avatar-message');
 
-    loginForm: !!loginForm,
-    usernameInput: !!usernameInput,
-    passwordInput: !!passwordInput,
-    loginButton: !!loginButton,
-    loginError: !!loginError,
-    avatarContainer: !!avatarContainer,
-    avatarMessage: !!avatarMessage
-  });
-
   if (!loginForm) {
     console.error('❌ Форма входу НЕ ЗНАЙДЕНА в модалі!');
     return;
