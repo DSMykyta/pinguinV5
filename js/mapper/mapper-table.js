@@ -429,7 +429,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-category-count',
             render: (value, row) => {
-                const isGlobal = row.is_global === true || String(row.is_global).toLowerCase() === 'true' || row.is_global === 'Так';
+                const isGlobal = row.is_global === true || row.is_global === 'TRUE' || String(row.is_global).toLowerCase() === 'true';
                 if (isGlobal) {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
                 }
@@ -471,7 +471,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-bool',
             render: (value) => {
-                const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
+                const isGlobal = value === true || value === 'TRUE' || String(value).toLowerCase() === 'true';
                 return isGlobal
                     ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                     : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
