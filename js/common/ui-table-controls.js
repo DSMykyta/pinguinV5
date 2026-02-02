@@ -461,6 +461,9 @@ function showHoverDropdown(header, columnConfig, handlers) {
         return;
     }
 
+    // ВАЖЛИВО: Видаляємо ВСІ існуючі hover dropdown з DOM
+    document.querySelectorAll('.filter-dropdown-hover').forEach(el => el.remove());
+
     hideHoverDropdown(true); // true = миттєво, без анімації
 
     const wrapper = createHoverDropdown(header, columnConfig, handlers);
@@ -473,7 +476,9 @@ function showHoverDropdown(header, columnConfig, handlers) {
 
     // Плавна поява - спочатку показуємо, потім додаємо клас
     requestAnimationFrame(() => {
-        wrapper.classList.add('is-open');
+        if (wrapper.parentNode) {
+            wrapper.classList.add('is-open');
+        }
     });
 
     hoverState.activeDropdown = wrapper;
@@ -517,6 +522,7 @@ function hideHoverDropdown(immediate = false) {
         hoverState.hideTimeout = null;
     }
 
+    // Видаляємо поточний dropdown
     if (hoverState.activeDropdown) {
         if (immediate) {
             hoverState.activeDropdown.remove();
@@ -531,6 +537,11 @@ function hideHoverDropdown(immediate = false) {
             }, 150); // Час анімації
         }
         hoverState.activeDropdown = null;
+    }
+
+    // Також видаляємо будь-які залишкові dropdown (на випадок витоку)
+    if (immediate) {
+        document.querySelectorAll('.filter-dropdown-hover').forEach(el => el.remove());
     }
 
     if (hoverState.activeHeader) {
@@ -558,6 +569,12 @@ function setupHoverDropdowns(container, handlers) {
     const filterableHeaders = container.querySelectorAll('.sortable-header.filterable');
 
     filterableHeaders.forEach(header => {
+        // Запобігаємо дублюванню event listeners
+        if (header.dataset.hoverSetup === 'true') {
+            return;
+        }
+        header.dataset.hoverSetup = 'true';
+
         const columnId = header.dataset.sortKey || header.dataset.column;
         const columnConfig = handlers.filterColumns?.find(c => c.id === columnId);
 
