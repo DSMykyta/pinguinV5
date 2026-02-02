@@ -12,7 +12,6 @@ import { mapperState } from './mapper-state.js';
 import { registerMapperPlugin } from './mapper-plugins.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
-    addMpCategory, addMpCharacteristic, addMpOption,
     addCategory, addCharacteristic, addOption
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
