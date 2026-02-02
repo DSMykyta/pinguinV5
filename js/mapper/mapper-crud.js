@@ -709,51 +709,6 @@ function renderMpDataFields(data) {
 }
 
 /**
- * Ініціалізувати scroll-snap навігацію
- * @param {string} navId - ID навігаційного елемента
- */
-function initSectionNavigation(navId) {
-    const nav = document.getElementById(navId);
-    const content = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !content) return;
-
-    const navItems = nav.querySelectorAll('.sidebar-nav-item');
-
-    // Клік по меню - прокрутка до секції
-    navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = item.getAttribute('href')?.slice(1);
-            if (!targetId) return;
-            const section = document.getElementById(targetId);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-
-    // При скролі - оновлювати active в меню
-    const sections = content.querySelectorAll('section[id]');
-    if (sections.length === 0) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                navItems.forEach(item => {
-                    const href = item.getAttribute('href');
-                    item.classList.toggle('active', href === `#${sectionId}`);
-                });
-            }
-        });
-    }, { threshold: 0.5, root: content });
-
-    sections.forEach(section => {
-        observer.observe(section);
-    });
-}
-
-/**
  * Рендерити секції маркетплейсів для замаплених MP опцій
  * @param {string} ownOptionId - ID власної опції
  */
