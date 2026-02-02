@@ -45,6 +45,18 @@ import { escapeHtml } from '../utils/text-utils.js';
 export const PLUGIN_NAME = 'mapper-import';
 
 /**
+ * Нормалізує значення is_global до 'TRUE' або 'FALSE'
+ * @param {*} value - Будь-яке значення
+ * @returns {'TRUE'|'FALSE'} - Нормалізоване значення
+ */
+function normalizeIsGlobal(value) {
+    if (value === true || value === 'TRUE') return 'TRUE';
+    const strVal = String(value || '').toLowerCase().trim();
+    const trueValues = ['true', '1', 'так', 'yes', '+', 'да'];
+    return trueValues.includes(strVal) ? 'TRUE' : 'FALSE';
+}
+
+/**
  * Ініціалізація плагіна
  * Реєструє hooks та позначає плагін як завантажений
  */
@@ -1323,7 +1335,7 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 type: existingChar.type || '',
                 filter_type: existingChar.filter_type || '',
                 unit: existingChar.unit || '',
-                is_global: existingChar.is_global || '',
+                is_global: normalizeIsGlobal(existingChar.is_global),
                 category_id: existingCatIds.join(','),
                 category_name: existingCatNames.join(','),
                 our_char_id: existingChar.our_char_id || ''
@@ -1360,13 +1372,16 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpc-${importState.marketplaceId}-${c.mp_char_id}`;
 
+            // Нормалізуємо is_global до TRUE/FALSE
+            const isGlobalNormalized = normalizeIsGlobal(c.mp_char_is_global);
+
             // Всі дані характеристики зберігаємо в JSON
             const dataJson = JSON.stringify({
                 name: c.mp_char_name || '',
                 type: c.mp_char_type || '',
                 filter_type: c.mp_char_filter_type || '',
                 unit: c.mp_char_unit || '',
-                is_global: c.mp_char_is_global || '',
+                is_global: isGlobalNormalized,
                 category_id: c.mp_category_id || '',
                 category_name: c.mp_category_name || '',
                 our_char_id: '' // для маппінгу
@@ -1621,12 +1636,9 @@ async function importOwnCharacteristicsAndOptions(onProgress = () => { }) {
                 const hasOptions = optionUaCol !== undefined;
                 const charType = typeCol !== undefined ? String(row[typeCol] || '').trim() : (hasOptions ? 'select' : 'text');
 
-                // Визначаємо is_global
-                let isGlobal = false;
-                if (isGlobalCol !== undefined) {
-                    const globalValue = String(row[isGlobalCol] || '').toLowerCase().trim();
-                    isGlobal = ['true', '1', 'так', 'yes', '+', 'да'].includes(globalValue);
-                }
+                // Визначаємо is_global (нормалізуємо до TRUE/FALSE)
+                const isGlobalValue = isGlobalCol !== undefined ? row[isGlobalCol] : false;
+                const isGlobal = normalizeIsGlobal(isGlobalValue);
 
                 characteristics.set(nameUa, {
                     name_ua: nameUa,
@@ -2302,7 +2314,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                         </div>
                         <div class="form-group">
                             <label>Глобальна</label>
-                            <input type="text" class="input-main" value="${charData.is_global ? 'Так' : 'Ні'}" readonly>
+                            <input type="text" class="input-main" value="${charData.is_global === 'TRUE' || charData.is_global === true ? 'TRUE' : 'FALSE'}" readonly>
                         </div>
                     </fieldset>
 

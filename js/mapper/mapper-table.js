@@ -357,24 +357,33 @@ function getCharacteristicsData() {
     const mpCharacteristics = getMpCharacteristics()
         .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
         .map(mpChar => {
-            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
+            // Дані вже розпарсовані в loadMpCharacteristics через Object.assign
+            // Але для сумісності також перевіряємо raw data
+            const rawData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
             const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
+
+            // Перевірка is_global з різних джерел
+            const isGlobalValue = mpChar.is_global || rawData.is_global;
+            const isGlobal = isGlobalValue === true ||
+                             String(isGlobalValue).toLowerCase() === 'true' ||
+                             String(isGlobalValue).toLowerCase() === 'yes';
+
             return {
                 id: mpChar.id,
                 external_id: mpChar.external_id,
                 marketplace_id: mpChar.marketplace_id,
-                name_ua: data.name || '',
+                name_ua: mpChar.name || rawData.name || '',
                 name_ru: '',
-                type: data.type || '',
-                unit: data.unit || '',
-                is_global: data.is_global === 'Так' || data.is_global === true,
-                category_ids: data.category_id || '',
-                filter_type: data.filter_type || '',
-                our_char_id: data.our_char_id || '',
+                type: mpChar.type || rawData.type || '',
+                unit: mpChar.unit || rawData.unit || '',
+                is_global: isGlobal,
+                category_ids: mpChar.category_id || rawData.category_id || '',
+                filter_type: mpChar.filter_type || rawData.filter_type || '',
+                our_char_id: mpChar.our_char_id || rawData.our_char_id || '',
                 _source: mpChar.marketplace_id,
                 _sourceLabel: marketplace?.name || mpChar.marketplace_id,
                 _editable: false,
-                _mpData: data
+                _mpData: rawData
             };
         });
 
@@ -420,7 +429,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-category-count',
             render: (value, row) => {
-                const isGlobal = row.is_global === true || String(row.is_global).toLowerCase() === 'true' || row.is_global === 'Так';
+                const isGlobal = row.is_global === true || row.is_global === 'TRUE' || String(row.is_global).toLowerCase() === 'true';
                 if (isGlobal) {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
                 }
@@ -462,7 +471,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-bool',
             render: (value) => {
-                const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
+                const isGlobal = value === true || value === 'TRUE' || String(value).toLowerCase() === 'true';
                 return isGlobal
                     ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                     : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
@@ -1422,22 +1431,19 @@ function getCategoryLabelMap() {
     });
 
     // MP категорії (для фільтрації MP характеристик)
+    // Структура: id | marketplace_id | external_id | source | data (JSON з name, parent_id) | ...
+    // Після loadMpCategories: data розпарсено через Object.assign, тому cat.name доступний напряму
     const mpCategories = getMpCategories();
     mpCategories.forEach(cat => {
-        // Парсимо data якщо це JSON
-        let catData = cat;
-        if (cat.data) {
-            try {
-                catData = typeof cat.data === 'string' ? JSON.parse(cat.data) : cat.data;
-            } catch (e) {
-                catData = cat;
-            }
-        }
-        // Використовуємо mp_id як ключ (це те що зберігається в category_id характеристик)
-        const mpId = cat.mp_id || cat.id;
-        const name = catData.name || catData.name_ua || cat.name || mpId;
-        if (!labelMap[mpId]) {
-            labelMap[mpId] = name;
+        // external_id - це ID категорії в маркетплейсі (напр. "4653724")
+        // Це значення використовується в category_id характеристик
+        const externalId = cat.external_id || cat.mp_id;
+
+        // name вже розпарсено з data при завантаженні
+        const name = cat.name || cat.name_ua || externalId;
+
+        if (externalId && !labelMap[externalId]) {
+            labelMap[externalId] = name;
         }
     });
 

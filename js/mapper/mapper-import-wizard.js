@@ -265,7 +265,7 @@ function loadMpData() {
             name: data?.name || char.mp_id,
             type: data?.type || 'text',
             category_ids: categoryIds,
-            is_global: data?.is_global === 'Так' || data?.is_global === true
+            is_global: data?.is_global === true || String(data?.is_global).toLowerCase() === 'true'
         };
     });
 

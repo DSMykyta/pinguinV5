@@ -10,7 +10,11 @@
 
 import { mapperState } from './mapper-state.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces } from './mapper-data.js';
+import {
+    loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces,
+    loadMpCategories, loadMpCharacteristics, loadMpOptions,
+    loadMapCategories, loadMapCharacteristics, loadMapOptions
+} from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
 import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
@@ -141,7 +145,16 @@ function initRefreshButtons() {
                 btn.querySelector('.material-symbols-outlined').classList.add('is-spinning');
 
                 try {
-                    await loadMapperData();
+                    // Завантажуємо ВСІ дані: базові + MP + маппінги
+                    await Promise.all([
+                        loadMapperData(),
+                        loadMpCategories(),
+                        loadMpCharacteristics(),
+                        loadMpOptions(),
+                        loadMapCategories(),
+                        loadMapCharacteristics(),
+                        loadMapOptions()
+                    ]);
                     renderCurrentTab();
                 } catch (error) {
                     console.error(`❌ Помилка оновлення табу ${tab}:`, error);
