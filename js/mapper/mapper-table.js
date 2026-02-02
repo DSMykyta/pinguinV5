@@ -7,6 +7,8 @@
  *
  * Рендеринг таблиць для Marketplace Mapper з підтримкою пагінації,
  * сортування та фільтрації.
+ *
+ * Використовує createPseudoTable API (як brands-table.js та price-table.js)
  */
 
 import { mapperState } from './mapper-state.js';
@@ -38,7 +40,7 @@ function getCategoryNames(categoryIdsStr) {
 
     return names.join(', ');
 }
-import { createPseudoTable, renderPseudoTable } from '../common/ui-table.js';
+import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 import {
@@ -128,13 +130,9 @@ export function renderCurrentTab() {
 }
 
 /**
- * Рендерити таблицю категорій
+ * Отримати дані категорій (власні + MP)
  */
-export function renderCategoriesTable() {
-
-    const container = document.getElementById('mapper-categories-table-container');
-    if (!container) return;
-
+function getCategoriesData() {
     const marketplaces = getMarketplaces();
 
     // Отримати власні категорії
@@ -166,14 +164,162 @@ export function renderCategoriesTable() {
             };
         });
 
-    // Об'єднати
-    const categories = [...ownCategories, ...mpCategories];
+    return { categories: [...ownCategories, ...mpCategories], marketplaces };
+}
+
+/**
+ * Отримати конфігурацію колонок для категорій
+ */
+function getCategoriesColumns(allCategories) {
+    return [
+        {
+            id: 'id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            render: (value, row) => {
+                const displayId = row._source === 'own' ? value : (row.external_id || value);
+                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
+            }
+        },
+        {
+            id: '_sourceLabel',
+            label: 'Джерело',
+            sortable: true,
+            filterable: true,
+            className: 'cell-source',
+            render: (value, row) => {
+                if (row._source === 'own') {
+                    return `<span class="chip chip-success">Власний</span>`;
+                }
+                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+            }
+        },
+        {
+            id: '_nestingLevel',
+            label: 'Рів.',
+            className: 'cell-nesting-level',
+            render: (value, row) => {
+                let level = 0;
+                let current = row;
+                const path = [row.name_ua || row.id];
+
+                while (current && current.parent_id) {
+                    level++;
+                    const parent = allCategories.find(c => c.id === current.parent_id);
+                    if (parent) {
+                        path.unshift(parent.name_ua || parent.id);
+                        current = parent;
+                    } else {
+                        break;
+                    }
+                    if (level > 10) break;
+                }
+
+                const tooltipText = level === 0 ? 'Коренева категорія' : path.join(' → ');
+                const chipClass = level === 0 ? 'chip-active' : '';
+
+                return `<span class="chip ${chipClass}" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
+            }
+        },
+        {
+            id: 'name_ua',
+            label: 'Назва UA',
+            sortable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        },
+        {
+            id: 'name_ru',
+            label: 'Назва RU',
+            sortable: true,
+            render: (value) => escapeHtml(value || '-')
+        },
+        {
+            id: 'parent_id',
+            label: 'Батьківська',
+            sortable: true,
+            render: (value, row) => {
+                if (!value) return '-';
+                const parent = allCategories.find(c => c.id === value);
+                return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
+            }
+        }
+    ];
+}
+
+/**
+ * Ініціалізувати Table API для категорій
+ */
+function initCategoriesTableAPI(container, allCategories) {
+    // Якщо API вже існує - не створюємо знову
+    if (mapperTableAPIs.has('categories')) return;
+
+    const visibleCols = mapperState.visibleColumns.categories?.length > 0
+        ? [...mapperState.visibleColumns.categories, '_sourceLabel']
+        : ['id', '_sourceLabel', 'name_ua', 'parent_id'];
+
+    const tableAPI = createPseudoTable(container, {
+        columns: getCategoriesColumns(allCategories),
+        visibleColumns: visibleCols,
+        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
+        rowActionsCustom: (row) => {
+            const selectedSet = mapperState.selectedRows.categories || new Set();
+            const isChecked = selectedSet.has(row.id);
+            const action = row._editable ? 'edit' : 'view';
+            return `
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
+                ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
+            `;
+        },
+        getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'folder',
+            message: 'Категорії відсутні'
+        },
+        withContainer: false,
+        onAfterRender: (cont) => {
+            initActionHandlers(cont, 'mapper-categories');
+            // Отримуємо поточні пагіновані дані для чекбоксів
+            const { categories } = getCategoriesData();
+            const filteredData = applyFilters(categories, 'categories');
+            const { paginatedData } = applyPagination(filteredData);
+            initTableCheckboxes(cont, 'categories', paginatedData);
+            initMapperColumnFilters(cont, 'categories', categories);
+
+            // Відновити індикатори сортування
+            const sortState = mapperState.sortState?.categories;
+            if (sortState?.column && sortState?.direction) {
+                updateSortIndicators(cont, sortState.column, sortState.direction);
+            }
+        }
+    });
+
+    mapperTableAPIs.set('categories', tableAPI);
+}
+
+/**
+ * Рендерити таблицю категорій
+ */
+export function renderCategoriesTable() {
+    const container = document.getElementById('mapper-categories-table-container');
+    if (!container) return;
+
+    const { categories, marketplaces } = getCategoriesData();
 
     if (categories.length === 0) {
         renderEmptyState(container, 'categories');
         updateSourceFilterButtons('categories', marketplaces);
         return;
     }
+
+    // Ініціалізуємо API якщо потрібно (або оновлюємо колонки)
+    // Скидаємо API щоб оновити колонки з актуальними даними
+    mapperTableAPIs.delete('categories');
+    initCategoriesTableAPI(container, categories);
+
+    const tableAPI = mapperTableAPIs.get('categories');
+    if (!tableAPI) return;
 
     // Застосувати фільтри
     let filteredData = applyFilters(categories, 'categories');
@@ -187,136 +333,19 @@ export function renderCategoriesTable() {
     // Оновити фільтр-кнопки джерела
     updateSourceFilterButtons('categories', marketplaces);
 
-    // Рендерити таблицю
-    renderPseudoTable(container, {
-        data: paginatedData,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value, row) => {
-                    // Для MP показуємо external_id
-                    const displayId = row._source === 'own' ? value : (row.external_id || value);
-                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-                }
-            },
-            {
-                id: '_sourceLabel',
-                label: 'Джерело',
-                sortable: true,
-                filterable: true,
-                className: 'cell-source',
-                render: (value, row) => {
-                    if (row._source === 'own') {
-                        return `<span class="chip chip-success">Власний</span>`;
-                    }
-                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-                }
-            },
-            {
-                id: '_nestingLevel',
-                label: 'Рів.',
-                className: 'cell-nesting-level',
-                render: (value, row) => {
-                    // Обчислити рівень вкладеності
-                    let level = 0;
-                    let current = row;
-                    const path = [row.name_ua || row.id];
-
-                    while (current && current.parent_id) {
-                        level++;
-                        const parent = categories.find(c => c.id === current.parent_id);
-                        if (parent) {
-                            path.unshift(parent.name_ua || parent.id);
-                            current = parent;
-                        } else {
-                            break;
-                        }
-                        // Захист від циклічних посилань
-                        if (level > 10) break;
-                    }
-
-                    // Tooltip показує шлях до кореня
-                    const tooltipText = level === 0
-                        ? 'Коренева категорія'
-                        : path.join(' → ');
-
-                    // Використовуємо існуючі класи: chip-active для кореня, chip для решти
-                    const chipClass = level === 0 ? 'chip-active' : '';
-
-                    return `<span class="chip ${chipClass}" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
-                }
-            },
-            {
-                id: 'name_ua',
-                label: 'Назва UA',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'name_ru',
-                label: 'Назва RU',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
-            },
-            {
-                id: 'parent_id',
-                label: 'Батьківська',
-                sortable: true,
-                render: (value, row) => {
-                    if (!value) return '-';
-                    const parent = categories.find(c => c.id === value);
-                    return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
-                }
-            }
-        ],
-        visibleColumns: [...(mapperState.visibleColumns.categories || []), '_sourceLabel'],
-        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
-        rowActionsCustom: (row) => {
-            const selectedSet = mapperState.selectedRows.categories || new Set();
-            const isChecked = selectedSet.has(row.id);
-            const action = row._editable ? 'edit' : 'view';
-            return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
-                ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
-            `;
-        },
-        withContainer: false
-    });
-
-    // Ініціалізувати обробники дій
-    initActionHandlers(container, 'mapper-categories');
-
-    // Ініціалізувати чекбокси
-    initTableCheckboxes(container, 'categories', paginatedData);
-
-    // Ініціалізувати hover фільтри для колонок
-    initMapperColumnFilters(container, 'categories', categories);
-
-    // Відновити індикатори сортування
-    const sortState = mapperState.sortState?.categories;
-    if (sortState?.column && sortState?.direction) {
-        updateSortIndicators(container, sortState.column, sortState.direction);
-    }
+    // Рендерити таблицю через API
+    tableAPI.render(paginatedData);
 
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
-
 }
 
 /**
- * Рендерити таблицю характеристик (власні + MP)
+ * Отримати дані характеристик (власні + MP)
  */
-export function renderCharacteristicsTable() {
-
-    const container = document.getElementById('mapper-characteristics-table-container');
-    if (!container) return;
-
+function getCharacteristicsData() {
     const marketplaces = getMarketplaces();
-    const categories = getCategories();
+    const categoriesList = getCategories();
 
     // Отримати власні характеристики
     const ownCharacteristics = getCharacteristics().map(char => ({
@@ -326,8 +355,7 @@ export function renderCharacteristicsTable() {
         _editable: true
     }));
 
-    // Отримати MP характеристики та конвертувати в уніфікований формат
-    // ФІЛЬТРУЄМО: показуємо тільки незамаплені MP характеристики
+    // Отримати MP характеристики - тільки незамаплені
     const mpCharacteristics = getMpCharacteristics()
         .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
         .map(mpChar => {
@@ -352,120 +380,118 @@ export function renderCharacteristicsTable() {
             };
         });
 
-    // Об'єднати
-    const allCharacteristics = [...ownCharacteristics, ...mpCharacteristics];
+    return {
+        characteristics: [...ownCharacteristics, ...mpCharacteristics],
+        marketplaces,
+        categories: categoriesList
+    };
+}
 
-    if (allCharacteristics.length === 0) {
-        renderEmptyState(container, 'characteristics');
-        return;
-    }
-
-    // Застосувати фільтри
-    let filteredData = applyFilters(allCharacteristics, 'characteristics');
-
-    // Застосувати пагінацію
-    const { paginatedData, totalItems } = applyPagination(filteredData);
-
-    // Оновити пагінацію
-    updatePagination(totalItems);
-
-    // Оновити фільтр-кнопки джерела
-    updateSourceFilterButtons('characteristics', marketplaces);
-
-    // Рендерити таблицю
-    renderPseudoTable(container, {
-        data: paginatedData,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value, row) => {
-                    // Для MP показуємо external_id
-                    const displayId = row._source === 'own' ? value : (row.external_id || value);
-                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-                }
-            },
-            {
-                id: '_sourceLabel',
-                label: 'Джерело',
-                sortable: true,
-                filterable: true,
-                className: 'cell-source',
-                render: (value, row) => {
-                    if (row._source === 'own') {
-                        return `<span class="chip chip-success">Власний</span>`;
-                    }
-                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-                }
-            },
-            {
-                id: 'category_ids',
-                label: 'Категорія',
-                sortable: true,
-                filterable: true,
-                className: 'cell-category-count',
-                render: (value, row) => {
-                    // Якщо глобальна - показати main чіп без цифри
-                    const isGlobal = row.is_global === true || String(row.is_global).toLowerCase() === 'true' || row.is_global === 'Так';
-                    if (isGlobal) {
-                        return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
-                    }
-
-                    // Порахувати категорії
-                    const categoryIdsStr = value || row.category_ids || '';
-                    const categoryIdsList = categoryIdsStr.split(',').map(id => id.trim()).filter(id => id);
-                    const count = categoryIdsList.length;
-
-                    if (count === 0) {
-                        return `<span class="chip" data-tooltip="Не прив'язано до категорій" data-tooltip-always>0</span>`;
-                    }
-
-                    // Отримати назви категорій для tooltip
-                    const categoryNames = categoryIdsList.map(id => {
-                        const cat = categories.find(c => c.id === id);
-                        return cat ? cat.name_ua : id;
-                    }).join('\n');
-
-                    return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
-                }
-            },
-            {
-                id: 'name_ua',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'type',
-                label: 'Тип',
-                sortable: true,
-                filterable: true,
-                render: (value) => `<code>${escapeHtml(value || '-')}</code>`
-            },
-            {
-                id: 'is_global',
-                label: 'Глобальна',
-                sortable: true,
-                filterable: true,
-                className: 'cell-bool',
-                render: (value) => {
-                    const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
-                    return isGlobal
-                        ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
-                        : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
-                }
-            },
-            {
-                id: 'unit',
-                label: 'Одиниця',
-                sortable: true,
-                render: (value) => escapeHtml(value || '-')
+/**
+ * Отримати конфігурацію колонок для характеристик
+ */
+function getCharacteristicsColumns(categoriesList) {
+    return [
+        {
+            id: 'id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            render: (value, row) => {
+                const displayId = row._source === 'own' ? value : (row.external_id || value);
+                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
             }
-        ],
-        visibleColumns: [...(mapperState.visibleColumns.characteristics || []), '_sourceLabel'],
+        },
+        {
+            id: '_sourceLabel',
+            label: 'Джерело',
+            sortable: true,
+            filterable: true,
+            className: 'cell-source',
+            render: (value, row) => {
+                if (row._source === 'own') {
+                    return `<span class="chip chip-success">Власний</span>`;
+                }
+                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+            }
+        },
+        {
+            id: 'category_ids',
+            label: 'Категорія',
+            sortable: true,
+            filterable: true,
+            className: 'cell-category-count',
+            render: (value, row) => {
+                const isGlobal = row.is_global === true || String(row.is_global).toLowerCase() === 'true' || row.is_global === 'Так';
+                if (isGlobal) {
+                    return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
+                }
+
+                const categoryIdsStr = value || row.category_ids || '';
+                const categoryIdsList = categoryIdsStr.split(',').map(id => id.trim()).filter(id => id);
+                const count = categoryIdsList.length;
+
+                if (count === 0) {
+                    return `<span class="chip" data-tooltip="Не прив'язано до категорій" data-tooltip-always>0</span>`;
+                }
+
+                const categoryNames = categoryIdsList.map(id => {
+                    const cat = categoriesList.find(c => c.id === id);
+                    return cat ? cat.name_ua : id;
+                }).join('\n');
+
+                return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
+            }
+        },
+        {
+            id: 'name_ua',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        },
+        {
+            id: 'type',
+            label: 'Тип',
+            sortable: true,
+            filterable: true,
+            render: (value) => `<code>${escapeHtml(value || '-')}</code>`
+        },
+        {
+            id: 'is_global',
+            label: 'Глобальна',
+            sortable: true,
+            filterable: true,
+            className: 'cell-bool',
+            render: (value) => {
+                const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
+                return isGlobal
+                    ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
+                    : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
+            }
+        },
+        {
+            id: 'unit',
+            label: 'Одиниця',
+            sortable: true,
+            render: (value) => escapeHtml(value || '-')
+        }
+    ];
+}
+
+/**
+ * Ініціалізувати Table API для характеристик
+ */
+function initCharacteristicsTableAPI(container, categoriesList) {
+    if (mapperTableAPIs.has('characteristics')) return;
+
+    const visibleCols = mapperState.visibleColumns.characteristics?.length > 0
+        ? [...mapperState.visibleColumns.characteristics, '_sourceLabel']
+        : ['id', '_sourceLabel', 'category_ids', 'name_ua', 'type', 'is_global'];
+
+    const tableAPI = createPseudoTable(container, {
+        columns: getCharacteristicsColumns(categoriesList),
+        visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.characteristics || new Set();
@@ -476,40 +502,68 @@ export function renderCharacteristicsTable() {
                 ${actionButton({ action, rowId: row.id, context: 'mapper-characteristics' })}
             `;
         },
-        withContainer: false
+        getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'tune',
+            message: 'Характеристики відсутні'
+        },
+        withContainer: false,
+        onAfterRender: (cont) => {
+            initActionHandlers(cont, 'mapper-characteristics');
+            const { characteristics } = getCharacteristicsData();
+            const filteredData = applyFilters(characteristics, 'characteristics');
+            const { paginatedData } = applyPagination(filteredData);
+            initTableCheckboxes(cont, 'characteristics', paginatedData);
+            initMapperColumnFilters(cont, 'characteristics', characteristics);
+
+            const sortState = mapperState.sortState?.characteristics;
+            if (sortState?.column && sortState?.direction) {
+                updateSortIndicators(cont, sortState.column, sortState.direction);
+            }
+        }
     });
 
-    // Ініціалізувати обробники дій
-    initActionHandlers(container, 'mapper-characteristics');
-
-    // Ініціалізувати чекбокси
-    initTableCheckboxes(container, 'characteristics', paginatedData);
-
-    // Ініціалізувати hover фільтри для колонок
-    initMapperColumnFilters(container, 'characteristics', allCharacteristics);
-
-    // Відновити індикатори сортування
-    const sortState = mapperState.sortState?.characteristics;
-    if (sortState?.column && sortState?.direction) {
-        updateSortIndicators(container, sortState.column, sortState.direction);
-    }
-
-    // Оновити статистику
-    updateStats('characteristics', filteredData.length, allCharacteristics.length);
-
+    mapperTableAPIs.set('characteristics', tableAPI);
 }
 
 /**
- * Рендерити таблицю опцій (власні + MP)
+ * Рендерити таблицю характеристик (власні + MP)
  */
-export function renderOptionsTable() {
-
-    const container = document.getElementById('mapper-options-table-container');
+export function renderCharacteristicsTable() {
+    const container = document.getElementById('mapper-characteristics-table-container');
     if (!container) return;
 
+    const { characteristics, marketplaces, categories } = getCharacteristicsData();
+
+    if (characteristics.length === 0) {
+        renderEmptyState(container, 'characteristics');
+        updateSourceFilterButtons('characteristics', marketplaces);
+        return;
+    }
+
+    // Скидаємо API щоб оновити колонки з актуальними даними
+    mapperTableAPIs.delete('characteristics');
+    initCharacteristicsTableAPI(container, categories);
+
+    const tableAPI = mapperTableAPIs.get('characteristics');
+    if (!tableAPI) return;
+
+    let filteredData = applyFilters(characteristics, 'characteristics');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    updateSourceFilterButtons('characteristics', marketplaces);
+    tableAPI.render(paginatedData);
+    updateStats('characteristics', filteredData.length, characteristics.length);
+}
+
+/**
+ * Отримати дані опцій (власні + MP)
+ */
+function getOptionsData() {
     const marketplaces = getMarketplaces();
-    const characteristics = getCharacteristics();
-    const mpCharacteristics = getMpCharacteristics();
+    const characteristicsList = getCharacteristics();
+    const mpCharacteristicsList = getMpCharacteristics();
 
     // Отримати власні опції
     const ownOptions = getOptions().map(opt => ({
@@ -519,8 +573,7 @@ export function renderOptionsTable() {
         _editable: true
     }));
 
-    // Отримати MP опції та конвертувати в уніфікований формат
-    // ФІЛЬТРУЄМО: показуємо тільки незамаплені MP опції
+    // Отримати MP опції - тільки незамаплені
     const mpOptions = getMpOptions()
         .filter(mpOpt => !isMpOptionMapped(mpOpt.id))
         .map(mpOpt => {
@@ -535,9 +588,8 @@ export function renderOptionsTable() {
             }
             const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
 
-            // Знайти назву характеристики MP
             let charName = data.char_id || '';
-            const mpChar = mpCharacteristics.find(c =>
+            const mpChar = mpCharacteristicsList.find(c =>
                 c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
             );
             if (mpChar) {
@@ -562,75 +614,76 @@ export function renderOptionsTable() {
             };
         });
 
-    // Об'єднати
-    const allOptions = [...ownOptions, ...mpOptions];
+    return {
+        options: [...ownOptions, ...mpOptions],
+        marketplaces,
+        characteristics: characteristicsList
+    };
+}
 
-    if (allOptions.length === 0) {
-        renderEmptyState(container, 'options');
-        updateSourceFilterButtons('options', marketplaces);
-        return;
-    }
-
-    // Застосувати фільтри
-    let filteredData = applyFilters(allOptions, 'options');
-
-    // Застосувати пагінацію
-    const { paginatedData, totalItems } = applyPagination(filteredData);
-
-    // Оновити пагінацію
-    updatePagination(totalItems);
-
-    // Оновити фільтр-кнопки джерела
-    updateSourceFilterButtons('options', marketplaces);
-
-    // Рендерити таблицю
-    renderPseudoTable(container, {
-        data: paginatedData,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value, row) => {
-                    const displayId = row._source === 'own' ? value : (row.external_id || value);
-                    return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-                }
-            },
-            {
-                id: '_sourceLabel',
-                label: 'Джерело',
-                sortable: true,
-                filterable: true,
-                className: 'cell-source',
-                render: (value, row) => {
-                    if (row._source === 'own') {
-                        return `<span class="chip chip-success">Власний</span>`;
-                    }
-                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-                }
-            },
-            {
-                id: 'characteristic_id',
-                label: 'Характеристика',
-                sortable: true,
-                render: (value, row) => {
-                    if (row._source === 'own') {
-                        const char = characteristics.find(c => c.id === value);
-                        return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
-                    }
-                    return escapeHtml(row.characteristic_name || value || '-');
-                }
-            },
-            {
-                id: 'value_ua',
-                label: 'Значення',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+/**
+ * Отримати конфігурацію колонок для опцій
+ */
+function getOptionsColumns(characteristicsList) {
+    return [
+        {
+            id: 'id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            render: (value, row) => {
+                const displayId = row._source === 'own' ? value : (row.external_id || value);
+                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
             }
-        ],
-        visibleColumns: [...(mapperState.visibleColumns.options || []), '_sourceLabel'],
+        },
+        {
+            id: '_sourceLabel',
+            label: 'Джерело',
+            sortable: true,
+            filterable: true,
+            className: 'cell-source',
+            render: (value, row) => {
+                if (row._source === 'own') {
+                    return `<span class="chip chip-success">Власний</span>`;
+                }
+                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+            }
+        },
+        {
+            id: 'characteristic_id',
+            label: 'Характеристика',
+            sortable: true,
+            render: (value, row) => {
+                if (row._source === 'own') {
+                    const char = characteristicsList.find(c => c.id === value);
+                    return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
+                }
+                return escapeHtml(row.characteristic_name || value || '-');
+            }
+        },
+        {
+            id: 'value_ua',
+            label: 'Значення',
+            sortable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        }
+    ];
+}
+
+/**
+ * Ініціалізувати Table API для опцій
+ */
+function initOptionsTableAPI(container, characteristicsList) {
+    if (mapperTableAPIs.has('options')) return;
+
+    const visibleCols = mapperState.visibleColumns.options?.length > 0
+        ? [...mapperState.visibleColumns.options, '_sourceLabel']
+        : ['id', '_sourceLabel', 'characteristic_id', 'value_ua'];
+
+    const tableAPI = createPseudoTable(container, {
+        columns: getOptionsColumns(characteristicsList),
+        visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.options || new Set();
@@ -641,38 +694,64 @@ export function renderOptionsTable() {
                 ${actionButton({ action, rowId: row.id, context: 'mapper-options' })}
             `;
         },
-        withContainer: false
+        getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'check_box',
+            message: 'Опції відсутні'
+        },
+        withContainer: false,
+        onAfterRender: (cont) => {
+            initActionHandlers(cont, 'mapper-options');
+            const { options } = getOptionsData();
+            const filteredData = applyFilters(options, 'options');
+            const { paginatedData } = applyPagination(filteredData);
+            initTableCheckboxes(cont, 'options', paginatedData);
+            initMapperColumnFilters(cont, 'options', options);
+
+            const sortState = mapperState.sortState?.options;
+            if (sortState?.column && sortState?.direction) {
+                updateSortIndicators(cont, sortState.column, sortState.direction);
+            }
+        }
     });
 
-    // Ініціалізувати обробники дій
-    initActionHandlers(container, 'mapper-options');
-
-    // Ініціалізувати чекбокси
-    initTableCheckboxes(container, 'options', paginatedData);
-
-    // Ініціалізувати hover фільтри для колонок
-    initMapperColumnFilters(container, 'options', allOptions);
-
-    // Відновити індикатори сортування
-    const sortState = mapperState.sortState?.options;
-    if (sortState?.column && sortState?.direction) {
-        updateSortIndicators(container, sortState.column, sortState.direction);
-    }
-
-    // Оновити статистику
-    updateStats('options', filteredData.length, allOptions.length);
-
+    mapperTableAPIs.set('options', tableAPI);
 }
 
 /**
- * Рендерити таблицю маркетплейсів
+ * Рендерити таблицю опцій (власні + MP)
  */
-export function renderMarketplacesTable() {
-
-    const container = document.getElementById('mapper-marketplaces-table-container');
+export function renderOptionsTable() {
+    const container = document.getElementById('mapper-options-table-container');
     if (!container) return;
 
-    // Отримати маркетплейси та додати мітку джерела
+    const { options, marketplaces, characteristics } = getOptionsData();
+
+    if (options.length === 0) {
+        renderEmptyState(container, 'options');
+        updateSourceFilterButtons('options', marketplaces);
+        return;
+    }
+
+    mapperTableAPIs.delete('options');
+    initOptionsTableAPI(container, characteristics);
+
+    const tableAPI = mapperTableAPIs.get('options');
+    if (!tableAPI) return;
+
+    let filteredData = applyFilters(options, 'options');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    updateSourceFilterButtons('options', marketplaces);
+    tableAPI.render(paginatedData);
+    updateStats('options', filteredData.length, options.length);
+}
+
+/**
+ * Отримати дані маркетплейсів
+ */
+function getMarketplacesData() {
     const marketplaces = getMarketplaces().map(mp => ({
         ...mp,
         _source: 'own',
@@ -680,76 +759,76 @@ export function renderMarketplacesTable() {
         _editable: true
     }));
 
-    if (marketplaces.length === 0) {
-        renderEmptyState(container, 'marketplaces');
-        updateSourceFilterButtons('marketplaces', marketplaces);
-        return;
-    }
+    return { marketplaces };
+}
 
-    // Застосувати фільтри
-    let filteredData = applyFilters(marketplaces, 'marketplaces');
-
-    // Застосувати пагінацію
-    const { paginatedData, totalItems } = applyPagination(filteredData);
-
-    // Оновити пагінацію
-    updatePagination(totalItems);
-
-    // Оновити фільтр-кнопки джерела
-    updateSourceFilterButtons('marketplaces', marketplaces);
-
-    // Рендерити таблицю
-    renderPseudoTable(container, {
-        data: paginatedData,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                className: 'cell-id',
-                sortable: true,
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: '_sourceLabel',
-                label: 'Джерело',
-                sortable: true,
-                filterable: true,
-                className: 'cell-source',
-                render: (value, row) => {
-                    if (row._source === 'own') {
-                        return `<span class="chip chip-success">Власний</span>`;
-                    }
-                    return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
+/**
+ * Отримати конфігурацію колонок для маркетплейсів
+ */
+function getMarketplacesColumns() {
+    return [
+        {
+            id: 'id',
+            label: 'ID',
+            className: 'cell-id',
+            sortable: true,
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+        },
+        {
+            id: '_sourceLabel',
+            label: 'Джерело',
+            sortable: true,
+            filterable: true,
+            className: 'cell-source',
+            render: (value, row) => {
+                if (row._source === 'own') {
+                    return `<span class="chip chip-success">Власний</span>`;
                 }
-            },
-            {
-                id: 'name',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-main-name',
-                render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-            },
-            {
-                id: 'slug',
-                label: 'Slug',
-                sortable: true,
-                render: (value) => `<code>${escapeHtml(value || '')}</code>`
-            },
-            {
-                id: 'is_active',
-                label: 'Активний',
-                sortable: true,
-                filterable: true,
-                className: 'cell-bool',
-                render: (value) => {
-                    const isActive = value === true || String(value).toLowerCase() === 'true';
-                    return isActive
-                        ? '<span class="severity-badge severity-low">Активний</span>'
-                        : '<span class="severity-badge severity-high">Неактивний</span>';
-                }
+                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
             }
-        ],
-        visibleColumns: [...(mapperState.visibleColumns.marketplaces || []), '_sourceLabel'],
+        },
+        {
+            id: 'name',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-main-name',
+            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
+        },
+        {
+            id: 'slug',
+            label: 'Slug',
+            sortable: true,
+            render: (value) => `<code>${escapeHtml(value || '')}</code>`
+        },
+        {
+            id: 'is_active',
+            label: 'Активний',
+            sortable: true,
+            filterable: true,
+            className: 'cell-bool',
+            render: (value) => {
+                const isActive = value === true || String(value).toLowerCase() === 'true';
+                return isActive
+                    ? '<span class="severity-badge severity-low">Активний</span>'
+                    : '<span class="severity-badge severity-high">Неактивний</span>';
+            }
+        }
+    ];
+}
+
+/**
+ * Ініціалізувати Table API для маркетплейсів
+ */
+function initMarketplacesTableAPI(container) {
+    if (mapperTableAPIs.has('marketplaces')) return;
+
+    const visibleCols = mapperState.visibleColumns.marketplaces?.length > 0
+        ? [...mapperState.visibleColumns.marketplaces, '_sourceLabel']
+        : ['id', '_sourceLabel', 'name', 'slug', 'is_active'];
+
+    const tableAPI = createPseudoTable(container, {
+        columns: getMarketplacesColumns(),
+        visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.marketplaces || new Set();
@@ -760,27 +839,58 @@ export function renderMarketplacesTable() {
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-marketplaces' })}
             `;
         },
-        withContainer: false
+        getRowId: (row) => row.id,
+        emptyState: {
+            icon: 'storefront',
+            message: 'Маркетплейси відсутні'
+        },
+        withContainer: false,
+        onAfterRender: (cont) => {
+            initActionHandlers(cont, 'mapper-marketplaces');
+            const { marketplaces } = getMarketplacesData();
+            const filteredData = applyFilters(marketplaces, 'marketplaces');
+            const { paginatedData } = applyPagination(filteredData);
+            initTableCheckboxes(cont, 'marketplaces', paginatedData);
+            initMapperColumnFilters(cont, 'marketplaces', marketplaces);
+
+            const sortState = mapperState.sortState?.marketplaces;
+            if (sortState?.column && sortState?.direction) {
+                updateSortIndicators(cont, sortState.column, sortState.direction);
+            }
+        }
     });
 
-    // Ініціалізувати обробники дій
-    initActionHandlers(container, 'mapper-marketplaces');
+    mapperTableAPIs.set('marketplaces', tableAPI);
+}
 
-    // Ініціалізувати чекбокси
-    initTableCheckboxes(container, 'marketplaces', paginatedData);
+/**
+ * Рендерити таблицю маркетплейсів
+ */
+export function renderMarketplacesTable() {
+    const container = document.getElementById('mapper-marketplaces-table-container');
+    if (!container) return;
 
-    // Ініціалізувати hover фільтри для колонок
-    initMapperColumnFilters(container, 'marketplaces', marketplaces);
+    const { marketplaces } = getMarketplacesData();
 
-    // Відновити індикатори сортування
-    const sortState = mapperState.sortState?.marketplaces;
-    if (sortState?.column && sortState?.direction) {
-        updateSortIndicators(container, sortState.column, sortState.direction);
+    if (marketplaces.length === 0) {
+        renderEmptyState(container, 'marketplaces');
+        updateSourceFilterButtons('marketplaces', marketplaces);
+        return;
     }
 
-    // Оновити статистику
-    updateStats('marketplaces', filteredData.length, marketplaces.length);
+    mapperTableAPIs.delete('marketplaces');
+    initMarketplacesTableAPI(container);
 
+    const tableAPI = mapperTableAPIs.get('marketplaces');
+    if (!tableAPI) return;
+
+    let filteredData = applyFilters(marketplaces, 'marketplaces');
+    const { paginatedData, totalItems } = applyPagination(filteredData);
+
+    updatePagination(totalItems);
+    updateSourceFilterButtons('marketplaces', marketplaces);
+    tableAPI.render(paginatedData);
+    updateStats('marketplaces', filteredData.length, marketplaces.length);
 }
 
 /**
@@ -1036,34 +1146,7 @@ export function renderCategoriesTableRowsOnly() {
         return;
     }
 
-    const marketplaces = getMarketplaces();
-    const ownCategories = getCategories().map(cat => ({
-        ...cat,
-        _source: 'own',
-        _sourceLabel: 'Власний',
-        _editable: true
-    }));
-    const mpCategories = getMpCategories()
-        .filter(mpCat => !isMpCategoryMapped(mpCat.id))
-        .map(mpCat => {
-            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
-            const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
-            return {
-                id: mpCat.id,
-                external_id: mpCat.external_id,
-                marketplace_id: mpCat.marketplace_id,
-                name_ua: data.name || '',
-                name_ru: '',
-                parent_id: data.parent_id || '',
-                our_category_id: data.our_category_id || '',
-                _source: mpCat.marketplace_id,
-                _sourceLabel: marketplace?.name || mpCat.marketplace_id,
-                _editable: false,
-                _mpData: data
-            };
-        });
-
-    const categories = [...ownCategories, ...mpCategories];
+    const { categories } = getCategoriesData();
     let filteredData = applyFilters(categories, 'categories');
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
@@ -1082,44 +1165,13 @@ export function renderCharacteristicsTableRowsOnly() {
         return;
     }
 
-    const marketplaces = getMarketplaces();
-    const ownCharacteristics = getCharacteristics().map(char => ({
-        ...char,
-        _source: 'own',
-        _sourceLabel: 'Власний',
-        _editable: true
-    }));
-    const mpCharacteristics = getMpCharacteristics()
-        .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
-        .map(mpChar => {
-            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-            const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
-            return {
-                id: mpChar.id,
-                external_id: mpChar.external_id,
-                marketplace_id: mpChar.marketplace_id,
-                name_ua: data.name || '',
-                name_ru: '',
-                type: data.type || '',
-                unit: data.unit || '',
-                is_global: data.is_global === 'Так' || data.is_global === true,
-                category_ids: data.category_id || '',
-                filter_type: data.filter_type || '',
-                our_char_id: data.our_char_id || '',
-                _source: mpChar.marketplace_id,
-                _sourceLabel: marketplace?.name || mpChar.marketplace_id,
-                _editable: false,
-                _mpData: data
-            };
-        });
-
-    const allCharacteristics = [...ownCharacteristics, ...mpCharacteristics];
-    let filteredData = applyFilters(allCharacteristics, 'characteristics');
+    const { characteristics } = getCharacteristicsData();
+    let filteredData = applyFilters(characteristics, 'characteristics');
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('characteristics', filteredData.length, allCharacteristics.length);
+    updateStats('characteristics', filteredData.length, characteristics.length);
 }
 
 /**
@@ -1132,62 +1184,13 @@ export function renderOptionsTableRowsOnly() {
         return;
     }
 
-    const marketplaces = getMarketplaces();
-    const characteristics = getCharacteristics();
-    const mpCharacteristicsData = getMpCharacteristics();
-
-    const ownOptions = getOptions().map(opt => ({
-        ...opt,
-        _source: 'own',
-        _sourceLabel: 'Власний',
-        _editable: true
-    }));
-
-    const mpOptions = getMpOptions()
-        .filter(mpOpt => !isMpOptionMapped(mpOpt.id))
-        .map(mpOpt => {
-            let data = {};
-            if (mpOpt.data) {
-                try {
-                    data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
-                } catch (e) {
-                    data = {};
-                }
-            }
-            const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
-            let charName = data.char_id || '';
-            const mpChar = mpCharacteristicsData.find(c =>
-                c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
-            );
-            if (mpChar) {
-                const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-                charName = charData.name || data.char_id;
-            }
-
-            return {
-                id: mpOpt.id,
-                external_id: mpOpt.external_id,
-                marketplace_id: mpOpt.marketplace_id,
-                characteristic_id: data.char_id || '',
-                characteristic_name: charName,
-                value_ua: data.name || '',
-                value_ru: '',
-                sort_order: '0',
-                our_option_id: data.our_option_id || '',
-                _source: mpOpt.marketplace_id,
-                _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
-                _editable: false,
-                _mpData: data
-            };
-        });
-
-    const allOptions = [...ownOptions, ...mpOptions];
-    let filteredData = applyFilters(allOptions, 'options');
+    const { options } = getOptionsData();
+    let filteredData = applyFilters(options, 'options');
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('options', filteredData.length, allOptions.length);
+    updateStats('options', filteredData.length, options.length);
 }
 
 /**
@@ -1200,13 +1203,7 @@ export function renderMarketplacesTableRowsOnly() {
         return;
     }
 
-    const marketplaces = getMarketplaces().map(mp => ({
-        ...mp,
-        _source: 'own',
-        _sourceLabel: 'Власний',
-        _editable: true
-    }));
-
+    const { marketplaces } = getMarketplacesData();
     let filteredData = applyFilters(marketplaces, 'marketplaces');
     const { paginatedData, totalItems } = applyPagination(filteredData);
 

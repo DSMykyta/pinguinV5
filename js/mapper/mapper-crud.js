@@ -3019,9 +3019,76 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const newCharacteristics = characteristicsList.filter(c => !existingCharIds.has(c.mp_char_id));
     const newOptions = mpOptions.filter(o => !existingOptIds.has(`${o.mp_char_id}-${o.mp_option_id}`));
 
+    // Знаходимо існуючі характеристики, яким потрібно додати нову категорію
+    const charsToMergeCategories = characteristicsList.filter(c => {
+        if (!existingCharIds.has(c.mp_char_id)) return false; // нові - пропускаємо
+        if (!c.mp_category_id) return false; // немає категорії в імпорті - пропускаємо
 
-    // DEBUG: показуємо існуючі ID для перевірки
-    if (characteristicsList.length > 0) {
+        const existingChar = existingChars.find(ec =>
+            ec.marketplace_id === importState.marketplaceId &&
+            ec.external_id === c.mp_char_id
+        );
+        if (!existingChar) return false;
+
+        // Перевіряємо чи нова категорія вже є в існуючому записі
+        const existingCatIds = (existingChar.category_id || '').split(',').map(id => id.trim()).filter(id => id);
+        return !existingCatIds.includes(c.mp_category_id);
+    });
+
+    // Оновлюємо існуючі характеристики з новою категорією
+    if (charsToMergeCategories.length > 0) {
+        onProgress(40, `Оновлення ${charsToMergeCategories.length} існуючих характеристик з новими категоріями...`);
+
+        const timestamp = new Date().toISOString();
+
+        for (const newChar of charsToMergeCategories) {
+            const existingChar = existingChars.find(ec =>
+                ec.marketplace_id === importState.marketplaceId &&
+                ec.external_id === newChar.mp_char_id
+            );
+            if (!existingChar || !existingChar._rowIndex) continue;
+
+            // Мержимо категорії
+            const existingCatIds = (existingChar.category_id || '').split(',').map(id => id.trim()).filter(id => id);
+            const existingCatNames = (existingChar.category_name || '').split(',').map(n => n.trim()).filter(n => n);
+
+            if (!existingCatIds.includes(newChar.mp_category_id)) {
+                existingCatIds.push(newChar.mp_category_id);
+                if (newChar.mp_category_name) {
+                    existingCatNames.push(newChar.mp_category_name);
+                }
+            }
+
+            // Оновлюємо JSON data
+            const updatedData = JSON.stringify({
+                name: existingChar.name || '',
+                type: existingChar.type || '',
+                filter_type: existingChar.filter_type || '',
+                unit: existingChar.unit || '',
+                is_global: existingChar.is_global || '',
+                category_id: existingCatIds.join(','),
+                category_name: existingCatNames.join(','),
+                our_char_id: existingChar.our_char_id || ''
+            });
+
+            // Оновлюємо рядок в таблиці
+            const range = `Mapper_MP_Characteristics!A${existingChar._rowIndex}:G${existingChar._rowIndex}`;
+            await callSheetsAPI('update', {
+                range: range,
+                values: [[
+                    existingChar.id,
+                    existingChar.marketplace_id,
+                    existingChar.external_id,
+                    existingChar.source || 'import',
+                    updatedData,
+                    existingChar.created_at,
+                    timestamp
+                ]],
+                spreadsheetType: 'main'
+            });
+
+            console.log(`✅ Додано категорію ${newChar.mp_category_id} до характеристики ${existingChar.external_id}`);
+        }
     }
 
     onProgress(50, `Запис ${newCharacteristics.length} нових характеристик...`);
