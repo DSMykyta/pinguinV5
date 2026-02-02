@@ -265,7 +265,7 @@ function initCategoriesTableAPI(container, allCategories) {
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.categories || new Set();
-            const isChecked = selectedSet.has(row.id);
+            const isChecked = selectedSet.has(String(row.id));
             const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
@@ -491,7 +491,7 @@ function initCharacteristicsTableAPI(container, categoriesList) {
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.characteristics || new Set();
-            const isChecked = selectedSet.has(row.id);
+            const isChecked = selectedSet.has(String(row.id));
             const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
@@ -679,7 +679,7 @@ function initOptionsTableAPI(container, characteristicsList) {
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.options || new Set();
-            const isChecked = selectedSet.has(row.id);
+            const isChecked = selectedSet.has(String(row.id));
             const action = row._editable ? 'edit' : 'view';
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}" ${isChecked ? 'checked' : ''}>
@@ -820,7 +820,7 @@ function initMarketplacesTableAPI(container) {
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
         rowActionsCustom: (row) => {
             const selectedSet = mapperState.selectedRows.marketplaces || new Set();
-            const isChecked = selectedSet.has(row.id);
+            const isChecked = selectedSet.has(String(row.id));
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces" ${isChecked ? 'checked' : ''}>
                 ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
@@ -1229,7 +1229,7 @@ function initTableCheckboxes(container, tabName, data) {
 
     // Оновити стан "select all" чекбокса
     const updateSelectAllState = () => {
-        const allIds = data.map(row => row.id);
+        const allIds = data.map(row => String(row.id));
         const allSelected = allIds.every(id => selectedSet.has(id));
         const someSelected = allIds.some(id => selectedSet.has(id));
 
@@ -1239,7 +1239,7 @@ function initTableCheckboxes(container, tabName, data) {
 
     // Обробник для "select all" чекбокса
     selectAllCheckbox.addEventListener('change', (e) => {
-        const allIds = data.map(row => row.id);
+        const allIds = data.map(row => String(row.id));
 
         if (e.target.checked) {
             allIds.forEach(id => selectedSet.add(id));
