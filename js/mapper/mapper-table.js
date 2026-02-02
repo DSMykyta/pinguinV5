@@ -273,10 +273,6 @@ function initCategoriesTableAPI(container, allCategories) {
             `;
         },
         getRowId: (row) => row.id,
-        emptyState: {
-            icon: 'folder',
-            message: 'Категорії відсутні'
-        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-categories');

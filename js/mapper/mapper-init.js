@@ -284,8 +284,7 @@ async function loadAsideMapper() {
         const importBtn = document.getElementById('btn-import-aside');
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
-                // TODO: Перенести в mapper-import.js
-                const { showImportModal } = await import('./mapper-crud.js');
+                const { showImportModal } = await import('./mapper-import.js');
                 showImportModal();
             });
         }
