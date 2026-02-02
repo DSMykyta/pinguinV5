@@ -4380,7 +4380,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
             // Очистити виділення
             mapperState.selectedRows.categories.clear();
             const batchBar = getBatchBar('mapper-categories');
-            if (batchBar) batchBar.clearSelection();
+            if (batchBar) batchBar.deselectAll();
 
             showToast(`Замаплено ${selectedMpCatIds.length} категорій`, 'success');
             renderCurrentTab();

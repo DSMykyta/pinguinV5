@@ -11,7 +11,7 @@
  * Використовує createPseudoTable API (як brands-table.js та price-table.js)
  */
 
-import { mapperState } from './mapper-state.js';
+import { mapperState, runHook } from './mapper-state.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
@@ -1090,6 +1090,32 @@ export function resetMapperTableAPIs() {
 }
 
 /**
+ * Очистити checkbox delegation handlers для табу
+ * @param {string} tabName - Назва табу (опціонально, якщо не вказано - очистити всі)
+ */
+export function clearCheckboxHandlers(tabName) {
+    if (tabName) {
+        const handler = checkboxDelegationHandlers.get(tabName);
+        if (handler) {
+            const container = document.getElementById(`mapper-${tabName}-table-container`);
+            if (container) {
+                container.removeEventListener('change', handler);
+            }
+            checkboxDelegationHandlers.delete(tabName);
+        }
+    } else {
+        // Очистити всі handlers
+        checkboxDelegationHandlers.forEach((handler, tab) => {
+            const container = document.getElementById(`mapper-${tab}-table-container`);
+            if (container) {
+                container.removeEventListener('change', handler);
+            }
+        });
+        checkboxDelegationHandlers.clear();
+    }
+}
+
+/**
  * Отримати tableAPI для табу
  * @param {string} tabName - Назва табу
  * @returns {Object|null} tableAPI або null
@@ -1204,8 +1230,13 @@ export function renderMarketplacesTableRowsOnly() {
     updateStats('marketplaces', filteredData.length, marketplaces.length);
 }
 
+// Сховище для event delegation handlers (для cleanup)
+const checkboxDelegationHandlers = new Map();
+
 /**
  * Ініціалізувати чекбокси для таблиці
+ * Використовує event delegation для уникнення накопичення listeners
+ *
  * @param {HTMLElement} container - Контейнер таблиці
  * @param {string} tabName - Назва табу (categories, characteristics, options, marketplaces)
  * @param {Array} data - Дані поточної сторінки
@@ -1224,64 +1255,122 @@ function initTableCheckboxes(container, tabName, data) {
     const selectedSet = mapperState.selectedRows[tabName];
     const batchBarId = `mapper-${tabName}`;
 
-    // Оновити batch bar якщо він є (отримуємо динамічно кожен раз)
-    const updateBatchBar = () => {
-        const batchBar = getBatchBar(batchBarId);
-        if (batchBar) {
-            // Синхронізуємо batch bar з selectedSet
-            batchBar.deselectAll();
-            selectedSet.forEach(id => batchBar.selectItem(id));
-        } else {
-        }
-    };
+    // Отримати batch bar (один раз)
+    const batchBar = getBatchBar(batchBarId);
 
-    // Оновити стан "select all" чекбокса
+    // --- КРОК 1: Відновити візуальний стан чекбоксів з selectedSet ---
+    rowCheckboxes.forEach(checkbox => {
+        const rowId = checkbox.dataset.rowId;
+        checkbox.checked = selectedSet.has(rowId);
+    });
+
+    // --- КРОК 2: Оновити стан "select all" чекбокса ---
     const updateSelectAllState = () => {
         const allIds = data.map(row => row.id);
-        const allSelected = allIds.every(id => selectedSet.has(id));
+        const allSelected = allIds.length > 0 && allIds.every(id => selectedSet.has(id));
         const someSelected = allIds.some(id => selectedSet.has(id));
 
         selectAllCheckbox.checked = allSelected;
         selectAllCheckbox.indeterminate = someSelected && !allSelected;
     };
 
-    // Обробник для "select all" чекбокса
-    selectAllCheckbox.addEventListener('change', (e) => {
-        const allIds = data.map(row => row.id);
+    updateSelectAllState();
 
-        if (e.target.checked) {
-            allIds.forEach(id => selectedSet.add(id));
-        } else {
-            allIds.forEach(id => selectedSet.delete(id));
-        }
+    // --- КРОК 3: Оновити batch bar з поточним станом ---
+    if (batchBar) {
+        // Batch bar вже має свій selectedItems - синхронізуємо з mapperState
+        const batchSelected = new Set(batchBar.getSelected());
 
-        // Оновити всі рядкові чекбокси
-        rowCheckboxes.forEach(checkbox => {
-            checkbox.checked = e.target.checked;
+        // Додаємо в batch bar тільки ті що є в selectedSet але немає в batch
+        selectedSet.forEach(id => {
+            if (!batchSelected.has(id)) {
+                batchBar.selectItem(id);
+            }
         });
 
-        updateBatchBar();
-    });
+        // Видаляємо з batch bar ті що немає в selectedSet
+        batchSelected.forEach(id => {
+            if (!selectedSet.has(id)) {
+                batchBar.deselectItem(id);
+            }
+        });
+    }
 
-    // Обробник для рядкових чекбоксів
-    rowCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            const rowId = checkbox.dataset.rowId;
+    // --- КРОК 4: Event delegation (один listener на контейнер) ---
+    // Видаляємо попередній handler якщо є
+    const prevHandler = checkboxDelegationHandlers.get(tabName);
+    if (prevHandler) {
+        container.removeEventListener('change', prevHandler);
+    }
 
-            if (checkbox.checked) {
-                selectedSet.add(rowId);
+    // Створюємо новий handler з актуальними data
+    const delegationHandler = (e) => {
+        const target = e.target;
+
+        // Обробка "select all" чекбокса
+        if (target.classList.contains('select-all-checkbox') && target.dataset.tab === tabName) {
+            const allIds = data.map(row => row.id);
+            const currentBatchBar = getBatchBar(batchBarId);
+
+            if (target.checked) {
+                // Вибрати всі на поточній сторінці
+                allIds.forEach(id => selectedSet.add(id));
+                container.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.checked = true;
+                });
+                // Sync batch bar
+                if (currentBatchBar) {
+                    allIds.forEach(id => currentBatchBar.selectItem(id));
+                }
             } else {
-                selectedSet.delete(rowId);
+                // Зняти вибір з усіх на поточній сторінці
+                allIds.forEach(id => selectedSet.delete(id));
+                container.querySelectorAll('.row-checkbox').forEach(cb => {
+                    cb.checked = false;
+                });
+                // Sync batch bar
+                if (currentBatchBar) {
+                    allIds.forEach(id => currentBatchBar.deselectItem(id));
+                }
             }
 
-            updateSelectAllState();
-            updateBatchBar();
-        });
-    });
+            // Виконати хук
+            runHook('onRowSelect', tabName, Array.from(selectedSet));
+            return;
+        }
 
-    // Встановити початковий стан
-    updateSelectAllState();
-    updateBatchBar();
+        // Обробка row чекбоксів
+        if (target.classList.contains('row-checkbox') && target.dataset.tab === tabName) {
+            const rowId = target.dataset.rowId;
+            const currentBatchBar = getBatchBar(batchBarId);
+
+            if (target.checked) {
+                selectedSet.add(rowId);
+                if (currentBatchBar) currentBatchBar.selectItem(rowId);
+            } else {
+                selectedSet.delete(rowId);
+                if (currentBatchBar) currentBatchBar.deselectItem(rowId);
+            }
+
+            // Оновити select all state
+            const allIds = data.map(row => row.id);
+            const allSelected = allIds.length > 0 && allIds.every(id => selectedSet.has(id));
+            const someSelected = allIds.some(id => selectedSet.has(id));
+
+            const selectAll = container.querySelector('.select-all-checkbox');
+            if (selectAll) {
+                selectAll.checked = allSelected;
+                selectAll.indeterminate = someSelected && !allSelected;
+            }
+
+            // Виконати хук
+            runHook('onRowSelect', tabName, Array.from(selectedSet));
+        }
+    };
+
+    // Зберігаємо handler для можливості cleanup
+    checkboxDelegationHandlers.set(tabName, delegationHandler);
+    container.addEventListener('change', delegationHandler);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
