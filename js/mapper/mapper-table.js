@@ -406,7 +406,7 @@ export function renderCharacteristicsTable() {
             },
             {
                 id: 'category_ids',
-                label: 'Кат.',
+                label: 'Категорія',
                 filterable: true,
                 className: 'cell-category-count',
                 render: (value, row) => {
