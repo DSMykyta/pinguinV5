@@ -1410,13 +1410,37 @@ function getFilterColumnsConfig(tabName) {
 
 /**
  * Створити labelMap для категорій (ID -> Назва)
+ * Включає як власні категорії, так і MP категорії
  */
 function getCategoryLabelMap() {
-    const categories = getCategories();
     const labelMap = {};
-    categories.forEach(cat => {
-        labelMap[cat.id] = cat.name_ua || cat.id;
+
+    // Власні категорії
+    const ownCategories = getCategories();
+    ownCategories.forEach(cat => {
+        labelMap[cat.id] = cat.name_ua || cat.name || cat.id;
     });
+
+    // MP категорії (для фільтрації MP характеристик)
+    const mpCategories = getMpCategories();
+    mpCategories.forEach(cat => {
+        // Парсимо data якщо це JSON
+        let catData = cat;
+        if (cat.data) {
+            try {
+                catData = typeof cat.data === 'string' ? JSON.parse(cat.data) : cat.data;
+            } catch (e) {
+                catData = cat;
+            }
+        }
+        // Використовуємо mp_id як ключ (це те що зберігається в category_id характеристик)
+        const mpId = cat.mp_id || cat.id;
+        const name = catData.name || catData.name_ua || cat.name || mpId;
+        if (!labelMap[mpId]) {
+            labelMap[mpId] = name;
+        }
+    });
+
     return labelMap;
 }
 
