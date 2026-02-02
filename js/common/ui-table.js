@@ -191,9 +191,11 @@ export function createPseudoTable(container, options) {
     function render(data = []) {
         currentData = data;
 
-        // Якщо немає даних - показати empty state
+        const headerHTML = generateHeaderHTML();
+
+        // Якщо немає даних - показати empty state в тілі таблиці (шапка залишається!)
         if (data.length === 0 && emptyState) {
-            container.innerHTML = renderAvatarState('empty', {
+            const emptyHTML = renderAvatarState('empty', {
                 message: emptyState.message || 'Немає даних для відображення',
                 size: 'medium',
                 containerClass: 'empty-state-container',
@@ -201,10 +203,23 @@ export function createPseudoTable(container, options) {
                 messageClass: 'avatar-state-message',
                 showMessage: true
             });
+
+            const tableHTML = headerHTML + `<div class="pseudo-table-body pseudo-table-empty">${emptyHTML}</div>`;
+
+            if (withContainer) {
+                container.innerHTML = `<div class="pseudo-table-container">${tableHTML}</div>`;
+            } else {
+                container.innerHTML = tableHTML;
+            }
+
+            attachEventHandlers();
+
+            if (onAfterRender) {
+                onAfterRender(container, currentData);
+            }
             return;
         }
 
-        const headerHTML = generateHeaderHTML();
         const rowsHTML = generateRowsHTML(data);
         const tableHTML = headerHTML + rowsHTML;
 

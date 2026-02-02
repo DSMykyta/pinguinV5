@@ -167,19 +167,19 @@
 /* HOVER FILTER DROPDOWN (появляється при наведенні) */
 /* ============================================ */
 
-/* Wrapper для hover dropdown - fixed позиціонування */
+/* Wrapper для hover dropdown */
 .filter-dropdown-hover {
-    position: fixed;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
-/* Початковий стан - прихований */
+/* Dropdown menu - позиціонування задається через JS */
 .filter-dropdown-hover .dropdown-menu {
     display: block;
     opacity: 0;
     transform: translateY(-8px);
     pointer-events: none;
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    z-index: 10001;
 }
 
 /* Відкритий стан */
