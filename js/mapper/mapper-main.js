@@ -29,7 +29,7 @@ const PLUGINS = [
     './mapper-characteristics.js',
     './mapper-options.js',
     './mapper-marketplaces.js',
-    // './mapper-import.js', // Буде додано пізніше
+    './mapper-import.js',
 ];
 
 /**
