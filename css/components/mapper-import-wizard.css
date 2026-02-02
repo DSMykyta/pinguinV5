@@ -1,0 +1,199 @@
+/* css/components/mapper-import-wizard.css */
+
+/**
+ * COMPONENT: Mapper Import Wizard
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Стилі для wizard імпорту MP як власний довідник.
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - navigation/tree.css (стилі дерева)
+ * - overlays/modal.css (стилі модального вікна)
+ */
+
+/* ============================================ */
+/* WIZARD КРОКИ                                 */
+/* ============================================ */
+
+.wizard-step {
+    padding: 16px 0;
+}
+
+.wizard-step-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--color-on-surface);
+}
+
+.wizard-step-desc {
+    font-size: 14px;
+    color: var(--color-on-surface-v);
+    margin: 0 0 24px;
+}
+
+/* ============================================ */
+/* КРОК 1: ВИБІР MP                             */
+/* ============================================ */
+
+.mp-select-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.mp-select-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px;
+    border: 2px solid var(--color-outline);
+    border-radius: var(--radius-m);
+    background: var(--color-surface);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.mp-select-card:hover {
+    border-color: var(--color-main);
+    background: var(--color-main-c);
+}
+
+.mp-select-card.selected {
+    border-color: var(--color-main);
+    background: var(--color-main-c);
+    box-shadow: 0 0 0 2px var(--color-main-c-high);
+}
+
+.mp-select-card .mp-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    margin-bottom: 4px;
+}
+
+.mp-select-card .mp-stats {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+}
+
+/* ============================================ */
+/* КРОК 3: PREVIEW                              */
+/* ============================================ */
+
+.preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+    background: var(--color-surface-c-low);
+    border-radius: var(--radius-m);
+    margin-bottom: 16px;
+}
+
+.preview-source,
+.preview-target {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    background: var(--color-surface);
+    border-radius: var(--radius-s);
+    border: 1px solid var(--color-outline);
+    font-size: 14px;
+}
+
+.preview-source .material-symbols-outlined,
+.preview-target .material-symbols-outlined {
+    font-size: 24px;
+    color: var(--color-main);
+}
+
+.preview-arrow .material-symbols-outlined {
+    font-size: 32px;
+    color: var(--color-on-surface-v);
+}
+
+.preview-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 16px;
+}
+
+.preview-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.preview-stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-main);
+}
+
+.preview-stat-label {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    text-transform: uppercase;
+}
+
+.preview-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--color-info-c);
+    border-radius: var(--radius-s);
+    font-size: 14px;
+    color: var(--color-info);
+}
+
+/* ============================================ */
+/* КРОК 4: PROGRESS                             */
+/* ============================================ */
+
+.import-progress {
+    padding: 32px;
+    text-align: center;
+}
+
+/* Success */
+.wizard-step-complete {
+    text-align: center;
+    padding: 48px;
+}
+
+.success-icon .material-symbols-outlined {
+    font-size: 64px;
+    color: var(--color-success);
+}
+
+/* Error */
+.wizard-step-error {
+    text-align: center;
+    padding: 48px;
+}
+
+.error-icon .material-symbols-outlined {
+    font-size: 64px;
+    color: var(--color-error);
+}
+
+/* ============================================ */
+/* WIZARD BUTTONS                               */
+/* ============================================ */
+
+.wizard-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.wizard-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
