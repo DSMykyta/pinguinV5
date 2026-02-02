@@ -353,6 +353,20 @@ async function callSheetsAPI(action, params = {}) {
 
 // ============= Експорт =============
 
+// ES6 модульні експорти
+export {
+  callSheetsAPI,
+  apiRequest,
+  sheetsGet,
+  sheetsBatchGet,
+  sheetsUpdate,
+  sheetsAppend,
+  sheetsBatchUpdate,
+  sheetsBatchUpdateSpreadsheet,
+  sheetsGetSheetNames,
+  handleApiError
+};
+
 // Глобальний об'єкт для доступу до API
 window.apiClient = {
   // Основна функція запитів
