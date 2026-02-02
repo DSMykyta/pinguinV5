@@ -191,11 +191,9 @@ export function createPseudoTable(container, options) {
     function render(data = []) {
         currentData = data;
 
-        const headerHTML = generateHeaderHTML();
-
-        // Якщо немає даних - показати заголовок + empty state
+        // Якщо немає даних - показати empty state
         if (data.length === 0 && emptyState) {
-            const emptyStateHTML = renderAvatarState('empty', {
+            container.innerHTML = renderAvatarState('empty', {
                 message: emptyState.message || 'Немає даних для відображення',
                 size: 'medium',
                 containerClass: 'empty-state-container',
@@ -203,17 +201,10 @@ export function createPseudoTable(container, options) {
                 messageClass: 'avatar-state-message',
                 showMessage: true
             });
-
-            if (withContainer) {
-                container.innerHTML = `<div class="pseudo-table-container">${headerHTML}${emptyStateHTML}</div>`;
-            } else {
-                container.innerHTML = headerHTML + emptyStateHTML;
-            }
-
-            attachEventHandlers();
             return;
         }
 
+        const headerHTML = generateHeaderHTML();
         const rowsHTML = generateRowsHTML(data);
         const tableHTML = headerHTML + rowsHTML;
 
@@ -356,7 +347,20 @@ export function renderPseudoTable(container, options) {
     // Клас для прихованих колонок
     const hiddenClass = (columnId) => isColumnVisible(columnId) ? '' : ' column-hidden';
 
-    // Генерація заголовка таблиці (завжди генеруємо, навіть для empty state)
+    // Якщо немає даних - показати empty state з аватаром
+    if (data.length === 0 && emptyState) {
+        container.innerHTML = renderAvatarState('empty', {
+            message: emptyState.message || 'Немає даних для відображення',
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
+        return;
+    }
+
+    // Генерація заголовка таблиці
     const headerHTML = `
         <div class="pseudo-table-header">
             ${rowActions.length > 0 || rowActionsCustom ? `
@@ -382,25 +386,6 @@ export function renderPseudoTable(container, options) {
             }).join('')}
         </div>
     `;
-
-    // Якщо немає даних - показати заголовок + empty state
-    if (data.length === 0 && emptyState) {
-        const emptyStateHTML = renderAvatarState('empty', {
-            message: emptyState.message || 'Немає даних для відображення',
-            size: 'medium',
-            containerClass: 'empty-state-container',
-            avatarClass: 'empty-state-avatar',
-            messageClass: 'avatar-state-message',
-            showMessage: true
-        });
-
-        if (withContainer) {
-            container.innerHTML = `<div class="pseudo-table-container">${headerHTML}${emptyStateHTML}</div>`;
-        } else {
-            container.innerHTML = headerHTML + emptyStateHTML;
-        }
-        return;
-    }
 
     // Генерація рядків таблиці
     const rowsHTML = data.map((row, rowIndex) => {
