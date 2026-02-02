@@ -15,7 +15,7 @@ import { mapperState, runHook } from './mapper-state.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
-    getMapCharacteristics, getMapOptions,
+    getMapCategories, getMapCharacteristics, getMapOptions,
     isMpCharacteristicMapped, isMpOptionMapped, isMpCategoryMapped
 } from './mapper-data.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
@@ -40,6 +40,102 @@ function getCategoryNames(categoryIdsStr) {
 
     return names.join(', ');
 }
+
+/**
+ * Отримати інформацію про прив'язки для сутності
+ * @param {string} entityType - Тип сутності: 'category', 'characteristic', 'option'
+ * @param {string} entityId - ID сутності
+ * @returns {Object} - { count: число прив'язок, details: [{ marketplace, items }] }
+ */
+function getBindingsInfo(entityType, entityId) {
+    const marketplaces = getMarketplaces();
+    let mapData = [];
+
+    switch (entityType) {
+        case 'category':
+            mapData = getMapCategories().filter(m => m.our_category_id === entityId);
+            break;
+        case 'characteristic':
+            mapData = getMapCharacteristics().filter(m => m.our_char_id === entityId);
+            break;
+        case 'option':
+            mapData = getMapOptions().filter(m => m.our_option_id === entityId);
+            break;
+    }
+
+    // Групуємо по маркетплейсах
+    const byMarketplace = {};
+    mapData.forEach(mapping => {
+        const mpId = mapping.marketplace_id;
+        if (!byMarketplace[mpId]) {
+            byMarketplace[mpId] = [];
+        }
+        byMarketplace[mpId].push(mapping);
+    });
+
+    const details = Object.entries(byMarketplace).map(([mpId, items]) => {
+        const mp = marketplaces.find(m => m.id === mpId);
+        return {
+            marketplace: mp?.name || mpId,
+            marketplaceId: mpId,
+            count: items.length,
+            items: items
+        };
+    });
+
+    return {
+        count: mapData.length,
+        details: details
+    };
+}
+
+/**
+ * Створити HTML для тултіпа прив'язок
+ */
+function renderBindingsTooltip(bindingsInfo, entityType) {
+    if (bindingsInfo.count === 0) {
+        return 'Немає прив\'язок до маркетплейсів';
+    }
+
+    const entityLabel = entityType === 'category' ? 'категорій' :
+                        entityType === 'characteristic' ? 'характеристик' : 'опцій';
+
+    let html = '';
+    bindingsInfo.details.forEach(detail => {
+        html += `<div style="margin-bottom:8px;"><strong>${escapeHtml(detail.marketplace)}</strong><br>`;
+        html += `<span style="color:var(--color-success)">${detail.count} ${entityLabel}</span></div>`;
+    });
+
+    return html;
+}
+
+/**
+ * Створити колонку прив'язок для таблиці
+ */
+function createBindingsColumn(entityType) {
+    return {
+        id: '_bindings',
+        label: 'Прів.',
+        sortable: true,
+        className: 'cell-bindings',
+        render: (value, row) => {
+            // Тільки для власних записів показуємо прив'язки
+            if (row._source !== 'own') {
+                return '<span class="chip" style="opacity:0.5">-</span>';
+            }
+
+            const bindingsInfo = getBindingsInfo(entityType, row.id);
+            const tooltipContent = renderBindingsTooltip(bindingsInfo, entityType);
+
+            if (bindingsInfo.count === 0) {
+                return `<span class="chip" data-tooltip="${escapeHtml(tooltipContent)}">0</span>`;
+            }
+
+            return `<span class="chip chip-active" data-tooltip="${escapeHtml(tooltipContent)}">${bindingsInfo.count}</span>`;
+        }
+    };
+}
+
 import { createPseudoTable } from '../common/ui-table.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
@@ -244,7 +340,8 @@ function getCategoriesColumns(allCategories) {
                 const parent = allCategories.find(c => c.id === value);
                 return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
             }
-        }
+        },
+        createBindingsColumn('category')
     ];
 }
 
@@ -482,7 +579,8 @@ function getCharacteristicsColumns(categoriesList) {
             label: 'Одиниця',
             sortable: true,
             render: (value) => escapeHtml(value || '-')
-        }
+        },
+        createBindingsColumn('characteristic')
     ];
 }
 
@@ -672,7 +770,47 @@ function getOptionsColumns(characteristicsList) {
             sortable: true,
             className: 'cell-main-name',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        }
+        },
+        {
+            id: 'category_ids',
+            label: 'Категорія',
+            sortable: true,
+            filterable: true,
+            className: 'cell-category-count',
+            render: (value, row) => {
+                // Отримуємо категорії з характеристики
+                let categoryIds = row.category_ids || '';
+
+                // Для власних опцій - отримуємо категорії з характеристики
+                if (row._source === 'own' && row.characteristic_id) {
+                    const chars = getCharacteristics();
+                    const char = chars.find(c => c.id === row.characteristic_id);
+                    if (char) {
+                        // Перевірка is_global
+                        if (char.is_global === 'TRUE' || char.is_global === true) {
+                            return `<span class="chip chip-active" data-tooltip="Глобальна характеристика">∞</span>`;
+                        }
+                        categoryIds = char.category_ids || '';
+                    }
+                }
+
+                if (!categoryIds) return '<span class="chip">-</span>';
+
+                const categoryIdsList = categoryIds.split(',').map(id => id.trim()).filter(id => id);
+                const count = categoryIdsList.length;
+
+                if (count === 0) return '<span class="chip">-</span>';
+
+                // Формуємо tooltip з назвами категорій
+                const labelMap = getCategoryLabelMap();
+                const names = categoryIdsList.slice(0, 5).map(id => labelMap[id] || id);
+                let tooltip = names.join(', ');
+                if (count > 5) tooltip += ` та ще ${count - 5}...`;
+
+                return `<span class="chip" data-tooltip="${escapeHtml(tooltip)}">${count}</span>`;
+            }
+        },
+        createBindingsColumn('option')
     ];
 }
 
