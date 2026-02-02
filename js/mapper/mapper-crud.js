@@ -2,10 +2,26 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    MAPPER - CRUD OPERATIONS                              ║
+ * ║                    MAPPER - CRUD OPERATIONS (DEPRECATED)                 ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  ⚠️ DEPRECATED: Цей файл містить дублікати функцій з плагінів!           ║
+ * ║                                                                          ║
+ * ║  ДУБЛІКАТИ (використовуйте плагіни замість):                             ║
+ * ║  - showAddCategoryModal → mapper-categories.js                           ║
+ * ║  - showEditCategoryModal → mapper-categories.js                          ║
+ * ║  - showAddCharacteristicModal → mapper-characteristics.js                ║
+ * ║  - showEditCharacteristicModal → mapper-characteristics.js               ║
+ * ║  - showAddOptionModal → mapper-options.js                                ║
+ * ║  - showEditOptionModal → mapper-options.js                               ║
+ * ║  - showAddMarketplaceModal → mapper-marketplaces.js                      ║
+ * ║  - showEditMarketplaceModal → mapper-marketplaces.js                     ║
+ * ║  - showMarketplaceDataModal → mapper-marketplaces.js                     ║
+ * ║                                                                          ║
+ * ║  УНІКАЛЬНІ ФУНКЦІЇ (потребують перенесення в mapper-import.js):          ║
+ * ║  - showImportModal та всі пов'язані функції імпорту                      ║
+ * ║                                                                          ║
+ * ║  TODO: Створити mapper-import.js плагін і видалити цей файл              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Модальні вікна для додавання, редагування та видалення в Mapper.
  */
 
 import {
@@ -19,7 +35,7 @@ import {
     getMappedMpCharacteristics, getMappedMpOptions,
     deleteCharacteristicMapping, deleteOptionMapping
 } from './mapper-data.js';
-import { mapperState } from './mapper-init.js';
+import { mapperState } from './mapper-state.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
