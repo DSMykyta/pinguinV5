@@ -2918,10 +2918,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
 
     onProgress(10, 'Обробка даних файлу...');
 
-    // DEBUG: Виводимо стан імпорту
-    if (importState.parsedData.length > 0) {
-    }
-
     // Отримуємо індекси колонок з маппінгу
     const m = importState.mapping;
     const charIdCol = m.char_id;
@@ -3019,11 +3015,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const newCharacteristics = characteristicsList.filter(c => !existingCharIds.has(c.mp_char_id));
     const newOptions = mpOptions.filter(o => !existingOptIds.has(`${o.mp_char_id}-${o.mp_option_id}`));
 
-
-    // DEBUG: показуємо існуючі ID для перевірки
-    if (characteristicsList.length > 0) {
-    }
-
     onProgress(50, `Запис ${newCharacteristics.length} нових характеристик...`);
 
     // Записуємо характеристики маркетплейса
@@ -3064,8 +3055,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             values: charRows,
             spreadsheetType: 'main'
         });
-
-    } else {
     }
 
     onProgress(75, `Запис ${newOptions.length} нових опцій...`);
@@ -3101,7 +3090,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             values: optRows,
             spreadsheetType: 'main'
         });
-    } else {
     }
 
     onProgress(100, 'Готово!');
@@ -3249,7 +3237,6 @@ async function importCategories(onProgress = () => { }) {
             values: catRows,
             spreadsheetType: 'main'
         });
-    } else {
     }
 
     onProgress(100, 'Готово!');
@@ -3898,8 +3885,6 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
         if (!mpChar) {
             // Спробуємо пошук за external_id
             mpChar = mpChars.find(c => c.external_id === mpCharIdOrData);
-            if (mpChar) {
-            }
         }
     }
 
@@ -4029,8 +4014,6 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
         if (!mpOption) {
             // Спробуємо пошук за external_id
             mpOption = mpOpts.find(o => o.external_id === mpOptionIdOrData);
-            if (mpOption) {
-            }
         }
     }
 
@@ -4267,15 +4250,11 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
         if (!mpCat) {
             // Спробуємо пошук за external_id
             mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
-            if (mpCat) {
-            }
         }
 
         if (!mpCat) {
             // Спробуємо пошук за частковим співпаданням ID (для випадків mpc-mp-000001-cat-274390 -> mpc-mp-000001)
             mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
-            if (mpCat) {
-            }
         }
     }
 
