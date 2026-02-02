@@ -362,11 +362,13 @@ function getCharacteristicsData() {
             const rawData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
             const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
 
-            // Перевірка is_global з різних джерел
+            // Перевірка is_global з різних джерел - нормалізуємо до 'TRUE'/'FALSE'
             const isGlobalValue = mpChar.is_global || rawData.is_global;
-            const isGlobal = isGlobalValue === true ||
-                             String(isGlobalValue).toLowerCase() === 'true' ||
-                             String(isGlobalValue).toLowerCase() === 'yes';
+            const isGlobalBool = isGlobalValue === true ||
+                                 isGlobalValue === 'TRUE' ||
+                                 String(isGlobalValue).toLowerCase() === 'true' ||
+                                 String(isGlobalValue).toLowerCase() === 'так';
+            const isGlobal = isGlobalBool ? 'TRUE' : 'FALSE';
 
             return {
                 id: mpChar.id,
@@ -429,8 +431,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-category-count',
             render: (value, row) => {
-                const isGlobal = row.is_global === true || row.is_global === 'TRUE' || String(row.is_global).toLowerCase() === 'true';
-                if (isGlobal) {
+                if (row.is_global === 'TRUE') {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
                 }
 
@@ -471,8 +472,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-bool',
             render: (value) => {
-                const isGlobal = value === true || value === 'TRUE' || String(value).toLowerCase() === 'true';
-                return isGlobal
+                return value === 'TRUE'
                     ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                     : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
             }
@@ -1403,7 +1403,7 @@ function getFilterColumnsConfig(tabName) {
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
             { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: getCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
-            { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'true': 'Так', 'false': 'Ні' } }
+            { id: 'is_global', label: 'Глобальна', filterType: 'values' }
         ],
         options: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
@@ -1458,7 +1458,7 @@ const filterColumnsConfig = {
     characteristics: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
         { id: 'type', label: 'Тип', filterType: 'values' },
-        { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'true': 'Так', 'false': 'Ні' } }
+        { id: 'is_global', label: 'Глобальна', filterType: 'values' }
     ],
     options: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
