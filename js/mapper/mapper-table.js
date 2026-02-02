@@ -499,10 +499,6 @@ function initCharacteristicsTableAPI(container, categoriesList) {
             `;
         },
         getRowId: (row) => row.id,
-        emptyState: {
-            icon: 'tune',
-            message: 'Характеристики відсутні'
-        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-characteristics');
@@ -691,10 +687,6 @@ function initOptionsTableAPI(container, characteristicsList) {
             `;
         },
         getRowId: (row) => row.id,
-        emptyState: {
-            icon: 'check_box',
-            message: 'Опції відсутні'
-        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-options');
@@ -836,10 +828,6 @@ function initMarketplacesTableAPI(container) {
             `;
         },
         getRowId: (row) => row.id,
-        emptyState: {
-            icon: 'storefront',
-            message: 'Маркетплейси відсутні'
-        },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-marketplaces');
