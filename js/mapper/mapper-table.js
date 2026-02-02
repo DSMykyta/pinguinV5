@@ -407,6 +407,7 @@ export function renderCharacteristicsTable() {
             {
                 id: 'category_ids',
                 label: 'Категорія',
+                sortable: true,
                 filterable: true,
                 className: 'cell-category-count',
                 render: (value, row) => {
@@ -1376,6 +1377,9 @@ const filterColumnsConfig = {
     ]
 };
 
+// Флаг для запобігання циклу при відновленні фільтрів
+let isRestoringFilters = false;
+
 /**
  * Ініціалізувати hover фільтри для колонок таблиці
  * @param {HTMLElement} container - Контейнер таблиці
@@ -1383,6 +1387,11 @@ const filterColumnsConfig = {
  * @param {Array} data - Повний масив даних (не пагінований!)
  */
 export function initMapperColumnFilters(container, tabName, data) {
+    // Зберігаємо поточні фільтри перед знищенням API
+    const savedFilters = mapperState.columnFilters[tabName]
+        ? { ...mapperState.columnFilters[tabName] }
+        : null;
+
     // Знищити попередній API якщо є
     if (mapperState.columnFiltersAPI[tabName]) {
         mapperState.columnFiltersAPI[tabName].destroy();
@@ -1433,6 +1442,9 @@ export function initMapperColumnFilters(container, tabName, data) {
             renderCurrentTab();
         },
         onFilter: async (activeFilters) => {
+            // Пропускаємо якщо це відновлення стану
+            if (isRestoringFilters) return;
+
             // Зберігаємо фільтри в state
             mapperState.columnFilters[tabName] = activeFilters;
 
@@ -1443,6 +1455,13 @@ export function initMapperColumnFilters(container, tabName, data) {
             renderCurrentTab();
         }
     });
+
+    // Відновлюємо попередній стан фільтрів
+    if (savedFilters && Object.keys(savedFilters).length > 0) {
+        isRestoringFilters = true;
+        sortAPI.setFilters(savedFilters);
+        isRestoringFilters = false;
+    }
 
     mapperState.columnFiltersAPI[tabName] = sortAPI;
 }

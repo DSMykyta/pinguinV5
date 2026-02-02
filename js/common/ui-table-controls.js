@@ -446,8 +446,7 @@ function handleOutsideClick(e) {
  * Налаштувати hover dropdown для filterable колонок
  */
 function setupHoverDropdowns(container, handlers) {
-    // Шукаємо всі елементи з класом .filterable (можуть бути без .sortable-header)
-    const filterableHeaders = container.querySelectorAll('.pseudo-table-header .filterable');
+    const filterableHeaders = container.querySelectorAll('.sortable-header.filterable');
 
     filterableHeaders.forEach(header => {
         const columnId = header.dataset.sortKey || header.dataset.column;
