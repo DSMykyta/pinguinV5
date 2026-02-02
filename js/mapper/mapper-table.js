@@ -46,6 +46,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../common/ui-actions.js';
+import { initTableSorting, filterData } from '../common/ui-table-controls.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -205,6 +206,7 @@ export function renderCategoriesTable() {
                 id: '_sourceLabel',
                 label: 'Джерело',
                 sortable: true,
+                filterable: true,
                 className: 'cell-source',
                 render: (value, row) => {
                     if (row._source === 'own') {
@@ -295,6 +297,9 @@ export function renderCategoriesTable() {
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'categories', paginatedData);
 
+    // Ініціалізувати hover фільтри для колонок
+    initMapperColumnFilters(container, 'categories', categories);
+
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
 
@@ -384,6 +389,7 @@ export function renderCharacteristicsTable() {
                 id: '_sourceLabel',
                 label: 'Джерело',
                 sortable: true,
+                filterable: true,
                 className: 'cell-source',
                 render: (value, row) => {
                     if (row._source === 'own') {
@@ -432,12 +438,14 @@ export function renderCharacteristicsTable() {
                 id: 'type',
                 label: 'Тип',
                 sortable: true,
+                filterable: true,
                 render: (value) => `<code>${escapeHtml(value || '-')}</code>`
             },
             {
                 id: 'is_global',
                 label: 'Глобальна',
                 sortable: true,
+                filterable: true,
                 className: 'cell-bool',
                 render: (value) => {
                     const isGlobal = value === true || String(value).toLowerCase() === 'true' || value === 'Так';
@@ -476,6 +484,9 @@ export function renderCharacteristicsTable() {
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'characteristics', paginatedData);
+
+    // Ініціалізувати hover фільтри для колонок
+    initMapperColumnFilters(container, 'characteristics', allCharacteristics);
 
     // Оновити статистику
     updateStats('characteristics', filteredData.length, allCharacteristics.length);
@@ -584,6 +595,7 @@ export function renderOptionsTable() {
                 id: '_sourceLabel',
                 label: 'Джерело',
                 sortable: true,
+                filterable: true,
                 className: 'cell-source',
                 render: (value, row) => {
                     if (row._source === 'own') {
@@ -635,6 +647,9 @@ export function renderOptionsTable() {
 
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'options', paginatedData);
+
+    // Ініціалізувати hover фільтри для колонок
+    initMapperColumnFilters(container, 'options', allOptions);
 
     // Оновити статистику
     updateStats('options', filteredData.length, allOptions.length);
@@ -690,6 +705,7 @@ export function renderMarketplacesTable() {
                 id: '_sourceLabel',
                 label: 'Джерело',
                 sortable: true,
+                filterable: true,
                 className: 'cell-source',
                 render: (value, row) => {
                     if (row._source === 'own') {
@@ -715,6 +731,7 @@ export function renderMarketplacesTable() {
                 id: 'is_active',
                 label: 'Активний',
                 sortable: true,
+                filterable: true,
                 className: 'cell-bool',
                 render: (value) => {
                     const isActive = value === true || String(value).toLowerCase() === 'true';
@@ -748,6 +765,9 @@ export function renderMarketplacesTable() {
     // Ініціалізувати чекбокси
     initTableCheckboxes(container, 'marketplaces', paginatedData);
 
+    // Ініціалізувати hover фільтри для колонок
+    initMapperColumnFilters(container, 'marketplaces', marketplaces);
+
     // Оновити статистику
     updateStats('marketplaces', filteredData.length, marketplaces.length);
 
@@ -775,7 +795,7 @@ function applyFilters(data, tabName) {
     // Отримати налаштування фільтрів
     const filter = mapperState.filters[tabName];
 
-    // Фільтр по джерелу (source) - для всіх табів
+    // Фільтр по джерелу (source) - для всіх табів (кнопки)
     if (filter && typeof filter === 'object' && filter.source && filter.source !== 'all') {
         if (filter.source === 'own') {
             filtered = filtered.filter(item => item._source === 'own');
@@ -784,6 +804,13 @@ function applyFilters(data, tabName) {
             const marketplaceId = filter.source.replace('mp-', '');
             filtered = filtered.filter(item => item._source === marketplaceId || item.marketplace_id === marketplaceId);
         }
+    }
+
+    // Колонкові фільтри (hover dropdown)
+    const columnFilters = mapperState.columnFilters[tabName];
+    if (columnFilters && Object.keys(columnFilters).length > 0) {
+        const filterColumns = filterColumnsConfig[tabName] || [];
+        filtered = filterData(filtered, columnFilters, filterColumns);
     }
 
     return filtered;
@@ -1225,4 +1252,79 @@ function initTableCheckboxes(container, tabName, data) {
     // Встановити початковий стан
     updateSelectAllState();
     updateBatchBar();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ІНІЦІАЛІЗАЦІЯ HOVER ФІЛЬТРІВ ДЛЯ КОЛОНОК
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Конфігурація колонок з фільтрами для кожного табу
+ */
+const filterColumnsConfig = {
+    categories: [
+        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+    ],
+    characteristics: [
+        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+        { id: 'type', label: 'Тип', filterType: 'values' },
+        { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'true': 'Так', 'false': 'Ні' } }
+    ],
+    options: [
+        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+    ],
+    marketplaces: [
+        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+        { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'true': 'Активний', 'false': 'Неактивний' } }
+    ]
+};
+
+/**
+ * Ініціалізувати hover фільтри для колонок таблиці
+ * @param {HTMLElement} container - Контейнер таблиці
+ * @param {string} tabName - Назва табу
+ * @param {Array} data - Повний масив даних (не пагінований!)
+ */
+export function initMapperColumnFilters(container, tabName, data) {
+    // Знищити попередній API якщо є
+    if (mapperState.columnFiltersAPI[tabName]) {
+        mapperState.columnFiltersAPI[tabName].destroy();
+        mapperState.columnFiltersAPI[tabName] = null;
+    }
+
+    const filterColumns = filterColumnsConfig[tabName];
+    if (!filterColumns || filterColumns.length === 0) return;
+
+    // Перевіряємо чи є заголовок таблиці
+    const hasHeader = container.querySelector('.pseudo-table-header');
+    if (!hasHeader) return;
+
+    const sortAPI = initTableSorting(container, {
+        dataSource: () => data,
+        columnTypes: {
+            id: 'string',
+            _sourceLabel: 'string',
+            _nestingLevel: 'number',
+            type: 'string',
+            is_global: 'boolean',
+            is_active: 'boolean'
+        },
+        filterColumns: filterColumns,
+        onSort: async (sortedData) => {
+            // Mapper не використовує сортування через цей API
+            // Сортування вже реалізовано через renderPseudoTable
+        },
+        onFilter: async (activeFilters) => {
+            // Зберігаємо фільтри в state
+            mapperState.columnFilters[tabName] = activeFilters;
+
+            // Скидаємо пагінацію
+            mapperState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            renderCurrentTab();
+        }
+    });
+
+    mapperState.columnFiltersAPI[tabName] = sortAPI;
 }

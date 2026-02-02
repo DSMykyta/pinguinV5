@@ -64,6 +64,22 @@ export const mapperState = {
         marketplaces: { source: 'all' }
     },
 
+    // Колонкові фільтри (hover dropdown)
+    columnFilters: {
+        categories: {},
+        characteristics: {},
+        options: {},
+        marketplaces: {}
+    },
+
+    // API для колонкових фільтрів (для кожного табу)
+    columnFiltersAPI: {
+        categories: null,
+        characteristics: null,
+        options: null,
+        marketplaces: null
+    },
+
     // Видимі колонки
     visibleColumns: {
         categories: ['id', '_nestingLevel', 'name_ua', 'parent_id'],
