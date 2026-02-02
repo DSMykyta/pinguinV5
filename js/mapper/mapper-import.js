@@ -2338,6 +2338,79 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
     const marketplace = marketplaces.find(m => m.id === mpOption.marketplace_id);
     const mpName = marketplace ? marketplace.name : mpOption.marketplace_id;
 
+    // Знаходимо назву прив'язаної опції
+    let mappedToName = '';
+    if (optData.our_option_id) {
+        const ownOpts = getOptions();
+        const ownOpt = ownOpts.find(o => o.id === optData.our_option_id);
+        mappedToName = ownOpt ? (ownOpt.value_ua || ownOpt.id) : optData.our_option_id;
+    }
+
+    const modalHtml = `
+        <div class="modal-overlay">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">Опція маркетплейсу</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="form-fieldset" disabled>
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="grid2">
+                            <div class="form-group">
+                                <label>ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>External ID</label>
+                                <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Значення</label>
+                            <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-fieldset u-mt-16">
+                        <div class="form-group">
+                            <label>Замаплено до</label>
+                            ${mappedToName
+                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                : `<div class="chip">Не замаплено</div>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Показуємо модалку
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = modalHtml;
+    const modalOverlay = tempContainer.firstElementChild;
+    document.body.appendChild(modalOverlay);
+
+    // Обробники
+    const closeBtn = modalOverlay.querySelector('.modal-close-btn');
+    const closeThisModal = () => modalOverlay.remove();
+
+    closeBtn.addEventListener('click', closeThisModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeThisModal();
+    });
+}
+
 // Реєстрація плагіна
 export function init() {
     console.log('[Mapper Import] Plugin initialized');
