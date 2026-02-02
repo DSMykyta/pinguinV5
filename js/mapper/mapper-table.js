@@ -46,7 +46,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../common/ui-actions.js';
-import { initTableSorting, filterData } from '../common/ui-table-controls.js';
+import { initTableSorting, filterData, updateSortIndicators } from '../common/ui-table-controls.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -300,6 +300,12 @@ export function renderCategoriesTable() {
     // Ініціалізувати hover фільтри для колонок
     initMapperColumnFilters(container, 'categories', categories);
 
+    // Відновити індикатори сортування
+    const sortState = mapperState.sortState?.categories;
+    if (sortState?.column && sortState?.direction) {
+        updateSortIndicators(container, sortState.column, sortState.direction);
+    }
+
     // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
 
@@ -488,6 +494,12 @@ export function renderCharacteristicsTable() {
     // Ініціалізувати hover фільтри для колонок
     initMapperColumnFilters(container, 'characteristics', allCharacteristics);
 
+    // Відновити індикатори сортування
+    const sortState = mapperState.sortState?.characteristics;
+    if (sortState?.column && sortState?.direction) {
+        updateSortIndicators(container, sortState.column, sortState.direction);
+    }
+
     // Оновити статистику
     updateStats('characteristics', filteredData.length, allCharacteristics.length);
 
@@ -651,6 +663,12 @@ export function renderOptionsTable() {
     // Ініціалізувати hover фільтри для колонок
     initMapperColumnFilters(container, 'options', allOptions);
 
+    // Відновити індикатори сортування
+    const sortState = mapperState.sortState?.options;
+    if (sortState?.column && sortState?.direction) {
+        updateSortIndicators(container, sortState.column, sortState.direction);
+    }
+
     // Оновити статистику
     updateStats('options', filteredData.length, allOptions.length);
 
@@ -768,9 +786,40 @@ export function renderMarketplacesTable() {
     // Ініціалізувати hover фільтри для колонок
     initMapperColumnFilters(container, 'marketplaces', marketplaces);
 
+    // Відновити індикатори сортування
+    const sortState = mapperState.sortState?.marketplaces;
+    if (sortState?.column && sortState?.direction) {
+        updateSortIndicators(container, sortState.column, sortState.direction);
+    }
+
     // Оновити статистику
     updateStats('marketplaces', filteredData.length, marketplaces.length);
 
+}
+
+/**
+ * Локальна функція сортування масиву
+ */
+function sortArrayLocal(array, column, direction) {
+    if (!column || !direction) return array;
+
+    return [...array].sort((a, b) => {
+        let aVal = a[column];
+        let bVal = b[column];
+
+        // Перетворюємо в рядки для порівняння
+        aVal = (aVal || '').toString();
+        bVal = (bVal || '').toString();
+
+        // Обробка пустих значень - завжди в кінець
+        if (!aVal && !bVal) return 0;
+        if (!aVal) return 1;
+        if (!bVal) return -1;
+
+        // Порівняння з українською локаллю
+        const comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
+        return direction === 'asc' ? comparison : -comparison;
+    });
 }
 
 /**
@@ -811,6 +860,12 @@ function applyFilters(data, tabName) {
     if (columnFilters && Object.keys(columnFilters).length > 0) {
         const filterColumns = filterColumnsConfig[tabName] || [];
         filtered = filterData(filtered, columnFilters, filterColumns);
+    }
+
+    // Застосувати сортування
+    const sortState = mapperState.sortState?.[tabName];
+    if (sortState?.column && sortState?.direction) {
+        filtered = sortArrayLocal(filtered, sortState.column, sortState.direction);
     }
 
     return filtered;
@@ -1293,26 +1348,45 @@ export function initMapperColumnFilters(container, tabName, data) {
     }
 
     const filterColumns = filterColumnsConfig[tabName];
-    if (!filterColumns || filterColumns.length === 0) return;
 
     // Перевіряємо чи є заголовок таблиці
     const hasHeader = container.querySelector('.pseudo-table-header');
     if (!hasHeader) return;
 
+    // Зберігаємо дані для сортування
+    let currentData = data;
+
     const sortAPI = initTableSorting(container, {
-        dataSource: () => data,
+        dataSource: () => currentData,
         columnTypes: {
             id: 'string',
             _sourceLabel: 'string',
-            _nestingLevel: 'number',
+            name_ua: 'string',
+            name_ru: 'string',
             type: 'string',
             is_global: 'boolean',
-            is_active: 'boolean'
+            is_active: 'boolean',
+            value_ua: 'string',
+            name: 'string',
+            slug: 'string',
+            parent_id: 'string',
+            characteristic_id: 'string'
         },
-        filterColumns: filterColumns,
+        filterColumns: filterColumns || [],
         onSort: async (sortedData) => {
-            // Mapper не використовує сортування через цей API
-            // Сортування вже реалізовано через renderPseudoTable
+            // Зберігаємо стан сортування
+            const sortState = sortAPI.getState();
+            mapperState.sortState = mapperState.sortState || {};
+            mapperState.sortState[tabName] = {
+                column: sortState.column,
+                direction: sortState.direction
+            };
+
+            // Скидаємо пагінацію
+            mapperState.pagination.currentPage = 1;
+
+            // Перерендерюємо таблицю
+            renderCurrentTab();
         },
         onFilter: async (activeFilters) => {
             // Зберігаємо фільтри в state

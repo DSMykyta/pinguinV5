@@ -88,9 +88,17 @@ export const mapperState = {
         marketplaces: ['id', 'name', 'slug', 'is_active']
     },
 
-    // Сортування
+    // Сортування (legacy)
     sortKey: null,
     sortOrder: 'asc',
+
+    // Сортування для кожного табу
+    sortState: {
+        categories: { column: null, direction: null },
+        characteristics: { column: null, direction: null },
+        options: { column: null, direction: null },
+        marketplaces: { column: null, direction: null }
+    },
 
     // Пагінація
     pagination: {
