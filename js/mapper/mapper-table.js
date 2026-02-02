@@ -407,6 +407,7 @@ export function renderCharacteristicsTable() {
             {
                 id: 'category_ids',
                 label: 'Кат.',
+                filterable: true,
                 className: 'cell-category-count',
                 render: (value, row) => {
                     // Якщо глобальна - показати main чіп без цифри
@@ -858,7 +859,7 @@ function applyFilters(data, tabName) {
     // Колонкові фільтри (hover dropdown)
     const columnFilters = mapperState.columnFilters[tabName];
     if (columnFilters && Object.keys(columnFilters).length > 0) {
-        const filterColumns = filterColumnsConfig[tabName] || [];
+        const filterColumns = getFilterColumnsConfig(tabName);
         filtered = filterData(filtered, columnFilters, filterColumns);
     }
 
@@ -1316,6 +1317,47 @@ function initTableCheckboxes(container, tabName, data) {
 /**
  * Конфігурація колонок з фільтрами для кожного табу
  */
+/**
+ * Отримати конфігурацію колонок з фільтрами для табу
+ * @param {string} tabName - Назва табу
+ * @returns {Array} Конфігурація фільтрів
+ */
+function getFilterColumnsConfig(tabName) {
+    const baseConfig = {
+        categories: [
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+        ],
+        characteristics: [
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+            { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: getCategoryLabelMap() },
+            { id: 'type', label: 'Тип', filterType: 'values' },
+            { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'true': 'Так', 'false': 'Ні' } }
+        ],
+        options: [
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+        ],
+        marketplaces: [
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+            { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'true': 'Активний', 'false': 'Неактивний' } }
+        ]
+    };
+
+    return baseConfig[tabName] || [];
+}
+
+/**
+ * Створити labelMap для категорій (ID -> Назва)
+ */
+function getCategoryLabelMap() {
+    const categories = getCategories();
+    const labelMap = {};
+    categories.forEach(cat => {
+        labelMap[cat.id] = cat.name_ua || cat.id;
+    });
+    return labelMap;
+}
+
+// Для зворотної сумісності
 const filterColumnsConfig = {
     categories: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
@@ -1347,7 +1389,8 @@ export function initMapperColumnFilters(container, tabName, data) {
         mapperState.columnFiltersAPI[tabName] = null;
     }
 
-    const filterColumns = filterColumnsConfig[tabName];
+    // Використовуємо динамічну конфігурацію (з актуальним labelMap)
+    const filterColumns = getFilterColumnsConfig(tabName);
 
     // Перевіряємо чи є заголовок таблиці
     const hasHeader = container.querySelector('.pseudo-table-header');
@@ -1370,7 +1413,8 @@ export function initMapperColumnFilters(container, tabName, data) {
             name: 'string',
             slug: 'string',
             parent_id: 'string',
-            characteristic_id: 'string'
+            characteristic_id: 'string',
+            category_ids: 'string'
         },
         filterColumns: filterColumns || [],
         onSort: async (sortedData) => {
