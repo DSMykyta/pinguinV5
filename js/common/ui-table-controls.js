@@ -356,24 +356,21 @@ function createHoverDropdown(header, columnConfig, handlers) {
         </div>
     `;
 
-    // Обробник "Всі" - ТІЛЬКИ для вибору всіх (зняти всі заборонено)
+    // Обробник "Всі"
     const selectAllCheckbox = dropdown.querySelector('[data-filter-all]');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', (e) => {
             e.stopPropagation();
-
-            // Заборонити знімати всі - тільки вибрати всі дозволено
-            if (!e.target.checked) {
-                e.target.checked = true;
-                return;
-            }
-
             const checkboxes = dropdown.querySelectorAll('[data-filter-value]');
             const filter = activeFilters.get(columnId);
 
             checkboxes.forEach(cb => {
-                cb.checked = true;
-                filter.add(cb.dataset.filterValue);
+                cb.checked = e.target.checked;
+                if (e.target.checked) {
+                    filter.add(cb.dataset.filterValue);
+                } else {
+                    filter.delete(cb.dataset.filterValue);
+                }
             });
 
             triggerFilterChange(activeFilters, handlers.filterColumns, onFilter, dataSource);
@@ -386,12 +383,6 @@ function createHoverDropdown(header, columnConfig, handlers) {
             e.stopPropagation();
             const filter = activeFilters.get(columnId);
             const value = e.target.dataset.filterValue;
-
-            // Заборонити знімати останню галочку - мінімум 1 має бути вибрано
-            if (!e.target.checked && filter.size <= 1) {
-                e.target.checked = true;
-                return;
-            }
 
             if (e.target.checked) {
                 filter.add(value);
