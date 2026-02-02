@@ -499,10 +499,8 @@ function triggerFilterChange(activeFilters, filterColumns, onFilter, dataSource)
 
         const uniqueValues = getUniqueValues(dataSource(), columnId, column.filterType);
 
-        // Включаємо тільки якщо є вибрані значення І НЕ всі значення вибрані
-        // Якщо values.size === 0 (нічого не вибрано) - не фільтруємо (показуємо все)
-        // Якщо values.size === uniqueValues.length (все вибрано) - не фільтруємо (показуємо все)
-        if (values.size > 0 && values.size < uniqueValues.length) {
+        // Включаємо тільки якщо НЕ всі значення вибрані
+        if (values.size < uniqueValues.length) {
             filtersObj[columnId] = Array.from(values);
         }
     });
