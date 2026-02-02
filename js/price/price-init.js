@@ -13,6 +13,7 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { loadAside, initAsideEvents } from './price-aside.js';
 import { initPriceImport } from './price-import.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
+import { showLoader } from '../common/ui-loading.js';
 
 /**
  * Глобальний state для price модуля
@@ -104,15 +105,33 @@ export function initPrice() {
  */
 async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
-        // Завантажити дані прайсу та користувачів паралельно
-        const { loadPriceData, loadUsersData } = await import('./price-data.js');
-        await Promise.all([
-            loadPriceData(),
-            loadUsersData()
-        ]);
+        const container = document.getElementById('price-table-container');
+        const loader = showLoader(container, {
+            type: 'progress',
+            message: 'Підготовка...',
+            overlay: true
+        });
 
-        // Оновити UI з даними
-        await updateUIWithData();
+        try {
+            // Завантажити дані прайсу та користувачів паралельно
+            loader.updateProgress(10, 'Завантаження даних прайсу...');
+            const { loadPriceData, loadUsersData } = await import('./price-data.js');
+            await Promise.all([
+                loadPriceData(),
+                loadUsersData()
+            ]);
+
+            // Оновити UI з даними
+            loader.updateProgress(70, 'Налаштування інтерфейсу...');
+            await updateUIWithData();
+
+            loader.updateProgress(100, 'Готово!');
+            setTimeout(() => loader.hide(), 300);
+
+        } catch (error) {
+            console.error('❌ Помилка завантаження даних:', error);
+            loader.hide();
+        }
     }
 }
 

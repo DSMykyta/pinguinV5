@@ -12,6 +12,7 @@ import { priceState } from './price-init.js';
 import { importDataToSheet } from './price-data.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { showToast } from '../common/ui-toast.js';
+import { showLoader } from '../common/ui-loading.js';
 
 let importInitialized = false;
 
@@ -152,31 +153,53 @@ async function handleFile(file) {
             return;
         }
 
-        // Імпортуємо дані напряму в Google Sheets
-        const result = await importDataToSheet(data);
+        // Показуємо прогрес
+        const container = document.getElementById('price-table-container');
+        const loader = showLoader(container, {
+            type: 'progress',
+            message: 'Підготовка до імпорту...',
+            overlay: true
+        });
 
-        // Оновлюємо таби резервів
-        const { populateReserveTabs } = await import('./price-ui.js');
-        populateReserveTabs();
+        try {
+            // Імпортуємо дані напряму в Google Sheets
+            loader.updateProgress(10, `Імпорт ${data.length} рядків...`);
+            const result = await importDataToSheet(data);
 
-        // Повний перерендер бо нові дані з файлу
-        const { renderPriceTable } = await import('./price-table.js');
-        await renderPriceTable();
+            // Оновлюємо таби резервів
+            loader.updateProgress(60, 'Оновлення резервів...');
+            const { populateReserveTabs } = await import('./price-ui.js');
+            populateReserveTabs();
 
-        // Реініціалізуємо фільтри з новими даними
-        const { initPriceColumnFilters } = await import('./price-events.js');
-        const { priceState } = await import('./price-init.js');
-        if (priceState.columnFiltersAPI) {
-            priceState.columnFiltersAPI.destroy();
+            // Повний перерендер бо нові дані з файлу
+            loader.updateProgress(75, 'Рендеринг таблиці...');
+            const { renderPriceTable } = await import('./price-table.js');
+            await renderPriceTable();
+
+            // Реініціалізуємо фільтри з новими даними
+            loader.updateProgress(90, 'Налаштування фільтрів...');
+            const { initPriceColumnFilters } = await import('./price-events.js');
+            const { priceState } = await import('./price-init.js');
+            if (priceState.columnFiltersAPI) {
+                priceState.columnFiltersAPI.destroy();
+            }
+            initPriceColumnFilters();
+
+            loader.updateProgress(100, 'Готово!');
+            setTimeout(() => {
+                loader.hide();
+                // Показуємо результат
+                let message = `Оновлено: ${result.updated}, Додано: ${result.added}`;
+                if (result.unavailable > 0) {
+                    message += `, Ненаявно: ${result.unavailable}`;
+                }
+                showToast(message, 'success', 5000);
+            }, 300);
+
+        } catch (importError) {
+            loader.hide();
+            throw importError;
         }
-        initPriceColumnFilters();
-
-        // Показуємо результат
-        let message = `Оновлено: ${result.updated}, Додано: ${result.added}`;
-        if (result.unavailable > 0) {
-            message += `, Ненаявно: ${result.unavailable}`;
-        }
-        showToast(message, 'success', 5000);
 
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);

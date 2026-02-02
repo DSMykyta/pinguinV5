@@ -30,6 +30,7 @@ import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../utils/avatar-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
+import { showLoader } from '../common/ui-loading.js';
 
 // Re-export mapperState для зворотної сумісності
 export { mapperState } from './mapper-state.js';
@@ -102,12 +103,20 @@ async function checkAuthAndLoadData() {
 
     // Перевіряємо глобальний стан авторизації
     if (window.isAuthorized) {
+        const container = document.querySelector('.mapper-table-container') || document.querySelector('.tab-content');
+        const loader = showLoader(container, {
+            type: 'progress',
+            message: 'Підготовка...',
+            overlay: true
+        });
 
         try {
             // Завантажити основні дані
+            loader.updateProgress(10, 'Завантаження основних даних...');
             await loadMapperData();
 
             // Завантажити MP дані та маппінги паралельно
+            loader.updateProgress(30, 'Завантаження даних маркетплейсів...');
             const { loadMpCategories, loadMpCharacteristics, loadMpOptions, loadMapCategories, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
             await Promise.all([
                 loadMpCategories(),
@@ -119,20 +128,27 @@ async function checkAuthAndLoadData() {
             ]);
 
             // Ініціалізувати dropdowns після заповнення
+            loader.updateProgress(70, 'Налаштування інтерфейсу...');
             const { initDropdowns } = await import('../common/ui-dropdown.js');
             initDropdowns();
 
             // Відрендерити поточний таб
+            loader.updateProgress(85, 'Рендеринг таблиці...');
             renderCurrentTab();
 
             // Ініціалізувати обробники подій
+            loader.updateProgress(95, 'Ініціалізація подій...');
             initMapperEvents();
 
             // Ініціалізувати сортування таблиць
             initMapperSorting();
 
+            loader.updateProgress(100, 'Готово!');
+            setTimeout(() => loader.hide(), 300);
+
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
+            loader.hide();
             renderErrorState();
         }
     } else {
