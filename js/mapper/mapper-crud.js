@@ -2810,7 +2810,7 @@ async function executeImport() {
 
     if (importBtn) {
         importBtn.disabled = true;
-        importBtn.querySelector('.label').textContent = 'Імпортую...';
+        importBtn.textContent = 'Імпортую...';
     }
 
     // Показуємо прогрес бар
@@ -2880,7 +2880,7 @@ async function executeImport() {
     } finally {
         if (importBtn) {
             importBtn.disabled = false;
-            importBtn.querySelector('.label').textContent = 'Імпортувати';
+            importBtn.textContent = 'Імпортувати';
         }
     }
 }
