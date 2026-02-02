@@ -28,7 +28,7 @@ import { renderCurrentTab } from './mapper-table.js';
 import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-events.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
 
 // Re-export mapperState для зворотної сумісності

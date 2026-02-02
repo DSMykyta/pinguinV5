@@ -11,7 +11,7 @@ import { renderKeywordsTable } from './keywords-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

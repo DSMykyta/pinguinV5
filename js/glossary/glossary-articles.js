@@ -2,7 +2,7 @@
 
 import { getGlossaryDOM } from './glossary-events.js';
 import { getGlossaryData } from './glossary-data.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
     registerActionHandlers,
     initActionHandlers,

@@ -12,7 +12,7 @@ import { initKeywordsEvents, initKeywordsSearch, initKeywordsSorting } from './k
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
-import { renderAvatarState } from '../utils/avatar-states.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 export const keywordsState = {
     keywords: [],
