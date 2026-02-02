@@ -284,10 +284,6 @@ export function renderCategoriesTable() {
                 ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
             `;
         },
-        emptyState: {
-            icon: 'folder',
-            message: 'Категорії не знайдено'
-        },
         withContainer: false
     });
 
@@ -480,10 +476,6 @@ export function renderCharacteristicsTable() {
                 ${actionButton({ action, rowId: row.id, context: 'mapper-characteristics' })}
             `;
         },
-        emptyState: {
-            icon: 'tune',
-            message: 'Характеристики не знайдено'
-        },
         withContainer: false
     });
 
@@ -649,10 +641,6 @@ export function renderOptionsTable() {
                 ${actionButton({ action, rowId: row.id, context: 'mapper-options' })}
             `;
         },
-        emptyState: {
-            icon: 'check_box',
-            message: 'Опції не знайдено'
-        },
         withContainer: false
     });
 
@@ -771,10 +759,6 @@ export function renderMarketplacesTable() {
                 ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-marketplaces' })}
             `;
-        },
-        emptyState: {
-            icon: 'storefront',
-            message: 'Маркетплейси не знайдено'
         },
         withContainer: false
     });
