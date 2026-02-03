@@ -127,10 +127,10 @@ function renderCard(task) {
         context: ACTION_CONTEXT
     });
 
-    // chip-tooltip-content - існуючий клас (чорна картка)
+    // tooltip-content - базовий клас для чорних карток
     // severity-badge - існуючий клас для пріоритету
     return `
-        <div class="chip-tooltip-content" data-task-id="${task.id}" data-status="${task.status}">
+        <div class="tooltip-content" data-task-id="${task.id}" data-status="${task.status}">
             <span class="severity-badge ${priority.class}">
                 <span class="material-symbols-outlined">${priority.icon}</span>
             </span>
@@ -163,7 +163,7 @@ function renderEmptyState(container) {
 }
 
 function initCardClickEvents(container) {
-    container.querySelectorAll('.chip-tooltip-content[data-task-id]').forEach(card => {
+    container.querySelectorAll('.tooltip-content[data-task-id]').forEach(card => {
         card.addEventListener('click', async (e) => {
             if (e.target.closest('[data-action]')) return;
 
