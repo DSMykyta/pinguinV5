@@ -26,6 +26,13 @@ import { runHook, runHookAsync } from './tasks-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { registerPanelInitializer } from '../panel/panel-right.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРА ASIDE (на рівні модуля)
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerPanelInitializer('aside-tasks', initAsideTasksHandlers);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -69,14 +76,11 @@ export async function initTasks() {
     // Завантажити плагіни
     await loadPlugins();
 
-    // Завантажити aside
-    await loadAsideTasks();
-
     // Ініціалізувати пагінацію
     initTasksPagination();
 
-    // Ініціалізувати перемикання табів
-    initTabSwitching();
+    // Ініціалізувати кнопку оновлення
+    initRefreshButton();
 
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
@@ -108,6 +112,9 @@ async function checkAuthAndLoadData() {
         return;
     }
 
+    // Показати/сховати адмін секцію та навігацію
+    updateAdminVisibility(userRole);
+
     // Зберігаємо ID поточного користувача
     tasksState.currentUserId = window.currentUser?.id || window.currentUser?.username;
 
@@ -124,8 +131,19 @@ async function checkAuthAndLoadData() {
             loadUsers()
         ]);
 
-        // Запустити хук onInit для плагінів
+        // Рендеримо секцію Задачі (activeTab = 'my')
+        tasksState.activeTab = 'my';
         await runHookAsync('onInit', tasksState.tasks);
+
+        // Рендеримо секцію Інформація (activeTab = 'info')
+        tasksState.activeTab = 'info';
+        runHook('onRender');
+
+        // Повертаємо на 'my' як основний
+        tasksState.activeTab = 'my';
+
+        // Рендеримо профіль
+        renderProfileSection();
 
     } catch (error) {
         console.error('❌ Помилка завантаження даних:', error);
@@ -158,48 +176,147 @@ function initTasksPagination() {
 }
 
 /**
- * Ініціалізувати перемикання табів
+ * Ініціалізувати кнопку оновлення
  */
-function initTabSwitching() {
-    const tabButtons = document.querySelectorAll('[data-tab-target]');
-    const tabContents = document.querySelectorAll('[data-tab-content]');
+function initRefreshButton() {
+    const refreshBtn = document.getElementById('refresh-tasks');
+    if (!refreshBtn) return;
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetTab = button.dataset.tabTarget;
+    refreshBtn.addEventListener('click', async () => {
+        const icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.add('is-spinning');
+        refreshBtn.disabled = true;
 
-            // Оновити активну кнопку
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+        try {
+            await loadTasks();
 
-            // Оновити видимий контент
-            tabContents.forEach(content => {
-                if (content.dataset.tabContent === targetTab) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
+            // Оновити обидві секції
+            tasksState.activeTab = 'my';
+            runHook('onRender');
 
-            // Оновити стан
-            const tabName = targetTab.replace('tab-', '');
-            tasksState.activeTab = tabName;
+            tasksState.activeTab = 'info';
+            runHook('onRender');
 
-            // Скинути пагінацію
+            tasksState.activeTab = 'my';
+
+        } catch (error) {
+            console.error('❌ Помилка оновлення:', error);
+        } finally {
+            if (icon) icon.classList.remove('is-spinning');
+            refreshBtn.disabled = false;
+        }
+    });
+}
+
+/**
+ * Ініціалізувати обробники в aside-tasks
+ * Викликається panel-right.js після завантаження шаблону
+ */
+function initAsideTasksHandlers() {
+    // Пошук
+    const searchInput = document.getElementById('search-tasks');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            tasksState.searchQuery = e.target.value;
             tasksState.pagination.currentPage = 1;
-
-            // Запустити хуки
-            runHook('onTabChange', tabName);
             runHook('onRender');
         });
+    }
+
+    // Кнопка очистки пошуку
+    const clearSearchBtn = document.getElementById('clear-search-tasks');
+    if (clearSearchBtn && searchInput) {
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            tasksState.searchQuery = '';
+            tasksState.pagination.currentPage = 1;
+            clearSearchBtn.classList.add('u-hidden');
+            runHook('onRender');
+        });
+
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.trim()) {
+                clearSearchBtn.classList.remove('u-hidden');
+            } else {
+                clearSearchBtn.classList.add('u-hidden');
+            }
+        });
+    }
+
+    // Кнопка "Додати задачу"
+    const addTaskBtn = document.getElementById('btn-add-task');
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', async () => {
+            try {
+                const { showAddTaskModal } = await import('./tasks-crud.js');
+                showAddTaskModal();
+            } catch (e) {
+                console.warn('tasks-crud.js не завантажено');
+            }
+        });
+    }
+}
+
+/**
+ * Показати/сховати адмін секцію та навігацію
+ */
+function updateAdminVisibility(userRole) {
+    const adminSection = document.getElementById('section-admin');
+    const adminNav = document.getElementById('nav-admin');
+
+    if (userRole === 'admin') {
+        adminSection?.classList.remove('u-hidden');
+        adminNav?.classList.remove('u-hidden');
+    } else {
+        adminSection?.classList.add('u-hidden');
+        adminNav?.classList.add('u-hidden');
+    }
+}
+
+/**
+ * Рендеринг секції профілю
+ */
+function renderProfileSection() {
+    const container = document.getElementById('profile-container');
+    if (!container) return;
+
+    const user = window.currentUser;
+    if (!user) return;
+
+    // Використовуємо існуючий avatar компонент
+    const avatarHtml = renderAvatarState('user', {
+        user: {
+            avatar: user.avatar,
+            display_name: user.display_name || user.username,
+            role: user.role
+        },
+        size: 'large',
+        containerClass: 'profile-avatar-container',
+        showMessage: false
     });
+
+    const roleLabels = {
+        admin: 'Адміністратор',
+        editor: 'Редактор',
+        viewer: 'Глядач'
+    };
+
+    container.innerHTML = `
+        <div class="profile-section">
+            ${avatarHtml}
+            <div class="profile-info">
+                <h3 class="profile-name">${user.display_name || user.username}</h3>
+                <span class="profile-role">${roleLabels[user.role] || user.role}</span>
+            </div>
+        </div>
+    `;
 }
 
 /**
  * Відрендерити стан "Потрібна авторизація"
  */
 function renderAuthRequiredState() {
-    const container = document.querySelector('#tab-my .tasks-container');
+    const container = document.getElementById('tasks-container-my');
     if (!container) return;
 
     const avatarHtml = renderAvatarState('authLogin', {
@@ -218,7 +335,7 @@ function renderAuthRequiredState() {
  * Відрендерити стан "Немає доступу"
  */
 function renderNoAccessState() {
-    const container = document.querySelector('#tab-my .tasks-container');
+    const container = document.getElementById('tasks-container-my');
     if (!container) return;
 
     const avatarHtml = renderAvatarState('error', {
@@ -237,7 +354,7 @@ function renderNoAccessState() {
  * Відрендерити стан помилки
  */
 function renderErrorState(message = 'Помилка завантаження даних') {
-    const container = document.querySelector('#tab-my .tasks-container');
+    const container = document.getElementById('tasks-container-my');
     if (!container) return;
 
     const avatarHtml = renderAvatarState('error', {
@@ -250,67 +367,4 @@ function renderErrorState(message = 'Помилка завантаження д�
     });
 
     container.innerHTML = avatarHtml;
-}
-
-/**
- * Завантажити aside панель
- */
-async function loadAsideTasks() {
-    const panelRightContent = document.getElementById('panel-right-content');
-    if (!panelRightContent) return;
-
-    try {
-        const response = await fetch('templates/aside/aside-tasks.html');
-        if (!response.ok) throw new Error('Failed to load aside-tasks.html');
-
-        const html = await response.text();
-        panelRightContent.innerHTML = html;
-
-        // Ініціалізувати пошук
-        const searchInput = document.getElementById('search-tasks');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                tasksState.searchQuery = e.target.value;
-                tasksState.pagination.currentPage = 1;
-                runHook('onRender');
-            });
-        }
-
-        // Ініціалізувати кнопку очистки пошуку
-        const clearSearchBtn = document.getElementById('clear-search-tasks');
-        if (clearSearchBtn && searchInput) {
-            clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                tasksState.searchQuery = '';
-                tasksState.pagination.currentPage = 1;
-                clearSearchBtn.classList.add('u-hidden');
-                runHook('onRender');
-            });
-
-            // Показати/сховати кнопку очистки при введенні
-            searchInput.addEventListener('input', () => {
-                if (searchInput.value.trim()) {
-                    clearSearchBtn.classList.remove('u-hidden');
-                } else {
-                    clearSearchBtn.classList.add('u-hidden');
-                }
-            });
-        }
-
-        // Ініціалізувати кнопку "Додати задачу"
-        const addTaskBtn = document.getElementById('btn-add-task');
-        if (addTaskBtn) {
-            addTaskBtn.addEventListener('click', async () => {
-                try {
-                    const { showAddTaskModal } = await import('./tasks-crud.js');
-                    showAddTaskModal();
-                } catch (e) {
-                    console.warn('tasks-crud.js не завантажено');
-                }
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside-tasks.html:', error);
-    }
 }
