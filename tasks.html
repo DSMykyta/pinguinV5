@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мої задачі</title>
+    <title>Профіль та задачі</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -15,7 +15,7 @@
         rel="stylesheet">
 </head>
 
-<body>
+<body class="panel-left-closed">
 
     <!-- ЛІВА ПАНЕЛЬ -->
     <nav id="panel-left" class="panel panel-left">
@@ -100,38 +100,62 @@
     </nav>
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
-    <main id="content-main" class="content-main tabbed-page">
+    <main id="content-main" class="content-main">
 
-        <!-- НАВІГАЦІЯ ТАБІВ -->
-        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
-            <button class="nav-icon active" aria-label="Мої задачі" data-tab-target="tab-my">
+        <!-- НАВІГАЦІЯ СЕКЦІЙ -->
+        <nav class="section-navigator" id="section-navigator">
+            <a href="#section-profile" class="nav-icon" aria-label="Профіль">
                 <span class="material-symbols-outlined">person</span>
-                <span class="nav-icon-label">Мої</span>
-            </button>
-
-            <button class="nav-icon" aria-label="Вхідні задачі" data-tab-target="tab-inbox">
-                <span class="material-symbols-outlined">inbox</span>
-                <span class="nav-icon-label">Вхідні</span>
-            </button>
-
-            <button class="nav-icon" aria-label="Вихідні задачі" data-tab-target="tab-sent">
-                <span class="material-symbols-outlined">send</span>
-                <span class="nav-icon-label">Вихідні</span>
-            </button>
-
-            <button class="nav-icon" aria-label="Корисна інформація" data-tab-target="tab-info">
+                <span class="nav-icon-label">Профіль</span>
+            </a>
+            <a href="#section-tasks" class="nav-icon" aria-label="Задачі">
+                <span class="material-symbols-outlined">task_alt</span>
+                <span class="nav-icon-label">Задачі</span>
+            </a>
+            <a href="#section-info" class="nav-icon" aria-label="Інформація">
                 <span class="material-symbols-outlined">lightbulb</span>
                 <span class="nav-icon-label">Інфо</span>
-            </button>
+            </a>
+            <a href="#section-admin" class="nav-icon u-hidden" id="nav-admin" aria-label="Адміністрування">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                <span class="nav-icon-label">Адмін</span>
+            </a>
         </nav>
 
-        <!-- TAB: МОЇ ЗАДАЧІ -->
-        <div class="tab-content active" data-tab-content="tab-my" id="tab-my">
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- СЕКЦІЯ: ПРОФІЛЬ -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section id="section-profile" data-panel-template="aside-tasks">
+
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Профіль</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3>Налаштування профілю</h3>
+                </div>
+            </div>
+
+            <div class="section-content">
+                <div id="profile-container">
+                    <!-- Заповнюється JavaScript -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- СЕКЦІЯ: ЗАДАЧІ -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section id="section-tasks" data-panel-template="aside-tasks">
 
             <div class="section-header u-align-end">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Мої задачі</h2>
+                        <h2>Задачі</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
@@ -140,120 +164,99 @@
                 </div>
 
                 <div class="tab-controls">
-                    <button id="refresh-tab-my" class="btn-icon" aria-label="Оновити">
+                    <button id="refresh-tasks" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Cards Container -->
-            <div id="tasks-container-my" class="tasks-container">
-                <!-- Заповнюється JavaScript -->
+            <div class="section-content section-content-full-height">
+                <!-- Cards Container - використовується tasks-cards.js -->
+                <div id="tasks-container-my" class="tasks-container">
+                    <!-- Заповнюється JavaScript -->
+                </div>
             </div>
-        </div>
 
-        <!-- TAB: ВХІДНІ -->
-        <div class="tab-content" data-tab-content="tab-inbox" id="tab-inbox">
+            <!-- ФІКСОВАНИЙ ФУТЕР ДЛЯ ПАГІНАЦІЇ -->
+            <footer class="fixed-footer">
+                <div></div>
 
-            <div class="section-header u-align-end">
+                <div class="pagination-container">
+                    <div id="pagination-nav-container" class="pagination-nav"></div>
+
+                    <div class="page-size-selector" id="page-size-selector">
+                        <button class="page-size-trigger" aria-label="Кількість на сторінці">
+                            <span id="page-size-label">25</span>
+                        </button>
+                        <div class="page-size-menu">
+                            <button class="page-size-option" data-page-size="10">10</button>
+                            <button class="page-size-option" data-page-size="25">25</button>
+                            <button class="page-size-option" data-page-size="50">50</button>
+                            <button class="page-size-option" data-page-size="100">100</button>
+                            <button class="page-size-option" data-page-size="999999">Всі</button>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- СЕКЦІЯ: ІНФОРМАЦІЯ -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section id="section-info" data-panel-template="aside-tasks">
+
+            <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Вхідні задачі</h2>
+                        <h2>Інформація</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-inbox">Показано 0 з 0</h3>
+                    <h3 id="tab-stats-info">Збережені записи</h3>
                 </div>
+                <button id="refresh-info" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+            </div>
 
-                <div class="tab-controls">
-                    <button id="refresh-tab-inbox" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
+            <div class="section-content section-content-full-height">
+                <!-- Cards Container для інфо -->
+                <div id="tasks-container-info" class="tasks-container">
+                    <!-- Заповнюється JavaScript -->
                 </div>
             </div>
 
-            <!-- Cards Container -->
-            <div id="tasks-container-inbox" class="tasks-container">
-                <!-- Заповнюється JavaScript -->
-            </div>
-        </div>
+        </section>
 
-        <!-- TAB: ВИХІДНІ -->
-        <div class="tab-content" data-tab-content="tab-sent" id="tab-sent">
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- СЕКЦІЯ: АДМІНІСТРУВАННЯ (тільки для admin) -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <section id="section-admin" data-panel-template="aside-tasks" class="u-hidden">
 
-            <div class="section-header u-align-end">
+            <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Вихідні задачі</h2>
+                        <h2>Адміністрування</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-sent">Показано 0 з 0</h3>
+                    <h3>Управління користувачами</h3>
                 </div>
-
-                <div class="tab-controls">
-                    <button id="refresh-tab-sent" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
+                <button id="refresh-admin" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
             </div>
 
-            <!-- Cards Container -->
-            <div id="tasks-container-sent" class="tasks-container">
-                <!-- Заповнюється JavaScript -->
-            </div>
-        </div>
-
-        <!-- TAB: ІНФО -->
-        <div class="tab-content" data-tab-content="tab-info" id="tab-info">
-
-            <div class="section-header u-align-end">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2>Корисна інформація</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <h3 id="tab-stats-info">Показано 0 з 0</h3>
-                </div>
-
-                <div class="tab-controls">
-                    <button id="refresh-tab-info" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
+            <div class="section-content section-content-full-height">
+                <div id="admin-users-container">
+                    <!-- Заповнюється JavaScript -->
                 </div>
             </div>
 
-            <!-- Cards Container -->
-            <div id="tasks-container-info" class="tasks-container">
-                <!-- Заповнюється JavaScript -->
-            </div>
-        </div>
-
-        <!-- ФІКСОВАНИЙ ФУТЕР -->
-        <footer class="fixed-footer">
-            <div></div>
-
-            <div class="pagination-container">
-                <div id="pagination-nav-container" class="pagination-nav"></div>
-
-                <div class="page-size-selector" id="page-size-selector">
-                    <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="page-size-label">25</span>
-                    </button>
-                    <div class="page-size-menu">
-                        <button class="page-size-option" data-page-size="10">10</button>
-                        <button class="page-size-option" data-page-size="25">25</button>
-                        <button class="page-size-option" data-page-size="50">50</button>
-                        <button class="page-size-option" data-page-size="100">100</button>
-                        <button class="page-size-option" data-page-size="999999">Всі</button>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        </section>
 
     </main>
 
@@ -265,7 +268,7 @@
             </button>
         </div>
         <div id="panel-right-content" class="panel-content">
-            <!-- aside-tasks.html завантажується через JS -->
+            <!-- aside шаблони завантажуються через JS -->
         </div>
     </aside>
 
