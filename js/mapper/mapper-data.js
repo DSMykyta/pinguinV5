@@ -114,7 +114,7 @@ export async function loadCategories() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.CATEGORIES}!A:F`,
+            range: `${SHEETS.CATEGORIES}!A:G`,
             spreadsheetType: 'main'
         });
 
@@ -410,12 +410,13 @@ export async function addCategory(data) {
             data.name_ua || '',
             data.name_ru || '',
             data.parent_id || '',
+            data.grouping || 'false',
             timestamp,
             timestamp
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CATEGORIES}!A:F`,
+            range: `${SHEETS.CATEGORIES}!A:G`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -426,6 +427,7 @@ export async function addCategory(data) {
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
             parent_id: data.parent_id || '',
+            grouping: data.grouping || 'false',
             created_at: timestamp,
             updated_at: timestamp
         };
@@ -450,13 +452,14 @@ export async function updateCategory(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CATEGORIES}!A${category._rowIndex}:F${category._rowIndex}`;
+        const range = `${SHEETS.CATEGORIES}!A${category._rowIndex}:G${category._rowIndex}`;
 
         const updatedRow = [
             category.id,
             updates.name_ua !== undefined ? updates.name_ua : category.name_ua,
             updates.name_ru !== undefined ? updates.name_ru : category.name_ru,
             updates.parent_id !== undefined ? updates.parent_id : category.parent_id,
+            updates.grouping !== undefined ? updates.grouping : (category.grouping || 'false'),
             category.created_at,
             timestamp
         ];
@@ -487,11 +490,11 @@ export async function deleteCategory(id) {
         }
 
         const category = mapperState.categories[index];
-        const range = `${SHEETS.CATEGORIES}!A${category._rowIndex}:F${category._rowIndex}`;
+        const range = `${SHEETS.CATEGORIES}!A${category._rowIndex}:G${category._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 

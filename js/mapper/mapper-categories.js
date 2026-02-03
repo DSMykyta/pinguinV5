@@ -248,10 +248,14 @@ async function handleUpdateCategory(id) {
 }
 
 function getCategoryFormData() {
+    const groupingYes = document.getElementById('mapper-category-grouping-yes');
+    const isGrouping = groupingYes?.checked ? 'true' : 'false';
+
     return {
         name_ua: document.getElementById('mapper-category-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-category-name-ru')?.value.trim() || '',
-        parent_id: document.getElementById('mapper-category-parent')?.value || ''
+        parent_id: document.getElementById('mapper-category-parent')?.value || '',
+        grouping: isGrouping
     };
 }
 
@@ -259,20 +263,33 @@ function fillCategoryForm(category) {
     const nameUaField = document.getElementById('mapper-category-name-ua');
     const nameRuField = document.getElementById('mapper-category-name-ru');
     const parentField = document.getElementById('mapper-category-parent');
+    const groupingYes = document.getElementById('mapper-category-grouping-yes');
+    const groupingNo = document.getElementById('mapper-category-grouping-no');
 
     if (nameUaField) nameUaField.value = category.name_ua || '';
     if (nameRuField) nameRuField.value = category.name_ru || '';
     if (parentField) parentField.value = category.parent_id || '';
+
+    // Set grouping radio
+    const isGrouping = category.grouping === 'TRUE' || category.grouping === true || category.grouping === 'true';
+    if (groupingYes) groupingYes.checked = isGrouping;
+    if (groupingNo) groupingNo.checked = !isGrouping;
 }
 
 function clearCategoryForm() {
     const nameUaField = document.getElementById('mapper-category-name-ua');
     const nameRuField = document.getElementById('mapper-category-name-ru');
     const parentField = document.getElementById('mapper-category-parent');
+    const groupingYes = document.getElementById('mapper-category-grouping-yes');
+    const groupingNo = document.getElementById('mapper-category-grouping-no');
 
     if (nameUaField) nameUaField.value = '';
     if (nameRuField) nameRuField.value = '';
     if (parentField) parentField.value = '';
+
+    // Reset grouping to default (No)
+    if (groupingYes) groupingYes.checked = false;
+    if (groupingNo) groupingNo.checked = true;
 }
 
 function populateParentCategorySelect(excludeId = null) {
