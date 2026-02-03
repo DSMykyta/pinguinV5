@@ -91,6 +91,52 @@ export async function loadTasks() {
 }
 
 /**
+ * Завантажити список користувачів для мультиселекту
+ * @returns {Promise<Array>} Масив користувачів {id, username, display_name, avatar}
+ */
+export async function loadUsers() {
+    try {
+        const result = await callSheetsAPI('get', {
+            range: 'Users!A:H',
+            spreadsheetType: 'users'
+        });
+
+        if (!result || !Array.isArray(result) || result.length <= 1) {
+            console.warn('⚠️ Немає даних в Users');
+            tasksState.users = [];
+            return tasksState.users;
+        }
+
+        // Пропустити заголовок
+        const dataRows = result.slice(1);
+
+        // Трансформувати дані (без пароля!)
+        tasksState.users = dataRows
+            .filter(row => row[0]) // Тільки рядки з ID
+            .map(row => ({
+                id: row[0] || '',
+                username: row[1] || '',
+                role: row[3] || 'viewer',
+                display_name: row[6] || row[1] || '', // fallback to username
+                avatar: row[7] || ''
+            }));
+
+        return tasksState.users;
+    } catch (error) {
+        console.error('❌ Помилка завантаження користувачів:', error);
+        return [];
+    }
+}
+
+/**
+ * Отримати список користувачів
+ * @returns {Array} Масив користувачів
+ */
+export function getUsers() {
+    return tasksState.users || [];
+}
+
+/**
  * Отримати задачі з state
  * @returns {Array} Масив задач
  */
@@ -112,6 +158,30 @@ export function getTaskById(taskId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Перевірити чи користувач є в списку виконавців
+ * @param {string} assignedTo - Рядок з ID через кому
+ * @param {string} userId - ID користувача
+ * @returns {boolean}
+ */
+function isUserAssigned(assignedTo, userId) {
+    if (!assignedTo || !userId) return false;
+    const assignees = assignedTo.split(',').map(id => id.trim());
+    return assignees.includes(userId);
+}
+
+/**
+ * Перевірити чи є інші виконавці крім автора
+ * @param {string} assignedTo - Рядок з ID через кому
+ * @param {string} creatorId - ID автора
+ * @returns {boolean}
+ */
+function hasOtherAssignees(assignedTo, creatorId) {
+    if (!assignedTo) return false;
+    const assignees = assignedTo.split(',').map(id => id.trim());
+    return assignees.some(id => id && id !== creatorId);
+}
+
+/**
  * Отримати задачі для поточного табу
  * @returns {Array} Відфільтровані задачі
  */
@@ -125,25 +195,24 @@ export function getTasksForCurrentTab() {
     // Фільтр по табу
     switch (activeTab) {
         case 'my':
-            // Мої задачі - створені мною для себе (assigned_to пусте або = мені)
+            // Мої задачі - створені мною (для контролю) АБО призначені мені
             filtered = filtered.filter(t =>
-                t.created_by === currentUserId &&
-                (!t.assigned_to || t.assigned_to === currentUserId)
+                t.created_by === currentUserId ||
+                isUserAssigned(t.assigned_to, currentUserId)
             );
             break;
         case 'inbox':
-            // Вхідні - призначені мені іншими
+            // Вхідні - призначені мені іншими (не мої)
             filtered = filtered.filter(t =>
-                t.assigned_to === currentUserId &&
+                isUserAssigned(t.assigned_to, currentUserId) &&
                 t.created_by !== currentUserId
             );
             break;
         case 'sent':
-            // Вихідні - я призначив іншим
+            // Вихідні - я створив і призначив іншим
             filtered = filtered.filter(t =>
                 t.created_by === currentUserId &&
-                t.assigned_to &&
-                t.assigned_to !== currentUserId
+                hasOtherAssignees(t.assigned_to, currentUserId)
             );
             break;
         case 'info':
