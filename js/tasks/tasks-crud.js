@@ -17,6 +17,10 @@ import { runHook, registerTasksPlugin, registerOptionalFunction } from './tasks-
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { initCustomSelects } from '../common/ui-select.js';
+import { createHighlightEditor } from '../common/editor/editor-main.js';
+
+// Екземпляр редактора опису
+let descriptionEditor = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПОКАЗ МОДАЛОК
@@ -99,11 +103,10 @@ function initTaskEditModal(task, readOnly = false) {
     // Бейдж типу
     const typeBadge = modal.querySelector('#task-type-badge');
 
-    // Заповнити поля
+    // Заповнити поля (без description - він в редакторі)
     const fields = {
         'task-id': task?.id || '',
         'task-title': task?.title || '',
-        'task-description': task?.description || '',
         'task-type': task?.type || 'task',
         'task-priority': task?.priority || 'medium',
         'task-status': task?.status || 'todo',
@@ -133,6 +136,31 @@ function initTaskEditModal(task, readOnly = false) {
 
     // Ініціалізувати кастомні селекти
     initCustomSelects(modal);
+
+    // Ініціалізувати rich editor для опису
+    const editorContainer = modal.querySelector('#task-description-editor');
+    if (editorContainer) {
+        // Знищити попередній екземпляр
+        if (descriptionEditor) {
+            descriptionEditor.destroy();
+            descriptionEditor = null;
+        }
+
+        const isEditable = !readOnly && (isOwner || !isEdit);
+
+        if (isEditable) {
+            descriptionEditor = createHighlightEditor(editorContainer, {
+                placeholder: 'Детальний опис задачі...',
+                initialValue: task?.description || '',
+                minHeight: 150,
+                showStats: false,
+                validation: false
+            });
+        } else {
+            // Read-only режим - показати як текст
+            editorContainer.innerHTML = `<div class="text-viewer">${task?.description || '<em>Немає опису</em>'}</div>`;
+        }
+    }
 
     // Оновити бейдж типу
     if (typeBadge) {
@@ -220,9 +248,12 @@ async function handleSave(modal, taskId) {
         return;
     }
 
+    // Отримати опис з редактора
+    const description = descriptionEditor ? descriptionEditor.getValue() : '';
+
     const taskData = {
         title,
-        description: modal.querySelector('#task-description')?.value?.trim() || '',
+        description,
         type: modal.querySelector('#task-type')?.value || 'task',
         priority: modal.querySelector('#task-priority')?.value || 'medium',
         status: modal.querySelector('#task-status')?.value || 'todo',
