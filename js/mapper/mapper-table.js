@@ -341,6 +341,19 @@ function getCategoriesColumns(allCategories) {
                 return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
             }
         },
+        {
+            id: 'grouping',
+            label: 'Групуюча',
+            sortable: true,
+            filterable: true,
+            className: 'cell-bool',
+            render: (value) => {
+                const isGrouping = value === 'TRUE' || value === true || value === 'true';
+                return isGrouping
+                    ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
+                    : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
+            }
+        },
         createBindingsColumn('category')
     ];
 }
@@ -1535,7 +1548,8 @@ function initTableCheckboxes(container, tabName, data) {
 function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+            { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
         ],
         characteristics: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
@@ -1591,7 +1605,8 @@ function getCategoryLabelMap() {
 // Для зворотної сумісності
 const filterColumnsConfig = {
     categories: [
-        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+        { id: 'grouping', label: 'Групуюча', filterType: 'values' }
     ],
     characteristics: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
