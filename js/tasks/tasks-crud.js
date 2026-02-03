@@ -214,8 +214,12 @@ function initTaskEditModal(task, readOnly = false) {
  */
 function initSidebarNavigation(modal) {
     const navItems = modal.querySelectorAll('.sidebar-nav-item[href^="#"]');
+    const contentArea = modal.querySelector('.modal-fullscreen-content');
     const sections = modal.querySelectorAll('section[id^="section-task-"]');
 
+    if (!contentArea || sections.length === 0) return;
+
+    // Клік по навігації
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
@@ -232,6 +236,26 @@ function initSidebarNavigation(modal) {
             }
         });
     });
+
+    // Scroll spy - оновлення активного пункту при прокрутці
+    const observerOptions = {
+        root: contentArea,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const sectionId = entry.target.id;
+                navItems.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

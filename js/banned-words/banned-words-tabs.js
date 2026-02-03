@@ -318,10 +318,6 @@ export function initTabHandlers() {
                         pageSize: tabPagination.pageSize,
                         totalItems: tabPagination.totalItems
                     });
-                        currentPage: tabPagination.currentPage,
-                        pageSize: tabPagination.pageSize,
-                        totalItems: tabPagination.totalItems
-                    });
 
                     // Оновити відображення розміру сторінки в UI
                     const pageSizeLabel = document.getElementById('page-size-label');
