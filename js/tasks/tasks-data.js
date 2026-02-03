@@ -39,54 +39,49 @@ const SHEET_NAME = 'Tasks';
 const SHEET_GID = '2095262750';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ЗАВАНТАЖЕННЯ ДАНИХ (CSV Export - без Vercel API)
+// ЗАВАНТАЖЕННЯ ДАНИХ (через Vercel API)
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Завантажити всі задачі через CSV export
+ * Завантажити всі задачі через API
  * @returns {Promise<Array>} Масив задач
  */
 export async function loadTasks() {
     try {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
-        const response = await fetch(csvUrl);
+        const result = await callSheetsAPI('get', {
+            range: `${SHEET_NAME}!A:M`,
+            spreadsheetType: 'users'
+        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const csvText = await response.text();
-
-        if (typeof Papa === 'undefined') {
-            throw new Error('PapaParse library is not loaded');
-        }
-
-        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        const rows = parsedData.data;
-
-        if (!rows || rows.length === 0) {
+        // Backend повертає масив напряму, а не {values: [...]}
+        if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних в Tasks');
             tasksState.tasks = [];
             return tasksState.tasks;
         }
 
-        // Трансформувати дані
-        tasksState.tasks = rows.map((row, index) => ({
-            id: row.id || '',
-            title: row.title || '',
-            description: row.description || '',
-            type: row.type || 'task',
-            status: row.status || 'todo',
-            priority: row.priority || 'medium',
-            created_by: row.created_by || '',
-            assigned_to: row.assigned_to || '',
-            created_at: row.created_at || '',
-            updated_at: row.updated_at || '',
-            due_date: row.due_date || '',
-            tags: row.tags || '',
-            code_snippet: row.code_snippet || '',
-            _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
-        }));
+        // Пропустити заголовок, парсити дані
+        const dataRows = result.slice(1);
+
+        // Трансформувати дані (зберігаємо оригінальний індекс для _rowIndex)
+        tasksState.tasks = dataRows
+            .map((row, index) => ({
+                id: row[0] || '',
+                title: row[1] || '',
+                description: row[2] || '',
+                type: row[3] || 'task',
+                status: row[4] || 'todo',
+                priority: row[5] || 'medium',
+                created_by: row[6] || '',
+                assigned_to: row[7] || '',
+                created_at: row[8] || '',
+                updated_at: row[9] || '',
+                due_date: row[10] || '',
+                tags: row[11] || '',
+                code_snippet: row[12] || '',
+                _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
+            }))
+            .filter(task => task.id); // Тільки рядки з ID
 
         return tasksState.tasks;
     } catch (error) {
