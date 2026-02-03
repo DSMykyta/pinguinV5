@@ -6,13 +6,13 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Рендеринг карток задач.
- * Використовує ТІЛЬКИ існуючі класи: chip-tooltip-content, severity-badge, chip, btn-icon
+ * Використовує content-card, severity-badge, badge, word-chip, btn-icon
  *
  * 🔌 ПЛАГІН — цей файл можна видалити, система працюватиме без нього.
  */
 
 import { tasksState } from './tasks-state.js';
-import { getTasksForCurrentTab } from './tasks-data.js';
+import { getTasksForCurrentTab, canEditTask, canChangeStatus } from './tasks-data.js';
 import { registerTasksPlugin } from './tasks-plugins.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { registerActionHandlers, initActionHandlers, actionButton } from '../common/ui-actions.js';
@@ -22,24 +22,24 @@ import { registerActionHandlers, initActionHandlers, actionButton } from '../com
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PRIORITY_MAP = {
-    urgent: { icon: 'brightness_alert', class: 'severity-high' },
-    high: { icon: 'warning', class: 'severity-high' },
-    medium: { icon: 'info', class: 'severity-medium' },
-    low: { icon: 'check_circle', class: 'severity-low' }
+    urgent: { icon: 'brightness_alert', class: 'severity-high', text: 'Терміново' },
+    high: { icon: 'warning', class: 'severity-high', text: 'Високий' },
+    medium: { icon: 'info', class: 'severity-medium', text: 'Середній' },
+    low: { icon: 'check_circle', class: 'severity-low', text: 'Низький' }
 };
 
-const STATUS_LABELS = {
+const STATUS_MAP = {
     todo: { text: 'До виконання', icon: 'radio_button_unchecked' },
     in_progress: { text: 'В роботі', icon: 'pending' },
     done: { text: 'Виконано', icon: 'check_circle' },
     archived: { text: 'Архів', icon: 'inventory_2' }
 };
 
-const TYPE_ICONS = {
-    task: 'task_alt',
-    info: 'lightbulb',
-    script: 'code',
-    reference: 'link'
+const TYPE_MAP = {
+    task: { icon: 'task_alt', text: 'Задача' },
+    info: { icon: 'lightbulb', text: 'Інфо' },
+    script: { icon: 'code', text: 'Скрипт' },
+    reference: { icon: 'link', text: 'Посилання' }
 };
 
 const ACTION_CONTEXT = 'tasks';
@@ -99,7 +99,6 @@ function renderCards() {
         return;
     }
 
-    // chip-container - існуючий клас для flex-wrap контейнера
     const cardsHtml = tasks.map(task => renderCard(task)).join('');
     container.innerHTML = `<div class="chip-container">${cardsHtml}</div>`;
 
@@ -109,36 +108,94 @@ function renderCards() {
 
 function renderCard(task) {
     const priority = PRIORITY_MAP[task.priority] || PRIORITY_MAP.medium;
-    const status = STATUS_LABELS[task.status] || STATUS_LABELS.todo;
+    const status = STATUS_MAP[task.status] || STATUS_MAP.todo;
+    const type = TYPE_MAP[task.type] || TYPE_MAP.task;
+    const commentsCount = task.comments?.length || 0;
 
-    const editBtn = actionButton({
+    // Права доступу
+    const isAuthor = canEditTask(task);
+    const canStatus = canChangeStatus(task);
+
+    // Кнопки дій
+    const viewBtn = actionButton({
+        action: 'view',
+        rowId: task.id,
+        icon: 'visibility',
+        tooltip: 'Переглянути',
+        context: ACTION_CONTEXT
+    });
+
+    const editBtn = isAuthor ? actionButton({
         action: 'edit',
         rowId: task.id,
         icon: 'edit',
         tooltip: 'Редагувати',
         context: ACTION_CONTEXT
-    });
+    }) : '';
 
-    const statusBtn = actionButton({
-        action: 'status',
-        rowId: task.id,
-        icon: status.icon,
-        tooltip: status.text,
-        context: ACTION_CONTEXT
-    });
+    // Статус badge (клікабельний якщо можна змінити)
+    const statusBadgeClass = canStatus ? 'badge badge-neutral clickable' : 'badge';
+    const statusBadge = canStatus
+        ? actionButton({
+            action: 'status',
+            rowId: task.id,
+            icon: status.icon,
+            tooltip: status.text,
+            context: ACTION_CONTEXT,
+            className: statusBadgeClass
+        })
+        : `<span class="${statusBadgeClass}"><span class="material-symbols-outlined">${status.icon}</span></span>`;
 
-    // tooltip-content - базовий клас для чорних карток
-    // severity-badge - існуючий клас для пріоритету
+    // Теги
+    const tagsHtml = task.tags
+        ? task.tags.split(',').map(t => `<span class="word-chip">${t.trim()}</span>`).join('')
+        : '';
+
+    // Коментарі
+    const commentsHtml = commentsCount > 0
+        ? `<span class="content-card-comments"><span class="material-symbols-outlined">comment</span>${commentsCount}</span>`
+        : '';
+
+    // Assigned to (якщо відрізняється від автора)
+    const assignedHtml = task.assigned_to && task.assigned_to !== task.created_by
+        ? `<span><span class="material-symbols-outlined">arrow_forward</span> ${task.assigned_to}</span>`
+        : '';
+
     return `
-        <div class="tooltip-content" data-task-id="${task.id}" data-status="${task.status}">
-            <span class="severity-badge ${priority.class}">
-                <span class="material-symbols-outlined">${priority.icon}</span>
-            </span>
-            <strong>${escapeHtml(task.title)}</strong>
-            ${task.description ? `<p>${escapeHtml(task.description.substring(0, 100))}${task.description.length > 100 ? '...' : ''}</p>` : ''}
-            <div class="chip-list">
+        <div class="content-card" data-task-id="${task.id}" data-status="${task.status}">
+            <div class="content-card-header">
+                <h4 class="content-card-title">${escapeHtml(task.title)}</h4>
+                <span class="severity-badge ${priority.class}">
+                    <span class="material-symbols-outlined">${priority.icon}</span>
+                </span>
+            </div>
+
+            ${task.description ? `<p class="content-card-body">${escapeHtml(task.description.substring(0, 120))}${task.description.length > 120 ? '...' : ''}</p>` : ''}
+
+            <div class="content-card-meta">
+                <span class="content-card-meta-left">
+                    <span class="material-symbols-outlined">person</span>
+                    ${task.created_by}
+                    ${assignedHtml}
+                </span>
+                ${statusBadge}
+            </div>
+
+            <div class="content-card-footer">
+                <div class="content-card-footer-left">
+                    <span class="badge">
+                        <span class="material-symbols-outlined">${type.icon}</span>
+                    </span>
+                    ${commentsHtml}
+                </div>
+                <div class="content-card-footer-right">
+                    ${tagsHtml}
+                </div>
+            </div>
+
+            <div class="content-card-actions">
+                ${viewBtn}
                 ${editBtn}
-                ${statusBtn}
             </div>
         </div>
     `;
@@ -163,7 +220,7 @@ function renderEmptyState(container) {
 }
 
 function initCardClickEvents(container) {
-    container.querySelectorAll('.tooltip-content[data-task-id]').forEach(card => {
+    container.querySelectorAll('.content-card[data-task-id]').forEach(card => {
         card.addEventListener('click', async (e) => {
             if (e.target.closest('[data-action]')) return;
 

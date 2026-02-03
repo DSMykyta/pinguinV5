@@ -27,6 +27,7 @@
  * │ K       │ due_date           │ YYYY-MM-DD (опціонально)                │
  * │ L       │ tags               │ теги через кому                         │
  * │ M       │ code_snippet       │ текст (код/скрипт)                      │
+ * │ N       │ comments           │ JSON [{user, text, date}]               │
  * └─────────┴────────────────────┴─────────────────────────────────────────┘
  */
 
@@ -49,7 +50,7 @@ const SHEET_GID = '2095262750';
 export async function loadTasks() {
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:M`,
+            range: `${SHEET_NAME}!A:N`,
             spreadsheetType: 'users'
         });
 
@@ -79,6 +80,7 @@ export async function loadTasks() {
                 due_date: row[10] || '',
                 tags: row[11] || '',
                 code_snippet: row[12] || '',
+                comments: parseComments(row[13]),
                 _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
             }))
             .filter(task => task.id); // Тільки рядки з ID
@@ -254,6 +256,35 @@ export function getTasksForCurrentTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// УТИЛІТИ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Парсити JSON коментарів з колонки
+ * @param {string} jsonStr - JSON рядок коментарів
+ * @returns {Array} Масив коментарів [{user, text, date}]
+ */
+function parseComments(jsonStr) {
+    if (!jsonStr) return [];
+    try {
+        const parsed = JSON.parse(jsonStr);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * Серіалізувати коментарі в JSON
+ * @param {Array} comments - Масив коментарів
+ * @returns {string} JSON рядок
+ */
+function serializeComments(comments) {
+    if (!comments || comments.length === 0) return '';
+    return JSON.stringify(comments);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CRUD ОПЕРАЦІЇ
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -284,19 +315,20 @@ function generateTaskId() {
  */
 function prepareTaskRow(task) {
     return [
-        task.id || '',                // A: id
-        task.title || '',             // B: title
-        task.description || '',       // C: description
-        task.type || 'task',          // D: type
-        task.status || 'todo',        // E: status
-        task.priority || 'medium',    // F: priority
-        task.created_by || '',        // G: created_by
-        task.assigned_to || '',       // H: assigned_to
-        task.created_at || '',        // I: created_at
-        task.updated_at || '',        // J: updated_at
-        task.due_date || '',          // K: due_date
-        task.tags || '',              // L: tags
-        task.code_snippet || ''       // M: code_snippet
+        task.id || '',                          // A: id
+        task.title || '',                       // B: title
+        task.description || '',                 // C: description
+        task.type || 'task',                    // D: type
+        task.status || 'todo',                  // E: status
+        task.priority || 'medium',              // F: priority
+        task.created_by || '',                  // G: created_by
+        task.assigned_to || '',                 // H: assigned_to
+        task.created_at || '',                  // I: created_at
+        task.updated_at || '',                  // J: updated_at
+        task.due_date || '',                    // K: due_date
+        task.tags || '',                        // L: tags
+        task.code_snippet || '',                // M: code_snippet
+        serializeComments(task.comments)        // N: comments
     ];
 }
 
@@ -330,7 +362,7 @@ export async function addTask(taskData) {
         const newRow = prepareTaskRow(newTask);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:M`,
+            range: `${SHEET_NAME}!A:N`,
             values: [newRow],
             spreadsheetType: 'users'
         });
@@ -420,7 +452,7 @@ export async function deleteTask(taskId) {
         const range = `${SHEET_NAME}!A${task._rowIndex}:M${task._rowIndex}`;
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '', '', '', '', '', '', '']],
             spreadsheetType: 'users'
         });
 
@@ -433,11 +465,95 @@ export async function deleteTask(taskId) {
 }
 
 /**
- * Швидка зміна статусу задачі
+ * Швидка зміна статусу задачі (автор або виконавець)
  * @param {string} taskId - ID задачі
  * @param {string} newStatus - Новий статус
  * @returns {Promise<Object>} Оновлена задача
  */
 export async function changeTaskStatus(taskId, newStatus) {
-    return updateTask(taskId, { status: newStatus });
+    try {
+        const task = tasksState.tasks.find(t => t.id === taskId);
+        if (!task) {
+            throw new Error(`Задача ${taskId} не знайдена`);
+        }
+
+        // Перевірка прав - автор або виконавець
+        const isAuthor = task.created_by === tasksState.currentUserId;
+        const isAssignee = isUserAssigned(task.assigned_to, tasksState.currentUserId);
+
+        if (!isAuthor && !isAssignee) {
+            throw new Error('Ви не можете змінювати статус цієї задачі');
+        }
+
+        const now = new Date().toISOString();
+        task.status = newStatus;
+        task.updated_at = now;
+
+        const range = `${SHEET_NAME}!E${task._rowIndex}:J${task._rowIndex}`;
+        await callSheetsAPI('update', {
+            range: range,
+            values: [[newStatus, task.priority, task.created_by, task.assigned_to, task.created_at, now]],
+            spreadsheetType: 'users'
+        });
+
+        return task;
+    } catch (error) {
+        console.error('❌ Помилка зміни статусу:', error);
+        throw error;
+    }
+}
+
+/**
+ * Додати коментар до задачі (може будь-хто з доступом)
+ * @param {string} taskId - ID задачі
+ * @param {string} text - Текст коментаря
+ * @returns {Promise<Object>} Оновлена задача
+ */
+export async function addComment(taskId, text) {
+    try {
+        const task = tasksState.tasks.find(t => t.id === taskId);
+        if (!task) {
+            throw new Error(`Задача ${taskId} не знайдена`);
+        }
+
+        const newComment = {
+            user: tasksState.currentUserId,
+            text: text.trim(),
+            date: new Date().toISOString()
+        };
+
+        const comments = [...(task.comments || []), newComment];
+        task.comments = comments;
+
+        const range = `${SHEET_NAME}!N${task._rowIndex}`;
+        await callSheetsAPI('update', {
+            range: range,
+            values: [[serializeComments(comments)]],
+            spreadsheetType: 'users'
+        });
+
+        return task;
+    } catch (error) {
+        console.error('❌ Помилка додавання коментаря:', error);
+        throw error;
+    }
+}
+
+/**
+ * Перевірити чи користувач може редагувати задачу
+ * @param {Object} task - Задача
+ * @returns {boolean}
+ */
+export function canEditTask(task) {
+    return task.created_by === tasksState.currentUserId;
+}
+
+/**
+ * Перевірити чи користувач може змінювати статус
+ * @param {Object} task - Задача
+ * @returns {boolean}
+ */
+export function canChangeStatus(task) {
+    return task.created_by === tasksState.currentUserId ||
+           isUserAssigned(task.assigned_to, tasksState.currentUserId);
 }
