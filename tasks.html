@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прайс - чекліст викладки</title>
+    <title>Мої задачі</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -31,11 +31,6 @@
                 <span class="panel-item-text">Глосарій</span>
             </a>
 
-            <a href="entities.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">label</span>
-                <span class="panel-item-text">Сутності</span>
-            </a>
-
             <a href="banned-words.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">block</span>
                 <span class="panel-item-text">Заборонені слова</span>
@@ -51,7 +46,7 @@
                 <span class="panel-item-text">Ключові слова</span>
             </a>
 
-            <a href="price.html" target="_blank" class="panel-item is-active">
+            <a href="price.html" target="_blank" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">receipt_long</span>
                 <span class="panel-item-text">Прайс</span>
             </a>
@@ -63,17 +58,17 @@
 
             <div class="panel-separator"></div>
 
-            <a href="tasks.html" target="_blank" class="panel-item">
+            <a href="tasks.html" target="_blank" class="panel-item is-active">
                 <span class="material-symbols-outlined panel-item-icon">task_alt</span>
                 <span class="panel-item-text">Мої задачі</span>
             </a>
 
             <div class="panel-separator"></div>
 
-            <a href="https://docs.google.com/spreadsheets/d/12zYr-fhF9o-O5lr-Z8DfQuGUi7bYmoXKy8yOLADzwCI/edit"
+            <a href="https://docs.google.com/spreadsheets/d/1XE9C6eByiQOoJ_3WNewlMO4QjUpSR-eXI-M6eDn20ls/edit?gid=2095262750#gid=2095262750"
                 target="_blank" rel="noopener noreferrer" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">table_chart</span>
-                <span class="panel-item-text">Price Sheet</span>
+                <span class="panel-item-text">Tasks Sheet</span>
                 <div class="btn-icon">
                     <span class="material-symbols-outlined">open_in_new</span>
                 </div>
@@ -110,112 +105,137 @@
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
-        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="tabs-head-container">
-            <button class="nav-icon active" data-tab-target="tab-price" data-reserve-filter="all">
-                <span class="material-symbols-outlined">receipt_long</span>
-                <span class="nav-icon-label">Прайс</span>
+
+        <!-- НАВІГАЦІЯ ТАБІВ -->
+        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+            <button class="nav-icon active" aria-label="Мої задачі" data-tab-target="tab-my">
+                <span class="material-symbols-outlined">person</span>
+                <span class="nav-icon-label">Мої</span>
             </button>
-            <!-- Динамічні таби юзерів з аватарками додаються тут через JS -->
-            <div id="reserve-tabs-container"></div>
-            <!-- Статичні таби фільтрів -->
-            <button class="nav-icon" data-tab-target="tab-price" data-reserve-filter="not_posted">
-                <span class="material-symbols-outlined">edit_note</span>
-                <span class="nav-icon-label">Не викладено</span>
+
+            <button class="nav-icon" aria-label="Вхідні задачі" data-tab-target="tab-inbox">
+                <span class="material-symbols-outlined">inbox</span>
+                <span class="nav-icon-label">Вхідні</span>
             </button>
-            <button class="nav-icon" data-tab-target="tab-price" data-reserve-filter="suggestions">
+
+            <button class="nav-icon" aria-label="Вихідні задачі" data-tab-target="tab-sent">
+                <span class="material-symbols-outlined">send</span>
+                <span class="nav-icon-label">Вихідні</span>
+            </button>
+
+            <button class="nav-icon" aria-label="Корисна інформація" data-tab-target="tab-info">
                 <span class="material-symbols-outlined">lightbulb</span>
-                <span class="nav-icon-label">Пропозиції</span>
+                <span class="nav-icon-label">Інфо</span>
             </button>
         </nav>
 
-        <!-- TAB: ПРАЙС -->
-        <div class="tab-content active" data-tab-content="tab-price" id="tab-price">
+        <!-- TAB: МОЇ ЗАДАЧІ -->
+        <div class="tab-content active" data-tab-content="tab-my" id="tab-my">
 
             <div class="section-header u-align-end">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Прайс</h2>
+                        <h2>Мої задачі</h2>
                         <button class="btn-icon" aria-label="Інформація">
                             <span class="material-symbols-outlined">info</span>
                         </button>
                     </div>
-                    <h3 id="tab-stats-price">Показано 0 з 0</h3>
-                    <!-- Таби статусів -->
-                    <div class="tab-controls u-mt-8" id="status-filter-tabs">
-                        <button class="nav-icon active" data-status-filter="all">
-                            <span class="material-symbols-outlined">list</span>
-                            <span class="nav-icon-label">Всі</span>
-                        </button>
-                        <button class="nav-icon" data-status-filter="reserved">
-                            <span class="material-symbols-outlined">bookmark</span>
-                            <span class="nav-icon-label">Резерв</span>
-                        </button>
-                        <button class="nav-icon" data-status-filter="posted">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            <span class="nav-icon-label">Викладене</span>
-                        </button>
-                        <button class="nav-icon" data-status-filter="checked">
-                            <span class="material-symbols-outlined">verified</span>
-                            <span class="nav-icon-label">Перевірене</span>
-                        </button>
-                        <button class="nav-icon" data-status-filter="paid">
-                            <span class="material-symbols-outlined">payments</span>
-                            <span class="nav-icon-label">Оплачене</span>
-                        </button>
-                    </div>
+                    <h3 id="tab-stats-my">Показано 0 з 0</h3>
                 </div>
 
                 <div class="tab-controls">
-                    <button id="refresh-tab-price" class="btn-icon" aria-label="Оновити таб">
+                    <button id="refresh-tab-my" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-price" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <!-- Batch Actions Bar -->
-            <div id="batch-actions-bar" class="batch-actions-bar">
-                <div class="selection-info">
-                    <span class="selection-count" id="selected-count">0</span>
-                    <span class="selection-label">обрано</span>
-                </div>
-                <div class="batch-actions">
-                    <button id="batch-reserve-btn" class="batch-btn">
-                        <span class="material-symbols-outlined">person_add</span>
-                        Зарезервувати
-                    </button>
-                    <button id="batch-status-btn" class="batch-btn">
-                        <span class="material-symbols-outlined">check_circle</span>
-                        Викладено
-                    </button>
-                    <button id="batch-check-btn" class="batch-btn">
-                        <span class="material-symbols-outlined">verified</span>
-                        Перевірено
-                    </button>
-                    <button id="batch-clear-btn" class="batch-btn">
-                        <span class="material-symbols-outlined">close</span>
-                        Скасувати вибір
-                    </button>
-                </div>
-            </div>
-
-            <!-- Table Container -->
-            <div id="price-table-container" class="pseudo-table-container">
+            <!-- Cards Container -->
+            <div id="tasks-container-my" class="tasks-container">
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
-        <!-- /TAB: ПРАЙС -->
+
+        <!-- TAB: ВХІДНІ -->
+        <div class="tab-content" data-tab-content="tab-inbox" id="tab-inbox">
+
+            <div class="section-header u-align-end">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Вхідні задачі</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3 id="tab-stats-inbox">Показано 0 з 0</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-inbox" class="btn-icon" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards Container -->
+            <div id="tasks-container-inbox" class="tasks-container">
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
+
+        <!-- TAB: ВИХІДНІ -->
+        <div class="tab-content" data-tab-content="tab-sent" id="tab-sent">
+
+            <div class="section-header u-align-end">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Вихідні задачі</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3 id="tab-stats-sent">Показано 0 з 0</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-sent" class="btn-icon" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards Container -->
+            <div id="tasks-container-sent" class="tasks-container">
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
+
+        <!-- TAB: ІНФО -->
+        <div class="tab-content" data-tab-content="tab-info" id="tab-info">
+
+            <div class="section-header u-align-end">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2>Корисна інформація</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                    <h3 id="tab-stats-info">Показано 0 з 0</h3>
+                </div>
+
+                <div class="tab-controls">
+                    <button id="refresh-tab-info" class="btn-icon" aria-label="Оновити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cards Container -->
+            <div id="tasks-container-info" class="tasks-container">
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
 
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="fixed-footer">
@@ -249,15 +269,14 @@
             </button>
         </div>
         <div id="panel-right-content" class="panel-content">
-            <!-- aside-price.html завантажується через JS -->
+            <!-- aside-tasks.html завантажується через JS -->
         </div>
     </aside>
 
     <div id="modal-placeholder"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <script type="module" src="js/main-price.js"></script>
+    <script type="module" src="js/main-tasks.js"></script>
 </body>
 
 </html>

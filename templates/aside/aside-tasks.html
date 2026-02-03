@@ -1,0 +1,100 @@
+<div class="panel-fragment is-active" id="aside-tasks">
+
+    <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
+    <div class="panel-content-fix">
+        <div class="panel-box">
+            <span class="material-symbols-outlined panel-box-icon">search</span>
+            <input type="text" id="search-tasks" class="input-main" placeholder="Пошук задач...">
+            <button id="clear-search-tasks" class="btn-icon u-hidden" aria-label="Очистити пошук">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="panel-separator"></div>
+
+    <!-- ФІЛЬТРИ (SCROLLABLE) -->
+    <div class="panel-content-scroll">
+
+        <!-- Статус -->
+        <div class="panel-section">
+            <div class="panel-section-title">Статус</div>
+            <div class="panel-section-content">
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="status" value="todo">
+                    <span>До виконання</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="status" value="in_progress">
+                    <span>В роботі</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="status" value="done">
+                    <span>Виконано</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="panel-separator"></div>
+
+        <!-- Пріоритет -->
+        <div class="panel-section">
+            <div class="panel-section-title">Пріоритет</div>
+            <div class="panel-section-content">
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="priority" value="urgent">
+                    <span>Терміново</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="priority" value="high">
+                    <span>Високий</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="priority" value="medium">
+                    <span>Середній</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="priority" value="low">
+                    <span>Низький</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="panel-separator"></div>
+
+        <!-- Тип -->
+        <div class="panel-section">
+            <div class="panel-section-title">Тип</div>
+            <div class="panel-section-content">
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="type" value="task">
+                    <span>Задача</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="type" value="info">
+                    <span>Інформація</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="type" value="script">
+                    <span>Скрипт</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" data-filter="type" value="reference">
+                    <span>Референс</span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel-separator"></div>
+
+    <!-- FOOTER З КНОПКОЮ ДОДАТИ (ФІКСОВАНИЙ ЗНИЗУ) -->
+    <div class="panel-content-footer">
+        <button id="btn-add-task" class="panel-item">
+            <span class="material-symbols-outlined panel-item-icon">add</span>
+            <span class="panel-item-text">Додати задачу</span>
+        </button>
+    </div>
+
+</div>

@@ -1,0 +1,188 @@
+<!-- templates/modals/task-edit.html -->
+
+<div class="modal-overlay modal-fullscreen" data-modal-id="task-edit">
+    <div class="modal-fullscreen-container modal-with-sidebar">
+
+        <!-- HEADER -->
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <button class="btn-icon" data-modal-close title="Закрити">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="modal-fullscreen-title">
+                    <h1 id="task-modal-title">Нова задача</h1>
+                    <span class="badge badge-info" id="task-type-badge">Задача</span>
+                </div>
+            </div>
+            <div class="modal-fullscreen-header-right">
+                <button class="btn btn-primary" id="btn-save-task">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>Зберегти</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- BODY WITH SIDEBAR -->
+        <div class="modal-body-with-sidebar">
+
+            <!-- SIDEBAR NAVIGATOR -->
+            <nav class="sidebar-navigator" id="task-section-navigator">
+                <div class="sidebar-nav-main">
+                    <a href="#section-task-main" class="sidebar-nav-item active" aria-label="Основне">
+                        <span class="material-symbols-outlined">info</span>
+                        <span class="sidebar-nav-label">Основне</span>
+                    </a>
+                    <a href="#section-task-details" class="sidebar-nav-item" aria-label="Деталі">
+                        <span class="material-symbols-outlined">tune</span>
+                        <span class="sidebar-nav-label">Деталі</span>
+                    </a>
+                    <a href="#section-task-code" class="sidebar-nav-item" aria-label="Код">
+                        <span class="material-symbols-outlined">code</span>
+                        <span class="sidebar-nav-label">Код</span>
+                    </a>
+                </div>
+                <div class="sidebar-nav-footer">
+                    <button type="button" class="sidebar-nav-item btn-delete u-hidden" id="btn-delete-task" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="sidebar-nav-label">Видалити</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- CONTENT SECTIONS -->
+            <main class="modal-fullscreen-content">
+
+                <!-- Hidden fields -->
+                <input type="hidden" id="task-id">
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ОСНОВНЕ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-task-main">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Основне</h2>
+                            </div>
+                            <h3>Назва та опис задачі</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <!-- Назва -->
+                        <div class="form-group">
+                            <label for="task-title">
+                                Назва
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="task-title" class="input-main"
+                                placeholder="Введіть назву задачі" required>
+                        </div>
+
+                        <!-- Опис -->
+                        <div class="form-group u-mt-16">
+                            <label for="task-description">Опис</label>
+                            <textarea id="task-description" class="input-main" rows="5"
+                                placeholder="Детальний опис задачі..."></textarea>
+                        </div>
+
+                        <!-- Теги -->
+                        <div class="form-group u-mt-16">
+                            <label for="task-tags">Теги</label>
+                            <input type="text" id="task-tags" class="input-main"
+                                placeholder="тег1, тег2, тег3">
+                            <p class="form-hint">Розділяйте теги комами</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ДЕТАЛІ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-task-details">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Деталі</h2>
+                            </div>
+                            <h3>Тип, пріоритет, статус, дедлайн</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <!-- Тип та Пріоритет -->
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="task-type">Тип</label>
+                                <select id="task-type" data-custom-select>
+                                    <option value="task">Задача</option>
+                                    <option value="info">Інформація</option>
+                                    <option value="script">Скрипт</option>
+                                    <option value="reference">Референс</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="task-priority">Пріоритет</label>
+                                <select id="task-priority" data-custom-select>
+                                    <option value="low">Низький</option>
+                                    <option value="medium" selected>Середній</option>
+                                    <option value="high">Високий</option>
+                                    <option value="urgent">Терміново</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Статус та Дедлайн -->
+                        <div class="form-grid form-grid-2 u-mt-16">
+                            <div class="form-group">
+                                <label for="task-status">Статус</label>
+                                <select id="task-status" data-custom-select>
+                                    <option value="todo" selected>До виконання</option>
+                                    <option value="in_progress">В роботі</option>
+                                    <option value="done">Виконано</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="task-due-date">Дедлайн</label>
+                                <input type="date" id="task-due-date" class="input-main">
+                            </div>
+                        </div>
+
+                        <!-- Призначити -->
+                        <div class="form-group u-mt-16">
+                            <label for="task-assigned-to">Призначити</label>
+                            <input type="text" id="task-assigned-to" class="input-main"
+                                placeholder="ID користувача (пусто = собі)">
+                            <p class="form-hint">Залиште пустим для призначення собі</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: КОД -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-task-code">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2>Код / Скрипт</h2>
+                            </div>
+                            <h3>Блок коду або скрипта</h3>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="task-code-snippet">Код</label>
+                            <textarea id="task-code-snippet" class="input-main input-code" rows="15"
+                                placeholder="// Ваш код тут..."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+</div>
