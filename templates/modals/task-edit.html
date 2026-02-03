@@ -149,12 +149,13 @@
                             </div>
                         </div>
 
-                        <!-- Призначити -->
+                        <!-- Призначити (мультиселект) -->
                         <div class="form-group u-mt-16">
                             <label for="task-assigned-to">Призначити</label>
-                            <input type="text" id="task-assigned-to" class="input-main"
-                                placeholder="ID користувача (пусто = собі)">
-                            <p class="form-hint">Залиште пустим для призначення собі</p>
+                            <select id="task-assigned-to" multiple data-custom-select data-select-all="true">
+                                <!-- Заповнюється динамічно -->
+                            </select>
+                            <p class="form-hint">Виберіть виконавців (можна кількох)</p>
                         </div>
                     </div>
                 </section>

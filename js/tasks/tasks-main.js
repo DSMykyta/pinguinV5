@@ -21,7 +21,7 @@
  */
 
 import { tasksState } from './tasks-state.js';
-import { loadTasks } from './tasks-data.js';
+import { loadTasks, loadUsers } from './tasks-data.js';
 import { runHook, runHookAsync } from './tasks-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
@@ -118,7 +118,11 @@ async function checkAuthAndLoadData() {
     }
 
     try {
-        await loadTasks();
+        // Завантажити задачі та користувачів паралельно
+        await Promise.all([
+            loadTasks(),
+            loadUsers()
+        ]);
 
         // Запустити хук onInit для плагінів
         await runHookAsync('onInit', tasksState.tasks);

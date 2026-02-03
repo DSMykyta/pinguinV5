@@ -12,11 +12,11 @@
  */
 
 import { tasksState } from './tasks-state.js';
-import { addTask, updateTask, deleteTask, getTaskById } from './tasks-data.js';
+import { addTask, updateTask, deleteTask, getTaskById, getUsers } from './tasks-data.js';
 import { runHook, registerTasksPlugin, registerOptionalFunction } from './tasks-plugins.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
-import { initCustomSelects } from '../common/ui-select.js';
+import { initCustomSelects, populateSelect } from '../common/ui-select.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 
 // Екземпляр редактора опису
@@ -103,7 +103,7 @@ function initTaskEditModal(task, readOnly = false) {
     // Бейдж типу
     const typeBadge = modal.querySelector('#task-type-badge');
 
-    // Заповнити поля (без description - він в редакторі)
+    // Заповнити поля (без description - він в редакторі, без assigned_to - він multiselect)
     const fields = {
         'task-id': task?.id || '',
         'task-title': task?.title || '',
@@ -112,8 +112,7 @@ function initTaskEditModal(task, readOnly = false) {
         'task-status': task?.status || 'todo',
         'task-due-date': task?.due_date || '',
         'task-tags': task?.tags || '',
-        'task-code-snippet': task?.code_snippet || '',
-        'task-assigned-to': task?.assigned_to || ''
+        'task-code-snippet': task?.code_snippet || ''
     };
 
     Object.entries(fields).forEach(([id, value]) => {
@@ -134,8 +133,36 @@ function initTaskEditModal(task, readOnly = false) {
         }
     });
 
-    // Ініціалізувати кастомні селекти
-    initCustomSelects(modal);
+    // Заповнити мультиселект користувачів
+    const users = getUsers();
+    const usersItems = users.map(u => ({
+        value: u.id,
+        text: u.display_name || u.username
+    }));
+
+    // Парсити assigned_to з comma-separated в масив
+    const selectedAssignees = task?.assigned_to
+        ? task.assigned_to.split(',').map(id => id.trim()).filter(Boolean)
+        : [];
+
+    populateSelect('task-assigned-to', usersItems, {
+        placeholder: '-- Оберіть виконавців --',
+        selectedValues: selectedAssignees,
+        reinit: true
+    });
+
+    // Disabled для read-only
+    const assignedSelect = modal.querySelector('#task-assigned-to');
+    if (assignedSelect && (readOnly || (!isOwner && isEdit))) {
+        assignedSelect.disabled = true;
+    }
+
+    // Ініціалізувати кастомні селекти (крім assigned_to - він вже ініціалізований)
+    modal.querySelectorAll('select[data-custom-select]:not(#task-assigned-to)').forEach(sel => {
+        if (!sel.closest('.custom-select-wrapper')) {
+            initCustomSelects(sel.parentElement);
+        }
+    });
 
     // Ініціалізувати rich editor для опису
     const editorContainer = modal.querySelector('#task-description-editor');
@@ -275,6 +302,12 @@ async function handleSave(modal, taskId) {
     // Отримати опис з редактора
     const description = descriptionEditor ? descriptionEditor.getValue() : '';
 
+    // Отримати вибраних виконавців з мультиселекту
+    const assignedSelect = modal.querySelector('#task-assigned-to');
+    const assignedTo = assignedSelect
+        ? Array.from(assignedSelect.selectedOptions).map(opt => opt.value).filter(Boolean).join(',')
+        : '';
+
     const taskData = {
         title,
         description,
@@ -284,7 +317,7 @@ async function handleSave(modal, taskId) {
         due_date: modal.querySelector('#task-due-date')?.value || '',
         tags: modal.querySelector('#task-tags')?.value?.trim() || '',
         code_snippet: modal.querySelector('#task-code-snippet')?.value || '',
-        assigned_to: modal.querySelector('#task-assigned-to')?.value?.trim() || ''
+        assigned_to: assignedTo
     };
 
     const saveBtn = modal.querySelector('#btn-save-task');
