@@ -58,13 +58,6 @@
 
             <div class="panel-separator"></div>
 
-            <a href="tasks.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">task_alt</span>
-                <span class="panel-item-text">Мої задачі</span>
-            </a>
-
-            <div class="panel-separator"></div>
-
             <a href="https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/edit"
                 target="_blank" rel="noopener noreferrer" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">table_chart</span>
@@ -77,6 +70,12 @@
         </div>
 
         <div class="panel-content-footer">
+            <!-- Tasks Link (ховається при згортанні) -->
+            <a href="tasks.html" target="_blank" class="panel-item panel-item-hide-collapsed" title="Мої задачі">
+                <span class="material-symbols-outlined panel-item-icon">task_alt</span>
+                <span class="panel-item-text">Мої задачі</span>
+            </a>
+
             <!-- Login Button (показується коли НЕ авторизований) -->
             <button id="auth-login-trigger-btn" class="panel-item">
                 <span class="material-symbols-outlined panel-item-icon">login</span>
