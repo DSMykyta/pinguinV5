@@ -35,6 +35,11 @@
     grid-template-columns: 1fr; /* Одна колонка при згорнутій панелі */
 }
 
+/* Повністю ховаємо елемент при згорнутій панелі */
+.panel-left:not(:hover) .panel-item-hide-collapsed {
+    display: none;
+}
+
 .panel-left .dropdown-menu {
     top: -6px;
     left: 100%;

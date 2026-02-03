@@ -1,0 +1,379 @@
+// js/tasks/tasks-data.js
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    TASKS - DATA MANAGEMENT                               ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Робота з Google Sheets API для задач.
+ * Використовує CSV export для читання (мінімізація Vercel API запитів).
+ *
+ * 🔒 ЯДРО — цей файл не можна видаляти!
+ *
+ * СТРУКТУРА КОЛОНОК Tasks (Google Sheets):
+ * ┌─────────┬────────────────────┬─────────────────────────────────────────┐
+ * │ Колонка │ Поле               │ Формат                                  │
+ * ├─────────┼────────────────────┼─────────────────────────────────────────┤
+ * │ A       │ id                 │ task-XXXXXX                             │
+ * │ B       │ title              │ текст                                   │
+ * │ C       │ description        │ текст (Markdown)                        │
+ * │ D       │ type               │ task | info | script | reference        │
+ * │ E       │ status             │ todo | in_progress | done | archived    │
+ * │ F       │ priority           │ low | medium | high | urgent            │
+ * │ G       │ created_by         │ user_id автора                          │
+ * │ H       │ assigned_to        │ user_id виконавця (пусто = собі)        │
+ * │ I       │ created_at         │ ISO datetime                            │
+ * │ J       │ updated_at         │ ISO datetime                            │
+ * │ K       │ due_date           │ YYYY-MM-DD (опціонально)                │
+ * │ L       │ tags               │ теги через кому                         │
+ * │ M       │ code_snippet       │ текст (код/скрипт)                      │
+ * └─────────┴────────────────────┴─────────────────────────────────────────┘
+ */
+
+import { tasksState } from './tasks-state.js';
+import { callSheetsAPI } from '../utils/api-client.js';
+
+// Конфігурація таблиці Tasks
+const SPREADSHEET_ID = '1XE9C6eByiQOoJ_3WNewlMO4QjUpSR-eXI-M6eDn20ls';
+const SHEET_NAME = 'Tasks';
+const SHEET_GID = '2095262750';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ЗАВАНТАЖЕННЯ ДАНИХ (CSV Export - без Vercel API)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Завантажити всі задачі через CSV export
+ * @returns {Promise<Array>} Масив задач
+ */
+export async function loadTasks() {
+    try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+        const response = await fetch(csvUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+
+        if (typeof Papa === 'undefined') {
+            throw new Error('PapaParse library is not loaded');
+        }
+
+        const parsedData = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const rows = parsedData.data;
+
+        if (!rows || rows.length === 0) {
+            console.warn('⚠️ Немає даних в Tasks');
+            tasksState.tasks = [];
+            return tasksState.tasks;
+        }
+
+        // Трансформувати дані
+        tasksState.tasks = rows.map((row, index) => ({
+            id: row.id || '',
+            title: row.title || '',
+            description: row.description || '',
+            type: row.type || 'task',
+            status: row.status || 'todo',
+            priority: row.priority || 'medium',
+            created_by: row.created_by || '',
+            assigned_to: row.assigned_to || '',
+            created_at: row.created_at || '',
+            updated_at: row.updated_at || '',
+            due_date: row.due_date || '',
+            tags: row.tags || '',
+            code_snippet: row.code_snippet || '',
+            _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
+        }));
+
+        return tasksState.tasks;
+    } catch (error) {
+        console.error('❌ Помилка завантаження задач:', error);
+        throw error;
+    }
+}
+
+/**
+ * Отримати задачі з state
+ * @returns {Array} Масив задач
+ */
+export function getTasks() {
+    return tasksState.tasks || [];
+}
+
+/**
+ * Знайти задачу за ID
+ * @param {string} taskId - ID задачі
+ * @returns {Object|null} Задача або null
+ */
+export function getTaskById(taskId) {
+    return tasksState.tasks.find(t => t.id === taskId) || null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ФІЛЬТРАЦІЯ ЗАДАЧ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Отримати задачі для поточного табу
+ * @returns {Array} Відфільтровані задачі
+ */
+export function getTasksForCurrentTab() {
+    const { tasks, activeTab, currentUserId, searchQuery, filters } = tasksState;
+
+    if (!currentUserId) return [];
+
+    let filtered = [...tasks];
+
+    // Фільтр по табу
+    switch (activeTab) {
+        case 'my':
+            // Мої задачі - створені мною для себе (assigned_to пусте або = мені)
+            filtered = filtered.filter(t =>
+                t.created_by === currentUserId &&
+                (!t.assigned_to || t.assigned_to === currentUserId)
+            );
+            break;
+        case 'inbox':
+            // Вхідні - призначені мені іншими
+            filtered = filtered.filter(t =>
+                t.assigned_to === currentUserId &&
+                t.created_by !== currentUserId
+            );
+            break;
+        case 'sent':
+            // Вихідні - я призначив іншим
+            filtered = filtered.filter(t =>
+                t.created_by === currentUserId &&
+                t.assigned_to &&
+                t.assigned_to !== currentUserId
+            );
+            break;
+        case 'info':
+            // Інфо - всі мої записи типу info/script/reference
+            filtered = filtered.filter(t =>
+                t.created_by === currentUserId &&
+                ['info', 'script', 'reference'].includes(t.type)
+            );
+            break;
+    }
+
+    // Фільтр по статусу
+    if (filters.status.length > 0) {
+        filtered = filtered.filter(t => filters.status.includes(t.status));
+    }
+
+    // Фільтр по пріоритету
+    if (filters.priority.length > 0) {
+        filtered = filtered.filter(t => filters.priority.includes(t.priority));
+    }
+
+    // Фільтр по типу
+    if (filters.type.length > 0) {
+        filtered = filtered.filter(t => filters.type.includes(t.type));
+    }
+
+    // Пошук
+    if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(t =>
+            t.title?.toLowerCase().includes(query) ||
+            t.description?.toLowerCase().includes(query) ||
+            t.tags?.toLowerCase().includes(query) ||
+            t.id?.toLowerCase().includes(query)
+        );
+    }
+
+    return filtered;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CRUD ОПЕРАЦІЇ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Генерувати новий ID для задачі
+ * @returns {string} Новий ID у форматі task-XXXXXX (6 цифр)
+ */
+function generateTaskId() {
+    let maxNum = 0;
+
+    tasksState.tasks.forEach(task => {
+        if (task.id && task.id.startsWith('task-')) {
+            const num = parseInt(task.id.replace('task-', ''), 10);
+            if (!isNaN(num) && num > maxNum) {
+                maxNum = num;
+            }
+        }
+    });
+
+    const newNum = maxNum + 1;
+    return `task-${String(newNum).padStart(6, '0')}`;
+}
+
+/**
+ * Підготувати рядок для збереження в Google Sheets
+ * @param {Object} task - Об'єкт задачі
+ * @returns {Array} Масив значень для рядка
+ */
+function prepareTaskRow(task) {
+    return [
+        task.id || '',                // A: id
+        task.title || '',             // B: title
+        task.description || '',       // C: description
+        task.type || 'task',          // D: type
+        task.status || 'todo',        // E: status
+        task.priority || 'medium',    // F: priority
+        task.created_by || '',        // G: created_by
+        task.assigned_to || '',       // H: assigned_to
+        task.created_at || '',        // I: created_at
+        task.updated_at || '',        // J: updated_at
+        task.due_date || '',          // K: due_date
+        task.tags || '',              // L: tags
+        task.code_snippet || ''       // M: code_snippet
+    ];
+}
+
+/**
+ * Додати нову задачу
+ * @param {Object} taskData - Дані задачі
+ * @returns {Promise<Object>} Додана задача
+ */
+export async function addTask(taskData) {
+    try {
+        const newId = generateTaskId();
+        const now = new Date().toISOString();
+
+        const newTask = {
+            id: newId,
+            title: taskData.title || '',
+            description: taskData.description || '',
+            type: taskData.type || 'task',
+            status: taskData.status || 'todo',
+            priority: taskData.priority || 'medium',
+            created_by: tasksState.currentUserId,
+            assigned_to: taskData.assigned_to || '',
+            created_at: now,
+            updated_at: now,
+            due_date: taskData.due_date || '',
+            tags: taskData.tags || '',
+            code_snippet: taskData.code_snippet || '',
+            _rowIndex: tasksState.tasks.length + 2
+        };
+
+        const newRow = prepareTaskRow(newTask);
+
+        await callSheetsAPI('append', {
+            range: `${SHEET_NAME}!A:M`,
+            values: [newRow],
+            spreadsheetType: 'users'
+        });
+
+        tasksState.tasks.push(newTask);
+
+        return newTask;
+    } catch (error) {
+        console.error('❌ Помилка додавання задачі:', error);
+        throw error;
+    }
+}
+
+/**
+ * Оновити задачу
+ * @param {string} taskId - ID задачі
+ * @param {Object} updates - Оновлення
+ * @returns {Promise<Object>} Оновлена задача
+ */
+export async function updateTask(taskId, updates) {
+    try {
+        const task = tasksState.tasks.find(t => t.id === taskId);
+        if (!task) {
+            throw new Error(`Задача ${taskId} не знайдена`);
+        }
+
+        // Перевірка прав - тільки автор може редагувати
+        if (task.created_by !== tasksState.currentUserId) {
+            throw new Error('Ви не можете редагувати чужі задачі');
+        }
+
+        const now = new Date().toISOString();
+
+        // Оновити локальний об'єкт
+        const updatedTask = {
+            ...task,
+            title: updates.title !== undefined ? updates.title : task.title,
+            description: updates.description !== undefined ? updates.description : task.description,
+            type: updates.type !== undefined ? updates.type : task.type,
+            status: updates.status !== undefined ? updates.status : task.status,
+            priority: updates.priority !== undefined ? updates.priority : task.priority,
+            assigned_to: updates.assigned_to !== undefined ? updates.assigned_to : task.assigned_to,
+            due_date: updates.due_date !== undefined ? updates.due_date : task.due_date,
+            tags: updates.tags !== undefined ? updates.tags : task.tags,
+            code_snippet: updates.code_snippet !== undefined ? updates.code_snippet : task.code_snippet,
+            updated_at: now
+        };
+
+        const range = `${SHEET_NAME}!A${task._rowIndex}:M${task._rowIndex}`;
+        const updatedRow = prepareTaskRow(updatedTask);
+
+        await callSheetsAPI('update', {
+            range: range,
+            values: [updatedRow],
+            spreadsheetType: 'users'
+        });
+
+        // Оновити state
+        Object.assign(task, updatedTask);
+
+        return task;
+    } catch (error) {
+        console.error('❌ Помилка оновлення задачі:', error);
+        throw error;
+    }
+}
+
+/**
+ * Видалити задачу (тільки свої)
+ * @param {string} taskId - ID задачі
+ * @returns {Promise<void>}
+ */
+export async function deleteTask(taskId) {
+    try {
+        const taskIndex = tasksState.tasks.findIndex(t => t.id === taskId);
+        if (taskIndex === -1) {
+            throw new Error(`Задача ${taskId} не знайдена`);
+        }
+
+        const task = tasksState.tasks[taskIndex];
+
+        // Перевірка прав - тільки автор може видаляти
+        if (task.created_by !== tasksState.currentUserId) {
+            throw new Error('Ви не можете видаляти чужі задачі');
+        }
+
+        const range = `${SHEET_NAME}!A${task._rowIndex}:M${task._rowIndex}`;
+        await callSheetsAPI('update', {
+            range: range,
+            values: [['', '', '', '', '', '', '', '', '', '', '', '', '']],
+            spreadsheetType: 'users'
+        });
+
+        tasksState.tasks.splice(taskIndex, 1);
+
+    } catch (error) {
+        console.error('❌ Помилка видалення задачі:', error);
+        throw error;
+    }
+}
+
+/**
+ * Швидка зміна статусу задачі
+ * @param {string} taskId - ID задачі
+ * @param {string} newStatus - Новий статус
+ * @returns {Promise<Object>} Оновлена задача
+ */
+export async function changeTaskStatus(taskId, newStatus) {
+    return updateTask(taskId, { status: newStatus });
+}
