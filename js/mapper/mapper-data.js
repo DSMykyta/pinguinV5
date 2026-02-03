@@ -410,7 +410,7 @@ export async function addCategory(data) {
             data.name_ua || '',
             data.name_ru || '',
             data.parent_id || '',
-            data.grouping || 'FALSE',
+            data.grouping || 'false',
             timestamp,
             timestamp
         ];
@@ -427,7 +427,7 @@ export async function addCategory(data) {
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
             parent_id: data.parent_id || '',
-            grouping: data.grouping || 'FALSE',
+            grouping: data.grouping || 'false',
             created_at: timestamp,
             updated_at: timestamp
         };
@@ -459,7 +459,7 @@ export async function updateCategory(id, updates) {
             updates.name_ua !== undefined ? updates.name_ua : category.name_ua,
             updates.name_ru !== undefined ? updates.name_ru : category.name_ru,
             updates.parent_id !== undefined ? updates.parent_id : category.parent_id,
-            updates.grouping !== undefined ? updates.grouping : (category.grouping || 'FALSE'),
+            updates.grouping !== undefined ? updates.grouping : (category.grouping || 'false'),
             category.created_at,
             timestamp
         ];
