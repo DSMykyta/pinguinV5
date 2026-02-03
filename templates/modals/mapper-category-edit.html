@@ -111,15 +111,11 @@
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
                                 <label>Групуюча категорія</label>
-                                <div class="radio-group">
-                                    <label class="radio-label">
-                                        <input type="radio" name="mapper-category-grouping" id="mapper-category-grouping-no" value="FALSE" checked>
-                                        <span>Ні</span>
-                                    </label>
-                                    <label class="radio-label">
-                                        <input type="radio" name="mapper-category-grouping" id="mapper-category-grouping-yes" value="TRUE">
-                                        <span>Так</span>
-                                    </label>
+                                <div class="switch-container" id="mapper-category-grouping-switch">
+                                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="FALSE" checked>
+                                    <label for="mapper-category-grouping-no" class="switch-label">Ні</label>
+                                    <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="TRUE">
+                                    <label for="mapper-category-grouping-yes" class="switch-label">Так</label>
                                 </div>
                                 <p class="form-hint">Групуючі категорії містять підкатегорії, а не товари</p>
                             </div>
