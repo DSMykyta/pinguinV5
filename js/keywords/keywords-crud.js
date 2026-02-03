@@ -41,6 +41,9 @@ export async function showAddKeywordModal() {
     // Ініціалізувати навігацію по секціях
     initSectionNavigation();
 
+    // Скинути скрол на початок
+    resetModalScroll();
+
     // Обробник закриття
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
         btn.onclick = (e) => {
@@ -92,6 +95,9 @@ export async function showEditKeywordModal(localId) {
 
     // Ініціалізувати навігацію по секціях
     initSectionNavigation();
+
+    // Скинути скрол на початок
+    resetModalScroll();
 
     // Обробник закриття
     modalEl?.querySelectorAll('[data-modal-close]').forEach(btn => {
@@ -478,6 +484,25 @@ async function initModalSelects() {
 
         // Ініціалізувати кастомний селект
         reinitializeCustomSelect(parentSelect);
+    }
+}
+
+/**
+ * Скинути скрол модалу на початок та активувати першу секцію
+ */
+function resetModalScroll() {
+    const contentArea = document.querySelector('.modal-fullscreen-content');
+    if (contentArea) {
+        contentArea.scrollTop = 0;
+    }
+
+    // Активувати перший пункт навігації
+    const nav = document.getElementById('keyword-section-navigator');
+    if (nav) {
+        const navLinks = nav.querySelectorAll('.sidebar-nav-item[href]');
+        navLinks.forEach((link, index) => {
+            link.classList.toggle('active', index === 0);
+        });
     }
 }
 
