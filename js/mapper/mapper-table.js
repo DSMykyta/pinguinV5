@@ -343,12 +343,12 @@ function getCategoriesColumns(allCategories) {
         },
         {
             id: 'grouping',
-            label: 'Тип',
+            label: 'Групуюча',
             sortable: true,
             filterable: true,
             render: (value) => {
                 const isGrouping = value === 'TRUE' || value === true || value === 'true';
-                return `<code>${isGrouping ? 'Групуюча' : 'З товарами'}</code>`;
+                return isGrouping ? 'Так' : 'Ні';
             }
         },
         createBindingsColumn('category')
@@ -1546,7 +1546,7 @@ function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-            { id: 'grouping', label: 'Тип', filterType: 'values', labelMap: { 'TRUE': 'Групуюча', 'FALSE': 'З товарами', 'true': 'Групуюча', 'false': 'З товарами', '': 'З товарами' } }
+            { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
         ],
         characteristics: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
@@ -1603,7 +1603,7 @@ function getCategoryLabelMap() {
 const filterColumnsConfig = {
     categories: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-        { id: 'grouping', label: 'Тип', filterType: 'values' }
+        { id: 'grouping', label: 'Групуюча', filterType: 'values' }
     ],
     characteristics: [
         { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
