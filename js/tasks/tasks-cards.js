@@ -6,13 +6,14 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Рендеринг карток задач.
+ * Використовує ТІЛЬКИ існуючі класи: chip-tooltip-content, severity-badge, chip, btn-icon
  *
  * 🔌 ПЛАГІН — цей файл можна видалити, система працюватиме без нього.
  */
 
 import { tasksState } from './tasks-state.js';
 import { getTasksForCurrentTab } from './tasks-data.js';
-import { registerTasksPlugin, runHook } from './tasks-plugins.js';
+import { registerTasksPlugin } from './tasks-plugins.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { registerActionHandlers, initActionHandlers, actionButton } from '../common/ui-actions.js';
 
@@ -20,11 +21,11 @@ import { registerActionHandlers, initActionHandlers, actionButton } from '../com
 // КОНСТАНТИ
 // ═══════════════════════════════════════════════════════════════════════════
 
-const PRIORITY_LABELS = {
-    urgent: { text: 'Терміново', class: 'task-priority--urgent' },
-    high: { text: 'Високий', class: 'task-priority--high' },
-    medium: { text: 'Середній', class: 'task-priority--medium' },
-    low: { text: 'Низький', class: 'task-priority--low' }
+const PRIORITY_MAP = {
+    urgent: { icon: 'brightness_alert', class: 'severity-high' },
+    high: { icon: 'warning', class: 'severity-high' },
+    medium: { icon: 'info', class: 'severity-medium' },
+    low: { icon: 'check_circle', class: 'severity-low' }
 };
 
 const STATUS_LABELS = {
@@ -44,7 +45,7 @@ const TYPE_ICONS = {
 const ACTION_CONTEXT = 'tasks';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ (ui-actions.js)
+// РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
 // ═══════════════════════════════════════════════════════════════════════════
 
 registerActionHandlers(ACTION_CONTEXT, {
@@ -64,10 +65,9 @@ registerActionHandlers(ACTION_CONTEXT, {
             console.warn('tasks-crud.js не завантажено');
         }
     },
-    status: async (rowId, data, context) => {
+    status: async (rowId) => {
         try {
             const { showStatusDropdown } = await import('./tasks-ui.js');
-            // Знаходимо кнопку для позиціонування dropdown
             const btn = document.querySelector(`[data-action="status"][data-row-id="${rowId}"]`);
             if (btn) showStatusDropdown(btn, rowId);
         } catch (err) {
@@ -80,9 +80,6 @@ registerActionHandlers(ACTION_CONTEXT, {
 // РЕНДЕРИНГ
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Рендеринг карток для поточного табу
- */
 function renderCards() {
     const containerId = `tasks-container-${tasksState.activeTab}`;
     const container = document.getElementById(containerId);
@@ -91,74 +88,29 @@ function renderCards() {
     const statsId = `tab-stats-${tasksState.activeTab}`;
     const statsEl = document.getElementById(statsId);
 
-    // Отримати відфільтровані задачі
     const tasks = getTasksForCurrentTab();
-    const totalItems = tasks.length;
 
-    // Пагінація
-    const { currentPage, pageSize } = tasksState.pagination;
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + pageSize, totalItems);
-    const paginatedTasks = tasks.slice(startIndex, endIndex);
-
-    // Оновити статистику
     if (statsEl) {
-        statsEl.textContent = `Показано ${paginatedTasks.length} з ${totalItems}`;
+        statsEl.textContent = `${tasks.length} записів`;
     }
 
-    // Оновити пагінацію
-    if (tasksState.paginationAPI) {
-        tasksState.pagination.totalItems = totalItems;
-        tasksState.paginationAPI.update({
-            currentPage,
-            pageSize,
-            totalItems
-        });
-    }
-
-    // Рендеринг
-    if (paginatedTasks.length === 0) {
+    if (tasks.length === 0) {
         renderEmptyState(container);
         return;
     }
 
-    const cardsHtml = paginatedTasks.map(task => renderCard(task)).join('');
-    container.innerHTML = `<div class="tasks-grid">${cardsHtml}</div>`;
+    // chip-container - існуючий клас для flex-wrap контейнера
+    const cardsHtml = tasks.map(task => renderCard(task)).join('');
+    container.innerHTML = `<div class="chip-container">${cardsHtml}</div>`;
 
-    // Ініціалізувати ui-actions на контейнері
     initActionHandlers(container, ACTION_CONTEXT);
-
-    // Ініціалізувати клік на картку для перегляду
     initCardClickEvents(container);
 }
 
-/**
- * Рендеринг однієї картки
- * @param {Object} task - Дані задачі
- * @returns {string} HTML картки
- */
 function renderCard(task) {
-    const priority = PRIORITY_LABELS[task.priority] || PRIORITY_LABELS.medium;
+    const priority = PRIORITY_MAP[task.priority] || PRIORITY_MAP.medium;
     const status = STATUS_LABELS[task.status] || STATUS_LABELS.todo;
-    const typeIcon = TYPE_ICONS[task.type] || TYPE_ICONS.task;
 
-    const dueDateHtml = task.due_date
-        ? `<span class="task-due-date"><span class="material-symbols-outlined">schedule</span>${formatDate(task.due_date)}</span>`
-        : '';
-
-    const tagsHtml = task.tags
-        ? `<div class="task-tags">${task.tags.split(',').map(t => `<span class="task-tag">${t.trim()}</span>`).join('')}</div>`
-        : '';
-
-    const codeHtml = task.code_snippet
-        ? `<pre class="task-code"><code>${escapeHtml(task.code_snippet.substring(0, 200))}${task.code_snippet.length > 200 ? '...' : ''}</code></pre>`
-        : '';
-
-    const assignedHtml = task.assigned_to && task.assigned_to !== task.created_by
-        ? `<span class="task-assigned"><span class="material-symbols-outlined">person</span>${task.assigned_to}</span>`
-        : '';
-
-    // Кнопки дій через ui-actions
     const editBtn = actionButton({
         action: 'edit',
         rowId: task.id,
@@ -170,54 +122,31 @@ function renderCard(task) {
     const statusBtn = actionButton({
         action: 'status',
         rowId: task.id,
-        icon: 'swap_horiz',
-        tooltip: 'Змінити статус',
+        icon: status.icon,
+        tooltip: status.text,
         context: ACTION_CONTEXT
     });
 
+    // tooltip-content - базовий клас для чорних карток
+    // severity-badge - існуючий клас для пріоритету
     return `
-        <div class="task-card" data-task-id="${task.id}" data-status="${task.status}" data-priority="${task.priority}">
-            <div class="task-card-header">
-                <span class="task-type" title="${task.type}">
-                    <span class="material-symbols-outlined">${typeIcon}</span>
-                </span>
-                <span class="task-priority ${priority.class}">${priority.text}</span>
-                ${dueDateHtml}
-            </div>
-
-            <div class="task-card-body">
-                <h4 class="task-title">${escapeHtml(task.title)}</h4>
-                ${task.description ? `<p class="task-description">${escapeHtml(task.description.substring(0, 150))}${task.description.length > 150 ? '...' : ''}</p>` : ''}
-                ${codeHtml}
-                ${tagsHtml}
-            </div>
-
-            <div class="task-card-footer">
-                <div class="task-meta">
-                    <span class="task-status" data-status="${task.status}">
-                        <span class="material-symbols-outlined">${status.icon}</span>
-                        ${status.text}
-                    </span>
-                    ${assignedHtml}
-                </div>
-
-                <div class="task-actions">
-                    ${editBtn}
-                    ${statusBtn}
-                </div>
+        <div class="tooltip-content" data-task-id="${task.id}" data-status="${task.status}">
+            <span class="severity-badge ${priority.class}">
+                <span class="material-symbols-outlined">${priority.icon}</span>
+            </span>
+            <strong>${escapeHtml(task.title)}</strong>
+            ${task.description ? `<p>${escapeHtml(task.description.substring(0, 100))}${task.description.length > 100 ? '...' : ''}</p>` : ''}
+            <div class="chip-list">
+                ${editBtn}
+                ${statusBtn}
             </div>
         </div>
     `;
 }
 
-/**
- * Рендеринг пустого стану
- */
 function renderEmptyState(container) {
     const messages = {
         my: 'У вас ще немає задач',
-        inbox: 'Немає вхідних задач',
-        sent: 'Ви ще не призначали задачі іншим',
         info: 'Немає збереженої інформації'
     };
 
@@ -233,13 +162,9 @@ function renderEmptyState(container) {
     container.innerHTML = avatarHtml;
 }
 
-/**
- * Ініціалізувати клік на картку для перегляду
- */
 function initCardClickEvents(container) {
-    container.querySelectorAll('.task-card').forEach(card => {
+    container.querySelectorAll('.tooltip-content[data-task-id]').forEach(card => {
         card.addEventListener('click', async (e) => {
-            // Ігнорувати кліки на кнопках
             if (e.target.closest('[data-action]')) return;
 
             const taskId = card.dataset.taskId;
@@ -257,18 +182,6 @@ function initCardClickEvents(container) {
 // УТИЛІТИ
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Форматувати дату
- */
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' });
-}
-
-/**
- * Екранувати HTML
- */
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -282,7 +195,6 @@ function escapeHtml(text) {
 
 registerTasksPlugin('onInit', renderCards);
 registerTasksPlugin('onRender', renderCards);
-registerTasksPlugin('onTabChange', renderCards);
 registerTasksPlugin('onFilterChange', renderCards);
 
 export { renderCards };
