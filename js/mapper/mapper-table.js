@@ -362,14 +362,9 @@ function initCategoriesTableAPI(container, allCategories) {
     // Якщо API вже існує - не створюємо знову
     if (mapperTableAPIs.has('categories')) return;
 
-    let visibleCols = mapperState.visibleColumns.categories?.length > 0
+    const visibleCols = mapperState.visibleColumns.categories?.length > 0
         ? [...mapperState.visibleColumns.categories, '_sourceLabel']
         : ['id', '_sourceLabel', 'name_ua', 'parent_id', 'grouping'];
-
-    // Завжди додаємо grouping якщо його немає (для сумісності зі старими налаштуваннями)
-    if (!visibleCols.includes('grouping')) {
-        visibleCols.push('grouping');
-    }
 
     const tableAPI = createPseudoTable(container, {
         columns: getCategoriesColumns(allCategories),
