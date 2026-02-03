@@ -26,7 +26,7 @@ import { handleInputTypeSwitch } from './gt-row-renderer.js';
 // ============================================================================
 
 /** Regex для одиниць виміру */
-const UNITS = '(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО)';
+const UNITS = '(?:г|мг|мкг|ккал|кдж|ml|g|mg|mcg|iu|ме|IU|МЕ|cfu|КУО|HUT|GDU|TU|FIP|LACU|GALU|ALU|SKB|DU|LU|HCU|PU)';
 const MULTIPLIERS = '(?:billion|million|bil|mil|тыс|тис|млн|млрд)?';
 
 /** Regex для числового значення з одиницею */
