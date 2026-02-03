@@ -364,7 +364,7 @@ function initCategoriesTableAPI(container, allCategories) {
 
     const visibleCols = mapperState.visibleColumns.categories?.length > 0
         ? [...mapperState.visibleColumns.categories, '_sourceLabel']
-        : ['id', '_sourceLabel', 'name_ua', 'parent_id'];
+        : ['id', '_sourceLabel', 'name_ua', 'parent_id', 'grouping'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getCategoriesColumns(allCategories),
