@@ -39,6 +39,45 @@ import { smartParseLine } from './gt-smart-value-parser.js';
 // ПІДГОТОВКА ТЕКСТУ
 // ============================================================================
 
+/** Патерни заголовків з текстом на тому ж рядку */
+const INLINE_HEADER_PATTERNS = [
+    /^(ингредиенты|інгредієнти|другие ингредиенты|інші інгредієнти):\s*(.+)$/i,
+    /^(состав|склад):\s*(.+)$/i,
+];
+
+/**
+ * Розділяє рядки типу "Ингредиенты: текст" на два окремих рядки
+ * @param {string[]} lines - Масив рядків
+ * @returns {string[]} - Масив з розділеними рядками
+ */
+function splitInlineHeaders(lines) {
+    const result = [];
+
+    for (const line of lines) {
+        let matched = false;
+
+        for (const pattern of INLINE_HEADER_PATTERNS) {
+            const match = line.match(pattern);
+            if (match) {
+                // Додаємо заголовок окремо
+                result.push(match[1]);
+                // Додаємо текст окремо
+                if (match[2].trim()) {
+                    result.push(match[2].trim());
+                }
+                matched = true;
+                break;
+            }
+        }
+
+        if (!matched) {
+            result.push(line);
+        }
+    }
+
+    return result;
+}
+
 /**
  * Очищає та розбиває текст на рядки
  * @param {string} text - Вхідний текст
@@ -47,11 +86,16 @@ import { smartParseLine } from './gt-smart-value-parser.js';
 function prepareLines(text) {
     const cleaned = cleanText(text);
 
-    return cleaned
+    let lines = cleaned
         .split('\n')
         .map(line => line.trim())
         .filter(line => line)
         .filter(line => !shouldSkipLine(line));
+
+    // Розділяємо "Ингредиенты: текст" на два рядки
+    lines = splitInlineHeaders(lines);
+
+    return lines;
 }
 
 // ============================================================================
