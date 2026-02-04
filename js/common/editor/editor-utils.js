@@ -153,6 +153,17 @@ export function sanitizeHtml(html) {
         span.parentNode.replaceChild(fragment, span);
     });
 
+    // Виносимо UL/OL з P (невалідна структура <p><ul>)
+    temp.querySelectorAll('p > ul, p > ol').forEach(list => {
+        const p = list.parentNode;
+        // Вставляємо список після P
+        p.parentNode.insertBefore(list, p.nextSibling);
+        // Якщо P порожній - видаляємо
+        if (!p.textContent.trim()) {
+            p.remove();
+        }
+    });
+
     // Видаляємо всі атрибути з дозволених тегів
     temp.querySelectorAll('*').forEach(el => {
         const isHighlight = el.classList?.contains('highlight-error');
@@ -164,9 +175,11 @@ export function sanitizeHtml(html) {
         }
     });
 
-    // Видаляємо порожні параграфи
+    // Видаляємо порожні параграфи (включаючи ті що містять тільки <br>)
     temp.querySelectorAll('p').forEach(p => {
-        if (!p.textContent.trim() && !p.querySelector('br')) {
+        const hasOnlyBr = !p.textContent.trim() && p.querySelector('br');
+        const isEmpty = !p.textContent.trim() && !p.children.length;
+        if (isEmpty || hasOnlyBr) {
             p.remove();
         }
     });
@@ -203,12 +216,22 @@ export function sanitizeEditor(state) {
 
     let changed = false;
 
-    // Огортаємо "голі" текстові ноди в <p>
+    // Огортаємо "голі" текстові ноди та inline-елементи в <p>
+    // Блочні елементи, які не потребують обгортки
+    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
+
     Array.from(editor.childNodes).forEach(node => {
         if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+            // Голий текстовий нод
             const p = document.createElement('p');
             p.textContent = node.textContent;
             node.parentNode.replaceChild(p, node);
+            changed = true;
+        } else if (node.nodeType === Node.ELEMENT_NODE && !blockTags.includes(node.tagName)) {
+            // Inline-елемент без блочного контейнера (strong, em, тощо)
+            const p = document.createElement('p');
+            node.parentNode.insertBefore(p, node);
+            p.appendChild(node);
             changed = true;
         }
     });
@@ -307,6 +330,18 @@ export function sanitizeEditor(state) {
         while (el.attributes.length > 0) {
             el.removeAttribute(el.attributes[0].name);
         }
+    });
+
+    // Виносимо UL/OL з P (невалідна структура <p><ul>)
+    editor.querySelectorAll('p > ul, p > ol').forEach(list => {
+        const p = list.parentNode;
+        // Вставляємо список після P
+        p.parentNode.insertBefore(list, p.nextSibling);
+        // Якщо P порожній - видаляємо
+        if (!p.textContent.trim()) {
+            p.remove();
+        }
+        changed = true;
     });
 
     // Виправляємо вкладені P теги (невалідний HTML: <p><p>text</p></p>)
