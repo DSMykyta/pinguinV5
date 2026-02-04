@@ -17,6 +17,8 @@
 (function MobileInstruments() {
     'use strict';
 
+    console.log('[Mobile] Script loaded');
+
     // ============================================
     // CONFIGURATION
     // ============================================
@@ -72,7 +74,15 @@
     // ============================================
 
     function init() {
-        if (!isMobilePage()) return;
+        console.log('[Mobile] init() called');
+        console.log('[Mobile] isMobilePage:', isMobilePage());
+        console.log('[Mobile] window.innerWidth:', window.innerWidth);
+        console.log('[Mobile] breakpoint:', CONFIG.breakpoint);
+
+        if (!isMobilePage()) {
+            console.log('[Mobile] Not a mobile page, exiting');
+            return;
+        }
 
         // Check if mobile on load
         checkMobile();
@@ -80,10 +90,14 @@
         // Listen for resize
         window.addEventListener('resize', debounce(checkMobile, 150));
 
-        // Create mobile elements if needed
+        console.log('[Mobile] state.isMobile:', state.isMobile);
+
+        // Create mobile elements if needed - FORCE CREATE for mobile
         if (state.isMobile) {
+            console.log('[Mobile] Creating mobile elements...');
             createMobileElements();
             bindEvents();
+            console.log('[Mobile] Mobile elements created');
         }
     }
 
@@ -746,9 +760,16 @@
     // INIT ON DOM READY
     // ============================================
 
+    console.log('[Mobile] document.readyState:', document.readyState);
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        console.log('[Mobile] Waiting for DOMContentLoaded...');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[Mobile] DOMContentLoaded fired');
+            init();
+        });
     } else {
+        console.log('[Mobile] DOM already ready, calling init()');
         init();
     }
 
