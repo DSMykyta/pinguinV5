@@ -1,13 +1,40 @@
 // js/generators/generator-table/gt-reset.js
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    TABLE GENERATOR LEGO - RESET PLUGIN                   ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔌 ПЛАГІН — Очищення таблиці                                            ║
+ * ║                                                                          ║
+ * ║  ФУНКЦІЇ:                                                                ║
+ * ║  - performTableReset() — Очистити всі рядки                              ║
+ * ║  - Кнопка з підтвердженням через модал                                   ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
+
 import { getTableDOM } from './gt-dom.js';
-import { resetRowCounter } from './gt-state.js';
-import { clearSession } from './gt-session-manager.js';
-import { initializeFirstRow } from './gt-row-manager.js'; // Потрібно для відновлення
+import { markPluginLoaded, resetRowCounter, runHook } from './gt-state.js';
+import { initializeFirstRow } from './gt-row-manager.js';
+
+export const PLUGIN_NAME = 'gt-reset';
+
+// ============================================================================
+// ІНІЦІАЛІЗАЦІЯ
+// ============================================================================
+
+export function init() {
+    markPluginLoaded(PLUGIN_NAME);
+    setupResetButton();
+}
+
+// ============================================================================
+// RESET LOGIC
+// ============================================================================
 
 /**
  * Виконує фактичне очищення секції таблиць та UI.
  */
-function performTableReset() {
+export function performTableReset() {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
     const icon = dom.reloadBtn?.querySelector('span');
@@ -16,40 +43,50 @@ function performTableReset() {
     if (dom.reloadBtn) dom.reloadBtn.disabled = true;
     if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--color-primary)';
     icon?.classList.add('is-spinning');
-    // ---------------------
 
     // Виконуємо очищення
     dom.rowsContainer.innerHTML = '';
     resetRowCounter();
-    clearSession();
+
+    // Викликаємо хук для інших плагінів (session manager очистить сесію)
+    runHook('onTableReset');
+
     initializeFirstRow();
 
-    // --- Анімація СТОП (одразу) ---
+    // --- Анімація СТОП ---
     if (dom.reloadBtn) dom.reloadBtn.disabled = false;
     if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--text-disabled)';
     icon?.classList.remove('is-spinning');
-    // Переконуємось, що transform скинуто
-    if(icon) icon.style.transform = 'none';
-    // -------------------------
+    if (icon) icon.style.transform = 'none';
 }
 
-/**
- * Ініціалізує логіку кнопки очищення для таблиць (з модальним вікном).
- */
-export function initTableReset() {
+// ============================================================================
+// BUTTON SETUP
+// ============================================================================
+
+function setupResetButton() {
     const dom = getTableDOM();
     if (!dom.reloadBtn) return;
 
-    // 1. Кнопка "Оновити" просто відкриває модал
+    // 1. Кнопка "Оновити" відкриває модал
     dom.reloadBtn.dataset.modalTrigger = 'confirm-clear-modal';
     dom.reloadBtn.dataset.modalSize = 'small';
 
-    // 2. Слухаємо кнопку "Так, очистити" всередині модалу
-    document.body.addEventListener('click', (e) => {
-        const confirmBtn = e.target.closest('#confirm-clear-action');
-        if (confirmBtn) {
-            performTableReset(); // Викликаємо очищення
-            // Закриття модалу обробляється ui-modal.js через data-modal-close
-        }
-    });
+    // 2. Слухаємо кнопку підтвердження
+    document.body.addEventListener('click', handleConfirmClick);
+}
+
+function handleConfirmClick(e) {
+    const confirmBtn = e.target.closest('#confirm-clear-action');
+    if (confirmBtn) {
+        performTableReset();
+    }
+}
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+export function destroy() {
+    document.body.removeEventListener('click', handleConfirmClick);
 }

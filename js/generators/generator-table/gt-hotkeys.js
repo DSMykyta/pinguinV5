@@ -2,34 +2,67 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║             TABLE GENERATOR - ГАРЯЧІ КЛАВІШІ (HOTKEYS)                   ║
+ * ║                    TABLE GENERATOR LEGO - HOTKEYS PLUGIN                 ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔌 ПЛАГІН — Гарячі клавіші                                              ║
+ * ║                                                                          ║
+ * ║  HOTKEYS:                                                                ║
+ * ║  - Ctrl+Enter — Додати рядок                                             ║
+ * ║  - Ctrl+Shift+Enter — Додати порожній рядок                              ║
+ * ║  - Ctrl+Delete — Видалити поточний рядок                                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- * * ПРИЗНАЧЕННЯ:
- * Додає підтримку гарячих клавіш для швидкого управління таблицею.
  */
 
+import { markPluginLoaded } from './gt-state.js';
 import { createAndAppendRow, initializeEmptyRow, deleteRow } from './gt-row-manager.js';
 
-export function initHotkeys() {
-    document.addEventListener('keydown', (e) => {
-        // Перевіряємо, що фокус знаходиться всередині нашого контейнера
-        const isFocusedInContainer = document.activeElement && document.getElementById('rows-container').contains(document.activeElement);
+export const PLUGIN_NAME = 'gt-hotkeys';
 
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            if (e.shiftKey) {
-                initializeEmptyRow(); // Ctrl + Shift + Enter
-            } else {
-                createAndAppendRow(); // Ctrl + Enter
-            }
-        }
+// ============================================================================
+// ІНІЦІАЛІЗАЦІЯ
+// ============================================================================
 
-        if (isFocusedInContainer && e.ctrlKey && e.key === 'Delete') {
-            e.preventDefault();
-            const activeRow = document.activeElement.closest('.inputs-bloc');
-            if (activeRow) {
-                deleteRow(activeRow);
-            }
+export function init() {
+    markPluginLoaded(PLUGIN_NAME);
+    setupHotkeys();
+}
+
+// ============================================================================
+// HOTKEYS
+// ============================================================================
+
+function setupHotkeys() {
+    document.addEventListener('keydown', handleKeydown);
+}
+
+function handleKeydown(e) {
+    const container = document.getElementById('rows-container');
+    const isFocusedInContainer = container && document.activeElement && container.contains(document.activeElement);
+
+    // Ctrl+Enter / Ctrl+Shift+Enter
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) {
+            initializeEmptyRow();
+        } else {
+            createAndAppendRow();
         }
-    });
+    }
+
+    // Ctrl+Delete
+    if (isFocusedInContainer && e.ctrlKey && e.key === 'Delete') {
+        e.preventDefault();
+        const activeRow = document.activeElement.closest('.inputs-bloc');
+        if (activeRow) {
+            deleteRow(activeRow);
+        }
+    }
+}
+
+// ============================================================================
+// CLEANUP
+// ============================================================================
+
+export function destroy() {
+    document.removeEventListener('keydown', handleKeydown);
 }

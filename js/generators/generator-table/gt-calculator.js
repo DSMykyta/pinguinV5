@@ -2,27 +2,46 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                TABLE GENERATOR - КАЛЬКУЛЯТОР (CALCULATOR)                ║
+ * ║                    TABLE GENERATOR LEGO - CALCULATOR                     ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔌 ПЛАГІН — Математичні розрахунки для таблиці                          ║
+ * ║                                                                          ║
+ * ║  ФУНКЦІЇ:                                                                ║
+ * ║  - calculatePercentages() — Розрахунок відсотків БЖВ                     ║
+ * ║  - markEssentialAminoAcids() — Позначення незамінних амінокислот         ║
+ * ║  - checkForEmptyNutritionFacts() — Валідація перед генерацією            ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- * * ПРИЗНАЧЕННЯ:
- * Містить всю математичну логіку. Відповідає за розрахунок відсотків БЖВ
- * та за перевірку заповненості ключових полів перед генерацією.
  */
 
 import { getTableDOM } from './gt-dom.js';
 import { NUTRITION_PATTERNS, SELECTORS } from './gt-config.js';
-// 1. Імпортуємо нову функцію для показу повідомлень
 import { showToast } from '../../common/ui-toast.js';
+import { markPluginLoaded } from './gt-state.js';
 
-const dom = getTableDOM();
+export const PLUGIN_NAME = 'gt-calculator';
+
+// ============================================================================
+// ІНІЦІАЛІЗАЦІЯ
+// ============================================================================
+
+export function init() {
+    markPluginLoaded(PLUGIN_NAME);
+}
+
+// ============================================================================
+// CALCULATIONS
+// ============================================================================
 
 /**
  * Головна функція для розрахунку відсотків.
  */
 export function calculatePercentages() {
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return;
+
     const servingRow = Array.from(dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC))
         .find(r => r.querySelector(SELECTORS.INPUT_LEFT).value.match(NUTRITION_PATTERNS.SERVING));
-    
+
     let servingWeight = 0;
     if (servingRow) {
         const weightMatch = servingRow.querySelector(SELECTORS.INPUT_RIGHT).value.match(/(\d+(\.\d+)?)/);
@@ -40,7 +59,7 @@ export function calculatePercentages() {
     NUTRITION_PATTERNS.NUTRIENTS.forEach(nutrient => {
         const row = Array.from(dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC))
             .find(r => r.querySelector(SELECTORS.INPUT_LEFT).value.includes(nutrient));
-        
+
         if (row) {
             const value = parseFloat(row.querySelector(SELECTORS.INPUT_RIGHT).value.replace(',', '.')) || 0;
             const percentage = value > 0 ? `${Math.round((value / servingWeight) * 100)}%` : '';
@@ -51,23 +70,28 @@ export function calculatePercentages() {
     });
 }
 
+// ============================================================================
+// AMINO ACIDS MARKING
+// ============================================================================
+
+const ESSENTIAL_AMINOS = [
+    'гістидин', 'гистидин',
+    'ізолейцин', 'изолейцин',
+    'лейцин',
+    'лізин', 'лизин',
+    'метіонін', 'метионин',
+    'фенілаланін', 'фенилаланин',
+    'треонін', 'треонин',
+    'триптофан',
+    'валін', 'валин'
+];
+
 /**
  * Позначає незамінні амінокислоти кольоровим індикатором.
- * Додає клас до .input-right-tool без тексту (просто кольоровий маркер).
  */
 export function markEssentialAminoAcids() {
-    // 9 незамінних амінокислот (укр + рос варіанти)
-    const essentialAminos = [
-        'гістидин', 'гистидин',
-        'ізолейцин', 'изолейцин',
-        'лейцин',
-        'лізин', 'лизин',
-        'метіонін', 'метионин',
-        'фенілаланін', 'фенилаланин',
-        'треонін', 'треонин',
-        'триптофан',
-        'валін', 'валин'
-    ];
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return;
 
     const rows = dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC);
 
@@ -77,15 +101,13 @@ export function markEssentialAminoAcids() {
 
         if (!toolSpan) return;
 
-        const isEssential = essentialAminos.some(amino => leftValue.includes(amino));
+        const isEssential = ESSENTIAL_AMINOS.some(amino => leftValue.includes(amino));
 
         if (isEssential) {
-            // Додаємо клас та текст EAA (Essential Amino Acid)
             toolSpan.textContent = 'EAA';
             toolSpan.classList.add('tooltip-sm', 'essential-amino');
         } else {
             toolSpan.classList.remove('essential-amino');
-            // Очищаємо текст тільки якщо це був EAA (не відсоток)
             if (toolSpan.textContent === 'EAA') {
                 toolSpan.textContent = '';
                 toolSpan.classList.remove('tooltip-sm');
@@ -94,18 +116,24 @@ export function markEssentialAminoAcids() {
     });
 }
 
+// ============================================================================
+// VALIDATION
+// ============================================================================
+
 /**
  * Перевіряє, чи заповнене праве поле у рядку "Пищевая ценность".
  * @param {boolean} [silent=false] - Якщо true, не показувати повідомлення.
  * @returns {boolean} - true, якщо поле порожнє.
  */
 export function checkForEmptyNutritionFacts(silent = false) {
+    const dom = getTableDOM();
+    if (!dom.rowsContainer) return false;
+
     const nutritionRow = Array.from(dom.rowsContainer.querySelectorAll(SELECTORS.INPUTS_BLOC))
         .find(row => row.querySelector(SELECTORS.INPUT_LEFT).value.match(NUTRITION_PATTERNS.SERVING));
 
     if (nutritionRow && !nutritionRow.querySelector(SELECTORS.INPUT_RIGHT).value.trim()) {
         if (!silent) {
-            // 2. Замінюємо alert(...) на showToast(...)
             showToast('Обов\'язкове поле "Пищевая ценность" не заповнено!', 'error');
         }
         return true;
