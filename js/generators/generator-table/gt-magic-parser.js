@@ -78,26 +78,6 @@ function splitInlineHeaders(lines) {
     return result;
 }
 
-/**
- * Очищає та розбиває текст на рядки
- * @param {string} text - Вхідний текст
- * @returns {string[]} - Масив очищених рядків
- */
-function prepareLines(text) {
-    const cleaned = cleanText(text);
-
-    let lines = cleaned
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line)
-        .filter(line => !shouldSkipLine(line));
-
-    // Розділяємо "Ингредиенты: текст" на два рядки
-    lines = splitInlineHeaders(lines);
-
-    return lines;
-}
-
 // ============================================================================
 // ПАРСИНГ ТЕКСТУ
 // ============================================================================
@@ -110,7 +90,8 @@ function prepareLines(text) {
 function parseLineWithTab(line) {
     // Якщо є табуляція - це роздільник колонок
     if (line.includes('\t')) {
-        const parts = line.split('\t').map(p => p.trim()).filter(p => p);
+        // Розділяємо по табах і очищаємо кожну частину
+        const parts = line.split('\t').map(p => cleanText(p.trim())).filter(p => p);
         if (parts.length >= 2) {
             return { left: parts[0], right: parts.slice(1).join(' ') };
         } else if (parts.length === 1) {

@@ -59,18 +59,18 @@ export function mergeOrphanValues(lines) {
     // Йдемо з кінця, щоб індекси не зсувались
     for (let i = result.length - 1; i > 0; i--) {
         const currentLine = result[i];
+        const prevLine = result[i - 1];
 
         // Якщо поточний рядок - це тільки значення
         if (VALUE_ONLY_REGEX.test(currentLine)) {
-            // Шукаємо попередній рядок без значення
-            for (let j = i - 1; j >= 0; j--) {
-                if (!HAS_VALUE_REGEX.test(result[j])) {
-                    // Склеюємо
-                    result[j] = result[j] + ' ' + currentLine;
-                    result.splice(i, 1);
-                    break;
-                }
+            // Склеюємо ТІЛЬКИ з безпосередньо попереднім рядком
+            // якщо він не має значення (безпечніше, ніж шукати далі)
+            if (prevLine && !HAS_VALUE_REGEX.test(prevLine)) {
+                result[i - 1] = prevLine + ' ' + currentLine;
+                result.splice(i, 1);
             }
+            // Якщо попередній вже має значення - залишаємо осиротіле як є
+            // (можливо, це окремий запис)
         }
     }
 

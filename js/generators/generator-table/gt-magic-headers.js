@@ -23,6 +23,8 @@
  * - processHeaders(entries, servingSize) - обробити заголовки
  */
 
+import { isServingLine } from './gt-magic-serving.js';
+
 // ============================================================================
 // ПАТЕРНИ ЗАГОЛОВКІВ
 // ============================================================================
@@ -53,16 +55,6 @@ export function isHeaderLine(text) {
     return HEADER_PATTERNS.ingredients.test(trimmed) ||
            HEADER_PATTERNS.composition.test(trimmed) ||
            HEADER_PATTERNS.nutrition.test(trimmed);
-}
-
-/**
- * Перевіряє чи рядок є порцією (для Пищевая ценность)
- * @param {string} text - Текст для перевірки
- * @returns {boolean}
- */
-export function isServingLine(text) {
-    if (!text) return false;
-    return /^(\d+\s*(г|g|мл|ml|таблетк|капсул|порц|softgel|tablet|capsule))/i.test(text.trim());
 }
 
 /**
