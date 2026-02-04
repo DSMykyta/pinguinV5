@@ -103,21 +103,52 @@ function prepareLines(text) {
 // ============================================================================
 
 /**
+ * Парсить рядок з урахуванням табуляції як роздільника колонок
+ * @param {string} line - Рядок (може містити таб)
+ * @returns {{left: string, right: string}}
+ */
+function parseLineWithTab(line) {
+    // Якщо є табуляція - це роздільник колонок
+    if (line.includes('\t')) {
+        const parts = line.split('\t').map(p => p.trim()).filter(p => p);
+        if (parts.length >= 2) {
+            return { left: parts[0], right: parts.slice(1).join(' ') };
+        } else if (parts.length === 1) {
+            return { left: parts[0], right: '' };
+        }
+    }
+    // Інакше - звичайний парсинг
+    return smartParseLine(cleanText(line));
+}
+
+/**
  * Головна функція парсингу тексту
  * @param {string} text - Текст для парсингу
  * @returns {Object[]} - Масив записів {left, right, isHeader, ...}
  */
 function parseText(text) {
     const servingSize = extractServingSize(text);
-    let lines = prepareLines(text);
-    lines = mergeOrphanValues(lines);
 
-    // Парсимо всі рядки + нормалізуємо назви
-    let entries = lines.map(line => {
-        const parsed = smartParseLine(line);
-        parsed.left = normalizeNutrientName(parsed.left);
-        return parsed;
-    });
+    // Розділяємо на рядки БЕЗ очищення табів спочатку
+    let rawLines = text
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line);
+
+    // Розділяємо inline headers (Ингредиенты: текст)
+    rawLines = splitInlineHeaders(rawLines);
+
+    // Склеюємо осиротілі значення (для не-табличних даних)
+    rawLines = mergeOrphanValues(rawLines);
+
+    // Парсимо кожен рядок з урахуванням табуляції
+    let entries = rawLines
+        .filter(line => !shouldSkipLine(cleanText(line)))
+        .map(line => {
+            const parsed = parseLineWithTab(line);
+            parsed.left = normalizeNutrientName(parsed.left);
+            return parsed;
+        });
 
     // Сортуємо нутрієнти за стандартним порядком
     entries = sortNutrients(entries);
