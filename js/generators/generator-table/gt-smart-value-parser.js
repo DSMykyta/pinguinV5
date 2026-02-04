@@ -124,6 +124,7 @@ export function smartParseLine(line) {
         parseWithAltValue,      // "50 мкг (2000 IU)"
         parseProbiotic,         // "10 billion CFU"
         parseStandard,          // "500 мг"
+        parseCaloriesNoUnit,    // "Калории 120" (без одиниці)
     ];
 
     for (const strategy of strategies) {
@@ -252,6 +253,23 @@ function parseProbiotic(line) {
 }
 
 /**
+ * Парсинг калорій без одиниці: "Калории 120"
+ */
+function parseCaloriesNoUnit(line) {
+    // Патерн: Калорії/Calories/Energy + число (без одиниці)
+    const regex = /^(калории|калорії|калорий|calories?|energy|kcal|энергия|енергія)\s+(\d+[\d,.]*)$/i;
+
+    const match = line.match(regex);
+    if (match) {
+        return {
+            left: match[1].trim(),
+            right: match[2].trim()
+        };
+    }
+    return null;
+}
+
+/**
  * Стандартний парсинг: "500 мг", "1000 мкг"
  */
 function parseStandard(line) {
@@ -290,5 +308,6 @@ export const _testExports = {
     parseWithModifier,
     parseWithAltValue,
     parseProbiotic,
-    parseStandard
+    parseStandard,
+    parseCaloriesNoUnit
 };
