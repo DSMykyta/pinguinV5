@@ -99,19 +99,36 @@ function wrapSelection(state, tagName) {
     updateToolbarState(state);
 }
 
+/**
+ * Нормалізує значення formatBlock для крос-браузерної сумісності
+ * Firefox повертає '<h3>', Chrome повертає 'h3'
+ */
+function normalizeFormatBlock(value) {
+    if (!value) return '';
+    // Видаляємо angle brackets: '<h3>' → 'h3', 'H3' → 'h3'
+    return value.replace(/[<>]/g, '').toLowerCase();
+}
+
 function toggleHeading(state, tag) {
     state.dom.editor?.focus();
     state.runHook('onBeforeChange');
 
+    const normalizedTag = tag.toLowerCase();
+
     try {
-        const currentBlock = document.queryCommandValue('formatBlock').toLowerCase();
-        if (currentBlock === tag.toLowerCase()) {
+        const rawBlock = document.queryCommandValue('formatBlock');
+        const currentBlock = normalizeFormatBlock(rawBlock);
+
+        if (currentBlock === normalizedTag) {
+            // Поточний блок вже є цим тегом - перемикаємо на P
             document.execCommand('formatBlock', false, '<p>');
         } else {
+            // Інший блок або P - застосовуємо новий тег
             document.execCommand('formatBlock', false, `<${tag}>`);
         }
     } catch (e) {
-        document.execCommand('formatBlock', false, `<${tag}>`);
+        // При помилці логуємо, але не вставляємо автоматично
+        console.warn('[Editor] formatBlock error:', e);
     }
 
     updateToolbarState(state);
@@ -143,7 +160,8 @@ function updateToolbarState(state) {
     toolbar.querySelector('[data-action="italic"]')?.classList.toggle('active', isInTag('em'));
 
     try {
-        const block = document.queryCommandValue('formatBlock').toLowerCase();
+        const rawBlock = document.queryCommandValue('formatBlock');
+        const block = normalizeFormatBlock(rawBlock);
         toolbar.querySelector('[data-action="h1"]')?.classList.toggle('active', block === 'h1');
         toolbar.querySelector('[data-action="h2"]')?.classList.toggle('active', block === 'h2');
         toolbar.querySelector('[data-action="h3"]')?.classList.toggle('active', block === 'h3');
