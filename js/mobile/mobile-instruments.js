@@ -17,6 +17,8 @@
 (function MobileInstruments() {
     'use strict';
 
+    console.log('[Mobile] Script loaded');
+
     // ============================================
     // CONFIGURATION
     // ============================================
@@ -72,7 +74,15 @@
     // ============================================
 
     function init() {
-        if (!isMobilePage()) return;
+        console.log('[Mobile] init() called');
+        console.log('[Mobile] isMobilePage:', isMobilePage());
+        console.log('[Mobile] window.innerWidth:', window.innerWidth);
+        console.log('[Mobile] breakpoint:', CONFIG.breakpoint);
+
+        if (!isMobilePage()) {
+            console.log('[Mobile] Not a mobile page, exiting');
+            return;
+        }
 
         // Check if mobile on load
         checkMobile();
@@ -80,10 +90,14 @@
         // Listen for resize
         window.addEventListener('resize', debounce(checkMobile, 150));
 
-        // Create mobile elements if needed
+        console.log('[Mobile] state.isMobile:', state.isMobile);
+
+        // Create mobile elements if needed - FORCE CREATE for mobile
         if (state.isMobile) {
+            console.log('[Mobile] Creating mobile elements...');
             createMobileElements();
             bindEvents();
+            console.log('[Mobile] Mobile elements created');
         }
     }
 
@@ -110,14 +124,34 @@
 
     function createMobileElements() {
         elements.contentMain = document.getElementById('content-main');
-        if (!elements.contentMain) return;
+        if (!elements.contentMain) {
+            console.log('[Mobile] content-main not found!');
+            return;
+        }
 
-        createHeader();
-        createMenuOverlay();
-        createBottomNav();
-        createAside();
+        // Try to find existing elements first, create if not exist
+        elements.header = document.querySelector('.mobile-header');
+        elements.menuOverlay = document.querySelector('.mobile-menu-overlay');
+        elements.bottomNav = document.querySelector('.mobile-bottom-nav');
+        elements.aside = document.querySelector('.mobile-aside');
+        elements.fab = document.querySelector('.mobile-fab');
+
+        // Create elements only if they don't exist
+        if (!elements.header) createHeader();
+        if (!elements.menuOverlay) createMenuOverlay();
+        if (!elements.bottomNav) createBottomNav();
+        if (!elements.aside) createAside();
+        if (!elements.fab) createFab();
+
         createSelectSheet();
-        createFab();
+
+        console.log('[Mobile] Elements:', {
+            header: !!elements.header,
+            menuOverlay: !!elements.menuOverlay,
+            bottomNav: !!elements.bottomNav,
+            aside: !!elements.aside,
+            fab: !!elements.fab
+        });
 
         // Set initial section
         updateCurrentSection(0);
@@ -746,9 +780,16 @@
     // INIT ON DOM READY
     // ============================================
 
+    console.log('[Mobile] document.readyState:', document.readyState);
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        console.log('[Mobile] Waiting for DOMContentLoaded...');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('[Mobile] DOMContentLoaded fired');
+            init();
+        });
     } else {
+        console.log('[Mobile] DOM already ready, calling init()');
         init();
     }
 
