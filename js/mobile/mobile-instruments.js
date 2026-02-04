@@ -124,14 +124,34 @@
 
     function createMobileElements() {
         elements.contentMain = document.getElementById('content-main');
-        if (!elements.contentMain) return;
+        if (!elements.contentMain) {
+            console.log('[Mobile] content-main not found!');
+            return;
+        }
 
-        createHeader();
-        createMenuOverlay();
-        createBottomNav();
-        createAside();
+        // Try to find existing elements first, create if not exist
+        elements.header = document.querySelector('.mobile-header');
+        elements.menuOverlay = document.querySelector('.mobile-menu-overlay');
+        elements.bottomNav = document.querySelector('.mobile-bottom-nav');
+        elements.aside = document.querySelector('.mobile-aside');
+        elements.fab = document.querySelector('.mobile-fab');
+
+        // Create elements only if they don't exist
+        if (!elements.header) createHeader();
+        if (!elements.menuOverlay) createMenuOverlay();
+        if (!elements.bottomNav) createBottomNav();
+        if (!elements.aside) createAside();
+        if (!elements.fab) createFab();
+
         createSelectSheet();
-        createFab();
+
+        console.log('[Mobile] Elements:', {
+            header: !!elements.header,
+            menuOverlay: !!elements.menuOverlay,
+            bottomNav: !!elements.bottomNav,
+            aside: !!elements.aside,
+            fab: !!elements.fab
+        });
 
         // Set initial section
         updateCurrentSection(0);

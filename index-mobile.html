@@ -20,6 +20,21 @@
 
 <body class="panel-left-closed">
 
+    <!-- MOBILE ELEMENTS (created by JS, but also here as fallback) -->
+    <header class="mobile-header">
+        <button class="mobile-header__menu-btn" aria-label="Меню">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+        <h1 class="mobile-header__title">Таблиці</h1>
+        <div class="mobile-header__actions">
+            <button class="btn-icon" id="mobile-reload-btn" aria-label="Оновити">
+                <span class="material-symbols-outlined">refresh</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu-overlay"></div>
+
     <nav id="panel-left" class="panel panel-left">
 
         <div class="panel-content-scroll">
@@ -396,6 +411,55 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+        <button class="mobile-bottom-nav__item is-active" data-section-index="0" data-section-id="section-table">
+            <span class="material-symbols-outlined">table_chart</span>
+            <span class="mobile-bottom-nav__item-label">Таблиці</span>
+        </button>
+        <button class="mobile-bottom-nav__item" data-section-index="1" data-section-id="section-text">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span class="mobile-bottom-nav__item-label">Текст</span>
+        </button>
+        <button class="mobile-bottom-nav__item" data-section-index="2" data-section-id="section-seo">
+            <span class="material-symbols-outlined">search</span>
+            <span class="mobile-bottom-nav__item-label">Сео</span>
+        </button>
+        <button class="mobile-bottom-nav__item" data-section-index="3" data-section-id="section-translate">
+            <span class="material-symbols-outlined">translate</span>
+            <span class="mobile-bottom-nav__item-label">Переклад</span>
+        </button>
+        <button class="mobile-bottom-nav__item" data-section-index="4" data-section-id="section-links">
+            <span class="material-symbols-outlined">web</span>
+            <span class="mobile-bottom-nav__item-label">Сайти</span>
+        </button>
+        <button class="mobile-bottom-nav__item" data-section-index="5" data-section-id="section-image-tool">
+            <span class="material-symbols-outlined">imagesmode</span>
+            <span class="mobile-bottom-nav__item-label">Фото</span>
+        </button>
+    </nav>
+
+    <!-- MOBILE ASIDE (BOTTOM SHEET) -->
+    <aside class="mobile-aside">
+        <div class="mobile-aside__handle">
+            <div class="mobile-aside__handle-bar"></div>
+        </div>
+        <div class="mobile-aside__header">
+            <span class="mobile-aside__title">Налаштування</span>
+            <button class="btn-icon mobile-aside__toggle" aria-label="Розгорнути">
+                <span class="material-symbols-outlined">expand_less</span>
+            </button>
+        </div>
+        <div class="mobile-aside__content" id="mobile-aside-content">
+            <!-- Content loaded dynamically -->
+        </div>
+    </aside>
+
+    <!-- MOBILE FAB -->
+    <button class="mobile-fab" aria-label="Додати рядок">
+        <span class="material-symbols-outlined">add</span>
+    </button>
 
     <!-- MOBILE ADAPTATION JS -->
     <script src="js/mobile/mobile-instruments.js"></script>
