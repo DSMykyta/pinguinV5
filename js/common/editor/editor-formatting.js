@@ -7,8 +7,11 @@
  */
 
 import { sanitizeEditor } from './editor-utils.js';
+import { debounce } from '../../utils/common-utils.js';
 
 export function init(state) {
+    // Debounced sanitization для очищення структури після змін
+    const debouncedSanitize = debounce(() => sanitizeEditor(state), 500);
     const { dom } = state;
 
     // Клік на кнопки тулбара
@@ -59,10 +62,71 @@ export function init(state) {
             e.preventDefault();
             wrapSelection(state, 'em');
         }
+
+        // Обробка Backspace в списках - запобігаємо "засмоктуванню" наступного контенту
+        if (e.key === 'Backspace') {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            // Перевіряємо чи курсор на початку елемента після списку
+            if (range.collapsed && range.startOffset === 0) {
+                let node = selection.anchorNode;
+                if (node.nodeType === Node.TEXT_NODE) {
+                    node = node.parentNode;
+                }
+
+                // Якщо ми на початку P або іншого блоку після UL/OL
+                const blockParent = node?.closest('p, h1, h2, h3');
+                if (blockParent) {
+                    const prevSibling = blockParent.previousElementSibling;
+                    if (prevSibling?.tagName === 'UL' || prevSibling?.tagName === 'OL') {
+                        // Запобігаємо злиттю з останнім li
+                        e.preventDefault();
+                        // Можна додати об'єднання з попереднім блоком, якщо потрібно
+                        return;
+                    }
+                }
+
+                // Якщо ми на початку LI
+                const li = node?.closest('li');
+                if (li) {
+                    const ul = li.closest('ul, ol');
+                    if (ul && li === ul.firstElementChild && range.startOffset === 0) {
+                        // Перший li - перетворюємо на p
+                        e.preventDefault();
+                        state.runHook('onBeforeChange');
+
+                        const p = document.createElement('p');
+                        p.innerHTML = li.innerHTML || '<br>';
+                        ul.parentNode.insertBefore(p, ul);
+                        li.remove();
+
+                        // Якщо список порожній - видаляємо
+                        if (!ul.children.length) {
+                            ul.remove();
+                        }
+
+                        // Встановлюємо курсор на початок p
+                        const newRange = document.createRange();
+                        newRange.setStart(p, 0);
+                        newRange.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(newRange);
+
+                        setTimeout(() => sanitizeEditor(state), 10);
+                        return;
+                    }
+                }
+            }
+        }
     });
 
     // Update toolbar state
     state.registerHook('onInput', () => updateToolbarState(state));
+
+    // Debounced sanitization після змін для виправлення структури
+    state.registerHook('onInput', debouncedSanitize);
 }
 
 function wrapSelection(state, tagName) {
