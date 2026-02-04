@@ -89,19 +89,47 @@ export function sanitizeHtml(html) {
         a.parentNode.replaceChild(text, a);
     });
 
-    // Конвертуємо PRE в P
+    // Конвертуємо PRE в P (тільки якщо не всередині іншого блочного елемента)
     temp.querySelectorAll('pre').forEach(pre => {
-        const p = document.createElement('p');
-        p.innerHTML = pre.innerHTML;
-        pre.parentNode.replaceChild(p, pre);
+        // Перевіряємо, чи PRE не вкладений в P
+        if (!pre.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = pre.innerHTML;
+            pre.parentNode.replaceChild(p, pre);
+        } else {
+            // Якщо вкладений - просто витягуємо вміст
+            const fragment = document.createDocumentFragment();
+            while (pre.firstChild) {
+                fragment.appendChild(pre.firstChild);
+            }
+            pre.parentNode.replaceChild(fragment, pre);
+        }
     });
 
-    // Конвертуємо DIV в P
-    temp.querySelectorAll('div').forEach(div => {
-        const p = document.createElement('p');
-        p.innerHTML = div.innerHTML;
-        div.parentNode.replaceChild(p, div);
-    });
+    // Конвертуємо DIV в P (з урахуванням вкладеності)
+    // Обробляємо від внутрішніх до зовнішніх, щоб уникнути вкладених P
+    let divs = Array.from(temp.querySelectorAll('div'));
+    while (divs.length > 0) {
+        // Знаходимо DIV без вкладених DIV
+        const leafDiv = divs.find(div => !div.querySelector('div'));
+        if (!leafDiv) break;
+
+        if (!leafDiv.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = leafDiv.innerHTML;
+            leafDiv.parentNode.replaceChild(p, leafDiv);
+        } else {
+            // Якщо вкладений в P - просто витягуємо вміст
+            const fragment = document.createDocumentFragment();
+            while (leafDiv.firstChild) {
+                fragment.appendChild(leafDiv.firstChild);
+            }
+            leafDiv.parentNode.replaceChild(fragment, leafDiv);
+        }
+
+        // Оновлюємо список
+        divs = Array.from(temp.querySelectorAll('div'));
+    }
 
     // Конвертуємо B в STRONG, I в EM
     temp.querySelectorAll('b').forEach(b => {
@@ -146,14 +174,10 @@ export function sanitizeHtml(html) {
     // Отримуємо HTML і очищаємо
     let result = temp.innerHTML;
 
-    // Декодуємо HTML entities
-    result = result
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+    // Замінюємо тільки &nbsp; на звичайний пробіл
+    // НЕ декодуємо &lt; &gt; &amp; - це вже зроблено браузером при парсингу
+    // Подвійне декодування може призвести до невалідного HTML
+    result = result.replace(/&nbsp;/g, ' ');
 
     // Видаляємо маркери списків
     result = result.replace(/[•·●○■□▪▫]/g, '');
@@ -202,21 +226,45 @@ export function sanitizeEditor(state) {
         changed = true;
     });
 
-    // Конвертуємо PRE в P
+    // Конвертуємо PRE в P (з урахуванням вкладеності)
     editor.querySelectorAll('pre').forEach(pre => {
-        const p = document.createElement('p');
-        p.innerHTML = pre.innerHTML;
-        pre.parentNode.replaceChild(p, pre);
+        if (!pre.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = pre.innerHTML;
+            pre.parentNode.replaceChild(p, pre);
+        } else {
+            // Якщо вкладений в P - просто витягуємо вміст
+            const fragment = document.createDocumentFragment();
+            while (pre.firstChild) {
+                fragment.appendChild(pre.firstChild);
+            }
+            pre.parentNode.replaceChild(fragment, pre);
+        }
         changed = true;
     });
 
-    // Конвертуємо DIV в P
-    editor.querySelectorAll('div').forEach(div => {
-        const p = document.createElement('p');
-        p.innerHTML = div.innerHTML;
-        div.parentNode.replaceChild(p, div);
+    // Конвертуємо DIV в P (з урахуванням вкладеності)
+    // Обробляємо від внутрішніх до зовнішніх, щоб уникнути вкладених P
+    let editorDivs = Array.from(editor.querySelectorAll('div'));
+    while (editorDivs.length > 0) {
+        const leafDiv = editorDivs.find(div => !div.querySelector('div'));
+        if (!leafDiv) break;
+
+        if (!leafDiv.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = leafDiv.innerHTML;
+            leafDiv.parentNode.replaceChild(p, leafDiv);
+        } else {
+            const fragment = document.createDocumentFragment();
+            while (leafDiv.firstChild) {
+                fragment.appendChild(leafDiv.firstChild);
+            }
+            leafDiv.parentNode.replaceChild(fragment, leafDiv);
+        }
         changed = true;
-    });
+
+        editorDivs = Array.from(editor.querySelectorAll('div'));
+    }
 
     // Конвертуємо B в STRONG
     editor.querySelectorAll('b').forEach(b => {
@@ -258,6 +306,25 @@ export function sanitizeEditor(state) {
     editor.querySelectorAll('p, strong, em, h1, h2, h3, ul, li').forEach(el => {
         while (el.attributes.length > 0) {
             el.removeAttribute(el.attributes[0].name);
+        }
+    });
+
+    // Виправляємо вкладені P теги (невалідний HTML: <p><p>text</p></p>)
+    // Вкладені P автоматично "виштовхуються" браузером, але можуть залишитись артефакти
+    editor.querySelectorAll('p p, p h1, p h2, p h3, h1 p, h2 p, h3 p').forEach(nested => {
+        // Переміщуємо вкладений блоковий елемент з батька
+        const parent = nested.parentNode;
+        if (parent && parent !== editor) {
+            parent.parentNode.insertBefore(nested, parent.nextSibling);
+            changed = true;
+        }
+    });
+
+    // Видаляємо порожні P теги
+    editor.querySelectorAll('p').forEach(p => {
+        if (!p.textContent.trim() && !p.querySelector('br, img')) {
+            p.remove();
+            changed = true;
         }
     });
 
