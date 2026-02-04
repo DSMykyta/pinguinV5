@@ -2,7 +2,7 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    GT-MAGIC-PARSER v10.0                                 ║
+ * ║                    GT-MAGIC-PARSER v11.0                                 ║
  * ║              Головний модуль магічного парсингу                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
@@ -11,11 +11,12 @@
  * записи для таблиці харчової цінності.
  *
  * ПЛАГІНИ:
- * - gt-magic-cleanup.js    → очистка тексту від сміття
- * - gt-magic-normalize.js  → нормалізація назв (Calories → Калории)
- * - gt-magic-serving.js    → витягування розміру порції
- * - gt-magic-merge.js      → склейка осиротілих значень
- * - gt-smart-value-parser.js → розумний парсинг значень
+ * - gt-magic-cleanup.js       → очистка тексту від сміття
+ * - gt-magic-normalize.js     → нормалізація назв (Всего углеводов → Углеводы)
+ * - gt-magic-serving.js       → витягування розміру порції
+ * - gt-magic-merge.js         → склейка осиротілих значень
+ * - gt-magic-headers.js       → обробка заголовків (Ингредиенты, Состав)
+ * - gt-smart-value-parser.js  → розумний парсинг значень
  *
  * ЕКСПОРТ:
  * - processAndFillInputs(text) - парсить текст і заповнює UI
@@ -29,20 +30,10 @@ import { handleInputTypeSwitch } from './gt-row-renderer.js';
 // Плагіни
 import { cleanText } from './gt-magic-cleanup.js';
 import { normalizeNutrientName } from './gt-magic-normalize.js';
-import { extractServingSize, shouldSkipLine, isServingLine } from './gt-magic-serving.js';
+import { extractServingSize, shouldSkipLine } from './gt-magic-serving.js';
 import { mergeOrphanValues } from './gt-magic-merge.js';
+import { processHeaders, isSameHeader } from './gt-magic-headers.js';
 import { smartParseLine } from './gt-smart-value-parser.js';
-
-// ============================================================================
-// ПАТЕРНИ ЗАГОЛОВКІВ
-// ============================================================================
-
-const HEADER_PATTERNS = {
-    nutrition: /^(пищевая ценность|харчова цінність)$/i,
-    nutritionWithValue: /^(пищевая ценность|харчова цінність)\s+(.+)$/i,
-    ingredients: /^(ингредиенты|інгредієнти):?$/i,
-    composition: /^(состав|склад):?$/i,
-};
 
 // ============================================================================
 // ПІДГОТОВКА ТЕКСТУ
@@ -84,118 +75,13 @@ function parseText(text) {
         return parsed;
     });
 
-    // Обробляємо спеціальні заголовки
-    const result = [];
-
-    // Перевіряємо чи є "Пищевая ценность" в тексті
-    const hasNutritionHeader = entries.some(e =>
-        HEADER_PATTERNS.nutrition.test(e.left.trim())
-    );
-
-    // Додаємо заголовок якщо є servingSize але немає заголовка
-    if (servingSize && !hasNutritionHeader) {
-        result.push({
-            left: 'Пищевая ценность',
-            right: servingSize,
-            isHeader: true
-        });
-    }
-
-    for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        const nextEntry = entries[i + 1];
-        const leftTrimmed = entry.left.trim();
-
-        // === ПИЩЕВАЯ ЦЕННОСТЬ ===
-        if (HEADER_PATTERNS.nutrition.test(leftTrimmed)) {
-            let rightValue = entry.right || servingSize || '';
-
-            // Перевіряємо чи наступний рядок - це порція
-            if (!rightValue && nextEntry && isServingLine(nextEntry.left)) {
-                rightValue = nextEntry.left + (nextEntry.right ? ' ' + nextEntry.right : '');
-                i++;
-            }
-
-            result.push({
-                left: entry.left,
-                right: rightValue,
-                isHeader: true
-            });
-        }
-        // === ИНГРЕДИЕНТЫ ===
-        else if (HEADER_PATTERNS.ingredients.test(leftTrimmed)) {
-            result.push({ left: '', right: '', isSeparator: true });
-
-            result.push({
-                left: entry.left.replace(/:$/, ''),
-                right: '',
-                isHeader: true,
-                isSingle: true
-            });
-
-            // Наступний рядок - текст інгредієнтів
-            if (nextEntry && !isHeaderLine(nextEntry.left)) {
-                const hasValue = /\d+\s*(г|мг|мкг|mg|mcg|g|iu|ме)/i.test(nextEntry.right);
-                if (!hasValue) {
-                    result.push({
-                        left: nextEntry.left,
-                        right: nextEntry.right || '',
-                        isSingle: true
-                    });
-                    i++;
-                }
-            }
-        }
-        // === СОСТАВ ===
-        else if (HEADER_PATTERNS.composition.test(leftTrimmed)) {
-            result.push({ left: '', right: '', isSeparator: true });
-            result.push({
-                left: entry.left.replace(/:$/, ''),
-                right: entry.right || '',
-                isSingle: true,
-                isBold: true
-            });
-        }
-        // === ЗВИЧАЙНИЙ РЯДОК ===
-        else {
-            result.push(entry);
-        }
-    }
-
-    return result;
-}
-
-/**
- * Перевіряє чи рядок є заголовком
- */
-function isHeaderLine(text) {
-    if (!text) return false;
-    return HEADER_PATTERNS.ingredients.test(text) ||
-           HEADER_PATTERNS.composition.test(text) ||
-           HEADER_PATTERNS.nutrition.test(text);
+    // Обробляємо заголовки (Ингредиенты, Состав, Пищевая ценность)
+    return processHeaders(entries, servingSize);
 }
 
 // ============================================================================
 // ЗАПОВНЕННЯ UI
 // ============================================================================
-
-/**
- * Перевіряє чи два заголовки однакові (з урахуванням перекладів)
- */
-function isSameHeader(header1, header2) {
-    const h1 = header1.toLowerCase().trim();
-    const h2 = header2.toLowerCase().trim();
-
-    if (h1 === h2) return true;
-
-    const synonyms = [
-        ['пищевая ценность', 'харчова цінність'],
-        ['ингредиенты', 'інгредієнти'],
-        ['состав', 'склад']
-    ];
-
-    return synonyms.some(group => group.includes(h1) && group.includes(h2));
-}
 
 /**
  * Застосовує клас та активує кнопку
@@ -272,10 +158,14 @@ export async function processAndFillInputs(text) {
         // Single (одна колонка)
         if (entry.isSingle) {
             applyClass(newRow, ROW_CLASSES.SINGLE);
-            const fieldRadio = newRow.querySelector('input[type="radio"][value="field"]');
-            if (fieldRadio) {
-                fieldRadio.checked = true;
-                handleInputTypeSwitch(newRow, 'field');
+
+            // isField = true → режим "field" (поле), інакше строка
+            if (entry.isField) {
+                const fieldRadio = newRow.querySelector('input[type="radio"][value="field"]');
+                if (fieldRadio) {
+                    fieldRadio.checked = true;
+                    handleInputTypeSwitch(newRow, 'field');
+                }
             }
         }
 
