@@ -97,7 +97,16 @@ function parseLineWithTab(line) {
             // Фільтруємо колонки що є тільки відсотками (напр. "2%", "<1%", "167%")
             .filter(p => !/^[<>]?\s*[\d,.]+%$/.test(p));
         if (parts.length >= 2) {
-            return { left: parts[0], right: parts.slice(1).join(' ') };
+            let left = parts[0];
+            let right = parts.slice(1).join(' ');
+
+            // Калорії без одиниці - додаємо "ккал"
+            if (/^(калории|калорії|калорий|calories?|energy|kcal|энергия|енергія)$/i.test(left) &&
+                /^\d+[\d,.]*$/.test(right)) {
+                right = right + ' ккал';
+            }
+
+            return { left, right };
         } else if (parts.length === 1) {
             return { left: parts[0], right: '' };
         }
