@@ -6,6 +6,8 @@
  * Можна видалити — редактор працюватиме без форматування.
  */
 
+import { sanitizeEditor } from './editor-utils.js';
+
 export function init(state) {
     const { dom } = state;
 
@@ -34,6 +36,8 @@ export function init(state) {
                 break;
             case 'list':
                 execCommand('insertUnorderedList');
+                // Санітизуємо після зміни списку для коректної структури
+                setTimeout(() => sanitizeEditor(state), 10);
                 break;
         }
     });
@@ -77,13 +81,41 @@ function wrapSelection(state, tagName) {
     const parentTag = node?.closest?.(tagName);
 
     if (parentTag && state.dom.editor.contains(parentTag)) {
-        // Unwrap
+        // Unwrap - зберігаємо вміст для відновлення виділення
         const parent = parentTag.parentNode;
+        const firstChild = parentTag.firstChild;
+        const lastChild = parentTag.lastChild;
+
+        // Переміщуємо всі дочірні елементи
         while (parentTag.firstChild) {
             parent.insertBefore(parentTag.firstChild, parentTag);
         }
         parent.removeChild(parentTag);
         parent.normalize();
+
+        // Відновлюємо виділення на розгорнутому тексті
+        if (firstChild && lastChild) {
+            selection.removeAllRanges();
+            const newRange = document.createRange();
+            // Знаходимо актуальні ноди після normalize()
+            const textNode = firstChild.nodeType === Node.TEXT_NODE ? firstChild : firstChild.parentNode?.firstChild;
+            if (textNode && parent.contains(textNode)) {
+                try {
+                    newRange.setStartBefore(textNode);
+                    // Шукаємо останню текстову ноду
+                    let endNode = lastChild;
+                    while (endNode.lastChild) {
+                        endNode = endNode.lastChild;
+                    }
+                    if (parent.contains(endNode)) {
+                        newRange.setEndAfter(endNode);
+                        selection.addRange(newRange);
+                    }
+                } catch (e) {
+                    // Якщо не вдалось відновити виділення - не критично
+                }
+            }
+        }
     } else if (!range.collapsed) {
         // Wrap
         const wrapper = document.createElement(tagName);
