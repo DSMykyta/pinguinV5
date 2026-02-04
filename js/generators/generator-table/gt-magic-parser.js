@@ -28,6 +28,7 @@ import { handleInputTypeSwitch } from './gt-row-renderer.js';
 
 // Плагіни
 import { cleanText } from './gt-magic-cleanup.js';
+import { normalizeNutrientName } from './gt-magic-normalize.js';
 import { extractServingSize, shouldSkipLine, isServingLine } from './gt-magic-serving.js';
 import { mergeOrphanValues } from './gt-magic-merge.js';
 import { smartParseLine } from './gt-smart-value-parser.js';
@@ -76,8 +77,12 @@ function parseText(text) {
     let lines = prepareLines(text);
     lines = mergeOrphanValues(lines);
 
-    // Парсимо всі рядки
-    const entries = lines.map(line => smartParseLine(line));
+    // Парсимо всі рядки + нормалізуємо назви
+    const entries = lines.map(line => {
+        const parsed = smartParseLine(line);
+        parsed.left = normalizeNutrientName(parsed.left);
+        return parsed;
+    });
 
     // Обробляємо спеціальні заголовки
     const result = [];
