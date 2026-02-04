@@ -137,8 +137,10 @@ export function processHeaders(entries, servingSize = '') {
             result.push({ left: '', right: '', isSeparator: true });
 
             // 2. Заголовок "Ингредиенты" - одинарний рядок
+            // Нормалізуємо "Другие ингредиенты" → "Ингредиенты"
+            const normalizedHeader = /другие|інші/i.test(leftTrimmed) ? 'Ингредиенты' : entry.left.replace(/:$/, '');
             result.push({
-                left: entry.left.replace(/:$/, ''),
+                left: normalizedHeader,
                 right: '',
                 isHeader: true,
                 isSingle: true

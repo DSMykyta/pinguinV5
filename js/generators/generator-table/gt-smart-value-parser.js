@@ -119,10 +119,11 @@ export function smartParseLine(line) {
 
     // Спробувати різні стратегії парсингу
     const strategies = [
-        parseEnzymeRatio,      // "2500 HUT/400 мг"
+        parseEnzymeRatio,       // "2500 HUT/400 мг"
         parseWithModifier,      // "900 мкг RAE"
         parseWithAltValue,      // "50 мкг (2000 IU)"
         parseProbiotic,         // "10 billion CFU"
+        parseCaloriesDualUnit,  // "120 ккал/500 кДж"
         parseStandard,          // "500 мг"
         parseCaloriesNoUnit,    // "Калории 120" (без одиниці)
     ];
@@ -253,7 +254,24 @@ function parseProbiotic(line) {
 }
 
 /**
- * Парсинг калорій без одиниці: "Калории 120"
+ * Парсинг калорій з подвійними одиницями: "Калории 120 ккал/500 кДж"
+ */
+function parseCaloriesDualUnit(line) {
+    // Патерн: Калорії + число + ккал/kcal + / + число + кДж/kJ
+    const regex = /^(калории|калорії|калорий|calories?|energy|энергия|енергія)\s+(\d+[\d,.]*\s*(?:ккал|kcal|cal)\s*\/\s*\d+[\d,.]*\s*(?:кдж|kj))$/i;
+
+    const match = line.match(regex);
+    if (match) {
+        return {
+            left: match[1].trim(),
+            right: match[2].trim()
+        };
+    }
+    return null;
+}
+
+/**
+ * Парсинг калорій без одиниці: "Калории 120" → "120 ккал"
  */
 function parseCaloriesNoUnit(line) {
     // Патерн: Калорії/Calories/Energy + число (без одиниці)
@@ -263,7 +281,7 @@ function parseCaloriesNoUnit(line) {
     if (match) {
         return {
             left: match[1].trim(),
-            right: match[2].trim()
+            right: match[2].trim() + ' ккал'  // Додаємо одиницю
         };
     }
     return null;
@@ -309,5 +327,6 @@ export const _testExports = {
     parseWithAltValue,
     parseProbiotic,
     parseStandard,
+    parseCaloriesDualUnit,
     parseCaloriesNoUnit
 };
