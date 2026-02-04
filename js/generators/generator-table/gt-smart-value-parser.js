@@ -253,7 +253,7 @@ function parseProbiotic(line) {
 }
 
 /**
- * Парсинг калорій без одиниці: "Калории 120"
+ * Парсинг калорій без одиниці: "Калории 120" → "120 ккал"
  */
 function parseCaloriesNoUnit(line) {
     // Патерн: Калорії/Calories/Energy + число (без одиниці)
@@ -263,7 +263,7 @@ function parseCaloriesNoUnit(line) {
     if (match) {
         return {
             left: match[1].trim(),
-            right: match[2].trim()
+            right: match[2].trim() + ' ккал'  // Додаємо одиницю
         };
     }
     return null;
