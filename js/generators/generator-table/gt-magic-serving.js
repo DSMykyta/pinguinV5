@@ -28,7 +28,10 @@ export const IHERB_SKIP_PATTERNS = [
     /^(количество порций|кількість порцій|servings per)/i,
     /^(количество на порцию|кількість на порцію|amount per)/i,
     /^%\s*(от суточной|від добової|daily value)/i,
-    /^\*\s*(percent daily|суточн|добов)/i,
+    /^\*?\s*(percent daily|суточн|добов)/i,
+    // Примітки про денну норму
+    /^(daily value|денна норма|суточная норма)\s+(not established|не встановлен|не установлен)/i,
+    /percent daily values? (are |is )?based on/i,
     // "Ингредиенты" обробляється в gt-magic-headers.js, НЕ пропускати!
 ];
 
