@@ -91,7 +91,11 @@ function parseLineWithTab(line) {
     // Якщо є табуляція - це роздільник колонок
     if (line.includes('\t')) {
         // Розділяємо по табах і очищаємо кожну частину
-        const parts = line.split('\t').map(p => cleanText(p.trim())).filter(p => p);
+        const parts = line.split('\t')
+            .map(p => cleanText(p.trim()))
+            .filter(p => p)
+            // Фільтруємо колонки що є тільки відсотками (напр. "2%", "<1%", "167%")
+            .filter(p => !/^[<>]?\s*[\d,.]+%$/.test(p));
         if (parts.length >= 2) {
             return { left: parts[0], right: parts.slice(1).join(' ') };
         } else if (parts.length === 1) {
