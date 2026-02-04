@@ -29,7 +29,7 @@ import { handleInputTypeSwitch } from './gt-row-renderer.js';
 
 // Плагіни
 import { cleanText } from './gt-magic-cleanup.js';
-import { normalizeNutrientName } from './gt-magic-normalize.js';
+import { normalizeNutrientName, sortNutrients } from './gt-magic-normalize.js';
 import { extractServingSize, shouldSkipLine } from './gt-magic-serving.js';
 import { mergeOrphanValues } from './gt-magic-merge.js';
 import { processHeaders, isSameHeader } from './gt-magic-headers.js';
@@ -69,11 +69,14 @@ function parseText(text) {
     lines = mergeOrphanValues(lines);
 
     // Парсимо всі рядки + нормалізуємо назви
-    const entries = lines.map(line => {
+    let entries = lines.map(line => {
         const parsed = smartParseLine(line);
         parsed.left = normalizeNutrientName(parsed.left);
         return parsed;
     });
+
+    // Сортуємо нутрієнти за стандартним порядком
+    entries = sortNutrients(entries);
 
     // Обробляємо заголовки (Ингредиенты, Состав, Пищевая ценность)
     return processHeaders(entries, servingSize);

@@ -88,3 +88,60 @@ export function normalizeNutrientName(name) {
     // Не знайдено - повертаємо як є
     return cleaned;
 }
+
+// ============================================================================
+// СОРТУВАННЯ НУТРІЄНТІВ
+// ============================================================================
+
+/**
+ * Стандартний порядок нутрієнтів
+ * Підкатегорії (з " - ") автоматично йдуть після батьківського
+ */
+const NUTRIENT_ORDER = [
+    'Калории',
+    'Жиры',
+    ' - насыщенные',
+    ' - транс-жиры',
+    ' - ненасыщенные',
+    ' - мононенасыщенные',
+    ' - полиненасыщенные',
+    'Холестерин',
+    'Углеводы',
+    ' - пищевые волокна',
+    ' - сахар',
+    ' - добавленного сахара',
+    'Белок',
+    'Соль',
+];
+
+/**
+ * Отримати індекс нутрієнта для сортування
+ * @param {string} name - Назва нутрієнта
+ * @returns {number} - Індекс (999 для невідомих)
+ */
+function getNutrientIndex(name) {
+    const idx = NUTRIENT_ORDER.indexOf(name);
+    return idx !== -1 ? idx : 999;
+}
+
+/**
+ * Сортує масив entries за стандартним порядком нутрієнтів
+ * @param {Array<{left: string, right: string}>} entries - Масив записів
+ * @returns {Array<{left: string, right: string}>} - Відсортований масив
+ *
+ * @example
+ * sortNutrients([
+ *   { left: 'Белок', right: '20 г' },
+ *   { left: 'Калории', right: '120' },
+ * ])
+ * // → [{ left: 'Калории', right: '120' }, { left: 'Белок', right: '20 г' }]
+ */
+export function sortNutrients(entries) {
+    if (!Array.isArray(entries)) return [];
+
+    return [...entries].sort((a, b) => {
+        const idxA = getNutrientIndex(a.left);
+        const idxB = getNutrientIndex(b.left);
+        return idxA - idxB;
+    });
+}
