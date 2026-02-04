@@ -20,6 +20,7 @@ import { createAndAppendRow } from './gt-row-manager.js';
 import { ROW_CLASSES } from './gt-config.js';
 import { getTableDOM } from './gt-dom.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
+import { smartParseLine } from './gt-smart-value-parser.js';
 
 // ============================================================================
 // КОНСТАНТИ
@@ -271,8 +272,8 @@ function parseText(text) {
     let lines = cleanAndSplitLines(text);
     lines = mergeOrphanValues(lines);
 
-    // Парсимо всі рядки
-    const entries = lines.map(line => parseLine(line));
+    // Парсимо всі рядки (використовуємо smart parser)
+    const entries = lines.map(line => smartParseLine(line));
 
     // Обробляємо спеціальні заголовки
     const result = [];
