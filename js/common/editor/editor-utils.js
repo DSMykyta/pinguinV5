@@ -211,6 +211,9 @@ export function sanitizeEditor(state) {
     const editor = state.dom.editor;
     if (!editor || state.currentMode !== 'text') return;
 
+    // Блокуємо збереження undo під час sanitization
+    state.isSanitizing = true;
+
     // Зберігаємо позицію курсора
     const caretPos = saveCaretPosition(editor);
 
@@ -367,4 +370,7 @@ export function sanitizeEditor(state) {
         editor.normalize();
         restoreCaretPosition(editor, caretPos);
     }
+
+    // Знімаємо блокування undo
+    state.isSanitizing = false;
 }

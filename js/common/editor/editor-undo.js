@@ -16,7 +16,8 @@ export function init(state) {
 
     // Зберегти стан для undo
     const saveState = () => {
-        if (state.currentMode !== 'text' || !state.dom.editor) return;
+        // Не зберігаємо під час sanitization
+        if (state.currentMode !== 'text' || !state.dom.editor || state.isSanitizing) return;
 
         const content = state.dom.editor.innerHTML;
         if (content === state.lastSavedContent) return;

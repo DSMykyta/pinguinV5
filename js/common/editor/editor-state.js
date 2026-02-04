@@ -22,6 +22,7 @@ export function createEditorState(id, container, config) {
         config,
         currentMode: 'text',
         lastSavedContent: '',
+        isSanitizing: false, // Флаг для блокування undo під час sanitization
 
         // DOM
         dom: {
