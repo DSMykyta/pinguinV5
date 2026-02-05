@@ -1,42 +1,38 @@
-// js/generators/generator-table/gt-magic-headers.js
+// js/generators/generator-magic/magic-headers.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    GT-MAGIC-HEADERS v1.0                                 ║
- * ║              Обробка спеціальних заголовків                              ║
+ * ║                    MAGIC LEGO - HEADERS PLUGIN                           ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔌 ПЛАГІН — Обробка спеціальних заголовків                              ║
+ * ║                                                                          ║
+ * ║  ФУНКЦІЇ:                                                                ║
+ * ║  - processHeaders(entries, servingSize) — Обробити заголовки             ║
+ * ║  - isHeaderLine(text) — Чи рядок є заголовком                            ║
+ * ║  - isSameHeader(h1, h2) — Чи заголовки однакові                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * ПРИЗНАЧЕННЯ:
- * Розпізнає та обробляє спеціальні заголовки:
- * - Ингредиенты/Інгредієнти → порожній рядок + заголовок + поле
- * - Состав/Склад → порожній рядок + жирний заголовок
- * - Пищевая ценность → заголовок таблиці
- *
- * ЛОГІКА "ИНГРЕДИЕНТЫ":
- * 1. Перед ним порожній рядок (розділювач)
- * 2. "Ингредиенты" → одинарний рядок, заголовок
- * 3. Текст інгредієнтів → одинарний рядок, поле (field)
- *
- * ЕКСПОРТ:
- * - HEADER_PATTERNS - патерни заголовків
- * - isHeaderLine(text) - чи рядок є заголовком
- * - processHeaders(entries, servingSize) - обробити заголовки
  */
 
-import { isServingLine } from './gt-magic-serving.js';
+import { markPluginLoaded } from './magic-state.js';
+import { isServingLine } from './magic-serving.js';
+
+export const PLUGIN_NAME = 'magic-headers';
 
 // ============================================================================
-// ПАТЕРНИ ЗАГОЛОВКІВ
+// ІНІЦІАЛІЗАЦІЯ
+// ============================================================================
+
+export function init() {
+    markPluginLoaded(PLUGIN_NAME);
+}
+
+// ============================================================================
+// ПАТЕРНИ
 // ============================================================================
 
 export const HEADER_PATTERNS = {
-    /** Пищевая ценность / Харчова цінність */
     nutrition: /^(пищевая ценность|харчова цінність)$/i,
-
-    /** Ингредиенты / Інгредієнти */
     ingredients: /^(ингредиенты|інгредієнти|другие ингредиенты|інші інгредієнти):?$/i,
-
-    /** Состав / Склад */
     composition: /^(состав|склад):?$/i,
 };
 
@@ -44,11 +40,6 @@ export const HEADER_PATTERNS = {
 // ФУНКЦІЇ
 // ============================================================================
 
-/**
- * Перевіряє чи рядок є заголовком
- * @param {string} text - Текст для перевірки
- * @returns {boolean}
- */
 export function isHeaderLine(text) {
     if (!text) return false;
     const trimmed = text.trim();
@@ -57,12 +48,6 @@ export function isHeaderLine(text) {
            HEADER_PATTERNS.nutrition.test(trimmed);
 }
 
-/**
- * Перевіряє чи два заголовки однакові (з урахуванням перекладів)
- * @param {string} header1
- * @param {string} header2
- * @returns {boolean}
- */
 export function isSameHeader(header1, header2) {
     const h1 = (header1 || '').toLowerCase().trim();
     const h2 = (header2 || '').toLowerCase().trim();
@@ -79,21 +64,13 @@ export function isSameHeader(header1, header2) {
     return synonyms.some(group => group.includes(h1) && group.includes(h2));
 }
 
-/**
- * Обробляє масив entries і додає спеціальну логіку для заголовків
- * @param {Object[]} entries - Масив {left, right}
- * @param {string} servingSize - Розмір порції (якщо є)
- * @returns {Object[]} - Оброблений масив з isSeparator, isHeader, isSingle, isField
- */
 export function processHeaders(entries, servingSize = '') {
     const result = [];
 
-    // Перевіряємо чи є "Пищевая ценность" в тексті
     const hasNutritionHeader = entries.some(e =>
         HEADER_PATTERNS.nutrition.test((e.left || '').trim())
     );
 
-    // Додаємо заголовок якщо є servingSize але немає заголовка
     if (servingSize && !hasNutritionHeader) {
         result.push({
             left: 'Пищевая ценность',
@@ -107,11 +84,10 @@ export function processHeaders(entries, servingSize = '') {
         const nextEntry = entries[i + 1];
         const leftTrimmed = (entry.left || '').trim();
 
-        // === ПИЩЕВАЯ ЦЕННОСТЬ ===
+        // ПИЩЕВАЯ ЦЕННОСТЬ
         if (HEADER_PATTERNS.nutrition.test(leftTrimmed)) {
             let rightValue = entry.right || servingSize || '';
 
-            // Перевіряємо чи наступний рядок - це порція
             if (!rightValue && nextEntry && isServingLine(nextEntry.left)) {
                 rightValue = nextEntry.left + (nextEntry.right ? ' ' + nextEntry.right : '');
                 i++;
@@ -123,13 +99,10 @@ export function processHeaders(entries, servingSize = '') {
                 isHeader: true
             });
         }
-        // === ИНГРЕДИЕНТЫ ===
+        // ИНГРЕДИЕНТЫ
         else if (HEADER_PATTERNS.ingredients.test(leftTrimmed)) {
-            // 1. Порожній рядок (розділювач)
             result.push({ left: '', right: '', isSeparator: true });
 
-            // 2. Заголовок "Ингредиенты" - одинарний рядок
-            // Нормалізуємо "Другие ингредиенты" → "Ингредиенты"
             const normalizedHeader = /другие|інші/i.test(leftTrimmed) ? 'Ингредиенты' : entry.left.replace(/:$/, '');
             result.push({
                 left: normalizedHeader,
@@ -138,7 +111,6 @@ export function processHeaders(entries, servingSize = '') {
                 isSingle: true
             });
 
-            // 3. Текст інгредієнтів - одинарний рядок, поле (field)
             if (nextEntry && !isHeaderLine(nextEntry.left)) {
                 const hasValue = /\d+\s*(г|мг|мкг|mg|mcg|g|iu|ме)/i.test(nextEntry.right || '');
                 if (!hasValue) {
@@ -146,18 +118,16 @@ export function processHeaders(entries, servingSize = '') {
                         left: nextEntry.left,
                         right: nextEntry.right || '',
                         isSingle: true,
-                        isField: true  // ← поле, не строка
+                        isField: true
                     });
                     i++;
                 }
             }
         }
-        // === СОСТАВ ===
+        // СОСТАВ
         else if (HEADER_PATTERNS.composition.test(leftTrimmed)) {
-            // 1. Порожній рядок (розділювач)
             result.push({ left: '', right: '', isSeparator: true });
 
-            // 2. Заголовок "Состав" - одинарний, жирний
             result.push({
                 left: entry.left.replace(/:$/, ''),
                 right: entry.right || '',
@@ -165,7 +135,7 @@ export function processHeaders(entries, servingSize = '') {
                 isBold: true
             });
         }
-        // === ЗВИЧАЙНИЙ РЯДОК ===
+        // ЗВИЧАЙНИЙ РЯДОК
         else {
             result.push(entry);
         }

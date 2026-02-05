@@ -2,21 +2,15 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    GT-MAGIC-PARSER v11.0                                 ║
- * ║              Головний модуль магічного парсингу                          ║
+ * ║                    GT-MAGIC-PARSER v12.0 (LEGO WRAPPER)                  ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * ПРИЗНАЧЕННЯ:
- * Парсить текст з етикеток продуктів (iHerb, тощо) і створює структуровані
- * записи для таблиці харчової цінності.
+ * Обгортка для LEGO magic системи. Забезпечує зворотню сумісність
+ * зі старими імпортами та інтеграцію з UI генератора таблиць.
  *
- * ПЛАГІНИ:
- * - gt-magic-cleanup.js       → очистка тексту від сміття
- * - gt-magic-normalize.js     → нормалізація назв (Всего углеводов → Углеводы)
- * - gt-magic-serving.js       → витягування розміру порції
- * - gt-magic-merge.js         → склейка осиротілих значень
- * - gt-magic-headers.js       → обробка заголовків (Ингредиенты, Состав)
- * - gt-smart-value-parser.js  → розумний парсинг значень
+ * LEGO МОДУЛЬ:
+ * Вся логіка парсингу винесена в js/generators/generator-magic/
  *
  * ЕКСПОРТ:
  * - processAndFillInputs(text) - парсить текст і заповнює UI
@@ -27,128 +21,31 @@ import { ROW_CLASSES } from './gt-config.js';
 import { getTableDOM } from './gt-dom.js';
 import { handleInputTypeSwitch } from './gt-row-renderer.js';
 
-// Плагіни
-import { cleanText } from './gt-magic-cleanup.js';
-import { normalizeNutrientName, sortNutrients } from './gt-magic-normalize.js';
-import { extractServingSize, shouldSkipLine } from './gt-magic-serving.js';
-import { mergeOrphanValues } from './gt-magic-merge.js';
-import { processHeaders, isSameHeader } from './gt-magic-headers.js';
-import { smartParseLine } from './gt-smart-value-parser.js';
+// LEGO Magic Module
+import {
+    initMagicParser,
+    parseText,
+    registerHook,
+    runHook,
+    getLoadedPlugins
+} from '../generator-magic/magic-main.js';
+
+import { isSameHeader } from '../generator-magic/magic-headers.js';
 
 // ============================================================================
-// ПІДГОТОВКА ТЕКСТУ
+// ІНІЦІАЛІЗАЦІЯ
 // ============================================================================
 
-/** Патерни заголовків з текстом на тому ж рядку */
-const INLINE_HEADER_PATTERNS = [
-    /^(ингредиенты|інгредієнти|другие ингредиенты|інші інгредієнти):\s*(.+)$/i,
-    /^(состав|склад):\s*(.+)$/i,
-];
+let initialized = false;
 
 /**
- * Розділяє рядки типу "Ингредиенты: текст" на два окремих рядки
- * @param {string[]} lines - Масив рядків
- * @returns {string[]} - Масив з розділеними рядками
+ * Ініціалізувати magic parser (lazy)
  */
-function splitInlineHeaders(lines) {
-    const result = [];
-
-    for (const line of lines) {
-        let matched = false;
-
-        for (const pattern of INLINE_HEADER_PATTERNS) {
-            const match = line.match(pattern);
-            if (match) {
-                // Додаємо заголовок окремо
-                result.push(match[1]);
-                // Додаємо текст окремо
-                if (match[2].trim()) {
-                    result.push(match[2].trim());
-                }
-                matched = true;
-                break;
-            }
-        }
-
-        if (!matched) {
-            result.push(line);
-        }
+async function ensureInitialized() {
+    if (!initialized) {
+        await initMagicParser();
+        initialized = true;
     }
-
-    return result;
-}
-
-// ============================================================================
-// ПАРСИНГ ТЕКСТУ
-// ============================================================================
-
-/**
- * Парсить рядок з урахуванням табуляції як роздільника колонок
- * @param {string} line - Рядок (може містити таб)
- * @returns {{left: string, right: string}}
- */
-function parseLineWithTab(line) {
-    // Якщо є табуляція - це роздільник колонок
-    if (line.includes('\t')) {
-        // Розділяємо по табах і очищаємо кожну частину
-        const parts = line.split('\t')
-            .map(p => cleanText(p.trim()))
-            .filter(p => p)
-            // Фільтруємо колонки що є тільки відсотками (напр. "2%", "<1%", "167%")
-            .filter(p => !/^[<>]?\s*[\d,.]+%$/.test(p));
-        if (parts.length >= 2) {
-            let left = parts[0];
-            let right = parts.slice(1).join(' ');
-
-            // Калорії без одиниці - додаємо "ккал"
-            if (/^(калории|калорії|калорий|calories?|energy|kcal|энергия|енергія)$/i.test(left) &&
-                /^\d+[\d,.]*$/.test(right)) {
-                right = right + ' ккал';
-            }
-
-            return { left, right };
-        } else if (parts.length === 1) {
-            return { left: parts[0], right: '' };
-        }
-    }
-    // Інакше - звичайний парсинг
-    return smartParseLine(cleanText(line));
-}
-
-/**
- * Головна функція парсингу тексту
- * @param {string} text - Текст для парсингу
- * @returns {Object[]} - Масив записів {left, right, isHeader, ...}
- */
-function parseText(text) {
-    const servingSize = extractServingSize(text);
-
-    // Розділяємо на рядки БЕЗ очищення табів спочатку
-    let rawLines = text
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line);
-
-    // Розділяємо inline headers (Ингредиенты: текст)
-    rawLines = splitInlineHeaders(rawLines);
-
-    // Склеюємо осиротілі значення (для не-табличних даних)
-    rawLines = mergeOrphanValues(rawLines);
-
-    // Парсимо кожен рядок з урахуванням табуляції
-    let entries = rawLines
-        .filter(line => !shouldSkipLine(cleanText(line)))
-        .map(line => {
-            const parsed = parseLineWithTab(line);
-            parsed.left = normalizeNutrientName(parsed.left);
-            return parsed;
-        });
-
-    // Сортуємо нутрієнти за стандартним порядком
-    entries = sortNutrients(entries);
-
-    // Обробляємо заголовки (Ингредиенты, Состав, Пищевая ценность)
-    return processHeaders(entries, servingSize);
 }
 
 // ============================================================================
@@ -170,6 +67,8 @@ function applyClass(row, className) {
  */
 export async function processAndFillInputs(text) {
     if (!text) return;
+
+    await ensureInitialized();
 
     const entries = parseText(text);
     const dom = getTableDOM();
@@ -231,7 +130,6 @@ export async function processAndFillInputs(text) {
         if (entry.isSingle) {
             applyClass(newRow, ROW_CLASSES.SINGLE);
 
-            // isField = true → режим "field" (поле), інакше строка
             if (entry.isField) {
                 const fieldRadio = newRow.querySelector('input[type="radio"][value="field"]');
                 if (fieldRadio) {
@@ -252,3 +150,9 @@ export async function processAndFillInputs(text) {
         }
     }
 }
+
+// ============================================================================
+// RE-EXPORTS (для зворотньої сумісності)
+// ============================================================================
+
+export { parseText, registerHook, runHook, getLoadedPlugins };
