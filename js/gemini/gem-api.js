@@ -8,7 +8,7 @@
 import { getApiKey } from './gem-config.js';
 import { runHook } from './gem-plugins.js';
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 /**
  * Виклик Gemini API
