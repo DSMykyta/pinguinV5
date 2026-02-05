@@ -25,17 +25,24 @@ const FAB_TEMPLATE = `
 
     <!-- Меню з інпутами -->
     <div class="page-size-menu">
-        <div class="page-size-option" style="bottom: 60px; padding: 0; background: transparent; box-shadow: none;">
-            <input type="text" id="gem-input-context" placeholder="Доп. контекст..."
-                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+        <div class="page-size-option" style="bottom: 60px;">
+            <div class="form-group" style="margin: 0;">
+                <input type="text" id="gem-input-context" placeholder="Доп. контекст...">
+            </div>
         </div>
-        <div class="page-size-option" id="gem-option-url" style="bottom: 108px; padding: 0; background: transparent; box-shadow: none;">
-            <input type="text" id="gem-input-url" placeholder="HTTP://..."
-                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+        <div class="page-size-option" id="gem-option-url" style="bottom: 108px;">
+            <div class="form-group" style="margin: 0;">
+                <input type="text" id="gem-input-url" placeholder="HTTP://...">
+            </div>
         </div>
-        <div class="page-size-option" id="gem-option-name" style="bottom: 156px; padding: 0; background: transparent; box-shadow: none;">
-            <input type="text" id="gem-input-name" placeholder="Назва товару"
-                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+        <div class="page-size-option" id="gem-option-name" style="bottom: 156px;">
+            <div class="form-group" style="margin: 0;">
+                <input type="text" id="gem-input-name" placeholder="Назва товару">
+            </div>
+        </div>
+        <div class="page-size-option" id="gem-warning" style="bottom: 204px; width: 220px; background: #fff3cd; border-radius: 8px; padding: 8px; display: flex; align-items: flex-start; gap: 8px;">
+            <span class="material-symbols-outlined" style="color: #856404; font-size: 20px;">sentiment_stressed</span>
+            <span style="font-size: 11px; color: #856404; line-height: 1.3;">Уважно перечитайте те що воно накалякало бо це gemini-2.0-flash і хто зна що стара модель собі вигадає</span>
         </div>
     </div>
 </div>
