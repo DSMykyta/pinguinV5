@@ -25,14 +25,17 @@ const FAB_TEMPLATE = `
 
     <!-- Меню з інпутами -->
     <div class="page-size-menu">
-        <div class="page-size-option" style="bottom: 60px;">
-            <input type="text" class="input-main" id="gem-input-context" placeholder="Доп. контекст..." style="width: 200px;">
+        <div class="page-size-option" style="bottom: 60px; padding: 0; background: transparent; box-shadow: none;">
+            <input type="text" id="gem-input-context" placeholder="Доп. контекст..."
+                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
         </div>
-        <div class="page-size-option" id="gem-option-url" style="bottom: 108px;">
-            <input type="text" class="input-main" id="gem-input-url" placeholder="HTTP://..." style="width: 200px;">
+        <div class="page-size-option" id="gem-option-url" style="bottom: 108px; padding: 0; background: transparent; box-shadow: none;">
+            <input type="text" id="gem-input-url" placeholder="HTTP://..."
+                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
         </div>
-        <div class="page-size-option" id="gem-option-name" style="bottom: 156px;">
-            <input type="text" class="input-main" id="gem-input-name" placeholder="Назва товару" style="width: 200px;">
+        <div class="page-size-option" id="gem-option-name" style="bottom: 156px; padding: 0; background: transparent; box-shadow: none;">
+            <input type="text" id="gem-input-name" placeholder="Назва товару"
+                style="width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
         </div>
     </div>
 </div>
