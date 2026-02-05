@@ -179,11 +179,17 @@ async function executeRequest() {
     dom.fabContainer?.classList.remove('is-open');
     isOpen = false;
 
-    // Показуємо loader
+    // Показуємо loader з попередженням
     const sectionContent = document.querySelector('#section-text .section-content');
+    const warningHtml = `
+        <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 8px; background: #fff3cd; border-radius: 8px; max-width: 280px;">
+            <img src="resources/avatars/1056/penguin-suspicion.png" alt="Warning" style="width: 32px; height: 32px; flex-shrink: 0;">
+            <span style="font-size: 11px; color: #856404; line-height: 1.3;">Уважно перечитайте те що воно накалякало бо це gemini-2.0-flash і хто зна що стара модель собі вигадає</span>
+        </div>
+    `;
     const loader = showLoader(sectionContent, {
         type: 'spinner',
-        message: 'Gemini обробляє...',
+        message: `Gemini обробляє...${warningHtml}`,
         overlay: true
     });
 
