@@ -41,7 +41,7 @@ const FAB_TEMPLATE = `
             </div>
         </div>
         <div class="page-size-option" id="gem-warning" style="bottom: 204px; width: 220px; background: #fff3cd; border-radius: 8px; padding: 8px; display: flex; align-items: flex-start; gap: 8px;">
-            <span class="material-symbols-outlined" style="color: #856404; font-size: 20px;">sentiment_stressed</span>
+            <img src="resources/avatars/1056/penguin-suspicion.png" alt="Warning" style="width: 32px; height: 32px; flex-shrink: 0;">
             <span style="font-size: 11px; color: #856404; line-height: 1.3;">Уважно перечитайте те що воно накалякало бо це gemini-2.0-flash і хто зна що стара модель собі вигадає</span>
         </div>
     </div>

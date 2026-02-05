@@ -94,15 +94,29 @@ function updateUIForPlugin() {
     // Оновити іконку FAB
     dom.fabIcon.textContent = plugin.icon;
 
-    // Показати/приховати інпути
+    // Показати/приховати інпути залежно від плагіна
     const showName = plugin.inputs?.includes('name');
     const showUrl = plugin.inputs?.includes('url');
+    const showContext = plugin.inputs?.includes('context');
+    const hasAnyInputs = plugin.inputs?.length > 0;
 
     if (dom.optionName) {
         dom.optionName.style.display = showName ? '' : 'none';
     }
     if (dom.optionUrl) {
         dom.optionUrl.style.display = showUrl ? '' : 'none';
+    }
+
+    // Context інпут
+    const optionContext = dom.inputContext?.closest('.page-size-option');
+    if (optionContext) {
+        optionContext.style.display = showContext ? '' : 'none';
+    }
+
+    // Попередження - показувати тільки якщо є інпути
+    const warningEl = document.getElementById('gem-warning');
+    if (warningEl) {
+        warningEl.style.display = hasAnyInputs ? '' : 'none';
     }
 }
 

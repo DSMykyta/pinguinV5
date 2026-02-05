@@ -98,7 +98,7 @@ registerPlugin({
     id: 'clean',
     name: 'Очистити',
     icon: 'cleaning_services',
-    inputs: ['context'], // Тільки контекст, текст береться з редактора
+    inputs: [], // Порожньо - текст береться з редактора
     systemPrompt: SYSTEM_PROMPT,
     buildPrompt,
     parseResponse
