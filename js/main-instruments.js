@@ -9,9 +9,17 @@ import './generators/generator-translate/gtr-main.js';
 import './generators/generator-image/gim-main.js';
 import './generators/generator-highlight/ghl-main.js';
 
+// Gemini AI модуль
+import { initGemini } from './gemini/gem-main.js';
+
 async function initializeApp() {
     try {
         initCore(); // initCore має запускати initPanelRight
+
+        // Ініціалізуємо Gemini після завантаження панелей
+        setTimeout(() => {
+            initGemini({ container: '#section-text .section-content' });
+        }, 500);
     } catch (error) {
         console.error('Критична помилка під час ініціалізації:', error);
     }
