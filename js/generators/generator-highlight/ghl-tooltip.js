@@ -102,7 +102,7 @@ function getShortcutsTooltip() {
                     <span>Копіювати HTML код</span>
                 </div>
                 <div class="shortcut-item">
-                    <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>
+                    <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>C</kbd>
                     <span>Копіювати текст</span>
                 </div>
                 <div class="shortcut-item">

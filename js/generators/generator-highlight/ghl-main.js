@@ -252,8 +252,8 @@ async function initHighlightGenerator() {
             e.preventDefault();
             wrapSelection('em');
         }
-        // Ctrl+Shift+C - копіювати тільки текст без розмітки
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        // Ctrl+Alt+C - копіювати тільки текст без розмітки
+        if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 'c') {
             const selection = window.getSelection();
             const plainText = selection.toString();
             // Only prevent default and copy if there's actual text selected
