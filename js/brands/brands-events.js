@@ -21,6 +21,7 @@ import { initTableSorting } from '../common/ui-table-controls.js';
 export function initBrandsEvents() {
 
     initRefreshButton();
+    initLinesRefreshButton();
 
 }
 
@@ -36,7 +37,13 @@ export function initBrandsSorting() {
     }
 
     const sortAPI = initTableSorting(container, {
-        dataSource: () => getBrands(),
+        dataSource: () => {
+            const lines = brandsState.brandLines || [];
+            return getBrands().map(b => {
+                b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
+                return b;
+            });
+        },
         onSort: async (sortedData) => {
             // Оновити масив брендів в state
             brandsState.brands = sortedData;
@@ -57,7 +64,17 @@ export function initBrandsSorting() {
             names_alt: 'string',
             country_option_id: 'string',
             brand_text: 'string',
-            brand_site_link: 'string'
+            brand_site_link: 'string',
+            lines_count: 'number'
+        },
+        filterColumns: [
+            { id: 'country_option_id', label: 'Країна', filterType: 'values' },
+            { id: 'brand_status', label: 'Статус', filterType: 'values' }
+        ],
+        onFilter: (filters) => {
+            brandsState.columnFilters = filters;
+            brandsState.pagination.currentPage = 1;
+            runHook('onRender');
         }
     });
 
@@ -95,6 +112,65 @@ function initRefreshButton() {
 }
 
 /**
+ * Ініціалізувати кнопку оновлення для табу лінійок
+ */
+function initLinesRefreshButton() {
+    const refreshBtn = document.getElementById('refresh-tab-lines');
+    if (!refreshBtn) return;
+
+    refreshBtn.addEventListener('click', async () => {
+        const icon = refreshBtn.querySelector('.material-symbols-outlined');
+        refreshBtn.disabled = true;
+        icon?.classList.add('is-spinning');
+
+        try {
+            const { loadBrandLines } = await import('./lines-data.js');
+            await loadBrandLines();
+            runHook('onRender');
+            showToast('Дані оновлено', 'success');
+        } catch (error) {
+            console.error('❌ Помилка оновлення лінійок:', error);
+            showToast('Помилка оновлення даних', 'error');
+        } finally {
+            setTimeout(() => {
+                refreshBtn.disabled = false;
+                icon?.classList.remove('is-spinning');
+            }, 500);
+        }
+    });
+}
+
+/**
+ * Ініціалізувати сортування таблиці лінійок
+ */
+export function initLinesSorting() {
+    const container = document.getElementById('lines-table-container');
+    if (!container) return null;
+
+    const sortAPI = initTableSorting(container, {
+        dataSource: () => brandsState.brandLines || [],
+        onSort: async (sortedData) => {
+            brandsState.brandLines = sortedData;
+            runHook('onRender');
+
+            const sortState = sortAPI.getState();
+            if (sortState.column && sortState.direction) {
+                const { updateSortIndicators } = await import('../common/ui-table-controls.js');
+                updateSortIndicators(container, sortState.column, sortState.direction);
+            }
+        },
+        columnTypes: {
+            line_id: 'id-text',
+            brand_id: 'string',
+            name_uk: 'string'
+        }
+    });
+
+    brandsState.linesSortAPI = sortAPI;
+    return sortAPI;
+}
+
+/**
  * Ініціалізувати пошук
  * @param {HTMLElement} searchInput - Поле пошуку
  */
@@ -116,5 +192,6 @@ export function initBrandsSearch(searchInput) {
 registerBrandsPlugin('onInit', () => {
     initBrandsEvents();
     initBrandsSorting();
+    initLinesSorting();
 });
 

@@ -134,6 +134,9 @@ function getLinesPagedData() {
     const lines = getBrandLines();
     const filteredLines = applyFilters(lines);
 
+    // Зберігаємо totalItems в state для коректного перемикання табів
+    brandsState.linesPagination.totalItems = filteredLines.length;
+
     const { currentPage, pageSize } = brandsState.linesPagination;
     const start = (currentPage - 1) * pageSize;
     const end = Math.min(start + pageSize, filteredLines.length);
