@@ -107,7 +107,7 @@ export async function initTasks() {
  * Перевірити авторизацію та завантажити дані
  */
 async function checkAuthAndLoadData() {
-    // Сторінка тільки для авторизованих (не viewer)
+    // Сторінка для всіх авторизованих користувачів
     if (!window.isAuthorized) {
         renderAuthRequiredState();
         return;
