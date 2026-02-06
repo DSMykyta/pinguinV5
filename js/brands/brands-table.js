@@ -12,8 +12,10 @@
 
 import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
+import { getBrandLines } from './lines-data.js';
 import { brandsState } from './brands-state.js';
 import { createPseudoTable } from '../common/ui-table.js';
+import { filterData } from '../common/ui-table-controls.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -80,12 +82,14 @@ export function getColumns() {
             label: 'Країна',
             sortable: true,
             searchable: true,
+            filterable: true,
             render: (value) => escapeHtml(value || '-')
         },
         {
             id: 'brand_status',
             label: 'Статус',
             sortable: true,
+            filterable: true,
             className: 'cell-status',
             render: (value) => {
                 const isActive = value !== 'inactive';
@@ -113,6 +117,18 @@ export function getColumns() {
                         ${count}
                     </span>
                 `;
+            }
+        },
+        {
+            id: 'lines_count',
+            label: 'Лінійки',
+            sortable: true,
+            className: 'cell-count',
+            render: (value, row) => {
+                const count = getBrandLines().filter(l => l.brand_id === row.brand_id).length;
+                return count > 0
+                    ? `<span class="badge badge-outline">${count}</span>`
+                    : '<span class="text-muted">-</span>';
             }
         }
     ];
@@ -161,6 +177,9 @@ function initTableAPI() {
 function getPaginatedData() {
     const brands = getBrands();
     const filteredBrands = applyFilters(brands);
+
+    // Зберігаємо totalItems в state для коректного перемикання табів
+    brandsState.pagination.totalItems = filteredBrands.length;
 
     const { currentPage, pageSize } = brandsState.pagination;
     const start = (currentPage - 1) * pageSize;
@@ -254,6 +273,15 @@ export function renderBrandsTable() {
 function applyFilters(brands) {
     let filtered = [...brands];
 
+    // Фільтри колонок (країна, статус)
+    if (brandsState.columnFilters && Object.keys(brandsState.columnFilters).length > 0) {
+        const filterColumns = [
+            { id: 'country_option_id', filterType: 'values' },
+            { id: 'brand_status', filterType: 'values' }
+        ];
+        filtered = filterData(filtered, brandsState.columnFilters, filterColumns);
+    }
+
     // Пошук
     if (brandsState.searchQuery) {
         const query = brandsState.searchQuery.toLowerCase();
@@ -329,8 +357,10 @@ registerBrandsPlugin('onInit', () => {
     renderBrandsTable();
 });
 
-// Реєструємо на хук onRender — для оновлення таблиці
+// Реєструємо на хук onRender — для оновлення таблиці (тільки на активному табі)
 registerBrandsPlugin('onRender', () => {
-    renderBrandsTable();
+    if (brandsState.activeTab === 'brands') {
+        renderBrandsTable();
+    }
 });
 

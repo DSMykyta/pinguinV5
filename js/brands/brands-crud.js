@@ -207,6 +207,28 @@ function initBrandLinesHandler() {
             showAddLineModal(currentBrandId);
         };
     }
+
+    // Кнопка оновлення лінійок
+    const refreshBtn = document.getElementById('refresh-brand-lines');
+    if (refreshBtn) {
+        refreshBtn.onclick = async () => {
+            if (!currentBrandId) return;
+            const icon = refreshBtn.querySelector('.material-symbols-outlined');
+            refreshBtn.disabled = true;
+            icon?.classList.add('is-spinning');
+
+            try {
+                const { loadBrandLines } = await import('./lines-data.js');
+                await loadBrandLines();
+                populateBrandLines(currentBrandId);
+            } finally {
+                setTimeout(() => {
+                    refreshBtn.disabled = false;
+                    icon?.classList.remove('is-spinning');
+                }, 500);
+            }
+        };
+    }
 }
 
 /**
@@ -251,6 +273,7 @@ function populateBrandLines(brandId) {
         renderPseudoTable(container, {
             data,
             columns,
+            rowActionsHeader: ' ',
             rowActionsCustom: (row) => `
                 <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
                     <span class="material-symbols-outlined">edit</span>
@@ -831,6 +854,22 @@ function generateBrandIdForUI() {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Цей файл — плагін, тому не потрібно реєструвати хуки
-// Експортуємо функції для виклику з інших модулів
+// Оновити таблицю лінійок в модалі, коли лінійку додано/оновлено/видалено
+registerBrandsPlugin('onLineAdd', () => {
+    if (currentBrandId) {
+        populateBrandLines(currentBrandId);
+    }
+});
+
+registerBrandsPlugin('onLineUpdate', () => {
+    if (currentBrandId) {
+        populateBrandLines(currentBrandId);
+    }
+});
+
+registerBrandsPlugin('onLineDelete', () => {
+    if (currentBrandId) {
+        populateBrandLines(currentBrandId);
+    }
+});
 
