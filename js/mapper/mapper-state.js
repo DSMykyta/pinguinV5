@@ -82,9 +82,9 @@ export const mapperState = {
 
     // Видимі колонки
     visibleColumns: {
-        categories: ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping'],
-        characteristics: ['id', 'category_ids', 'name_ua', 'type', 'is_global'],
-        options: ['id', 'characteristic_id', 'value_ua'],
+        categories: ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping', '_bindings'],
+        characteristics: ['id', 'category_ids', 'name_ua', 'type', 'is_global', '_bindings'],
+        options: ['id', 'characteristic_id', 'value_ua', '_bindings'],
         marketplaces: ['id', 'name', 'slug', 'is_active']
     },
 

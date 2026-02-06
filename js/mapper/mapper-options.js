@@ -600,27 +600,9 @@ function renderMpOptionSectionContent(marketplaceData) {
 }
 
 function renderMpDataFields(data) {
+    const skipFields = ['id', 'our_option_id', 'our_char_id', 'our_cat_id'];
     const fields = [];
 
-    if (data.name) {
-        fields.push(`
-            <div class="form-group">
-                <label>Значення</label>
-                <input type="text" value="${escapeHtml(data.name)}" readonly>
-            </div>
-        `);
-    }
-
-    if (data.char_id) {
-        fields.push(`
-            <div class="form-group">
-                <label>ID характеристики</label>
-                <input type="text" value="${escapeHtml(data.char_id)}" readonly>
-            </div>
-        `);
-    }
-
-    const skipFields = ['name', 'char_id', 'our_option_id'];
     Object.entries(data).forEach(([key, value]) => {
         if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
             fields.push(`
