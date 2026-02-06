@@ -29,9 +29,9 @@
                         <span class="material-symbols-outlined">edit</span>
                         <span class="sidebar-nav-label">Основні дані</span>
                     </a>
-                    <a href="#section-option-dependent" class="sidebar-nav-item u-hidden" id="nav-option-dependent" aria-label="Залежні">
+                    <a href="#section-option-dependent" class="sidebar-nav-item u-hidden" id="nav-option-dependent" aria-label="Дочірні опції">
                         <span class="material-symbols-outlined">account_tree</span>
-                        <span class="sidebar-nav-label">Залежні</span>
+                        <span class="sidebar-nav-label">Дочірні опції</span>
                     </a>
                     <!-- Секції маркетплейсів додаються динамічно через JS -->
                 </div>
@@ -80,6 +80,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="mapper-option-parent">Батьківська опція</label>
+                                <select id="mapper-option-parent" data-custom-select data-placeholder="Без батьківської опції">
+                                    <option value="">— Без батьківської опції —</option>
+                                </select>
+                                <p class="form-hint">При виборі батьківської опції з'явиться дропдаун з цією опцією</p>
+                            </div>
+                        </div>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
                                 <label for="mapper-option-order">Порядок сортування</label>
                                 <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
                                 <p class="form-hint">Менше число = вища позиція в списку</p>
@@ -114,14 +124,14 @@
                     <div class="section-header u-align-end">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2>Залежні характеристики</h2>
+                                <h2>Дочірні опції</h2>
                             </div>
                             <h3 id="option-chars-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
-                                <input type="text" id="option-chars-search" class="input-main" placeholder="Пошук характеристик...">
+                                <input type="text" id="option-chars-search" class="input-main" placeholder="Пошук опцій...">
                             </div>
                         </div>
                     </div>

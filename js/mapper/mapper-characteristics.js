@@ -28,7 +28,7 @@
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
-    getCategories, getOptions, getMarketplaces,
+    getCategories, getMarketplaces,
     getMpCharacteristics, getMappedMpCharacteristics,
     batchCreateCharacteristicMapping, deleteCharacteristicMapping,
     autoMapCharacteristics
@@ -105,7 +105,6 @@ export async function showAddCharacteristicModal() {
 
     clearCharacteristicForm();
     populateCategorySelect();
-    populateParentOptionsSelect();
 
     if (modalEl) initCustomSelects(modalEl);
     initGlobalToggleHandler();
@@ -159,11 +158,6 @@ export async function showEditCharacteristicModal(id) {
         ? characteristic.category_ids.split(',').map(id => id.trim()).filter(id => id)
         : [];
     populateCategorySelect(selectedCategoryIds);
-
-    const selectedParentOptionIds = characteristic.parent_option_id
-        ? characteristic.parent_option_id.split(',').map(id => id.trim()).filter(id => id)
-        : [];
-    populateParentOptionsSelect(selectedParentOptionIds);
 
     if (modalEl) initCustomSelects(modalEl);
     initGlobalToggleHandler();
@@ -271,11 +265,6 @@ function getCharacteristicFormData() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const isGlobal = globalYes?.checked ?? false;
 
-    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
-    const selectedParentOptions = parentOptionSelect
-        ? Array.from(parentOptionSelect.selectedOptions).map(opt => opt.value)
-        : [];
-
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
         name_ru: document.getElementById('mapper-char-name-ru')?.value.trim() || '',
@@ -284,8 +273,7 @@ function getCharacteristicFormData() {
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         block_number: document.getElementById('mapper-char-block')?.value || '',
         is_global: isGlobal,
-        category_ids: isGlobal ? '' : selectedCategories.join(','),
-        parent_option_id: selectedParentOptions.join(',')
+        category_ids: isGlobal ? '' : selectedCategories.join(',')
     };
 }
 
@@ -355,12 +343,6 @@ function clearCharacteristicForm() {
         reinitializeCustomSelect(categoriesSelect);
     }
 
-    const parentOptionSelect = document.getElementById('mapper-char-parent-option');
-    if (parentOptionSelect) {
-        Array.from(parentOptionSelect.options).forEach(opt => opt.selected = false);
-        reinitializeCustomSelect(parentOptionSelect);
-    }
-
     toggleCategoriesField(false);
 }
 
@@ -407,52 +389,6 @@ function populateCategorySelect(selectedIds = []) {
             option.selected = true;
         }
         select.appendChild(option);
-    });
-
-    reinitializeCustomSelect(select);
-}
-
-function populateParentOptionsSelect(selectedOptionIds = []) {
-    const select = document.getElementById('mapper-char-parent-option');
-    if (!select) return;
-
-    const options = getOptions();
-    const characteristics = getCharacteristics();
-
-    const charMap = new Map();
-    characteristics.forEach(char => {
-        charMap.set(char.id, char);
-    });
-
-    select.innerHTML = '';
-
-    const optionsByChar = new Map();
-    options.forEach(opt => {
-        if (!opt.characteristic_id) return;
-        if (!optionsByChar.has(opt.characteristic_id)) {
-            optionsByChar.set(opt.characteristic_id, []);
-        }
-        optionsByChar.get(opt.characteristic_id).push(opt);
-    });
-
-    optionsByChar.forEach((opts, charId) => {
-        const char = charMap.get(charId);
-        const charName = char ? (char.name_ua || charId) : charId;
-
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = charName;
-
-        opts.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt.id;
-            option.textContent = opt.value_ua || opt.id;
-            if (selectedOptionIds.includes(opt.id)) {
-                option.selected = true;
-            }
-            optgroup.appendChild(option);
-        });
-
-        select.appendChild(optgroup);
     });
 
     reinitializeCustomSelect(select);

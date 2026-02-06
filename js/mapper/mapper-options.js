@@ -105,6 +105,7 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
 
     clearOptionForm();
     populateCharacteristicSelect(preselectedCharacteristicId);
+    populateParentOptionSelect();
 
     if (modalEl) initCustomSelects(modalEl);
 
@@ -162,9 +163,10 @@ export async function showEditOptionModal(id) {
     }
 
     populateCharacteristicSelect();
+    populateParentOptionSelect(option.parent_option_id || null);
     if (modalEl) initCustomSelects(modalEl);
     fillOptionForm(option);
-    populateRelatedDependentCharacteristics(id);
+    populateRelatedChildOptions(id);
     renderMappedMpOptionsSections(id);
     initSectionNavigation('option-section-navigator');
 
@@ -260,7 +262,8 @@ function getOptionFormData() {
         characteristic_id: document.getElementById('mapper-option-char')?.value || '',
         value_ua: document.getElementById('mapper-option-value-ua')?.value.trim() || '',
         value_ru: document.getElementById('mapper-option-value-ru')?.value.trim() || '',
-        sort_order: document.getElementById('mapper-option-order')?.value || '0'
+        sort_order: document.getElementById('mapper-option-order')?.value || '0',
+        parent_option_id: document.getElementById('mapper-option-parent')?.value || ''
     };
 }
 
@@ -269,11 +272,16 @@ function fillOptionForm(option) {
     const valueUaField = document.getElementById('mapper-option-value-ua');
     const valueRuField = document.getElementById('mapper-option-value-ru');
     const orderField = document.getElementById('mapper-option-order');
+    const parentField = document.getElementById('mapper-option-parent');
 
     if (charField) charField.value = option.characteristic_id || '';
     if (valueUaField) valueUaField.value = option.value_ua || '';
     if (valueRuField) valueRuField.value = option.value_ru || '';
     if (orderField) orderField.value = option.sort_order || '0';
+    if (parentField) {
+        parentField.value = option.parent_option_id || '';
+        reinitializeCustomSelect(parentField);
+    }
 }
 
 function clearOptionForm() {
@@ -281,11 +289,16 @@ function clearOptionForm() {
     const valueUaField = document.getElementById('mapper-option-value-ua');
     const valueRuField = document.getElementById('mapper-option-value-ru');
     const orderField = document.getElementById('mapper-option-order');
+    const parentField = document.getElementById('mapper-option-parent');
 
     if (charField) charField.value = '';
     if (valueUaField) valueUaField.value = '';
     if (valueRuField) valueRuField.value = '';
     if (orderField) orderField.value = '0';
+    if (parentField) {
+        parentField.value = '';
+        reinitializeCustomSelect(parentField);
+    }
 }
 
 function populateCharacteristicSelect(preselectedId = null) {
@@ -309,11 +322,61 @@ function populateCharacteristicSelect(preselectedId = null) {
     reinitializeCustomSelect(select);
 }
 
+/**
+ * Заповнити селект батьківської опції
+ * Групує опції по характеристиках (як optgroup)
+ */
+function populateParentOptionSelect(selectedId = null) {
+    const select = document.getElementById('mapper-option-parent');
+    if (!select) return;
+
+    const options = getOptions();
+    const characteristics = getCharacteristics();
+
+    const charMap = new Map();
+    characteristics.forEach(char => {
+        charMap.set(char.id, char);
+    });
+
+    select.innerHTML = '<option value="">— Без батьківської опції —</option>';
+
+    const optionsByChar = new Map();
+    options.forEach(opt => {
+        if (!opt.characteristic_id) return;
+        if (!optionsByChar.has(opt.characteristic_id)) {
+            optionsByChar.set(opt.characteristic_id, []);
+        }
+        optionsByChar.get(opt.characteristic_id).push(opt);
+    });
+
+    optionsByChar.forEach((opts, charId) => {
+        const char = charMap.get(charId);
+        const charName = char ? (char.name_ua || charId) : charId;
+
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = charName;
+
+        opts.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.id;
+            option.textContent = opt.value_ua || opt.id;
+            if (selectedId && opt.id === selectedId) {
+                option.selected = true;
+            }
+            optgroup.appendChild(option);
+        });
+
+        select.appendChild(optgroup);
+    });
+
+    reinitializeCustomSelect(select);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // ПОВ'ЯЗАНІ ЕЛЕМЕНТИ
 // ═══════════════════════════════════════════════════════════════════════════
 
-function populateRelatedDependentCharacteristics(optionId) {
+function populateRelatedChildOptions(optionId) {
     const container = document.getElementById('option-related-chars');
     const statsEl = document.getElementById('option-chars-stats');
     const searchInput = document.getElementById('option-chars-search');
@@ -322,14 +385,8 @@ function populateRelatedDependentCharacteristics(optionId) {
 
     if (!container) return;
 
-    const characteristics = getCharacteristics();
-    const allData = characteristics.filter(char => {
-        if (!char.parent_option_id) return false;
-        const ids = Array.isArray(char.parent_option_id)
-            ? char.parent_option_id
-            : String(char.parent_option_id).split(',').map(id => id.trim());
-        return ids.includes(optionId);
-    });
+    const options = getOptions();
+    const allData = options.filter(opt => opt.parent_option_id === optionId);
     let filteredData = [...allData];
 
     // Функція оновлення статистики
@@ -337,7 +394,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
-    // Приховуємо/показуємо секцію залежно від наявності залежних характеристик
+    // Приховуємо/показуємо секцію залежно від наявності дочірніх опцій
     if (allData.length === 0) {
         if (navItem) navItem.classList.add('u-hidden');
         if (section) section.classList.add('u-hidden');
@@ -358,20 +415,18 @@ function populateRelatedDependentCharacteristics(optionId) {
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
-            id: 'name_ua',
-            label: 'Назва',
+            id: 'value_ua',
+            label: 'Значення',
             sortable: true,
             className: 'cell-name',
             render: (value, row) => escapeHtml(value || row.id || '-')
         }
     ];
 
-    // Функція рендерингу таблиці
     // Реєструємо обробники дій
-    registerActionHandlers('option-dependent-chars', {
+    registerActionHandlers('option-child-options', {
         edit: async (rowId) => {
-            const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
-            await showEditCharacteristicModal(rowId);
+            await showEditOptionModal(rowId);
         }
     });
 
@@ -383,7 +438,7 @@ function populateRelatedDependentCharacteristics(optionId) {
                 action: 'edit',
                 rowId: row.id
             }),
-            emptyState: { message: 'Залежні характеристики відсутні' },
+            emptyState: { message: 'Дочірні опції відсутні' },
             withContainer: false
         });
 
@@ -391,7 +446,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         updateStats(data.length, allData.length);
 
         // Ініціалізуємо обробники дій
-        initActionHandlers(container, 'option-dependent-chars');
+        initActionHandlers(container, 'option-child-options');
     };
 
     // Функція пошуку
@@ -402,7 +457,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         } else {
             filteredData = allData.filter(row =>
                 (row.id && row.id.toLowerCase().includes(q)) ||
-                (row.name_ua && row.name_ua.toLowerCase().includes(q))
+                (row.value_ua && row.value_ua.toLowerCase().includes(q))
             );
         }
         renderTable(filteredData);
@@ -426,7 +481,7 @@ function populateRelatedDependentCharacteristics(optionId) {
         },
         columnTypes: {
             id: 'id-text',
-            name_ua: 'string'
+            value_ua: 'string'
         }
     });
 }
