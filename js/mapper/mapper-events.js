@@ -524,10 +524,13 @@ const sortAPIs = {
  * Ініціалізувати сортування для всіх табів
  */
 export function initMapperSorting() {
-    initCategoriesSorting();
-    initCharacteristicsSorting();
-    initOptionsSorting();
-    initMarketplacesSorting();
+    // Сортування повністю управляється через initMapperColumnFilters() в mapper-table.js,
+    // яка викликається при кожному рендері таблиці. Вона зберігає/відновлює стан сортування
+    // через mapperState.sortState[tabName] + initialSortState в initTableSorting().
+    //
+    // initCategoriesSorting/etc. НЕ викликаються, бо вони створюють другий click handler
+    // на тому ж контейнері, що конфліктує з обробником з initMapperColumnFilters —
+    // новий API завжди починає зі state {null, null} і перезаписує напрямок на 'asc'.
 }
 
 /**

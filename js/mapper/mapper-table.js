@@ -1658,8 +1658,12 @@ export function initMapperColumnFilters(container, tabName, data) {
     // Зберігаємо дані для сортування
     let currentData = data;
 
+    // Відновлюємо стан сортування якщо він був
+    const savedSortState = mapperState.sortState?.[tabName] || null;
+
     const sortAPI = initTableSorting(container, {
         dataSource: () => currentData,
+        initialSortState: savedSortState,
         columnTypes: {
             id: 'string',
             _sourceLabel: 'string',
@@ -1711,6 +1715,11 @@ export function initMapperColumnFilters(container, tabName, data) {
         isRestoringFilters = true;
         sortAPI.setFilters(savedFilters);
         isRestoringFilters = false;
+    }
+
+    // Відновлюємо візуальні індикатори сортування
+    if (savedSortState?.column && savedSortState?.direction) {
+        updateSortIndicators(container, savedSortState.column, savedSortState.direction);
     }
 
     mapperState.columnFiltersAPI[tabName] = sortAPI;
