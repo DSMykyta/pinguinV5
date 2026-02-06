@@ -28,7 +28,7 @@
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
-    getCategories, getMarketplaces,
+    getCategories, getMarketplaces, getOptions,
     getMpCharacteristics, getMappedMpCharacteristics,
     batchCreateCharacteristicMapping, deleteCharacteristicMapping,
     autoMapCharacteristics
@@ -564,9 +564,6 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         section.innerHTML = renderMpCharacteristicSectionContent(data);
         content.appendChild(section);
     });
-
-    // Перезапускаємо навігацію щоб включити нові секції
-    initSectionNavigation('char-section-navigator');
 
     // Реєструємо обробники для маппінгів характеристик
     registerActionHandlers('mp-characteristic-mapping', {
