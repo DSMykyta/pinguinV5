@@ -658,15 +658,16 @@ function renderMpDataFields(data) {
     }
 
     if (data.is_global !== undefined) {
+        const isGlobalTrue = ['TRUE', 'true', 'Так', '1', 'yes', '+', 'да'].includes(String(data.is_global));
         fields.push(`
             <div class="form-group">
                 <label>Глобальна</label>
-                <input type="text" value="${data.is_global === true || data.is_global === 'Так' ? 'Так' : 'Ні'}" readonly>
+                <input type="text" value="${isGlobalTrue ? 'Так' : 'Ні'}" readonly>
             </div>
         `);
     }
 
-    const skipFields = [...knownFields, 'our_char_id', 'our_option_id'];
+    const skipFields = [...knownFields, 'our_char_id', 'our_option_id', 'our_cat_id', 'id'];
     Object.entries(data).forEach(([key, value]) => {
         if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
             fields.push(`
