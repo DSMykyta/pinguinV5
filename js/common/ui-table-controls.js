@@ -661,14 +661,13 @@ export function initTableSorting(container, options) {
         onSort,
         columnTypes = {},
         filterColumns = [],
-        onFilter = null,
-        initialSortState = null
+        onFilter = null
     } = options;
 
-    // Стан (відновлюємо з initialSortState якщо передано)
+    // Стан
     const state = {
-        sortColumn: initialSortState?.column || null,
-        sortDirection: initialSortState?.direction || null
+        sortColumn: null,
+        sortDirection: null
     };
 
     const activeFilters = new Map();
