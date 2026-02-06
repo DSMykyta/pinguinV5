@@ -971,11 +971,16 @@ export async function loadMpCharacteristics() {
                 obj[header] = row[i] || '';
             });
 
+            // Зберігаємо оригінальний ID з таблиці
+            const originalId = obj.id;
+
             // Парсимо JSON поле data
             if (obj.data) {
                 try {
                     const parsedData = JSON.parse(obj.data);
                     Object.assign(obj, parsedData);
+                    // Відновлюємо оригінальний ID (щоб не перезаписався з JSON)
+                    obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
                 }
@@ -1019,11 +1024,16 @@ export async function loadMpOptions() {
                 obj[header] = row[i] || '';
             });
 
+            // Зберігаємо оригінальний ID з таблиці
+            const originalId = obj.id;
+
             // Парсимо JSON поле data
             if (obj.data) {
                 try {
                     const parsedData = JSON.parse(obj.data);
                     Object.assign(obj, parsedData);
+                    // Відновлюємо оригінальний ID (щоб не перезаписався з JSON)
+                    obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
                 }

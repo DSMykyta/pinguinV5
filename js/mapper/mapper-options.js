@@ -620,7 +620,7 @@ function renderMpDataFields(data) {
         `);
     }
 
-    const skipFields = ['name', 'char_id', 'our_option_id'];
+    const skipFields = ['name', 'char_id', 'our_option_id', 'our_char_id', 'our_cat_id', 'id'];
     Object.entries(data).forEach(([key, value]) => {
         if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
             fields.push(`

@@ -893,16 +893,7 @@ function renderMpCategorySectionContent(marketplaceData) {
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">
-                        <div class="form-group">
-                            <label>Назва</label>
-                            <input type="text" class="input-main" value="${escapeHtml(data.name || '')}" readonly>
-                        </div>
-                        ${data.parent_name ? `
-                        <div class="form-group">
-                            <label>Батьківська</label>
-                            <input type="text" class="input-main" value="${escapeHtml(data.parent_name)}" readonly>
-                        </div>
-                        ` : ''}
+                        ${renderMpCategoryDataFields(data)}
                     </div>
                 </div>
             </div>
@@ -925,4 +916,40 @@ function renderMpCategorySectionContent(marketplaceData) {
             </div>
         </div>
     `;
+}
+
+function renderMpCategoryDataFields(data) {
+    const fields = [];
+
+    if (data.name) {
+        fields.push(`
+            <div class="form-group">
+                <label>Назва</label>
+                <input type="text" value="${escapeHtml(data.name)}" readonly>
+            </div>
+        `);
+    }
+
+    if (data.parent_name) {
+        fields.push(`
+            <div class="form-group">
+                <label>Батьківська</label>
+                <input type="text" value="${escapeHtml(data.parent_name)}" readonly>
+            </div>
+        `);
+    }
+
+    const skipFields = ['name', 'parent_name', 'parent_id', 'our_category_id', 'our_cat_id', 'id'];
+    Object.entries(data).forEach(([key, value]) => {
+        if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
+            fields.push(`
+                <div class="form-group">
+                    <label>${escapeHtml(key)}</label>
+                    <input type="text" value="${escapeHtml(String(value))}" readonly>
+                </div>
+            `);
+        }
+    });
+
+    return fields.join('');
 }
