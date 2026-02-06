@@ -135,10 +135,17 @@ export function setupModalCloseHandlers(modalOverlay, onClose) {
  */
 export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedToName, extraSkipFields = [] }) {
     const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id', 'our_category_id', ...extraSkipFields];
+    const entityName = jsonData.name || '';
+    const dupValues = new Set([String(externalId || ''), entityName].filter(Boolean));
 
-    // Генеруємо поля з JSON — ідентично renderMpDataFields в секціях
+    // Генеруємо поля з JSON — пропускаємо ключі зі skipFields + поля, що дублюють header
     const fieldsHtml = Object.entries(jsonData)
-        .filter(([key, value]) => !skipFields.includes(key) && value !== null && value !== undefined && value !== '')
+        .filter(([key, value]) => {
+            if (skipFields.includes(key)) return false;
+            if (value === null || value === undefined || value === '') return false;
+            if (dupValues.has(String(value))) return false;
+            return true;
+        })
         .map(([key, value]) => `
             <div class="form-group">
                 <label>${escapeHtml(key)}</label>
@@ -164,6 +171,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                     <div class="mp-item-card">
                         <div class="mp-item-header">
                             <span class="mp-item-id">#${escapeHtml(externalId || '')}</span>
+                            <span>${escapeHtml(entityName)}</span>
                             ${mappedToName
                                 ? `<span class="chip chip-success">${escapeHtml(mappedToName)}</span>`
                                 : `<span class="chip">Не замаплено</span>`
