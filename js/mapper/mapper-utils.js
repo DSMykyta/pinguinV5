@@ -136,13 +136,13 @@ export function setupModalCloseHandlers(modalOverlay, onClose) {
 export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedToName }) {
     const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id', 'our_category_id'];
 
-    // Генеруємо поля з JSON
+    // Генеруємо поля з JSON — ідентично renderMpDataFields в секціях
     const fieldsHtml = Object.entries(jsonData)
         .filter(([key, value]) => !skipFields.includes(key) && value !== null && value !== undefined && value !== '')
         .map(([key, value]) => `
             <div class="form-group">
                 <label>${escapeHtml(key)}</label>
-                <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
+                <input type="text" value="${escapeHtml(String(value))}" readonly>
             </div>
         `).join('');
 
@@ -152,6 +152,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                 <div class="modal-header">
                     <h2 class="modal-title">${escapeHtml(title)}</h2>
                     <div class="modal-header-actions">
+                        <span class="chip chip-active">${escapeHtml(mpName)}</span>
                         <button class="segment modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
@@ -160,29 +161,20 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="form-grid form-grid-2">
-                        <div class="form-group">
-                            <label>Джерело</label>
-                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                    <div class="mp-item-card">
+                        <div class="mp-item-header">
+                            <span class="mp-item-id">#${escapeHtml(externalId || '')}</span>
+                            ${mappedToName
+                                ? `<span class="chip chip-success">${escapeHtml(mappedToName)}</span>`
+                                : `<span class="chip">Не замаплено</span>`
+                            }
                         </div>
-                        <div class="form-group">
-                            <label>External ID</label>
-                            <input type="text" class="input-main" value="${escapeHtml(externalId || '')}" readonly>
+                        <div class="mp-item-fields">
+                            <div class="form-grid form-grid-2">
+                                ${fieldsHtml}
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-grid form-grid-2">
-                        ${fieldsHtml}
-                    </div>
-
-                    <div class="form-section-title u-mt-24">
-                        <span class="material-symbols-outlined">link</span>
-                        <span>Маппінг</span>
-                    </div>
-                    ${mappedToName
-                        ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
-                        : `<p class="u-text-tertiary">Не замаплено</p>`
-                    }
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary modal-close-btn">Закрити</button>
