@@ -27,16 +27,6 @@ import { runHook, runHookAsync } from './tasks-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
-import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
-import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../common/avatar/avatar-config.js';
-import { registerPanelInitializer } from '../panel/panel-right.js';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРІВ ASIDE (на рівні модуля)
-// ═══════════════════════════════════════════════════════════════════════════
-
-registerPanelInitializer('aside-tasks', initAsideTasksHandlers);
-registerPanelInitializer('aside-cabinet', initAsideCabinetHandlers);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -246,131 +236,6 @@ function initAddButtons() {
 }
 
 /**
- * Ініціалізувати обробники в aside-tasks
- * Викликається panel-right.js після завантаження шаблону
- */
-function initAsideTasksHandlers() {
-    // Пошук
-    const searchInput = document.getElementById('search-tasks');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            tasksState.searchQuery = e.target.value;
-            tasksState.pagination.currentPage = 1;
-            runHook('onRender');
-        });
-    }
-
-    // Кнопка очистки пошуку
-    const clearSearchBtn = document.getElementById('clear-search-tasks');
-    if (clearSearchBtn && searchInput) {
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            tasksState.searchQuery = '';
-            tasksState.pagination.currentPage = 1;
-            clearSearchBtn.classList.add('u-hidden');
-            runHook('onRender');
-        });
-
-        searchInput.addEventListener('input', () => {
-            if (searchInput.value.trim()) {
-                clearSearchBtn.classList.remove('u-hidden');
-            } else {
-                clearSearchBtn.classList.add('u-hidden');
-            }
-        });
-    }
-
-    // Кнопка "Додати задачу"
-    const addTaskBtn = document.getElementById('btn-add-task');
-    if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', async () => {
-            try {
-                const { showAddTaskModal } = await import('./tasks-crud.js');
-                showAddTaskModal();
-            } catch (e) {
-                console.warn('tasks-crud.js не завантажено');
-            }
-        });
-    }
-}
-
-/**
- * Ініціалізувати обробники в aside-cabinet
- * Викликається panel-right.js після завантаження шаблону aside-cabinet.html
- *
- * Заповнює профіль юзера в aside та підключає кнопку "Додати задачу"
- */
-function initAsideCabinetHandlers() {
-    const user = window.currentUser;
-    if (!user) return;
-
-    // Аватар в aside
-    const avatarEl = document.getElementById('aside-cabinet-avatar');
-    if (avatarEl) {
-        const animal = getCurrentUserAvatar() || DEFAULT_ANIMAL;
-        const avatarPath = `${AVATAR_HD_PATH}/${animal}-calm.png`;
-        avatarEl.innerHTML = `<img src="${avatarPath}" alt="${animal}" style="width: 48px; height: 48px; border-radius: 50%;" onerror="this.style.display='none'">`;
-    }
-
-    // Ім'я та роль
-    const nameEl = document.getElementById('aside-cabinet-name');
-    const roleEl = document.getElementById('aside-cabinet-role');
-
-    const roleLabels = { admin: 'Адміністратор', editor: 'Редактор', viewer: 'Глядач' };
-
-    if (nameEl) nameEl.textContent = user.display_name || user.username;
-    if (roleEl) roleEl.textContent = roleLabels[user.role] || user.role;
-
-    // Статистика в aside (оновиться після завантаження даних)
-    updateAsideCabinetStats();
-
-    // Кнопка "Додати задачу" в aside-cabinet
-    const addTaskBtn = document.getElementById('btn-add-task-cabinet');
-    if (addTaskBtn) {
-        addTaskBtn.addEventListener('click', async () => {
-            try {
-                const { showAddTaskModal } = await import('./tasks-crud.js');
-                showAddTaskModal();
-            } catch (e) {
-                console.warn('tasks-crud.js не завантажено');
-            }
-        });
-    }
-}
-
-/**
- * Оновити статистику в aside-cabinet
- * Показує кількість задач по статусах
- */
-function updateAsideCabinetStats() {
-    const statsEl = document.getElementById('aside-cabinet-stats');
-    if (!statsEl) return;
-
-    const userId = tasksState.currentUserId;
-    if (!userId) {
-        statsEl.innerHTML = '<span class="avatar-state-message">Авторизуйтесь</span>';
-        return;
-    }
-
-    const myTasks = tasksState.tasks.filter(t =>
-        t.created_by === userId ||
-        (t.assigned_to && t.assigned_to.split(',').map(id => id.trim()).includes(userId))
-    );
-
-    const todo = myTasks.filter(t => t.status === 'todo').length;
-    const inProgress = myTasks.filter(t => t.status === 'in_progress').length;
-    const done = myTasks.filter(t => t.status === 'done').length;
-
-    statsEl.innerHTML = `
-        <div class="u-flex-col-8">
-            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">radio_button_unchecked</span> До виконання: <strong>${todo}</strong></span>
-            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">pending</span> В роботі: <strong>${inProgress}</strong></span>
-            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">check_circle</span> Виконано: <strong>${done}</strong></span>
-        </div>
-    `;
-}
-
-/**
  * Показати/сховати адмін секцію та навігацію
  */
 function updateAdminVisibility(userRole) {
@@ -415,23 +280,6 @@ function renderAuthRequiredState() {
             showMessage: true
         });
     }
-}
-
-/**
- * Відрендерити стан "Немає доступу"
- */
-function renderNoAccessState() {
-    const container = document.getElementById('cabinet-container');
-    if (!container) return;
-
-    container.innerHTML = renderAvatarState('error', {
-        message: 'У вас немає доступу до цієї сторінки',
-        size: 'xl',
-        containerClass: 'empty-state-container',
-        avatarClass: 'empty-state-avatar',
-        messageClass: 'avatar-state-message',
-        showMessage: true
-    });
 }
 
 /**

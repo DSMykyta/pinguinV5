@@ -125,10 +125,9 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: КАБІНЕТ                                                    -->
         <!-- Привітання з аватаром, статистика, закріплені записи.              -->
-        <!-- Aside: aside-cabinet.html (профіль + інструменти)                  -->
         <!-- Рендер: tasks-cabinet.js (плагін)                                  -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-cabinet" data-panel-template="aside-cabinet">
+        <section id="section-cabinet">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -150,7 +149,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: ЗАДАЧІ -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-tasks" data-panel-template="aside-tasks">
+        <section id="section-tasks">
 
             <div class="section-header u-align-end">
                 <div class="section-name-block">
@@ -185,7 +184,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: ІНФОРМАЦІЯ -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-info" data-panel-template="aside-tasks">
+        <section id="section-info">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -219,7 +218,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: АДМІНІСТРУВАННЯ (тільки для admin) -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-admin" data-panel-template="aside-tasks" class="u-hidden">
+        <section id="section-admin" class="u-hidden">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -245,18 +244,6 @@
         </section>
 
     </main>
-
-    <!-- ПРАВА ПАНЕЛЬ -->
-    <aside id="panel-right" class="panel panel-right is-collapsed">
-        <div class="panel-header">
-            <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
-                <span class="material-symbols-outlined">keyboard_arrow_left</span>
-            </button>
-        </div>
-        <div id="panel-right-content" class="panel-content">
-            <!-- aside шаблони завантажуються через JS -->
-        </div>
-    </aside>
 
     <div id="modal-placeholder"></div>
 
