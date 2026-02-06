@@ -642,7 +642,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
 }
 
 function renderMpDataFields(data) {
-    const skipFields = ['id', 'name', 'our_char_id', 'our_option_id', 'our_cat_id'];
+    const skipFields = ['id', 'name', 'category_id', 'category_name', 'our_char_id', 'our_option_id', 'our_cat_id'];
     const fields = [];
 
     Object.entries(data).forEach(([key, value]) => {
@@ -851,7 +851,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
         externalId: mpChar.external_id,
         jsonData,
         mappedToName,
-        extraSkipFields: ['name']
+        extraSkipFields: ['name', 'category_id', 'category_name']
     });
 
     const modalOverlay = createModalOverlay(modalHtml);
