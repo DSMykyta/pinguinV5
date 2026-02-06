@@ -892,6 +892,37 @@ export function getMpOptions() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Нормалізація українських ключів Rozetka при завантаженні (backwards compatibility)
+ * Працює in-memory — не змінює дані в таблиці
+ */
+function normalizeMpLoadedData(obj) {
+    const ukKeyMap = {
+        'Тип параметра': 'type',
+        'Тип фільтра': 'filter_type',
+        'Одиниця вимірювання': 'unit',
+        'Одиниця виміру': 'unit',
+        'Наскрізниий параметр': 'is_global',
+        'Наскрізний параметр': 'is_global',
+        'ID параметра': null,
+        'Назва параметра': null,
+        'ID значення': null,
+        'Назва значення': null,
+    };
+    for (const [ukKey, enKey] of Object.entries(ukKeyMap)) {
+        if (!(ukKey in obj)) continue;
+        if (enKey && !(enKey in obj)) {
+            obj[enKey] = obj[ukKey];
+        }
+        delete obj[ukKey];
+    }
+    // Нормалізуємо is_global: Так → TRUE
+    if (obj.is_global !== undefined && obj.is_global !== 'TRUE' && obj.is_global !== 'FALSE') {
+        const strVal = String(obj.is_global).toLowerCase().trim();
+        obj.is_global = ['true', '1', 'так', 'yes', '+', 'да'].includes(strVal) ? 'TRUE' : 'FALSE';
+    }
+}
+
+/**
  * Завантажити категорії маркетплейсу
  * Структура: id | marketplace_id | external_id | source | data | created_at | updated_at
  */
@@ -933,6 +964,7 @@ export async function loadMpCategories() {
                 }
             }
 
+            normalizeMpLoadedData(obj);
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
@@ -986,6 +1018,7 @@ export async function loadMpCharacteristics() {
                 }
             }
 
+            normalizeMpLoadedData(obj);
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
@@ -1039,6 +1072,7 @@ export async function loadMpOptions() {
                 }
             }
 
+            normalizeMpLoadedData(obj);
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
