@@ -524,9 +524,10 @@ const sortAPIs = {
  * Ініціалізувати сортування для всіх табів
  */
 export function initMapperSorting() {
-    // Сортування ініціалізується в mapper-table.js через initMapperColumnFilters()
-    // при кожному рендері таблиці. Окрема ініціалізація тут не потрібна,
-    // бо вона створює дублікатні обробники на тих самих контейнерах.
+    initCategoriesSorting();
+    initCharacteristicsSorting();
+    initOptionsSorting();
+    initMarketplacesSorting();
 }
 
 /**
