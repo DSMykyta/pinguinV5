@@ -87,6 +87,9 @@ export async function initTasks() {
     // Ініціалізувати кнопку оновлення
     initRefreshButton();
 
+    // Ініціалізувати кнопки "Додати" в секціях
+    initAddButtons();
+
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
 
@@ -208,6 +211,37 @@ function initRefreshButton() {
             refreshBtn.disabled = false;
         }
     });
+}
+
+/**
+ * Ініціалізувати кнопки "Додати" в заголовках секцій
+ */
+function initAddButtons() {
+    // Кнопка "Додати задачу" в секції Задачі
+    const addTaskBtn = document.getElementById('btn-add-task-header');
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', async () => {
+            try {
+                const { showAddTaskModal } = await import('./tasks-crud.js');
+                showAddTaskModal();
+            } catch (e) {
+                console.warn('tasks-crud.js не завантажено');
+            }
+        });
+    }
+
+    // Кнопка "Додати запис" в секції Інформація
+    const addInfoBtn = document.getElementById('btn-add-info');
+    if (addInfoBtn) {
+        addInfoBtn.addEventListener('click', async () => {
+            try {
+                const { showAddTaskModal } = await import('./tasks-crud.js');
+                showAddTaskModal();
+            } catch (e) {
+                console.warn('tasks-crud.js не завантажено');
+            }
+        });
+    }
 }
 
 /**

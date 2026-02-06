@@ -15,7 +15,7 @@
         rel="stylesheet">
 </head>
 
-<body class="panel-left-closed">
+<body class="panel-left-closed right-panel-collapsed">
 
     <!-- ЛІВА ПАНЕЛЬ -->
     <nav id="panel-left" class="panel panel-left">
@@ -164,6 +164,9 @@
                 </div>
 
                 <div class="tab-controls">
+                    <button id="btn-add-task-header" class="btn-icon" aria-label="Додати задачу">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
                     <button id="refresh-tasks" class="btn-icon" aria-label="Оновити">
                         <span class="material-symbols-outlined">refresh</span>
                     </button>
@@ -194,9 +197,14 @@
                     </div>
                     <h3 id="tab-stats-info">Збережені записи</h3>
                 </div>
-                <button id="refresh-info" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
+                <div class="tab-controls">
+                    <button id="btn-add-info" class="btn-icon" aria-label="Додати запис">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                    <button id="refresh-info" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                </div>
             </div>
 
             <div class="section-content section-content-full-height">
@@ -239,7 +247,7 @@
     </main>
 
     <!-- ПРАВА ПАНЕЛЬ -->
-    <aside id="panel-right" class="panel panel-right">
+    <aside id="panel-right" class="panel panel-right is-collapsed">
         <div class="panel-header">
             <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>

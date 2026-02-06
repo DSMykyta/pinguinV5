@@ -48,7 +48,7 @@ async function loadPriceStats() {
     try {
         const displayName = window.currentUser?.display_name;
         if (!displayName) {
-            tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, loaded: true };
+            tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, noArticle: 0, canPost: 0, loaded: true };
             return;
         }
 
@@ -58,7 +58,7 @@ async function loadPriceStats() {
         });
 
         if (!result || !Array.isArray(result) || result.length <= 1) {
-            tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, loaded: true };
+            tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, noArticle: 0, canPost: 0, loaded: true };
             return;
         }
 
@@ -69,16 +69,21 @@ async function loadPriceStats() {
             return reserve === displayName;
         });
 
+        const totalPosted = myItems.filter(row => (row[9] || '').toUpperCase() === 'TRUE').length;
+        const noArticle = myItems.filter(row => !(row[1] || '').trim()).length;
+
         tasksState.priceStats = {
             totalReserved: myItems.length,
-            totalPosted: myItems.filter(row => (row[9] || '').toUpperCase() === 'TRUE').length,
+            totalPosted,
             totalChecked: myItems.filter(row => (row[11] || '').toUpperCase() === 'TRUE').length,
+            noArticle,                  // Без артикулу — не можна викласти
+            canPost: myItems.length - totalPosted - noArticle,  // Є артикул, але ще не викладено
             loaded: true
         };
 
     } catch (error) {
         console.warn('[Cabinet] ⚠️ Не вдалося завантажити прайс-статистику:', error.message);
-        tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, loaded: true };
+        tasksState.priceStats = { totalReserved: 0, totalPosted: 0, totalChecked: 0, noArticle: 0, canPost: 0, loaded: true };
     }
 }
 
@@ -271,9 +276,9 @@ function renderStats() {
             </div>
             <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: default;">
                 <span class="material-symbols-outlined panel-box-icon">inventory_2</span>
-                <strong style="font-size: 24px;">${price.loaded ? price.totalReserved : '...'}</strong>
-                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">товарів зарезервовано</span>
-                ${price.loaded && price.totalPosted > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${price.totalPosted} опубліковано</span>` : ''}
+                <strong style="font-size: 24px;">${price.loaded ? price.noArticle : '...'}</strong>
+                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">без артикулу</span>
+                ${price.loaded && price.canPost > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${price.canPost} можна викласти</span>` : ''}
             </div>
         </div>
     `;
