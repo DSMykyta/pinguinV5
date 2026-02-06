@@ -47,6 +47,8 @@ export const tasksState = {
         totalReserved: 0,   // Зарезервовані товари поточного юзера
         totalPosted: 0,     // Опубліковані (status=TRUE)
         totalChecked: 0,    // Перевірені (check=TRUE)
+        noArticle: 0,       // Без артикулу (article порожній)
+        canPost: 0,         // Можна викласти (є артикул, але status != TRUE)
         loaded: false       // Чи завантажено дані
     },
 
