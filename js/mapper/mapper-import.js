@@ -1330,16 +1330,20 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             }
 
             // Оновлюємо JSON data
-            const updatedData = JSON.stringify({
+            const updatedDataObj = {
                 name: existingChar.name || '',
                 type: existingChar.type || '',
                 filter_type: existingChar.filter_type || '',
                 unit: existingChar.unit || '',
                 is_global: normalizeIsGlobal(existingChar.is_global),
                 category_id: existingCatIds.join(','),
-                category_name: existingCatNames.join(','),
-                our_char_id: existingChar.our_char_id || ''
-            });
+                category_name: existingCatNames.join(',')
+            };
+            // Зберігаємо legacy маппінг якщо він був
+            if (existingChar.our_char_id) {
+                updatedDataObj.our_char_id = existingChar.our_char_id;
+            }
+            const updatedData = JSON.stringify(updatedDataObj);
 
             // Оновлюємо рядок в таблиці
             const range = `Mapper_MP_Characteristics!A${existingChar._rowIndex}:G${existingChar._rowIndex}`;
@@ -1383,8 +1387,7 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 unit: c.mp_char_unit || '',
                 is_global: isGlobalNormalized,
                 category_id: c.mp_category_id || '',
-                category_name: c.mp_category_name || '',
-                our_char_id: '' // для маппінгу
+                category_name: c.mp_category_name || ''
             });
 
             return [
@@ -1421,8 +1424,7 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             // Всі дані опції зберігаємо в JSON
             const dataJson = JSON.stringify({
                 char_id: o.mp_char_id || '',
-                name: o.mp_option_name || '',
-                our_option_id: '' // для маппінгу
+                name: o.mp_option_name || ''
             });
 
             return [
@@ -1485,8 +1487,7 @@ async function importRozetkaCategory() {
     const dataJson = JSON.stringify({
         name: catName,
         parent_id: '',
-        parent_name: '',
-        our_category_id: ''
+        parent_name: ''
     });
 
     await callSheetsAPI('append', {
@@ -1569,8 +1570,7 @@ async function importCategories(onProgress = () => { }) {
             const dataJson = JSON.stringify({
                 name: c.mp_cat_name || '',
                 parent_id: c.mp_parent_id || '',
-                parent_name: c.mp_parent_name || '',
-                our_cat_id: '' // для маппінгу
+                parent_name: c.mp_parent_name || ''
             });
 
             return [
