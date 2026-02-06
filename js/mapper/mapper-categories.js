@@ -402,7 +402,7 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
             }
             categoryIds.push(categoryId);
 
-            await updateCharacteristic(charId, { category_ids: categoryIds });
+            await updateCharacteristic(charId, { category_ids: categoryIds.join(',') });
             showToast('Характеристику прив\'язано', 'success');
             cleanup();
             if (onSuccess) onSuccess();

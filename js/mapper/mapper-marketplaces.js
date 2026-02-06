@@ -358,14 +358,14 @@ function renderMpDataModalTable() {
 
     if (filter === 'mapped') {
         data = data.filter(item => {
-            if (activeTab === 'categories') return !!item.our_cat_id;
+            if (activeTab === 'categories') return !!item.our_category_id;
             if (activeTab === 'characteristics') return !!item.our_char_id;
             if (activeTab === 'options') return !!item.our_option_id;
             return true;
         });
     } else if (filter === 'unmapped') {
         data = data.filter(item => {
-            if (activeTab === 'categories') return !item.our_cat_id;
+            if (activeTab === 'categories') return !item.our_category_id;
             if (activeTab === 'characteristics') return !item.our_char_id;
             if (activeTab === 'options') return !item.our_option_id;
             return true;
@@ -451,7 +451,7 @@ function getMpCategoriesColumns() {
         { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
         { id: 'parent_name', label: 'Батьківська' },
         {
-            id: 'our_cat_id',
+            id: 'our_category_id',
             label: 'Наша категорія',
             render: (v) => {
                 if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
