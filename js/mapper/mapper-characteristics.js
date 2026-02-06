@@ -28,7 +28,7 @@
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
-    getCategories, getMarketplaces, getOptions,
+    getCategories, getMarketplaces, getOptions, updateOption,
     getMpCharacteristics, getMappedMpCharacteristics,
     batchCreateCharacteristicMapping, deleteCharacteristicMapping,
     autoMapCharacteristics
@@ -426,58 +426,78 @@ function populateRelatedOptions(characteristicId) {
     const allData = options.filter(opt => opt.characteristic_id === characteristicId);
     let filteredData = [...allData];
 
-    // Функція оновлення статистики
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
-    // Конфігурація колонок
     const columns = [
+        {
+            id: 'value_ua',
+            label: 'Назва',
+            sortable: true,
+            className: 'cell-name',
+            render: (value) => escapeHtml(value || '')
+        },
         {
             id: 'id',
             label: 'ID',
             sortable: true,
             className: 'cell-id',
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'value_ua',
-            label: 'Назва',
-            sortable: true,
-            className: 'cell-name',
-            render: (value, row) => escapeHtml(value || row.id || '-')
         }
     ];
 
-    // Реєструємо обробники дій
     registerActionHandlers('characteristic-options', {
         edit: async (rowId) => {
             const { showEditOptionModal } = await import('./mapper-options.js');
             await showEditOptionModal(rowId);
+        },
+        unlink: async (rowId) => {
+            const option = allData.find(o => o.id === rowId);
+            const optionName = option?.value_ua || rowId;
+
+            const confirmed = await showConfirmModal({
+                title: 'Відв\'язати опцію?',
+                message: `Ви впевнені, що хочете відв'язати опцію "${optionName}" від цієї характеристики?`,
+                confirmText: 'Відв\'язати',
+                cancelText: 'Скасувати',
+                confirmClass: 'btn-warning'
+            });
+
+            if (confirmed) {
+                try {
+                    await updateOption(rowId, { characteristic_id: '' });
+                    showToast('Опцію відв\'язано', 'success');
+                    populateRelatedOptions(characteristicId);
+                } catch (error) {
+                    console.error('❌ Помилка відв\'язування опції:', error);
+                    showToast('Помилка відв\'язування опції', 'error');
+                }
+            }
         }
     });
 
-    // Функція рендерингу таблиці
     const renderTable = (data) => {
         renderPseudoTable(container, {
             data,
             columns,
-            rowActionsCustom: (row) => actionButton({
-                action: 'edit',
-                rowId: row.id
-            }),
+            rowActionsHeader: ' ',
+            rowActionsCustom: (row) => `
+                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-tooltip="Відв'язати">
+                    <span class="material-symbols-outlined">link_off</span>
+                </button>
+            `,
             emptyState: { message: 'Опції відсутні' },
             withContainer: false
         });
 
-        // Оновлюємо статистику
         updateStats(data.length, allData.length);
-
-        // Ініціалізуємо обробники дій
         initActionHandlers(container, 'characteristic-options');
     };
 
-    // Функція пошуку
     const filterData = (query) => {
         const q = query.toLowerCase().trim();
         if (!q) {
@@ -491,16 +511,13 @@ function populateRelatedOptions(characteristicId) {
         renderTable(filteredData);
     };
 
-    // Підключаємо пошук
     if (searchInput) {
         searchInput.value = '';
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    // Перший рендер
     renderTable(filteredData);
 
-    // Ініціалізація сортування
     initTableSorting(container, {
         dataSource: () => filteredData,
         onSort: (sortedData) => {
@@ -508,8 +525,8 @@ function populateRelatedOptions(characteristicId) {
             renderTable(filteredData);
         },
         columnTypes: {
-            id: 'id-text',
-            value_ua: 'string'
+            value_ua: 'string',
+            id: 'id-text'
         }
     });
 }
@@ -624,47 +641,9 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
 }
 
 function renderMpDataFields(data) {
-    const knownFields = ['name', 'type', 'unit', 'is_global', 'filter_type', 'category_id'];
+    const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id'];
     const fields = [];
 
-    if (data.name) {
-        fields.push(`
-            <div class="form-group">
-                <label>Назва</label>
-                <input type="text" value="${escapeHtml(data.name)}" readonly>
-            </div>
-        `);
-    }
-
-    if (data.type) {
-        fields.push(`
-            <div class="form-group">
-                <label>Тип</label>
-                <input type="text" value="${escapeHtml(data.type)}" readonly>
-            </div>
-        `);
-    }
-
-    if (data.unit) {
-        fields.push(`
-            <div class="form-group">
-                <label>Одиниця</label>
-                <input type="text" value="${escapeHtml(data.unit)}" readonly>
-            </div>
-        `);
-    }
-
-    if (data.is_global !== undefined) {
-        const isGlobalTrue = ['TRUE', 'true', 'Так', '1', 'yes', '+', 'да'].includes(String(data.is_global));
-        fields.push(`
-            <div class="form-group">
-                <label>Глобальна</label>
-                <input type="text" value="${isGlobalTrue ? 'Так' : 'Ні'}" readonly>
-            </div>
-        `);
-    }
-
-    const skipFields = [...knownFields, 'our_char_id', 'our_option_id', 'our_cat_id', 'id'];
     Object.entries(data).forEach(([key, value]) => {
         if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
             fields.push(`

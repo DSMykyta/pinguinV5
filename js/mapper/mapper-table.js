@@ -78,7 +78,20 @@ function getBindingsInfo(entityType, entityId) {
         if (!byMarketplace[mpId]) {
             byMarketplace[mpId] = [];
         }
-        byMarketplace[mpId].push(mapping);
+
+        // Отримуємо назву MP сутності
+        let entityName = '';
+        if (mpEntity) {
+            entityName = mpEntity.name || '';
+            if (!entityName && mpEntity.data) {
+                try {
+                    const d = typeof mpEntity.data === 'string' ? JSON.parse(mpEntity.data) : mpEntity.data;
+                    entityName = d.name || '';
+                } catch (e) {}
+            }
+        }
+
+        byMarketplace[mpId].push({ ...mapping, _entityName: entityName || mpEntity?.external_id || '' });
     });
 
     const details = Object.entries(byMarketplace).map(([mpId, items]) => {
@@ -105,12 +118,15 @@ function renderBindingsTooltip(bindingsInfo, entityType) {
         return 'Немає прив\'язок до маркетплейсів';
     }
 
-    const entityLabel = entityType === 'category' ? 'категорій' :
-                        entityType === 'characteristic' ? 'характеристик' : 'опцій';
+    const lines = [];
+    bindingsInfo.details.forEach(detail => {
+        detail.items.forEach(item => {
+            const name = item._entityName || '—';
+            lines.push(`${detail.marketplace}: ${name}`);
+        });
+    });
 
-    return bindingsInfo.details
-        .map(detail => `${detail.marketplace}: ${detail.count} ${entityLabel}`)
-        .join(', ');
+    return lines.join('\n');
 }
 
 /**

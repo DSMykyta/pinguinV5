@@ -919,27 +919,9 @@ function renderMpCategorySectionContent(marketplaceData) {
 }
 
 function renderMpCategoryDataFields(data) {
+    const skipFields = ['id', 'our_category_id', 'our_cat_id'];
     const fields = [];
 
-    if (data.name) {
-        fields.push(`
-            <div class="form-group">
-                <label>Назва</label>
-                <input type="text" value="${escapeHtml(data.name)}" readonly>
-            </div>
-        `);
-    }
-
-    if (data.parent_name) {
-        fields.push(`
-            <div class="form-group">
-                <label>Батьківська</label>
-                <input type="text" value="${escapeHtml(data.parent_name)}" readonly>
-            </div>
-        `);
-    }
-
-    const skipFields = ['name', 'parent_name', 'parent_id', 'our_category_id', 'our_cat_id', 'id'];
     Object.entries(data).forEach(([key, value]) => {
         if (!skipFields.includes(key) && value !== null && value !== undefined && value !== '') {
             fields.push(`
