@@ -44,7 +44,8 @@ import {
     renderTreeOptions,
     createModalOverlay,
     closeModalOverlay,
-    setupModalCloseHandlers
+    setupModalCloseHandlers,
+    buildMpViewModal
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
@@ -445,21 +446,21 @@ function populateRelatedCharacteristics(categoryId) {
             id: 'id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || ' ')}</span>`
         },
         {
             id: 'name_ua',
             label: 'Назва',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.id || ' ')
         },
         {
             id: '_unlink',
             label: '',
             sortable: false,
-            className: 'cell-actions-end',
+            className: 'cell-s',
             render: (value, row) => actionButton({
                 action: 'unlink',
                 rowId: row.id,
@@ -699,14 +700,8 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
     } else {
         const mpCats = getMpCategories();
         mpCat = mpCats.find(c => c.id === mpCatIdOrData);
-
-        if (!mpCat) {
-            mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
-        }
-
-        if (!mpCat) {
-            mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
-        }
+        if (!mpCat) mpCat = mpCats.find(c => c.external_id === mpCatIdOrData);
+        if (!mpCat) mpCat = mpCats.find(c => mpCatIdOrData.startsWith(c.id));
     }
 
     if (!mpCat) {
@@ -714,93 +709,33 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
         return;
     }
 
-    let catData = mpCat;
+    let jsonData = {};
     if (mpCat.data && typeof mpCat.data === 'string') {
-        try {
-            catData = { ...mpCat, ...JSON.parse(mpCat.data) };
-        } catch (e) {}
+        try { jsonData = JSON.parse(mpCat.data); } catch (e) {}
     }
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
     const mpName = marketplace ? marketplace.name : mpCat.marketplace_id;
 
+    // Перевіряємо маппінг
+    const mapCats = mapperState.mapCategories || [];
+    const mapping = mapCats.find(m =>
+        m.mp_category_id === mpCat.id || m.mp_category_id === mpCat.external_id
+    );
     let mappedToName = '';
-    if (catData.our_category_id) {
-        const ownCats = getCategories();
-        const ownCat = ownCats.find(c => c.id === catData.our_category_id);
-        mappedToName = ownCat ? (ownCat.name_ua || ownCat.id) : catData.our_category_id;
+    if (mapping) {
+        const ownCat = getCategories().find(c => c.id === mapping.category_id);
+        mappedToName = ownCat ? (ownCat.name_ua || ownCat.id) : mapping.category_id;
     }
 
-    let parentName = '';
-    if (catData.parent_id) {
-        const mpCats = getMpCategories();
-        const parent = mpCats.find(c => c.external_id === catData.parent_id && c.marketplace_id === mpCat.marketplace_id);
-        if (parent) {
-            const parentData = typeof parent.data === 'string' ? JSON.parse(parent.data || '{}') : (parent.data || {});
-            parentName = parentData.name || catData.parent_id;
-        } else {
-            parentName = catData.parent_id;
-        }
-    }
-
-    const modalHtml = `
-        <div class="modal-overlay is-open">
-            <div class="modal-container modal-medium">
-                <div class="modal-header">
-                    <h2 class="modal-title">Категорія маркетплейсу</h2>
-                    <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">close</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
-                            <label>Джерело</label>
-                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
-                        </div>
-                        <div class="grid2">
-                            <div class="form-group">
-                                <label>ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>External ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpCat.external_id || '')}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Назва</label>
-                            <input type="text" class="input-main" value="${escapeHtml(catData.name || '')}" readonly>
-                        </div>
-                        ${parentName ? `
-                        <div class="form-group">
-                            <label>Батьківська категорія</label>
-                            <input type="text" class="input-main" value="${escapeHtml(parentName)}" readonly>
-                        </div>
-                        ` : ''}
-                    </fieldset>
-
-                    <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
-                            <label>Замаплено до</label>
-                            ${mappedToName
-                                ? `<input type="text" class="input-main" value="${escapeHtml(mappedToName)}" readonly>`
-                                : `<p class="u-text-tertiary">Не замаплено</p>`
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Закрити</button>
-                </div>
-            </div>
-        </div>
-    `;
+    const modalHtml = buildMpViewModal({
+        title: 'Категорія маркетплейсу',
+        mpName,
+        externalId: mpCat.external_id,
+        jsonData,
+        mappedToName
+    });
 
     const modalOverlay = createModalOverlay(modalHtml);
     setupModalCloseHandlers(modalOverlay, () => closeModalOverlay(modalOverlay));

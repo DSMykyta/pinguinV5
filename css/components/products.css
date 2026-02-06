@@ -143,26 +143,12 @@
     color: var(--color-on-surface-v);
 }
 
-.cell-photo {
-    width: 64px;
-    flex-shrink: 0;
-}
-
-.cell-brand {
-    width: 120px;
-}
-
-.cell-category {
-    width: 150px;
-    color: var(--color-on-surface-v);
-}
-
-.cell-variants {
-    width: 100px;
-}
-
-.cell-status {
-    width: 100px;
+/* Фото товару — розміри зображення (ширина через cell-xs) */
+.cell-photo img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 /* Modal with Tabs - base modal styles in modal.css */
@@ -1380,11 +1366,8 @@
     font-size: 13px;
 }
 
-/* Storefronts Cell */
+/* Storefronts Cell — іконки (ширина через cell-s) */
 .cell-storefronts {
-    width: 100px;
-    min-width: 100px;
-    flex: 0 0 100px;
     display: flex;
     gap: 8px;
     align-items: center;
@@ -1452,12 +1435,7 @@
     border-radius: 50%;
 }
 
-.cell-status-small {
-    width: 60px;
-    min-width: 60px;
-    flex: 0 0 60px;
-    text-align: center;
-}
+/* cell-status-small — видалено, використовувати cell-xs cell-center */
 
 /* Small button icon - defined earlier in this file */
 

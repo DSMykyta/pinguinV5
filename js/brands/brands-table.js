@@ -51,7 +51,7 @@ export function getColumns() {
         {
             id: 'brand_id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             searchable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
@@ -61,7 +61,7 @@ export function getColumns() {
             label: 'Назва',
             sortable: true,
             searchable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
@@ -90,7 +90,7 @@ export function getColumns() {
             label: 'Статус',
             sortable: true,
             filterable: true,
-            className: 'cell-status',
+            className: 'cell-s',
             render: (value) => {
                 const isActive = value !== 'inactive';
                 const badgeClass = isActive ? 'badge-success' : 'badge-warning';
@@ -102,7 +102,7 @@ export function getColumns() {
             id: 'brand_links',
             label: 'Посилання',
             sortable: false,
-            className: 'cell-links',
+            className: 'cell-l',
             render: (value) => {
                 // value тепер масив [{name, url}, ...]
                 if (!Array.isArray(value) || value.length === 0) {
@@ -123,7 +123,7 @@ export function getColumns() {
             id: 'lines_count',
             label: 'Лінійки',
             sortable: true,
-            className: 'cell-count',
+            className: 'cell-2xs cell-center',
             render: (value, row) => {
                 const count = getBrandLines().filter(l => l.brand_id === row.brand_id).length;
                 return count > 0

@@ -56,7 +56,7 @@ export function getColumns() {
         {
             id: 'local_id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             searchable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
@@ -64,7 +64,7 @@ export function getColumns() {
         {
             id: 'param_type',
             label: 'Тип',
-            className: 'cell-type',
+            className: 'cell-s',
             sortable: true,
             searchable: true,
             filterable: true,
@@ -80,13 +80,13 @@ export function getColumns() {
             label: 'Назва',
             sortable: true,
             searchable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
             id: 'trigers',
             label: 'Тригери',
-            className: 'cell-triggers',
+            className: 'cell-l',
             sortable: true,
             searchable: true,
             render: (value) => {

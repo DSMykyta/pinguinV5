@@ -49,7 +49,7 @@ export function getLinesColumns() {
         {
             id: 'line_id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             searchable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
@@ -72,14 +72,14 @@ export function getLinesColumns() {
             label: 'Назва лінійки',
             sortable: true,
             searchable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
             id: 'line_logo_url',
             label: 'Логотип',
             sortable: false,
-            className: 'cell-logo',
+            className: 'cell-m',
             render: (value) => {
                 if (value) {
                     return `<span class="material-symbols-outlined text-success" title="Є логотип">image</span>`;

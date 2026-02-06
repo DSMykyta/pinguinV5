@@ -51,7 +51,7 @@ export function getColumns() {
             label: 'ID',
             sortable: true,
             searchable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${value || 'Невідомо'}</span>`
         },
         {
@@ -59,7 +59,7 @@ export function getColumns() {
             label: ' ',
             sortable: true,
             searchable: true,
-            className: 'cell-severity',
+            className: 'cell-2xs cell-center',
             render: (value) => renderSeverityBadge(value)
         },
         {
@@ -67,7 +67,7 @@ export function getColumns() {
             label: 'Назва Групи',
             sortable: true,
             searchable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || 'N/A')}</strong>`
         },
         {
@@ -81,7 +81,7 @@ export function getColumns() {
             id: 'cheaked_line',
             label: 'Перевірено',
             sortable: true,
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: row.local_id

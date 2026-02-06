@@ -44,7 +44,8 @@ import {
     initSectionNavigation,
     createModalOverlay,
     closeModalOverlay,
-    setupModalCloseHandlers
+    setupModalCloseHandlers,
+    buildMpViewModal
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
@@ -411,14 +412,14 @@ function populateRelatedChildOptions(optionId) {
             id: 'id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: 'value_ua',
             label: 'Значення',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.id || '-')
         }
     ];
@@ -775,10 +776,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
     } else {
         const mpOpts = getMpOptions();
         mpOption = mpOpts.find(o => o.id === mpOptionIdOrData);
-
-        if (!mpOption) {
-            mpOption = mpOpts.find(o => o.external_id === mpOptionIdOrData);
-        }
+        if (!mpOption) mpOption = mpOpts.find(o => o.external_id === mpOptionIdOrData);
     }
 
     if (!mpOption) {
@@ -786,75 +784,33 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
         return;
     }
 
-    let optData = mpOption;
+    let jsonData = {};
     if (mpOption.data && typeof mpOption.data === 'string') {
-        try {
-            optData = { ...mpOption, ...JSON.parse(mpOption.data) };
-        } catch (e) {}
+        try { jsonData = JSON.parse(mpOption.data); } catch (e) {}
     }
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === mpOption.marketplace_id);
     const mpName = marketplace ? marketplace.name : mpOption.marketplace_id;
 
+    // Перевіряємо маппінг
+    const mapOpts = mapperState.mapOptions || [];
+    const mapping = mapOpts.find(m =>
+        m.mp_option_id === mpOption.id || m.mp_option_id === mpOption.external_id
+    );
     let mappedToName = '';
-    if (optData.our_option_id) {
-        const ownOpts = getOptions();
-        const ownOpt = ownOpts.find(o => o.id === optData.our_option_id);
-        mappedToName = ownOpt ? (ownOpt.value_ua || ownOpt.id) : optData.our_option_id;
+    if (mapping) {
+        const ownOpt = getOptions().find(o => o.id === mapping.option_id);
+        mappedToName = ownOpt ? (ownOpt.value_ua || ownOpt.id) : mapping.option_id;
     }
 
-    const modalHtml = `
-        <div class="modal-overlay is-open">
-            <div class="modal-container modal-medium">
-                <div class="modal-header">
-                    <h2 class="modal-title">Опція маркетплейсу</h2>
-                    <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">close</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
-                            <label>Джерело</label>
-                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
-                        </div>
-                        <div class="grid2">
-                            <div class="form-group">
-                                <label>ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>External ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Значення</label>
-                            <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
-                        </div>
-                    </fieldset>
-
-                    <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
-                            <label>Замаплено до</label>
-                            ${mappedToName
-                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
-                                : `<div class="chip">Не замаплено</div>`
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Закрити</button>
-                </div>
-            </div>
-        </div>
-    `;
+    const modalHtml = buildMpViewModal({
+        title: 'Опція маркетплейсу',
+        mpName,
+        externalId: mpOption.external_id,
+        jsonData,
+        mappedToName
+    });
 
     const modalOverlay = createModalOverlay(modalHtml);
     setupModalCloseHandlers(modalOverlay, () => closeModalOverlay(modalOverlay));

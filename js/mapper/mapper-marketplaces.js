@@ -447,8 +447,8 @@ function renderMpDataModalTable() {
 function getMpCategoriesColumns() {
     const categories = getCategories();
     return [
-        { id: 'external_id', label: 'ID', className: 'cell-id' },
-        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'external_id', label: 'ID', className: 'cell-m' },
+        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
         { id: 'parent_name', label: 'Батьківська' },
         {
             id: 'our_category_id',
@@ -465,8 +465,8 @@ function getMpCategoriesColumns() {
 function getMpCharacteristicsColumns() {
     const characteristics = getCharacteristics();
     return [
-        { id: 'external_id', label: 'ID', className: 'cell-id' },
-        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'external_id', label: 'ID', className: 'cell-m' },
+        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
         { id: 'type', label: 'Тип', render: (v) => `<code>${escapeHtml(v || '-')}</code>` },
         {
             id: 'our_char_id',
@@ -483,8 +483,8 @@ function getMpCharacteristicsColumns() {
 function getMpOptionsColumns() {
     const options = getOptions();
     return [
-        { id: 'external_id', label: 'ID', className: 'cell-id' },
-        { id: 'name', label: 'Назва', className: 'cell-main-name', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
+        { id: 'external_id', label: 'ID', className: 'cell-m' },
+        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
         { id: 'char_id', label: 'Характеристика' },
         {
             id: 'our_option_id',

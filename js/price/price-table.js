@@ -168,7 +168,7 @@ export function getColumns() {
         {
             id: 'code',
             label: 'Код',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             searchable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
@@ -176,7 +176,7 @@ export function getColumns() {
         {
             id: 'article',
             label: 'Артикул',
-            className: 'cell-article',
+            className: 'cell-s',
             sortable: true,
             searchable: true,
             render: (value, row) => {
@@ -189,7 +189,7 @@ export function getColumns() {
         {
             id: 'product',
             label: 'Товар',
-            className: 'cell-main-name',
+            className: 'cell-xl',
             sortable: true,
             searchable: true,
             sortKey: 'product',
@@ -208,7 +208,7 @@ export function getColumns() {
         {
             id: 'status',
             label: 'Викладено',
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             sortable: true,
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
@@ -219,7 +219,7 @@ export function getColumns() {
         {
             id: 'check',
             label: 'Перевірено',
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             sortable: true,
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
@@ -230,7 +230,7 @@ export function getColumns() {
         {
             id: 'payment',
             label: 'Оплата',
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             sortable: true,
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
