@@ -1627,8 +1627,9 @@ const filterColumnsConfig = {
     ]
 };
 
-// Флаг для запобігання циклу при відновленні фільтрів
+// Флаги для запобігання циклу при відновленні стану
 let isRestoringFilters = false;
+let isRestoringSortState = false;
 
 /**
  * Ініціалізувати hover фільтри для колонок таблиці
@@ -1658,12 +1659,8 @@ export function initMapperColumnFilters(container, tabName, data) {
     // Зберігаємо дані для сортування
     let currentData = data;
 
-    // Відновлюємо стан сортування якщо він був
-    const savedSortState = mapperState.sortState?.[tabName] || null;
-
     const sortAPI = initTableSorting(container, {
         dataSource: () => currentData,
-        initialSortState: savedSortState,
         columnTypes: {
             id: 'string',
             _sourceLabel: 'string',
@@ -1681,6 +1678,9 @@ export function initMapperColumnFilters(container, tabName, data) {
         },
         filterColumns: filterColumns || [],
         onSort: async (sortedData) => {
+            // Пропускаємо якщо це відновлення стану після ре-рендеру
+            if (isRestoringSortState) return;
+
             // Зберігаємо стан сортування
             const sortState = sortAPI.getState();
             mapperState.sortState = mapperState.sortState || {};
@@ -1717,9 +1717,12 @@ export function initMapperColumnFilters(container, tabName, data) {
         isRestoringFilters = false;
     }
 
-    // Відновлюємо візуальні індикатори сортування
+    // Відновлюємо стан сортування (через sort API, з блокуванням onSort щоб не було рекурсії)
+    const savedSortState = mapperState.sortState?.[tabName];
     if (savedSortState?.column && savedSortState?.direction) {
-        updateSortIndicators(container, savedSortState.column, savedSortState.direction);
+        isRestoringSortState = true;
+        sortAPI.sort(savedSortState.column, savedSortState.direction);
+        isRestoringSortState = false;
     }
 
     mapperState.columnFiltersAPI[tabName] = sortAPI;
