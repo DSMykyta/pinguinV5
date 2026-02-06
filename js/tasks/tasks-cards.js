@@ -13,7 +13,7 @@
 
 import { tasksState } from './tasks-state.js';
 import { getTasksForCurrentTab, canEditTask, canChangeStatus } from './tasks-data.js';
-import { registerTasksPlugin } from './tasks-plugins.js';
+import { registerTasksPlugin, runHook } from './tasks-plugins.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { registerActionHandlers, initActionHandlers, actionButton } from '../common/ui-actions.js';
 
@@ -72,6 +72,16 @@ registerActionHandlers(ACTION_CONTEXT, {
             if (btn) showStatusDropdown(btn, rowId);
         } catch (err) {
             console.warn('tasks-ui.js не завантажено');
+        }
+    },
+    pin: async (rowId) => {
+        try {
+            const { togglePin, renderCabinet } = await import('./tasks-cabinet.js');
+            togglePin(rowId);
+            renderCabinet();
+            runHook('onRender');
+        } catch (err) {
+            console.warn('tasks-cabinet.js не завантажено');
         }
     }
 });
@@ -132,6 +142,17 @@ function renderCard(task) {
         tooltip: 'Редагувати',
         context: ACTION_CONTEXT
     }) : '';
+
+    // Pin кнопка (зірочка) — стан з localStorage через tasks-cabinet.js
+    const pinIcon = isPinnedTask(task.id) ? 'star' : 'star_border';
+    const pinTooltip = isPinnedTask(task.id) ? 'Відкріпити' : 'Закріпити';
+    const pinBtn = actionButton({
+        action: 'pin',
+        rowId: task.id,
+        icon: pinIcon,
+        tooltip: pinTooltip,
+        context: ACTION_CONTEXT
+    });
 
     // Статус badge (клікабельний якщо можна змінити)
     const statusBadgeClass = canStatus ? 'badge badge-neutral clickable' : 'badge';
@@ -194,6 +215,7 @@ function renderCard(task) {
             </div>
 
             <div class="content-card-actions">
+                ${pinBtn}
                 ${viewBtn}
                 ${editBtn}
             </div>
@@ -244,6 +266,24 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * Перевірити чи задача закріплена.
+ * Читає з localStorage напряму (без залежності від tasks-cabinet.js).
+ * @param {string} taskId
+ * @returns {boolean}
+ */
+function isPinnedTask(taskId) {
+    const userId = tasksState.currentUserId;
+    if (!userId) return false;
+    try {
+        const stored = localStorage.getItem(`pinned-tasks-${userId}`);
+        const ids = stored ? JSON.parse(stored) : [];
+        return ids.includes(taskId);
+    } catch {
+        return false;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

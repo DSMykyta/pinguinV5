@@ -1,0 +1,64 @@
+<div class="panel-fragment is-active" id="aside-cabinet">
+
+    <!-- ПРОФІЛЬ КОРИСТУВАЧА (ФІКСОВАНИЙ ЗВЕРХУ) -->
+    <div class="panel-content-fix">
+        <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: default;">
+            <div id="aside-cabinet-avatar" style="width: 48px; height: 48px;"></div>
+            <strong id="aside-cabinet-name" style="font-size: 13px;"></strong>
+            <span id="aside-cabinet-role" class="avatar-state-message" style="font-size: 11px; max-width: none;"></span>
+        </div>
+    </div>
+
+    <div class="panel-separator"></div>
+
+    <!-- СТАТИСТИКА + ШВИДКІ ПОСИЛАННЯ (SCROLLABLE) -->
+    <div class="panel-content-scroll">
+
+        <!-- Статистика -->
+        <div class="panel-section">
+            <div class="panel-section-title">Статистика</div>
+            <div class="panel-section-content" id="aside-cabinet-stats">
+                <!-- Заповнюється динамічно через JS -->
+            </div>
+        </div>
+
+        <div class="panel-separator"></div>
+
+        <!-- Швидкі посилання -->
+        <div class="panel-section">
+            <div class="panel-section-title">Інструменти</div>
+            <div class="panel-section-content">
+                <a href="price.html" class="panel-item">
+                    <span class="material-symbols-outlined panel-item-icon">payments</span>
+                    <span class="panel-item-text">Прайс</span>
+                    <span class="material-symbols-outlined on-hover">open_in_new</span>
+                </a>
+                <a href="brands.html" class="panel-item">
+                    <span class="material-symbols-outlined panel-item-icon">branding_watermark</span>
+                    <span class="panel-item-text">Бренди</span>
+                    <span class="material-symbols-outlined on-hover">open_in_new</span>
+                </a>
+                <a href="products.html" class="panel-item">
+                    <span class="material-symbols-outlined panel-item-icon">inventory_2</span>
+                    <span class="panel-item-text">Товари</span>
+                    <span class="material-symbols-outlined on-hover">open_in_new</span>
+                </a>
+                <a href="mapper.html" class="panel-item">
+                    <span class="material-symbols-outlined panel-item-icon">account_tree</span>
+                    <span class="panel-item-text">Mapper</span>
+                    <span class="material-symbols-outlined on-hover">open_in_new</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER (ФІКСОВАНИЙ ЗНИЗУ) -->
+    <div class="panel-content-footer">
+        <button id="btn-add-task-cabinet" class="panel-item">
+            <span class="material-symbols-outlined panel-item-icon">add</span>
+            <span class="panel-item-text">Додати задачу</span>
+        </button>
+    </div>
+
+</div>

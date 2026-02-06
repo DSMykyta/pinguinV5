@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профіль та задачі</title>
+    <title>Кабінет</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet"
@@ -104,9 +104,9 @@
 
         <!-- НАВІГАЦІЯ СЕКЦІЙ -->
         <nav class="section-navigator" id="section-navigator">
-            <a href="#section-profile" class="nav-icon" aria-label="Профіль">
+            <a href="#section-cabinet" class="nav-icon" aria-label="Кабінет">
                 <span class="material-symbols-outlined">person</span>
-                <span class="nav-icon-label">Профіль</span>
+                <span class="nav-icon-label">Кабінет</span>
             </a>
             <a href="#section-tasks" class="nav-icon" aria-label="Задачі">
                 <span class="material-symbols-outlined">task_alt</span>
@@ -123,25 +123,25 @@
         </nav>
 
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: ПРОФІЛЬ -->
+        <!-- СЕКЦІЯ: КАБІНЕТ                                                    -->
+        <!-- Привітання з аватаром, статистика, закріплені записи.              -->
+        <!-- Aside: aside-cabinet.html (профіль + інструменти)                  -->
+        <!-- Рендер: tasks-cabinet.js (плагін)                                  -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-profile" data-panel-template="aside-tasks">
+        <section id="section-cabinet" data-panel-template="aside-cabinet">
 
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>Профіль</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
+                        <h2>Кабінет</h2>
                     </div>
-                    <h3>Налаштування профілю</h3>
+                    <h3>Ваш робочий простір</h3>
                 </div>
             </div>
 
             <div class="section-content">
-                <div id="profile-container">
-                    <!-- Заповнюється JavaScript -->
+                <div id="cabinet-container">
+                    <!-- Заповнюється tasks-cabinet.js -->
                 </div>
             </div>
 
