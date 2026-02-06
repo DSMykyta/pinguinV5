@@ -113,15 +113,16 @@ async function checkAuthAndLoadData() {
         return;
     }
 
-    // Перевірка ролі - viewer не має доступу
     const userRole = window.currentUser?.role;
-    if (userRole === 'viewer') {
-        renderNoAccessState();
-        return;
-    }
 
     // Показати/сховати адмін секцію та навігацію
     updateAdminVisibility(userRole);
+
+    // Viewer — read-only: сховати кнопки створення
+    if (userRole === 'viewer') {
+        document.getElementById('btn-add-task-header')?.classList.add('u-hidden');
+        document.getElementById('btn-add-info')?.classList.add('u-hidden');
+    }
 
     // Зберігаємо ID поточного користувача
     tasksState.currentUserId = window.currentUser?.id || window.currentUser?.username;
