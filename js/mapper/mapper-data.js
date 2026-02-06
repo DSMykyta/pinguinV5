@@ -157,7 +157,7 @@ export async function loadCharacteristics() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.CHARACTERISTICS}!A:K`,
+            range: `${SHEETS.CHARACTERISTICS}!A:L`,
             spreadsheetType: 'main'
         });
 
@@ -525,11 +525,12 @@ export async function addCharacteristic(data) {
             data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
             data.category_ids || '',
             data.parent_option_id || '',
-            timestamp
+            timestamp,
+            data.block_number || ''
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CHARACTERISTICS}!A:K`,
+            range: `${SHEETS.CHARACTERISTICS}!A:L`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -545,7 +546,8 @@ export async function addCharacteristic(data) {
             is_global: data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
             category_ids: data.category_ids || '',
             parent_option_id: data.parent_option_id || '',
-            created_at: timestamp
+            created_at: timestamp,
+            block_number: data.block_number || ''
         };
 
         mapperState.characteristics.push(newCharacteristic);
@@ -568,7 +570,7 @@ export async function updateCharacteristic(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:L${characteristic._rowIndex}`;
 
         const updatedRow = [
             characteristic.id,
@@ -581,7 +583,8 @@ export async function updateCharacteristic(id, updates) {
             updates.is_global !== undefined ? (updates.is_global === true || updates.is_global === 'true' ? 'true' : 'false') : characteristic.is_global,
             updates.category_ids !== undefined ? updates.category_ids : characteristic.category_ids,
             updates.parent_option_id !== undefined ? updates.parent_option_id : characteristic.parent_option_id,
-            timestamp
+            timestamp,
+            updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || '')
         ];
 
         await callSheetsAPI('update', {

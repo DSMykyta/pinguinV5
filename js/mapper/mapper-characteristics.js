@@ -462,6 +462,8 @@ function populateParentOptionsSelect(selectedOptionIds = []) {
 // ПОВ'ЯЗАНІ ЕЛЕМЕНТИ
 // ═══════════════════════════════════════════════════════════════════════════
 
+let relatedOptionsTableAPI = null;
+
 function clearRelatedOptions() {
     const container = document.getElementById('char-related-options');
     const statsEl = document.getElementById('char-options-stats');
@@ -881,7 +883,7 @@ export async function handleAutoMapCharacteristics(selectedIds) {
 
         await renderCurrentTab();
 
-        showToast(`Автоматично замаплено ${result.mapped} характеристик`, 'success');
+        showToast(`Автоматично замаплено ${result.mapped.length} характеристик`, 'success');
     } catch (error) {
         console.error('❌ Помилка автоматичного маппінгу:', error);
         showToast('Помилка автоматичного маппінгу', 'error');

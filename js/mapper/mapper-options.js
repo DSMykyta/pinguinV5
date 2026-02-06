@@ -718,7 +718,7 @@ export async function handleAutoMapOptions(selectedIds) {
 
         await renderCurrentTab();
 
-        showToast(`Автоматично замаплено ${result.mapped} опцій`, 'success');
+        showToast(`Автоматично замаплено ${result.mapped.length} опцій`, 'success');
     } catch (error) {
         console.error('❌ Помилка автоматичного маппінгу:', error);
         showToast('Помилка автоматичного маппінгу', 'error');

@@ -53,20 +53,28 @@ function getBindingsInfo(entityType, entityId) {
 
     switch (entityType) {
         case 'category':
-            mapData = getMapCategories().filter(m => m.our_category_id === entityId);
+            mapData = getMapCategories().filter(m => m.category_id === entityId);
             break;
         case 'characteristic':
-            mapData = getMapCharacteristics().filter(m => m.our_char_id === entityId);
+            mapData = getMapCharacteristics().filter(m => m.characteristic_id === entityId);
             break;
         case 'option':
-            mapData = getMapOptions().filter(m => m.our_option_id === entityId);
+            mapData = getMapOptions().filter(m => m.option_id === entityId);
             break;
     }
 
-    // Групуємо по маркетплейсах
+    // Групуємо по маркетплейсах (визначаємо marketplace через MP сутності)
     const byMarketplace = {};
     mapData.forEach(mapping => {
-        const mpId = mapping.marketplace_id;
+        let mpEntity = null;
+        if (entityType === 'category') {
+            mpEntity = getMpCategories().find(c => c.id === mapping.mp_category_id || c.external_id === mapping.mp_category_id);
+        } else if (entityType === 'characteristic') {
+            mpEntity = getMpCharacteristics().find(c => c.id === mapping.mp_characteristic_id || c.external_id === mapping.mp_characteristic_id);
+        } else if (entityType === 'option') {
+            mpEntity = getMpOptions().find(o => o.id === mapping.mp_option_id || o.external_id === mapping.mp_option_id);
+        }
+        const mpId = mpEntity?.marketplace_id || 'unknown';
         if (!byMarketplace[mpId]) {
             byMarketplace[mpId] = [];
         }
@@ -538,7 +546,7 @@ function getCharacteristicsColumns(categoriesList) {
             filterable: true,
             className: 'cell-category-count',
             render: (value, row) => {
-                if (row.is_global === 'TRUE') {
+                if (String(row.is_global).toLowerCase() === 'true' || row.is_global === true) {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
                 }
 
@@ -797,7 +805,7 @@ function getOptionsColumns(characteristicsList) {
                     const char = chars.find(c => c.id === row.characteristic_id);
                     if (char) {
                         // Перевірка is_global
-                        if (char.is_global === 'TRUE' || char.is_global === true) {
+                        if (String(char.is_global).toLowerCase() === 'true' || char.is_global === true) {
                             return `<span class="chip chip-active" data-tooltip="Глобальна характеристика">∞</span>`;
                         }
                         categoryIds = char.category_ids || '';
