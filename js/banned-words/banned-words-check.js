@@ -376,7 +376,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
         id: 'id',
         label: 'ID',
         sortable: true,
-        className: 'cell-id',
+        className: 'cell-m',
         render: (value) => `<span class="badge">${escapeHtml(value)}</span>`
     });
 
@@ -385,7 +385,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
         id: 'title',
         label: 'Назва',
         sortable: true,
-        className: 'cell-name',
+        className: 'cell-l',
         render: (value) => `<strong>${escapeHtml(value)}</strong>`
     });
 
@@ -395,7 +395,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
             id: 'sheetName',
             label: 'Аркуш',
             sortable: true,
-            className: 'cell-sheet',
+            className: 'cell-l',
             render: (value) => `<span class="text-muted">${escapeHtml(value || '')}</span>`
         });
     }
@@ -406,7 +406,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
             id: 'columnName',
             label: 'Колонка',
             sortable: true,
-            className: 'cell-column',
+            className: 'cell-l',
             render: (value, row) => {
                 if (row.multipleColumns && row.columnNames) {
                     const count = row.columnNames.length;
@@ -423,7 +423,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
         id: 'matchCount',
         label: 'Кількість',
         sortable: true,
-        className: 'cell-count',
+        className: 'cell-2xs cell-center',
         render: (value) => {
             const count = value || 1;
             return `<span class="match-count-badge">${count}×</span>`;
@@ -435,7 +435,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
         id: 'cheaked_line',
         label: 'Статус',
         sortable: true,
-        className: 'cell-bool',
+        className: 'cell-s cell-center',
         render: (value, row) => renderBadge(value, 'checked', {
             clickable: true,
             id: row.id

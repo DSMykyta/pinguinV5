@@ -137,7 +137,7 @@ function createBindingsColumn(entityType) {
         id: '_bindings',
         label: 'Прів.',
         sortable: true,
-        className: 'cell-bindings',
+        className: 'cell-xs cell-center',
         render: (value, row) => {
             // Тільки для власних записів показуємо прив'язки
             if (row._source !== 'own') {
@@ -291,7 +291,7 @@ function getCategoriesColumns(allCategories) {
         {
             id: 'id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             render: (value, row) => {
                 const displayId = row._source === 'own' ? value : (row.external_id || value);
@@ -303,7 +303,7 @@ function getCategoriesColumns(allCategories) {
             label: 'Джерело',
             sortable: true,
             filterable: true,
-            className: 'cell-source',
+            className: 'cell-s',
             render: (value, row) => {
                 if (row._source === 'own') {
                     return `<span class="chip chip-success">Власний</span>`;
@@ -314,7 +314,7 @@ function getCategoriesColumns(allCategories) {
         {
             id: '_nestingLevel',
             label: 'Рів.',
-            className: 'cell-nesting-level',
+            className: 'cell-xs cell-center',
             render: (value, row) => {
                 let level = 0;
                 let current = row;
@@ -342,7 +342,7 @@ function getCategoriesColumns(allCategories) {
             id: 'name_ua',
             label: 'Назва UA',
             sortable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
@@ -531,7 +531,7 @@ function getCharacteristicsColumns(categoriesList) {
         {
             id: 'id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             render: (value, row) => {
                 const displayId = row._source === 'own' ? value : (row.external_id || value);
@@ -543,7 +543,7 @@ function getCharacteristicsColumns(categoriesList) {
             label: 'Джерело',
             sortable: true,
             filterable: true,
-            className: 'cell-source',
+            className: 'cell-s',
             render: (value, row) => {
                 if (row._source === 'own') {
                     return `<span class="chip chip-success">Власний</span>`;
@@ -556,7 +556,7 @@ function getCharacteristicsColumns(categoriesList) {
             label: 'Категорія',
             sortable: true,
             filterable: true,
-            className: 'cell-category-count',
+            className: 'cell-xs cell-center',
             render: (value, row) => {
                 if (String(row.is_global).toLowerCase() === 'true' || row.is_global === true) {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
@@ -582,7 +582,7 @@ function getCharacteristicsColumns(categoriesList) {
             id: 'name_ua',
             label: 'Назва',
             sortable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
@@ -597,7 +597,7 @@ function getCharacteristicsColumns(categoriesList) {
             label: 'Глобальна',
             sortable: true,
             filterable: true,
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             render: (value) => {
                 return value === 'TRUE'
                     ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
@@ -762,7 +762,7 @@ function getOptionsColumns(characteristicsList) {
         {
             id: 'id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             render: (value, row) => {
                 const displayId = row._source === 'own' ? value : (row.external_id || value);
@@ -774,7 +774,7 @@ function getOptionsColumns(characteristicsList) {
             label: 'Джерело',
             sortable: true,
             filterable: true,
-            className: 'cell-source',
+            className: 'cell-s',
             render: (value, row) => {
                 if (row._source === 'own') {
                     return `<span class="chip chip-success">Власний</span>`;
@@ -798,7 +798,7 @@ function getOptionsColumns(characteristicsList) {
             id: 'value_ua',
             label: 'Значення',
             sortable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
@@ -806,7 +806,7 @@ function getOptionsColumns(characteristicsList) {
             label: 'Категорія',
             sortable: true,
             filterable: true,
-            className: 'cell-category-count',
+            className: 'cell-xs cell-center',
             render: (value, row) => {
                 // Отримуємо категорії з характеристики
                 let categoryIds = row.category_ids || '';
@@ -941,7 +941,7 @@ function getMarketplacesColumns() {
         {
             id: 'id',
             label: 'ID',
-            className: 'cell-id',
+            className: 'cell-m',
             sortable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
@@ -950,7 +950,7 @@ function getMarketplacesColumns() {
             label: 'Джерело',
             sortable: true,
             filterable: true,
-            className: 'cell-source',
+            className: 'cell-s',
             render: (value, row) => {
                 if (row._source === 'own') {
                     return `<span class="chip chip-success">Власний</span>`;
@@ -962,7 +962,7 @@ function getMarketplacesColumns() {
             id: 'name',
             label: 'Назва',
             sortable: true,
-            className: 'cell-main-name',
+            className: 'cell-xl',
             render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
         },
         {
@@ -976,7 +976,7 @@ function getMarketplacesColumns() {
             label: 'Активний',
             sortable: true,
             filterable: true,
-            className: 'cell-bool',
+            className: 'cell-s cell-center',
             render: (value) => {
                 const isActive = value === true || String(value).toLowerCase() === 'true';
                 return isActive

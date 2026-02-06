@@ -435,14 +435,14 @@ function populateRelatedOptions(characteristicId) {
             id: 'value_ua',
             label: 'Назва',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value) => escapeHtml(value || '')
         },
         {
             id: 'id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         }
     ];

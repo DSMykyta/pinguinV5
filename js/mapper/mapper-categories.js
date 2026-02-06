@@ -445,21 +445,21 @@ function populateRelatedCharacteristics(categoryId) {
             id: 'id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || ' ')}</span>`
         },
         {
             id: 'name_ua',
             label: 'Назва',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.id || ' ')
         },
         {
             id: '_unlink',
             label: '',
             sortable: false,
-            className: 'cell-actions-end',
+            className: 'cell-s',
             render: (value, row) => actionButton({
                 action: 'unlink',
                 rowId: row.id,

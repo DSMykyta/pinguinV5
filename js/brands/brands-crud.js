@@ -256,14 +256,14 @@ function populateBrandLines(brandId) {
             id: 'line_id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: 'name_uk',
             label: 'Назва',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.line_id || '-')
         }
     ];

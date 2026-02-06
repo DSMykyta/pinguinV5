@@ -167,14 +167,14 @@ function renderProductsTable(products) {
                 id: 'id',
                 label: 'ID',
                 sortable: true,
-                className: 'cell-id',
+                className: 'cell-m',
                 render: (value) => `<span class="product-id">${value}</span>`
             },
             {
                 id: 'photo',
                 label: 'Фото',
                 sortable: false,
-                className: 'cell-photo',
+                className: 'cell-xs cell-center cell-photo',
                 render: (value, row) => value
                     ? `<img src="${value}" alt="${row.name_short}" class="product-thumb">`
                     : `<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>`
@@ -183,41 +183,41 @@ function renderProductsTable(products) {
                 id: 'category',
                 label: 'Категорія',
                 sortable: true,
-                className: 'cell-category'
+                className: 'cell-m'
             },
             {
                 id: 'name_short',
                 label: 'Назва',
                 sortable: true,
-                className: 'cell-main-name',
+                className: 'cell-xl',
                 render: (value) => `<span class="product-name">${value}</span>`
             },
             {
                 id: 'variants_count',
                 label: 'Варіанти',
                 sortable: false,
-                className: 'cell-variants',
+                className: 'cell-s cell-center',
                 render: (value, row) => actionButton({ action: 'variants', rowId: row.id, context: 'products', label: value, extraClass: 'btn-variants-count' })
             },
             {
                 id: 'status',
                 label: 'Статус',
                 sortable: true,
-                className: 'cell-status-small',
+                className: 'cell-xs cell-center',
                 render: (value) => getStatusDot(value)
             },
             {
                 id: 'show_on_site',
                 label: 'Вивід',
                 sortable: false,
-                className: 'cell-bool',
+                className: 'cell-s cell-center',
                 render: (value, row) => renderBadge(value, 'boolean', { clickable: true, id: row.id })
             },
             {
                 id: 'storefronts',
                 label: 'Вітрини',
                 sortable: false,
-                className: 'cell-storefronts',
+                className: 'cell-s cell-storefronts',
                 render: (value) => getStorefrontLinks(value)
             }
         ],
@@ -458,20 +458,20 @@ function renderVariantsTab() {
                 id: 'combinedId',
                 label: 'ID',
                 sortable: false,
-                className: 'cell-id'
+                className: 'cell-m'
             },
             {
                 id: 'productPhoto',
                 label: 'Фото',
                 sortable: false,
-                className: 'cell-photo',
+                className: 'cell-xs cell-center cell-photo',
                 render: (value) => `<img src="${value}" alt="" class="product-thumb">`
             },
             {
                 id: 'productName',
                 label: 'Товар',
                 sortable: true,
-                className: 'cell-main-name'
+                className: 'cell-xl'
             },
             {
                 id: 'name',

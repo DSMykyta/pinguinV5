@@ -411,14 +411,14 @@ function populateRelatedChildOptions(optionId) {
             id: 'id',
             label: 'ID',
             sortable: true,
-            className: 'cell-id',
+            className: 'cell-m',
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: 'value_ua',
             label: 'Значення',
             sortable: true,
-            className: 'cell-name',
+            className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.id || '-')
         }
     ];
