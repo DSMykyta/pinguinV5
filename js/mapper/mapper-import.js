@@ -57,6 +57,43 @@ function normalizeIsGlobal(value) {
 }
 
 /**
+ * Нормалізація ключів Rozetka з українських назв колонок CSV у стандартні англійські
+ * Модифікує об'єкт data in-place
+ */
+function normalizeRozetkaData(data) {
+    const keyMap = {
+        'ID параметра': null,
+        'Назва параметра': 'char_name',
+        'Тип параметра': 'type',
+        'Тип фільтра': 'filter_type',
+        'Одиниця вимірювання': 'unit',
+        'Одиниця виміру': 'unit',
+        'Наскрізниий параметр': 'is_global',
+        'Наскрізний параметр': 'is_global',
+        'ID значення': null,
+        'Назва значення': null,
+    };
+
+    for (const [origKey, newKey] of Object.entries(keyMap)) {
+        if (!(origKey in data)) continue;
+        if (newKey) {
+            data[newKey] = data[origKey];
+        }
+        delete data[origKey];
+    }
+
+    // Для характеристик char_name = name — дублікат, видаляємо
+    if (data.char_name && data.name && data.char_name === data.name) {
+        delete data.char_name;
+    }
+
+    // Нормалізуємо is_global: Так → TRUE, Ні → FALSE
+    if (data.is_global !== undefined) {
+        data.is_global = normalizeIsGlobal(data.is_global);
+    }
+}
+
+/**
  * Ініціалізація плагіна
  * Реєструє hooks та позначає плагін як завантажений
  */
@@ -1404,6 +1441,11 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 data.is_global = normalizeIsGlobal(c.mp_char_is_global);
             }
 
+            // Нормалізуємо ключі Rozetka
+            if (importState.isRozetkaFormat) {
+                normalizeRozetkaData(data);
+            }
+
             const dataJson = JSON.stringify(data);
 
             return [
@@ -1443,6 +1485,11 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 name: o.mp_option_name || '',
                 ...(o._rawData || {})
             };
+
+            // Нормалізуємо ключі Rozetka
+            if (importState.isRozetkaFormat) {
+                normalizeRozetkaData(data);
+            }
 
             const dataJson = JSON.stringify(data);
 

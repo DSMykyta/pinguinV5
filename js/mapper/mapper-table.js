@@ -148,10 +148,10 @@ function createBindingsColumn(entityType) {
             const tooltipContent = renderBindingsTooltip(bindingsInfo, entityType);
 
             if (bindingsInfo.count === 0) {
-                return `<span class="chip" data-tooltip="${escapeHtml(tooltipContent)}">0</span>`;
+                return `<span class="chip" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>0</span>`;
             }
 
-            return `<span class="chip chip-active" data-tooltip="${escapeHtml(tooltipContent)}">${bindingsInfo.count}</span>`;
+            return `<span class="chip chip-active" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>${bindingsInfo.count}</span>`;
         }
     };
 }
