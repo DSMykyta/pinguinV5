@@ -1229,6 +1229,14 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                     ? rozetkaCategory.name
                     : (categoryNameCol !== undefined ? String(row[categoryNameCol] || '').trim() : '');
 
+                // Збираємо всі замапплені поля характеристики з рядка
+                const rawData = {};
+                const headers = importState.fileHeaders || [];
+                headers.forEach(h => {
+                    const val = String(row[h.index] || '').trim();
+                    if (val) rawData[h.name] = val;
+                });
+
                 mpCharacteristics.set(charId, {
                     mp_char_id: charId,
                     mp_char_name: charName,
@@ -1237,7 +1245,8 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                     mp_char_unit: charUnitCol !== undefined ? String(row[charUnitCol] || '').trim() : '',
                     mp_char_is_global: charIsGlobalCol !== undefined ? String(row[charIsGlobalCol] || '').trim() : '',
                     mp_category_id: catId,
-                    mp_category_name: catName
+                    mp_category_name: catName,
+                    _rawData: rawData
                 });
             }
         }
@@ -1252,10 +1261,19 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 o.mp_char_id === charId && o.mp_option_id === optionId
             );
             if (!exists) {
+                // Збираємо всі дані опції з рядка
+                const rawData = {};
+                const headers = importState.fileHeaders || [];
+                headers.forEach(h => {
+                    const val = String(row[h.index] || '').trim();
+                    if (val) rawData[h.name] = val;
+                });
+
                 mpOptions.push({
                     mp_char_id: charId,
                     mp_option_id: optionId,
-                    mp_option_name: optionName
+                    mp_option_name: optionName,
+                    _rawData: rawData
                 });
             }
         }
@@ -1329,16 +1347,17 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 }
             }
 
-            // Оновлюємо JSON data
+            // Оновлюємо JSON data — зберігаємо існуючі поля + оновлюємо категорії
+            let existingData = {};
+            try {
+                existingData = JSON.parse(existingChar.data || '{}');
+            } catch (e) {
+                existingData = {};
+            }
             const updatedData = JSON.stringify({
-                name: existingChar.name || '',
-                type: existingChar.type || '',
-                filter_type: existingChar.filter_type || '',
-                unit: existingChar.unit || '',
-                is_global: normalizeIsGlobal(existingChar.is_global),
+                ...existingData,
                 category_id: existingCatIds.join(','),
-                category_name: existingCatNames.join(','),
-                our_char_id: existingChar.our_char_id || ''
+                category_name: existingCatNames.join(',')
             });
 
             // Оновлюємо рядок в таблиці
@@ -1369,23 +1388,23 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     if (newCharacteristics.length > 0) {
         const timestamp = new Date().toISOString();
         const charRows = newCharacteristics.map((c) => {
-            // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpc-${importState.marketplaceId}-${c.mp_char_id}`;
 
-            // Нормалізуємо is_global до TRUE/FALSE
-            const isGlobalNormalized = normalizeIsGlobal(c.mp_char_is_global);
-
-            // Всі дані характеристики зберігаємо в JSON
-            const dataJson = JSON.stringify({
+            // Зберігаємо всі оригінальні дані з рядка + нормалізовані поля
+            const data = {
+                id: c.mp_char_id,
                 name: c.mp_char_name || '',
-                type: c.mp_char_type || '',
-                filter_type: c.mp_char_filter_type || '',
-                unit: c.mp_char_unit || '',
-                is_global: isGlobalNormalized,
+                ...(c._rawData || {}),
                 category_id: c.mp_category_id || '',
-                category_name: c.mp_category_name || '',
-                our_char_id: '' // для маппінгу
-            });
+                category_name: c.mp_category_name || ''
+            };
+
+            // Нормалізуємо is_global якщо є
+            if (c.mp_char_is_global) {
+                data.is_global = normalizeIsGlobal(c.mp_char_is_global);
+            }
+
+            const dataJson = JSON.stringify(data);
 
             return [
                 uniqueId,
@@ -1415,15 +1434,17 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     if (newOptions.length > 0) {
         const timestamp = new Date().toISOString();
         const optRows = newOptions.map(o => {
-            // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpo-${importState.marketplaceId}-${o.mp_char_id}-${o.mp_option_id}`;
 
-            // Всі дані опції зберігаємо в JSON
-            const dataJson = JSON.stringify({
+            // Зберігаємо всі оригінальні дані з рядка
+            const data = {
+                id: o.mp_option_id,
                 char_id: o.mp_char_id || '',
                 name: o.mp_option_name || '',
-                our_option_id: '' // для маппінгу
-            });
+                ...(o._rawData || {})
+            };
+
+            const dataJson = JSON.stringify(data);
 
             return [
                 uniqueId,
@@ -1483,10 +1504,8 @@ async function importRozetkaCategory() {
     const uniqueId = `mpc-${importState.marketplaceId}-cat-${catId}`;
 
     const dataJson = JSON.stringify({
-        name: catName,
-        parent_id: '',
-        parent_name: '',
-        our_category_id: ''
+        id: catId,
+        name: catName
     });
 
     await callSheetsAPI('append', {
@@ -1565,13 +1584,14 @@ async function importCategories(onProgress = () => { }) {
             // Генеруємо унікальний ID для кожного запису
             const uniqueId = `mpcat-${importState.marketplaceId}-${c.mp_cat_id}`;
 
-            // Всі дані категорії зберігаємо в JSON
-            const dataJson = JSON.stringify({
-                name: c.mp_cat_name || '',
-                parent_id: c.mp_parent_id || '',
-                parent_name: c.mp_parent_name || '',
-                our_cat_id: '' // для маппінгу
-            });
+            // Всі дані категорії зберігаємо в JSON (без порожніх полів)
+            const data = {
+                id: c.mp_cat_id,
+                name: c.mp_cat_name || ''
+            };
+            if (c.mp_parent_id) data.parent_id = c.mp_parent_id;
+            if (c.mp_parent_name) data.parent_name = c.mp_parent_name;
+            const dataJson = JSON.stringify(data);
 
             return [
                 uniqueId,
