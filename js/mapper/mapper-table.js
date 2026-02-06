@@ -786,6 +786,7 @@ function getOptionsColumns(characteristicsList) {
             id: 'characteristic_id',
             label: 'Характеристика',
             sortable: true,
+            filterable: true,
             render: (value, row) => {
                 if (row._source === 'own') {
                     const char = characteristicsList.find(c => c.id === value);
@@ -1575,7 +1576,8 @@ function getFilterColumnsConfig(tabName) {
             { id: 'is_global', label: 'Глобальна', filterType: 'values' }
         ],
         options: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
+            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+            { id: 'characteristic_id', label: 'Характеристика', filterType: 'values', labelMap: getCharacteristicLabelMap() }
         ],
         marketplaces: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
@@ -1611,6 +1613,29 @@ function getCategoryLabelMap() {
         // name вже розпарсено з data при завантаженні
         const name = cat.name || cat.name_ua || externalId;
 
+        if (externalId && !labelMap[externalId]) {
+            labelMap[externalId] = name;
+        }
+    });
+
+    return labelMap;
+}
+
+/**
+ * Створити labelMap для характеристик (ID -> Назва)
+ */
+function getCharacteristicLabelMap() {
+    const labelMap = {};
+
+    const ownChars = getCharacteristics();
+    ownChars.forEach(c => {
+        labelMap[c.id] = c.name_ua || c.name || c.id;
+    });
+
+    const mpChars = getMpCharacteristics();
+    mpChars.forEach(c => {
+        const externalId = c.external_id;
+        const name = c.name || c.name_ua || externalId;
         if (externalId && !labelMap[externalId]) {
             labelMap[externalId] = name;
         }
