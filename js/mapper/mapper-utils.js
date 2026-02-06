@@ -128,3 +128,66 @@ export function setupModalCloseHandlers(modalOverlay, onClose) {
         if (e.target === modalOverlay) onClose();
     });
 }
+
+/**
+ * Побудувати HTML для модалки перегляду MP сутності
+ * Показує всі поля з JSON динамічно
+ */
+export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedToName }) {
+    const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id', 'our_category_id'];
+
+    // Генеруємо поля з JSON
+    const fieldsHtml = Object.entries(jsonData)
+        .filter(([key, value]) => !skipFields.includes(key) && value !== null && value !== undefined && value !== '')
+        .map(([key, value]) => `
+            <div class="form-group">
+                <label>${escapeHtml(key)}</label>
+                <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
+            </div>
+        `).join('');
+
+    return `
+        <div class="modal-overlay is-open">
+            <div class="modal-container modal-medium">
+                <div class="modal-header">
+                    <h2 class="modal-title">${escapeHtml(title)}</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label>Джерело</label>
+                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>External ID</label>
+                            <input type="text" class="input-main" value="${escapeHtml(externalId || '')}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-2">
+                        ${fieldsHtml}
+                    </div>
+
+                    <div class="form-section-title u-mt-24">
+                        <span class="material-symbols-outlined">link</span>
+                        <span>Маппінг</span>
+                    </div>
+                    ${mappedToName
+                        ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                        : `<p class="u-text-tertiary">Не замаплено</p>`
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary modal-close-btn">Закрити</button>
+                </div>
+            </div>
+        </div>
+    `;
+}

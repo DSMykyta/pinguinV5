@@ -46,7 +46,8 @@ import {
     initSectionNavigation,
     createModalOverlay,
     closeModalOverlay,
-    setupModalCloseHandlers
+    setupModalCloseHandlers,
+    buildMpViewModal
 } from './mapper-utils.js';
 import {
     registerActionHandlers,
@@ -816,10 +817,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
     } else {
         const mpChars = getMpCharacteristics();
         mpChar = mpChars.find(c => c.id === mpCharIdOrData);
-
-        if (!mpChar) {
-            mpChar = mpChars.find(c => c.external_id === mpCharIdOrData);
-        }
+        if (!mpChar) mpChar = mpChars.find(c => c.external_id === mpCharIdOrData);
     }
 
     if (!mpChar) {
@@ -827,89 +825,33 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
         return;
     }
 
-    let charData = mpChar;
+    let jsonData = {};
     if (mpChar.data && typeof mpChar.data === 'string') {
-        try {
-            charData = { ...mpChar, ...JSON.parse(mpChar.data) };
-        } catch (e) {}
+        try { jsonData = JSON.parse(mpChar.data); } catch (e) {}
     }
 
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
     const mpName = marketplace ? marketplace.name : mpChar.marketplace_id;
 
+    // Перевіряємо маппінг
+    const mapChars = mapperState.mapCharacteristics || [];
+    const mapping = mapChars.find(m =>
+        m.mp_characteristic_id === mpChar.id || m.mp_characteristic_id === mpChar.external_id
+    );
     let mappedToName = '';
-    if (charData.our_char_id) {
-        const ownChars = getCharacteristics();
-        const ownChar = ownChars.find(c => c.id === charData.our_char_id);
-        mappedToName = ownChar ? (ownChar.name_ua || ownChar.id) : charData.our_char_id;
+    if (mapping) {
+        const ownChar = getCharacteristics().find(c => c.id === mapping.characteristic_id);
+        mappedToName = ownChar ? (ownChar.name_ua || ownChar.id) : mapping.characteristic_id;
     }
 
-    const modalHtml = `
-        <div class="modal-overlay is-open">
-            <div class="modal-container modal-medium">
-                <div class="modal-header">
-                    <h2 class="modal-title">Характеристика маркетплейсу</h2>
-                    <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">close</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
-                            <label>Джерело</label>
-                            <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
-                        </div>
-                        <div class="grid2">
-                            <div class="form-group">
-                                <label>ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpChar.id)}" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>External ID</label>
-                                <input type="text" class="input-main" value="${escapeHtml(mpChar.external_id || '')}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Назва</label>
-                            <input type="text" class="input-main" value="${escapeHtml(charData.name || '')}" readonly>
-                        </div>
-                        <div class="grid2">
-                            <div class="form-group">
-                                <label>Тип</label>
-                                <input type="text" class="input-main" value="${escapeHtml(charData.type || '')}" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>Одиниця виміру</label>
-                                <input type="text" class="input-main" value="${escapeHtml(charData.unit || '')}" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Глобальна</label>
-                            <input type="text" class="input-main" value="${charData.is_global ? 'Так' : 'Ні'}" readonly>
-                        </div>
-                    </fieldset>
-
-                    <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
-                            <label>Замаплено до</label>
-                            ${mappedToName
-                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
-                                : `<div class="chip">Не замаплено</div>`
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Закрити</button>
-                </div>
-            </div>
-        </div>
-    `;
+    const modalHtml = buildMpViewModal({
+        title: 'Характеристика маркетплейсу',
+        mpName,
+        externalId: mpChar.external_id,
+        jsonData,
+        mappedToName
+    });
 
     const modalOverlay = createModalOverlay(modalHtml);
     setupModalCloseHandlers(modalOverlay, () => closeModalOverlay(modalOverlay));
