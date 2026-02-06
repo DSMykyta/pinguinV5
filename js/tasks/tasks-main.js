@@ -12,6 +12,7 @@
  * ║  └── tasks-data.js     — Google Sheets API (CRUD операції)               ║
  * ║                                                                          ║
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
+ * ║  ├── tasks-cabinet.js  — Секція "Кабінет" (привітання, статистика, pin)  ║
  * ║  ├── tasks-cards.js    — Рендеринг карток задач                          ║
  * ║  ├── tasks-crud.js     — Модальні вікна (додати/редагувати)              ║
  * ║  ├── tasks-events.js   — Обробники подій (пошук, фільтри)                ║
@@ -26,19 +27,23 @@ import { runHook, runHookAsync } from './tasks-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
+import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../common/avatar/avatar-config.js';
 import { registerPanelInitializer } from '../panel/panel-right.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРА ASIDE (на рівні модуля)
+// РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРІВ ASIDE (на рівні модуля)
 // ═══════════════════════════════════════════════════════════════════════════
 
 registerPanelInitializer('aside-tasks', initAsideTasksHandlers);
+registerPanelInitializer('aside-cabinet', initAsideCabinetHandlers);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PLUGINS = [
+    './tasks-cabinet.js',
     './tasks-cards.js',
     './tasks-crud.js',
     './tasks-events.js',
@@ -141,9 +146,6 @@ async function checkAuthAndLoadData() {
 
         // Повертаємо на 'my' як основний
         tasksState.activeTab = 'my';
-
-        // Рендеримо профіль
-        renderProfileSection();
 
     } catch (error) {
         console.error('❌ Помилка завантаження даних:', error);
@@ -258,6 +260,82 @@ function initAsideTasksHandlers() {
 }
 
 /**
+ * Ініціалізувати обробники в aside-cabinet
+ * Викликається panel-right.js після завантаження шаблону aside-cabinet.html
+ *
+ * Заповнює профіль юзера в aside та підключає кнопку "Додати задачу"
+ */
+function initAsideCabinetHandlers() {
+    const user = window.currentUser;
+    if (!user) return;
+
+    // Аватар в aside
+    const avatarEl = document.getElementById('aside-cabinet-avatar');
+    if (avatarEl) {
+        const animal = getCurrentUserAvatar() || DEFAULT_ANIMAL;
+        const avatarPath = `${AVATAR_HD_PATH}/${animal}-calm.png`;
+        avatarEl.innerHTML = `<img src="${avatarPath}" alt="${animal}" style="width: 48px; height: 48px; border-radius: 50%;" onerror="this.style.display='none'">`;
+    }
+
+    // Ім'я та роль
+    const nameEl = document.getElementById('aside-cabinet-name');
+    const roleEl = document.getElementById('aside-cabinet-role');
+
+    const roleLabels = { admin: 'Адміністратор', editor: 'Редактор', viewer: 'Глядач' };
+
+    if (nameEl) nameEl.textContent = user.display_name || user.username;
+    if (roleEl) roleEl.textContent = roleLabels[user.role] || user.role;
+
+    // Статистика в aside (оновиться після завантаження даних)
+    updateAsideCabinetStats();
+
+    // Кнопка "Додати задачу" в aside-cabinet
+    const addTaskBtn = document.getElementById('btn-add-task-cabinet');
+    if (addTaskBtn) {
+        addTaskBtn.addEventListener('click', async () => {
+            try {
+                const { showAddTaskModal } = await import('./tasks-crud.js');
+                showAddTaskModal();
+            } catch (e) {
+                console.warn('tasks-crud.js не завантажено');
+            }
+        });
+    }
+}
+
+/**
+ * Оновити статистику в aside-cabinet
+ * Показує кількість задач по статусах
+ */
+function updateAsideCabinetStats() {
+    const statsEl = document.getElementById('aside-cabinet-stats');
+    if (!statsEl) return;
+
+    const userId = tasksState.currentUserId;
+    if (!userId) {
+        statsEl.innerHTML = '<span class="avatar-state-message">Авторизуйтесь</span>';
+        return;
+    }
+
+    const myTasks = tasksState.tasks.filter(t =>
+        t.created_by === userId ||
+        (t.assigned_to && t.assigned_to.split(',').map(id => id.trim()).includes(userId))
+    );
+
+    const todo = myTasks.filter(t => t.status === 'todo').length;
+    const inProgress = myTasks.filter(t => t.status === 'in_progress').length;
+    const done = myTasks.filter(t => t.status === 'done').length;
+
+    statsEl.innerHTML = `
+        <div class="u-flex-col-8">
+            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">radio_button_unchecked</span> До виконання: <strong>${todo}</strong></span>
+            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">pending</span> В роботі: <strong>${inProgress}</strong></span>
+            <span style="font-size: 12px;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">check_circle</span> Виконано: <strong>${done}</strong></span>
+        </div>
+    `;
+}
+
+/**
  * Показати/сховати адмін секцію та навігацію
  */
 function updateAdminVisibility(userRole) {
@@ -274,97 +352,66 @@ function updateAdminVisibility(userRole) {
 }
 
 /**
- * Рендеринг секції профілю
- */
-function renderProfileSection() {
-    const container = document.getElementById('profile-container');
-    if (!container) return;
-
-    const user = window.currentUser;
-    if (!user) return;
-
-    // Використовуємо існуючий avatar компонент
-    const avatarHtml = renderAvatarState('user', {
-        user: {
-            avatar: user.avatar,
-            display_name: user.display_name || user.username,
-            role: user.role
-        },
-        size: 'large',
-        containerClass: 'profile-avatar-container',
-        showMessage: false
-    });
-
-    const roleLabels = {
-        admin: 'Адміністратор',
-        editor: 'Редактор',
-        viewer: 'Глядач'
-    };
-
-    container.innerHTML = `
-        <div class="profile-section">
-            ${avatarHtml}
-            <div class="profile-info">
-                <h3 class="profile-name">${user.display_name || user.username}</h3>
-                <span class="profile-role">${roleLabels[user.role] || user.role}</span>
-            </div>
-        </div>
-    `;
-}
-
-/**
  * Відрендерити стан "Потрібна авторизація"
  */
 function renderAuthRequiredState() {
-    const container = document.getElementById('tasks-container-my');
-    if (!container) return;
+    // Показуємо в кабінеті
+    const cabinetContainer = document.getElementById('cabinet-container');
+    if (cabinetContainer) {
+        cabinetContainer.innerHTML = renderAvatarState('authLogin', {
+            message: 'Авторизуйтесь для доступу до кабінету',
+            size: 'xl',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
+    }
 
-    const avatarHtml = renderAvatarState('authLogin', {
-        message: 'Авторизуйтесь для доступу до задач',
-        size: 'medium',
-        containerClass: 'empty-state-container',
-        avatarClass: 'empty-state-avatar',
-        messageClass: 'avatar-state-message',
-        showMessage: true
-    });
-
-    container.innerHTML = avatarHtml;
+    // Показуємо в задачах
+    const tasksContainer = document.getElementById('tasks-container-my');
+    if (tasksContainer) {
+        tasksContainer.innerHTML = renderAvatarState('authRequired', {
+            message: 'Авторизуйтесь для перегляду задач',
+            size: 'lg',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
+    }
 }
 
 /**
  * Відрендерити стан "Немає доступу"
  */
 function renderNoAccessState() {
-    const container = document.getElementById('tasks-container-my');
+    const container = document.getElementById('cabinet-container');
     if (!container) return;
 
-    const avatarHtml = renderAvatarState('error', {
+    container.innerHTML = renderAvatarState('error', {
         message: 'У вас немає доступу до цієї сторінки',
-        size: 'medium',
+        size: 'xl',
         containerClass: 'empty-state-container',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true
     });
-
-    container.innerHTML = avatarHtml;
 }
 
 /**
  * Відрендерити стан помилки
  */
 function renderErrorState(message = 'Помилка завантаження даних') {
-    const container = document.getElementById('tasks-container-my');
+    const container = document.getElementById('cabinet-container');
     if (!container) return;
 
-    const avatarHtml = renderAvatarState('error', {
+    container.innerHTML = renderAvatarState('error', {
         message: message,
-        size: 'medium',
+        size: 'xl',
         containerClass: 'empty-state-container',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true
     });
-
-    container.innerHTML = avatarHtml;
 }
