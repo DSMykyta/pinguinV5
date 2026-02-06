@@ -687,7 +687,7 @@ function getSystemFields() {
             { key: 'parent_name', label: 'Назва батьківської категорії', required: false }
         ],
         // Свій довідник - характеристики + опції
-        // Поля БД: id, name_ua, name_ru, type, unit, filter_type, is_global, category_ids, parent_option_id, created_at
+        // Поля БД: id, name_ua, name_ru, type, unit, filter_type, is_global, category_ids, block_number, created_at
         // id та created_at генеруються автоматично
         own_characteristics: [
             { key: 'own_char_name_ua', label: 'name_ua (Назва UA)', required: true },

@@ -157,7 +157,7 @@ export async function loadCharacteristics() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.CHARACTERISTICS}!A:L`,
+            range: `${SHEETS.CHARACTERISTICS}!A:K`,
             spreadsheetType: 'main'
         });
 
@@ -201,10 +201,6 @@ export async function loadCharacteristics() {
                 const val = findTruncatedField('category_');
                 if (val !== undefined) obj.category_ids = val;
             }
-            if (obj.parent_option_id === undefined || obj.parent_option_id === '') {
-                const val = findTruncatedField('parent_opt');
-                if (val !== undefined) obj.parent_option_id = val;
-            }
 
             return obj;
         });
@@ -224,7 +220,7 @@ export async function loadOptions() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.OPTIONS}!A:G`,
+            range: `${SHEETS.OPTIONS}!A:H`,
             spreadsheetType: 'main'
         });
 
@@ -528,13 +524,12 @@ export async function addCharacteristic(data) {
             data.filter_type || 'disable',
             data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
             data.category_ids || '',
-            data.parent_option_id || '',
-            timestamp,
-            data.block_number || ''
+            data.block_number || '',
+            timestamp
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CHARACTERISTICS}!A:L`,
+            range: `${SHEETS.CHARACTERISTICS}!A:K`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -549,9 +544,8 @@ export async function addCharacteristic(data) {
             filter_type: data.filter_type || 'disable',
             is_global: data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
             category_ids: data.category_ids || '',
-            parent_option_id: data.parent_option_id || '',
-            created_at: timestamp,
-            block_number: data.block_number || ''
+            block_number: data.block_number || '',
+            created_at: timestamp
         };
 
         mapperState.characteristics.push(newCharacteristic);
@@ -574,7 +568,7 @@ export async function updateCharacteristic(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:L${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
         const updatedRow = [
             characteristic.id,
@@ -586,9 +580,8 @@ export async function updateCharacteristic(id, updates) {
             updates.filter_type !== undefined ? updates.filter_type : characteristic.filter_type,
             updates.is_global !== undefined ? (updates.is_global === true || updates.is_global === 'true' ? 'true' : 'false') : characteristic.is_global,
             updates.category_ids !== undefined ? updates.category_ids : characteristic.category_ids,
-            updates.parent_option_id !== undefined ? updates.parent_option_id : characteristic.parent_option_id,
-            timestamp,
-            updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || '')
+            updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || ''),
+            timestamp
         ];
 
         await callSheetsAPI('update', {
@@ -617,11 +610,11 @@ export async function deleteCharacteristic(id) {
         }
 
         const characteristic = mapperState.characteristics[index];
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:L${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
@@ -648,11 +641,12 @@ export async function addOption(data) {
             data.value_ua || '',
             data.value_ru || '',
             data.sort_order || '0',
+            data.parent_option_id || '',
             timestamp
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.OPTIONS}!A:G`,
+            range: `${SHEETS.OPTIONS}!A:H`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -664,6 +658,7 @@ export async function addOption(data) {
             value_ua: data.value_ua || '',
             value_ru: data.value_ru || '',
             sort_order: data.sort_order || '0',
+            parent_option_id: data.parent_option_id || '',
             created_at: timestamp
         };
 
@@ -686,7 +681,7 @@ export async function updateOption(id, updates) {
             throw new Error(`Опцію ${id} не знайдено`);
         }
 
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:H${option._rowIndex}`;
 
         const updatedRow = [
             option.id,
@@ -695,6 +690,7 @@ export async function updateOption(id, updates) {
             updates.value_ua !== undefined ? updates.value_ua : option.value_ua,
             updates.value_ru !== undefined ? updates.value_ru : option.value_ru,
             updates.sort_order !== undefined ? updates.sort_order : option.sort_order,
+            updates.parent_option_id !== undefined ? updates.parent_option_id : (option.parent_option_id || ''),
             option.created_at
         ];
 
@@ -724,11 +720,11 @@ export async function deleteOption(id) {
         }
 
         const option = mapperState.options[index];
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:G${option._rowIndex}`;
+        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:H${option._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
