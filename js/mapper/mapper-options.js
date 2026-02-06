@@ -601,7 +601,7 @@ function renderMpOptionSectionContent(marketplaceData) {
 }
 
 function renderMpDataFields(data) {
-    const skipFields = ['id', 'our_option_id', 'our_char_id', 'our_cat_id'];
+    const skipFields = ['id', 'name', 'char_id', 'our_option_id', 'our_char_id', 'our_cat_id'];
     const fields = [];
 
     Object.entries(data).forEach(([key, value]) => {
@@ -809,7 +809,8 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
         mpName,
         externalId: mpOption.external_id,
         jsonData,
-        mappedToName
+        mappedToName,
+        extraSkipFields: ['name', 'char_id']
     });
 
     const modalOverlay = createModalOverlay(modalHtml);

@@ -133,8 +133,8 @@ export function setupModalCloseHandlers(modalOverlay, onClose) {
  * Побудувати HTML для модалки перегляду MP сутності
  * Показує всі поля з JSON динамічно
  */
-export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedToName }) {
-    const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id', 'our_category_id'];
+export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedToName, extraSkipFields = [] }) {
+    const skipFields = ['id', 'our_char_id', 'our_option_id', 'our_cat_id', 'our_category_id', ...extraSkipFields];
 
     // Генеруємо поля з JSON — ідентично renderMpDataFields в секціях
     const fieldsHtml = Object.entries(jsonData)
