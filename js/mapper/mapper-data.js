@@ -288,9 +288,6 @@ export async function loadMapCategories() {
             return obj;
         });
 
-        if (mapperState.mapCategories.length > 0) {
-        }
-
         return mapperState.mapCategories;
     } catch (error) {
         console.error('❌ Помилка завантаження маппінгів категорій:', error);
@@ -328,8 +325,6 @@ export async function loadMapCharacteristics() {
                 return obj;
             });
 
-        if (mapperState.mapCharacteristics.length > 0) {
-        }
         return mapperState.mapCharacteristics;
     } catch (error) {
         console.error('❌ Помилка завантаження маппінгів характеристик:', error);
@@ -378,6 +373,15 @@ export async function loadMapOptions() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Обчислити _rowIndex для нового запису (після append)
+ * Враховує "дірки" від видалених рядків у Google Sheets
+ */
+function getNextRowIndex(items) {
+    if (items.length === 0) return 2; // Перший рядок даних (після заголовка)
+    return Math.max(...items.map(i => i._rowIndex || 0)) + 1;
+}
+
+/**
  * Генерувати новий ID
  */
 function generateId(prefix, items) {
@@ -422,7 +426,7 @@ export async function addCategory(data) {
         });
 
         const newCategory = {
-            _rowIndex: mapperState.categories.length + 2,
+            _rowIndex: getNextRowIndex(mapperState.categories),
             id: newId,
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
@@ -536,7 +540,7 @@ export async function addCharacteristic(data) {
         });
 
         const newCharacteristic = {
-            _rowIndex: mapperState.characteristics.length + 2,
+            _rowIndex: getNextRowIndex(mapperState.characteristics),
             id: newId,
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
@@ -613,11 +617,11 @@ export async function deleteCharacteristic(id) {
         }
 
         const characteristic = mapperState.characteristics[index];
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:L${characteristic._rowIndex}`;
 
         await callSheetsAPI('update', {
             range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '']],
+            values: [['', '', '', '', '', '', '', '', '', '', '', '']],
             spreadsheetType: 'main'
         });
 
@@ -654,7 +658,7 @@ export async function addOption(data) {
         });
 
         const newOption = {
-            _rowIndex: mapperState.options.length + 2,
+            _rowIndex: getNextRowIndex(mapperState.options),
             id: newId,
             characteristic_id: data.characteristic_id || '',
             value_ua: data.value_ua || '',
@@ -761,7 +765,7 @@ export async function addMarketplace(data) {
         });
 
         const newMarketplace = {
-            _rowIndex: mapperState.marketplaces.length + 2,
+            _rowIndex: getNextRowIndex(mapperState.marketplaces),
             id: newId,
             name: data.name || '',
             slug: data.slug || '',
@@ -956,10 +960,6 @@ export async function loadMpCharacteristics() {
             spreadsheetType: 'main'
         });
 
-        // DEBUG: Показуємо що API повернуло
-        if (result && result.length > 0) {
-        }
-
         if (!result || !Array.isArray(result) || result.length <= 1) {
             console.warn('⚠️ Немає даних MP характеристик');
             mapperState.mpCharacteristics = [];
@@ -1145,7 +1145,7 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
             category_id: ownCatId,
             mp_category_id: mpCatId,
             created_at: timestamp,
-            _rowIndex: mapperState.mapCategories.length + 2
+            _rowIndex: getNextRowIndex(mapperState.mapCategories)
         };
         mapperState.mapCategories.push(newMapping);
 
@@ -1249,7 +1249,7 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
             characteristic_id: ownCharId,
             mp_characteristic_id: mpCharId,
             created_at: timestamp,
-            _rowIndex: mapperState.mapCharacteristics.length + 2
+            _rowIndex: getNextRowIndex(mapperState.mapCharacteristics)
         };
         mapperState.mapCharacteristics.push(newMapping);
 
@@ -1407,7 +1407,7 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
             option_id: ownOptionId,
             mp_option_id: mpOptionId,
             created_at: timestamp,
-            _rowIndex: mapperState.mapOptions.length + 2
+            _rowIndex: getNextRowIndex(mapperState.mapOptions)
         };
         mapperState.mapOptions.push(newMapping);
 

@@ -21,7 +21,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { mapperState, markPluginLoaded } from './mapper-state.js';
+import { mapperState } from './mapper-state.js';
 
 // Плагіни — можна видалити будь-який
 const PLUGINS = [
@@ -43,12 +43,11 @@ export async function loadMapperPlugins() {
 
     results.forEach((result, index) => {
         const pluginPath = PLUGINS[index];
-        const pluginName = pluginPath.replace('./', '').replace('.js', '');
 
         if (result.status === 'fulfilled' && result.value.init) {
             try {
+                // init() кожного плагіна сам викликає markPluginLoaded()
                 result.value.init();
-                markPluginLoaded(pluginName);
             } catch (e) {
                 console.error(`[Mapper] ❌ Error initializing ${pluginPath}:`, e);
             }

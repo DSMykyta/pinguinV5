@@ -108,13 +108,9 @@ function renderBindingsTooltip(bindingsInfo, entityType) {
     const entityLabel = entityType === 'category' ? 'категорій' :
                         entityType === 'characteristic' ? 'характеристик' : 'опцій';
 
-    let html = '';
-    bindingsInfo.details.forEach(detail => {
-        html += `<div style="margin-bottom:8px;"><strong>${escapeHtml(detail.marketplace)}</strong><br>`;
-        html += `<span style="color:var(--color-success)">${detail.count} ${entityLabel}</span></div>`;
-    });
-
-    return html;
+    return bindingsInfo.details
+        .map(detail => `${detail.marketplace}: ${detail.count} ${entityLabel}`)
+        .join(', ');
 }
 
 /**
@@ -1606,26 +1602,6 @@ function getCategoryLabelMap() {
 
     return labelMap;
 }
-
-// Для зворотної сумісності
-const filterColumnsConfig = {
-    categories: [
-        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-        { id: 'grouping', label: 'Групуюча', filterType: 'values' }
-    ],
-    characteristics: [
-        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-        { id: 'type', label: 'Тип', filterType: 'values' },
-        { id: 'is_global', label: 'Глобальна', filterType: 'values' }
-    ],
-    options: [
-        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' }
-    ],
-    marketplaces: [
-        { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-        { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'true': 'Активний', 'false': 'Неактивний' } }
-    ]
-};
 
 // Флаги для запобігання циклу при відновленні стану
 let isRestoringFilters = false;
