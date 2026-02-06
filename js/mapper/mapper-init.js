@@ -33,7 +33,7 @@ import { loadMapperPlugins } from './mapper-main.js';
 
 // Re-export mapperState для зворотної сумісності
 export { mapperState } from './mapper-state.js';
-import { mapperState } from './mapper-state.js';
+import { mapperState, runHook } from './mapper-state.js';
 
 /**
  * Головна функція ініціалізації модуля Mapper
@@ -121,6 +121,9 @@ async function checkAuthAndLoadData() {
             // Ініціалізувати dropdowns після заповнення
             const { initDropdowns } = await import('../common/ui-dropdown.js');
             initDropdowns();
+
+            // Повідомити плагіни про завантаження даних
+            runHook('onDataLoaded');
 
             // Відрендерити поточний таб
             renderCurrentTab();
@@ -294,16 +297,4 @@ async function loadAsideMapper() {
     }
 }
 
-/**
- * Отримати активний таб
- */
-export function getActiveTab() {
-    return mapperState.activeTab;
-}
-
-/**
- * Встановити активний таб
- */
-export function setActiveTab(tabName) {
-    mapperState.activeTab = tabName;
-}
+// getActiveTab / setActiveTab — використовуйте з mapper-state.js

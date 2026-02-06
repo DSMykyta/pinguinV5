@@ -524,9 +524,8 @@ function populateRelatedCharacteristics(categoryId) {
                     : [];
                 const newIds = currentIds.filter(id => id !== catId);
 
-                // Оновлюємо характеристику
+                // Оновлюємо характеристику (тільки поле category_ids)
                 await updateCharacteristic(charId, {
-                    ...char,
                     category_ids: newIds.join(',')
                 });
 

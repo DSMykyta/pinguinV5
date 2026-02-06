@@ -11,12 +11,11 @@
 import { mapperState } from './mapper-state.js';
 import { renderCurrentTab } from './mapper-table.js';
 import {
-    loadMapperData, getCategories, getCharacteristics, getOptions, getMarketplaces,
+    loadMapperData,
     loadMpCategories, loadMpCharacteristics, loadMpOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
 import { createColumnSelector } from '../common/ui-table-columns.js';
-import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
 /**
@@ -219,45 +218,6 @@ function initImportButton() {
             showImportModal();
         });
     }
-}
-
-/**
- * Ініціалізувати фільтр-кнопки
- */
-function initFilterPills() {
-    const containers = [
-        'filter-pills-mapper-characteristics',
-        'filter-pills-mapper-options'
-    ];
-
-    containers.forEach(containerId => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        const buttons = container.querySelectorAll('.nav-icon[data-filter]');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Прибрати active з усіх
-                buttons.forEach(b => b.classList.remove('active'));
-
-                // Додати active до поточного
-                btn.classList.add('active');
-
-                // Отримати значення фільтра
-                const filter = btn.dataset.filter;
-                const tabId = btn.dataset.tabId;
-                const tabName = tabId.replace('tab-mapper-', '');
-
-                // Оновити стан
-                mapperState.filters[tabName] = filter;
-                mapperState.pagination.currentPage = 1;
-
-                // Перерендерити
-                renderCurrentTab();
-
-            });
-        });
-    });
 }
 
 /**
@@ -511,147 +471,9 @@ function initMapperBatchActions() {
 }
 
 /**
- * Об'єкт для зберігання API сортування кожного табу
- */
-const sortAPIs = {
-    categories: null,
-    characteristics: null,
-    options: null,
-    marketplaces: null
-};
-
-/**
  * Ініціалізувати сортування для всіх табів
+ * Сортування управляється через initMapperColumnFilters() в mapper-table.js
  */
 export function initMapperSorting() {
-    // Сортування повністю управляється через initMapperColumnFilters() в mapper-table.js,
-    // яка викликається при кожному рендері таблиці. Вона зберігає/відновлює стан сортування
-    // через mapperState.sortState[tabName] + initialSortState в initTableSorting().
-    //
-    // initCategoriesSorting/etc. НЕ викликаються, бо вони створюють другий click handler
-    // на тому ж контейнері, що конфліктує з обробником з initMapperColumnFilters —
-    // новий API завжди починає зі state {null, null} і перезаписує напрямок на 'asc'.
-}
-
-/**
- * Ініціалізувати сортування для категорій
- */
-export function initCategoriesSorting() {
-    const container = document.getElementById('mapper-categories-table-container');
-    if (!container) return null;
-
-    sortAPIs.categories = initTableSorting(container, {
-        dataSource: () => getCategories(),
-        onSort: async (sortedData) => {
-            mapperState.categories = sortedData;
-            await renderCurrentTab();
-
-            // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPIs.categories.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            id: 'id-number',
-            name_ua: 'string',
-            name_ru: 'string',
-            parent_id: 'string'
-        }
-    });
-
-    return sortAPIs.categories;
-}
-
-/**
- * Ініціалізувати сортування для характеристик
- */
-export function initCharacteristicsSorting() {
-    const container = document.getElementById('mapper-characteristics-table-container');
-    if (!container) return null;
-
-    sortAPIs.characteristics = initTableSorting(container, {
-        dataSource: () => getCharacteristics(),
-        onSort: async (sortedData) => {
-            mapperState.characteristics = sortedData;
-            await renderCurrentTab();
-
-            // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPIs.characteristics.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            id: 'id-number',
-            name_ua: 'string',
-            name_ru: 'string',
-            type: 'string',
-            is_global: 'boolean',
-            unit: 'string'
-        }
-    });
-
-    return sortAPIs.characteristics;
-}
-
-/**
- * Ініціалізувати сортування для опцій
- */
-export function initOptionsSorting() {
-    const container = document.getElementById('mapper-options-table-container');
-    if (!container) return null;
-
-    sortAPIs.options = initTableSorting(container, {
-        dataSource: () => getOptions(),
-        onSort: async (sortedData) => {
-            mapperState.options = sortedData;
-            await renderCurrentTab();
-
-            // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPIs.options.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            id: 'id-number',
-            characteristic_id: 'id-number',
-            value_ua: 'string',
-            value_ru: 'string',
-            sort_order: 'number'
-        }
-    });
-
-    return sortAPIs.options;
-}
-
-/**
- * Ініціалізувати сортування для маркетплейсів
- */
-export function initMarketplacesSorting() {
-    const container = document.getElementById('mapper-marketplaces-table-container');
-    if (!container) return null;
-
-    sortAPIs.marketplaces = initTableSorting(container, {
-        dataSource: () => getMarketplaces(),
-        onSort: async (sortedData) => {
-            mapperState.marketplaces = sortedData;
-            await renderCurrentTab();
-
-            // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPIs.marketplaces.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            id: 'id-number',
-            name: 'string',
-            slug: 'string',
-            is_active: 'boolean'
-        }
-    });
-
-    return sortAPIs.marketplaces;
+    // no-op: сортування ініціалізується при рендері таблиць через mapper-table.js
 }
