@@ -112,6 +112,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 60px;
     font-size: 12px;
     color: var(--color-on-surface-v);
     white-space: nowrap;
