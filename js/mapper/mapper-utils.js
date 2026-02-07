@@ -123,10 +123,16 @@ export function closeModalOverlay(modalOverlay) {
  */
 export function setupModalCloseHandlers(modalOverlay, onClose) {
     modalOverlay.querySelectorAll('.modal-close-btn').forEach(btn => {
-        btn.addEventListener('click', onClose);
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onClose();
+        });
     });
     modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) onClose();
+        if (e.target === modalOverlay) {
+            e.stopPropagation();
+            onClose();
+        }
     });
 }
 
