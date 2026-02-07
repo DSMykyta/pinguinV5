@@ -196,7 +196,27 @@ const rozetkaAdapter = {
     },
 
     /**
-     * Автомаппінг колонок
+     * Фіксований маппінг колонок Rozetka
+     * Структура файлу завжди однакова:
+     * 0: ID параметра | 1: Назва параметра | 2: Тип параметра |
+     * 3: Тип фільтра | 4: Одиниця виміру | 5: Наскрізний параметр |
+     * 6: ID значення | 7: Назва значення
+     */
+    getFixedMapping() {
+        return {
+            char_id: 0,
+            char_name: 1,
+            char_type: 2,
+            char_filter_type: 3,
+            char_unit: 4,
+            char_is_global: 5,
+            option_id: 6,
+            option_name: 7
+        };
+    },
+
+    /**
+     * Автомаппінг колонок (fallback)
      */
     getColumnPatterns() {
         return {
