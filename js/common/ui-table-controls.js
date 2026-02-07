@@ -338,8 +338,15 @@ function createHoverDropdown(header, columnConfig, handlers) {
     dropdown.dataset.column = columnId;
 
     // Dropdown містить ТІЛЬКИ фільтри (сортування працює по кліку на заголовок)
+    const hasSearch = uniqueValues.length > 10;
+
     dropdown.innerHTML = `
         <div class="dropdown-header">${columnLabel}</div>
+        ${hasSearch ? `
+            <div class="dropdown-search">
+                <input type="text" class="input-main" placeholder="Пошук..." data-filter-search>
+            </div>
+        ` : ''}
         <div class="dropdown-body">
             <label class="dropdown-item filter-select-all">
                 <input type="checkbox" data-filter-all ${allSelected ? 'checked' : ''}>
@@ -347,7 +354,7 @@ function createHoverDropdown(header, columnConfig, handlers) {
             </label>
             <div class="dropdown-separator"></div>
             ${uniqueValues.map(({ value, label, count }) => `
-                <label class="dropdown-item">
+                <label class="dropdown-item" data-filter-label="${label.toLowerCase()}">
                     <input type="checkbox" data-filter-value="${value}" ${currentFilter.has(value) ? 'checked' : ''}>
                     <span>${label}</span>
                     <span class="filter-count">${count}</span>
@@ -399,6 +406,20 @@ function createHoverDropdown(header, columnConfig, handlers) {
             triggerFilterChange(activeFilters, handlers.filterColumns, onFilter, dataSource);
         });
     });
+
+    // Пошук по значеннях фільтра
+    if (hasSearch) {
+        const searchInput = dropdown.querySelector('[data-filter-search]');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const items = dropdown.querySelectorAll('.dropdown-body .dropdown-item:not(.filter-select-all)');
+            items.forEach(item => {
+                const label = item.dataset.filterLabel || '';
+                item.style.display = label.includes(query) ? '' : 'none';
+            });
+        });
+        searchInput.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     // Запобігаємо закриттю при кліку всередині dropdown
     dropdown.addEventListener('click', (e) => e.stopPropagation());
@@ -861,6 +882,7 @@ export function initTableFilters(container, options) {
         const allSelected = uniqueValues.every(v => currentFilter.has(v.value));
 
         // Створюємо dropdown wrapper
+        const hasSearchLegacy = column.filterable && uniqueValues.length > 10;
         const wrapper = document.createElement('div');
         wrapper.className = 'dropdown-wrapper filter-dropdown';
         wrapper.innerHTML = `
@@ -869,6 +891,11 @@ export function initTableFilters(container, options) {
             </button>
             <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-header">${column.label}</div>
+                ${hasSearchLegacy ? `
+                    <div class="dropdown-search">
+                        <input type="text" class="input-main" placeholder="Пошук..." data-filter-search="${column.id}">
+                    </div>
+                ` : ''}
                 <div class="dropdown-body" data-filter-body="${column.id}">
                     ${column.sortable ? `
                         <button class="dropdown-item ${state.sortColumn === column.id && state.sortDirection === 'asc' ? 'active' : ''}"
@@ -890,7 +917,7 @@ export function initTableFilters(container, options) {
                         </label>
                         <div class="dropdown-separator"></div>
                         ${uniqueValues.map(({ value, label, count }) => `
-                            <label class="dropdown-item">
+                            <label class="dropdown-item" data-filter-label="${label.toLowerCase()}">
                                 <input type="checkbox" data-filter-value="${value}" data-filter-column="${column.id}" ${currentFilter.has(value) ? 'checked' : ''}>
                                 <span>${label}</span>
                                 <span class="filter-count">${count}</span>
@@ -902,6 +929,21 @@ export function initTableFilters(container, options) {
         `;
 
         headerCell.appendChild(wrapper);
+
+        // Пошук по значеннях фільтра (legacy)
+        if (hasSearchLegacy) {
+            const searchInput = wrapper.querySelector(`[data-filter-search="${column.id}"]`);
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const body = wrapper.querySelector(`[data-filter-body="${column.id}"]`);
+                const items = body.querySelectorAll('.dropdown-item:not(.filter-select-all):not([data-sort-column])');
+                items.forEach(item => {
+                    const label = item.dataset.filterLabel || '';
+                    item.style.display = label.includes(query) ? '' : 'none';
+                });
+            });
+            searchInput.addEventListener('click', (e) => e.stopPropagation());
+        }
 
         // Обробники сортування
         if (column.sortable) {

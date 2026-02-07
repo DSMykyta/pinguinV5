@@ -162,15 +162,22 @@ export class FiltersPlugin {
             }
         });
 
-        // Якщо є predefined options - використовуємо їх
-        const options = column.filterOptions || Array.from(uniqueValues).sort();
+        // Якщо є predefined options - використовуємо їх, сортуємо по алфавіту
         const labelMap = column.filterLabelMap || {};
+        const options = column.filterOptions
+            || Array.from(uniqueValues).sort((a, b) => {
+                const labelA = labelMap[a] || a;
+                const labelB = labelMap[b] || b;
+                return labelA.localeCompare(labelB, 'uk', { sensitivity: 'base' });
+            });
+
+        const hasSearch = options.length > 10;
 
         const optionsHtml = options.map(value => {
             const label = labelMap[value] || value;
             const isChecked = currentFilter && currentFilter.includes(value);
             return `
-                <label class="filter-option">
+                <label class="filter-option" data-filter-label="${escapeHtml(label.toLowerCase())}">
                     <input type="checkbox" value="${escapeHtml(value)}" ${isChecked ? 'checked' : ''}>
                     <span>${escapeHtml(label)}</span>
                 </label>
@@ -182,6 +189,11 @@ export class FiltersPlugin {
                 <span>Фільтр: ${escapeHtml(column.label || columnId)}</span>
                 ${this.config.showClearButton ? '<button class="filter-clear-btn" type="button">Скинути</button>' : ''}
             </div>
+            ${hasSearch ? `
+                <div class="dropdown-search">
+                    <input type="text" class="input-main" placeholder="Пошук..." data-values-search>
+                </div>
+            ` : ''}
             <div class="filter-dropdown-body">
                 ${optionsHtml || '<p class="filter-empty">Немає значень</p>'}
             </div>
@@ -291,6 +303,20 @@ export class FiltersPlugin {
                 }
             });
             searchInput.focus();
+        }
+
+        // Пошук по значеннях фільтра (для values з >10 опцій)
+        const valuesSearch = dropdown.querySelector('[data-values-search]');
+        if (valuesSearch) {
+            valuesSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const options = dropdown.querySelectorAll('.filter-option');
+                options.forEach(option => {
+                    const label = option.dataset.filterLabel || '';
+                    option.style.display = label.includes(query) ? '' : 'none';
+                });
+            });
+            valuesSearch.focus();
         }
     }
 

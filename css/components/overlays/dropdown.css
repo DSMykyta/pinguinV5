@@ -211,6 +211,15 @@
     font-weight: 500;
 }
 
+/* ============================================ */
+/* DROPDOWN SEARCH INPUT                        */
+/* ============================================ */
+
+/* Контейнер пошуку в dropdown */
+.dropdown-search {
+    padding: 4px 8px 0;
+}
+
 /* Лічильник елементів */
 .filter-count {
     margin-left: auto;
