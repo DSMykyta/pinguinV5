@@ -280,11 +280,11 @@ const epicentrAdapter = {
         importState._adapterData = importState._adapterData || {};
         importState._adapterData.attributeSetId = attributeSetId;
 
-        // Фільтруємо рядки брендів — колонка 5 (Код атрибута) = "brand"
+        // Фільтруємо рядки брендів — ID характеристики бренду = 5
         const originalCount = rawData.length;
         importState.rawData = rawData.filter((row, i) => {
             if (i === 0) return true; // зберігаємо заголовок
-            return String(row[5] || '').trim().toLowerCase() !== 'brand';
+            return String(row[0] || '').trim() !== '5';
         });
         const skipped = originalCount - importState.rawData.length;
         if (skipped > 0) {
