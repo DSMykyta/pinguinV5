@@ -895,7 +895,7 @@ export function getMpOptions() {
  * Нормалізація українських ключів Rozetka при завантаженні (backwards compatibility)
  * Працює in-memory — не змінює дані в таблиці
  */
-function normalizeMpLoadedData(obj) {
+function normalizeMpLoadedData(obj, entityType) {
     const ukKeyMap = {
         'Тип параметра': 'type',
         'Тип фільтра': 'filter_type',
@@ -919,6 +919,13 @@ function normalizeMpLoadedData(obj) {
     if (obj.is_global !== undefined && obj.is_global !== 'TRUE' && obj.is_global !== 'FALSE') {
         const strVal = String(obj.is_global).toLowerCase().trim();
         obj.is_global = ['true', '1', 'так', 'yes', '+', 'да'].includes(strVal) ? 'TRUE' : 'FALSE';
+    }
+    // Опції не мають полів характеристики
+    if (entityType === 'options') {
+        delete obj.type;
+        delete obj.filter_type;
+        delete obj.unit;
+        delete obj.is_global;
     }
 }
 
@@ -964,7 +971,7 @@ export async function loadMpCategories() {
                 }
             }
 
-            normalizeMpLoadedData(obj);
+            normalizeMpLoadedData(obj, 'categories');
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
@@ -1018,7 +1025,7 @@ export async function loadMpCharacteristics() {
                 }
             }
 
-            normalizeMpLoadedData(obj);
+            normalizeMpLoadedData(obj, 'characteristics');
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 
@@ -1072,7 +1079,7 @@ export async function loadMpOptions() {
                 }
             }
 
-            normalizeMpLoadedData(obj);
+            normalizeMpLoadedData(obj, 'options');
             return obj;
         }).filter(item => item.id); // Фільтруємо порожні рядки
 

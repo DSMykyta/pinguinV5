@@ -1489,6 +1489,11 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             // Нормалізуємо ключі Rozetka
             if (importState.isRozetkaFormat) {
                 normalizeRozetkaData(data);
+                // Видаляємо поля характеристики — вони не належать опції
+                delete data.type;
+                delete data.filter_type;
+                delete data.unit;
+                delete data.is_global;
             }
 
             const dataJson = JSON.stringify(data);
