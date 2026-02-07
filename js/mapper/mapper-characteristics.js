@@ -604,12 +604,10 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
 
     const itemsHtml = items.map(item => {
         const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
-        const entityName = data.name || '';
         return `
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <span>${escapeHtml(entityName)}</span>
                     ${actionButton({
                         action: 'unmap',
                         rowId: item.id,
@@ -618,7 +616,7 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">
-                        ${renderMpDataFields(data, item.external_id, entityName)}
+                        ${renderMpDataFields(data)}
                     </div>
                 </div>
             </div>
@@ -643,15 +641,13 @@ function renderMpCharacteristicSectionContent(marketplaceData) {
     `;
 }
 
-function renderMpDataFields(data, externalId, entityName) {
-    const skipFields = ['id', 'name', 'category_id', 'category_name', 'our_char_id', 'our_option_id', 'our_cat_id'];
-    const dupValues = new Set([String(externalId || ''), entityName || ''].filter(Boolean));
+function renderMpDataFields(data) {
+    const skipFields = ['our_char_id', 'our_option_id', 'our_cat_id'];
     const fields = [];
 
     Object.entries(data).forEach(([key, value]) => {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
-        if (dupValues.has(String(value))) return;
         fields.push(`
             <div class="form-group">
                 <label>${escapeHtml(key)}</label>
@@ -854,8 +850,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
         mpName,
         externalId: mpChar.external_id,
         jsonData,
-        mappedToName,
-        extraSkipFields: ['name', 'category_id', 'category_name']
+        mappedToName
     });
 
     const modalOverlay = createModalOverlay(modalHtml);
