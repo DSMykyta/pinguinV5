@@ -32,7 +32,21 @@
 
 .switch-container {
     display: flex;
+    align-items: center;
     gap: 4px;
+    padding: 8px;
+    
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-xs, 4px);
+    
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+    
+    width: min-content;
+    min-height: 40px;
+    max-height: 40px;
+    
+    background-color: var(--color-surface-c-low);
+    color: var(--color-on-surface);
 }
 
 .switch-container input[type="radio"] {
