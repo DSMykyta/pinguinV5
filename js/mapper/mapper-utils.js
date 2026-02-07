@@ -9,6 +9,7 @@
  */
 
 import { escapeHtml } from '../utils/text-utils.js';
+import { initCustomSelects } from '../common/ui-select.js';
 
 /**
  * Ініціалізувати scroll-snap навігацію для fullscreen модалок
@@ -185,4 +186,106 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
             </div>
         </div>
     `;
+}
+
+/**
+ * Показати модалку маппінгу до MP сутності
+ * @param {Object} opts
+ * @param {Array} opts.marketplaces - Список маркетплейсів
+ * @param {Function} opts.getMpEntities - Функція(marketplaceId) → масив MP сутностей
+ * @param {Function} opts.getEntityLabel - Функція(mpEntity) → текст для відображення
+ * @param {Function} opts.onMap - Callback(mpEntityId) при підтвердженні маппінгу
+ */
+export function showMapToMpModal({ marketplaces, getMpEntities, getEntityLabel, onMap }) {
+    const html = `
+        <div class="modal-overlay is-open" data-map-modal>
+            <div class="modal-container modal-small">
+                <div class="modal-header">
+                    <h2 class="modal-title">Замапити до МП</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Маркетплейс</label>
+                            <select id="map-modal-marketplace" data-custom-select>
+                                <option value="">— Оберіть маркетплейс —</option>
+                                ${marketplaces.map(mp => `<option value="${escapeHtml(mp.id)}">${escapeHtml(mp.name || mp.id)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Значення МП</label>
+                            <select id="map-modal-entity" data-custom-select disabled>
+                                <option value="">— Спочатку оберіть маркетплейс —</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn btn-primary" id="map-modal-confirm" disabled>Замапити</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const overlay = createModalOverlay(html);
+    initCustomSelects(overlay);
+
+    const mpSelect = overlay.querySelector('#map-modal-marketplace');
+    const entitySelect = overlay.querySelector('#map-modal-entity');
+    const confirmBtn = overlay.querySelector('#map-modal-confirm');
+
+    mpSelect.addEventListener('change', () => {
+        const mpId = mpSelect.value;
+        entitySelect.innerHTML = '';
+
+        if (!mpId) {
+            entitySelect.innerHTML = '<option value="">— Спочатку оберіть маркетплейс —</option>';
+            entitySelect.disabled = true;
+            confirmBtn.disabled = true;
+            initCustomSelects(overlay);
+            return;
+        }
+
+        const entities = getMpEntities(mpId);
+        entitySelect.disabled = false;
+        entitySelect.innerHTML = `<option value="">— Оберіть значення —</option>`;
+        entities.forEach(entity => {
+            const opt = document.createElement('option');
+            opt.value = entity.id;
+            opt.textContent = getEntityLabel(entity);
+            entitySelect.appendChild(opt);
+        });
+
+        initCustomSelects(overlay);
+    });
+
+    entitySelect.addEventListener('change', () => {
+        confirmBtn.disabled = !entitySelect.value;
+    });
+
+    confirmBtn.addEventListener('click', async () => {
+        const mpEntityId = entitySelect.value;
+        if (!mpEntityId) return;
+
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = '...';
+
+        try {
+            await onMap(mpEntityId);
+            closeModalOverlay(overlay);
+        } catch (err) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Замапити';
+        }
+    });
+
+    setupModalCloseHandlers(overlay, () => closeModalOverlay(overlay));
 }

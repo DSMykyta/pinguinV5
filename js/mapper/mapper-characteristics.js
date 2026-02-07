@@ -30,7 +30,7 @@ import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
     getCategories, getMarketplaces, getOptions, updateOption,
     getMpCharacteristics, getMappedMpCharacteristics,
-    batchCreateCharacteristicMapping, deleteCharacteristicMapping,
+    createCharacteristicMapping, batchCreateCharacteristicMapping, deleteCharacteristicMapping,
     autoMapCharacteristics
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
@@ -47,7 +47,8 @@ import {
     createModalOverlay,
     closeModalOverlay,
     setupModalCloseHandlers,
-    buildMpViewModal
+    buildMpViewModal,
+    showMapToMpModal
 } from './mapper-utils.js';
 import {
     registerActionHandlers,
@@ -178,6 +179,29 @@ export async function showEditCharacteristicModal(id) {
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateCharacteristic(id);
+    }
+
+    const mapBtn = document.getElementById('map-to-mp-characteristic');
+    if (mapBtn) {
+        mapBtn.classList.remove('u-hidden');
+        mapBtn.onclick = () => {
+            const marketplaces = getMarketplaces();
+            showMapToMpModal({
+                marketplaces,
+                getMpEntities: (mpId) => getMpCharacteristics().filter(c => c.marketplace_id === mpId),
+                getEntityLabel: (entity) => {
+                    const data = typeof entity.data === 'string' ? JSON.parse(entity.data || '{}') : (entity.data || {});
+                    return `#${entity.external_id} — ${data.name || entity.external_id}`;
+                },
+                onMap: async (mpCharId) => {
+                    await createCharacteristicMapping(id, mpCharId);
+                    showToast('Маппінг створено', 'success');
+                    renderMappedMpCharacteristicsSections(id);
+                    initSectionNavigation('char-section-navigator');
+                    renderCurrentTab();
+                }
+            });
+        };
     }
 
     const addOptionBtn = document.getElementById('btn-add-char-option');

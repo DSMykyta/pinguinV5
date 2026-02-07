@@ -29,7 +29,7 @@ import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-s
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
     getCharacteristics, updateCharacteristic, getMpCategories, getMarketplaces,
-    batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
+    createCategoryMapping, batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -45,7 +45,8 @@ import {
     createModalOverlay,
     closeModalOverlay,
     setupModalCloseHandlers,
-    buildMpViewModal
+    buildMpViewModal,
+    showMapToMpModal
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
@@ -174,6 +175,29 @@ export async function showEditCategoryModal(id) {
     const saveBtn = document.getElementById('save-mapper-category');
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateCategory(id);
+    }
+
+    const mapBtn = document.getElementById('map-to-mp-category');
+    if (mapBtn) {
+        mapBtn.classList.remove('u-hidden');
+        mapBtn.onclick = () => {
+            const marketplaces = getMarketplaces();
+            showMapToMpModal({
+                marketplaces,
+                getMpEntities: (mpId) => getMpCategories().filter(c => c.marketplace_id === mpId),
+                getEntityLabel: (entity) => {
+                    const data = typeof entity.data === 'string' ? JSON.parse(entity.data || '{}') : (entity.data || {});
+                    return `#${entity.external_id} — ${data.name || entity.external_id}`;
+                },
+                onMap: async (mpCatId) => {
+                    await createCategoryMapping(id, mpCatId);
+                    showToast('Маппінг створено', 'success');
+                    renderMappedMpCategoriesSections(id);
+                    initSectionNavigation('category-section-navigator');
+                    renderCurrentTab();
+                }
+            });
+        };
     }
 }
 
