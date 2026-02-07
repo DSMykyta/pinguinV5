@@ -166,6 +166,7 @@ function handleMarketplaceChange(e) {
     importState._adapterData = null;
     importState.adapter = null;
     document.getElementById('adapter-category-info')?.remove();
+    document.getElementById('adapter-extra-ui')?.remove();
     fileGroup?.classList.add('u-hidden');
 
     if (!selectedValue) return;
@@ -179,7 +180,14 @@ function handleMarketplaceChange(e) {
     if (importState.adapter) {
         const config = importState.adapter.getConfig();
         importState.dataType = config.dataType || 'characteristics';
-        fileGroup?.classList.remove('u-hidden');
+
+        // Адаптер може додати свій UI (напр. вибір категорії) і сам контролювати показ fileGroup
+        if (importState.adapter.onMarketplaceSelected) {
+            const modalBody = document.querySelector('#modal-mapper-import .modal-body');
+            importState.adapter.onMarketplaceSelected(importState, modalBody);
+        } else {
+            fileGroup?.classList.remove('u-hidden');
+        }
     }
 
     validateImport();
