@@ -397,6 +397,14 @@ function generateId(prefix, items) {
 }
 
 /**
+ * Нормалізувати boolean для Google Sheets (завжди uppercase)
+ */
+function toSheetsBool(value) {
+    if (value === true || value === 'true' || value === 'TRUE') return 'TRUE';
+    return 'FALSE';
+}
+
+/**
  * Додати нову категорію
  */
 export async function addCategory(data) {
@@ -410,7 +418,7 @@ export async function addCategory(data) {
             data.name_ua || '',
             data.name_ru || '',
             data.parent_id || '',
-            data.grouping || 'false',
+            toSheetsBool(data.grouping),
             timestamp,
             timestamp
         ];
@@ -427,7 +435,7 @@ export async function addCategory(data) {
             name_ua: data.name_ua || '',
             name_ru: data.name_ru || '',
             parent_id: data.parent_id || '',
-            grouping: data.grouping || 'false',
+            grouping: toSheetsBool(data.grouping),
             created_at: timestamp,
             updated_at: timestamp
         };
@@ -459,7 +467,7 @@ export async function updateCategory(id, updates) {
             updates.name_ua !== undefined ? updates.name_ua : category.name_ua,
             updates.name_ru !== undefined ? updates.name_ru : category.name_ru,
             updates.parent_id !== undefined ? updates.parent_id : category.parent_id,
-            updates.grouping !== undefined ? updates.grouping : (category.grouping || 'false'),
+            toSheetsBool(updates.grouping !== undefined ? updates.grouping : category.grouping),
             category.created_at,
             timestamp
         ];
@@ -522,7 +530,7 @@ export async function addCharacteristic(data) {
             data.type || 'TextInput',
             data.unit || '',
             data.filter_type || 'disable',
-            data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
+            toSheetsBool(data.is_global),
             data.category_ids || '',
             data.block_number || '',
             timestamp
@@ -542,7 +550,7 @@ export async function addCharacteristic(data) {
             type: data.type || 'TextInput',
             unit: data.unit || '',
             filter_type: data.filter_type || 'disable',
-            is_global: data.is_global === true || data.is_global === 'true' ? 'true' : 'false',
+            is_global: toSheetsBool(data.is_global),
             category_ids: data.category_ids || '',
             block_number: data.block_number || '',
             created_at: timestamp
@@ -578,7 +586,7 @@ export async function updateCharacteristic(id, updates) {
             updates.type !== undefined ? updates.type : characteristic.type,
             updates.unit !== undefined ? updates.unit : characteristic.unit,
             updates.filter_type !== undefined ? updates.filter_type : characteristic.filter_type,
-            updates.is_global !== undefined ? (updates.is_global === true || updates.is_global === 'true' ? 'true' : 'false') : characteristic.is_global,
+            toSheetsBool(updates.is_global !== undefined ? updates.is_global : characteristic.is_global),
             updates.category_ids !== undefined ? updates.category_ids : characteristic.category_ids,
             updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || ''),
             timestamp
@@ -748,7 +756,7 @@ export async function addMarketplace(data) {
             newId,
             data.name || '',
             data.slug || '',
-            data.is_active === true || data.is_active === 'true' ? 'true' : 'false',
+            toSheetsBool(data.is_active),
             data.field_schema || '{}',
             data.column_mapping || '{}',
             timestamp
@@ -765,7 +773,7 @@ export async function addMarketplace(data) {
             id: newId,
             name: data.name || '',
             slug: data.slug || '',
-            is_active: data.is_active === true || data.is_active === 'true' ? 'true' : 'false',
+            is_active: toSheetsBool(data.is_active),
             field_schema: data.field_schema || '{}',
             column_mapping: data.column_mapping || '{}',
             created_at: timestamp
@@ -796,7 +804,7 @@ export async function updateMarketplace(id, updates) {
             marketplace.id,
             updates.name !== undefined ? updates.name : marketplace.name,
             updates.slug !== undefined ? updates.slug : marketplace.slug,
-            updates.is_active !== undefined ? (updates.is_active === true || updates.is_active === 'true' ? 'true' : 'false') : marketplace.is_active,
+            toSheetsBool(updates.is_active !== undefined ? updates.is_active : marketplace.is_active),
             updates.field_schema !== undefined ? updates.field_schema : marketplace.field_schema,
             updates.column_mapping !== undefined ? updates.column_mapping : marketplace.column_mapping,
             marketplace.created_at
