@@ -816,12 +816,10 @@ function renderMpCategorySectionContent(marketplaceData) {
 
     const itemsHtml = items.map(item => {
         const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
-        const entityName = data.name || '';
         return `
             <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                 <div class="mp-item-header">
                     <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    <span>${escapeHtml(entityName)}</span>
                     ${actionButton({
                         action: 'unmap',
                         rowId: item.id,
@@ -830,7 +828,7 @@ function renderMpCategorySectionContent(marketplaceData) {
                 </div>
                 <div class="mp-item-fields">
                     <div class="form-grid form-grid-2">
-                        ${renderMpCategoryDataFields(data, item.external_id, entityName)}
+                        ${renderMpCategoryDataFields(data)}
                     </div>
                 </div>
             </div>
@@ -855,15 +853,13 @@ function renderMpCategorySectionContent(marketplaceData) {
     `;
 }
 
-function renderMpCategoryDataFields(data, externalId, entityName) {
-    const skipFields = ['id', 'name', 'our_category_id', 'our_cat_id'];
-    const dupValues = new Set([String(externalId || ''), entityName || ''].filter(Boolean));
+function renderMpCategoryDataFields(data) {
+    const skipFields = ['our_category_id', 'our_cat_id'];
     const fields = [];
 
     Object.entries(data).forEach(([key, value]) => {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
-        if (dupValues.has(String(value))) return;
         fields.push(`
             <div class="form-group">
                 <label>${escapeHtml(key)}</label>
