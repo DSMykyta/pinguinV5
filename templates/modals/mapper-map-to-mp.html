@@ -1,0 +1,41 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-small">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">Замапити до МП</h2>
+            <div class="modal-header-actions">
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="map-modal-marketplace">Маркетплейс</label>
+                    <select id="map-modal-marketplace" data-custom-select>
+                        <option value="">— Оберіть маркетплейс —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="map-modal-entity">Значення МП</label>
+                    <select id="map-modal-entity" data-custom-select disabled>
+                        <option value="">— Спочатку оберіть маркетплейс —</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal-close>Скасувати</button>
+            <button class="btn btn-primary" id="map-modal-confirm" disabled>Замапити</button>
+        </div>
+    </div>
+</div>
