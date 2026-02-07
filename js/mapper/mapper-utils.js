@@ -9,7 +9,8 @@
  */
 
 import { escapeHtml } from '../utils/text-utils.js';
-import { initCustomSelects } from '../common/ui-select.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
+import { showModal, closeModal } from '../common/ui-modal.js';
 
 /**
  * Ініціалізувати scroll-snap навігацію для fullscreen модалок
@@ -123,10 +124,16 @@ export function closeModalOverlay(modalOverlay) {
  */
 export function setupModalCloseHandlers(modalOverlay, onClose) {
     modalOverlay.querySelectorAll('.modal-close-btn').forEach(btn => {
-        btn.addEventListener('click', onClose);
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onClose();
+        });
     });
     modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) onClose();
+        if (e.target === modalOverlay) {
+            e.stopPropagation();
+            onClose();
+        }
     });
 }
 
@@ -190,73 +197,57 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
 
 /**
  * Показати модалку маппінгу до MP сутності
+ * Використовує стандартну систему модалів (showModal/closeModal)
+ * Шаблон: templates/modals/mapper-map-to-mp.html
+ *
  * @param {Object} opts
  * @param {Array} opts.marketplaces - Список маркетплейсів
  * @param {Function} opts.getMpEntities - Функція(marketplaceId) → масив MP сутностей
  * @param {Function} opts.getEntityLabel - Функція(mpEntity) → текст для відображення
  * @param {Function} opts.onMap - Callback(mpEntityId) при підтвердженні маппінгу
  */
-export function showMapToMpModal({ marketplaces, getMpEntities, getEntityLabel, onMap }) {
-    const html = `
-        <div class="modal-overlay is-open" data-map-modal>
-            <div class="modal-container modal-small">
-                <div class="modal-header">
-                    <h2 class="modal-title">Замапити до МП</h2>
-                    <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
-                            <div class="state-layer">
-                                <span class="material-symbols-outlined">close</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Маркетплейс</label>
-                            <select id="map-modal-marketplace" data-custom-select>
-                                <option value="">— Оберіть маркетплейс —</option>
-                                ${marketplaces.map(mp => `<option value="${escapeHtml(mp.id)}">${escapeHtml(mp.name || mp.id)}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Значення МП</label>
-                            <select id="map-modal-entity" data-custom-select disabled>
-                                <option value="">— Спочатку оберіть маркетплейс —</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
-                    <button class="btn btn-primary" id="map-modal-confirm" disabled>Замапити</button>
-                </div>
-            </div>
-        </div>
-    `;
+export async function showMapToMpModal({ marketplaces, getMpEntities, getEntityLabel, onMap }) {
+    const MODAL_ID = 'mapper-map-to-mp';
 
-    const overlay = createModalOverlay(html);
-    initCustomSelects(overlay);
+    await showModal(MODAL_ID);
 
-    const mpSelect = overlay.querySelector('#map-modal-marketplace');
-    const entitySelect = overlay.querySelector('#map-modal-entity');
-    const confirmBtn = overlay.querySelector('#map-modal-confirm');
+    const modalEl = document.getElementById(`modal-${MODAL_ID}`);
+    if (!modalEl) return;
 
-    mpSelect.addEventListener('change', () => {
+    // Заповнюємо маркетплейси
+    const mpSelect = modalEl.querySelector('#map-modal-marketplace');
+    const entitySelect = modalEl.querySelector('#map-modal-entity');
+    const confirmBtn = modalEl.querySelector('#map-modal-confirm');
+
+    mpSelect.innerHTML = '<option value="">— Оберіть маркетплейс —</option>';
+    marketplaces.forEach(mp => {
+        const opt = document.createElement('option');
+        opt.value = mp.id;
+        opt.textContent = mp.name || mp.id;
+        mpSelect.appendChild(opt);
+    });
+
+    entitySelect.innerHTML = '<option value="">— Спочатку оберіть маркетплейс —</option>';
+    entitySelect.disabled = true;
+    confirmBtn.disabled = true;
+
+    initCustomSelects(modalEl);
+
+    // Обробники
+    mpSelect.onchange = () => {
         const mpId = mpSelect.value;
-        entitySelect.innerHTML = '';
 
         if (!mpId) {
             entitySelect.innerHTML = '<option value="">— Спочатку оберіть маркетплейс —</option>';
             entitySelect.disabled = true;
             confirmBtn.disabled = true;
-            initCustomSelects(overlay);
+            reinitializeCustomSelect(entitySelect);
             return;
         }
 
         const entities = getMpEntities(mpId);
         entitySelect.disabled = false;
-        entitySelect.innerHTML = `<option value="">— Оберіть значення —</option>`;
+        entitySelect.innerHTML = '<option value="">— Оберіть значення —</option>';
         entities.forEach(entity => {
             const opt = document.createElement('option');
             opt.value = entity.id;
@@ -264,14 +255,15 @@ export function showMapToMpModal({ marketplaces, getMpEntities, getEntityLabel, 
             entitySelect.appendChild(opt);
         });
 
-        initCustomSelects(overlay);
-    });
+        reinitializeCustomSelect(entitySelect);
+        confirmBtn.disabled = true;
+    };
 
-    entitySelect.addEventListener('change', () => {
+    entitySelect.onchange = () => {
         confirmBtn.disabled = !entitySelect.value;
-    });
+    };
 
-    confirmBtn.addEventListener('click', async () => {
+    confirmBtn.onclick = async () => {
         const mpEntityId = entitySelect.value;
         if (!mpEntityId) return;
 
@@ -280,12 +272,15 @@ export function showMapToMpModal({ marketplaces, getMpEntities, getEntityLabel, 
 
         try {
             await onMap(mpEntityId);
-            closeModalOverlay(overlay);
+            closeModal(MODAL_ID);
         } catch (err) {
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Замапити';
         }
-    });
+    };
 
-    setupModalCloseHandlers(overlay, () => closeModalOverlay(overlay));
+    // data-modal-close кнопки
+    modalEl.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.onclick = () => closeModal(MODAL_ID);
+    });
 }
