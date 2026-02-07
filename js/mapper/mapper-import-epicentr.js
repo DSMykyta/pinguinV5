@@ -7,23 +7,28 @@
  * ║  🔌 ПЛАГІН — Адаптер імпорту довідника Епіцентр                         ║
  * ║                                                                          ║
  * ║  ФОРМАТ ФАЙЛУ:                                                          ║
- * ║  Назва: export-attribute-set_<CATEGORY_ID>.xlsx                         ║
+ * ║  Назва: export-attribute-set_<ATTRIBUTE_SET_ID>.xlsx                    ║
  * ║  Заголовки: рядок 1                                                     ║
- * ║  Колонки: ID | Назва | Тип | ID опції | Назва опції |                   ║
- * ║           Код атрибута | Код опції | Суфікс | Префікс                   ║
+ * ║  Колонки:                                                               ║
+ * ║    Характеристики: ID | Назва | Тип | Код атрибута | Суфікс | Префікс  ║
+ * ║    Опції: ID опції | Назва опції | Код опції                            ║
  * ║                                                                          ║
- * ║  Реалізує стандартний інтерфейс адаптера імпорту:                        ║
- * ║  - match(marketplace) — чи підходить цей адаптер для МП                 ║
- * ║  - getConfig() — конфігурація імпорту                                    ║
- * ║  - onFileLoaded(file, rawData, importState) — обробка файлу             ║
- * ║  - normalizeData(data, entityType) — нормалізація даних                 ║
- * ║  - getSystemFields() — поля для маппінгу                                ║
- * ║  - onBeforeImport(importState) — перед імпортом                         ║
+ * ║  ПОТІК ІМПОРТУ:                                                         ║
+ * ║  1. Обирається маркетплейс Епіцентр                                    ║
+ * ║  2. З'являється список категорій Епіцентру                              ║
+ * ║  3. Обирається категорія → з'являється завантаження файлу              ║
+ * ║  4. Імпорт: категорія → характеристики → опції (зв'язані)             ║
+ * ║                                                                          ║
+ * ║  attribute_set_id з назви файлу зберігається в JSON категорії.          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { showToast } from '../common/ui-toast.js';
 import { registerImportAdapter } from './mapper-import.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ДОПОМІЖНІ ФУНКЦІЇ
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Нормалізація ключів Epicentr з українських назв колонок у стандартні
@@ -56,76 +61,159 @@ function normalizeEpicentrData(data) {
 }
 
 /**
- * Парсинг категорії з назви файлу
- * Файл: export-attribute-set_5346.xlsx → category ID = 5346
+ * Парсинг attribute_set_id з назви файлу
+ * Файл: export-attribute-set_5346.xlsx → attribute_set_id = "5346"
  */
-function parseCategory(fileName) {
+function parseAttributeSetId(fileName) {
     const match = fileName.match(/export-attribute-set_(\d+)/i);
-    return {
-        id: match ? match[1] : null,
-        name: ''  // Назва категорії не міститься у файлі
-    };
+    return match ? match[1] : null;
 }
 
 /**
- * Показати інформацію про категорію
+ * Завантажити категорії Епіцентру
  */
-function showCategoryInfo(category, fileName) {
-    const filenameEl = document.getElementById('mapper-import-filename');
-    if (!filenameEl) return;
-
-    const existingInfo = document.getElementById('adapter-category-info');
-    if (existingInfo) existingInfo.remove();
-
-    const infoEl = document.createElement('div');
-    infoEl.id = 'adapter-category-info';
-    infoEl.style.textAlign = 'center';
-
-    if (fileName) {
-        filenameEl.textContent = '';
-        infoEl.innerHTML += `<h3>${fileName}</h3>`;
-    }
-
-    if (category?.id) {
-        infoEl.innerHTML += `<h2>Набір атрибутів: ${category.id}</h2>`;
-    }
-
-    filenameEl.insertAdjacentElement('afterend', infoEl);
+async function loadEpicentrCategories(marketplaceId) {
+    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
+    await loadMpCategories();
+    return getMpCategories().filter(c => c.marketplace_id === marketplaceId);
 }
 
 /**
- * Імпорт категорії з файлу (якщо ще не існує)
+ * Створити або оновити категорію з attribute_set_id
  */
-async function importCategory(category, marketplaceId) {
-    if (!category?.id) return;
-
+async function ensureCategory(category, attributeSetId, marketplaceId) {
     const { callSheetsAPI } = await import('../utils/api-client.js');
     const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
     await loadMpCategories();
 
     const existingCats = getMpCategories();
-    const alreadyExists = existingCats.some(c =>
-        c.marketplace_id === marketplaceId && c.external_id === category.id
-    );
 
-    if (alreadyExists) return;
+    // Якщо категорія вже обрана — оновити її JSON з attribute_set_id
+    if (category?.id) {
+        const existing = existingCats.find(c => c.id === category.id);
+        if (existing && attributeSetId) {
+            let catData = {};
+            try {
+                catData = typeof existing.data === 'string' ? JSON.parse(existing.data || '{}') : (existing.data || {});
+            } catch (e) {
+                catData = {};
+            }
 
+            // Додаємо attribute_set_id якщо його ще немає
+            const existingSets = catData.attribute_set_ids || [];
+            if (!existingSets.includes(attributeSetId)) {
+                existingSets.push(attributeSetId);
+                catData.attribute_set_ids = existingSets;
+
+                const timestamp = new Date().toISOString();
+                const range = `Mapper_MP_Categories!A${existing._rowIndex}:G${existing._rowIndex}`;
+                await callSheetsAPI('update', {
+                    range: range,
+                    values: [[
+                        existing.id,
+                        existing.marketplace_id,
+                        existing.external_id,
+                        existing.source || 'import',
+                        JSON.stringify(catData),
+                        existing.created_at,
+                        timestamp
+                    ]],
+                    spreadsheetType: 'main'
+                });
+            }
+        }
+        return;
+    }
+
+    // Створити нову категорію
+    const catName = category?.name || '';
+    const externalId = category?.external_id || `cat-${Date.now()}`;
     const timestamp = new Date().toISOString();
-    const uniqueId = `mpc-${marketplaceId}-cat-${category.id}`;
+    const uniqueId = `mpc-${marketplaceId}-cat-${externalId}`;
+
+    const catData = {
+        id: externalId,
+        name: catName
+    };
+    if (attributeSetId) {
+        catData.attribute_set_ids = [attributeSetId];
+    }
 
     await callSheetsAPI('append', {
         range: 'Mapper_MP_Categories!A:G',
         values: [[
             uniqueId,
             marketplaceId,
-            category.id,
+            externalId,
             'import',
-            JSON.stringify({ id: category.id, name: category.name || '' }),
+            JSON.stringify(catData),
             timestamp,
             timestamp
         ]],
         spreadsheetType: 'main'
     });
+
+    // Повертаємо створену категорію для подальшого використання
+    return { id: uniqueId, external_id: externalId, name: catName };
+}
+
+/**
+ * Побудувати UI вибору категорії
+ */
+function buildCategorySelectUI(categories, importState) {
+    const container = document.createElement('div');
+    container.id = 'adapter-extra-ui';
+    container.className = 'form-group';
+
+    const existingOptions = categories.map(cat => {
+        let catData = {};
+        try {
+            catData = typeof cat.data === 'string' ? JSON.parse(cat.data || '{}') : (cat.data || {});
+        } catch (e) { /* ignore */ }
+        const label = catData.name || cat.external_id || cat.id;
+        return `<option value="${cat.id}">${label} (#${cat.external_id})</option>`;
+    }).join('');
+
+    container.innerHTML = `
+        <label for="epicentr-category-select">
+            Категорія Епіцентру
+            <span class="required">*</span>
+        </label>
+        <select id="epicentr-category-select" data-custom-select placeholder="Оберіть категорію">
+            <option value="">-- Оберіть категорію --</option>
+            ${existingOptions}
+        </select>
+    `;
+
+    // Обробник вибору категорії
+    const select = container.querySelector('#epicentr-category-select');
+    select.addEventListener('change', () => {
+        const selectedId = select.value;
+        const fileGroup = document.getElementById('import-file-group');
+
+        if (selectedId) {
+            const selectedCat = categories.find(c => c.id === selectedId);
+            let catData = {};
+            try {
+                catData = typeof selectedCat.data === 'string' ? JSON.parse(selectedCat.data || '{}') : (selectedCat.data || {});
+            } catch (e) { /* ignore */ }
+
+            importState._adapterData = importState._adapterData || {};
+            importState._adapterData.category = {
+                id: selectedCat.id,
+                external_id: selectedCat.external_id,
+                name: catData.name || selectedCat.external_id
+            };
+
+            fileGroup?.classList.remove('u-hidden');
+        } else {
+            importState._adapterData = importState._adapterData || {};
+            importState._adapterData.category = null;
+            fileGroup?.classList.add('u-hidden');
+        }
+    });
+
+    return container;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -147,12 +235,28 @@ const epicentrAdapter = {
      */
     getConfig() {
         return {
-            dataType: 'adapter_pack',       // Спеціальний тип — адаптер керує всім
-            headerRow: 1,                    // Заголовки в рядку 1
-            hideDataTypeSelect: true,        // Ховаємо вибір типу даних
-            hideHeaderRowSelect: true,       // Ховаємо вибір рядка заголовків
-            hideMappingUI: true,             // Ховаємо UI маппінгу — все автоматично
+            dataType: 'adapter_pack',
+            headerRow: 1,
+            hideDataTypeSelect: true,
+            hideHeaderRowSelect: true,
+            hideMappingUI: true,
         };
+    },
+
+    /**
+     * Після вибору маркетплейсу — показати вибір категорії
+     */
+    async onMarketplaceSelected(importState, modalBody) {
+        const categories = await loadEpicentrCategories(importState.marketplaceId);
+        const fileGroup = document.getElementById('import-file-group');
+
+        // Вставляємо UI вибору категорії перед файловою групою
+        const categoryUI = buildCategorySelectUI(categories, importState);
+        fileGroup.insertAdjacentElement('beforebegin', categoryUI);
+
+        // Ініціалізуємо custom select
+        const { initCustomSelects } = await import('../common/ui-select.js');
+        initCustomSelects(categoryUI);
     },
 
     /**
@@ -172,10 +276,28 @@ const epicentrAdapter = {
      * Обробка завантаженого файлу
      */
     onFileLoaded(file, rawData, importState) {
-        const category = parseCategory(file.name);
-        importState._adapterData = { category };
+        const attributeSetId = parseAttributeSetId(file.name);
+        importState._adapterData = importState._adapterData || {};
+        importState._adapterData.attributeSetId = attributeSetId;
 
-        showCategoryInfo(category, file.name);
+        // Показати інфо про файл
+        const filenameEl = document.getElementById('mapper-import-filename');
+        if (filenameEl) {
+            const existingInfo = document.getElementById('adapter-category-info');
+            if (existingInfo) existingInfo.remove();
+
+            const infoEl = document.createElement('div');
+            infoEl.id = 'adapter-category-info';
+            infoEl.style.textAlign = 'center';
+            infoEl.innerHTML = `<h3>${file.name}</h3>`;
+            if (attributeSetId) {
+                infoEl.innerHTML += `<p>Набір атрибутів: <strong>${attributeSetId}</strong></p>`;
+            }
+
+            filenameEl.textContent = '';
+            filenameEl.insertAdjacentElement('afterend', infoEl);
+        }
+
         showToast(`Файл Епіцентр прочитано: ${rawData.length - 1} записів`, 'success');
     },
 
@@ -214,21 +336,28 @@ const epicentrAdapter = {
     },
 
     /**
-     * Перед імпортом — створити категорію з файлу
+     * Перед імпортом — зберегти attribute_set_id в JSON категорії
      */
     async onBeforeImport(importState, onProgress) {
         const category = importState._adapterData?.category;
-        if (category?.id) {
-            onProgress(15, 'Створення категорії...');
-            await importCategory(category, importState.marketplaceId);
+        const attributeSetId = importState._adapterData?.attributeSetId;
+
+        if (category && attributeSetId) {
+            onProgress(15, 'Оновлення категорії...');
+            await ensureCategory(category, attributeSetId, importState.marketplaceId);
         }
     },
 
     /**
-     * Отримати категорію для характеристик (замість маппінгу колонок)
+     * Отримати категорію для зв'язку з характеристиками
      */
     getCategory(importState) {
-        return importState._adapterData?.category || null;
+        const cat = importState._adapterData?.category;
+        if (!cat) return null;
+        return {
+            id: cat.external_id || cat.id,
+            name: cat.name || ''
+        };
     }
 };
 
