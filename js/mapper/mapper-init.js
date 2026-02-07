@@ -290,6 +290,7 @@ async function loadAsideMapper() {
                 // Завантажуємо адаптери маркетплейсів
                 await import('./mapper-import-rozetka.js');
                 await import('./mapper-import-epicentr.js');
+                await import('./mapper-import-etalon.js');
                 const { showImportModal } = await import('./mapper-import.js');
                 showImportModal();
             });

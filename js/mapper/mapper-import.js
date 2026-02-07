@@ -147,6 +147,13 @@ export async function showImportModal() {
 function populateMarketplaceSelect(select) {
     const marketplaces = getMarketplaces();
     select.innerHTML = '<option value="">— Оберіть маркетплейс —</option>';
+
+    // Спеціальна опція "Еталон" — імпорт у власні таблиці
+    const etalonOpt = document.createElement('option');
+    etalonOpt.value = '__etalon__';
+    etalonOpt.textContent = 'Еталон (власний довідник)';
+    select.appendChild(etalonOpt);
+
     marketplaces.forEach(mp => {
         if (mp.is_active === true || String(mp.is_active).toLowerCase() === 'true') {
             const option = document.createElement('option');
@@ -173,9 +180,14 @@ function handleMarketplaceChange(e) {
 
     importState.marketplaceId = selectedValue;
 
-    const marketplaces = getMarketplaces();
-    const mp = marketplaces.find(m => m.id === selectedValue);
-    importState.adapter = mp ? findAdapter(mp) : null;
+    // Еталон — спеціальний "маркетплейс"
+    if (selectedValue === '__etalon__') {
+        importState.adapter = findAdapter({ slug: 'etalon', name: 'Еталон' });
+    } else {
+        const marketplaces = getMarketplaces();
+        const mp = marketplaces.find(m => m.id === selectedValue);
+        importState.adapter = mp ? findAdapter(mp) : null;
+    }
 
     if (importState.adapter) {
         const config = importState.adapter.getConfig();
@@ -506,9 +518,15 @@ async function executeImport() {
         if (importState.adapter?.onBeforeImport) {
             await importState.adapter.onBeforeImport(importState, (p, m) => loader.updateProgress(p, m));
         }
-        await importCharacteristicsAndOptions((percent, msg) => {
-            loader.updateProgress(20 + percent * 0.75, msg);
-        });
+
+        // Адаптер може повністю замінити стандартний імпорт (напр. еталон)
+        if (importState.adapter?.executeImport) {
+            await importState.adapter.executeImport(importState, (p, m) => loader.updateProgress(p, m));
+        } else {
+            await importCharacteristicsAndOptions((percent, msg) => {
+                loader.updateProgress(20 + percent * 0.75, msg);
+            });
+        }
 
         loader.updateProgress(100, 'Імпорт завершено!');
 
