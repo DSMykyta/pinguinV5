@@ -289,6 +289,7 @@ async function loadAsideMapper() {
             importBtn.addEventListener('click', async () => {
                 // Завантажуємо адаптери маркетплейсів
                 await import('./mapper-import-rozetka.js');
+                await import('./mapper-import-epicentr.js');
                 const { showImportModal } = await import('./mapper-import.js');
                 showImportModal();
             });
