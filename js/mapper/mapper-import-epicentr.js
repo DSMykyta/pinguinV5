@@ -280,23 +280,15 @@ const epicentrAdapter = {
         importState._adapterData = importState._adapterData || {};
         importState._adapterData.attributeSetId = attributeSetId;
 
-        // Фільтруємо рядки брендів — вони не потрібні (характеристика + всі опції)
-        const headerRow = rawData[0];
-        if (headerRow) {
-            const attrCodeIdx = headerRow.findIndex(h =>
-                String(h || '').toLowerCase().trim() === 'код атрибута'
-            );
-            if (attrCodeIdx >= 0) {
-                const originalCount = rawData.length;
-                importState.rawData = rawData.filter((row, i) => {
-                    if (i === 0) return true; // зберігаємо заголовок
-                    return String(row[attrCodeIdx] || '').trim().toLowerCase() !== 'brand';
-                });
-                const skipped = originalCount - importState.rawData.length;
-                if (skipped > 0) {
-                    console.log(`Епіцентр: пропущено ${skipped} рядків брендів`);
-                }
-            }
+        // Фільтруємо рядки брендів — колонка 5 (Код атрибута) = "brand"
+        const originalCount = rawData.length;
+        importState.rawData = rawData.filter((row, i) => {
+            if (i === 0) return true; // зберігаємо заголовок
+            return String(row[5] || '').trim().toLowerCase() !== 'brand';
+        });
+        const skipped = originalCount - importState.rawData.length;
+        if (skipped > 0) {
+            console.log(`Епіцентр: пропущено ${skipped} рядків брендів`);
         }
 
         // Показати інфо про файл
