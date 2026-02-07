@@ -280,6 +280,25 @@ const epicentrAdapter = {
         importState._adapterData = importState._adapterData || {};
         importState._adapterData.attributeSetId = attributeSetId;
 
+        // Фільтруємо рядки брендів — вони не потрібні (характеристика + всі опції)
+        const headerRow = rawData[0];
+        if (headerRow) {
+            const attrCodeIdx = headerRow.findIndex(h =>
+                String(h || '').toLowerCase().trim() === 'код атрибута'
+            );
+            if (attrCodeIdx >= 0) {
+                const originalCount = rawData.length;
+                importState.rawData = rawData.filter((row, i) => {
+                    if (i === 0) return true; // зберігаємо заголовок
+                    return String(row[attrCodeIdx] || '').trim().toLowerCase() !== 'brand';
+                });
+                const skipped = originalCount - importState.rawData.length;
+                if (skipped > 0) {
+                    console.log(`Епіцентр: пропущено ${skipped} рядків брендів`);
+                }
+            }
+        }
+
         // Показати інфо про файл
         const filenameEl = document.getElementById('mapper-import-filename');
         if (filenameEl) {
@@ -298,11 +317,12 @@ const epicentrAdapter = {
             filenameEl.insertAdjacentElement('afterend', infoEl);
         }
 
-        showToast(`Файл Епіцентр прочитано: ${rawData.length - 1} записів`, 'success');
+        const dataCount = (importState.rawData || rawData).length - 1;
+        showToast(`Файл Епіцентр прочитано: ${dataCount} записів`, 'success');
     },
 
     /**
-     * Автомаппінг колонок
+     * Автомаппінг колонок (fallback)
      */
     getColumnPatterns() {
         return {
@@ -311,6 +331,22 @@ const epicentrAdapter = {
             char_type: ['тип', 'тип параметра', 'type'],
             option_id: ['id опції', 'option_id', 'value_id'],
             option_name: ['назва опції', 'option', 'value']
+        };
+    },
+
+    /**
+     * Фіксований маппінг колонок Епіцентру
+     * Структура файлу завжди однакова:
+     * 0: ID | 1: Назва | 2: Тип | 3: ID опції | 4: Назва опції |
+     * 5: Код атрибута | 6: Код опції | 7: Суфікс | 8: Префікс
+     */
+    getFixedMapping() {
+        return {
+            char_id: 0,
+            char_name: 1,
+            char_type: 2,
+            option_id: 3,
+            option_name: 4
         };
     },
 

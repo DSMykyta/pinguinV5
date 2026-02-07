@@ -282,6 +282,14 @@ function applyHeaderRowSilent() {
     // Автоматично визначаємо маппінг без показу UI
     autoDetectMappingSilent(headers);
 
+    // Адаптер може надати фіксований маппінг (надійніше за pattern-matching)
+    if (importState.adapter?.getFixedMapping) {
+        const fixedMapping = importState.adapter.getFixedMapping(headers);
+        if (fixedMapping) {
+            Object.assign(importState.mapping, fixedMapping);
+        }
+    }
+
     // Валідуємо імпорт (активує кнопку якщо все OK)
     validateImport();
 }
