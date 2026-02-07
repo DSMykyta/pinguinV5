@@ -184,29 +184,6 @@ export async function showEditOptionModal(id) {
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateOption(id);
     }
-
-    const mapBtn = document.getElementById('map-to-mp-option');
-    if (mapBtn) {
-        mapBtn.classList.remove('u-hidden');
-        mapBtn.onclick = () => {
-            const marketplaces = getMarketplaces();
-            showMapToMpModal({
-                marketplaces,
-                getMpEntities: (mpId) => getMpOptions().filter(o => o.marketplace_id === mpId),
-                getEntityLabel: (entity) => {
-                    const data = typeof entity.data === 'string' ? JSON.parse(entity.data || '{}') : (entity.data || {});
-                    return `#${entity.external_id} — ${data.name || entity.external_id}`;
-                },
-                onMap: async (mpOptionId) => {
-                    await createOptionMapping(id, mpOptionId);
-                    showToast('Маппінг створено', 'success');
-                    renderMappedMpOptionsSections(id);
-                    initSectionNavigation('option-section-navigator');
-                    renderCurrentTab();
-                }
-            });
-        };
-    }
 }
 
 async function showDeleteOptionConfirm(id) {
@@ -524,11 +501,9 @@ function renderMappedMpOptionsSections(ownOptionId) {
     content.querySelectorAll('section.mp-section').forEach(el => el.remove());
 
     const mappedMpOpts = getMappedMpOptions(ownOptionId);
-    if (mappedMpOpts.length === 0) return;
-
     const marketplaces = getMarketplaces();
-    const byMarketplace = {};
 
+    const byMarketplace = {};
     mappedMpOpts.forEach(mpOpt => {
         const mpId = mpOpt.marketplace_id;
         if (!byMarketplace[mpId]) {
@@ -543,29 +518,45 @@ function renderMappedMpOptionsSections(ownOptionId) {
 
     const navMain = nav.querySelector('.sidebar-nav-main');
     const navTarget = navMain || nav;
+    const navItem = document.createElement('a');
+    navItem.href = '#section-mp-options';
+    navItem.className = 'sidebar-nav-item mp-nav-item';
+    navItem.setAttribute('aria-label', 'Маркетплейси');
+    navItem.innerHTML = `
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="sidebar-nav-label">Маркетплейси${mappedMpOpts.length ? ` (${mappedMpOpts.length})` : ''}</span>
+    `;
+    navTarget.appendChild(navItem);
 
-    Object.entries(byMarketplace).forEach(([mpId, data]) => {
-        const navItem = document.createElement('a');
-        navItem.href = `#section-mp-opt-${mpId}`;
-        navItem.className = 'sidebar-nav-item mp-nav-item';
-        navItem.setAttribute('aria-label', data.name);
-        navItem.innerHTML = `
-            <span class="material-symbols-outlined">storefront</span>
-            <span class="sidebar-nav-label">${escapeHtml(data.name)} (${data.items.length})</span>
-        `;
-        navTarget.appendChild(navItem);
+    const section = document.createElement('section');
+    section.id = 'section-mp-options';
+    section.className = 'mp-section';
+    section.innerHTML = renderMpOptionsSectionContent(byMarketplace, mappedMpOpts.length);
+    content.appendChild(section);
 
-        const section = document.createElement('section');
-        section.id = `section-mp-opt-${mpId}`;
-        section.className = 'mp-section';
-        section.innerHTML = renderMpOptionSectionContent(data);
-        content.appendChild(section);
-    });
+    const mapBtn = section.querySelector('.btn-map-mp');
+    if (mapBtn) {
+        mapBtn.addEventListener('click', () => {
+            showMapToMpModal({
+                marketplaces,
+                getMpEntities: (mpId) => getMpOptions().filter(o => o.marketplace_id === mpId),
+                getEntityLabel: (entity) => {
+                    const data = typeof entity.data === 'string' ? JSON.parse(entity.data || '{}') : (entity.data || {});
+                    return `#${entity.external_id} — ${data.name || entity.external_id}`;
+                },
+                onMap: async (mpOptionId) => {
+                    await createOptionMapping(ownOptionId, mpOptionId);
+                    showToast('Маппінг створено', 'success');
+                    renderMappedMpOptionsSections(ownOptionId);
+                    initSectionNavigation('option-section-navigator');
+                    renderCurrentTab();
+                }
+            });
+        });
+    }
 
-    // Перезапускаємо навігацію щоб включити нові секції
     initSectionNavigation('option-section-navigator');
 
-    // Реєструємо обробник unmap з замиканням на ownOptionId
     registerActionHandlers('mp-option-mapping', {
         unmap: async (rowId, data) => {
             const mappingId = data.mappingId;
@@ -582,43 +573,48 @@ function renderMappedMpOptionsSections(ownOptionId) {
         }
     });
 
-    // Ініціалізуємо обробники дій
     initActionHandlers(content, 'mp-option-mapping');
 }
 
-function renderMpOptionSectionContent(marketplaceData) {
-    const { name, items } = marketplaceData;
-
-    const itemsHtml = items.map(item => {
-        const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
-        return `
-            <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
-                <div class="mp-item-header">
-                    <span class="mp-item-id">#${escapeHtml(item.external_id || item.id)}</span>
-                    ${actionButton({ action: 'unmap', rowId: item.id, data: { mappingId: item._mappingId } })}
-                </div>
-                <div class="mp-item-fields">
-                    <div class="form-grid form-grid-2">
-                        ${renderMpDataFields(data)}
+function renderMpOptionsSectionContent(byMarketplace, totalCount) {
+    const cardsHtml = Object.entries(byMarketplace).map(([mpId, { name, items }]) => {
+        return items.map(item => {
+            const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+            return `
+                <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
+                    <div class="mp-item-header">
+                        <span class="mp-item-id">${escapeHtml(name)}</span>
+                        ${actionButton({ action: 'unmap', rowId: item.id, data: { mappingId: item._mappingId } })}
+                    </div>
+                    <div class="mp-item-fields">
+                        <div class="form-grid form-grid-2">
+                            ${renderMpDataFields(data)}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        }).join('');
     }).join('');
 
     return `
-        <div class="section-header">
+        <div class="section-header u-align-end">
             <div class="section-name-block">
                 <div class="section-name">
-                    <h2>${escapeHtml(name)}</h2>
-                    <span class="word-chip">${items.length}</span>
+                    <h2>Маркетплейси</h2>
+                    <span class="word-chip">${totalCount}</span>
                 </div>
-                <h3>Прив'язані опції маркетплейсу</h3>
+                <h3>Прив'язані опції маркетплейсів</h3>
+            </div>
+            <div class="tab-controls">
+                <button class="btn btn-outline btn-map-mp">
+                    <span class="material-symbols-outlined">link</span>
+                    <span>Замапити</span>
+                </button>
             </div>
         </div>
         <div class="section-content">
             <div class="mp-items-list">
-                ${itemsHtml}
+                ${cardsHtml || '<p class="u-text-muted u-p-16">Немає прив\'язок</p>'}
             </div>
         </div>
     `;
