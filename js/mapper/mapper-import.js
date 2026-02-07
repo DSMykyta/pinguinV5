@@ -17,7 +17,7 @@
  * ║  ПІДТРИМУВАНІ ФОРМАТИ:                                                   ║
  * ║  - Excel (.xlsx, .xls)                                                   ║
  * ║  - CSV (.csv)                                                            ║
- * ║  - Rozetka XML (спеціальний формат)                                      ║
+ * ║  - Адаптери маркетплейсів (Rozetka, Epicentr, etc.)                       ║
  * ║                                                                          ║
  * ║  ЗАЛЕЖНОСТІ:                                                             ║
  * ║  - mapper-state.js (state, hooks)                                        ║
@@ -44,6 +44,26 @@ import { escapeHtml } from '../utils/text-utils.js';
 
 export const PLUGIN_NAME = 'mapper-import';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// АДАПТЕРИ МАРКЕТПЛЕЙСІВ
+// ═══════════════════════════════════════════════════════════════════════════
+
+const importAdapters = [];
+
+/**
+ * Реєстрація адаптера імпорту маркетплейса
+ */
+export function registerImportAdapter(adapter) {
+    importAdapters.push(adapter);
+}
+
+/**
+ * Знайти адаптер для маркетплейса
+ */
+function findAdapter(marketplace) {
+    return importAdapters.find(a => a.match(marketplace)) || null;
+}
+
 /**
  * Нормалізує значення is_global до 'TRUE' або 'FALSE'
  * @param {*} value - Будь-яке значення
@@ -54,43 +74,6 @@ function normalizeIsGlobal(value) {
     const strVal = String(value || '').toLowerCase().trim();
     const trueValues = ['true', '1', 'так', 'yes', '+', 'да'];
     return trueValues.includes(strVal) ? 'TRUE' : 'FALSE';
-}
-
-/**
- * Нормалізація ключів Rozetka з українських назв колонок CSV у стандартні англійські
- * Модифікує об'єкт data in-place
- */
-function normalizeRozetkaData(data) {
-    const keyMap = {
-        'ID параметра': null,
-        'Назва параметра': 'char_name',
-        'Тип параметра': 'type',
-        'Тип фільтра': 'filter_type',
-        'Одиниця вимірювання': 'unit',
-        'Одиниця виміру': 'unit',
-        'Наскрізниий параметр': 'is_global',
-        'Наскрізний параметр': 'is_global',
-        'ID значення': null,
-        'Назва значення': null,
-    };
-
-    for (const [origKey, newKey] of Object.entries(keyMap)) {
-        if (!(origKey in data)) continue;
-        if (newKey) {
-            data[newKey] = data[origKey];
-        }
-        delete data[origKey];
-    }
-
-    // Для характеристик char_name = name — дублікат, видаляємо
-    if (data.char_name && data.name && data.char_name === data.name) {
-        delete data.char_name;
-    }
-
-    // Нормалізуємо is_global: Так → TRUE, Ні → FALSE
-    if (data.is_global !== undefined) {
-        data.is_global = normalizeIsGlobal(data.is_global);
-    }
 }
 
 /**
@@ -126,9 +109,8 @@ let importState = {
     dataType: 'characteristics',
     importTarget: 'marketplace',  // 'marketplace' або 'own'
     headerRow: 1,       // Номер рядка із заголовками (1-based)
-    // Rozetka-специфічні поля
-    isRozetkaFormat: false,
-    rozetkaCategory: null  // { id, name } - категорія з файлу Rozetka
+    adapter: null,       // Адаптер маркетплейса (якщо є)
+    _adapterData: null   // Дані адаптера
 };
 
 /**
@@ -147,8 +129,8 @@ export async function showImportModal() {
         dataType: null,  // Користувач має обрати: categories, characteristics, options
         importTarget: 'marketplace',
         headerRow: 1,
-        isRozetkaFormat: false,
-        rozetkaCategory: null
+        adapter: null,
+        _adapterData: null
     };
 
     await showModal('mapper-import', null);
@@ -222,7 +204,7 @@ function handleMarketplaceChange(e) {
         // Обрано "Свій довідник"
         importState.importTarget = 'own';
         importState.marketplaceId = 'own';
-        importState.isRozetkaFormat = false;
+        importState.adapter = null;
         // Для власного довідника показуємо вибір типу даних
         if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
     } else {
@@ -230,22 +212,22 @@ function handleMarketplaceChange(e) {
         importState.importTarget = 'marketplace';
         importState.marketplaceId = selectedValue;
 
-        // Перевіряємо чи це Rozetka
+        // Шукаємо адаптер для цього маркетплейса
         const marketplaces = getMarketplaces();
         const mp = marketplaces.find(m => m.id === selectedValue);
-        const isRozetka = mp && (
-            mp.slug?.toLowerCase() === 'rozetka' ||
-            mp.name?.toLowerCase().includes('rozetka')
-        );
+        const adapter = mp ? findAdapter(mp) : null;
 
-        importState.isRozetkaFormat = isRozetka;
+        importState.adapter = adapter;
+        importState._adapterData = null;
 
-        if (isRozetka) {
-            // Для Rozetka ховаємо вибір типу - все визначається автоматично
-            if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
-            importState.dataType = 'rozetka_pack'; // Спеціальний тип для Rozetka
+        if (adapter) {
+            const config = adapter.getConfig();
+            if (config.hideDataTypeSelect) {
+                if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
+            }
+            importState.dataType = config.dataType || 'characteristics';
         } else {
-            // Для інших маркетплейсів показуємо вибір типу
+            // Для маркетплейсів без адаптера показуємо вибір типу
             if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
         }
 
@@ -253,7 +235,7 @@ function handleMarketplaceChange(e) {
 
     // Скидаємо маппінг при зміні призначення
     importState.mapping = {};
-    importState.rozetkaCategory = null;
+    importState._adapterData = null;
 
     // Перевіряємо чи є збережений маппінг для цього маркетплейса
     const hasSavedMapping = selectedValue && selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
@@ -397,20 +379,23 @@ async function handleFileSelect(file) {
         const rawData = await parseFileRaw(file);
         importState.rawData = rawData;
 
-        // Для Rozetka - парсимо категорію з файлу і пропускаємо налаштування
-        if (importState.isRozetkaFormat) {
-            parseRozetkaCategory(file.name, rawData);
-            // Для Rozetka заголовки в рядку 2
-            importState.headerRow = 2;
+        // Якщо є адаптер — делегуємо обробку йому
+        if (importState.adapter) {
+            const config = importState.adapter.getConfig();
+            importState.headerRow = config.headerRow || 1;
 
-            // Приховуємо елементи налаштування - не потрібні для Rozetka
-            document.getElementById('header-row-group')?.classList.add('u-hidden');
-            document.getElementById('import-step-2')?.classList.add('u-hidden');
+            if (config.hideHeaderRowSelect) {
+                document.getElementById('header-row-group')?.classList.add('u-hidden');
+            }
+            if (config.hideMappingUI) {
+                document.getElementById('import-step-2')?.classList.add('u-hidden');
+            }
 
-            // Застосовуємо рядок заголовків (це також виконає autoDetectMapping)
+            // Обробка файлу адаптером
+            importState.adapter.onFileLoaded(file, rawData, importState);
+
+            // Автоматичний маппінг
             applyHeaderRowSilent();
-
-            showToast(`Файл Rozetka прочитано: ${rawData.length - 2} записів`, 'success');
         } else {
             // Показуємо вибір рядка заголовків для інших форматів
             document.getElementById('header-row-group')?.classList.remove('u-hidden');
@@ -433,56 +418,6 @@ async function handleFileSelect(file) {
         console.error('❌ Помилка парсингу файлу:', error);
         showToast('Помилка читання файлу', 'error');
     }
-}
-
-/**
- * Парсинг категорії Rozetka з назви файлу та першого рядка
- * Файл: category_report_274390.xlsx
- * Рядок 1: "Натуральные добавки и экстракты"
- */
-function parseRozetkaCategory(fileName, rawData) {
-    // Витягуємо ID категорії з назви файлу
-    // Формат: category_report_274390.xlsx або category_report_274390
-    const match = fileName.match(/category_report_(\d+)/i);
-    const categoryId = match ? match[1] : null;
-
-    // Назва категорії - перший рядок, перша колонка
-    const categoryName = rawData[0]?.[0] || '';
-
-    importState.rozetkaCategory = {
-        id: categoryId,
-        name: categoryName.trim()
-    };
-
-
-    // Показуємо інформацію про категорію
-    showRozetkaCategoryInfo();
-}
-
-/**
- * Показати інформацію про категорію Rozetka
- */
-function showRozetkaCategoryInfo() {
-    const filenameEl = document.getElementById('mapper-import-filename');
-    if (!filenameEl || !importState.rozetkaCategory) return;
-
-    // Видаляємо попередню інформацію про категорію
-    const existingInfo = document.getElementById('rozetka-category-info');
-    if (existingInfo) existingInfo.remove();
-
-    const { id, name } = importState.rozetkaCategory;
-
-    const infoEl = document.createElement('div');
-    infoEl.id = 'rozetka-category-info';
-    infoEl.className = 'rozetka-category-info u-mt-8';
-    infoEl.innerHTML = `
-        <div class="info-badge info-badge-primary">
-            <span class="material-symbols-outlined">category</span>
-            <span><strong>Категорія:</strong> ${name || 'Не визначено'} ${id ? `(ID: ${id})` : ''}</span>
-        </div>
-    `;
-
-    filenameEl.insertAdjacentElement('afterend', infoEl);
 }
 
 /**
@@ -526,8 +461,8 @@ function applyHeaderRow() {
 }
 
 /**
- * Застосувати рядок заголовків без показу UI (для Rozetka формату)
- * Rozetka формат має фіксовану структуру, тому маппінг виконується автоматично
+ * Застосувати рядок заголовків без показу UI (для адаптерів)
+ * Формат з фіксованою структурою, маппінг виконується автоматично
  */
 function applyHeaderRowSilent() {
     const headerRow = importState.headerRow || 2;
@@ -556,20 +491,21 @@ function applyHeaderRowSilent() {
 }
 
 /**
- * Автоматичне визначення маппінгу без UI (для Rozetka формату)
+ * Автоматичне визначення маппінгу без UI (для адаптерів)
  */
 function autoDetectMappingSilent(headers) {
-    const patterns = {
-        char_id: ['id параметра', 'id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id', 'ідентифікатор параметра'],
-        char_name: ['назва параметра', 'назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
-        char_type: ['тип параметра', 'тип характеристики', 'param_type', 'attribute_type'],
-        char_filter_type: ['тип фільтра', 'filter_type', 'фільтр'],
-        char_unit: ['одиниця', 'одиниця виміру', 'unit', 'од.'],
+    // Отримуємо паттерни від адаптера або загальні
+    const patterns = importState.adapter?.getColumnPatterns?.() || {
+        char_id: ['id параметра', 'id характеристики', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id'],
+        char_name: ['назва параметра', 'назва характеристики', 'attribute', 'param_name', 'attribute_name'],
+        char_type: ['тип параметра', 'param_type', 'attribute_type'],
+        char_filter_type: ['тип фільтра', 'filter_type'],
+        char_unit: ['одиниця', 'одиниця виміру', 'unit'],
         char_is_global: ['наскрізний', 'глобальний', 'is_global', 'global'],
-        option_id: ['id значення', 'id опції', 'опція id', 'option_id', 'value_id'],
-        option_name: ['назва значення', 'назва опції', 'опція', 'option', 'value', 'значення'],
-        category_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
-        category_name: ['назва категорії', 'категорія', 'category', 'cat_name']
+        option_id: ['id значення', 'id опції', 'option_id', 'value_id'],
+        option_name: ['назва значення', 'назва опції', 'option', 'value', 'значення'],
+        category_id: ['id категорії', 'category_id', 'cat_id'],
+        category_name: ['назва категорії', 'category', 'cat_name']
     };
 
     const availableFields = getSystemFields().map(f => f.key);
@@ -596,7 +532,6 @@ function autoDetectMappingSilent(headers) {
     });
 
     importState.mapping = detectedMapping;
-    console.log('🔄 Rozetka auto-mapping:', detectedMapping);
 }
 
 /**
@@ -702,6 +637,11 @@ function parseExcelRaw(file) {
  * Отримати доступні поля системи в залежності від типу імпорту
  */
 function getSystemFields() {
+    // Якщо є адаптер — він визначає поля
+    if (importState.adapter?.getSystemFields) {
+        return importState.adapter.getSystemFields();
+    }
+
     const fields = {
         // Дані маркетплейса - характеристики + опції
         marketplace_characteristics: [
@@ -724,8 +664,6 @@ function getSystemFields() {
             { key: 'parent_name', label: 'Назва батьківської категорії', required: false }
         ],
         // Свій довідник - характеристики + опції
-        // Поля БД: id, name_ua, name_ru, type, unit, filter_type, is_global, category_ids, block_number, created_at
-        // id та created_at генеруються автоматично
         own_characteristics: [
             { key: 'own_char_name_ua', label: 'name_ua (Назва UA)', required: true },
             { key: 'own_char_name_ru', label: 'name_ru (Назва RU)', required: false },
@@ -739,22 +677,10 @@ function getSystemFields() {
             { key: 'own_option_parent_id', label: 'Опція: parent_option_id', required: false }
         ],
         // Свій довідник - категорії
-        // id та created_at генеруються автоматично
         own_categories: [
             { key: 'own_cat_name_ua', label: 'Назва категорії (UA)', required: true },
             { key: 'own_cat_name_ru', label: 'Назва категорії (RU)', required: false },
             { key: 'own_cat_parent', label: 'Батьківська категорія', required: false }
-        ],
-        // Rozetka пакет - характеристики + опції (категорія береться з файлу автоматично)
-        marketplace_rozetka_pack: [
-            { key: 'char_id', label: 'ID характеристики', required: true },
-            { key: 'char_name', label: 'Назва характеристики', required: true },
-            { key: 'char_type', label: 'Тип параметра', required: false },
-            { key: 'char_filter_type', label: 'Тип фільтра', required: false },
-            { key: 'char_unit', label: 'Одиниця виміру', required: false },
-            { key: 'char_is_global', label: 'Наскрізний параметр', required: false },
-            { key: 'option_id', label: 'ID опції/значення', required: false },
-            { key: 'option_name', label: 'Назва опції/значення', required: false }
         ]
     };
 
@@ -1144,11 +1070,13 @@ async function executeImport() {
         // Виконати імпорт даних з передачею функції прогресу
         if (importState.importTarget === 'marketplace') {
             // Імпорт для маркетплейса
-            if (importState.dataType === 'characteristics' || importState.dataType === 'rozetka_pack') {
-                // Для rozetka_pack також спочатку імпортуємо категорію якщо є
-                if (importState.isRozetkaFormat && importState.rozetkaCategory) {
-                    loader.updateProgress(15, 'Створення категорії...');
-                    await importRozetkaCategory();
+            const isCharImport = importState.dataType === 'characteristics' ||
+                (importState.adapter && importState.dataType === 'adapter_pack');
+
+            if (isCharImport) {
+                // Викликаємо адаптер перед імпортом (напр. створення категорії)
+                if (importState.adapter?.onBeforeImport) {
+                    await importState.adapter.onBeforeImport(importState, (p, m) => loader.updateProgress(p, m));
                 }
                 await importCharacteristicsAndOptions((percent, msg) => {
                     loader.updateProgress(20 + percent * 0.75, msg);
@@ -1243,10 +1171,8 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     const categoryIdCol = m.category_id;
     const categoryNameCol = m.category_name;
 
-    // Для Rozetka - категорія береться з файлу автоматично
-    const rozetkaCategory = importState.isRozetkaFormat && importState.rozetkaCategory
-        ? importState.rozetkaCategory
-        : null;
+    // Адаптер може надати категорію (напр. з назви файлу)
+    const adapterCategory = importState.adapter?.getCategory?.(importState) || null;
 
     const mpCharacteristics = new Map(); // mp_char_id -> характеристика
     const mpOptions = [];
@@ -1258,12 +1184,12 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
         if (charId && charName) {
             // Додаємо/оновлюємо характеристику
             if (!mpCharacteristics.has(charId)) {
-                // Для Rozetka використовуємо категорію з файлу, інакше з маппінгу
-                const catId = rozetkaCategory
-                    ? rozetkaCategory.id
+                // Адаптер може надати категорію, інакше з маппінгу
+                const catId = adapterCategory
+                    ? adapterCategory.id
                     : (categoryIdCol !== undefined ? String(row[categoryIdCol] || '').trim() : '');
-                const catName = rozetkaCategory
-                    ? rozetkaCategory.name
+                const catName = adapterCategory
+                    ? adapterCategory.name
                     : (categoryNameCol !== undefined ? String(row[categoryNameCol] || '').trim() : '');
 
                 // Збираємо всі замапплені поля характеристики з рядка
@@ -1441,9 +1367,9 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 data.is_global = normalizeIsGlobal(c.mp_char_is_global);
             }
 
-            // Нормалізуємо ключі Rozetka
-            if (importState.isRozetkaFormat) {
-                normalizeRozetkaData(data);
+            // Нормалізація через адаптер
+            if (importState.adapter?.normalizeCharacteristicData) {
+                importState.adapter.normalizeCharacteristicData(data);
             }
 
             const dataJson = JSON.stringify(data);
@@ -1486,14 +1412,9 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
                 ...(o._rawData || {})
             };
 
-            // Нормалізуємо ключі Rozetka
-            if (importState.isRozetkaFormat) {
-                normalizeRozetkaData(data);
-                // Видаляємо поля характеристики — вони не належать опції
-                delete data.type;
-                delete data.filter_type;
-                delete data.unit;
-                delete data.is_global;
+            // Нормалізація через адаптер
+            if (importState.adapter?.normalizeOptionData) {
+                importState.adapter.normalizeOptionData(data);
             }
 
             const dataJson = JSON.stringify(data);
@@ -1518,62 +1439,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
     }
 
     onProgress(100, 'Готово!');
-}
-
-/**
- * Імпорт категорії з Rozetka файлу (категорія береться з назви файлу та першого рядка)
- */
-async function importRozetkaCategory() {
-    const { callSheetsAPI } = await import('../utils/api-client.js');
-
-    if (!importState.rozetkaCategory) {
-        return;
-    }
-
-    const { id: catId, name: catName } = importState.rozetkaCategory;
-
-    if (!catId || !catName) {
-        return;
-    }
-
-
-    // Перевіряємо чи категорія вже існує
-    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
-    await loadMpCategories();
-
-    const existingCats = getMpCategories();
-    const alreadyExists = existingCats.some(c =>
-        c.marketplace_id === importState.marketplaceId &&
-        c.external_id === catId
-    );
-
-    if (alreadyExists) {
-        return;
-    }
-
-    // Створюємо категорію
-    const timestamp = new Date().toISOString();
-    const uniqueId = `mpc-${importState.marketplaceId}-cat-${catId}`;
-
-    const dataJson = JSON.stringify({
-        id: catId,
-        name: catName
-    });
-
-    await callSheetsAPI('append', {
-        range: 'Mapper_MP_Categories!A:G',
-        values: [[
-            uniqueId,
-            importState.marketplaceId,
-            catId,
-            'import',
-            dataJson,
-            timestamp,
-            timestamp
-        ]],
-        spreadsheetType: 'main'
-    });
-
 }
 
 /**
