@@ -30,7 +30,7 @@ import {
     addOption, updateOption, deleteOption, getOptions,
     getCharacteristics, getMarketplaces,
     getMpOptions, getMappedMpOptions,
-    batchCreateOptionMapping, deleteOptionMapping,
+    createOptionMapping, batchCreateOptionMapping, deleteOptionMapping,
     autoMapOptions
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
@@ -45,7 +45,8 @@ import {
     createModalOverlay,
     closeModalOverlay,
     setupModalCloseHandlers,
-    buildMpViewModal
+    buildMpViewModal,
+    showMapToMpModal
 } from './mapper-utils.js';
 import { renderPseudoTable } from '../common/ui-table.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
@@ -182,6 +183,29 @@ export async function showEditOptionModal(id) {
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {
         saveBtn.onclick = () => handleUpdateOption(id);
+    }
+
+    const mapBtn = document.getElementById('map-to-mp-option');
+    if (mapBtn) {
+        mapBtn.classList.remove('u-hidden');
+        mapBtn.onclick = () => {
+            const marketplaces = getMarketplaces();
+            showMapToMpModal({
+                marketplaces,
+                getMpEntities: (mpId) => getMpOptions().filter(o => o.marketplace_id === mpId),
+                getEntityLabel: (entity) => {
+                    const data = typeof entity.data === 'string' ? JSON.parse(entity.data || '{}') : (entity.data || {});
+                    return `#${entity.external_id} — ${data.name || entity.external_id}`;
+                },
+                onMap: async (mpOptionId) => {
+                    await createOptionMapping(id, mpOptionId);
+                    showToast('Маппінг створено', 'success');
+                    renderMappedMpOptionsSections(id);
+                    initSectionNavigation('option-section-navigator');
+                    renderCurrentTab();
+                }
+            });
+        };
     }
 }
 
