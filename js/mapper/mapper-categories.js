@@ -251,7 +251,7 @@ async function handleUpdateCategory(id) {
 
 function getCategoryFormData() {
     const groupingYes = document.getElementById('mapper-category-grouping-yes');
-    const isGrouping = groupingYes?.checked ? 'true' : 'false';
+    const isGrouping = groupingYes?.checked ? 'TRUE' : 'FALSE';
 
     return {
         name_ua: document.getElementById('mapper-category-name-ua')?.value.trim() || '',

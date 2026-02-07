@@ -265,7 +265,7 @@ function getCharacteristicFormData() {
         : [];
 
     const globalYes = document.getElementById('mapper-char-global-yes');
-    const isGlobal = globalYes?.checked ?? false;
+    const isGlobal = globalYes?.checked ? 'TRUE' : 'FALSE';
 
     return {
         name_ua: document.getElementById('mapper-char-name-ua')?.value.trim() || '',
