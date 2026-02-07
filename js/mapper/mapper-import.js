@@ -225,10 +225,19 @@ function handleMarketplaceChange(e) {
             if (config.hideDataTypeSelect) {
                 if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
             }
+            if (config.hideMappingUI) {
+                document.getElementById('import-step-2')?.classList.add('u-hidden');
+            }
+            if (config.hideHeaderRowSelect) {
+                document.getElementById('header-row-group')?.classList.add('u-hidden');
+            }
+            document.getElementById('mapper-import-preview')?.classList.add('u-hidden');
             importState.dataType = config.dataType || 'characteristics';
         } else {
             // Для маркетплейсів без адаптера показуємо вибір типу
             if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
+            document.getElementById('import-step-2')?.classList.remove('u-hidden');
+            document.getElementById('header-row-group')?.classList.remove('u-hidden');
         }
 
     }
@@ -237,19 +246,27 @@ function handleMarketplaceChange(e) {
     importState.mapping = {};
     importState._adapterData = null;
 
-    // Перевіряємо чи є збережений маппінг для цього маркетплейса
-    const hasSavedMapping = selectedValue && selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
+    // Очищуємо інфо адаптера
+    document.getElementById('adapter-category-info')?.remove();
 
-    // Оновлюємо секції (створює селекти), пропускаємо автодетект якщо є збережений маппінг
-    updateMappingSections(hasSavedMapping);
+    if (importState.adapter) {
+        // Адаптер керує всім — тільки валідуємо
+        validateImport();
+    } else {
+        // Перевіряємо чи є збережений маппінг для цього маркетплейса
+        const hasSavedMapping = selectedValue && selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
 
-    // Завантажуємо збережений маппінг (якщо є) і застосовуємо до селектів
-    if (hasSavedMapping) {
-        loadSavedMapping(selectedValue);
+        // Оновлюємо секції (створює селекти), пропускаємо автодетект якщо є збережений маппінг
+        updateMappingSections(hasSavedMapping);
+
+        // Завантажуємо збережений маппінг (якщо є) і застосовуємо до селектів
+        if (hasSavedMapping) {
+            loadSavedMapping(selectedValue);
+        }
+
+        validateImport();
+        updatePreviewTable();
     }
-
-    validateImport();
-    updatePreviewTable();
 }
 
 function handleDataTypeChange(e) {
@@ -384,14 +401,7 @@ async function handleFileSelect(file) {
             const config = importState.adapter.getConfig();
             importState.headerRow = config.headerRow || 1;
 
-            if (config.hideHeaderRowSelect) {
-                document.getElementById('header-row-group')?.classList.add('u-hidden');
-            }
-            if (config.hideMappingUI) {
-                document.getElementById('import-step-2')?.classList.add('u-hidden');
-            }
-
-            // Обробка файлу адаптером
+            // Обробка файлу адаптером (показує інфо категорії тощо)
             importState.adapter.onFileLoaded(file, rawData, importState);
 
             // Автоматичний маппінг
