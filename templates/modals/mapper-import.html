@@ -16,66 +16,63 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <!-- Крок 1: Вибір призначення та файлу -->
-            <fieldset class="form-fieldset" id="import-step-1">
-                <legend>Крок 1: Вибір файлу</legend>
+            <!-- Вибір призначення -->
+            <div class="form-group">
+                <label for="mapper-import-marketplace">
+                    Призначення імпорту
+                    <span class="required">*</span>
+                </label>
+                <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть призначення" required>
+                    <option value="">— Оберіть призначення —</option>
+                    <option value="own">Свій довідник</option>
+                    <!-- Маркетплейси додаються динамічно -->
+                </select>
+                <p class="form-hint">Куди імпортувати дані</p>
+            </div>
 
-                <div class="grid2">
-                    <div class="form-group">
-                        <label for="mapper-import-marketplace">
-                            Призначення імпорту
-                            <span class="required">*</span>
-                        </label>
-                        <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть призначення" required>
-                            <option value="">— Оберіть призначення —</option>
-                            <option value="own">Свій довідник</option>
-                            <!-- Маркетплейси додаються динамічно -->
-                        </select>
-                        <p class="form-hint">Куди імпортувати дані</p>
-                    </div>
+            <!-- Тип даних — видимий тільки для свого довідника / маркетплейсів без адаптера -->
+            <div class="form-group u-hidden" id="import-datatype-group">
+                <label for="mapper-import-datatype">
+                    Тип даних
+                    <span class="required">*</span>
+                </label>
+                <select id="mapper-import-datatype" data-custom-select placeholder="Оберіть тип" required>
+                    <option value="">— Оберіть тип —</option>
+                    <option value="categories">Категорії</option>
+                    <option value="characteristics">Характеристики</option>
+                    <option value="options">Опції</option>
+                </select>
+                <p class="form-hint">Що імпортуємо</p>
+            </div>
 
-                    <div class="form-group">
-                        <label for="mapper-import-datatype">
-                            Тип даних
-                            <span class="required">*</span>
-                        </label>
-                        <select id="mapper-import-datatype" data-custom-select placeholder="Оберіть тип" required>
-                            <option value="">— Оберіть тип —</option>
-                            <option value="categories">Категорії</option>
-                            <option value="characteristics">Характеристики</option>
-                            <option value="options">Опції</option>
-                        </select>
-                        <p class="form-hint">Що імпортуємо</p>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Файл для імпорту</label>
-                    <div id="mapper-import-dropzone" class="drop-zone drop-zone-compact">
-                        <div class="drop-zone-content">
-                            <span class="material-symbols-outlined drop-zone-icon">upload_file</span>
-                            <div class="drop-zone-text-wrap">
-                                <p class="drop-zone-text">Перетягніть файл сюди або клікніть для вибору</p>
-                                <p class="drop-zone-hint">CSV, XLSX, XLS</p>
-                            </div>
+            <!-- Файл — видимий після вибору призначення -->
+            <div class="form-group u-hidden" id="import-file-group">
+                <label>Файл для імпорту</label>
+                <div id="mapper-import-dropzone" class="drop-zone drop-zone-compact">
+                    <div class="drop-zone-content">
+                        <span class="material-symbols-outlined drop-zone-icon">upload_file</span>
+                        <div class="drop-zone-text-wrap">
+                            <p class="drop-zone-text">Перетягніть файл сюди або клікніть для вибору</p>
+                            <p class="drop-zone-hint">CSV, XLSX, XLS</p>
                         </div>
-                        <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
                     </div>
-                    <div id="mapper-import-filename" class="file-name u-mt-8"></div>
+                    <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
                 </div>
+                <div id="mapper-import-filename" class="file-name u-mt-8"></div>
+            </div>
 
-                <div class="form-row u-hidden" id="header-row-group">
-                    <div class="form-group form-group-inline">
-                        <label for="mapper-import-header-row">Рядок із заголовками</label>
-                        <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
-                        <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">Застосувати</button>
-                    </div>
+            <!-- Рядок заголовків — тільки для ручного маппінгу -->
+            <div class="form-row u-hidden" id="header-row-group">
+                <div class="form-group form-group-inline">
+                    <label for="mapper-import-header-row">Рядок із заголовками</label>
+                    <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
+                    <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">Застосувати</button>
                 </div>
-            </fieldset>
+            </div>
 
-            <!-- Крок 2: Налаштування маппінгу колонок -->
+            <!-- Налаштування маппінгу колонок -->
             <fieldset class="form-fieldset u-hidden" id="import-step-2">
-                <legend>Крок 2: Налаштування колонок</legend>
+                <legend>Налаштування колонок</legend>
 
                 <div class="mapping-info">
                     <span class="material-symbols-outlined">info</span>
@@ -100,7 +97,7 @@
                 </div>
             </fieldset>
 
-            <!-- Крок 3: Попередній перегляд -->
+            <!-- Попередній перегляд -->
             <div id="mapper-import-preview" class="import-preview u-hidden">
                 <div class="preview-header">
                     <h3>Попередній перегляд</h3>

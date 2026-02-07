@@ -198,75 +198,64 @@ function populateMarketplaceSelect(select) {
 
 function handleMarketplaceChange(e) {
     const selectedValue = e.target.value;
-    const dataTypeGroup = document.getElementById('mapper-import-datatype')?.closest('.form-group');
+    const dataTypeGroup = document.getElementById('import-datatype-group');
+    const fileGroup = document.getElementById('import-file-group');
+
+    // Скидаємо стан
+    importState.mapping = {};
+    importState._adapterData = null;
+    importState.adapter = null;
+    document.getElementById('adapter-category-info')?.remove();
+
+    // Ховаємо все, крім маркетплейс-селекту
+    dataTypeGroup?.classList.add('u-hidden');
+    fileGroup?.classList.add('u-hidden');
+    document.getElementById('header-row-group')?.classList.add('u-hidden');
+    document.getElementById('import-step-2')?.classList.add('u-hidden');
+    document.getElementById('mapper-import-preview')?.classList.add('u-hidden');
+
+    if (!selectedValue) return;
 
     if (selectedValue === 'own') {
-        // Обрано "Свій довідник"
+        // Свій довідник: тип даних + dropzone + повний flow
         importState.importTarget = 'own';
         importState.marketplaceId = 'own';
-        importState.adapter = null;
-        // Для власного довідника показуємо вибір типу даних
-        if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
+        dataTypeGroup?.classList.remove('u-hidden');
+        fileGroup?.classList.remove('u-hidden');
     } else {
-        // Обрано маркетплейс
+        // Маркетплейс
         importState.importTarget = 'marketplace';
         importState.marketplaceId = selectedValue;
 
-        // Шукаємо адаптер для цього маркетплейса
         const marketplaces = getMarketplaces();
         const mp = marketplaces.find(m => m.id === selectedValue);
         const adapter = mp ? findAdapter(mp) : null;
 
         importState.adapter = adapter;
-        importState._adapterData = null;
 
         if (adapter) {
+            // Адаптер (Rozetka): тільки dropzone
             const config = adapter.getConfig();
-            if (config.hideDataTypeSelect) {
-                if (dataTypeGroup) dataTypeGroup.classList.add('u-hidden');
-            }
-            if (config.hideMappingUI) {
-                document.getElementById('import-step-2')?.classList.add('u-hidden');
-            }
-            if (config.hideHeaderRowSelect) {
-                document.getElementById('header-row-group')?.classList.add('u-hidden');
-            }
-            document.getElementById('mapper-import-preview')?.classList.add('u-hidden');
             importState.dataType = config.dataType || 'characteristics';
+            fileGroup?.classList.remove('u-hidden');
         } else {
-            // Для маркетплейсів без адаптера показуємо вибір типу
-            if (dataTypeGroup) dataTypeGroup.classList.remove('u-hidden');
-            document.getElementById('import-step-2')?.classList.remove('u-hidden');
-            document.getElementById('header-row-group')?.classList.remove('u-hidden');
+            // Маркетплейс без адаптера: тип даних + dropzone + повний flow
+            dataTypeGroup?.classList.remove('u-hidden');
+            fileGroup?.classList.remove('u-hidden');
         }
-
     }
 
-    // Скидаємо маппінг при зміні призначення
-    importState.mapping = {};
-    importState._adapterData = null;
-
-    // Очищуємо інфо адаптера
-    document.getElementById('adapter-category-info')?.remove();
-
-    if (importState.adapter) {
-        // Адаптер керує всім — тільки валідуємо
-        validateImport();
-    } else {
-        // Перевіряємо чи є збережений маппінг для цього маркетплейса
-        const hasSavedMapping = selectedValue && selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
-
-        // Оновлюємо секції (створює селекти), пропускаємо автодетект якщо є збережений маппінг
+    if (!importState.adapter) {
+        // Для не-адаптерного flow — перевіряємо збережений маппінг
+        const hasSavedMapping = selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
         updateMappingSections(hasSavedMapping);
-
-        // Завантажуємо збережений маппінг (якщо є) і застосовуємо до селектів
         if (hasSavedMapping) {
             loadSavedMapping(selectedValue);
         }
-
-        validateImport();
         updatePreviewTable();
     }
+
+    validateImport();
 }
 
 function handleDataTypeChange(e) {
