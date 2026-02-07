@@ -356,6 +356,7 @@ function getCategoriesColumns(allCategories) {
             id: 'parent_id',
             label: 'Батьківська',
             sortable: true,
+            filterable: true,
             render: (value, row) => {
                 if (!value) return '-';
                 const parent = allCategories.find(c => c.id === value);
@@ -1566,6 +1567,7 @@ function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
+            { id: 'parent_id', label: 'Батьківська', filterType: 'values', labelMap: getCategoryLabelMap() },
             { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
         ],
         characteristics: [
