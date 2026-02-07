@@ -141,7 +141,7 @@ function createBindingsColumn(entityType) {
         render: (value, row) => {
             // Тільки для власних записів показуємо прив'язки
             if (row._source !== 'own') {
-                return '<span class="chip" style="opacity:0.5">-</span>';
+                return '';
             }
 
             const bindingsInfo = getBindingsInfo(entityType, row.id);
@@ -316,6 +316,7 @@ function getCategoriesColumns(allCategories) {
             label: 'Рів.',
             className: 'cell-xs cell-center',
             render: (value, row) => {
+                if (row._source !== 'own') return '';
                 let level = 0;
                 let current = row;
                 const path = [row.name_ua || row.id];
