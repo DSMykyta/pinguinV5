@@ -82,24 +82,26 @@ function parseCategory(fileName, rawData) {
 /**
  * Показати інформацію про категорію
  */
-function showCategoryInfo(category) {
+function showCategoryInfo(category, fileName) {
     const filenameEl = document.getElementById('mapper-import-filename');
-    if (!filenameEl || !category) return;
+    if (!filenameEl) return;
 
-    const existingInfo = document.getElementById('rozetka-category-info');
+    const existingInfo = document.getElementById('adapter-category-info');
     if (existingInfo) existingInfo.remove();
 
-    const { id, name } = category;
-
     const infoEl = document.createElement('div');
-    infoEl.id = 'rozetka-category-info';
-    infoEl.className = 'rozetka-category-info u-mt-8';
-    infoEl.innerHTML = `
-        <div class="info-badge info-badge-primary">
-            <span class="material-symbols-outlined">category</span>
-            <span><strong>Категорія:</strong> ${name || 'Не визначено'} ${id ? `(ID: ${id})` : ''}</span>
-        </div>
-    `;
+    infoEl.id = 'adapter-category-info';
+    infoEl.style.textAlign = 'center';
+
+    if (fileName) {
+        filenameEl.textContent = '';
+        infoEl.innerHTML += `<h3>${fileName}</h3>`;
+    }
+
+    if (category) {
+        const { id, name } = category;
+        infoEl.innerHTML += `<h2>Категорія: ${name || 'Не визначено'} ${id ? `(ID: ${id})` : ''}</h2>`;
+    }
 
     filenameEl.insertAdjacentElement('afterend', infoEl);
 }
@@ -189,9 +191,7 @@ const rozetkaAdapter = {
         const category = parseCategory(file.name, rawData);
         importState._adapterData = { category };
 
-        // Показуємо інфо-бейдж
-        showCategoryInfo(category);
-
+        showCategoryInfo(category, file.name);
         showToast(`Файл Rozetka прочитано: ${rawData.length - 2} записів`, 'success');
     },
 

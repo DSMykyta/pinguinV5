@@ -571,10 +571,8 @@ function getCharacteristicsColumns(categoriesList) {
                     return `<span class="chip" data-tooltip="Не прив'язано до категорій" data-tooltip-always>0</span>`;
                 }
 
-                const categoryNames = categoryIdsList.map(id => {
-                    const cat = categoriesList.find(c => c.id === id);
-                    return cat ? cat.name_ua : id;
-                }).join('\n');
+                const labelMap = getCategoryLabelMap();
+                const categoryNames = categoryIdsList.map(id => labelMap[id] || id).join('\n');
 
                 return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
             }
