@@ -16,36 +16,19 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <!-- Вибір призначення -->
+            <!-- Вибір маркетплейсу -->
             <div class="form-group">
                 <label for="mapper-import-marketplace">
-                    Призначення імпорту
+                    Маркетплейс
                     <span class="required">*</span>
                 </label>
-                <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть призначення" required>
-                    <option value="">— Оберіть призначення —</option>
-                    <option value="own">Свій довідник</option>
+                <select id="mapper-import-marketplace" data-custom-select placeholder="Оберіть маркетплейс" required>
+                    <option value="">— Оберіть маркетплейс —</option>
                     <!-- Маркетплейси додаються динамічно -->
                 </select>
-                <p class="form-hint">Куди імпортувати дані</p>
             </div>
 
-            <!-- Тип даних — видимий тільки для свого довідника / маркетплейсів без адаптера -->
-            <div class="form-group u-hidden" id="import-datatype-group">
-                <label for="mapper-import-datatype">
-                    Тип даних
-                    <span class="required">*</span>
-                </label>
-                <select id="mapper-import-datatype" data-custom-select placeholder="Оберіть тип" required>
-                    <option value="">— Оберіть тип —</option>
-                    <option value="categories">Категорії</option>
-                    <option value="characteristics">Характеристики</option>
-                    <option value="options">Опції</option>
-                </select>
-                <p class="form-hint">Що імпортуємо</p>
-            </div>
-
-            <!-- Файл — видимий після вибору призначення -->
+            <!-- Файл — видимий після вибору маркетплейсу -->
             <div class="form-group u-hidden" id="import-file-group">
                 <label>Файл для імпорту</label>
                 <div id="mapper-import-dropzone" class="drop-zone drop-zone-compact">
@@ -59,69 +42,6 @@
                     <input type="file" id="mapper-import-file" accept=".csv,.xlsx,.xls" hidden>
                 </div>
                 <div id="mapper-import-filename" class="file-name u-mt-8"></div>
-            </div>
-
-            <!-- Рядок заголовків — тільки для ручного маппінгу -->
-            <div class="form-row u-hidden" id="header-row-group">
-                <div class="form-group form-group-inline">
-                    <label for="mapper-import-header-row">Рядок із заголовками</label>
-                    <input type="number" id="mapper-import-header-row" min="1" value="1" class="input-field input-small">
-                    <button type="button" id="apply-header-row" class="btn btn-secondary btn-small">Застосувати</button>
-                </div>
-            </div>
-
-            <!-- Налаштування маппінгу колонок -->
-            <fieldset class="form-fieldset u-hidden" id="import-step-2">
-                <legend>Налаштування колонок</legend>
-
-                <div class="mapping-info">
-                    <span class="material-symbols-outlined">info</span>
-                    <span>Для кожної колонки з файлу вкажіть, яке поле системи їй відповідає. Колонки без призначення будуть пропущені.</span>
-                </div>
-
-                <!-- Динамічний контейнер для маппінгу - заповнюється JS -->
-                <div id="dynamic-mapping-container" class="mapping-grid">
-                    <div class="mapping-row mapping-header">
-                        <div class="mapping-label">Колонка з файлу</div>
-                        <div class="mapping-select">Поле системи</div>
-                        <div class="mapping-preview">Приклад даних</div>
-                    </div>
-                    <!-- Рядки генеруються динамічно -->
-                </div>
-
-                <div class="form-actions u-mt-16">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="mapper-import-save-mapping">
-                        <span>Зберегти налаштування для цього маркетплейса</span>
-                    </label>
-                </div>
-            </fieldset>
-
-            <!-- Попередній перегляд -->
-            <div id="mapper-import-preview" class="import-preview u-hidden">
-                <div class="preview-header">
-                    <h3>Попередній перегляд</h3>
-                    <div class="preview-stats">
-                        <span class="stat-item stat-new">
-                            <span class="material-symbols-outlined">add_circle</span>
-                            Нових: <strong id="preview-new-count">0</strong>
-                        </span>
-                        <span class="stat-item stat-update">
-                            <span class="material-symbols-outlined">sync</span>
-                            Оновлених: <strong id="preview-update-count">0</strong>
-                        </span>
-                        <span class="stat-item stat-skip">
-                            <span class="material-symbols-outlined">check_circle</span>
-                            Без змін: <strong id="preview-same-count">0</strong>
-                        </span>
-                    </div>
-                </div>
-                <div class="preview-table-container">
-                    <table class="preview-table" id="mapper-import-preview-table">
-                        <thead id="preview-table-head"></thead>
-                        <tbody id="preview-table-body"></tbody>
-                    </table>
-                </div>
             </div>
         </div>
 

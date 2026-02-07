@@ -30,11 +30,14 @@
 
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
-    addCategory, addCharacteristic, addOption,
     getCategories, getCharacteristics, getOptions, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
-    updateMarketplace
+    getMapCategories, getMapCharacteristics, getMapOptions,
+    isMpCharacteristicMapped, isMpOptionMapped, isMpCategoryMapped,
+    batchCreateCharacteristicMapping, batchCreateOptionMapping, batchCreateCategoryMapping,
+    autoMapCharacteristics, autoMapOptions
 } from './mapper-data.js';
+import { getBatchBar } from '../common/ui-batch-actions.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
@@ -101,88 +104,49 @@ function handleDataLoaded() {
 // Стан імпорту
 let importState = {
     file: null,
-    rawData: [],        // Сирі дані з файлу (всі рядки)
-    parsedData: [],     // Дані після визначення заголовків
+    rawData: [],
+    parsedData: [],
     fileHeaders: [],
     mapping: {},
     marketplaceId: null,
-    dataType: 'characteristics',
-    importTarget: 'marketplace',  // 'marketplace' або 'own'
-    headerRow: 1,       // Номер рядка із заголовками (1-based)
-    adapter: null,       // Адаптер маркетплейса (якщо є)
-    _adapterData: null   // Дані адаптера
+    dataType: null,
+    headerRow: 1,
+    adapter: null,
+    _adapterData: null
 };
 
 /**
  * Показати модальне вікно імпорту
  */
 export async function showImportModal() {
-
-    // Скинути стан
     importState = {
-        file: null,
-        rawData: [],
-        parsedData: [],
-        fileHeaders: [],
-        mapping: {},
-        marketplaceId: null,
-        dataType: null,  // Користувач має обрати: categories, characteristics, options
-        importTarget: 'marketplace',
-        headerRow: 1,
-        adapter: null,
-        _adapterData: null
+        file: null, rawData: [], parsedData: [], fileHeaders: [],
+        mapping: {}, marketplaceId: null, dataType: null,
+        headerRow: 1, adapter: null, _adapterData: null
     };
 
     await showModal('mapper-import', null);
 
-    // Ініціалізувати кастомні селекти в модальному вікні
     const modalEl = document.getElementById('modal-mapper-import');
     if (modalEl) initCustomSelects(modalEl);
 
     const marketplaceSelect = document.getElementById('mapper-import-marketplace');
     if (marketplaceSelect) {
         populateMarketplaceSelect(marketplaceSelect);
-        // Слухаємо зміну призначення (маркетплейс або свій довідник)
         marketplaceSelect.addEventListener('change', handleMarketplaceChange);
     }
 
-    // Селектор типу даних
-    const dataTypeSelect = document.getElementById('mapper-import-datatype');
-    if (dataTypeSelect) {
-        dataTypeSelect.addEventListener('change', (e) => {
-            importState.dataType = e.target.value;
-            importState.mapping = {}; // Скидаємо маппінг при зміні типу
-            updateMappingSections();
-            validateImport();
-        });
-    }
-
-    // Ініціалізувати drag & drop для файлу
     initFileDropzone();
 
-    // Кнопка імпорту
     const importBtn = document.getElementById('execute-mapper-import');
     if (importBtn) {
         importBtn.addEventListener('click', executeImport);
-    }
-
-    // Кнопка застосування рядка заголовків
-    const applyHeaderBtn = document.getElementById('apply-header-row');
-    if (applyHeaderBtn) {
-        applyHeaderBtn.addEventListener('click', applyHeaderRow);
     }
 }
 
 function populateMarketplaceSelect(select) {
     const marketplaces = getMarketplaces();
-
-    // Спочатку базові опції
-    select.innerHTML = `
-        <option value="">— Оберіть призначення —</option>
-        <option value="own">📁 Свій довідник</option>
-    `;
-
-    // Додаємо активні маркетплейси
+    select.innerHTML = '<option value="">— Оберіть маркетплейс —</option>';
     marketplaces.forEach(mp => {
         if (mp.is_active === true || String(mp.is_active).toLowerCase() === 'true') {
             const option = document.createElement('option');
@@ -191,145 +155,34 @@ function populateMarketplaceSelect(select) {
             select.appendChild(option);
         }
     });
-
-    // Оновити кастомний селект після заповнення
     reinitializeCustomSelect(select);
 }
 
 function handleMarketplaceChange(e) {
     const selectedValue = e.target.value;
-    const dataTypeGroup = document.getElementById('import-datatype-group');
     const fileGroup = document.getElementById('import-file-group');
 
-    // Скидаємо стан
     importState.mapping = {};
     importState._adapterData = null;
     importState.adapter = null;
     document.getElementById('adapter-category-info')?.remove();
-
-    // Ховаємо все, крім маркетплейс-селекту
-    dataTypeGroup?.classList.add('u-hidden');
     fileGroup?.classList.add('u-hidden');
-    document.getElementById('header-row-group')?.classList.add('u-hidden');
-    document.getElementById('import-step-2')?.classList.add('u-hidden');
-    document.getElementById('mapper-import-preview')?.classList.add('u-hidden');
 
     if (!selectedValue) return;
 
-    if (selectedValue === 'own') {
-        // Свій довідник: тип даних + dropzone + повний flow
-        importState.importTarget = 'own';
-        importState.marketplaceId = 'own';
-        dataTypeGroup?.classList.remove('u-hidden');
+    importState.marketplaceId = selectedValue;
+
+    const marketplaces = getMarketplaces();
+    const mp = marketplaces.find(m => m.id === selectedValue);
+    importState.adapter = mp ? findAdapter(mp) : null;
+
+    if (importState.adapter) {
+        const config = importState.adapter.getConfig();
+        importState.dataType = config.dataType || 'characteristics';
         fileGroup?.classList.remove('u-hidden');
-    } else {
-        // Маркетплейс
-        importState.importTarget = 'marketplace';
-        importState.marketplaceId = selectedValue;
-
-        const marketplaces = getMarketplaces();
-        const mp = marketplaces.find(m => m.id === selectedValue);
-        const adapter = mp ? findAdapter(mp) : null;
-
-        importState.adapter = adapter;
-
-        if (adapter) {
-            // Адаптер (Rozetka): тільки dropzone
-            const config = adapter.getConfig();
-            importState.dataType = config.dataType || 'characteristics';
-            fileGroup?.classList.remove('u-hidden');
-        } else {
-            // Маркетплейс без адаптера: тип даних + dropzone + повний flow
-            dataTypeGroup?.classList.remove('u-hidden');
-            fileGroup?.classList.remove('u-hidden');
-        }
-    }
-
-    if (!importState.adapter) {
-        // Для не-адаптерного flow — перевіряємо збережений маппінг
-        const hasSavedMapping = selectedValue !== 'own' && checkHasSavedMapping(selectedValue);
-        updateMappingSections(hasSavedMapping);
-        if (hasSavedMapping) {
-            loadSavedMapping(selectedValue);
-        }
-        updatePreviewTable();
     }
 
     validateImport();
-}
-
-function handleDataTypeChange(e) {
-    importState.dataType = e.target.value;
-    importState.mapping = {}; // Скидаємо маппінг при зміні типу
-    updateMappingSections();
-}
-
-function handleTargetChange(e) {
-    importState.importTarget = e.target.value;
-    importState.mapping = {}; // Скидаємо маппінг при зміні призначення
-
-    // Якщо обрано свій довідник - вимкнути вибір маркетплейса
-    const mpSelect = document.getElementById('mapper-import-marketplace');
-    const mpGroup = document.getElementById('marketplace-select-group');
-
-    if (importState.importTarget === 'own') {
-        mpGroup?.classList.add('u-hidden');
-        importState.marketplaceId = 'own'; // Псевдо ID для валідації
-    } else {
-        mpGroup?.classList.remove('u-hidden');
-        importState.marketplaceId = mpSelect?.value || null;
-    }
-
-    // Перегенеровуємо маппінг з новими полями
-    updateMappingSections();
-}
-
-function updateMappingSections(skipAutoDetect = false) {
-    // При зміні типу імпорту перегенеровуємо маппінг якщо є дані
-    if (importState.fileHeaders.length > 0) {
-        populateColumnSelects(importState.fileHeaders);
-        // Автодетект тільки якщо не буде завантажуватись збережений маппінг
-        if (!skipAutoDetect) {
-            autoDetectMapping(importState.fileHeaders);
-        }
-    }
-}
-
-function checkHasSavedMapping(marketplaceId) {
-    const marketplaces = getMarketplaces();
-    const mp = marketplaces.find(m => m.id === marketplaceId);
-
-    if (mp && mp.column_mapping) {
-        try {
-            const savedMapping = JSON.parse(mp.column_mapping);
-            return savedMapping[importState.dataType] && Object.keys(savedMapping[importState.dataType]).length > 0;
-        } catch (e) {
-            return false;
-        }
-    }
-    return false;
-}
-
-function loadSavedMapping(marketplaceId) {
-    const marketplaces = getMarketplaces();
-    const mp = marketplaces.find(m => m.id === marketplaceId);
-
-    if (mp && mp.column_mapping) {
-        try {
-            const savedMapping = JSON.parse(mp.column_mapping);
-            if (savedMapping[importState.dataType]) {
-                importState.mapping = savedMapping[importState.dataType];
-                applyMappingToSelects();
-            }
-        } catch (e) {
-            console.warn('⚠️ Помилка парсингу збереженого маппінгу:', e);
-        }
-    }
-}
-
-function applyMappingToSelects() {
-    // Використовуємо нову функцію для динамічних селектів
-    applyDynamicMappingToSelects();
 }
 
 function initFileDropzone() {
@@ -372,91 +225,27 @@ function initFileDropzone() {
 }
 
 async function handleFileSelect(file) {
-
     const fileNameEl = document.getElementById('mapper-import-filename');
-    if (fileNameEl) {
-        fileNameEl.textContent = file.name;
-    }
+    if (fileNameEl) fileNameEl.textContent = file.name;
 
     importState.file = file;
 
     try {
-        // Парсимо файл і зберігаємо сирі дані
         const rawData = await parseFileRaw(file);
         importState.rawData = rawData;
 
-        // Якщо є адаптер — делегуємо обробку йому
         if (importState.adapter) {
             const config = importState.adapter.getConfig();
             importState.headerRow = config.headerRow || 1;
-
-            // Обробка файлу адаптером (показує інфо категорії тощо)
             importState.adapter.onFileLoaded(file, rawData, importState);
-
-            // Автоматичний маппінг
             applyHeaderRowSilent();
         } else {
-            // Показуємо вибір рядка заголовків для інших форматів
-            document.getElementById('header-row-group')?.classList.remove('u-hidden');
-
-            // Скидаємо до рядка 1
-            const headerRowInput = document.getElementById('mapper-import-header-row');
-            if (headerRowInput) {
-                headerRowInput.value = 1;
-                headerRowInput.max = rawData.length;
-            }
-            importState.headerRow = 1;
-
-            // Застосовуємо рядок заголовків
-            applyHeaderRow();
-
-            showToast(`Файл прочитано: ${rawData.length} рядків`, 'success');
+            showToast('Для цього маркетплейсу немає адаптера імпорту', 'warning');
         }
-
     } catch (error) {
         console.error('❌ Помилка парсингу файлу:', error);
         showToast('Помилка читання файлу', 'error');
     }
-}
-
-/**
- * Застосувати вибраний рядок заголовків
- */
-function applyHeaderRow() {
-    const headerRowInput = document.getElementById('mapper-import-header-row');
-    const headerRow = parseInt(headerRowInput?.value || '1', 10);
-
-    if (headerRow < 1 || headerRow > importState.rawData.length) {
-        showToast('Невірний номер рядка', 'error');
-        return;
-    }
-
-    importState.headerRow = headerRow;
-    importState.mapping = {}; // Скидаємо маппінг
-
-    // Заголовки - це рядок headerRow (1-based), дані - всі рядки після нього
-    const headerRowData = importState.rawData[headerRow - 1];
-    const headers = headerRowData.map((h, i) => ({
-        index: i,
-        name: String(h || `Колонка ${i + 1}`).trim()
-    }));
-
-    const rows = importState.rawData.slice(headerRow).map(row =>
-        headers.map((_, i) => String(row[i] || '').trim())
-    );
-
-    importState.fileHeaders = headers;
-    importState.parsedData = rows;
-
-
-    // Показуємо крок 2 (маппінг)
-    document.getElementById('import-step-2')?.classList.remove('u-hidden');
-
-    // Заповнюємо селекти колонок
-    populateColumnSelects(headers);
-
-    // Спробуємо автоматично визначити маппінг
-    autoDetectMapping(headers);
 }
 
 /**
@@ -636,254 +425,21 @@ function parseExcelRaw(file) {
  * Отримати доступні поля системи в залежності від типу імпорту
  */
 function getSystemFields() {
-    // Якщо є адаптер — він визначає поля
     if (importState.adapter?.getSystemFields) {
         return importState.adapter.getSystemFields();
     }
-
-    const fields = {
-        // Дані маркетплейса - характеристики + опції
-        marketplace_characteristics: [
-            { key: 'char_id', label: 'ID характеристики', required: true },
-            { key: 'char_name', label: 'Назва характеристики', required: true },
-            { key: 'char_type', label: 'Тип параметра', required: false },
-            { key: 'char_filter_type', label: 'Тип фільтра', required: false },
-            { key: 'char_unit', label: 'Одиниця виміру', required: false },
-            { key: 'char_is_global', label: 'Наскрізний параметр', required: false },
-            { key: 'option_id', label: 'ID опції/значення', required: false },
-            { key: 'option_name', label: 'Назва опції/значення', required: false },
-            { key: 'category_id', label: 'ID категорії', required: false },
-            { key: 'category_name', label: 'Назва категорії', required: false }
-        ],
-        // Дані маркетплейса - категорії
-        marketplace_categories: [
-            { key: 'cat_id', label: 'ID категорії', required: true },
-            { key: 'cat_name', label: 'Назва категорії', required: true },
-            { key: 'parent_id', label: 'ID батьківської категорії', required: false },
-            { key: 'parent_name', label: 'Назва батьківської категорії', required: false }
-        ],
-        // Свій довідник - характеристики + опції
-        own_characteristics: [
-            { key: 'own_char_name_ua', label: 'name_ua (Назва UA)', required: true },
-            { key: 'own_char_name_ru', label: 'name_ru (Назва RU)', required: false },
-            { key: 'own_char_type', label: 'type (Тип параметра)', required: false },
-            { key: 'own_char_unit', label: 'unit (Одиниця виміру)', required: false },
-            { key: 'own_char_filter_type', label: 'filter_type (Тип фільтра)', required: false },
-            { key: 'own_char_is_global', label: 'is_global (Наскрізний)', required: false },
-            { key: 'own_char_category_ids', label: 'category_ids (ID категорій)', required: false },
-            { key: 'own_option_value_ua', label: 'Опція: value_ua', required: false },
-            { key: 'own_option_value_ru', label: 'Опція: value_ru', required: false },
-            { key: 'own_option_parent_id', label: 'Опція: parent_option_id', required: false }
-        ],
-        // Свій довідник - категорії
-        own_categories: [
-            { key: 'own_cat_name_ua', label: 'Назва категорії (UA)', required: true },
-            { key: 'own_cat_name_ru', label: 'Назва категорії (RU)', required: false },
-            { key: 'own_cat_parent', label: 'Батьківська категорія', required: false }
-        ]
-    };
-
-    const key = `${importState.importTarget}_${importState.dataType}`;
-    return fields[key] || [];
-}
-
-/**
- * Генерувати динамічний маппінг для колонок файлу
- */
-function populateColumnSelects(headers) {
-    const container = document.getElementById('dynamic-mapping-container');
-    if (!container) return;
-
-    // Отримуємо доступні поля системи
-    const systemFields = getSystemFields();
-
-    // Очищаємо контейнер (залишаємо заголовок)
-    const headerRow = container.querySelector('.mapping-header');
-    container.innerHTML = '';
-    if (headerRow) container.appendChild(headerRow);
-
-    // Генеруємо рядок для кожної колонки з файлу
-    headers.forEach((header, idx) => {
-        // Отримуємо приклад даних (перші 3 значення)
-        const sampleValues = importState.parsedData
-            .slice(0, 3)
-            .map(row => row[header.index] || '')
-            .filter(v => v)
-            .join(', ');
-
-        const row = document.createElement('div');
-        row.className = 'mapping-row';
-        row.innerHTML = `
-            <div class="mapping-label">
-                <strong>${header.name}</strong>
-            </div>
-            <div class="mapping-select">
-                <select data-column-index="${header.index}" data-custom-select>
-                    <option value="">— Пропустити —</option>
-                    ${systemFields.map(f => `
-                        <option value="${f.key}"${f.required ? ' data-required="true"' : ''}>
-                            ${f.label}${f.required ? ' *' : ''}
-                        </option>
-                    `).join('')}
-                </select>
-            </div>
-            <div class="mapping-preview">${sampleValues || '—'}</div>
-        `;
-
-        container.appendChild(row);
-
-        // Ініціалізуємо кастомний селект
-        const select = row.querySelector('select');
-        if (select) {
-            reinitializeCustomSelect(select);
-            select.addEventListener('change', handleDynamicMappingChange);
-        }
-    });
-}
-
-/**
- * Обробник зміни динамічного маппінгу
- */
-function handleDynamicMappingChange(e) {
-    const columnIndex = parseInt(e.target.dataset.columnIndex, 10);
-    const systemField = e.target.value;
-
-    // Видаляємо старе призначення цього поля (якщо було)
-    Object.keys(importState.mapping).forEach(field => {
-        if (importState.mapping[field] === columnIndex) {
-            delete importState.mapping[field];
-        }
-    });
-
-    // Додаємо нове призначення
-    if (systemField) {
-        // Видаляємо це поле з іншої колонки (якщо було)
-        Object.keys(importState.mapping).forEach(field => {
-            if (field === systemField) {
-                // Скидаємо селект іншої колонки
-                const oldSelect = document.querySelector(`select[data-column-index="${importState.mapping[field]}"]`);
-                if (oldSelect && oldSelect !== e.target) {
-                    oldSelect.value = '';
-                    reinitializeCustomSelect(oldSelect);
-                }
-            }
-        });
-
-        importState.mapping[systemField] = columnIndex;
-    }
-
-    validateImport();
-    updatePreviewTable();
-}
-
-/**
- * Автоматичне визначення маппінгу
- */
-function autoDetectMapping(headers) {
-    // Ключові слова для автодетекту - розширений список
-    const patterns = {
-        // Маркетплейс - характеристики
-        char_id: ['id параметра', 'id характеристики', 'характеристика id', 'attr_id', 'attribute_id', 'characteristic_id', 'param_id', 'ідентифікатор параметра'],
-        char_name: ['назва параметра', 'назва характеристики', 'характеристика', 'attribute', 'param_name', 'attribute_name', 'параметр'],
-        char_type: ['тип параметра', 'тип характеристики', 'param_type', 'attribute_type'],
-        char_filter_type: ['тип фільтра', 'filter_type', 'фільтр'],
-        char_unit: ['одиниця', 'одиниця виміру', 'unit', 'од.'],
-        char_is_global: ['наскрізний', 'глобальний', 'is_global', 'global'],
-        option_id: ['id значення', 'id опції', 'опція id', 'option_id', 'value_id'],
-        option_name: ['назва значення', 'назва опції', 'опція', 'option', 'value', 'значення'],
-        category_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
-        category_name: ['назва категорії', 'категорія', 'category', 'cat_name'],
-
-        // Маркетплейс - категорії
-        cat_id: ['id категорії', 'категорія id', 'category_id', 'cat_id'],
-        cat_name: ['назва категорії', 'категорія', 'category', 'cat_name', 'назва'],
-        parent_id: ['id батьківської', 'parent_id', 'parent', 'батьківська id'],
-        parent_name: ['батьківська категорія', 'parent_name', 'parent category', 'батьківська'],
-
-        // Свій довідник - характеристики (поля БД)
-        own_char_name_ua: ['name_ua', 'назва ua', 'назва укр', 'назва'],
-        own_char_name_ru: ['name_ru', 'назва ru', 'назва рус'],
-        own_char_type: ['type', 'тип параметра', 'тип'],
-        own_char_unit: ['unit', 'одиниця', 'од.'],
-        own_char_filter_type: ['filter_type', 'тип фільтра', 'filter'],
-        own_char_is_global: ['is_global', 'наскрізний', 'глобальний', 'global'],
-        own_char_category_ids: ['category_ids', 'id категорій', 'категорії'],
-        own_option_value_ua: ['value_ua', 'значення ua', 'значення', 'опція'],
-        own_option_value_ru: ['value_ru', 'значення ru'],
-        own_option_parent_id: ['parent_option_id', 'parent_id', 'батьківська опція'],
-
-        // Свій довідник - категорії (id генерується автоматично)
-        own_cat_name_ua: ['назва ua', 'назва укр', 'name_ua', 'назва'],
-        own_cat_name_ru: ['назва ru', 'назва рус', 'name_ru'],
-        own_cat_parent: ['батьківська', 'parent', 'parent_id']
-    };
-
-    // Отримуємо доступні поля для поточного типу імпорту
-    const availableFields = getSystemFields().map(f => f.key);
-
-    const detectedMapping = {};
-
-    // Для кожного заголовка шукаємо відповідне поле
-    headers.forEach(header => {
-        const headerLower = header.name.toLowerCase().trim();
-
-        // Шукаємо серед доступних полів
-        for (const field of availableFields) {
-            if (detectedMapping[field] !== undefined) continue; // вже призначено
-
-            const fieldPatterns = patterns[field] || [];
-
-            // Перевіряємо чи заголовок містить один з паттернів
-            for (const pattern of fieldPatterns) {
-                if (headerLower.includes(pattern.toLowerCase()) ||
-                    pattern.toLowerCase().includes(headerLower)) {
-                    detectedMapping[field] = header.index;
-                    break;
-                }
-            }
-
-            if (detectedMapping[field] !== undefined) break;
-        }
-    });
-
-    // Застосувати автодетект якщо немає збереженого маппінгу
-    if (Object.keys(importState.mapping).length === 0) {
-        importState.mapping = detectedMapping;
-        applyDynamicMappingToSelects();
-    }
-
-    validateImport();
-    updatePreviewTable();
-}
-
-/**
- * Застосувати маппінг до динамічних селектів
- */
-function applyDynamicMappingToSelects() {
-    Object.entries(importState.mapping).forEach(([systemField, columnIndex]) => {
-        const select = document.querySelector(`select[data-column-index="${columnIndex}"]`);
-        if (select) {
-            select.value = systemField;
-            reinitializeCustomSelect(select);
-        }
-    });
-}
-
-/**
- * Обробник зміни маппінгу (старий - для сумісності)
- */
-function handleMappingChange(e) {
-    const field = e.target.dataset.mappingField;
-    const columnIndex = e.target.value;
-
-    if (columnIndex === '') {
-        delete importState.mapping[field];
-    } else {
-        importState.mapping[field] = parseInt(columnIndex, 10);
-    }
-
-    validateImport();
-    updatePreviewTable();
+    return [
+        { key: 'char_id', label: 'ID характеристики', required: true },
+        { key: 'char_name', label: 'Назва характеристики', required: true },
+        { key: 'char_type', label: 'Тип параметра', required: false },
+        { key: 'char_filter_type', label: 'Тип фільтра', required: false },
+        { key: 'char_unit', label: 'Одиниця виміру', required: false },
+        { key: 'char_is_global', label: 'Наскрізний параметр', required: false },
+        { key: 'option_id', label: 'ID опції/значення', required: false },
+        { key: 'option_name', label: 'Назва опції/значення', required: false },
+        { key: 'category_id', label: 'ID категорії', required: false },
+        { key: 'category_name', label: 'Назва категорії', required: false }
+    ];
 }
 
 /**
@@ -895,148 +451,24 @@ function validateImport() {
 
     let isValid = true;
 
-    // Перевіряємо чи обрано тип даних
-    if (!importState.dataType) {
-        isValid = false;
-    }
+    if (!importState.dataType) isValid = false;
+    if (!importState.marketplaceId) isValid = false;
 
-    // Отримуємо обов'язкові поля з системних полів
     const systemFields = getSystemFields();
     const requiredFields = systemFields.filter(f => f.required).map(f => f.key);
-
-    // Перевіряємо чи обрано маркетплейс (якщо імпортуємо для маркетплейса)
-    if (importState.importTarget === 'marketplace' && !importState.marketplaceId) {
-        isValid = false;
-    }
-
-    // Перевіряємо обов'язкові поля
     requiredFields.forEach(field => {
-        if (importState.mapping[field] === undefined) {
-            isValid = false;
-        }
+        if (importState.mapping[field] === undefined) isValid = false;
     });
 
-    // Перевіряємо чи є дані
-    if (importState.parsedData.length === 0) {
-        isValid = false;
-    }
+    if (importState.parsedData.length === 0) isValid = false;
 
     importBtn.disabled = !isValid;
-
-    // Оновлюємо візуальну індикацію обов'язкових полів
-    updateRequiredFieldsIndicator(requiredFields);
-}
-
-/**
- * Оновити індикатор заповнення обов'язкових полів
- */
-function updateRequiredFieldsIndicator(requiredFields) {
-    const container = document.getElementById('dynamic-mapping-container');
-    if (!container) return;
-
-    // Скидаємо всі попередні підсвітки
-    container.querySelectorAll('.mapping-row').forEach(row => {
-        row.classList.remove('mapping-row-missing', 'mapping-row-filled');
-    });
-
-    // Підсвічуємо заповнені/незаповнені обов'язкові поля
-    requiredFields.forEach(field => {
-        const columnIndex = importState.mapping[field];
-        if (columnIndex !== undefined) {
-            const select = container.querySelector(`select[data-column-index="${columnIndex}"]`);
-            if (select) {
-                select.closest('.mapping-row')?.classList.add('mapping-row-filled');
-            }
-        }
-    });
-
-    // Показуємо які обов'язкові поля ще не призначені
-    const missingFields = requiredFields.filter(f => importState.mapping[f] === undefined);
-    if (missingFields.length > 0) {
-        const systemFields = getSystemFields();
-        const missingLabels = missingFields.map(f => {
-            const sf = systemFields.find(s => s.key === f);
-            return sf ? sf.label : f;
-        });
-    }
-}
-
-/**
- * Оновити таблицю попереднього перегляду
- */
-function updatePreviewTable() {
-    const previewContainer = document.getElementById('mapper-import-preview');
-    const thead = document.getElementById('preview-table-head');
-    const tbody = document.getElementById('preview-table-body');
-
-    if (!thead || !tbody) return;
-
-    // Отримуємо активні маппінги (тільки ті поля, які призначені)
-    const systemFields = getSystemFields();
-    const activeMapping = Object.entries(importState.mapping)
-        .filter(([field]) => systemFields.some(sf => sf.key === field))
-        .map(([field, colIndex]) => {
-            const sf = systemFields.find(s => s.key === field);
-            return {
-                field,
-                colIndex,
-                label: sf ? sf.label : field,
-                required: sf ? sf.required : false
-            };
-        });
-
-    if (activeMapping.length === 0 || importState.parsedData.length === 0) {
-        previewContainer?.classList.add('u-hidden');
-        return;
-    }
-
-    previewContainer?.classList.remove('u-hidden');
-
-    thead.innerHTML = `
-        <tr>
-            <th>#</th>
-            ${activeMapping.map(m => `<th>${m.label}</th>`).join('')}
-            <th>Статус</th>
-        </tr>
-    `;
-
-    // Показуємо перші 50 рядків
-    const previewRows = importState.parsedData.slice(0, 50);
-    let newCount = 0, updateCount = 0, sameCount = 0;
-
-    tbody.innerHTML = previewRows.map((row, i) => {
-        const status = 'new'; // TODO: Порівняти з існуючими даними
-        if (status === 'new') newCount++;
-        else if (status === 'update') updateCount++;
-        else sameCount++;
-
-        const statusClass = status === 'new' ? 'status-new' : status === 'update' ? 'status-update' : 'status-same';
-        const statusIcon = status === 'new' ? 'add_circle' : status === 'update' ? 'sync' : 'check_circle';
-
-        return `
-            <tr class="${statusClass}">
-                <td>${i + 1}</td>
-                ${activeMapping.map(m => `<td>${row[m.colIndex] || ''}</td>`).join('')}
-                <td><span class="material-symbols-outlined">${statusIcon}</span></td>
-            </tr>
-        `;
-    }).join('');
-
-    // Оновити лічильники
-    const newCountEl = document.getElementById('preview-new-count');
-    const updateCountEl = document.getElementById('preview-update-count');
-    const sameCountEl = document.getElementById('preview-same-count');
-
-    if (newCountEl) newCountEl.textContent = newCount;
-    if (updateCountEl) updateCountEl.textContent = updateCount;
-    if (sameCountEl) sameCountEl.textContent = sameCount;
 }
 
 /**
  * Виконати імпорт
  */
 async function executeImport() {
-
     const importBtn = document.getElementById('execute-mapper-import');
     const modalContent = document.querySelector('#modal-mapper-import .modal-body');
 
@@ -1045,7 +477,6 @@ async function executeImport() {
         importBtn.textContent = 'Імпортую...';
     }
 
-    // Показуємо прогрес бар
     const loader = showLoader(modalContent, {
         type: 'progress',
         message: 'Підготовка до імпорту...',
@@ -1054,49 +485,14 @@ async function executeImport() {
 
     try {
         loader.updateProgress(5, 'Підготовка даних...');
-
-        // Зберегти маппінг якщо обрано (тільки для маркетплейса)
-        if (importState.importTarget === 'marketplace') {
-            const saveMapping = document.getElementById('mapper-import-save-mapping')?.checked;
-            if (saveMapping && importState.marketplaceId) {
-                loader.updateProgress(10, 'Збереження маппінгу...');
-                await saveColumnMapping();
-            }
-        }
-
         loader.updateProgress(15, 'Імпортую дані...');
 
-        // Виконати імпорт даних з передачею функції прогресу
-        if (importState.importTarget === 'marketplace') {
-            // Імпорт для маркетплейса
-            const isCharImport = importState.dataType === 'characteristics' ||
-                (importState.adapter && importState.dataType === 'adapter_pack');
-
-            if (isCharImport) {
-                // Викликаємо адаптер перед імпортом (напр. створення категорії)
-                if (importState.adapter?.onBeforeImport) {
-                    await importState.adapter.onBeforeImport(importState, (p, m) => loader.updateProgress(p, m));
-                }
-                await importCharacteristicsAndOptions((percent, msg) => {
-                    loader.updateProgress(20 + percent * 0.75, msg);
-                });
-            } else if (importState.dataType === 'categories') {
-                await importCategories((percent, msg) => {
-                    loader.updateProgress(15 + percent * 0.8, msg);
-                });
-            }
-        } else {
-            // Імпорт для свого довідника
-            if (importState.dataType === 'characteristics') {
-                await importOwnCharacteristicsAndOptions((percent, msg) => {
-                    loader.updateProgress(15 + percent * 0.8, msg);
-                });
-            } else {
-                await importOwnCategories((percent, msg) => {
-                    loader.updateProgress(15 + percent * 0.8, msg);
-                });
-            }
+        if (importState.adapter?.onBeforeImport) {
+            await importState.adapter.onBeforeImport(importState, (p, m) => loader.updateProgress(p, m));
         }
+        await importCharacteristicsAndOptions((percent, msg) => {
+            loader.updateProgress(20 + percent * 0.75, msg);
+        });
 
         loader.updateProgress(100, 'Імпорт завершено!');
 
@@ -1106,7 +502,6 @@ async function executeImport() {
             closeModal();
             renderCurrentTab();
         }, 500);
-
     } catch (error) {
         console.error('❌ Помилка імпорту:', error);
         loader.hide();
@@ -1117,30 +512,6 @@ async function executeImport() {
             importBtn.textContent = 'Імпортувати';
         }
     }
-}
-
-/**
- * Зберегти маппінг колонок
- */
-async function saveColumnMapping() {
-    const marketplaces = getMarketplaces();
-    const mp = marketplaces.find(m => m.id === importState.marketplaceId);
-
-    if (!mp) return;
-
-    let columnMapping = {};
-    try {
-        columnMapping = JSON.parse(mp.column_mapping || '{}');
-    } catch (e) {
-        columnMapping = {};
-    }
-
-    columnMapping[importState.dataType] = importState.mapping;
-
-    await updateMarketplace(importState.marketplaceId, {
-        column_mapping: JSON.stringify(columnMapping)
-    });
-
 }
 
 /**
@@ -1435,368 +806,6 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
             spreadsheetType: 'main'
         });
     } else {
-    }
-
-    onProgress(100, 'Готово!');
-}
-
-/**
- * Імпорт категорій
- * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
- */
-async function importCategories(onProgress = () => { }) {
-    const { callSheetsAPI } = await import('../utils/api-client.js');
-
-    onProgress(10, 'Обробка категорій...');
-
-    const catIdCol = importState.mapping.cat_id;
-    const catNameCol = importState.mapping.cat_name;
-    const parentIdCol = importState.mapping.parent_id;
-    const parentNameCol = importState.mapping.parent_name;
-
-    const mpCategories = [];
-
-    importState.parsedData.forEach(row => {
-        const catId = row[catIdCol] || '';
-        const catName = row[catNameCol] || '';
-
-        if (catId && catName) {
-            mpCategories.push({
-                mp_cat_id: catId,
-                mp_cat_name: catName,
-                mp_parent_id: parentIdCol !== undefined ? row[parentIdCol] : '',
-                mp_parent_name: parentNameCol !== undefined ? row[parentNameCol] : ''
-            });
-        }
-    });
-
-
-    onProgress(30, 'Перевірка існуючих даних...');
-
-    // Завантажуємо існуючі дані для перевірки дублікатів
-    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
-    await loadMpCategories();
-
-    const existingCats = getMpCategories();
-
-    // Створюємо Set існуючих ID для швидкої перевірки
-    const existingCatIds = new Set(
-        existingCats
-            .filter(c => c.marketplace_id === importState.marketplaceId)
-            .map(c => c.external_id)
-    );
-
-    // Фільтруємо тільки нові категорії
-    const newCategories = mpCategories.filter(c => !existingCatIds.has(c.mp_cat_id));
-
-
-    onProgress(50, `Запис ${newCategories.length} нових категорій...`);
-
-    // Структура таблиці: id | marketplace_id | external_id | source | data | created_at | updated_at
-    // data - JSON з усіма полями категорії (різні для кожного маркетплейсу)
-    if (newCategories.length > 0) {
-        const timestamp = new Date().toISOString();
-        const catRows = newCategories.map(c => {
-            // Генеруємо унікальний ID для кожного запису
-            const uniqueId = `mpcat-${importState.marketplaceId}-${c.mp_cat_id}`;
-
-            // Всі дані категорії зберігаємо в JSON (без порожніх полів)
-            const data = {
-                id: c.mp_cat_id,
-                name: c.mp_cat_name || ''
-            };
-            if (c.mp_parent_id) data.parent_id = c.mp_parent_id;
-            if (c.mp_parent_name) data.parent_name = c.mp_parent_name;
-            const dataJson = JSON.stringify(data);
-
-            return [
-                uniqueId,
-                importState.marketplaceId,
-                c.mp_cat_id,        // external_id
-                'import',           // source
-                dataJson,           // data (JSON)
-                timestamp,          // created_at
-                timestamp           // updated_at
-            ];
-        });
-
-        await callSheetsAPI('append', {
-            range: 'Mapper_MP_Categories!A:G',
-            values: catRows,
-            spreadsheetType: 'main'
-        });
-    } else {
-    }
-
-    onProgress(100, 'Готово!');
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ІМПОРТ ДЛЯ СВОГО ДОВІДНИКА
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Імпорт своїх характеристик та опцій
- * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
- */
-async function importOwnCharacteristicsAndOptions(onProgress = () => { }) {
-    onProgress(5, 'Обробка даних файлу...');
-    // Отримуємо індекси колонок з маппінгу
-    const m = importState.mapping;
-    const nameUaCol = m.own_char_name_ua;
-    const nameRuCol = m.own_char_name_ru;
-    const typeCol = m.own_char_type;
-    const filterTypeCol = m.own_char_filter_type;
-    const unitCol = m.own_char_unit;
-    const isGlobalCol = m.own_char_is_global;
-    const categoryIdsCol = m.own_char_category_ids;
-    const optionUaCol = m.own_option_value_ua;
-    const optionRuCol = m.own_option_value_ru;
-    const optionParentIdCol = m.own_option_parent_id;
-
-    const characteristics = new Map(); // name_ua -> char object
-    const options = []; // {char_name_ua, value_ua, value_ru, parent_option_id}
-    const categoryNamesToCreate = new Set(); // Унікальні назви категорій для створення
-
-    importState.parsedData.forEach(row => {
-        const nameUa = nameUaCol !== undefined ? String(row[nameUaCol] || '').trim() : '';
-        const nameRu = nameRuCol !== undefined ? String(row[nameRuCol] || '').trim() : '';
-
-        if (nameUa) {
-            // Отримуємо категорії з рядка
-            const categoryIdsRaw = categoryIdsCol !== undefined ? String(row[categoryIdsCol] || '').trim() : '';
-
-            // Додаємо характеристику якщо ще немає
-            if (!characteristics.has(nameUa)) {
-                // Визначаємо тип: якщо є опції - select, інакше text
-                const hasOptions = optionUaCol !== undefined;
-                const charType = typeCol !== undefined ? String(row[typeCol] || '').trim() : (hasOptions ? 'select' : 'text');
-
-                // Визначаємо is_global (нормалізуємо до TRUE/FALSE)
-                const isGlobalValue = isGlobalCol !== undefined ? row[isGlobalCol] : false;
-                const isGlobal = normalizeIsGlobal(isGlobalValue);
-
-                characteristics.set(nameUa, {
-                    name_ua: nameUa,
-                    name_ru: nameRu,
-                    type: charType || 'text',
-                    filter_type: filterTypeCol !== undefined ? String(row[filterTypeCol] || '').trim() : 'none',
-                    unit: unitCol !== undefined ? String(row[unitCol] || '').trim() : '',
-                    is_global: isGlobal,
-                    category_names: categoryIdsRaw // Зберігаємо назви категорій
-                });
-
-                // Збираємо унікальні категорії для створення
-                if (categoryIdsRaw) {
-                    categoryIdsRaw.split(',').forEach(catName => {
-                        const trimmed = catName.trim();
-                        if (trimmed) categoryNamesToCreate.add(trimmed);
-                    });
-                }
-            }
-
-            // Якщо є опція
-            if (optionUaCol !== undefined) {
-                const optionUa = String(row[optionUaCol] || '').trim();
-                const optionRu = optionRuCol !== undefined ? String(row[optionRuCol] || '').trim() : '';
-                const parentOptionId = optionParentIdCol !== undefined ? String(row[optionParentIdCol] || '').trim() : '';
-
-                if (optionUa) {
-                    // Перевіряємо чи така опція вже є для цієї характеристики
-                    const exists = options.some(o =>
-                        o.char_name_ua === nameUa && o.value_ua === optionUa
-                    );
-                    if (!exists) {
-                        options.push({
-                            char_name_ua: nameUa,
-                            value_ua: optionUa,
-                            value_ru: optionRu,
-                            parent_option_id: parentOptionId
-                        });
-                    }
-                }
-            }
-        }
-    });
-
-
-    // === КРОК 1: Створюємо категорії, яких немає ===
-    const existingCategories = getCategories();
-    const categoryNameToId = new Map(); // Назва -> ID
-
-    // Заповнюємо карту існуючими категоріями
-    existingCategories.forEach(cat => {
-        categoryNameToId.set(cat.name_ua.toLowerCase(), cat.id);
-    });
-
-    // Створюємо нові категорії
-    const newCategoryNames = Array.from(categoryNamesToCreate).filter(
-        name => !categoryNameToId.has(name.toLowerCase())
-    );
-
-    if (newCategoryNames.length > 0) {
-        onProgress(10, `Створюю ${newCategoryNames.length} нових категорій...`);
-
-        for (let i = 0; i < newCategoryNames.length; i++) {
-            const catName = newCategoryNames[i];
-            const catPercent = Math.round(10 + (i / newCategoryNames.length) * 10);
-            onProgress(catPercent, `Категорія: ${catName}`);
-
-            try {
-                const newCat = await addCategory({
-                    name_ua: catName,
-                    name_ru: '',
-                    parent_id: ''
-                });
-                categoryNameToId.set(catName.toLowerCase(), newCat.id);
-            } catch (e) {
-                console.warn(`⚠️ Не вдалося створити категорію "${catName}":`, e);
-            }
-        }
-    }
-
-    // === КРОК 2: Конвертуємо назви категорій в ID ===
-    function convertCategoryNamesToIds(categoryNamesStr) {
-        if (!categoryNamesStr) return '';
-        const names = categoryNamesStr.split(',').map(n => n.trim()).filter(n => n);
-        const ids = names
-            .map(name => categoryNameToId.get(name.toLowerCase()))
-            .filter(id => id);
-        return ids.join(',');
-    }
-
-    // === КРОК 3: Додаємо характеристики ===
-    const charIdMap = new Map(); // name_ua -> id
-    const totalChars = characteristics.size;
-    let charIndex = 0;
-
-    for (const [nameUa, char] of characteristics) {
-        charIndex++;
-        const charPercent = Math.round(20 + (charIndex / totalChars) * 40);
-        onProgress(charPercent, `Характеристика ${charIndex}/${totalChars}: ${nameUa}`);
-
-        // Конвертуємо назви категорій в ID
-        const categoryIds = convertCategoryNamesToIds(char.category_names);
-
-        try {
-            const newChar = await addCharacteristic({
-                name_ua: char.name_ua,
-                name_ru: char.name_ru,
-                type: char.type,
-                unit: char.unit,
-                filter_type: char.filter_type,
-                is_global: char.is_global,
-                category_ids: categoryIds
-            });
-            charIdMap.set(nameUa, newChar.id);
-        } catch (e) {
-            console.warn(`⚠️ Не вдалося додати характеристику "${nameUa}":`, e);
-        }
-    }
-
-    // === КРОК 4: Додаємо опції ===
-    const totalOpts = options.length;
-    let optIndex = 0;
-
-    for (const opt of options) {
-        optIndex++;
-        const optPercent = Math.round(60 + (optIndex / Math.max(totalOpts, 1)) * 35);
-        onProgress(optPercent, `Опція ${optIndex}/${totalOpts}: ${opt.value_ua}`);
-
-        const charId = charIdMap.get(opt.char_name_ua);
-        if (charId) {
-            try {
-                await addOption({
-                    characteristic_id: charId,
-                    value_ua: opt.value_ua,
-                    value_ru: opt.value_ru,
-                    parent_option_id: opt.parent_option_id,
-                    sort_order: '0'
-                });
-            } catch (e) {
-                console.warn(`⚠️ Не вдалося додати опцію "${opt.value_ua}":`, e);
-            }
-        }
-    }
-
-    onProgress(100, 'Готово!');
-}
-
-/**
- * Імпорт своїх категорій
- * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
- */
-async function importOwnCategories(onProgress = () => { }) {
-    onProgress(5, 'Обробка категорій...');
-
-    const nameUaCol = importState.mapping.own_cat_name_ua;
-    const nameRuCol = importState.mapping.own_cat_name_ru;
-    const parentCol = importState.mapping.own_cat_parent;
-
-    // Спочатку збираємо всі унікальні категорії
-    const categories = new Map(); // name_ua -> {name_ua, name_ru, parent_name}
-
-    importState.parsedData.forEach(row => {
-        const nameUa = row[nameUaCol]?.trim() || '';
-        const nameRu = nameRuCol !== undefined ? row[nameRuCol]?.trim() : '';
-        const parentName = parentCol !== undefined ? row[parentCol]?.trim() : '';
-
-        if (nameUa && !categories.has(nameUa)) {
-            categories.set(nameUa, {
-                name_ua: nameUa,
-                name_ru: nameRu || '',
-                parent_name: parentName || ''
-            });
-        }
-    });
-
-
-    // Створюємо категорії в правильному порядку (спочатку без батьківських)
-    const catIdMap = new Map(); // name_ua -> id
-    const totalCats = categories.size;
-    let catIndex = 0;
-
-    // Перший прохід: категорії без батьківських
-    onProgress(20, 'Додаю кореневі категорії...');
-
-    for (const [nameUa, cat] of categories) {
-        if (!cat.parent_name) {
-            catIndex++;
-            onProgress(20 + (catIndex / totalCats) * 35, `Категорія ${catIndex}/${totalCats}: ${nameUa}`);
-
-            try {
-                const newCat = await addCategory({
-                    name_ua: cat.name_ua,
-                    name_ru: cat.name_ru,
-                    parent_id: ''
-                });
-                catIdMap.set(nameUa, newCat.id);
-            } catch (e) {
-                console.warn(`⚠️ Не вдалося додати категорію "${nameUa}":`, e);
-            }
-        }
-    }
-
-    // Другий прохід: категорії з батьківськими
-    onProgress(55, 'Додаю підкатегорії...');
-
-    for (const [nameUa, cat] of categories) {
-        if (cat.parent_name && !catIdMap.has(nameUa)) {
-            catIndex++;
-            onProgress(55 + ((catIndex - catIdMap.size) / Math.max(totalCats - catIdMap.size, 1)) * 40, `Підкатегорія: ${nameUa}`);
-
-            const parentId = catIdMap.get(cat.parent_name) || '';
-            try {
-                const newCat = await addCategory({
-                    name_ua: cat.name_ua,
-                    name_ru: cat.name_ru,
-                    parent_id: parentId
-                });
-                catIdMap.set(nameUa, newCat.id);
-            } catch (e) {
-                console.warn(`⚠️ Не вдалося додати категорію "${nameUa}":`, e);
-            }
-        }
     }
 
     onProgress(100, 'Готово!');
