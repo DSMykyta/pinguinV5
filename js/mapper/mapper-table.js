@@ -283,12 +283,9 @@ function createBindingsColumn(entityType) {
         render: (value, row) => {
             const bindingsInfo = getBindingsInfo(entityType, row.id);
             const tooltipContent = renderBindingsTooltip(bindingsInfo, entityType);
+            const cls = bindingsInfo.count === 0 ? 'chip' : 'chip chip-active';
 
-            if (bindingsInfo.count === 0) {
-                return `<span class="chip" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>0</span>`;
-            }
-
-            return `<span class="chip chip-active" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>${bindingsInfo.count}</span>`;
+            return `<span class="${cls} binding-chip" data-entity-type="${entityType}" data-entity-id="${escapeHtml(row.id)}" data-entity-name="${escapeHtml(row.name_ua || row.value_ua || row.id)}" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always style="cursor:pointer">${bindingsInfo.count}</span>`;
         }
     };
 }
@@ -313,11 +310,17 @@ function extractName(obj) {
     // Пріоритет: українська → загальна → російська
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
+    // Maudau: titleUk/titleRu
+    if (obj.titleUk) return obj.titleUk;
+    if (obj.titleRu) return obj.titleRu;
     if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
     if (obj.nameRu) return obj.nameRu;
-    // Fallback: будь-який ключ з "name"
-    const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
+    // Fallback: будь-який ключ з "name" або "title"
+    const nameKey = Object.keys(obj).find(k => {
+        const lower = k.toLowerCase();
+        return lower.includes('name') || lower.includes('title');
+    });
     return nameKey ? obj[nameKey] : '';
 }
 

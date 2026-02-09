@@ -102,6 +102,7 @@
 @import url('components/products.css');
 @import url('components/rich-editor.css');
 @import url('components/statistics.css');
+@import url('components/mapper-bindings.css');
 
 /* === UTILITIES === */
 @import url('utilities/helpers.css');
