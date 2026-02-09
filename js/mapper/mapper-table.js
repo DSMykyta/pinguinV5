@@ -15,8 +15,7 @@ import { mapperState, runHook } from './mapper-state.js';
 import {
     getCategories, getCharacteristics, getOptions, getMarketplaces,
     getMpCategories, getMpCharacteristics, getMpOptions,
-    getMapCategories, getMapCharacteristics, getMapOptions,
-    isMpCharacteristicMapped, isMpOptionMapped, isMpCategoryMapped
+    getMapCategories, getMapCharacteristics, getMapOptions
 } from './mapper-data.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { createCachedFn } from '../common/util-lazy-load.js';
@@ -282,19 +281,11 @@ function createBindingsColumn(entityType) {
         sortable: true,
         className: 'cell-xs cell-center',
         render: (value, row) => {
-            // Тільки для власних записів показуємо прив'язки
-            if (row._source !== 'own') {
-                return '';
-            }
-
             const bindingsInfo = getBindingsInfo(entityType, row.id);
             const tooltipContent = renderBindingsTooltip(bindingsInfo, entityType);
+            const cls = bindingsInfo.count === 0 ? 'chip' : 'chip chip-active';
 
-            if (bindingsInfo.count === 0) {
-                return `<span class="chip" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>0</span>`;
-            }
-
-            return `<span class="chip chip-active" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always>${bindingsInfo.count}</span>`;
+            return `<span class="${cls} binding-chip" data-entity-type="${entityType}" data-entity-id="${escapeHtml(row.id)}" data-entity-name="${escapeHtml(row.name_ua || row.value_ua || row.id)}" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always style="cursor:pointer">${bindingsInfo.count}</span>`;
         }
     };
 }
@@ -319,11 +310,17 @@ function extractName(obj) {
     // Пріоритет: українська → загальна → російська
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
+    // Maudau: titleUk/titleRu
+    if (obj.titleUk) return obj.titleUk;
+    if (obj.titleRu) return obj.titleRu;
     if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
     if (obj.nameRu) return obj.nameRu;
-    // Fallback: будь-який ключ з "name"
-    const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
+    // Fallback: будь-який ключ з "name" або "title"
+    const nameKey = Object.keys(obj).find(k => {
+        const lower = k.toLowerCase();
+        return lower.includes('name') || lower.includes('title');
+    });
     return nameKey ? obj[nameKey] : '';
 }
 
@@ -410,42 +407,15 @@ export function renderCurrentTab() {
 }
 
 /**
- * Отримати дані категорій (власні + MP)
+ * Отримати дані категорій (тільки власні)
  */
 function getCategoriesData() {
-    const marketplaces = getMarketplaces();
-
-    // Отримати власні категорії
-    const ownCategories = getCategories().map(cat => ({
+    const categories = getCategories().map(cat => ({
         ...cat,
-        _source: 'own',
-        _sourceLabel: 'Власний',
         _editable: true
     }));
 
-    // Отримати MP категорії - тільки незамаплені
-    const mpCategories = getMpCategories()
-        .filter(mpCat => !isMpCategoryMapped(mpCat.id))
-        .map(mpCat => {
-            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
-            const marketplace = marketplaces.find(m => m.id === mpCat.marketplace_id);
-            return {
-                id: mpCat.id,
-                external_id: mpCat.external_id,
-                marketplace_id: mpCat.marketplace_id,
-                _jsonId: mpCat._jsonId || '',
-                name_ua: extractName(data),
-                name_ru: '',
-                parent_id: data.parent_id || data.parentId || '',
-                our_category_id: data.our_category_id || '',
-                _source: mpCat.marketplace_id,
-                _sourceLabel: marketplace?.name || mpCat.marketplace_id,
-                _editable: false,
-                _mpData: data
-            };
-        });
-
-    return { categories: [...ownCategories, ...mpCategories], marketplaces };
+    return { categories };
 }
 
 /**
@@ -458,48 +428,20 @@ function getCategoriesColumns(allCategories) {
             label: 'ID',
             className: 'cell-m',
             sortable: true,
-            render: (value, row) => {
-                const displayId = row._source === 'own' ? value : (row.external_id || value);
-                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-            }
-        },
-        {
-            id: '_sourceLabel',
-            label: 'Джерело',
-            sortable: true,
-            filterable: true,
-            className: 'cell-s',
-            render: (value, row) => {
-                if (row._source === 'own') {
-                    return `<span class="chip chip-success">Власний</span>`;
-                }
-                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-            }
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: '_nestingLevel',
             label: 'Рів.',
             className: 'cell-xs cell-center',
             render: (value, row) => {
-                const mpData = row._mpData;
-
-                // Fallback: якщо є parentsPath в JSON — рахуємо рівень з нього
-                if (mpData?.parentsPath) {
-                    const parts = mpData.parentsPath.split(' / ');
-                    const level = parts.length - 1;
-                    const pathUa = mpData.parentsPathUa || mpData.parentsPath;
-                    const tooltipText = pathUa.replace(/ \/ /g, ' → ');
-                    return `<span class="chip" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
-                }
-
                 let level = 0;
                 let current = row;
                 const path = [row.name_ua || row.id];
-                const mpId = row._source !== 'own' ? row.marketplace_id : null;
 
                 while (current && current.parent_id) {
                     level++;
-                    const parent = findParentCategory(current.parent_id, mpId);
+                    const parent = findParentCategory(current.parent_id, null);
                     if (parent) {
                         path.unshift(parent.name_ua || parent.id);
                         current = parent;
@@ -533,25 +475,10 @@ function getCategoriesColumns(allCategories) {
             label: 'Батьківська',
             sortable: true,
             filterable: true,
-            render: (value, row) => {
+            render: (value) => {
                 if (!value) return '-';
-                const mpId = row._source !== 'own' ? row.marketplace_id : null;
-                const parent = findParentCategory(value, mpId);
+                const parent = findParentCategory(value, null);
                 if (parent) return escapeHtml(parent.name_ua || value);
-
-                // Fallback: витягти батька з parentsPathUa або parentName
-                const mpData = row._mpData;
-                if (mpData) {
-                    // Пріоритет: укр. шлях → рос. parentName
-                    if (mpData.parentsPathUa || mpData.parentsPath) {
-                        const pathStr = mpData.parentsPathUa || mpData.parentsPath;
-                        const parts = pathStr.split(' / ');
-                        if (parts.length >= 2) return escapeHtml(parts[parts.length - 2]);
-                    }
-                    const fallbackName = mpData.parentName || mpData.parent_name;
-                    if (fallbackName) return escapeHtml(fallbackName);
-                }
-
                 return escapeHtml(value);
             }
         },
@@ -577,18 +504,17 @@ function initCategoriesTableAPI(container, allCategories) {
     if (mapperTableAPIs.has('categories')) return;
 
     const visibleCols = mapperState.visibleColumns.categories?.length > 0
-        ? [...mapperState.visibleColumns.categories, '_sourceLabel']
-        : ['id', '_sourceLabel', '_nestingLevel', 'name_ua', 'parent_id', 'grouping'];
+        ? mapperState.visibleColumns.categories
+        : ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping', '_bindings'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getCategoriesColumns(allCategories),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
         rowActionsCustom: (row) => {
-            const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories" data-source="${row._source}">
-                ${actionButton({ action, rowId: row.id, context: 'mapper-categories' })}
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories">
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-categories' })}
             `;
         },
         getRowId: (row) => row.id,
@@ -624,95 +550,40 @@ export function renderCategoriesTable() {
     const container = document.getElementById('mapper-categories-table-container');
     if (!container) return;
 
-    const { categories, marketplaces } = getCategoriesData();
+    const { categories } = getCategoriesData();
 
     if (categories.length === 0) {
         renderEmptyState(container, 'categories');
-        updateSourceFilterButtons('categories', marketplaces);
         return;
     }
 
-    // Ініціалізуємо API якщо потрібно (або оновлюємо колонки)
-    // Скидаємо API щоб оновити колонки з актуальними даними
     mapperTableAPIs.delete('categories');
     initCategoriesTableAPI(container, categories);
 
     const tableAPI = mapperTableAPIs.get('categories');
     if (!tableAPI) return;
 
-    // Застосувати фільтри
     let filteredData = applyFilters(categories, 'categories');
-
-    // Застосувати пагінацію
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
-    // Оновити пагінацію
     updatePagination(totalItems);
-
-    // Оновити фільтр-кнопки джерела
-    updateSourceFilterButtons('categories', marketplaces);
-
-    // Рендерити таблицю через API
     tableAPI.render(paginatedData);
-
-    // Оновити статистику
     updateStats('categories', filteredData.length, categories.length);
 }
 
 /**
- * Отримати дані характеристик (власні + MP)
+ * Отримати дані характеристик (тільки власні)
  */
 function getCharacteristicsData() {
-    const marketplaces = getMarketplaces();
     const categoriesList = getCategories();
 
-    // Отримати власні характеристики
-    const ownCharacteristics = getCharacteristics().map(char => ({
+    const characteristics = getCharacteristics().map(char => ({
         ...char,
-        _source: 'own',
-        _sourceLabel: 'Власний',
         _editable: true
     }));
 
-    // Отримати MP характеристики - тільки незамаплені
-    const mpCharacteristics = getMpCharacteristics()
-        .filter(mpChar => !isMpCharacteristicMapped(mpChar.id))
-        .map(mpChar => {
-            // Дані вже розпарсовані в loadMpCharacteristics через Object.assign
-            // Але для сумісності також перевіряємо raw data
-            const rawData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-            const marketplace = marketplaces.find(m => m.id === mpChar.marketplace_id);
-
-            // Перевірка is_global з різних джерел - нормалізуємо до 'TRUE'/'FALSE'
-            const isGlobalValue = mpChar.is_global || rawData.is_global;
-            const isGlobalBool = isGlobalValue === true ||
-                                 isGlobalValue === 'TRUE' ||
-                                 String(isGlobalValue).toLowerCase() === 'true' ||
-                                 String(isGlobalValue).toLowerCase() === 'так';
-            const isGlobal = isGlobalBool ? 'TRUE' : 'FALSE';
-
-            return {
-                id: mpChar.id,
-                external_id: mpChar.external_id,
-                marketplace_id: mpChar.marketplace_id,
-                name_ua: extractName(mpChar) || extractName(rawData),
-                name_ru: '',
-                type: mpChar.type || rawData.type || '',
-                unit: mpChar.unit || rawData.unit || '',
-                is_global: isGlobal,
-                category_ids: mpChar.category_id || rawData.category_id || '',
-                filter_type: mpChar.filter_type || rawData.filter_type || '',
-                our_char_id: mpChar.our_char_id || rawData.our_char_id || '',
-                _source: mpChar.marketplace_id,
-                _sourceLabel: marketplace?.name || mpChar.marketplace_id,
-                _editable: false,
-                _mpData: rawData
-            };
-        });
-
     return {
-        characteristics: [...ownCharacteristics, ...mpCharacteristics],
-        marketplaces,
+        characteristics,
         categories: categoriesList
     };
 }
@@ -727,23 +598,7 @@ function getCharacteristicsColumns(categoriesList) {
             label: 'ID',
             className: 'cell-m',
             sortable: true,
-            render: (value, row) => {
-                const displayId = row._source === 'own' ? value : (row.external_id || value);
-                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-            }
-        },
-        {
-            id: '_sourceLabel',
-            label: 'Джерело',
-            sortable: true,
-            filterable: true,
-            className: 'cell-s',
-            render: (value, row) => {
-                if (row._source === 'own') {
-                    return `<span class="chip chip-success">Власний</span>`;
-                }
-                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-            }
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: 'category_ids',
@@ -813,18 +668,17 @@ function initCharacteristicsTableAPI(container, categoriesList) {
     if (mapperTableAPIs.has('characteristics')) return;
 
     const visibleCols = mapperState.visibleColumns.characteristics?.length > 0
-        ? [...mapperState.visibleColumns.characteristics, '_sourceLabel']
-        : ['id', '_sourceLabel', 'category_ids', 'name_ua', 'type', 'is_global'];
+        ? mapperState.visibleColumns.characteristics
+        : ['id', 'category_ids', 'name_ua', 'type', 'is_global', '_bindings'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getCharacteristicsColumns(categoriesList),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
         rowActionsCustom: (row) => {
-            const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics" data-source="${row._source}">
-                ${actionButton({ action, rowId: row.id, context: 'mapper-characteristics' })}
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics">
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-characteristics' })}
             `;
         },
         getRowId: (row) => row.id,
@@ -858,15 +712,13 @@ export function renderCharacteristicsTable() {
     const container = document.getElementById('mapper-characteristics-table-container');
     if (!container) return;
 
-    const { characteristics, marketplaces, categories } = getCharacteristicsData();
+    const { characteristics, categories } = getCharacteristicsData();
 
     if (characteristics.length === 0) {
         renderEmptyState(container, 'characteristics');
-        updateSourceFilterButtons('characteristics', marketplaces);
         return;
     }
 
-    // Скидаємо API щоб оновити колонки з актуальними даними
     mapperTableAPIs.delete('characteristics');
     initCharacteristicsTableAPI(container, categories);
 
@@ -877,71 +729,23 @@ export function renderCharacteristicsTable() {
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     updatePagination(totalItems);
-    updateSourceFilterButtons('characteristics', marketplaces);
     tableAPI.render(paginatedData);
     updateStats('characteristics', filteredData.length, characteristics.length);
 }
 
 /**
- * Отримати дані опцій (власні + MP)
+ * Отримати дані опцій (тільки власні)
  */
 function getOptionsData() {
-    const marketplaces = getMarketplaces();
     const characteristicsList = getCharacteristics();
-    const mpCharacteristicsList = getMpCharacteristics();
 
-    // Отримати власні опції
-    const ownOptions = getOptions().map(opt => ({
+    const options = getOptions().map(opt => ({
         ...opt,
-        _source: 'own',
-        _sourceLabel: 'Власний',
         _editable: true
     }));
 
-    // Отримати MP опції - тільки незамаплені
-    const mpOptions = getMpOptions()
-        .filter(mpOpt => !isMpOptionMapped(mpOpt.id))
-        .map(mpOpt => {
-            let data = {};
-            if (mpOpt.data) {
-                try {
-                    data = typeof mpOpt.data === 'string' ? JSON.parse(mpOpt.data) : mpOpt.data;
-                } catch (e) {
-                    console.warn(`⚠️ Помилка парсингу data для MP опції ${mpOpt.id}:`, e);
-                    data = {};
-                }
-            }
-            const marketplace = marketplaces.find(m => m.id === mpOpt.marketplace_id);
-
-            let charName = data.char_id || '';
-            const mpChar = mpCharacteristicsList.find(c =>
-                c.marketplace_id === mpOpt.marketplace_id && c.external_id === data.char_id
-            );
-            if (mpChar) {
-                const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-                charName = extractName(charData) || data.char_id;
-            }
-
-            return {
-                id: mpOpt.id,
-                external_id: mpOpt.external_id,
-                marketplace_id: mpOpt.marketplace_id,
-                characteristic_id: data.char_id || '',
-                characteristic_name: charName,
-                value_ua: extractName(data),
-                value_ru: '',
-                sort_order: '0',
-                our_option_id: data.our_option_id || '',
-                _source: mpOpt.marketplace_id,
-                _sourceLabel: marketplace?.name || mpOpt.marketplace_id,
-                _editable: false,
-                _mpData: data
-            };
-        });
-
     return {
-        options: [...ownOptions, ...mpOptions],
-        marketplaces,
+        options,
         characteristics: characteristicsList
     };
 }
@@ -956,35 +760,16 @@ function getOptionsColumns(characteristicsList) {
             label: 'ID',
             className: 'cell-m',
             sortable: true,
-            render: (value, row) => {
-                const displayId = row._source === 'own' ? value : (row.external_id || value);
-                return `<span class="word-chip">${escapeHtml(displayId || '')}</span>`;
-            }
-        },
-        {
-            id: '_sourceLabel',
-            label: 'Джерело',
-            sortable: true,
-            filterable: true,
-            className: 'cell-s',
-            render: (value, row) => {
-                if (row._source === 'own') {
-                    return `<span class="chip chip-success">Власний</span>`;
-                }
-                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-            }
+            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
         },
         {
             id: 'characteristic_id',
             label: 'Характеристика',
             sortable: true,
             filterable: true,
-            render: (value, row) => {
-                if (row._source === 'own') {
-                    const char = characteristicsList.find(c => c.id === value);
-                    return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
-                }
-                return escapeHtml(row.characteristic_name || value || '-');
+            render: (value) => {
+                const char = characteristicsList.find(c => c.id === value);
+                return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
             }
         },
         {
@@ -1001,15 +786,12 @@ function getOptionsColumns(characteristicsList) {
             filterable: true,
             className: 'cell-xs cell-center',
             render: (value, row) => {
-                // Отримуємо категорії з характеристики
                 let categoryIds = row.category_ids || '';
 
-                // Для власних опцій - отримуємо категорії з характеристики
-                if (row._source === 'own' && row.characteristic_id) {
+                if (row.characteristic_id) {
                     const chars = getCharacteristics();
                     const char = chars.find(c => c.id === row.characteristic_id);
                     if (char) {
-                        // Перевірка is_global
                         if (String(char.is_global).toLowerCase() === 'true' || char.is_global === true) {
                             return `<span class="chip chip-active" data-tooltip="Глобальна характеристика">∞</span>`;
                         }
@@ -1044,18 +826,17 @@ function initOptionsTableAPI(container, characteristicsList) {
     if (mapperTableAPIs.has('options')) return;
 
     const visibleCols = mapperState.visibleColumns.options?.length > 0
-        ? [...mapperState.visibleColumns.options, '_sourceLabel']
-        : ['id', '_sourceLabel', 'characteristic_id', 'value_ua'];
+        ? mapperState.visibleColumns.options
+        : ['id', 'characteristic_id', 'value_ua', '_bindings'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getOptionsColumns(characteristicsList),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
         rowActionsCustom: (row) => {
-            const action = row._editable ? 'edit' : 'view';
             return `
-                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options" data-source="${row._source}">
-                ${actionButton({ action, rowId: row.id, context: 'mapper-options' })}
+                <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options">
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-options' })}
             `;
         },
         getRowId: (row) => row.id,
@@ -1089,11 +870,10 @@ export function renderOptionsTable() {
     const container = document.getElementById('mapper-options-table-container');
     if (!container) return;
 
-    const { options, marketplaces, characteristics } = getOptionsData();
+    const { options, characteristics } = getOptionsData();
 
     if (options.length === 0) {
         renderEmptyState(container, 'options');
-        updateSourceFilterButtons('options', marketplaces);
         return;
     }
 
@@ -1107,7 +887,6 @@ export function renderOptionsTable() {
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     updatePagination(totalItems);
-    updateSourceFilterButtons('options', marketplaces);
     tableAPI.render(paginatedData);
     updateStats('options', filteredData.length, options.length);
 }
@@ -1118,8 +897,6 @@ export function renderOptionsTable() {
 function getMarketplacesData() {
     const marketplaces = getMarketplaces().map(mp => ({
         ...mp,
-        _source: 'own',
-        _sourceLabel: 'Власний',
         _editable: true
     }));
 
@@ -1137,19 +914,6 @@ function getMarketplacesColumns() {
             className: 'cell-m',
             sortable: true,
             render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: '_sourceLabel',
-            label: 'Джерело',
-            sortable: true,
-            filterable: true,
-            className: 'cell-s',
-            render: (value, row) => {
-                if (row._source === 'own') {
-                    return `<span class="chip chip-success">Власний</span>`;
-                }
-                return `<span class="chip chip-active">${escapeHtml(value)}</span>`;
-            }
         },
         {
             id: 'name',
@@ -1187,8 +951,8 @@ function initMarketplacesTableAPI(container) {
     if (mapperTableAPIs.has('marketplaces')) return;
 
     const visibleCols = mapperState.visibleColumns.marketplaces?.length > 0
-        ? [...mapperState.visibleColumns.marketplaces, '_sourceLabel']
-        : ['id', '_sourceLabel', 'name', 'slug', 'is_active'];
+        ? mapperState.visibleColumns.marketplaces
+        : ['id', 'name', 'slug', 'is_active'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getMarketplacesColumns(),
@@ -1236,7 +1000,6 @@ export function renderMarketplacesTable() {
 
     if (marketplaces.length === 0) {
         renderEmptyState(container, 'marketplaces');
-        updateSourceFilterButtons('marketplaces', marketplaces);
         return;
     }
 
@@ -1250,7 +1013,6 @@ export function renderMarketplacesTable() {
     const { paginatedData, totalItems } = applyPagination(filteredData);
 
     updatePagination(totalItems);
-    updateSourceFilterButtons('marketplaces', marketplaces);
     tableAPI.render(paginatedData);
     updateStats('marketplaces', filteredData.length, marketplaces.length);
 }
@@ -1299,20 +1061,6 @@ function applyFilters(data, tabName) {
         });
     }
 
-    // Отримати налаштування фільтрів
-    const filter = mapperState.filters[tabName];
-
-    // Фільтр по джерелу (source) - для всіх табів (кнопки)
-    if (filter && typeof filter === 'object' && filter.source && filter.source !== 'all') {
-        if (filter.source === 'own') {
-            filtered = filtered.filter(item => item._source === 'own');
-        } else {
-            // Фільтр по конкретному маркетплейсу (наприклад, mp-001)
-            const marketplaceId = filter.source.replace('mp-', '');
-            filtered = filtered.filter(item => item._source === marketplaceId || item.marketplace_id === marketplaceId);
-        }
-    }
-
     // Колонкові фільтри (hover dropdown)
     const columnFilters = mapperState.columnFilters[tabName];
     if (columnFilters && Object.keys(columnFilters).length > 0) {
@@ -1329,60 +1077,6 @@ function applyFilters(data, tabName) {
     return filtered;
 }
 
-/**
- * Оновити кнопки фільтра по джерелу
- * @param {string} tabName - Назва табу
- * @param {Array} marketplaces - Список маркетплейсів
- */
-function updateSourceFilterButtons(tabName, marketplaces) {
-    const containerId = `filter-source-mapper-${tabName}`;
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const currentFilter = mapperState.filters[tabName]?.source || 'all';
-
-    // Базові кнопки
-    let html = `
-        <button class="nav-icon ${currentFilter === 'all' ? 'active' : ''}" data-filter-source="all" data-tab="${tabName}">
-            <span class="label">Всі</span>
-        </button>
-        <button class="nav-icon ${currentFilter === 'own' ? 'active' : ''}" data-filter-source="own" data-tab="${tabName}">
-            <span class="label">Власні</span>
-        </button>
-    `;
-
-    // Додати кнопки для кожного активного маркетплейсу
-    const activeMarketplaces = marketplaces.filter(m => m.is_active === true || String(m.is_active).toLowerCase() === 'true');
-    activeMarketplaces.forEach(mp => {
-        const isActive = currentFilter === `mp-${mp.id}`;
-        html += `
-            <button class="nav-icon ${isActive ? 'active' : ''}" data-filter-source="mp-${mp.id}" data-tab="${tabName}">
-                <span class="label">${escapeHtml(mp.name)}</span>
-            </button>
-        `;
-    });
-
-    container.innerHTML = html;
-
-    // Додати обробники подій
-    container.querySelectorAll('.nav-icon').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const source = btn.dataset.filterSource;
-            const tab = btn.dataset.tab;
-
-            // Оновити стан фільтра
-            if (!mapperState.filters[tab] || typeof mapperState.filters[tab] !== 'object') {
-                mapperState.filters[tab] = { mapped: 'all', source: 'all' };
-            }
-            mapperState.filters[tab].source = source;
-            mapperState.pagination.currentPage = 1;
-
-            // Перерендерити таблицю
-            renderCurrentTab();
-
-        });
-    });
-}
 
 /**
  * Застосувати пагінацію
@@ -1758,22 +1452,18 @@ function initTableCheckboxes(container, tabName, data) {
 function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
             { id: 'parent_id', label: 'Батьківська', filterType: 'values', labelMap: _cachedCategoryLabelMap() },
             { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
         ],
         characteristics: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
             { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
             { id: 'is_global', label: 'Глобальна', filterType: 'values' }
         ],
         options: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
             { id: 'characteristic_id', label: 'Характеристика', filterType: 'values', labelMap: _cachedCharacteristicLabelMap() }
         ],
         marketplaces: [
-            { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
             { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'true': 'Активний', 'false': 'Неактивний' } }
         ]
     };
@@ -1819,7 +1509,6 @@ export function initMapperColumnFilters(container, tabName, data) {
         dataSource: () => currentData,
         columnTypes: {
             id: 'string',
-            _sourceLabel: 'string',
             name_ua: 'string',
             name_ru: 'string',
             type: 'string',

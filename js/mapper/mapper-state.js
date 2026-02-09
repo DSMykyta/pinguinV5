@@ -58,10 +58,10 @@ export const mapperState = {
 
     // Фільтри
     filters: {
-        categories: { source: 'all' },
-        characteristics: { source: 'all' },
-        options: { source: 'all' },
-        marketplaces: { source: 'all' }
+        categories: {},
+        characteristics: {},
+        options: {},
+        marketplaces: {}
     },
 
     // Колонкові фільтри (hover dropdown)

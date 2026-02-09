@@ -29,10 +29,15 @@ function extractName(obj) {
     if (!obj || typeof obj !== 'object') return '';
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
+    if (obj.titleUk) return obj.titleUk;
+    if (obj.titleRu) return obj.titleRu;
     if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
     if (obj.nameRu) return obj.nameRu;
-    const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
+    const nameKey = Object.keys(obj).find(k => {
+        const lower = k.toLowerCase();
+        return lower.includes('name') || lower.includes('title');
+    });
     return nameKey ? obj[nameKey] : '';
 }
 

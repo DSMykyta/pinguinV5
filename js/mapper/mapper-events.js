@@ -72,8 +72,34 @@ export function initMapperEvents() {
     // Batch actions bars
     initMapperBatchActions();
 
-    // Примітка: Фільтри по джерелу тепер генеруються динамічно в mapper-table.js
+    // Клік по чіпу прив'язок → модал прив'язок
+    initBindingChipClicks();
 
+}
+
+/**
+ * Ініціалізувати обробник кліку по чіпам прив'язок
+ */
+function initBindingChipClicks() {
+    const mainContent = document.querySelector('.app-main-content');
+    if (!mainContent) return;
+
+    mainContent.addEventListener('click', async (e) => {
+        const chip = e.target.closest('.binding-chip');
+        if (!chip) return;
+
+        const entityType = chip.dataset.entityType;
+        const entityId = chip.dataset.entityId;
+        const entityName = chip.dataset.entityName;
+
+        if (!entityType || !entityId) return;
+
+        if (entityType === 'category') {
+            const { showBindingsModal } = await import('./mapper-categories.js');
+            showBindingsModal(entityId, entityName);
+        }
+        // TODO: характеристики та опції — аналогічно
+    });
 }
 
 /**
