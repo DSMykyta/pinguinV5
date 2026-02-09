@@ -245,7 +245,6 @@ const mpDataModalState = {
     marketplaceId: null,
     marketplaceName: '',
     activeTab: 'categories',
-    filter: 'all',
     searchQuery: '',
     categories: [],
     characteristics: [],
@@ -270,14 +269,21 @@ export async function showMarketplaceDataModal(id) {
     mpDataModalState.marketplaceId = id;
     mpDataModalState.marketplaceName = marketplace.name;
     mpDataModalState.activeTab = 'categories';
-    mpDataModalState.filter = 'all';
     mpDataModalState.searchQuery = '';
 
     await showModal('mapper-mp-data', null);
     await new Promise(resolve => requestAnimationFrame(resolve));
 
     const title = document.getElementById('mp-data-modal-title');
-    if (title) title.textContent = `${marketplace.name} - Дані`;
+    if (title) title.textContent = `${marketplace.name} — Дані`;
+
+    // Активувати перший таб в sidebar
+    const sidebarNav = document.getElementById('mp-data-sidebar-nav');
+    if (sidebarNav) {
+        sidebarNav.querySelectorAll('[data-mp-tab]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mpTab === 'categories');
+        });
+    }
 
     await loadMpDataForModal(id);
     initMpDataModalEvents();
@@ -308,22 +314,17 @@ async function loadMpDataForModal(marketplaceId) {
 }
 
 function initMpDataModalEvents() {
-    const tabButtons = document.querySelectorAll('#mp-data-tabs [data-mp-tab]');
+    // Sidebar tab navigation
+    const tabButtons = document.querySelectorAll('#mp-data-sidebar-nav [data-mp-tab]');
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             tabButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             mpDataModalState.activeTab = btn.dataset.mpTab;
-            renderMpDataModalTable();
-        });
-    });
-
-    const filterButtons = document.querySelectorAll('#mp-data-filter-pills [data-mp-filter]');
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            mpDataModalState.filter = btn.dataset.mpFilter;
+            mpDataModalState.searchQuery = '';
+            const searchInput = document.getElementById('mp-data-search');
+            if (searchInput) searchInput.value = '';
+            closeMappingPicker();
             renderMpDataModalTable();
         });
     });
@@ -341,7 +342,7 @@ function renderMpDataModalTable() {
     const container = document.getElementById('mp-data-table-container');
     if (!container) return;
 
-    const { activeTab, filter, searchQuery } = mpDataModalState;
+    const { activeTab, searchQuery } = mpDataModalState;
 
     let data = [];
     let columns = [];
@@ -354,23 +355,6 @@ function renderMpDataModalTable() {
     } else if (activeTab === 'options') {
         data = [...mpDataModalState.options];
         columns = getMpOptionsColumns();
-    }
-
-    // Фільтр mapped/unmapped
-    if (filter === 'mapped') {
-        data = data.filter(item => {
-            if (activeTab === 'categories') return isCatMapped(item);
-            if (activeTab === 'characteristics') return !!item.our_char_id;
-            if (activeTab === 'options') return !!item.our_option_id;
-            return true;
-        });
-    } else if (filter === 'unmapped') {
-        data = data.filter(item => {
-            if (activeTab === 'categories') return !isCatMapped(item);
-            if (activeTab === 'characteristics') return !item.our_char_id;
-            if (activeTab === 'options') return !item.our_option_id;
-            return true;
-        });
     }
 
     // Пошук
@@ -429,7 +413,7 @@ function renderMpDataModalTable() {
 
         if (hasMore) {
             tableHtml += `
-                <div class="mp-data-more-hint" style="text-align: center; padding: 1rem; color: var(--color-text-tertiary);">
+                <div class="mp-data-more-hint" style="text-align: center; padding: 1rem; color: var(--color-on-surface-v);">
                     Показано перші ${MP_DATA_PAGE_SIZE} записів. Використовуйте пошук для фільтрації.
                 </div>
             `;
@@ -467,16 +451,6 @@ function extractMpName(obj) {
 }
 
 /**
- * Перевірити чи MP категорія замаплена (через таблицю маппінгів)
- */
-function isCatMapped(mpCat) {
-    const mapCats = getMapCategories();
-    return mapCats.some(m =>
-        m.mp_category_id === mpCat.id || m.mp_category_id === mpCat.external_id
-    );
-}
-
-/**
  * Знайти маппінг для MP категорії
  */
 function findCatMapping(mpCat) {
@@ -506,7 +480,6 @@ function renderMpCategoryTree(container, data) {
 
     data.forEach(item => {
         const parentId = String(item.parentId || item.parent_id || '');
-        // Рут = немає parent або parent не знайдений в даних
         const key = (parentId && dataSet.has(parentId)) ? parentId : 'root';
         if (!byParent.has(key)) byParent.set(key, []);
         byParent.get(key).push(item);
@@ -517,12 +490,7 @@ function renderMpCategoryTree(container, data) {
         children.sort((a, b) => extractMpName(a).localeCompare(extractMpName(b), 'uk'));
     });
 
-    // Побудувати опції для select
-    const ownOptionsHtml = `<option value="">—</option>` + ownCategories.map(c =>
-        `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name_ua || c.id)}</option>`
-    ).join('');
-
-    // Рекурсивний рендер
+    // Рекурсивний рендер — замість <select> рендеримо клікабельний trigger
     function buildTree(parentKey, level) {
         const children = byParent.get(parentKey);
         if (!children || children.length === 0) return '';
@@ -536,6 +504,8 @@ function renderMpCategoryTree(container, data) {
             // Знайти поточний маппінг
             const mapping = findCatMapping(item);
             const mappedCatId = mapping?.category_id || '';
+            const mappedCat = mappedCatId ? ownCategories.find(c => c.id === mappedCatId) : null;
+            const mappedLabel = mappedCat ? (mappedCat.name_ua || mappedCat.id) : '';
 
             const toggleHtml = hasChildren
                 ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
@@ -548,14 +518,19 @@ function renderMpCategoryTree(container, data) {
                 isOpen ? 'is-open' : ''
             ].filter(Boolean).join(' ');
 
+            const triggerClass = mappedCatId ? 'mp-tree-mapping-trigger is-mapped' : 'mp-tree-mapping-trigger';
+
             return `
                 <li data-id="${escapeHtml(item.id)}" class="${classes}">
                     <div class="tree-item-content mp-tree-item">
                         ${toggleHtml}
                         <span class="tree-item-name">${escapeHtml(name)}</span>
-                        <select class="mp-tree-mapping" data-mp-cat-id="${escapeHtml(item.id)}">
-                            ${ownOptionsHtml.replace(`value="${escapeHtml(mappedCatId)}"`, `value="${escapeHtml(mappedCatId)}" selected`)}
-                        </select>
+                        <div class="${triggerClass}"
+                             data-mp-cat-id="${escapeHtml(item.id)}"
+                             data-current-cat-id="${escapeHtml(mappedCatId)}">
+                            <span class="mp-tree-mapping-label">${mappedLabel ? escapeHtml(mappedLabel) : '—'}</span>
+                            <svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                        </div>
                     </div>
                     ${childrenHtml}
                 </li>
@@ -577,17 +552,19 @@ function renderMpCategoryTree(container, data) {
         });
     });
 
-    // Mapping dropdown change
-    container.querySelectorAll('.mp-tree-mapping').forEach(select => {
-        select.addEventListener('change', async () => {
-            const mpCatId = select.dataset.mpCatId;
-            const newOwnCatId = select.value;
+    // Mapping trigger click → shared picker popup
+    container.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.mp-tree-mapping-trigger');
+        if (!trigger) return;
+        e.stopPropagation();
 
-            // Знайти MP категорію
-            const mpCat = data.find(c => c.id === mpCatId);
-            if (!mpCat) return;
+        const mpCatId = trigger.dataset.mpCatId;
+        const currentCatId = trigger.dataset.currentCatId || '';
+        const mpCat = data.find(c => c.id === mpCatId);
+        if (!mpCat) return;
 
-            // Видалити старий маппінг якщо є
+        showMappingPicker(trigger, ownCategories, currentCatId, async (newCatId) => {
+            // Видалити старий маппінг
             const oldMapping = findCatMapping(mpCat);
             if (oldMapping) {
                 try {
@@ -598,37 +575,152 @@ function renderMpCategoryTree(container, data) {
                 }
             }
 
-            // Створити новий маппінг якщо обрано категорію
-            if (newOwnCatId) {
+            // Створити новий маппінг
+            if (newCatId) {
                 try {
-                    await createCategoryMapping(newOwnCatId, mpCatId);
+                    await createCategoryMapping(newCatId, mpCatId);
                     showToast('Прив\'язано', 'success');
                 } catch (err) {
                     showToast('Помилка створення маппінгу', 'error');
+                    return;
                 }
             } else if (oldMapping) {
                 showToast('Прив\'язку видалено', 'success');
             }
+
+            // Оновити trigger
+            const newCat = newCatId ? ownCategories.find(c => c.id === newCatId) : null;
+            trigger.dataset.currentCatId = newCatId || '';
+            trigger.classList.toggle('is-mapped', !!newCatId);
+            const label = trigger.querySelector('.mp-tree-mapping-label');
+            if (label) label.textContent = newCat ? (newCat.name_ua || newCat.id) : '—';
         });
     });
 }
 
-function getMpCategoriesColumns() {
-    const categories = getCategories();
-    return [
-        { id: 'external_id', label: 'ID', className: 'cell-m' },
-        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
-        { id: 'parent_name', label: 'Батьківська' },
-        {
-            id: 'our_category_id',
-            label: 'Наша категорія',
-            render: (v) => {
-                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
-                const cat = categories.find(c => c.id === v);
-                return `<span class="severity-badge severity-low">${escapeHtml(cat?.name_ua || v)}</span>`;
-            }
+// ═══════════════════════════════════════════════════════════════════════════
+// SHARED MAPPING PICKER (виглядає як custom-select, але один на все дерево)
+// ═══════════════════════════════════════════════════════════════════════════
+
+let _mappingPickerEl = null;
+let _mappingPickerCleanup = null;
+
+function showMappingPicker(triggerEl, ownCategories, currentValue, onSelect) {
+    closeMappingPicker();
+
+    const picker = getOrCreateMappingPicker();
+    const list = picker.querySelector('.custom-select-options');
+    const search = picker.querySelector('.custom-select-search');
+
+    // Заповнити список
+    list.innerHTML = `<li class="custom-select-option${!currentValue ? ' is-selected' : ''}" data-value="">— Без прив'язки —</li>` +
+        ownCategories.map(c => {
+            const name = c.name_ua || c.id;
+            const selected = c.id === currentValue ? ' is-selected' : '';
+            return `<li class="custom-select-option${selected}" data-value="${escapeHtml(c.id)}">${escapeHtml(name)}</li>`;
+        }).join('');
+
+    // Позиціонування
+    const rect = triggerEl.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+    const spaceBelow = viewportH - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+    const panelHeight = Math.min(280, Math.max(spaceBelow, spaceAbove));
+    const openUp = spaceBelow < 200 && spaceAbove > spaceBelow;
+
+    picker.style.position = 'fixed';
+    picker.style.left = `${rect.left}px`;
+    picker.style.width = `${Math.max(rect.width, 220)}px`;
+    picker.style.maxHeight = `${panelHeight}px`;
+    picker.style.zIndex = '10000';
+
+    if (openUp) {
+        picker.style.top = 'auto';
+        picker.style.bottom = `${viewportH - rect.top + 4}px`;
+    } else {
+        picker.style.top = `${rect.bottom + 4}px`;
+        picker.style.bottom = 'auto';
+    }
+
+    picker.style.display = 'flex';
+    picker.classList.add('is-open');
+
+    // Автофокус на пошук
+    if (search) {
+        search.value = '';
+        setTimeout(() => search.focus(), 0);
+    }
+
+    // Пошук
+    const onSearchInput = () => {
+        const q = search.value.toLowerCase();
+        list.querySelectorAll('.custom-select-option').forEach(li => {
+            li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    };
+
+    // Вибір
+    const onListClick = (e) => {
+        const li = e.target.closest('.custom-select-option');
+        if (!li) return;
+        onSelect(li.dataset.value);
+        closeMappingPicker();
+    };
+
+    // Закриття по кліку поза
+    const onOutsideClick = (e) => {
+        if (!picker.contains(e.target) && !triggerEl.contains(e.target)) {
+            closeMappingPicker();
         }
-    ];
+    };
+
+    // Закриття по Escape
+    const onKeyDown = (e) => {
+        if (e.key === 'Escape') {
+            closeMappingPicker();
+        }
+    };
+
+    search?.addEventListener('input', onSearchInput);
+    list.addEventListener('click', onListClick);
+    setTimeout(() => document.addEventListener('click', onOutsideClick), 0);
+    document.addEventListener('keydown', onKeyDown);
+
+    _mappingPickerCleanup = () => {
+        search?.removeEventListener('input', onSearchInput);
+        list.removeEventListener('click', onListClick);
+        document.removeEventListener('click', onOutsideClick);
+        document.removeEventListener('keydown', onKeyDown);
+    };
+}
+
+function closeMappingPicker() {
+    if (_mappingPickerCleanup) {
+        _mappingPickerCleanup();
+        _mappingPickerCleanup = null;
+    }
+    if (_mappingPickerEl) {
+        _mappingPickerEl.style.display = 'none';
+        _mappingPickerEl.classList.remove('is-open');
+    }
+}
+
+function getOrCreateMappingPicker() {
+    if (_mappingPickerEl) return _mappingPickerEl;
+
+    const picker = document.createElement('div');
+    picker.className = 'custom-select-panel mp-mapping-picker';
+    picker.innerHTML = `
+        <div class="custom-select-search-wrapper">
+            <input type="text" class="custom-select-search" placeholder="Пошук...">
+        </div>
+        <ul class="custom-select-options" role="listbox"></ul>
+    `;
+    picker.style.display = 'none';
+    document.body.appendChild(picker);
+
+    _mappingPickerEl = picker;
+    return picker;
 }
 
 function getMpCharacteristicsColumns() {
