@@ -7,14 +7,14 @@
  * ║  Покроковий візард для маппінгу MP категорій до власних.                ║
  * ║                                                                        ║
  * ║  Крок 1: Фільтр — пошук по назві, вибір маркетплейсів, мін. 2 збіги   ║
- * ║  Крок 2: Картки — по одній, замапити/створити/пропустити               ║
+ * ║  Крок 2: Картки — по одній, замапити/пропустити (тільки існуючі)       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { mapperState } from './mapper-state.js';
 import {
     getCategories, getMpCategories,
-    addCategory, createCategoryMapping, isMpCategoryMapped
+    createCategoryMapping, isMpCategoryMapped
 } from './mapper-data.js';
 import { showModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
@@ -57,6 +57,42 @@ function normalizeName(name) {
     return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
+/**
+ * Побудувати шлях батьків для категорії (хлібні крихти)
+ * Повертає рядок типу "Спорт → Аксесуари → Шейкери"
+ */
+function getParentPath(cat, allCategories) {
+    const path = [];
+    let current = cat;
+    let depth = 0;
+
+    while (current && current.parent_id && depth < 10) {
+        depth++;
+        const pid = String(current.parent_id);
+        const mpId = cat.marketplace_id || null;
+
+        const parent = allCategories.find(c => {
+            if (c.id === pid) return true;
+            if (mpId && c.marketplace_id === mpId) {
+                if (String(c._jsonId) === pid) return true;
+                if (String(c.external_id) === pid) return true;
+            }
+            if (!mpId && String(c.external_id) === pid) return true;
+            return false;
+        });
+
+        if (parent) {
+            const pName = extractName(parent) || parent.name_ua || parent.id;
+            path.unshift(pName);
+            current = parent;
+        } else {
+            break;
+        }
+    }
+
+    return path.length ? path.join(' → ') : '';
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════
@@ -66,7 +102,7 @@ let wizardState = {
     cards: [],         // Відфільтровані картки для роботи
     currentIndex: 0,
     phase: 'filter',   // 'filter' | 'cards' | 'done'
-    results: { created: 0, mapped: 0, skipped: 0 },
+    results: { mapped: 0, skipped: 0 },
     // Фільтри
     searchQuery: '',
     selectedMarketplaces: new Set(),
@@ -80,6 +116,7 @@ let wizardState = {
 function buildAllCards() {
     const mpCategories = getMpCategories();
     const ownCategories = getCategories();
+    const allCategories = [...ownCategories, ...mpCategories];
     const unmapped = mpCategories.filter(c => !isMpCategoryMapped(c.id));
 
     if (!unmapped.length) return [];
@@ -100,12 +137,15 @@ function buildAllCards() {
             });
         }
 
+        const parentPath = getParentPath(mpCat, allCategories);
+
         groups.get(key).mpCategories.push({
             id: mpCat.id,
             external_id: mpCat.external_id,
             marketplace_id: mpCat.marketplace_id,
             marketplaceName: getMarketplaceName(mpCat.marketplace_id),
-            name: name
+            name: name,
+            parentPath: parentPath
         });
     });
 
@@ -118,16 +158,18 @@ function buildAllCards() {
 
     const cards = [];
     groups.forEach(group => {
-        group.ownCategory = ownByName.get(group.normalizedName) || null;
+        const ownCat = ownByName.get(group.normalizedName) || null;
+        // Тільки якщо є відповідна власна категорія
+        if (!ownCat) return;
+
+        group.ownCategory = ownCat;
+        group.ownParentPath = getParentPath(ownCat, allCategories);
         cards.push(group);
     });
 
     cards.sort((a, b) => {
-        // Спочатку більше збігів, потім ті де є власна
         const diff = b.mpCategories.length - a.mpCategories.length;
         if (diff !== 0) return diff;
-        if (a.ownCategory && !b.ownCategory) return -1;
-        if (!a.ownCategory && b.ownCategory) return 1;
         return a.name.localeCompare(b.name, 'uk');
     });
 
@@ -148,9 +190,8 @@ function filterCards() {
         // Фільтр по маркетплейсам — залишити тільки MP кат з обраних
         const relevantMp = card.mpCategories.filter(mc => selectedMps.has(mc.marketplace_id));
 
-        // Мінімум 2 збіги (з різних маркетплейсів або один МП + власна)
-        const hasOwn = !!card.ownCategory;
-        const totalMatches = relevantMp.length + (hasOwn ? 1 : 0);
+        // Мінімум 2 збіги (MP категорій + власна = >= 2)
+        const totalMatches = relevantMp.length + 1; // +1 за власну (завжди є)
         if (totalMatches < 2) return false;
 
         // Зберігаємо відфільтровані MP категорії
@@ -288,7 +329,6 @@ function renderCard() {
 
     const card = cards[currentIndex];
     const mpItems = card._filteredMpCategories || card.mpCategories;
-    const hasOwn = !!card.ownCategory;
 
     // UI
     progress.textContent = `${currentIndex + 1} / ${cards.length}`;
@@ -297,25 +337,31 @@ function renderCard() {
     skipBtn.classList.remove('u-hidden');
     applyBtn.classList.remove('u-hidden');
 
-    // Шапка
-    const headerHtml = hasOwn
-        ? `<div style="padding:12px 16px;background:var(--color-surface-variant);border-radius:var(--radius-m);margin-bottom:16px;">
-               <div style="font-size:13px;color:var(--color-text-secondary);">Замапити до існуючої:</div>
-               <div style="font-size:16px;font-weight:600;margin-top:2px;">${escapeHtml(card.ownCategory.name_ua)}</div>
-               <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${escapeHtml(card.ownCategory.id)}</div>
-           </div>`
-        : `<div style="padding:12px 16px;background:var(--color-warning-container, #fff3e0);border-radius:var(--radius-m);margin-bottom:16px;">
-               <div style="font-size:13px;color:var(--color-text-secondary);">Створити + замапити:</div>
-               <div style="font-size:16px;font-weight:600;margin-top:2px;">${escapeHtml(card.name)} <span style="font-size:12px;font-weight:400;opacity:0.7;">(чернетка)</span></div>
-           </div>`;
+    // Шапка — власна категорія з батьківським шляхом
+    const ownParentHtml = card.ownParentPath
+        ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px;">${escapeHtml(card.ownParentPath)} →</div>`
+        : '';
 
-    // Список MP категорій
+    const headerHtml = `
+        <div style="padding:12px 16px;background:var(--color-surface-variant);border-radius:var(--radius-m);margin-bottom:16px;">
+            <div style="font-size:13px;color:var(--color-text-secondary);">Замапити до власної:</div>
+            ${ownParentHtml}
+            <div style="font-size:16px;font-weight:600;margin-top:2px;">${escapeHtml(card.ownCategory.name_ua)}</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">${escapeHtml(card.ownCategory.id)}</div>
+        </div>`;
+
+    // Список MP категорій з батьківськими шляхами
     let listHtml = '<div style="display:flex;flex-direction:column;gap:6px;">';
     mpItems.forEach(mpCat => {
+        const parentHtml = mpCat.parentPath
+            ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:1px;">${escapeHtml(mpCat.parentPath)} →</div>`
+            : '';
+
         listHtml += `
             <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--color-border);border-radius:var(--radius-m);cursor:pointer;">
                 <input type="checkbox" class="mapping-wizard-checkbox" data-mp-id="${escapeHtml(mpCat.id)}" checked />
                 <div style="flex:1;">
+                    ${parentHtml}
                     <div style="font-weight:500;">${escapeHtml(mpCat.name)}</div>
                     <div style="font-size:12px;color:var(--color-text-secondary);">#${escapeHtml(mpCat.external_id)}</div>
                 </div>
@@ -325,7 +371,7 @@ function renderCard() {
     listHtml += '</div>';
 
     body.innerHTML = headerHtml + listHtml;
-    applyBtn.textContent = hasOwn ? 'Замапити' : 'Створити + замапити';
+    applyBtn.textContent = 'Замапити';
 }
 
 function renderDone(body) {
@@ -335,7 +381,6 @@ function renderDone(body) {
             <span class="material-symbols-outlined" style="font-size:48px;color:var(--color-success);">check_circle</span>
             <h3 style="margin-top:12px;">Готово!</h3>
             <div style="margin-top:8px;color:var(--color-text-secondary);">
-                Створено категорій: <strong>${results.created}</strong><br>
                 Замаплено зв'язків: <strong>${results.mapped}</strong><br>
                 Пропущено: <strong>${results.skipped}</strong>
             </div>
@@ -367,18 +412,7 @@ async function applyCurrentCard() {
     applyBtn.textContent = 'Зберігаю...';
 
     try {
-        let ownCatId;
-
-        if (card.ownCategory) {
-            ownCatId = card.ownCategory.id;
-        } else {
-            const newCat = await addCategory({
-                name_ua: card.name,
-                name_ru: ''
-            });
-            ownCatId = newCat.id;
-            wizardState.results.created++;
-        }
+        const ownCatId = card.ownCategory.id;
 
         for (const mpId of selectedMpIds) {
             await createCategoryMapping(ownCatId, mpId);
@@ -419,7 +453,7 @@ function startCards() {
     if (!wizardState.cards.length) return;
     wizardState.phase = 'cards';
     wizardState.currentIndex = 0;
-    wizardState.results = { created: 0, mapped: 0, skipped: 0 };
+    wizardState.results = { mapped: 0, skipped: 0 };
     renderCard();
 }
 
@@ -453,7 +487,7 @@ export async function showMappingWizard() {
     const allCards = buildAllCards();
 
     if (!allCards.length) {
-        showToast('Всі MP категорії вже замаплені', 'info');
+        showToast('Немає MP категорій з відповідними власними для маппінгу', 'info');
         return;
     }
 
@@ -462,7 +496,7 @@ export async function showMappingWizard() {
         cards: [],
         currentIndex: 0,
         phase: 'filter',
-        results: { created: 0, mapped: 0, skipped: 0 },
+        results: { mapped: 0, skipped: 0 },
         searchQuery: '',
         selectedMarketplaces: new Set(),
         allMarketplaceIds: []
