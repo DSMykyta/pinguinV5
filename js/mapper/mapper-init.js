@@ -296,6 +296,15 @@ async function loadAsideMapper() {
             });
         }
 
+        // Ініціалізувати кнопку маппінг-візарда
+        const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
+        if (mappingWizardBtn) {
+            mappingWizardBtn.addEventListener('click', async () => {
+                const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
+                showMappingWizard();
+            });
+        }
+
     } catch (error) {
         console.error('❌ Помилка завантаження aside-mapper.html:', error);
     }
