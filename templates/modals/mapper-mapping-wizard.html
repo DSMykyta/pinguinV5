@@ -1,0 +1,40 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-large">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <span id="mapping-wizard-title">Маппінг категорій</span>
+            </h2>
+            <div class="modal-header-actions">
+                <span id="mapping-wizard-progress" style="font-size:13px;color:var(--color-text-secondary);margin-right:12px;"></span>
+                <div class="connected-button-group-square">
+                    <button class="segment modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" id="mapping-wizard-body">
+            <!-- Карткa рендериться динамічно -->
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer" style="justify-content:space-between;">
+            <button class="btn btn-secondary" id="mapping-wizard-prev" disabled>
+                <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;">arrow_back</span>
+                Назад
+            </button>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-secondary" id="mapping-wizard-skip">
+                    Пропустити
+                    <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;">arrow_forward</span>
+                </button>
+                <button class="btn btn-primary" id="mapping-wizard-apply">Замапити</button>
+            </div>
+        </div>
+    </div>
+</div>
