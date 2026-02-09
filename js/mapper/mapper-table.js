@@ -539,9 +539,15 @@ function getCategoriesColumns(allCategories) {
                 const parent = findParentCategory(value, mpId);
                 if (parent) return escapeHtml(parent.name_ua || value);
 
-                // Fallback: parentName з JSON (Allo та інші, де батьки не імпортовані)
+                // Fallback: витягти батька з parentsPathUa або parentName
                 const mpData = row._mpData;
                 if (mpData) {
+                    // Пріоритет: укр. шлях → рос. parentName
+                    if (mpData.parentsPathUa || mpData.parentsPath) {
+                        const pathStr = mpData.parentsPathUa || mpData.parentsPath;
+                        const parts = pathStr.split(' / ');
+                        if (parts.length >= 2) return escapeHtml(parts[parts.length - 2]);
+                    }
                     const fallbackName = mpData.parentName || mpData.parent_name;
                     if (fallbackName) return escapeHtml(fallbackName);
                 }
