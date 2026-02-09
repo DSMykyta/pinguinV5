@@ -316,12 +316,12 @@ import { initTableSorting, filterData, updateSortIndicators } from '../common/ui
  */
 function extractName(obj) {
     if (!obj || typeof obj !== 'object') return '';
-    // Пріоритетні ключі
-    if (obj.name) return obj.name;
+    // Пріоритет: українська → загальна → російська
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
-    if (obj.nameRu) return obj.nameRu;
+    if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
+    if (obj.nameRu) return obj.nameRu;
     // Fallback: будь-який ключ з "name"
     const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
     return nameKey ? obj[nameKey] : '';

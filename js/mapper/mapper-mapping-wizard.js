@@ -27,11 +27,11 @@ import { escapeHtml } from '../utils/text-utils.js';
 
 function extractName(obj) {
     if (!obj || typeof obj !== 'object') return '';
-    if (obj.name) return obj.name;
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
-    if (obj.nameRu) return obj.nameRu;
+    if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
+    if (obj.nameRu) return obj.nameRu;
     const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
     return nameKey ? obj[nameKey] : '';
 }
