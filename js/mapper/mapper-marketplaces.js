@@ -518,7 +518,7 @@ function renderMpCategoryTree(container, data) {
                 isOpen ? 'is-open' : ''
             ].filter(Boolean).join(' ');
 
-            const triggerClass = mappedCatId ? 'mp-tree-mapping-trigger is-mapped' : 'mp-tree-mapping-trigger';
+            const triggerClass = mappedCatId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
 
             return `
                 <li data-id="${escapeHtml(item.id)}" class="${classes}">
@@ -554,7 +554,7 @@ function renderMpCategoryTree(container, data) {
 
     // Mapping trigger click → shared picker popup
     container.addEventListener('click', (e) => {
-        const trigger = e.target.closest('.mp-tree-mapping-trigger');
+        const trigger = e.target.closest('.custom-select-trigger');
         if (!trigger) return;
         e.stopPropagation();
 
