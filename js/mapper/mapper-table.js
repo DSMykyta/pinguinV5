@@ -287,6 +287,7 @@ function getCategoriesData() {
                 id: mpCat.id,
                 external_id: mpCat.external_id,
                 marketplace_id: mpCat.marketplace_id,
+                _jsonId: mpCat._jsonId || '',
                 name_ua: extractName(data),
                 name_ru: '',
                 parent_id: data.parent_id || data.parentId || '',
