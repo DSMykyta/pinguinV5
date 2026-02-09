@@ -980,12 +980,13 @@ export async function loadMpCategories() {
                     obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                    obj.data = null;
                 }
             }
 
             normalizeMpLoadedData(obj, 'categories');
             return obj;
-        }).filter(item => item.id); // Фільтруємо порожні рядки
+        }).filter(item => item.id && item.id !== 'id'); // Фільтруємо порожні та заголовкові рядки
 
         return mapperState.mpCategories;
     } catch (error) {
@@ -1034,12 +1035,13 @@ export async function loadMpCharacteristics() {
                     obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                    obj.data = null;
                 }
             }
 
             normalizeMpLoadedData(obj, 'characteristics');
             return obj;
-        }).filter(item => item.id); // Фільтруємо порожні рядки
+        }).filter(item => item.id && item.id !== 'id'); // Фільтруємо порожні та заголовкові рядки
 
         return mapperState.mpCharacteristics;
     } catch (error) {
@@ -1088,12 +1090,13 @@ export async function loadMpOptions() {
                     obj.id = originalId;
                 } catch (e) {
                     console.warn(`⚠️ Помилка парсингу data для ${obj.id}:`, e);
+                    obj.data = null;
                 }
             }
 
             normalizeMpLoadedData(obj, 'options');
             return obj;
-        }).filter(item => item.id); // Фільтруємо порожні рядки
+        }).filter(item => item.id && item.id !== 'id'); // Фільтруємо порожні та заголовкові рядки
 
         return mapperState.mpOptions;
     } catch (error) {
@@ -1128,8 +1131,10 @@ export function isMpCategoryMapped(mpCatId) {
 
     // Перевірити в старому JSON форматі (data.our_category_id)
     if (mpCat) {
-        const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
-        if (data.our_category_id) return true;
+        try {
+            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+            if (data.our_category_id) return true;
+        } catch { /* невалідний JSON — ігноруємо */ }
     }
 
     return false;
@@ -1161,11 +1166,13 @@ export function getMappedMpCategories(ownCatId) {
     // 2. Зі старого JSON формату (data.our_category_id)
     mapperState.mpCategories.forEach(mpCat => {
         if (addedIds.has(mpCat.id)) return;
-        const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
-        if (data.our_category_id === ownCatId) {
-            result.push({ ...mpCat, _source: 'legacy' });
-            addedIds.add(mpCat.id);
-        }
+        try {
+            const data = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+            if (data.our_category_id === ownCatId) {
+                result.push({ ...mpCat, _source: 'legacy' });
+                addedIds.add(mpCat.id);
+            }
+        } catch { /* невалідний JSON — ігноруємо */ }
     });
 
     return result;
@@ -1387,11 +1394,13 @@ export function getMappedMpCharacteristics(ownCharId) {
     // 2. Зі старого JSON формату (data.our_char_id)
     mapperState.mpCharacteristics.forEach(mpChar => {
         if (addedIds.has(mpChar.id)) return;
-        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
-        if (data.our_char_id === ownCharId) {
-            result.push({ ...mpChar, _source: 'legacy' });
-            addedIds.add(mpChar.id);
-        }
+        try {
+            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
+            if (data.our_char_id === ownCharId) {
+                result.push({ ...mpChar, _source: 'legacy' });
+                addedIds.add(mpChar.id);
+            }
+        } catch { /* невалідний JSON — ігноруємо */ }
     });
 
     return result;
@@ -1414,8 +1423,10 @@ export function isMpCharacteristicMapped(mpCharId) {
 
     // Перевірити в старому JSON форматі (data.our_char_id)
     if (mpChar) {
-        const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
-        if (data.our_char_id) return true;
+        try {
+            const data = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data || '{}') : (mpChar.data || {});
+            if (data.our_char_id) return true;
+        } catch { /* невалідний JSON — ігноруємо */ }
     }
 
     return false;
@@ -1545,11 +1556,13 @@ export function getMappedMpOptions(ownOptionId) {
     // 2. Зі старого JSON формату (data.our_option_id)
     mapperState.mpOptions.forEach(mpOption => {
         if (addedIds.has(mpOption.id)) return;
-        const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
-        if (data.our_option_id === ownOptionId) {
-            result.push({ ...mpOption, _source: 'legacy' });
-            addedIds.add(mpOption.id);
-        }
+        try {
+            const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
+            if (data.our_option_id === ownOptionId) {
+                result.push({ ...mpOption, _source: 'legacy' });
+                addedIds.add(mpOption.id);
+            }
+        } catch { /* невалідний JSON — ігноруємо */ }
     });
 
     return result;
@@ -1572,8 +1585,10 @@ export function isMpOptionMapped(mpOptionId) {
 
     // Перевірити в старому JSON форматі (data.our_option_id)
     if (mpOption) {
-        const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
-        if (data.our_option_id) return true;
+        try {
+            const data = typeof mpOption.data === 'string' ? JSON.parse(mpOption.data || '{}') : (mpOption.data || {});
+            if (data.our_option_id) return true;
+        } catch { /* невалідний JSON — ігноруємо */ }
     }
 
     return false;
