@@ -971,6 +971,10 @@ export async function loadMpCategories() {
             if (obj.data) {
                 try {
                     const parsedData = JSON.parse(obj.data);
+                    // Зберігаємо JSON id для пошуку батьків (parentId посилається на нього)
+                    if (parsedData.id !== undefined) {
+                        obj._jsonId = String(parsedData.id);
+                    }
                     Object.assign(obj, parsedData);
                     // Відновлюємо оригінальний ID (щоб не перезаписався з JSON)
                     obj.id = originalId;

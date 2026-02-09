@@ -342,10 +342,13 @@ function getCategoriesColumns(allCategories) {
                     level++;
                     const pid = String(current.parent_id);
                     const mpId = row._source !== 'own' ? row.marketplace_id : null;
-                    // Шукаємо батька по id або external_id (в межах того ж маркетплейсу)
+                    // Шукаємо батька по id, _jsonId або external_id (в межах маркетплейсу)
                     const parent = allCategories.find(c => {
                         if (c.id === pid) return true;
-                        if (mpId && c.marketplace_id === mpId && String(c.external_id) === pid) return true;
+                        if (mpId && c.marketplace_id === mpId) {
+                            if (String(c._jsonId) === pid) return true;
+                            if (String(c.external_id) === pid) return true;
+                        }
                         if (!mpId && String(c.external_id) === pid) return true;
                         return false;
                     });
@@ -388,7 +391,10 @@ function getCategoriesColumns(allCategories) {
                 const mpId = row._source !== 'own' ? row.marketplace_id : null;
                 const parent = allCategories.find(c => {
                     if (c.id === pid) return true;
-                    if (mpId && c.marketplace_id === mpId && String(c.external_id) === pid) return true;
+                    if (mpId && c.marketplace_id === mpId) {
+                        if (String(c._jsonId) === pid) return true;
+                        if (String(c.external_id) === pid) return true;
+                    }
                     if (!mpId && String(c.external_id) === pid) return true;
                     return false;
                 });
