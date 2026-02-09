@@ -27,7 +27,8 @@ import {
     addMarketplace, updateMarketplace, deleteMarketplace, getMarketplaces,
     getCategories, getCharacteristics, getOptions,
     getMpCategories, getMpCharacteristics, getMpOptions,
-    loadMpCategories, loadMpCharacteristics, loadMpOptions
+    loadMpCategories, loadMpCharacteristics, loadMpOptions,
+    createCategoryMapping, deleteCategoryMapping, getMapCategories
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -347,7 +348,6 @@ function renderMpDataModalTable() {
 
     if (activeTab === 'categories') {
         data = [...mpDataModalState.categories];
-        columns = getMpCategoriesColumns();
     } else if (activeTab === 'characteristics') {
         data = [...mpDataModalState.characteristics];
         columns = getMpCharacteristicsColumns();
@@ -356,35 +356,36 @@ function renderMpDataModalTable() {
         columns = getMpOptionsColumns();
     }
 
+    // Фільтр mapped/unmapped
     if (filter === 'mapped') {
         data = data.filter(item => {
-            if (activeTab === 'categories') return !!item.our_category_id;
+            if (activeTab === 'categories') return isCatMapped(item);
             if (activeTab === 'characteristics') return !!item.our_char_id;
             if (activeTab === 'options') return !!item.our_option_id;
             return true;
         });
     } else if (filter === 'unmapped') {
         data = data.filter(item => {
-            if (activeTab === 'categories') return !item.our_category_id;
+            if (activeTab === 'categories') return !isCatMapped(item);
             if (activeTab === 'characteristics') return !item.our_char_id;
             if (activeTab === 'options') return !item.our_option_id;
             return true;
         });
     }
 
+    // Пошук
     if (searchQuery) {
         data = data.filter(item => {
-            const name = (item.name || '').toLowerCase();
+            const name = extractMpName(item).toLowerCase();
             const extId = (item.external_id || '').toLowerCase();
             return name.includes(searchQuery) || extId.includes(searchQuery);
         });
     }
 
-    const filteredCount = data.length;
-    const statsEl = document.getElementById('mp-data-stats-text');
     const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
         activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
             mpDataModalState.options.length;
+    const statsEl = document.getElementById('mp-data-stats-text');
 
     if (data.length === 0) {
         container.innerHTML = `
@@ -396,16 +397,17 @@ function renderMpDataModalTable() {
         return;
     }
 
+    if (statsEl) statsEl.textContent = `Показано ${data.length} з ${totalCount}`;
+
+    // Категорії — дерево; інші — таблиця
+    if (activeTab === 'categories') {
+        renderMpCategoryTree(container, data);
+        return;
+    }
+
+    // Таблиця для характеристик/опцій
     const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
     const hasMore = data.length > MP_DATA_PAGE_SIZE;
-
-    if (statsEl) {
-        if (hasMore) {
-            statsEl.textContent = `Показано ${displayData.length} з ${filteredCount} (всього ${totalCount})`;
-        } else {
-            statsEl.textContent = `Показано ${filteredCount} з ${totalCount}`;
-        }
-    }
 
     try {
         const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
@@ -442,6 +444,173 @@ function renderMpDataModalTable() {
             </div>
         `;
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ДЕРЕВО MP КАТЕГОРІЙ
+// ═══════════════════════════════════════════════════════════════════════════
+
+function extractMpName(obj) {
+    if (!obj || typeof obj !== 'object') return '';
+    if (obj.name_ua) return obj.name_ua;
+    if (obj.nameUa) return obj.nameUa;
+    if (obj.titleUk) return obj.titleUk;
+    if (obj.titleRu) return obj.titleRu;
+    if (obj.name) return obj.name;
+    if (obj.name_ru) return obj.name_ru;
+    if (obj.nameRu) return obj.nameRu;
+    const nameKey = Object.keys(obj).find(k => {
+        const lower = k.toLowerCase();
+        return lower.includes('name') || lower.includes('title');
+    });
+    return nameKey ? obj[nameKey] : '';
+}
+
+/**
+ * Перевірити чи MP категорія замаплена (через таблицю маппінгів)
+ */
+function isCatMapped(mpCat) {
+    const mapCats = getMapCategories();
+    return mapCats.some(m =>
+        m.mp_category_id === mpCat.id || m.mp_category_id === mpCat.external_id
+    );
+}
+
+/**
+ * Знайти маппінг для MP категорії
+ */
+function findCatMapping(mpCat) {
+    const mapCats = getMapCategories();
+    return mapCats.find(m =>
+        m.mp_category_id === mpCat.id || m.mp_category_id === mpCat.external_id
+    );
+}
+
+/**
+ * Рендерити дерево MP категорій
+ */
+function renderMpCategoryTree(container, data) {
+    const ownCategories = getCategories();
+
+    // Побудувати дерево: parentJsonId → [children]
+    const byParent = new Map();    // parentId → [items]
+    const byJsonId = new Map();    // _jsonId → item
+
+    data.forEach(item => {
+        const jsonId = item._jsonId || item.external_id || '';
+        if (jsonId) byJsonId.set(jsonId, item);
+    });
+
+    // Визначити кореневі елементи
+    const dataSet = new Set(data.map(d => d._jsonId || d.external_id || ''));
+
+    data.forEach(item => {
+        const parentId = String(item.parentId || item.parent_id || '');
+        // Рут = немає parent або parent не знайдений в даних
+        const key = (parentId && dataSet.has(parentId)) ? parentId : 'root';
+        if (!byParent.has(key)) byParent.set(key, []);
+        byParent.get(key).push(item);
+    });
+
+    // Сортувати кожен рівень по назві
+    byParent.forEach(children => {
+        children.sort((a, b) => extractMpName(a).localeCompare(extractMpName(b), 'uk'));
+    });
+
+    // Побудувати опції для select
+    const ownOptionsHtml = `<option value="">—</option>` + ownCategories.map(c =>
+        `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name_ua || c.id)}</option>`
+    ).join('');
+
+    // Рекурсивний рендер
+    function buildTree(parentKey, level) {
+        const children = byParent.get(parentKey);
+        if (!children || children.length === 0) return '';
+
+        const items = children.map(item => {
+            const jsonId = item._jsonId || item.external_id || '';
+            const hasChildren = byParent.has(jsonId) && byParent.get(jsonId).length > 0;
+            const isOpen = level < 1;
+            const name = extractMpName(item) || item.external_id || '?';
+
+            // Знайти поточний маппінг
+            const mapping = findCatMapping(item);
+            const mappedCatId = mapping?.category_id || '';
+
+            const toggleHtml = hasChildren
+                ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
+                : `<span class="leaf-placeholder"></span>`;
+
+            const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
+
+            const classes = [
+                hasChildren ? 'has-children' : '',
+                isOpen ? 'is-open' : ''
+            ].filter(Boolean).join(' ');
+
+            return `
+                <li data-id="${escapeHtml(item.id)}" class="${classes}">
+                    <div class="tree-item-content mp-tree-item">
+                        ${toggleHtml}
+                        <span class="tree-item-name">${escapeHtml(name)}</span>
+                        <select class="mp-tree-mapping" data-mp-cat-id="${escapeHtml(item.id)}">
+                            ${ownOptionsHtml.replace(`value="${escapeHtml(mappedCatId)}"`, `value="${escapeHtml(mappedCatId)}" selected`)}
+                        </select>
+                    </div>
+                    ${childrenHtml}
+                </li>
+            `;
+        }).join('');
+
+        return `<ul class="glossary-tree-level-${Math.min(level, 5)}">${items}</ul>`;
+    }
+
+    const treeHtml = buildTree('root', 0);
+    container.innerHTML = `<div class="glossary-tree mp-category-tree">${treeHtml || '<p class="u-text-muted u-p-16">Дані відсутні</p>'}</div>`;
+
+    // Toggle expand/collapse
+    container.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const li = btn.closest('li');
+            if (li) li.classList.toggle('is-open');
+        });
+    });
+
+    // Mapping dropdown change
+    container.querySelectorAll('.mp-tree-mapping').forEach(select => {
+        select.addEventListener('change', async () => {
+            const mpCatId = select.dataset.mpCatId;
+            const newOwnCatId = select.value;
+
+            // Знайти MP категорію
+            const mpCat = data.find(c => c.id === mpCatId);
+            if (!mpCat) return;
+
+            // Видалити старий маппінг якщо є
+            const oldMapping = findCatMapping(mpCat);
+            if (oldMapping) {
+                try {
+                    await deleteCategoryMapping(oldMapping.id);
+                } catch (err) {
+                    showToast('Помилка видалення маппінгу', 'error');
+                    return;
+                }
+            }
+
+            // Створити новий маппінг якщо обрано категорію
+            if (newOwnCatId) {
+                try {
+                    await createCategoryMapping(newOwnCatId, mpCatId);
+                    showToast('Прив\'язано', 'success');
+                } catch (err) {
+                    showToast('Помилка створення маппінгу', 'error');
+                }
+            } else if (oldMapping) {
+                showToast('Прив\'язку видалено', 'success');
+            }
+        });
+    });
 }
 
 function getMpCategoriesColumns() {
