@@ -28,7 +28,11 @@ import {
     getCategories, getCharacteristics, getOptions,
     getMpCategories, getMpCharacteristics, getMpOptions,
     loadMpCategories, loadMpCharacteristics, loadMpOptions,
-    createCategoryMapping, deleteCategoryMapping, getMapCategories
+    createCategoryMapping, deleteCategoryMapping, getMapCategories,
+    createCharacteristicMapping, deleteCharacteristicMapping,
+    getCharacteristicMappingByMpId,
+    createOptionMapping, deleteOptionMapping,
+    getOptionMappingByMpId
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -345,16 +349,13 @@ function renderMpDataModalTable() {
     const { activeTab, searchQuery } = mpDataModalState;
 
     let data = [];
-    let columns = [];
 
     if (activeTab === 'categories') {
         data = [...mpDataModalState.categories];
     } else if (activeTab === 'characteristics') {
         data = [...mpDataModalState.characteristics];
-        columns = getMpCharacteristicsColumns();
     } else if (activeTab === 'options') {
         data = [...mpDataModalState.options];
-        columns = getMpOptionsColumns();
     }
 
     // Пошук
@@ -383,50 +384,13 @@ function renderMpDataModalTable() {
 
     if (statsEl) statsEl.textContent = `Показано ${data.length} з ${totalCount}`;
 
-    // Категорії — дерево; інші — таблиця
+    // Кожен таб — свій рендер
     if (activeTab === 'categories') {
         renderMpCategoryTree(container, data);
-        return;
-    }
-
-    // Таблиця для характеристик/опцій
-    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
-    const hasMore = data.length > MP_DATA_PAGE_SIZE;
-
-    try {
-        const headerHtml = columns.map(col => `<div class="cell ${col.className || ''}">${col.label}</div>`).join('');
-        const rowsHtml = displayData.map(item => {
-            const cellsHtml = columns.map(col => {
-                const value = item[col.id];
-                const rendered = col.render ? col.render(value, item) : escapeHtml(value || '-');
-                return `<div class="cell ${col.className || ''}">${rendered}</div>`;
-            }).join('');
-            return `<div class="pseudo-table-row" data-id="${escapeHtml(item.id || '')}">${cellsHtml}</div>`;
-        }).join('');
-
-        let tableHtml = `
-            <div class="pseudo-table">
-                <div class="pseudo-table-header">${headerHtml}</div>
-                <div class="pseudo-table-body">${rowsHtml}</div>
-            </div>
-        `;
-
-        if (hasMore) {
-            tableHtml += `
-                <div class="mp-data-more-hint" style="text-align: center; padding: 1rem; color: var(--color-on-surface-v);">
-                    Показано перші ${MP_DATA_PAGE_SIZE} записів. Використовуйте пошук для фільтрації.
-                </div>
-            `;
-        }
-
-        container.innerHTML = tableHtml;
-    } catch (error) {
-        console.error('❌ Error rendering table:', error);
-        container.innerHTML = `
-            <div class="empty-state-container">
-                <div class="avatar-state-message">Помилка відображення: ${error.message}</div>
-            </div>
-        `;
+    } else if (activeTab === 'characteristics') {
+        renderMpCharsTable(container, data);
+    } else if (activeTab === 'options') {
+        renderMpOptsTable(container, data);
     }
 }
 
@@ -471,15 +435,20 @@ function renderMpCategoryTree(container, data) {
     const byJsonId = new Map();    // _jsonId → item
 
     data.forEach(item => {
-        const jsonId = item._jsonId || item.external_id || '';
+        const jsonId = String(item._jsonId || item.external_id || '');
         if (jsonId) byJsonId.set(jsonId, item);
     });
 
-    // Визначити кореневі елементи
-    const dataSet = new Set(data.map(d => d._jsonId || d.external_id || ''));
+    // Визначити кореневі елементи — додаємо І _jsonId І external_id для надійного пошуку
+    const dataSet = new Set();
+    data.forEach(d => {
+        if (d._jsonId) dataSet.add(String(d._jsonId));
+        if (d.external_id) dataSet.add(String(d.external_id));
+    });
 
     data.forEach(item => {
-        const parentId = String(item.parentId || item.parent_id || '');
+        const rawParent = item.parentId ?? item.parent_id ?? '';
+        const parentId = rawParent === 0 || rawParent === '0' || rawParent === null ? '' : String(rawParent);
         const key = (parentId && dataSet.has(parentId)) ? parentId : 'root';
         if (!byParent.has(key)) byParent.set(key, []);
         byParent.get(key).push(item);
@@ -496,9 +465,9 @@ function renderMpCategoryTree(container, data) {
         if (!children || children.length === 0) return '';
 
         const items = children.map(item => {
-            const jsonId = item._jsonId || item.external_id || '';
+            const jsonId = String(item._jsonId || item.external_id || '');
             const hasChildren = byParent.has(jsonId) && byParent.get(jsonId).length > 0;
-            const isOpen = level < 1;
+            const isOpen = false;
             const name = extractMpName(item) || item.external_id || '?';
 
             // Знайти поточний маппінг
@@ -605,8 +574,9 @@ function renderMpCategoryTree(container, data) {
 let _mappingPickerEl = null;
 let _mappingPickerCleanup = null;
 
-function showMappingPicker(triggerEl, ownCategories, currentValue, onSelect) {
+function showMappingPicker(triggerEl, items, currentValue, onSelect, labelFn) {
     closeMappingPicker();
+    if (!labelFn) labelFn = (c) => c.name_ua || c.id;
 
     const picker = getOrCreateMappingPicker();
     const list = picker.querySelector('.custom-select-options');
@@ -614,8 +584,8 @@ function showMappingPicker(triggerEl, ownCategories, currentValue, onSelect) {
 
     // Заповнити список
     list.innerHTML = `<li class="custom-select-option${!currentValue ? ' is-selected' : ''}" data-value="">— Без прив'язки —</li>` +
-        ownCategories.map(c => {
-            const name = c.name_ua || c.id;
+        items.map(c => {
+            const name = labelFn(c);
             const selected = c.id === currentValue ? ' is-selected' : '';
             return `<li class="custom-select-option${selected}" data-value="${escapeHtml(c.id)}">${escapeHtml(name)}</li>`;
         }).join('');
@@ -723,38 +693,172 @@ function getOrCreateMappingPicker() {
     return picker;
 }
 
-function getMpCharacteristicsColumns() {
-    const characteristics = getCharacteristics();
-    return [
-        { id: 'external_id', label: 'ID', className: 'cell-m' },
-        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
-        { id: 'type', label: 'Тип', render: (v) => `<code>${escapeHtml(v || '-')}</code>` },
-        {
-            id: 'our_char_id',
-            label: 'Наша характ.',
-            render: (v) => {
-                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
-                const char = characteristics.find(c => c.id === v);
-                return `<span class="severity-badge severity-low">${escapeHtml(char?.name_ua || v)}</span>`;
+// ═══════════════════════════════════════════════════════════════════════════
+// ТАБЛИЦІ ХАРАКТЕРИСТИК / ОПЦІЙ (з mapping trigger)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderMpCharsTable(container, data) {
+    const ownChars = getCharacteristics();
+    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
+    const hasMore = data.length > MP_DATA_PAGE_SIZE;
+
+    const rowsHtml = displayData.map(item => {
+        const name = extractMpName(item) || item.external_id || '-';
+        const mapping = getCharacteristicMappingByMpId(item.id) || getCharacteristicMappingByMpId(item.external_id);
+        const mappedId = mapping?.characteristic_id || '';
+        const mappedChar = mappedId ? ownChars.find(c => c.id === mappedId) : null;
+        const mappedLabel = mappedChar ? (mappedChar.name_ua || mappedChar.id) : '';
+        const triggerCls = mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+
+        return `
+            <div class="pseudo-table-row" data-id="${escapeHtml(item.id)}">
+                <div class="cell cell-m"><span class="word-chip">${escapeHtml(item.external_id || '-')}</span></div>
+                <div class="cell cell-xl"><strong>${escapeHtml(name)}</strong></div>
+                <div class="cell cell-m"><code>${escapeHtml(item.type || '-')}</code></div>
+                <div class="cell cell-l">
+                    <div class="${triggerCls}"
+                         data-mp-entity-id="${escapeHtml(item.id)}"
+                         data-mp-ext-id="${escapeHtml(item.external_id || '')}"
+                         data-current-value="${escapeHtml(mappedId)}">
+                        <span class="mp-tree-mapping-label">${mappedLabel ? escapeHtml(mappedLabel) : '—'}</span>
+                        <svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+
+    let html = `
+        <div class="pseudo-table">
+            <div class="pseudo-table-header">
+                <div class="cell cell-m">ID</div>
+                <div class="cell cell-xl">Назва</div>
+                <div class="cell cell-m">Тип</div>
+                <div class="cell cell-l">Наша характ.</div>
+            </div>
+            <div class="pseudo-table-body">${rowsHtml}</div>
+        </div>`;
+
+    if (hasMore) {
+        html += `<div style="text-align: center; padding: 1rem; color: var(--color-on-surface-v);">Показано перші ${MP_DATA_PAGE_SIZE}. Використовуйте пошук.</div>`;
+    }
+
+    container.innerHTML = html;
+
+    // Trigger click → mapping picker
+    container.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.custom-select-trigger');
+        if (!trigger) return;
+        e.stopPropagation();
+
+        const mpEntityId = trigger.dataset.mpEntityId;
+        const mpExtId = trigger.dataset.mpExtId;
+        const currentValue = trigger.dataset.currentValue || '';
+
+        showMappingPicker(trigger, ownChars, currentValue, async (newValue) => {
+            // Видалити старий маппінг
+            const oldMapping = getCharacteristicMappingByMpId(mpEntityId) || getCharacteristicMappingByMpId(mpExtId);
+            if (oldMapping) {
+                try { await deleteCharacteristicMapping(oldMapping.id); }
+                catch { showToast('Помилка видалення', 'error'); return; }
             }
-        }
-    ];
+            // Створити новий
+            if (newValue) {
+                try {
+                    await createCharacteristicMapping(newValue, mpEntityId);
+                    showToast('Прив\'язано', 'success');
+                } catch { showToast('Помилка прив\'язки', 'error'); return; }
+            } else if (oldMapping) {
+                showToast('Прив\'язку видалено', 'success');
+            }
+            // Оновити trigger
+            const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
+            trigger.dataset.currentValue = newValue || '';
+            trigger.classList.toggle('is-mapped', !!newValue);
+            const label = trigger.querySelector('.mp-tree-mapping-label');
+            if (label) label.textContent = newChar ? (newChar.name_ua || newChar.id) : '—';
+        });
+    });
 }
 
-function getMpOptionsColumns() {
-    const options = getOptions();
-    return [
-        { id: 'external_id', label: 'ID', className: 'cell-m' },
-        { id: 'name', label: 'Назва', className: 'cell-xl', render: (v) => `<strong>${escapeHtml(v || '')}</strong>` },
-        { id: 'char_id', label: 'Характеристика' },
-        {
-            id: 'our_option_id',
-            label: 'Наша опція',
-            render: (v) => {
-                if (!v) return '<span class="severity-badge severity-high">Не прив\'язано</span>';
-                const opt = options.find(o => o.id === v);
-                return `<span class="severity-badge severity-low">${escapeHtml(opt?.value_ua || v)}</span>`;
+function renderMpOptsTable(container, data) {
+    const ownOpts = getOptions();
+    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
+    const hasMore = data.length > MP_DATA_PAGE_SIZE;
+
+    const rowsHtml = displayData.map(item => {
+        const name = extractMpName(item) || item.external_id || '-';
+        const mapping = getOptionMappingByMpId(item.id) || getOptionMappingByMpId(item.external_id);
+        const mappedId = mapping?.option_id || '';
+        const mappedOpt = mappedId ? ownOpts.find(o => o.id === mappedId) : null;
+        const mappedLabel = mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : '';
+        const triggerCls = mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+
+        return `
+            <div class="pseudo-table-row" data-id="${escapeHtml(item.id)}">
+                <div class="cell cell-m"><span class="word-chip">${escapeHtml(item.external_id || '-')}</span></div>
+                <div class="cell cell-xl"><strong>${escapeHtml(name)}</strong></div>
+                <div class="cell cell-m">${escapeHtml(extractMpName({ name: item.char_name }) || item.char_id || '-')}</div>
+                <div class="cell cell-l">
+                    <div class="${triggerCls}"
+                         data-mp-entity-id="${escapeHtml(item.id)}"
+                         data-mp-ext-id="${escapeHtml(item.external_id || '')}"
+                         data-current-value="${escapeHtml(mappedId)}">
+                        <span class="mp-tree-mapping-label">${mappedLabel ? escapeHtml(mappedLabel) : '—'}</span>
+                        <svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+
+    let html = `
+        <div class="pseudo-table">
+            <div class="pseudo-table-header">
+                <div class="cell cell-m">ID</div>
+                <div class="cell cell-xl">Назва</div>
+                <div class="cell cell-m">Характ.</div>
+                <div class="cell cell-l">Наша опція</div>
+            </div>
+            <div class="pseudo-table-body">${rowsHtml}</div>
+        </div>`;
+
+    if (hasMore) {
+        html += `<div style="text-align: center; padding: 1rem; color: var(--color-on-surface-v);">Показано перші ${MP_DATA_PAGE_SIZE}. Використовуйте пошук.</div>`;
+    }
+
+    container.innerHTML = html;
+
+    // Trigger click → mapping picker
+    container.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.custom-select-trigger');
+        if (!trigger) return;
+        e.stopPropagation();
+
+        const mpEntityId = trigger.dataset.mpEntityId;
+        const mpExtId = trigger.dataset.mpExtId;
+        const currentValue = trigger.dataset.currentValue || '';
+
+        showMappingPicker(trigger, ownOpts, currentValue, async (newValue) => {
+            // Видалити старий маппінг
+            const oldMapping = getOptionMappingByMpId(mpEntityId) || getOptionMappingByMpId(mpExtId);
+            if (oldMapping) {
+                try { await deleteOptionMapping(oldMapping.id); }
+                catch { showToast('Помилка видалення', 'error'); return; }
             }
-        }
-    ];
+            // Створити новий
+            if (newValue) {
+                try {
+                    await createOptionMapping(newValue, mpEntityId);
+                    showToast('Прив\'язано', 'success');
+                } catch { showToast('Помилка прив\'язки', 'error'); return; }
+            } else if (oldMapping) {
+                showToast('Прив\'язку видалено', 'success');
+            }
+            // Оновити trigger
+            const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
+            trigger.dataset.currentValue = newValue || '';
+            trigger.classList.toggle('is-mapped', !!newValue);
+            const label = trigger.querySelector('.mp-tree-mapping-label');
+            if (label) label.textContent = newOpt ? (newOpt.value_ua || newOpt.id) : '—';
+        }, (o) => o.value_ua || o.id);
+    });
 }
