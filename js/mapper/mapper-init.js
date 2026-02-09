@@ -335,7 +335,8 @@ async function loadAsideMapper() {
         // Ініціалізувати кнопку маппінг-візарда
         const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
         if (mappingWizardBtn) {
-            mappingWizardBtn.addEventListener('click', async () => {
+            mappingWizardBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
                 showMappingWizard();
             });
