@@ -306,6 +306,22 @@ function getCategoriesData() {
  * Отримати конфігурацію колонок для категорій
  */
 function getCategoriesColumns(allCategories) {
+    // Повний масив для пошуку батьків (включає ВСІ MP категорії, навіть замаплені)
+    const allForLookup = [
+        ...getCategories(),
+        ...getMpCategories().map(mpCat => {
+            const data = typeof mpCat.data === 'string' ? (() => { try { return JSON.parse(mpCat.data); } catch { return {}; } })() : (mpCat.data || {});
+            return {
+                id: mpCat.id,
+                external_id: mpCat.external_id,
+                marketplace_id: mpCat.marketplace_id,
+                _jsonId: mpCat._jsonId || '',
+                name_ua: extractName(data),
+                parent_id: data.parent_id || data.parentId || ''
+            };
+        })
+    ];
+
     return [
         {
             id: 'id',
@@ -344,7 +360,7 @@ function getCategoriesColumns(allCategories) {
                     const pid = String(current.parent_id);
                     const mpId = row._source !== 'own' ? row.marketplace_id : null;
                     // Шукаємо батька по id, _jsonId або external_id (в межах маркетплейсу)
-                    const parent = allCategories.find(c => {
+                    const parent = allForLookup.find(c => {
                         if (c.id === pid) return true;
                         if (mpId && c.marketplace_id === mpId) {
                             if (String(c._jsonId) === pid) return true;
@@ -390,7 +406,7 @@ function getCategoriesColumns(allCategories) {
                 if (!value) return '-';
                 const pid = String(value);
                 const mpId = row._source !== 'own' ? row.marketplace_id : null;
-                const parent = allCategories.find(c => {
+                const parent = allForLookup.find(c => {
                     if (c.id === pid) return true;
                     if (mpId && c.marketplace_id === mpId) {
                         if (String(c._jsonId) === pid) return true;
