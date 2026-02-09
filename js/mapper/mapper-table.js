@@ -334,14 +334,21 @@ function getCategoriesColumns(allCategories) {
             label: 'Рів.',
             className: 'cell-xs cell-center',
             render: (value, row) => {
-                if (row._source !== 'own') return '';
                 let level = 0;
                 let current = row;
                 const path = [row.name_ua || row.id];
 
                 while (current && current.parent_id) {
                     level++;
-                    const parent = allCategories.find(c => c.id === current.parent_id);
+                    const pid = String(current.parent_id);
+                    const mpId = row._source !== 'own' ? row.marketplace_id : null;
+                    // Шукаємо батька по id або external_id (в межах того ж маркетплейсу)
+                    const parent = allCategories.find(c => {
+                        if (c.id === pid) return true;
+                        if (mpId && c.marketplace_id === mpId && String(c.external_id) === pid) return true;
+                        if (!mpId && String(c.external_id) === pid) return true;
+                        return false;
+                    });
                     if (parent) {
                         path.unshift(parent.name_ua || parent.id);
                         current = parent;
@@ -377,7 +384,14 @@ function getCategoriesColumns(allCategories) {
             filterable: true,
             render: (value, row) => {
                 if (!value) return '-';
-                const parent = allCategories.find(c => c.id === value);
+                const pid = String(value);
+                const mpId = row._source !== 'own' ? row.marketplace_id : null;
+                const parent = allCategories.find(c => {
+                    if (c.id === pid) return true;
+                    if (mpId && c.marketplace_id === mpId && String(c.external_id) === pid) return true;
+                    if (!mpId && String(c.external_id) === pid) return true;
+                    return false;
+                });
                 return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
             }
         },
@@ -404,7 +418,7 @@ function initCategoriesTableAPI(container, allCategories) {
 
     const visibleCols = mapperState.visibleColumns.categories?.length > 0
         ? [...mapperState.visibleColumns.categories, '_sourceLabel']
-        : ['id', '_sourceLabel', 'name_ua', 'parent_id', 'grouping'];
+        : ['id', '_sourceLabel', '_nestingLevel', 'name_ua', 'parent_id', 'grouping'];
 
     const tableAPI = createPseudoTable(container, {
         columns: getCategoriesColumns(allCategories),
