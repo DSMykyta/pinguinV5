@@ -19,6 +19,150 @@ import {
     isMpCharacteristicMapped, isMpOptionMapped, isMpCategoryMapped
 } from './mapper-data.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
+import { createCachedFn } from '../common/util-lazy-load.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// КЕШОВАНІ LOOKUP MAP-И (O(1) замість O(n) для пошуку батьків)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Побудувати Map-и для швидкого пошуку категорій по id/_jsonId/external_id.
+ * Викликається один раз і кешується до invalidate().
+ */
+const getCategoryLookupMaps = createCachedFn(() => {
+    const byId = new Map();           // sheet id → category
+    const byMpJsonId = new Map();     // "mpId:jsonId" → category
+    const byMpExtId = new Map();      // "mpId:extId" → category
+    const byExtId = new Map();        // extId → category (для own)
+
+    // Власні категорії
+    getCategories().forEach(cat => {
+        byId.set(cat.id, cat);
+        if (cat.external_id) byExtId.set(String(cat.external_id), cat);
+    });
+
+    // ВСІ MP категорії (включаючи замаплені)
+    getMpCategories().forEach(mpCat => {
+        const data = typeof mpCat.data === 'string'
+            ? (() => { try { return JSON.parse(mpCat.data); } catch { return {}; } })()
+            : (mpCat.data || {});
+
+        const cat = {
+            id: mpCat.id,
+            external_id: mpCat.external_id,
+            marketplace_id: mpCat.marketplace_id,
+            _jsonId: mpCat._jsonId || '',
+            name_ua: extractName(data),
+            parent_id: data.parent_id || data.parentId || ''
+        };
+
+        byId.set(cat.id, cat);
+        if (cat._jsonId && cat.marketplace_id) {
+            byMpJsonId.set(`${cat.marketplace_id}:${cat._jsonId}`, cat);
+        }
+        if (cat.external_id && cat.marketplace_id) {
+            byMpExtId.set(`${cat.marketplace_id}:${String(cat.external_id)}`, cat);
+        }
+        if (cat.external_id) {
+            byExtId.set(String(cat.external_id), cat);
+        }
+    });
+
+    return { byId, byMpJsonId, byMpExtId, byExtId };
+});
+
+/**
+ * Знайти батьківську категорію за parent_id — O(1) замість O(n)
+ */
+function findParentCategory(pid, mpId) {
+    const maps = getCategoryLookupMaps();
+    pid = String(pid);
+
+    // 1. По sheet id
+    if (maps.byId.has(pid)) return maps.byId.get(pid);
+
+    // 2. По _jsonId в межах маркетплейсу
+    if (mpId && maps.byMpJsonId.has(`${mpId}:${pid}`)) {
+        return maps.byMpJsonId.get(`${mpId}:${pid}`);
+    }
+
+    // 3. По external_id в межах маркетплейсу
+    if (mpId && maps.byMpExtId.has(`${mpId}:${pid}`)) {
+        return maps.byMpExtId.get(`${mpId}:${pid}`);
+    }
+
+    // 4. По external_id глобально
+    if (maps.byExtId.has(pid)) return maps.byExtId.get(pid);
+
+    return null;
+}
+
+/**
+ * Інвалідувати всі кеші (викликати після зміни даних)
+ */
+export function invalidateLookupCaches() {
+    getCategoryLookupMaps.invalidate();
+    getMpEntityMaps.invalidate();
+    _cachedCategoryLabelMap.invalidate();
+    _cachedCharacteristicLabelMap.invalidate();
+}
+
+// Кешовані label maps
+const _cachedCategoryLabelMap = createCachedFn(() => {
+    const labelMap = {};
+    getCategories().forEach(cat => {
+        labelMap[cat.id] = cat.name_ua || cat.name || cat.id;
+    });
+    getMpCategories().forEach(cat => {
+        const externalId = cat.external_id || cat.mp_id;
+        const name = extractName(cat) || externalId;
+        if (externalId && !labelMap[externalId]) {
+            labelMap[externalId] = name;
+        }
+    });
+    return labelMap;
+});
+
+const _cachedCharacteristicLabelMap = createCachedFn(() => {
+    const labelMap = {};
+    getCharacteristics().forEach(c => {
+        labelMap[c.id] = c.name_ua || c.name || c.id;
+    });
+    getMpCharacteristics().forEach(c => {
+        const externalId = c.external_id;
+        const name = extractName(c) || externalId;
+        if (externalId && !labelMap[externalId]) {
+            labelMap[externalId] = name;
+        }
+    });
+    return labelMap;
+});
+
+/**
+ * Побудувати Map<id|external_id, entity> для будь-якого масиву MP сутностей
+ */
+const getMpEntityMaps = createCachedFn(() => {
+    const build = (arr) => {
+        const map = new Map();
+        arr.forEach(e => {
+            if (e.id) map.set(e.id, e);
+            if (e.external_id) map.set(e.external_id, e);
+        });
+        return map;
+    };
+    return {
+        categories: build(getMpCategories()),
+        characteristics: build(getMpCharacteristics()),
+        options: build(getMpOptions()),
+        marketplaces: (() => {
+            const m = new Map();
+            getMarketplaces().forEach(mp => m.set(mp.id, mp));
+            return m;
+        })()
+    };
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Отримати назви категорій за списком ID
@@ -28,15 +172,12 @@ import { getBatchBar } from '../common/ui-batch-actions.js';
 function getCategoryNames(categoryIdsStr) {
     if (!categoryIdsStr) return '-';
 
-    const categories = getCategories();
+    const labelMap = _cachedCategoryLabelMap();
     const ids = categoryIdsStr.split(',').map(id => id.trim()).filter(id => id);
 
     if (ids.length === 0) return '-';
 
-    const names = ids.map(id => {
-        const cat = categories.find(c => c.id === id);
-        return cat ? cat.name_ua : id;
-    });
+    const names = ids.map(id => labelMap[id] || id);
 
     return names.join(', ');
 }
@@ -48,7 +189,7 @@ function getCategoryNames(categoryIdsStr) {
  * @returns {Object} - { count: число прив'язок, details: [{ marketplace, items }] }
  */
 function getBindingsInfo(entityType, entityId) {
-    const marketplaces = getMarketplaces();
+    const maps = getMpEntityMaps();
     let mapData = [];
 
     switch (entityType) {
@@ -63,17 +204,19 @@ function getBindingsInfo(entityType, entityId) {
             break;
     }
 
-    // Групуємо по маркетплейсах (визначаємо marketplace через MP сутності)
+    // Вибираємо потрібну Map для пошуку MP сутності
+    const entityMap = entityType === 'category' ? maps.categories
+        : entityType === 'characteristic' ? maps.characteristics
+        : maps.options;
+
+    const mpIdKey = entityType === 'category' ? 'mp_category_id'
+        : entityType === 'characteristic' ? 'mp_characteristic_id'
+        : 'mp_option_id';
+
+    // Групуємо по маркетплейсах
     const byMarketplace = {};
     mapData.forEach(mapping => {
-        let mpEntity = null;
-        if (entityType === 'category') {
-            mpEntity = getMpCategories().find(c => c.id === mapping.mp_category_id || c.external_id === mapping.mp_category_id);
-        } else if (entityType === 'characteristic') {
-            mpEntity = getMpCharacteristics().find(c => c.id === mapping.mp_characteristic_id || c.external_id === mapping.mp_characteristic_id);
-        } else if (entityType === 'option') {
-            mpEntity = getMpOptions().find(o => o.id === mapping.mp_option_id || o.external_id === mapping.mp_option_id);
-        }
+        const mpEntity = entityMap.get(mapping[mpIdKey]) || null;
         const mpId = mpEntity?.marketplace_id || 'unknown';
         if (!byMarketplace[mpId]) {
             byMarketplace[mpId] = [];
@@ -95,7 +238,7 @@ function getBindingsInfo(entityType, entityId) {
     });
 
     const details = Object.entries(byMarketplace).map(([mpId, items]) => {
-        const mp = marketplaces.find(m => m.id === mpId);
+        const mp = maps.marketplaces.get(mpId);
         return {
             marketplace: mp?.name || mpId,
             marketplaceId: mpId,
@@ -243,6 +386,9 @@ const mapperTableAPIs = new Map();
  * Рендерити поточний активний таб
  */
 export function renderCurrentTab() {
+    // Інвалідуємо кеші при кожному повному рендері
+    invalidateLookupCaches();
+
     const activeTab = mapperState.activeTab;
 
     switch (activeTab) {
@@ -306,22 +452,6 @@ function getCategoriesData() {
  * Отримати конфігурацію колонок для категорій
  */
 function getCategoriesColumns(allCategories) {
-    // Повний масив для пошуку батьків (включає ВСІ MP категорії, навіть замаплені)
-    const allForLookup = [
-        ...getCategories(),
-        ...getMpCategories().map(mpCat => {
-            const data = typeof mpCat.data === 'string' ? (() => { try { return JSON.parse(mpCat.data); } catch { return {}; } })() : (mpCat.data || {});
-            return {
-                id: mpCat.id,
-                external_id: mpCat.external_id,
-                marketplace_id: mpCat.marketplace_id,
-                _jsonId: mpCat._jsonId || '',
-                name_ua: extractName(data),
-                parent_id: data.parent_id || data.parentId || ''
-            };
-        })
-    ];
-
     return [
         {
             id: 'id',
@@ -354,21 +484,11 @@ function getCategoriesColumns(allCategories) {
                 let level = 0;
                 let current = row;
                 const path = [row.name_ua || row.id];
+                const mpId = row._source !== 'own' ? row.marketplace_id : null;
 
                 while (current && current.parent_id) {
                     level++;
-                    const pid = String(current.parent_id);
-                    const mpId = row._source !== 'own' ? row.marketplace_id : null;
-                    // Шукаємо батька по id, _jsonId або external_id (в межах маркетплейсу)
-                    const parent = allForLookup.find(c => {
-                        if (c.id === pid) return true;
-                        if (mpId && c.marketplace_id === mpId) {
-                            if (String(c._jsonId) === pid) return true;
-                            if (String(c.external_id) === pid) return true;
-                        }
-                        if (!mpId && String(c.external_id) === pid) return true;
-                        return false;
-                    });
+                    const parent = findParentCategory(current.parent_id, mpId);
                     if (parent) {
                         path.unshift(parent.name_ua || parent.id);
                         current = parent;
@@ -404,17 +524,8 @@ function getCategoriesColumns(allCategories) {
             filterable: true,
             render: (value, row) => {
                 if (!value) return '-';
-                const pid = String(value);
                 const mpId = row._source !== 'own' ? row.marketplace_id : null;
-                const parent = allForLookup.find(c => {
-                    if (c.id === pid) return true;
-                    if (mpId && c.marketplace_id === mpId) {
-                        if (String(c._jsonId) === pid) return true;
-                        if (String(c.external_id) === pid) return true;
-                    }
-                    if (!mpId && String(c.external_id) === pid) return true;
-                    return false;
-                });
+                const parent = findParentCategory(value, mpId);
                 return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
             }
         },
@@ -627,7 +738,7 @@ function getCharacteristicsColumns(categoriesList) {
                     return `<span class="chip" data-tooltip="Не прив'язано до категорій" data-tooltip-always>0</span>`;
                 }
 
-                const labelMap = getCategoryLabelMap();
+                const labelMap = _cachedCategoryLabelMap();
                 const categoryNames = categoryIdsList.map(id => labelMap[id] || id).join('\n');
 
                 return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
@@ -888,7 +999,7 @@ function getOptionsColumns(characteristicsList) {
                 if (count === 0) return '<span class="chip">-</span>';
 
                 // Формуємо tooltip з назвами категорій
-                const labelMap = getCategoryLabelMap();
+                const labelMap = _cachedCategoryLabelMap();
                 const names = categoryIdsList.slice(0, 5).map(id => labelMap[id] || id);
                 let tooltip = names.join(', ');
                 if (count > 5) tooltip += ` та ще ${count - 5}...`;
@@ -1622,18 +1733,18 @@ function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-            { id: 'parent_id', label: 'Батьківська', filterType: 'values', labelMap: getCategoryLabelMap() },
+            { id: 'parent_id', label: 'Батьківська', filterType: 'values', labelMap: _cachedCategoryLabelMap() },
             { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
         ],
         characteristics: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-            { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: getCategoryLabelMap() },
+            { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
             { id: 'is_global', label: 'Глобальна', filterType: 'values' }
         ],
         options: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
-            { id: 'characteristic_id', label: 'Характеристика', filterType: 'values', labelMap: getCharacteristicLabelMap() }
+            { id: 'characteristic_id', label: 'Характеристика', filterType: 'values', labelMap: _cachedCharacteristicLabelMap() }
         ],
         marketplaces: [
             { id: '_sourceLabel', label: 'Джерело', filterType: 'values' },
@@ -1644,61 +1755,7 @@ function getFilterColumnsConfig(tabName) {
     return baseConfig[tabName] || [];
 }
 
-/**
- * Створити labelMap для категорій (ID -> Назва)
- * Включає як власні категорії, так і MP категорії
- */
-function getCategoryLabelMap() {
-    const labelMap = {};
-
-    // Власні категорії
-    const ownCategories = getCategories();
-    ownCategories.forEach(cat => {
-        labelMap[cat.id] = cat.name_ua || cat.name || cat.id;
-    });
-
-    // MP категорії (для фільтрації MP характеристик)
-    // Структура: id | marketplace_id | external_id | source | data (JSON з name, parent_id) | ...
-    // Після loadMpCategories: data розпарсено через Object.assign, тому cat.name доступний напряму
-    const mpCategories = getMpCategories();
-    mpCategories.forEach(cat => {
-        // external_id - це ID категорії в маркетплейсі (напр. "4653724")
-        // Це значення використовується в category_id характеристик
-        const externalId = cat.external_id || cat.mp_id;
-
-        // name вже розпарсено з data при завантаженні
-        const name = extractName(cat) || externalId;
-
-        if (externalId && !labelMap[externalId]) {
-            labelMap[externalId] = name;
-        }
-    });
-
-    return labelMap;
-}
-
-/**
- * Створити labelMap для характеристик (ID -> Назва)
- */
-function getCharacteristicLabelMap() {
-    const labelMap = {};
-
-    const ownChars = getCharacteristics();
-    ownChars.forEach(c => {
-        labelMap[c.id] = c.name_ua || c.name || c.id;
-    });
-
-    const mpChars = getMpCharacteristics();
-    mpChars.forEach(c => {
-        const externalId = c.external_id;
-        const name = extractName(c) || externalId;
-        if (externalId && !labelMap[externalId]) {
-            labelMap[externalId] = name;
-        }
-    });
-
-    return labelMap;
-}
+// getCategoryLabelMap та getCharacteristicLabelMap — кешовані версії вгорі файлу
 
 // Флаги для запобігання циклу при відновленні стану
 let isRestoringFilters = false;

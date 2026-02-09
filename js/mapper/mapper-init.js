@@ -24,8 +24,9 @@
  */
 
 import { loadMapperData } from './mapper-data.js';
-import { renderCurrentTab } from './mapper-table.js';
+import { renderCurrentTab, invalidateLookupCaches } from './mapper-table.js';
 import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-events.js';
+import { createLazyLoader } from '../common/util-lazy-load.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -73,7 +74,7 @@ function initTabSwitching() {
     const tabButtons = document.querySelectorAll('[data-tab-target^="tab-mapper-"]');
 
     tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const tabId = button.dataset.tabTarget;
             const tabName = tabId.replace('tab-mapper-', '');
 
@@ -89,6 +90,8 @@ function initTabSwitching() {
                 if (clearBtn) clearBtn.classList.add('u-hidden');
             }
 
+            // Lazy load даних для цього табу
+            await ensureTabData(tabName);
             renderCurrentTab();
 
         });
@@ -98,25 +101,57 @@ function initTabSwitching() {
 /**
  * Перевірити авторизацію та завантажити дані
  */
+// Lazy loaders для відкладеного завантаження даних по табах
+let lazyCharacteristics = null;
+let lazyOptions = null;
+
+function createTabLoaders() {
+    const dataModule = import('./mapper-data.js');
+
+    lazyCharacteristics = createLazyLoader(async () => {
+        const { loadMpCharacteristics, loadMapCharacteristics } = await dataModule;
+        await Promise.all([loadMpCharacteristics(), loadMapCharacteristics()]);
+        invalidateLookupCaches();
+    });
+
+    lazyOptions = createLazyLoader(async () => {
+        const { loadMpOptions, loadMapOptions } = await dataModule;
+        await Promise.all([loadMpOptions(), loadMapOptions()]);
+        invalidateLookupCaches();
+    });
+}
+
+/**
+ * Завантажити дані для табу (lazy — тільки при першому відкритті)
+ */
+export async function ensureTabData(tabName) {
+    if (tabName === 'characteristics' && lazyCharacteristics) {
+        await lazyCharacteristics.load();
+    } else if (tabName === 'options' && lazyOptions) {
+        // Опції залежать від характеристик
+        if (lazyCharacteristics) await lazyCharacteristics.load();
+        await lazyOptions.load();
+    }
+}
+
 async function checkAuthAndLoadData() {
 
     // Перевіряємо глобальний стан авторизації
     if (window.isAuthorized) {
 
         try {
-            // Завантажити основні дані
+            // Завантажити основні дані (маркетплейси, власні категорії/характеристики/опції)
             await loadMapperData();
 
-            // Завантажити MP дані та маппінги паралельно
-            const { loadMpCategories, loadMpCharacteristics, loadMpOptions, loadMapCategories, loadMapCharacteristics, loadMapOptions } = await import('./mapper-data.js');
+            // Завантажити тільки категорії MP + маппінги категорій (найнеобхідніше)
+            const { loadMpCategories, loadMapCategories } = await import('./mapper-data.js');
             await Promise.all([
                 loadMpCategories(),
-                loadMpCharacteristics(),
-                loadMpOptions(),
-                loadMapCategories(),
-                loadMapCharacteristics(),
-                loadMapOptions()
+                loadMapCategories()
             ]);
+
+            // Створити lazy loaders для інших табів
+            createTabLoaders();
 
             // Ініціалізувати dropdowns після заповнення
             const { initDropdowns } = await import('../common/ui-dropdown.js');
@@ -126,6 +161,7 @@ async function checkAuthAndLoadData() {
             runHook('onDataLoaded');
 
             // Відрендерити поточний таб
+            await ensureTabData(mapperState.activeTab);
             renderCurrentTab();
 
             // Ініціалізувати обробники подій
