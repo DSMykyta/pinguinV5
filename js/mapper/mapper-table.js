@@ -82,11 +82,11 @@ function getBindingsInfo(entityType, entityId) {
         // Отримуємо назву MP сутності
         let entityName = '';
         if (mpEntity) {
-            entityName = mpEntity.name || '';
+            entityName = extractName(mpEntity);
             if (!entityName && mpEntity.data) {
                 try {
                     const d = typeof mpEntity.data === 'string' ? JSON.parse(mpEntity.data) : mpEntity.data;
-                    entityName = d.name || '';
+                    entityName = extractName(d);
                 } catch (e) {}
             }
         }
@@ -165,6 +165,24 @@ import {
     actionButton
 } from '../common/ui-actions.js';
 import { initTableSorting, filterData, updateSortIndicators } from '../common/ui-table-controls.js';
+
+/**
+ * Витягнути назву з об'єкта (JSON data або merged entity).
+ * Шукає перше поле, ключ якого містить "name" (ігноруючи регістр).
+ * Пріоритет: name → name_ua → nameUa → nameRu → name_ru → будь-яке *name*
+ */
+function extractName(obj) {
+    if (!obj || typeof obj !== 'object') return '';
+    // Пріоритетні ключі
+    if (obj.name) return obj.name;
+    if (obj.name_ua) return obj.name_ua;
+    if (obj.nameUa) return obj.nameUa;
+    if (obj.nameRu) return obj.nameRu;
+    if (obj.name_ru) return obj.name_ru;
+    // Fallback: будь-який ключ з "name"
+    const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
+    return nameKey ? obj[nameKey] : '';
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -269,9 +287,9 @@ function getCategoriesData() {
                 id: mpCat.id,
                 external_id: mpCat.external_id,
                 marketplace_id: mpCat.marketplace_id,
-                name_ua: data.name || '',
+                name_ua: extractName(data),
                 name_ru: '',
-                parent_id: data.parent_id || '',
+                parent_id: data.parent_id || data.parentId || '',
                 our_category_id: data.our_category_id || '',
                 _source: mpCat.marketplace_id,
                 _sourceLabel: marketplace?.name || mpCat.marketplace_id,
@@ -503,7 +521,7 @@ function getCharacteristicsData() {
                 id: mpChar.id,
                 external_id: mpChar.external_id,
                 marketplace_id: mpChar.marketplace_id,
-                name_ua: mpChar.name || rawData.name || '',
+                name_ua: extractName(mpChar) || extractName(rawData),
                 name_ru: '',
                 type: mpChar.type || rawData.type || '',
                 unit: mpChar.unit || rawData.unit || '',
@@ -727,7 +745,7 @@ function getOptionsData() {
             );
             if (mpChar) {
                 const charData = typeof mpChar.data === 'string' ? JSON.parse(mpChar.data) : (mpChar.data || {});
-                charName = charData.name || data.char_id;
+                charName = extractName(charData) || data.char_id;
             }
 
             return {
@@ -736,7 +754,7 @@ function getOptionsData() {
                 marketplace_id: mpOpt.marketplace_id,
                 characteristic_id: data.char_id || '',
                 characteristic_name: charName,
-                value_ua: data.name || '',
+                value_ua: extractName(data),
                 value_ru: '',
                 sort_order: '0',
                 our_option_id: data.our_option_id || '',
@@ -1612,7 +1630,7 @@ function getCategoryLabelMap() {
         const externalId = cat.external_id || cat.mp_id;
 
         // name вже розпарсено з data при завантаженні
-        const name = cat.name || cat.name_ua || externalId;
+        const name = extractName(cat) || externalId;
 
         if (externalId && !labelMap[externalId]) {
             labelMap[externalId] = name;
@@ -1636,7 +1654,7 @@ function getCharacteristicLabelMap() {
     const mpChars = getMpCharacteristics();
     mpChars.forEach(c => {
         const externalId = c.external_id;
-        const name = c.name || c.name_ua || externalId;
+        const name = extractName(c) || externalId;
         if (externalId && !labelMap[externalId]) {
             labelMap[externalId] = name;
         }
