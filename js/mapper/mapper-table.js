@@ -316,12 +316,12 @@ import { initTableSorting, filterData, updateSortIndicators } from '../common/ui
  */
 function extractName(obj) {
     if (!obj || typeof obj !== 'object') return '';
-    // Пріоритетні ключі
-    if (obj.name) return obj.name;
+    // Пріоритет: українська → загальна → російська
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
-    if (obj.nameRu) return obj.nameRu;
+    if (obj.name) return obj.name;
     if (obj.name_ru) return obj.name_ru;
+    if (obj.nameRu) return obj.nameRu;
     // Fallback: будь-який ключ з "name"
     const nameKey = Object.keys(obj).find(k => k.toLowerCase().includes('name'));
     return nameKey ? obj[nameKey] : '';
@@ -481,6 +481,17 @@ function getCategoriesColumns(allCategories) {
             label: 'Рів.',
             className: 'cell-xs cell-center',
             render: (value, row) => {
+                const mpData = row._mpData;
+
+                // Fallback: якщо є parentsPath в JSON — рахуємо рівень з нього
+                if (mpData?.parentsPath) {
+                    const parts = mpData.parentsPath.split(' / ');
+                    const level = parts.length - 1;
+                    const pathUa = mpData.parentsPathUa || mpData.parentsPath;
+                    const tooltipText = pathUa.replace(/ \/ /g, ' → ');
+                    return `<span class="chip" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
+                }
+
                 let level = 0;
                 let current = row;
                 const path = [row.name_ua || row.id];
@@ -526,7 +537,16 @@ function getCategoriesColumns(allCategories) {
                 if (!value) return '-';
                 const mpId = row._source !== 'own' ? row.marketplace_id : null;
                 const parent = findParentCategory(value, mpId);
-                return parent ? escapeHtml(parent.name_ua || value) : escapeHtml(value);
+                if (parent) return escapeHtml(parent.name_ua || value);
+
+                // Fallback: parentName з JSON (Allo та інші, де батьки не імпортовані)
+                const mpData = row._mpData;
+                if (mpData) {
+                    const fallbackName = mpData.parentName || mpData.parent_name;
+                    if (fallbackName) return escapeHtml(fallbackName);
+                }
+
+                return escapeHtml(value);
             }
         },
         {
