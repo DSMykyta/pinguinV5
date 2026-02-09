@@ -79,85 +79,6 @@ async function loadEpicentrCategories(marketplaceId) {
 }
 
 /**
- * Створити або оновити категорію з attribute_set_id
- */
-async function ensureCategory(category, attributeSetId, marketplaceId) {
-    const { callSheetsAPI } = await import('../utils/api-client.js');
-    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
-    await loadMpCategories();
-
-    const existingCats = getMpCategories();
-
-    // Якщо категорія вже обрана — оновити її JSON з attribute_set_id
-    if (category?.id) {
-        const existing = existingCats.find(c => c.id === category.id);
-        if (existing && attributeSetId) {
-            let catData = {};
-            try {
-                catData = typeof existing.data === 'string' ? JSON.parse(existing.data || '{}') : (existing.data || {});
-            } catch (e) {
-                catData = {};
-            }
-
-            // Додаємо attribute_set_id якщо його ще немає
-            const existingSets = catData.attribute_set_ids || [];
-            if (!existingSets.includes(attributeSetId)) {
-                existingSets.push(attributeSetId);
-                catData.attribute_set_ids = existingSets;
-
-                const timestamp = new Date().toISOString();
-                const range = `Mapper_MP_Categories!A${existing._rowIndex}:G${existing._rowIndex}`;
-                await callSheetsAPI('update', {
-                    range: range,
-                    values: [[
-                        existing.id,
-                        existing.marketplace_id,
-                        existing.external_id,
-                        existing.source || 'import',
-                        JSON.stringify(catData),
-                        existing.created_at,
-                        timestamp
-                    ]],
-                    spreadsheetType: 'main'
-                });
-            }
-        }
-        return;
-    }
-
-    // Створити нову категорію
-    const catName = category?.name || '';
-    const externalId = category?.external_id || `cat-${Date.now()}`;
-    const timestamp = new Date().toISOString();
-    const uniqueId = `mpc-${marketplaceId}-cat-${externalId}`;
-
-    const catData = {
-        id: externalId,
-        name: catName
-    };
-    if (attributeSetId) {
-        catData.attribute_set_ids = [attributeSetId];
-    }
-
-    await callSheetsAPI('append', {
-        range: 'Mapper_MP_Categories!A:G',
-        values: [[
-            uniqueId,
-            marketplaceId,
-            externalId,
-            'import',
-            JSON.stringify(catData),
-            timestamp,
-            timestamp
-        ]],
-        spreadsheetType: 'main'
-    });
-
-    // Повертаємо створену категорію для подальшого використання
-    return { id: uniqueId, external_id: externalId, name: catName };
-}
-
-/**
  * Побудувати UI вибору категорії
  */
 function buildCategorySelectUI(categories, importState) {
@@ -170,7 +91,7 @@ function buildCategorySelectUI(categories, importState) {
         try {
             catData = typeof cat.data === 'string' ? JSON.parse(cat.data || '{}') : (cat.data || {});
         } catch (e) { /* ignore */ }
-        const label = catData.name || cat.external_id || cat.id;
+        const label = catData.name || catData.nameUa || catData.name_ua || cat.external_id || cat.id;
         return `<option value="${cat.id}">${label} (#${cat.external_id})</option>`;
     }).join('');
 
@@ -202,7 +123,7 @@ function buildCategorySelectUI(categories, importState) {
             importState._adapterData.category = {
                 id: selectedCat.id,
                 external_id: selectedCat.external_id,
-                name: catData.name || selectedCat.external_id
+                name: catData.name || catData.nameUa || catData.name_ua || selectedCat.external_id
             };
 
             fileGroup?.classList.remove('u-hidden');
@@ -367,16 +288,6 @@ const epicentrAdapter = {
     /**
      * Перед імпортом — зберегти attribute_set_id в JSON категорії
      */
-    async onBeforeImport(importState, onProgress) {
-        const category = importState._adapterData?.category;
-        const attributeSetId = importState._adapterData?.attributeSetId;
-
-        if (category && attributeSetId) {
-            onProgress(15, 'Оновлення категорії...');
-            await ensureCategory(category, attributeSetId, importState.marketplaceId);
-        }
-    },
-
     /**
      * Отримати категорію для зв'язку з характеристиками
      */
