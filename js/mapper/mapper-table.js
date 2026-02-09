@@ -91,8 +91,8 @@ function findParentCategory(pid, mpId) {
         return maps.byMpExtId.get(`${mpId}:${pid}`);
     }
 
-    // 4. По external_id глобально
-    if (maps.byExtId.has(pid)) return maps.byExtId.get(pid);
+    // 4. По external_id глобально (тільки для власних категорій, де mpId = null)
+    if (!mpId && maps.byExtId.has(pid)) return maps.byExtId.get(pid);
 
     return null;
 }
