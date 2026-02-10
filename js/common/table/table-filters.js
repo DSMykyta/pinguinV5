@@ -53,6 +53,7 @@ export class FiltersPlugin {
         this.config = {
             filterColumns: [],     // Array of { id, label, filterType, labelMap }
             onFilter: null,        // Callback (filtersObj) => void
+            dataSource: null,      // Function () => data[] — зовнішнє джерело (як в initTableSorting)
             ...config
         };
 
@@ -221,7 +222,7 @@ export class FiltersPlugin {
         const labelMap = columnConfig?.labelMap || null;
 
         // Дані для побудови значень — завжди оригінальні (нефільтровані)
-        const data = this.state.getData();
+        const data = this.config.dataSource ? this.config.dataSource() : this.state.getData();
         const uniqueValues = this.getUniqueValues(data, columnId, filterType, labelMap);
 
         // Ініціалізуємо фільтр якщо потрібно (все вибрано за замовчуванням)
@@ -484,7 +485,7 @@ export class FiltersPlugin {
             const column = this.config.filterColumns?.find(c => c.id === columnId);
             if (!column) return;
 
-            const data = this.state.getData();
+            const data = this.config.dataSource ? this.config.dataSource() : this.state.getData();
             const uniqueValues = this.getUniqueValues(data, columnId, column.filterType, column.labelMap);
 
             // Включаємо тільки якщо НЕ всі значення вибрані
@@ -523,7 +524,7 @@ export class FiltersPlugin {
      * Скинути фільтри (все вибрано)
      */
     resetFilters() {
-        const data = this.state.getData();
+        const data = this.config.dataSource ? this.config.dataSource() : this.state.getData();
         this.config.filterColumns?.forEach(column => {
             const uniqueValues = this.getUniqueValues(data, column.id, column.filterType, column.labelMap);
             this.activeFilters.set(column.id, new Set(uniqueValues.map(v => v.value)));
@@ -539,7 +540,7 @@ export class FiltersPlugin {
         this.activeFilters.forEach((values, columnId) => {
             const column = this.config.filterColumns?.find(c => c.id === columnId);
             if (!column) return;
-            const allData = this.state.getData();
+            const allData = this.config.dataSource ? this.config.dataSource() : this.state.getData();
             const uniqueValues = this.getUniqueValues(allData, columnId, column.filterType, column.labelMap);
             if (values.size < uniqueValues.length) {
                 filtersObj[columnId] = Array.from(values);

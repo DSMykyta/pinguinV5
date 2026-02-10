@@ -187,6 +187,7 @@ function initTableAPI() {
                 }
             },
             filters: {
+                dataSource: () => getBrands(),
                 filterColumns: [
                     { id: 'country_option_id', label: 'Країна', filterType: 'values' },
                     { id: 'brand_status', label: 'Статус', filterType: 'values' }
