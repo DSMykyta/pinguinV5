@@ -10,12 +10,11 @@
  * Рендеринг таблиці брендів з підтримкою пагінації, сортування та фільтрації.
  */
 
-import { registerBrandsPlugin } from './brands-plugins.js';
+import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { getBrandLines } from './lines-data.js';
 import { brandsState } from './brands-state.js';
-import { createPseudoTable } from '../common/ui-table.js';
-import { filterData } from '../common/ui-table-controls.js';
+import { createTable, filterData } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -149,22 +148,56 @@ function initTableAPI() {
         ? brandsState.visibleColumns
         : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
-    tableAPI = createPseudoTable(container, {
+    tableAPI = createTable(container, {
         columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActionsCustom: (row) => actionButton({
+        rowActions: (row) => actionButton({
             action: 'edit',
             rowId: row.brand_id,
             context: 'brands'
         }),
         getRowId: (row) => row.brand_id,
         emptyState: {
-            icon: 'shopping_bag',
             message: 'Бренди не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'brands')
+        onAfterRender: (container) => initActionHandlers(container, 'brands'),
+        plugins: {
+            sorting: {
+                dataSource: () => {
+                    const lines = brandsState.brandLines || [];
+                    return getBrands().map(b => {
+                        b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
+                        return b;
+                    });
+                },
+                onSort: async (sortedData) => {
+                    brandsState.brands = sortedData;
+                    renderBrandsTable();
+                },
+                columnTypes: {
+                    brand_id: 'id-text',
+                    name_uk: 'string',
+                    names_alt: 'string',
+                    country_option_id: 'string',
+                    brand_text: 'string',
+                    brand_site_link: 'string',
+                    lines_count: 'number'
+                }
+            },
+            filters: {
+                filterColumns: [
+                    { id: 'country_option_id', label: 'Країна', filterType: 'values' },
+                    { id: 'brand_status', label: 'Статус', filterType: 'values' }
+                ],
+                onFilter: (filters) => {
+                    brandsState.columnFilters = filters;
+                    brandsState.pagination.currentPage = 1;
+                    runHook('onRender');
+                }
+            }
+        }
     });
 
     // Зберігаємо в state для доступу з інших модулів

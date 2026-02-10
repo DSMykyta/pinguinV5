@@ -8,6 +8,26 @@
  * ║                                                                          ║
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Генерація та оновлення DOM структури таблиці.                           ║
+ * ║  HTML вихід ІДЕНТИЧНИЙ до ui-table.js createPseudoTable().               ║
+ * ║                                                                          ║
+ * ║  HTML СТРУКТУРА (must match ui-table.js exactly):                        ║
+ * ║  <div class="pseudo-table-container">                                    ║
+ * ║    <div class="pseudo-table-header">                                     ║
+ * ║      <div class="pseudo-table-cell cell-actions header-actions-cell">    ║
+ * ║      <div class="pseudo-table-cell sortable-header filterable"           ║
+ * ║           data-sort-key="..." data-column="...">                         ║
+ * ║        <span>Label</span>                                                ║
+ * ║        <span class="sort-indicator">                                     ║
+ * ║          <span class="material-symbols-outlined">unfold_more</span>      ║
+ * ║        </span>                                                           ║
+ * ║      </div>                                                              ║
+ * ║    </div>                                                                ║
+ * ║    <div class="pseudo-table-row" data-row-id="...">                      ║
+ * ║      <div class="pseudo-table-cell cell-actions">actions</div>           ║
+ * ║      <div class="pseudo-table-cell" data-column="..."                    ║
+ * ║           data-tooltip="...">content</div>                               ║
+ * ║    </div>                                                                ║
+ * ║  </div>                                                                  ║
  * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ КЛАСИ:                                                     ║
  * ║  - TableCore — Базовий клас для рендерингу                               ║
@@ -15,9 +35,11 @@
  */
 
 import { escapeHtml } from '../../utils/text-utils.js';
+import { renderAvatarState } from '../avatar/avatar-ui-states.js';
 
 /**
  * Базовий клас для рендерингу таблиці
+ * Генерує HTML ідентичний до ui-table.js createPseudoTable()
  */
 export class TableCore {
     constructor(container, config, tableState) {
@@ -31,26 +53,25 @@ export class TableCore {
 
         this.config = {
             columns: [],
-            getRowId: (row) => row.id,
+            getRowId: (row, index) => row.id || row.local_id || row.code || index,
             rowActions: null,           // Function (row) => HTML string
-            rowActionsHeader: '',       // HTML for actions column header
-            emptyState: {
-                icon: 'table_rows',
-                message: 'Дані відсутні'
-            },
-            withContainer: true,        // Wrap in .table-container
-            tableClass: 'pseudo-table',
+            rowActionsHeader: null,     // HTML for actions column header
+            noHeaderSort: false,        // Disable sortable-header class
+            onRowClick: null,           // Callback on row click
+            onAfterRender: null,        // Callback after render
+            emptyState: null,           // { message: 'text' }
+            withContainer: true,        // Wrap in .pseudo-table-container
+            visibleColumns: null,       // Array of visible column IDs (null = all visible)
             ...config
         };
 
         this.state = tableState;
         this.plugins = [];
+        this.currentData = [];
 
         // Кешуємо DOM елементи
         this.dom = {
-            wrapper: null,
-            header: null,
-            body: null
+            header: null
         };
 
         // Ініціалізуємо hooks
@@ -68,218 +89,251 @@ export class TableCore {
         return this;
     }
 
-    /**
-     * Отримати видимі колонки
-     */
-    getVisibleColumns() {
-        const visibleIds = this.state.getVisibleColumns();
-        if (!visibleIds) {
-            return this.config.columns;
-        }
-        return this.config.columns.filter(col => visibleIds.includes(col.id));
+    // ==================== VISIBILITY ====================
+
+    isColumnVisible(columnId) {
+        const visibleCols = this.config.visibleColumns || this.state.getVisibleColumns();
+        if (!visibleCols) return true;
+        return visibleCols.includes(columnId);
     }
 
-    /**
-     * Створити HTML заголовка колонки
-     */
-    renderColumnHeader(column) {
-        const classes = ['pseudo-table-cell'];
-        if (column.className) classes.push(column.className);
-        if (column.sortable) classes.push('sortable');
-        if (column.filterable) classes.push('filterable');
-
-        const sortIcon = column.sortable
-            ? '<span class="sort-icon material-symbols-outlined">unfold_more</span>'
-            : '';
-
-        const filterIcon = column.filterable
-            ? '<span class="filter-icon material-symbols-outlined">filter_list</span>'
-            : '';
-
-        return `
-            <div class="${classes.join(' ')}"
-                 data-column="${column.id}"
-                 ${column.sortable ? 'data-sortable="true"' : ''}
-                 ${column.filterable ? 'data-filterable="true"' : ''}>
-                <span class="column-label">${escapeHtml(column.label || column.id)}</span>
-                ${sortIcon}
-                ${filterIcon}
-            </div>
-        `;
+    hiddenClass(columnId) {
+        return this.isColumnVisible(columnId) ? '' : ' column-hidden';
     }
 
-    /**
-     * Створити HTML заголовка таблиці
-     */
+    // ==================== HEADER HTML ====================
+    // Ідентичний до ui-table.js generateHeaderHTML()
+
     renderHeader() {
-        const visibleColumns = this.getVisibleColumns();
-        const actionsHeader = this.config.rowActionsHeader || this.config.rowActions
-            ? `<div class="pseudo-table-cell cell-actions">${this.config.rowActionsHeader || ''}</div>`
-            : '';
-
-        const columnsHtml = visibleColumns
-            .map(col => this.renderColumnHeader(col))
-            .join('');
+        const { columns, rowActions, rowActionsHeader, noHeaderSort } = this.config;
 
         return `
             <div class="pseudo-table-header">
-                ${actionsHeader}
-                ${columnsHtml}
+                ${rowActions || rowActionsHeader != null ? `
+                    <div class="pseudo-table-cell cell-actions header-actions-cell">
+                        ${rowActionsHeader || ''}
+                    </div>
+                ` : ''}
+                ${columns.map(col => {
+                    const cellClass = col.className || '';
+                    const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
+                    const filterableClass = col.filterable ? ' filterable' : '';
+
+                    return `
+                        <div class="pseudo-table-cell ${cellClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
+                             ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
+                             data-column="${col.id}">
+                            <span>${col.label || col.id}</span>
+                            ${!noHeaderSort && col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
+                        </div>
+                    `;
+                }).join('')}
             </div>
         `;
     }
 
-    /**
-     * Створити HTML комірки
-     */
-    renderCell(column, value, row) {
-        const classes = ['pseudo-table-cell'];
-        if (column.className) classes.push(column.className);
+    // ==================== ROW HTML ====================
+    // Ідентичний до ui-table.js generateRowHTML()
 
-        let content = value;
-        if (column.render && typeof column.render === 'function') {
-            content = column.render(value, row, column);
-        } else if (value === null || value === undefined) {
-            content = '-';
-        } else {
-            content = escapeHtml(String(value));
-        }
-
-        return `<div class="${classes.join(' ')}" data-column="${column.id}">${content}</div>`;
-    }
-
-    /**
-     * Створити HTML рядка
-     */
-    renderRow(row) {
-        const visibleColumns = this.getVisibleColumns();
-        const rowId = this.config.getRowId(row);
-        const isSelected = this.state.isSelected(rowId);
-
-        const actionsCell = this.config.rowActions
-            ? `<div class="pseudo-table-cell cell-actions">${this.config.rowActions(row)}</div>`
-            : '';
-
-        const cellsHtml = visibleColumns
-            .map(col => this.renderCell(col, row[col.id], row))
-            .join('');
+    renderRow(row, rowIndex) {
+        const { columns, rowActions, onRowClick, getRowId } = this.config;
+        const rowId = getRowId(row, rowIndex);
+        const rowClasses = ['pseudo-table-row'];
+        if (onRowClick) rowClasses.push('clickable');
 
         return `
-            <div class="pseudo-table-row${isSelected ? ' selected' : ''}" data-row-id="${escapeHtml(rowId)}">
-                ${actionsCell}
-                ${cellsHtml}
+            <div class="${rowClasses.join(' ')}" data-row-id="${rowId}">
+                ${rowActions ? `
+                    <div class="pseudo-table-cell cell-actions">
+                        ${rowActions(row)}
+                    </div>
+                ` : ''}
+                ${columns.map(col => {
+                    const value = row[col.id];
+                    const cellClass = col.className || '';
+                    const tooltipAttr = col.tooltip !== false && value ?
+                        `data-tooltip="${escapeHtml(String(value))}"` : '';
+
+                    let cellContent;
+                    if (col.render && typeof col.render === 'function') {
+                        cellContent = col.render(value, row);
+                    } else {
+                        cellContent = escapeHtml(value ?? ' ');
+                    }
+
+                    return `
+                        <div class="pseudo-table-cell ${cellClass}${this.hiddenClass(col.id)}"
+                             data-column="${col.id}"
+                             ${tooltipAttr}>
+                            ${cellContent}
+                        </div>
+                    `;
+                }).join('')}
             </div>
         `;
     }
 
-    /**
-     * Створити HTML тіла таблиці
-     */
-    renderBody(data) {
-        if (!data || data.length === 0) {
-            return this.renderEmptyState();
-        }
-
-        return `
-            <div class="pseudo-table-body">
-                ${data.map(row => this.renderRow(row)).join('')}
-            </div>
-        `;
+    renderRows(data) {
+        return data.map((row, index) => this.renderRow(row, index)).join('');
     }
 
-    /**
-     * Створити HTML порожнього стану
-     */
+    // ==================== EMPTY STATE ====================
+    // Ідентичний до ui-table.js — використовує renderAvatarState
+
     renderEmptyState() {
-        const { icon, message } = this.config.emptyState;
-        return `
-            <div class="pseudo-table-body">
-                <div class="empty-state-container">
-                    <span class="material-symbols-outlined empty-state-icon">${icon}</span>
-                    <p class="empty-state-message">${escapeHtml(message)}</p>
-                </div>
-            </div>
-        `;
+        const { emptyState } = this.config;
+        if (!emptyState) return '';
+
+        const emptyHTML = renderAvatarState('empty', {
+            message: emptyState.message || 'Немає даних для відображення',
+            size: 'medium',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
+
+        return `<div class="pseudo-table-body pseudo-table-empty">${emptyHTML}</div>`;
     }
 
-    /**
-     * Рендерити всю таблицю
-     */
+    // ==================== FULL RENDER ====================
+    // Структура: header + rows (без додаткових обгорток!)
+    // Обгортка тільки .pseudo-table-container якщо withContainer=true
+
     render(data) {
-        const renderData = data || this.state.getPaginatedData() || this.state.getData();
+        const renderData = data || this.state.getFilteredData() || this.state.getData();
+        this.currentData = Array.isArray(renderData) ? renderData : [];
 
-        this.state.runHook('onBeforeRender', renderData);
+        this.state.runHook('onBeforeRender', this.currentData);
 
-        const headerHtml = this.renderHeader();
-        const bodyHtml = this.renderBody(renderData);
+        const headerHTML = this.renderHeader();
+        let tableHTML;
 
-        const tableHtml = `
-            <div class="${this.config.tableClass}">
-                ${headerHtml}
-                ${bodyHtml}
-            </div>
-        `;
+        if (this.currentData.length === 0 && this.config.emptyState) {
+            tableHTML = headerHTML + this.renderEmptyState();
+        } else {
+            tableHTML = headerHTML + this.renderRows(this.currentData);
+        }
 
         if (this.config.withContainer) {
-            this.container.innerHTML = `<div class="table-container">${tableHtml}</div>`;
+            this.container.innerHTML = `<div class="pseudo-table-container">${tableHTML}</div>`;
         } else {
-            this.container.innerHTML = tableHtml;
+            this.container.innerHTML = tableHTML;
         }
 
         // Кешуємо DOM елементи
-        this.dom.wrapper = this.container.querySelector(`.${this.config.tableClass}`);
         this.dom.header = this.container.querySelector('.pseudo-table-header');
-        this.dom.body = this.container.querySelector('.pseudo-table-body');
 
-        this.state.runHook('onRender', this.container, renderData);
+        // Event handlers
+        this.attachEventHandlers();
 
-        return this;
-    }
+        // Run hooks (plugins)
+        this.state.runHook('onRender', this.container, this.currentData);
 
-    /**
-     * Оновити тільки рядки (без заголовка)
-     */
-    updateRows(data) {
-        const renderData = data || this.state.getPaginatedData() || this.state.getData();
-
-        this.state.runHook('onBeforeRender', renderData);
-
-        const bodyHtml = this.renderBody(renderData);
-
-        if (this.dom.body) {
-            this.dom.body.outerHTML = bodyHtml;
-            this.dom.body = this.container.querySelector('.pseudo-table-body');
-        } else {
-            // Fallback to full render
-            this.render(renderData);
-            return this;
+        // Legacy callback
+        if (this.config.onAfterRender) {
+            this.config.onAfterRender(this.container, this.currentData);
         }
 
-        this.state.runHook('onRender', this.container, renderData);
+        return this;
+    }
+
+    // ==================== UPDATE ROWS ====================
+    // Ідентичний до ui-table.js updateRows() — видаляє рядки, вставляє після header
+
+    updateRows(data) {
+        const renderData = data || this.state.getFilteredData() || this.state.getData();
+        this.currentData = Array.isArray(renderData) ? renderData : [];
+
+        this.state.runHook('onBeforeRender', this.currentData);
+
+        // Видаляємо тільки рядки та empty state (не заголовок!)
+        this.container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
+        this.container.querySelectorAll('.pseudo-table-body').forEach(el => el.remove());
+
+        if (this.currentData.length === 0) {
+            // Вставляємо empty state після header
+            if (this.config.emptyState) {
+                const header = this.container.querySelector('.pseudo-table-header');
+                if (header) {
+                    header.insertAdjacentHTML('afterend', this.renderEmptyState());
+                }
+            }
+        } else {
+            // Генеруємо нові рядки та вставляємо після header
+            const rowsHTML = this.renderRows(this.currentData);
+            const header = this.container.querySelector('.pseudo-table-header');
+            if (header) {
+                header.insertAdjacentHTML('afterend', rowsHTML);
+            }
+        }
+
+        // Event handlers
+        this.attachEventHandlers();
+
+        // Run hooks
+        this.state.runHook('onRender', this.container, this.currentData);
+
+        // Legacy callback
+        if (this.config.onAfterRender) {
+            this.config.onAfterRender(this.container, this.currentData);
+        }
 
         return this;
     }
 
-    /**
-     * Отримати контейнер
-     */
-    getContainer() {
-        return this.container;
+    // ==================== EVENT HANDLERS ====================
+
+    attachEventHandlers() {
+        const { onRowClick, getRowId } = this.config;
+
+        if (onRowClick) {
+            this.container.querySelectorAll('.pseudo-table-row.clickable').forEach(rowEl => {
+                rowEl.addEventListener('click', (e) => {
+                    const rowId = rowEl.dataset.rowId;
+                    const rowData = this.currentData.find(r =>
+                        String(getRowId(r)) === String(rowId)
+                    );
+                    if (rowData) {
+                        onRowClick(rowData, e);
+                    }
+                });
+            });
+        }
     }
 
-    /**
-     * Отримати DOM елементи
-     */
-    getDOM() {
-        return this.dom;
+    // ==================== COLUMN VISIBILITY ====================
+
+    setVisibleColumns(newVisibleColumns) {
+        this.config.visibleColumns = newVisibleColumns;
+        this.state.setVisibleColumns(newVisibleColumns);
+
+        this.container.querySelectorAll('[data-column]').forEach(cell => {
+            const columnId = cell.dataset.column;
+            if (this.isColumnVisible(columnId)) {
+                cell.classList.remove('column-hidden');
+            } else {
+                cell.classList.add('column-hidden');
+            }
+        });
     }
 
     // ==================== DOM UTILITIES ====================
 
+    getContainer() {
+        return this.container;
+    }
+
+    getDOM() {
+        return this.dom;
+    }
+
+    getData() {
+        return this.currentData;
+    }
+
     /**
      * Знайти рядок таблиці за ID
-     * @param {string|number} rowId - ID рядка
-     * @returns {HTMLElement|null} Елемент рядка або null
      */
     findRow(rowId) {
         return this.container.querySelector(`[data-row-id="${rowId}"]`);
@@ -287,10 +341,6 @@ export class TableCore {
 
     /**
      * Оновити конкретну комірку в таблиці
-     * @param {string|number} rowId - ID рядка
-     * @param {string} columnId - ID колонки
-     * @param {string} newContent - Новий HTML контент
-     * @returns {boolean} true якщо оновлено успішно
      */
     updateCell(rowId, columnId, newContent) {
         const row = this.findRow(rowId);
@@ -305,9 +355,6 @@ export class TableCore {
 
     /**
      * Додати клас до рядка таблиці
-     * @param {string|number} rowId - ID рядка
-     * @param {string} className - Клас для додавання
-     * @returns {boolean} true якщо успішно
      */
     addRowClass(rowId, className) {
         const row = this.findRow(rowId);
@@ -319,9 +366,6 @@ export class TableCore {
 
     /**
      * Видалити клас з рядка таблиці
-     * @param {string|number} rowId - ID рядка
-     * @param {string} className - Клас для видалення
-     * @returns {boolean} true якщо успішно
      */
     removeRowClass(rowId, className) {
         const row = this.findRow(rowId);

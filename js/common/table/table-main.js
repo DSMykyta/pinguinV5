@@ -14,39 +14,27 @@
  * ║  ```javascript                                                           ║
  * ║  import { createTable } from '../common/table/table-main.js';            ║
  * ║                                                                          ║
- * ║  const table = createTable('container-id', {                             ║
- * ║      columns: [                                                          ║
- * ║          { id: 'name', label: 'Назва', sortable: true },                 ║
- * ║          { id: 'price', label: 'Ціна', type: 'number', filterable: true }║
- * ║      ],                                                                  ║
+ * ║  const table = createTable(container, {                                  ║
+ * ║      columns: [...],                                                     ║
+ * ║      rowActions: (row) => `<button>Edit</button>`,                       ║
+ * ║      rowActionsHeader: ' ',                                              ║
  * ║      getRowId: row => row.id,                                            ║
+ * ║      withContainer: false,                                               ║
+ * ║      onAfterRender: (container) => {},                                   ║
  * ║      plugins: {                                                          ║
- * ║          sorting: true,                                                  ║
- * ║          filters: { filterType: 'values' },                              ║
- * ║          checkboxes: { batchBar: myBatchBar }                            ║
+ * ║          sorting: { columnTypes: { id: 'id-number' } },                  ║
+ * ║          filters: {                                                      ║
+ * ║              filterColumns: [                                            ║
+ * ║                  { id: 'status', label: 'Статус', filterType: 'values' } ║
+ * ║              ],                                                          ║
+ * ║              onFilter: (filters) => {}                                   ║
+ * ║          }                                                               ║
  * ║      }                                                                   ║
  * ║  });                                                                     ║
  * ║                                                                          ║
  * ║  table.setData(myData);                                                  ║
  * ║  table.render();                                                         ║
  * ║  ```                                                                     ║
- * ║                                                                          ║
- * ║  АРХІТЕКТУРА:                                                            ║
- * ║  ┌─────────────────────────────────────────────────────────────────┐     ║
- * ║  │                     createTable()                               │     ║
- * ║  │  ┌──────────────────────────────────────────────────────────┐   │     ║
- * ║  │  │                   TableCore                              │   │     ║
- * ║  │  │  ┌─────────┐ ┌─────────┐ ┌───────────┐ ┌──────────────┐  │   │     ║
- * ║  │  │  │ Sorting │ │ Filters │ │ Checkboxes│ │ Custom Plugin│  │   │     ║
- * ║  │  │  └─────────┘ └─────────┘ └───────────┘ └──────────────┘  │   │     ║
- * ║  │  └──────────────────────────────────────────────────────────┘   │     ║
- * ║  │                         ▲                                       │     ║
- * ║  │                         │                                       │     ║
- * ║  │  ┌──────────────────────────────────────────────────────────┐   │     ║
- * ║  │  │                   TableState                             │   │     ║
- * ║  │  │        (data, selection, pagination, hooks)              │   │     ║
- * ║  │  └──────────────────────────────────────────────────────────┘   │     ║
- * ║  └─────────────────────────────────────────────────────────────────┘     ║
  * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ ФУНКЦІЇ:                                                   ║
  * ║  - createTable(container, config) — Створити таблицю                     ║
@@ -80,33 +68,39 @@ import { CheckboxesPlugin } from './table-checkboxes.js';
  * @param {Object} config - Конфігурація таблиці
  * @param {Array} config.columns - Масив колонок
  * @param {Function} [config.getRowId] - Функція отримання ID рядка
- * @param {Function} [config.rowActions] - Функція для додаткових дій в рядку
+ * @param {Function} [config.rowActions] - Функція для дій в рядку (як rowActionsCustom в ui-table.js)
  * @param {string} [config.rowActionsHeader] - HTML заголовка колонки дій
+ * @param {boolean} [config.noHeaderSort] - Вимкнути sortable-header класи
+ * @param {Function} [config.onRowClick] - Callback при кліку на рядок
+ * @param {Function} [config.onAfterRender] - Callback після рендерингу
  * @param {Object} [config.emptyState] - Конфіг порожнього стану
+ * @param {boolean} [config.withContainer] - Обгортати в .pseudo-table-container
+ * @param {Array} [config.visibleColumns] - Масив видимих колонок
  * @param {Object} [config.plugins] - Конфіг плагінів
  * @param {boolean|Object} [config.plugins.sorting] - Сортування
  * @param {boolean|Object} [config.plugins.filters] - Фільтри
  * @param {boolean|Object} [config.plugins.checkboxes] - Чекбокси
  * @param {Array} [config.customPlugins] - Масив кастомних плагінів
  * @param {Array} [config.data] - Початкові дані
- * @param {number} [config.pageSize] - Розмір сторінки
- * @param {string} [config.tableId] - ID таблиці
  * @returns {Object} Table API
  */
 export function createTable(container, config = {}) {
     const {
         columns = [],
-        getRowId = (row) => row.id,
+        getRowId = (row, index) => row.id || row.local_id || row.code || index,
         rowActions = null,
-        rowActionsHeader = '',
-        emptyState = { icon: 'table_rows', message: 'Дані відсутні' },
+        rowActionsHeader = null,
+        noHeaderSort = false,
+        onRowClick = null,
+        onAfterRender = null,
+        emptyState = null,
+        withContainer = true,
+        visibleColumns = null,
         plugins = {},
         customPlugins = [],
         data = [],
         pageSize = 25,
         tableId = `table-${Date.now()}`,
-        withContainer = true,
-        tableClass = 'pseudo-table',
         ...restConfig
     } = config;
 
@@ -116,7 +110,7 @@ export function createTable(container, config = {}) {
         columns,
         pageSize,
         tableId,
-        visibleColumns: config.visibleColumns || null
+        visibleColumns
     });
 
     // 2. Створюємо ядро таблиці
@@ -125,9 +119,12 @@ export function createTable(container, config = {}) {
         getRowId,
         rowActions,
         rowActionsHeader,
+        noHeaderSort,
+        onRowClick,
+        onAfterRender,
         emptyState,
         withContainer,
-        tableClass,
+        visibleColumns,
         ...restConfig
     }, state);
 
@@ -215,7 +212,7 @@ export function createTable(container, config = {}) {
         setPaginatedData: (data) => state.setPaginatedData(data),
 
         // Колонки
-        setVisibleColumns: (cols) => state.setVisibleColumns(cols),
+        setVisibleColumns: (cols) => tableCore.setVisibleColumns(cols),
         getVisibleColumns: () => state.getVisibleColumns(),
 
         // Стан
@@ -251,11 +248,6 @@ export function createTable(container, config = {}) {
 
 /**
  * Створити просту таблицю без плагінів
- * Для випадків коли потрібен тільки рендеринг
- *
- * @param {string|HTMLElement} container
- * @param {Object} config
- * @returns {Object} Table API
  */
 export function createSimpleTable(container, config = {}) {
     return createTable(container, {
@@ -266,11 +258,6 @@ export function createSimpleTable(container, config = {}) {
 
 /**
  * Створити таблицю з усіма плагінами
- * Зручний shortcut для повнофункціональної таблиці
- *
- * @param {string|HTMLElement} container
- * @param {Object} config
- * @returns {Object} Table API
  */
 export function createFullTable(container, config = {}) {
     return createTable(container, {
