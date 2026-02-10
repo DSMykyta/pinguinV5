@@ -48,8 +48,7 @@ import {
     buildMpViewModal,
     showMapToMpModal
 } from './mapper-utils.js';
-import { renderPseudoTable } from '../common/ui-table.js';
-import { initTableSorting } from '../common/ui-table-controls.js';
+import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -481,24 +480,36 @@ function populateRelatedCharacteristics(categoryId) {
         }
     });
 
+    // Створюємо Table LEGO API один раз
+    const modalTableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        rowActions: (row) => actionButton({
+            action: 'edit',
+            rowId: row.id
+        }),
+        emptyState: { message: 'Характеристики відсутні' },
+        withContainer: false,
+        onAfterRender: (cont) => initActionHandlers(cont, 'category-characteristics'),
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    renderTable(filteredData);
+                },
+                columnTypes: {
+                    id: 'id-text',
+                    name_ua: 'string'
+                }
+            }
+        }
+    });
+
     // Функція рендерингу таблиці
     const renderTable = (data) => {
-        renderPseudoTable(container, {
-            data,
-            columns,
-            rowActionsCustom: (row) => actionButton({
-                action: 'edit',
-                rowId: row.id
-            }),
-            emptyState: { message: 'Характеристики відсутні' },
-            withContainer: false
-        });
-
-        // Оновлюємо статистику
+        modalTableAPI.render(data);
         updateStats(allData.length);
-
-        // Ініціалізуємо обробники дій (делегування)
-        initActionHandlers(container, 'category-characteristics');
     };
 
     // Обробник відв'язування
@@ -577,21 +588,8 @@ function populateRelatedCharacteristics(categoryId) {
         });
     }
 
-    // Перший рендер
+    // Перший рендер (сортування через Table LEGO плагін)
     renderTable(filteredData);
-
-    // Ініціалізація сортування
-    initTableSorting(container, {
-        dataSource: () => filteredData,
-        onSort: (sortedData) => {
-            filteredData = sortedData;
-            renderTable(filteredData);
-        },
-        columnTypes: {
-            id: 'id-text',
-            name_ua: 'string'
-        }
-    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

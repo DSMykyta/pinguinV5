@@ -171,14 +171,9 @@ async function updateUIWithData() {
     await renderPriceTable();
 
     // 7. Ініціалізувати події таблиці
-    const { initPriceEvents, initPriceSorting, initPriceColumnFilters } = await import('./price-events.js');
+    const { initPriceEvents } = await import('./price-events.js');
     initPriceEvents();
-
-    // 8. Ініціалізувати сортування
-    initPriceSorting();
-
-    // 9. Ініціалізувати фільтри колонок
-    initPriceColumnFilters();
+    // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
 
     // 10. Ініціалізувати колонки таблиці
     populateTableColumns();

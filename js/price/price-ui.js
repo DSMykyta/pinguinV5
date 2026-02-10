@@ -89,13 +89,7 @@ export function populateTableColumns() {
             // Повний перерендер бо змінюється структура таблиці
             const { renderPriceTable } = await import('./price-table.js');
             await renderPriceTable();
-
-            // Реініціалізуємо фільтри
-            const { initPriceColumnFilters } = await import('./price-events.js');
-            if (priceState.columnFiltersAPI) {
-                priceState.columnFiltersAPI.destroy();
-            }
-            initPriceColumnFilters();
+            // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
         }
     });
 }

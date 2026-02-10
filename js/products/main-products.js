@@ -5,7 +5,7 @@
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
-import { createPseudoTable, renderPseudoTable, renderBadge } from '../common/ui-table.js';
+import { renderTable as renderTableLego, renderBadge } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -159,8 +159,8 @@ function renderProductsTable(products) {
     // Оновлюємо статистику в aside
     updateAsideStats(products);
 
-    // Використовуємо shared renderPseudoTable
-    renderPseudoTable(container, {
+    // Використовуємо Table LEGO renderTable
+    renderTableLego(container, {
         data: filtered,
         columns: [
             {
@@ -221,7 +221,7 @@ function renderProductsTable(products) {
                 render: (value) => getStorefrontLinks(value)
             }
         ],
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             const isChecked = selectedProducts.has(row.id);
             return `
                 <input type="checkbox" class="row-checkbox" data-product-id="${row.id}" aria-label="Вибрати" ${isChecked ? 'checked' : ''}>
@@ -230,10 +230,9 @@ function renderProductsTable(products) {
         },
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">',
         emptyState: {
-            icon: 'inventory_2',
             message: 'Товари не знайдено'
         },
-        withContainer: false // Контейнер вже має клас pseudo-table-container
+        withContainer: false
     });
 
     // Ініціалізуємо обробники дій
@@ -451,7 +450,7 @@ function renderVariantsTab() {
         });
     });
 
-    renderPseudoTable(container, {
+    renderTableLego(container, {
         data: allVariants,
         columns: [
             {
@@ -501,7 +500,6 @@ function renderVariantsTab() {
             }
         ],
         emptyState: {
-            icon: 'style',
             message: 'Варіанти не знайдено'
         },
         withContainer: false

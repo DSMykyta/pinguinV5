@@ -8,7 +8,7 @@
 
 import { loadKeywords } from './keywords-data.js';
 import { renderKeywordsTable, renderKeywordsTableRowsOnly } from './keywords-table.js';
-import { initKeywordsEvents, initKeywordsSearch, initKeywordsSorting } from './keywords-events.js';
+import { initKeywordsEvents, initKeywordsSearch } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
@@ -62,7 +62,7 @@ async function checkAuthAndLoadData() {
             initDropdowns();
 
             renderKeywordsTable();
-            initKeywordsSorting();
+            // Сортування/фільтри тепер через Table LEGO плагіни (keywords-table.js)
             initKeywordsEvents();
 
         } catch (error) {

@@ -8,11 +8,15 @@
  * ║                                                                          ║
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Додає можливість сортування по колонках з sortable: true.               ║
+ * ║  Поведінка ІДЕНТИЧНА до ui-table-controls.js initTableSorting().         ║
  * ║                                                                          ║
- * ║  ФУНКЦІОНАЛЬНІСТЬ:                                                       ║
- * ║  - Клік на заголовок для зміни напрямку сортування                       ║
- * ║  - Візуальні індикатори (стрілки)                                        ║
- * ║  - Типи: string, number, date, boolean, id-number, id-text, product      ║
+ * ║  СЕЛЕКТОРИ (must match ui-table.js output):                              ║
+ * ║  - .sortable-header — клікабельний заголовок                             ║
+ * ║  - data-sort-key — ключ для сортування                                  ║
+ * ║  - .sort-indicator .material-symbols-outlined — іконка                   ║
+ * ║  - .sorted-asc / .sorted-desc — CSS класи стану                         ║
+ * ║                                                                          ║
+ * ║  ТИПИ: string, number, date, boolean, id-number, id-text, product       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -40,7 +44,7 @@ export class SortingPlugin {
         this.table = table;
         this.state = state;
 
-        // Додаємо обробник кліку на заголовки
+        // Додаємо обробник після рендерингу
         this.state.registerHook('onRender', () => this.attachHandlers());
 
         // Оновлюємо індикатори при зміні сортування
@@ -51,26 +55,32 @@ export class SortingPlugin {
 
     /**
      * Прикріпити обробники подій
+     * Event delegation на контейнері (як в ui-table-controls.js)
      */
     attachHandlers() {
-        const header = this.table.getDOM().header;
-        if (!header) return;
+        const container = this.table.getContainer();
+        if (!container) return;
 
         // Видаляємо старий обробник
         if (this.clickHandler) {
-            header.removeEventListener('click', this.clickHandler);
+            container.removeEventListener('click', this.clickHandler);
         }
 
-        // Створюємо новий обробник з event delegation
+        // Клік на .sortable-header (як в ui-table-controls.js)
         this.clickHandler = (e) => {
-            const cell = e.target.closest('[data-sortable="true"]');
-            if (!cell) return;
+            const header = e.target.closest('.sortable-header');
+            if (!header) return;
 
-            const column = cell.dataset.column;
-            this.handleSort(column);
+            // Ігноруємо кліки всередині dropdown
+            if (e.target.closest('.dropdown-wrapper')) return;
+
+            const sortKey = header.dataset.sortKey;
+            if (!sortKey) return;
+
+            this.handleSort(sortKey);
         };
 
-        header.addEventListener('click', this.clickHandler);
+        container.addEventListener('click', this.clickHandler);
 
         // Відновлюємо індикатори
         const currentSort = this.state.getSort();
@@ -81,54 +91,57 @@ export class SortingPlugin {
 
     /**
      * Обробити сортування
+     * 2-way toggle: asc → desc → asc (як в ui-table-controls.js)
+     *
+     * Два режими:
+     * 1. dataSource mode (як старий initTableSorting): сортує зовнішні дані, onSort(sortedData)
+     * 2. Internal mode: сортує state.filteredData, onSort(sortKey, direction, sortedData)
      */
-    handleSort(columnId) {
+    handleSort(sortKey) {
         const currentSort = this.state.getSort();
         let newDirection;
 
-        if (currentSort.column === columnId) {
-            // Циклічна зміна напрямку: asc -> desc -> null
-            if (currentSort.direction === 'asc') {
-                newDirection = 'desc';
-            } else if (currentSort.direction === 'desc') {
-                newDirection = null;
-            } else {
-                newDirection = 'asc';
-            }
+        if (currentSort.column === sortKey) {
+            // 2-way toggle (ідентично ui-table-controls.js)
+            newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
         } else {
             newDirection = this.config.defaultDirection;
         }
 
         // Оновлюємо стан
-        this.state.setSort(newDirection ? columnId : null, newDirection);
+        this.state.setSort(sortKey, newDirection);
 
-        // Сортуємо дані
-        this.sortData(columnId, newDirection);
+        // Оновлюємо індикатори
+        this.updateIndicators(sortKey, newDirection);
 
-        // Викликаємо custom callback
-        if (this.config.onSort) {
-            this.config.onSort(columnId, newDirection, this.state.getFilteredData());
+        if (this.config.dataSource) {
+            // dataSource mode — сортуємо зовнішні дані (як старий initTableSorting)
+            const data = [...this.config.dataSource()];
+            this.sortArray(data, sortKey, newDirection);
+            if (this.config.onSort) {
+                this.config.onSort(data);
+            }
+        } else {
+            // Internal mode — сортуємо state
+            this.sortData(sortKey, newDirection);
+            if (this.config.onSort) {
+                this.config.onSort(sortKey, newDirection, this.state.getFilteredData());
+            }
         }
     }
 
     /**
-     * Сортувати дані
+     * Сортувати масив даних (in-place)
      */
-    sortData(columnId, direction) {
-        if (!direction) {
-            // Скидаємо сортування до оригінального порядку
-            this.state.setFilteredData([...this.state.getData()]);
-            return;
-        }
+    sortArray(data, columnId, direction) {
+        if (!direction) return data;
 
-        const data = [...this.state.getFilteredData()];
         const columnType = this.getColumnType(columnId);
 
         data.sort((a, b) => {
             let aVal = a[columnId];
             let bVal = b[columnId];
 
-            // Обробка null/undefined — пусті завжди в кінець
             const aEmpty = aVal === '' || aVal === null || aVal === undefined;
             const bEmpty = bVal === '' || bVal === null || bVal === undefined;
             if (aEmpty && bEmpty) return 0;
@@ -140,7 +153,6 @@ export class SortingPlugin {
             switch (columnType) {
                 case 'id-number':
                 case 'id-text':
-                    // Витягти число з рядка типу "ban-000123" або "item-456"
                     aVal = parseInt((aVal || '').toString().replace(/\D/g, ''), 10) || 0;
                     bVal = parseInt((bVal || '').toString().replace(/\D/g, ''), 10) || 0;
                     comparison = aVal - bVal;
@@ -163,7 +175,6 @@ export class SortingPlugin {
                     break;
 
                 case 'product':
-                    // Спеціальний тип для сортування товарів по Brand + Name
                     aVal = ((a.brand || '') + ' ' + (a.name || '')).trim();
                     bVal = ((b.brand || '') + ' ' + (b.name || '')).trim();
                     comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
@@ -181,21 +192,33 @@ export class SortingPlugin {
             return direction === 'desc' ? -comparison : comparison;
         });
 
+        return data;
+    }
+
+    /**
+     * Сортувати дані в state
+     */
+    sortData(columnId, direction) {
+        if (!direction) {
+            this.state.setFilteredData([...this.state.getData()]);
+            return;
+        }
+
+        const data = [...this.state.getFilteredData()];
+        this.sortArray(data, columnId, direction);
         this.state.setFilteredData(data);
     }
 
     /**
-     * Парсинг значення дати (підтримка DD.MM.YY та стандартних форматів)
+     * Парсинг значення дати
      */
     parseDateValue(value) {
         if (!value) return 0;
-        // Підтримка формату DD.MM.YY (наприклад 20.01.26)
         if (typeof value === 'string' && value.match(/^\d{2}\.\d{2}\.\d{2}$/)) {
             const [day, month, year] = value.split('.');
             const fullYear = parseInt(year, 10) + 2000;
             return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
         }
-        // Підтримка формату DD.MM.YYYY
         if (typeof value === 'string' && value.match(/^\d{2}\.\d{2}\.\d{4}$/)) {
             const [day, month, year] = value.split('.');
             return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
@@ -207,47 +230,50 @@ export class SortingPlugin {
      * Отримати тип колонки
      */
     getColumnType(columnId) {
-        // Спочатку перевіряємо конфіг плагіна
         if (this.config.columnTypes[columnId]) {
             return this.config.columnTypes[columnId];
         }
-
-        // Потім перевіряємо конфіг колонки
         const column = this.table.config.columns.find(c => c.id === columnId);
         if (column && column.sortType) {
             return column.sortType;
         }
-
         return 'string';
     }
 
     /**
      * Оновити візуальні індикатори
+     * Ідентично до ui-table-controls.js updateSortIndicators()
+     * Селектори: .sortable-header, .sort-indicator .material-symbols-outlined
+     * Класи: sorted-asc, sorted-desc
      */
     updateIndicators(activeColumn, direction) {
-        const header = this.table.getDOM().header;
-        if (!header) return;
+        const container = this.table.getContainer();
+        if (!container) return;
 
-        // Скидаємо всі індикатори
-        header.querySelectorAll('[data-sortable="true"]').forEach(cell => {
-            cell.classList.remove('sort-asc', 'sort-desc');
-            const icon = cell.querySelector('.sort-icon');
-            if (icon) {
-                icon.textContent = 'unfold_more';
-            }
-        });
+        const headers = container.querySelectorAll('.sortable-header');
 
-        // Встановлюємо активний
-        if (activeColumn && direction) {
-            const activeCell = header.querySelector(`[data-column="${activeColumn}"]`);
-            if (activeCell) {
-                activeCell.classList.add(`sort-${direction}`);
-                const icon = activeCell.querySelector('.sort-icon');
+        headers.forEach(header => {
+            const indicator = header.querySelector('.sort-indicator');
+            const sortKey = header.dataset.sortKey;
+
+            // Видалити класи сортування
+            header.classList.remove('sorted-asc', 'sorted-desc');
+
+            if (sortKey === activeColumn && direction) {
+                header.classList.add(`sorted-${direction}`);
+                if (indicator) {
+                    const icon = indicator.querySelector('.material-symbols-outlined');
+                    if (icon) {
+                        icon.textContent = direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
+                    }
+                }
+            } else if (indicator) {
+                const icon = indicator.querySelector('.material-symbols-outlined');
                 if (icon) {
-                    icon.textContent = direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
+                    icon.textContent = 'unfold_more';
                 }
             }
-        }
+        });
     }
 
     /**
@@ -258,6 +284,7 @@ export class SortingPlugin {
         if (columnId && direction) {
             this.sortData(columnId, direction);
         }
+        this.updateIndicators(columnId, direction);
     }
 
     /**
@@ -268,11 +295,7 @@ export class SortingPlugin {
     }
 
     /**
-     * Отримати значення для сортування (для зовнішнього використання)
-     * @param {Object} item - Рядок даних
-     * @param {string} column - ID колонки
-     * @param {string} columnType - Тип колонки
-     * @returns {*} Значення для порівняння
+     * Отримати значення для сортування (статичний метод)
      */
     static getSortValue(item, column, columnType) {
         const value = item[column];
@@ -308,9 +331,9 @@ export class SortingPlugin {
      * Знищити плагін
      */
     destroy() {
-        const header = this.table.getDOM().header;
-        if (header && this.clickHandler) {
-            header.removeEventListener('click', this.clickHandler);
+        const container = this.table.getContainer();
+        if (container && this.clickHandler) {
+            container.removeEventListener('click', this.clickHandler);
         }
     }
 }

@@ -11,9 +11,8 @@
 import { brandsState } from './brands-state.js';
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
-import { loadBrands } from './brands-data.js';
+import { loadBrands, getBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
-import { initTableSorting } from '../common/ui-table-controls.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -24,6 +23,9 @@ export function initBrandsEvents() {
     initLinesRefreshButton();
 
 }
+
+// initBrandsSorting — тепер сортування та фільтри для брендів
+// обробляються через Table LEGO плагіни в brands-table.js
 
 /**
  * Ініціалізувати кнопку оновлення
@@ -82,35 +84,8 @@ function initLinesRefreshButton() {
     });
 }
 
-/**
- * Ініціалізувати сортування таблиці лінійок
- */
-export function initLinesSorting() {
-    const container = document.getElementById('lines-table-container');
-    if (!container) return null;
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => brandsState.brandLines || [],
-        onSort: async (sortedData) => {
-            brandsState.brandLines = sortedData;
-            runHook('onRender');
-
-            const sortState = sortAPI.getState();
-            if (sortState.column && sortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-controls.js');
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            line_id: 'id-text',
-            brand_id: 'string',
-            name_uk: 'string'
-        }
-    });
-
-    brandsState.linesSortAPI = sortAPI;
-    return sortAPI;
-}
+// initLinesSorting — тепер сортування лінійок
+// обробляється через Table LEGO плагіни в lines-table.js
 
 /**
  * Ініціалізувати пошук
@@ -133,7 +108,6 @@ export function initBrandsSearch(searchInput) {
 // Реєструємо на хук onInit — ініціалізуємо обробники подій
 registerBrandsPlugin('onInit', () => {
     initBrandsEvents();
-    // Сортування брендів тепер вбудоване в Table LEGO (brands-table.js)
-    initLinesSorting();
+    // Сортування/фільтри тепер через Table LEGO плагіни (brands-table.js, lines-table.js)
 });
 
