@@ -6,7 +6,7 @@ import { loadSheetDataForCheck, checkTextForBannedWords, updateProductStatus } f
 import { showLoader, showErrorDetails } from '../common/ui-loading.js';
 import { showToast } from '../common/ui-toast.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createPseudoTable, renderBadge } from '../common/ui-table.js';
+import { createTable, renderBadge } from '../common/table/table-main.js';
 import { registerCheckTabPagination } from './banned-words-pagination.js';
 import {
     registerActionHandlers,
@@ -91,10 +91,7 @@ export async function performCheck(sheetName, wordId, columnName) {
                 await renderCheckResults(bannedWordsState.selectedSheet, null);
             });
 
-            // Ініціалізувати сортування
-            loader.updateProgress(90, 'Налаштування сортування...');
-            const { initCheckTabSorting } = await import('./banned-words-events.js');
-            initCheckTabSorting(tabId);
+            // Сортування тепер через Table LEGO плагіни (в initCheckTableAPI)
 
             // Ініціалізувати фільтри
             loader.updateProgress(95, 'Налаштування фільтрів...');
@@ -484,9 +481,9 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
         }
     });
 
-    const tableAPI = createPseudoTable(container, {
+    const tableAPI = createTable(container, {
         columns,
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             const selectedSet = bannedWordsState.selectedProducts[tabId] || new Set();
             const isChecked = selectedSet.has(row.id);
             return `
@@ -497,11 +494,31 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
         getRowId: (row) => row.id,
         emptyState: {
-            icon: 'check_circle',
             message: 'Заборонене слово не знайдено в цій колонці'
         },
         withContainer: false,
-        onAfterRender: (cont) => attachCheckRowEventHandlers(cont, tabId)
+        onAfterRender: (cont) => attachCheckRowEventHandlers(cont, tabId),
+        plugins: {
+            sorting: {
+                dataSource: () => bannedWordsState.checkResults,
+                onSort: async (sortedData) => {
+                    bannedWordsState.checkResults = sortedData;
+                    const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
+                    await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
+                },
+                columnTypes: {
+                    local_id: 'id-number',
+                    severity: 'string',
+                    group_name_ua: 'string',
+                    name_uk: 'string',
+                    name_ru: 'string',
+                    banned_type: 'string',
+                    banned_explaine: 'string',
+                    banned_hint: 'string',
+                    cheaked_line: 'boolean'
+                }
+            }
+        }
     });
 
     checkTableAPIs.set(tabId, tableAPI);

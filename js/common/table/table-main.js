@@ -247,6 +247,25 @@ export function createTable(container, config = {}) {
 }
 
 /**
+ * Рендерити таблицю одноразово (аналог renderPseudoTable з ui-table.js)
+ *
+ * Створює Table LEGO, рендерить дані та повертає API.
+ * Використовується для простих таблиць (модалки, деталі)
+ * де не потрібно зберігати окремий tableAPI.
+ *
+ * @param {string|HTMLElement} container - Контейнер
+ * @param {Object} config - Конфігурація (як createTable + data)
+ * @param {Array} config.data - Дані для рендерингу
+ * @returns {Object} Table API
+ */
+export function renderTable(container, config = {}) {
+    const { data = [], ...tableConfig } = config;
+    const table = createTable(container, tableConfig);
+    table.render(data);
+    return table;
+}
+
+/**
  * Створити просту таблицю без плагінів
  */
 export function createSimpleTable(container, config = {}) {

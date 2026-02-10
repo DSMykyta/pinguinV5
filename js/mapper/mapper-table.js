@@ -290,7 +290,7 @@ function createBindingsColumn(entityType) {
     };
 }
 
-import { createPseudoTable } from '../common/ui-table.js';
+import { createTable, filterData } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -298,7 +298,6 @@ import {
     initActionHandlers,
     actionButton
 } from '../common/ui-actions.js';
-import { initTableSorting, filterData, updateSortIndicators } from '../common/ui-table-controls.js';
 
 /**
  * Витягнути назву з об'єкта (JSON data або merged entity).
@@ -378,6 +377,22 @@ registerActionHandlers('mapper-marketplaces', {
 
 // Map для зберігання tableAPI для кожного табу mapper
 const mapperTableAPIs = new Map();
+
+// Спільні типи колонок для сортування
+const mapperColumnTypes = {
+    id: 'string',
+    name_ua: 'string',
+    name_ru: 'string',
+    type: 'string',
+    is_global: 'boolean',
+    is_active: 'boolean',
+    value_ua: 'string',
+    name: 'string',
+    slug: 'string',
+    parent_id: 'string',
+    characteristic_id: 'string',
+    category_ids: 'string'
+};
 
 /**
  * Рендерити поточний активний таб
@@ -507,11 +522,11 @@ function initCategoriesTableAPI(container, allCategories) {
         ? mapperState.visibleColumns.categories
         : ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping', '_bindings'];
 
-    const tableAPI = createPseudoTable(container, {
+    const tableAPI = createTable(container, {
         columns: getCategoriesColumns(allCategories),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="categories">',
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="categories">
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-categories' })}
@@ -519,23 +534,45 @@ function initCategoriesTableAPI(container, allCategories) {
         },
         getRowId: (row) => row.id,
         emptyState: {
-            icon: 'folder',
             message: 'Категорії відсутні'
         },
         withContainer: false,
         onAfterRender: (cont) => {
             initActionHandlers(cont, 'mapper-categories');
-            // Отримуємо поточні пагіновані дані для чекбоксів
             const { categories } = getCategoriesData();
             const filteredData = applyFilters(categories, 'categories');
             const { paginatedData } = applyPagination(filteredData);
             initTableCheckboxes(cont, 'categories', paginatedData);
-            initMapperColumnFilters(cont, 'categories', categories);
-
-            // Відновити індикатори сортування
-            const sortState = mapperState.sortState?.categories;
-            if (sortState?.column && sortState?.direction) {
-                updateSortIndicators(cont, sortState.column, sortState.direction);
+        },
+        plugins: {
+            sorting: {
+                dataSource: () => {
+                    const { categories } = getCategoriesData();
+                    return categories;
+                },
+                onSort: (sortedData) => {
+                    const sortState = tableAPI?.getSort?.() || {};
+                    mapperState.sortState = mapperState.sortState || {};
+                    mapperState.sortState.categories = {
+                        column: sortState.column,
+                        direction: sortState.direction
+                    };
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                },
+                columnTypes: mapperColumnTypes
+            },
+            filters: {
+                dataSource: () => {
+                    const { categories } = getCategoriesData();
+                    return categories;
+                },
+                filterColumns: getFilterColumnsConfig('categories'),
+                onFilter: (filters) => {
+                    mapperState.columnFilters.categories = filters;
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                }
             }
         }
     });
@@ -671,11 +708,11 @@ function initCharacteristicsTableAPI(container, categoriesList) {
         ? mapperState.visibleColumns.characteristics
         : ['id', 'category_ids', 'name_ua', 'type', 'is_global', '_bindings'];
 
-    const tableAPI = createPseudoTable(container, {
+    const tableAPI = createTable(container, {
         columns: getCharacteristicsColumns(categoriesList),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="characteristics">',
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="characteristics">
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-characteristics' })}
@@ -683,7 +720,6 @@ function initCharacteristicsTableAPI(container, categoriesList) {
         },
         getRowId: (row) => row.id,
         emptyState: {
-            icon: 'tune',
             message: 'Характеристики відсутні'
         },
         withContainer: false,
@@ -693,11 +729,36 @@ function initCharacteristicsTableAPI(container, categoriesList) {
             const filteredData = applyFilters(characteristics, 'characteristics');
             const { paginatedData } = applyPagination(filteredData);
             initTableCheckboxes(cont, 'characteristics', paginatedData);
-            initMapperColumnFilters(cont, 'characteristics', characteristics);
-
-            const sortState = mapperState.sortState?.characteristics;
-            if (sortState?.column && sortState?.direction) {
-                updateSortIndicators(cont, sortState.column, sortState.direction);
+        },
+        plugins: {
+            sorting: {
+                dataSource: () => {
+                    const { characteristics } = getCharacteristicsData();
+                    return characteristics;
+                },
+                onSort: (sortedData) => {
+                    const sortState = tableAPI?.getSort?.() || {};
+                    mapperState.sortState = mapperState.sortState || {};
+                    mapperState.sortState.characteristics = {
+                        column: sortState.column,
+                        direction: sortState.direction
+                    };
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                },
+                columnTypes: mapperColumnTypes
+            },
+            filters: {
+                dataSource: () => {
+                    const { characteristics } = getCharacteristicsData();
+                    return characteristics;
+                },
+                filterColumns: getFilterColumnsConfig('characteristics'),
+                onFilter: (filters) => {
+                    mapperState.columnFilters.characteristics = filters;
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                }
             }
         }
     });
@@ -829,11 +890,11 @@ function initOptionsTableAPI(container, characteristicsList) {
         ? mapperState.visibleColumns.options
         : ['id', 'characteristic_id', 'value_ua', '_bindings'];
 
-    const tableAPI = createPseudoTable(container, {
+    const tableAPI = createTable(container, {
         columns: getOptionsColumns(characteristicsList),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="options">',
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="options">
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-options' })}
@@ -841,7 +902,6 @@ function initOptionsTableAPI(container, characteristicsList) {
         },
         getRowId: (row) => row.id,
         emptyState: {
-            icon: 'check_box',
             message: 'Опції відсутні'
         },
         withContainer: false,
@@ -851,11 +911,36 @@ function initOptionsTableAPI(container, characteristicsList) {
             const filteredData = applyFilters(options, 'options');
             const { paginatedData } = applyPagination(filteredData);
             initTableCheckboxes(cont, 'options', paginatedData);
-            initMapperColumnFilters(cont, 'options', options);
-
-            const sortState = mapperState.sortState?.options;
-            if (sortState?.column && sortState?.direction) {
-                updateSortIndicators(cont, sortState.column, sortState.direction);
+        },
+        plugins: {
+            sorting: {
+                dataSource: () => {
+                    const { options } = getOptionsData();
+                    return options;
+                },
+                onSort: (sortedData) => {
+                    const sortState = tableAPI?.getSort?.() || {};
+                    mapperState.sortState = mapperState.sortState || {};
+                    mapperState.sortState.options = {
+                        column: sortState.column,
+                        direction: sortState.direction
+                    };
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                },
+                columnTypes: mapperColumnTypes
+            },
+            filters: {
+                dataSource: () => {
+                    const { options } = getOptionsData();
+                    return options;
+                },
+                filterColumns: getFilterColumnsConfig('options'),
+                onFilter: (filters) => {
+                    mapperState.columnFilters.options = filters;
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                }
             }
         }
     });
@@ -954,11 +1039,11 @@ function initMarketplacesTableAPI(container) {
         ? mapperState.visibleColumns.marketplaces
         : ['id', 'name', 'slug', 'is_active'];
 
-    const tableAPI = createPseudoTable(container, {
+    const tableAPI = createTable(container, {
         columns: getMarketplacesColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox" data-tab="marketplaces">',
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces">
                 ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
@@ -967,7 +1052,6 @@ function initMarketplacesTableAPI(container) {
         },
         getRowId: (row) => row.id,
         emptyState: {
-            icon: 'storefront',
             message: 'Маркетплейси відсутні'
         },
         withContainer: false,
@@ -977,11 +1061,36 @@ function initMarketplacesTableAPI(container) {
             const filteredData = applyFilters(marketplaces, 'marketplaces');
             const { paginatedData } = applyPagination(filteredData);
             initTableCheckboxes(cont, 'marketplaces', paginatedData);
-            initMapperColumnFilters(cont, 'marketplaces', marketplaces);
-
-            const sortState = mapperState.sortState?.marketplaces;
-            if (sortState?.column && sortState?.direction) {
-                updateSortIndicators(cont, sortState.column, sortState.direction);
+        },
+        plugins: {
+            sorting: {
+                dataSource: () => {
+                    const { marketplaces } = getMarketplacesData();
+                    return marketplaces;
+                },
+                onSort: (sortedData) => {
+                    const sortState = tableAPI?.getSort?.() || {};
+                    mapperState.sortState = mapperState.sortState || {};
+                    mapperState.sortState.marketplaces = {
+                        column: sortState.column,
+                        direction: sortState.direction
+                    };
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                },
+                columnTypes: mapperColumnTypes
+            },
+            filters: {
+                dataSource: () => {
+                    const { marketplaces } = getMarketplacesData();
+                    return marketplaces;
+                },
+                filterColumns: getFilterColumnsConfig('marketplaces'),
+                onFilter: (filters) => {
+                    mapperState.columnFilters.marketplaces = filters;
+                    mapperState.pagination.currentPage = 1;
+                    renderCurrentTab();
+                }
             }
         }
     });
@@ -1471,104 +1580,5 @@ function getFilterColumnsConfig(tabName) {
     return baseConfig[tabName] || [];
 }
 
-// getCategoryLabelMap та getCharacteristicLabelMap — кешовані версії вгорі файлу
-
-// Флаги для запобігання циклу при відновленні стану
-let isRestoringFilters = false;
-let isRestoringSortState = false;
-
-/**
- * Ініціалізувати hover фільтри для колонок таблиці
- * @param {HTMLElement} container - Контейнер таблиці
- * @param {string} tabName - Назва табу
- * @param {Array} data - Повний масив даних (не пагінований!)
- */
-export function initMapperColumnFilters(container, tabName, data) {
-    // Зберігаємо поточні фільтри перед знищенням API
-    const savedFilters = mapperState.columnFilters[tabName]
-        ? { ...mapperState.columnFilters[tabName] }
-        : null;
-
-    // Знищити попередній API якщо є
-    if (mapperState.columnFiltersAPI[tabName]) {
-        mapperState.columnFiltersAPI[tabName].destroy();
-        mapperState.columnFiltersAPI[tabName] = null;
-    }
-
-    // Використовуємо динамічну конфігурацію (з актуальним labelMap)
-    const filterColumns = getFilterColumnsConfig(tabName);
-
-    // Перевіряємо чи є заголовок таблиці
-    const hasHeader = container.querySelector('.pseudo-table-header');
-    if (!hasHeader) return;
-
-    // Зберігаємо дані для сортування
-    let currentData = data;
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => currentData,
-        columnTypes: {
-            id: 'string',
-            name_ua: 'string',
-            name_ru: 'string',
-            type: 'string',
-            is_global: 'boolean',
-            is_active: 'boolean',
-            value_ua: 'string',
-            name: 'string',
-            slug: 'string',
-            parent_id: 'string',
-            characteristic_id: 'string',
-            category_ids: 'string'
-        },
-        filterColumns: filterColumns || [],
-        onSort: async (sortedData) => {
-            // Пропускаємо якщо це відновлення стану після ре-рендеру
-            if (isRestoringSortState) return;
-
-            // Зберігаємо стан сортування
-            const sortState = sortAPI.getState();
-            mapperState.sortState = mapperState.sortState || {};
-            mapperState.sortState[tabName] = {
-                column: sortState.column,
-                direction: sortState.direction
-            };
-
-            // Скидаємо пагінацію
-            mapperState.pagination.currentPage = 1;
-
-            // Перерендерюємо таблицю
-            renderCurrentTab();
-        },
-        onFilter: async (activeFilters) => {
-            // Пропускаємо якщо це відновлення стану
-            if (isRestoringFilters) return;
-
-            // Зберігаємо фільтри в state
-            mapperState.columnFilters[tabName] = activeFilters;
-
-            // Скидаємо пагінацію
-            mapperState.pagination.currentPage = 1;
-
-            // Перерендерюємо таблицю
-            renderCurrentTab();
-        }
-    });
-
-    // Відновлюємо попередній стан фільтрів
-    if (savedFilters && Object.keys(savedFilters).length > 0) {
-        isRestoringFilters = true;
-        sortAPI.setFilters(savedFilters);
-        isRestoringFilters = false;
-    }
-
-    // Відновлюємо стан сортування (через sort API, з блокуванням onSort щоб не було рекурсії)
-    const savedSortState = mapperState.sortState?.[tabName];
-    if (savedSortState?.column && savedSortState?.direction) {
-        isRestoringSortState = true;
-        sortAPI.sort(savedSortState.column, savedSortState.direction);
-        isRestoringSortState = false;
-    }
-
-    mapperState.columnFiltersAPI[tabName] = sortAPI;
-}
+// initMapperColumnFilters — тепер сортування та фільтри
+// обробляються через Table LEGO плагіни в кожній initXxxTableAPI()

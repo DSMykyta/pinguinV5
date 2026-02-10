@@ -40,8 +40,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { renderPseudoTable } from '../common/ui-table.js';
-import { initTableSorting } from '../common/ui-table-controls.js';
+import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -479,25 +478,40 @@ function populateRelatedOptions(characteristicId) {
         }
     });
 
-    const renderTable = (data) => {
-        renderPseudoTable(container, {
-            data,
-            columns,
-            rowActionsHeader: ' ',
-            rowActionsCustom: (row) => `
-                <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-                <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-tooltip="Відв'язати">
-                    <span class="material-symbols-outlined">link_off</span>
-                </button>
-            `,
-            emptyState: { message: 'Опції відсутні' },
-            withContainer: false
-        });
+    // Створюємо Table LEGO API один раз
+    const modalTableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        rowActionsHeader: ' ',
+        rowActions: (row) => `
+            <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
+                <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-tooltip="Відв'язати">
+                <span class="material-symbols-outlined">link_off</span>
+            </button>
+        `,
+        emptyState: { message: 'Опції відсутні' },
+        withContainer: false,
+        onAfterRender: (cont) => initActionHandlers(cont, 'characteristic-options'),
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    renderTable(filteredData);
+                },
+                columnTypes: {
+                    value_ua: 'string',
+                    id: 'id-text'
+                }
+            }
+        }
+    });
 
+    const renderTable = (data) => {
+        modalTableAPI.render(data);
         updateStats(data.length, allData.length);
-        initActionHandlers(container, 'characteristic-options');
     };
 
     const filterData = (query) => {
@@ -518,19 +532,8 @@ function populateRelatedOptions(characteristicId) {
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
+    // Перший рендер (сортування через Table LEGO плагін)
     renderTable(filteredData);
-
-    initTableSorting(container, {
-        dataSource: () => filteredData,
-        onSort: (sortedData) => {
-            filteredData = sortedData;
-            renderTable(filteredData);
-        },
-        columnTypes: {
-            value_ua: 'string',
-            id: 'id-text'
-        }
-    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

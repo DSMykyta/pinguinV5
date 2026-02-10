@@ -174,9 +174,9 @@ async function updateUIWithData() {
     initManageTabFilters();
 
     // 5. Ініціалізувати події
-    const { initBannedWordsEvents, initBannedWordsSorting } = await import('./banned-words-events.js');
+    const { initBannedWordsEvents } = await import('./banned-words-events.js');
     initBannedWordsEvents();
-    initBannedWordsSorting();
+    // Сортування тепер через Table LEGO плагіни (banned-words-manage.js)
 
     // 6. Ініціалізувати обробники табу управління та aside
     initManageTabEvents();

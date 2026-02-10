@@ -48,8 +48,7 @@ import {
     buildMpViewModal,
     showMapToMpModal
 } from './mapper-utils.js';
-import { renderPseudoTable } from '../common/ui-table.js';
-import { initTableSorting } from '../common/ui-table-controls.js';
+import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -432,23 +431,35 @@ function populateRelatedChildOptions(optionId) {
         }
     });
 
+    // Створюємо Table LEGO API один раз
+    const modalTableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        rowActions: (row) => actionButton({
+            action: 'edit',
+            rowId: row.id
+        }),
+        emptyState: { message: 'Дочірні опції відсутні' },
+        withContainer: false,
+        onAfterRender: (cont) => initActionHandlers(cont, 'option-child-options'),
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    renderTable(filteredData);
+                },
+                columnTypes: {
+                    id: 'id-text',
+                    value_ua: 'string'
+                }
+            }
+        }
+    });
+
     const renderTable = (data) => {
-        renderPseudoTable(container, {
-            data,
-            columns,
-            rowActionsCustom: (row) => actionButton({
-                action: 'edit',
-                rowId: row.id
-            }),
-            emptyState: { message: 'Дочірні опції відсутні' },
-            withContainer: false
-        });
-
-        // Оновлюємо статистику
+        modalTableAPI.render(data);
         updateStats(data.length, allData.length);
-
-        // Ініціалізуємо обробники дій
-        initActionHandlers(container, 'option-child-options');
     };
 
     // Функція пошуку
@@ -474,18 +485,7 @@ function populateRelatedChildOptions(optionId) {
     // Перший рендер
     renderTable(filteredData);
 
-    // Ініціалізація сортування
-    initTableSorting(container, {
-        dataSource: () => filteredData,
-        onSort: (sortedData) => {
-            filteredData = sortedData;
-            renderTable(filteredData);
-        },
-        columnTypes: {
-            id: 'id-text',
-            value_ua: 'string'
-        }
-    });
+    // Сортування через Table LEGO плагін
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
