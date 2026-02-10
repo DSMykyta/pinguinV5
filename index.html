@@ -371,12 +371,15 @@
 
                 <div class="image-tool-container">
                     <div class="image-tool-wrapper">
-                        <div class="panel-box">
-                            <span class="material-symbols-outlined panel-box-icon">link</span>
-                            <input type="text" id="gim-image-url" class="input-main"
-                                placeholder="Вставте URL зображення...">
-                            <button id="gim-load-url-btn" class="btn-icon" aria-label="Додати URL">
+                        <div class="compound-input-row">
+                            <div class="compound-input">
+                                <input type="url" id="gim-image-url" class="ci-value" placeholder="Вставте URL зображення...">
+                            </div>
+                            <button type="button" id="gim-load-url-btn" class="btn-icon ci-action" data-tooltip="Додати URL">
                                 <span class="material-symbols-outlined">add</span>
+                            </button>
+                            <button type="button" class="btn-icon ci-remove" data-tooltip="Очистити">
+                                <span class="material-symbols-outlined">close</span>
                             </button>
                         </div>
                         <div class="canvas-area">

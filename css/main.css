@@ -17,7 +17,6 @@
 
 /* === FOUNDATION === */
 @import url('foundation/reset.css');
-@import url('foundation/typography.css');
 @import url('foundation/scrollbar.css');
 @import url('foundation/selection.css');
 
@@ -53,6 +52,7 @@
 @import url('components/forms/input.css');
 @import url('components/forms/search.css');
 @import url('components/forms/form-group.css');
+@import url('components/forms/compound-input.css');
 @import url('components/forms/custom-select.css');
 @import url('components/forms/toggle.css');
 @import url('components/forms/switch.css');

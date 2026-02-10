@@ -445,7 +445,7 @@ function addAltNameInput(value = '', isEmpty = false) {
     if (!container) return;
 
     const row = document.createElement('div');
-    row.className = 'dynamic-input-row';
+    row.className = 'compound-input-row';
 
     if (isEmpty) {
         // Порожній інпут без кнопки видалення
@@ -496,7 +496,7 @@ function ensureEmptyAltNameInput() {
     if (!container) return;
 
     // Перевірити чи є порожній
-    const emptyRow = container.querySelector('.dynamic-input-row[data-empty="true"]');
+    const emptyRow = container.querySelector('.compound-input-row[data-empty="true"]');
     if (!emptyRow) {
         addAltNameInput('', true);
     }
@@ -551,23 +551,23 @@ function addLinkRow(link = { name: '', url: '' }) {
     if (emptyState) emptyState.classList.add('u-hidden');
 
     const row = document.createElement('div');
-    row.className = 'brand-link-row';
+    row.className = 'compound-input-row';
     row.innerHTML = `
-        <div class="brand-link-inputs">
-            <input type="text" class="link-name" value="${escapeHtml(link.name)}" placeholder="ua, de...">
-            <input type="url" class="link-url" value="${escapeHtml(link.url)}" placeholder="https://...">
+        <div class="compound-input">
+            <input type="text" class="ci-prefix" value="${escapeHtml(link.name)}" placeholder="ua, de...">
+            <input type="url" class="ci-value" value="${escapeHtml(link.url)}" placeholder="https://...">
         </div>
-        <button type="button" class="btn-icon btn-open-link" data-tooltip="Відкрити">
+        <button type="button" class="btn-icon ci-action" data-tooltip="Відкрити">
             <span class="material-symbols-outlined">open_in_new</span>
         </button>
-        <button type="button" class="btn-icon btn-remove-link" data-tooltip="Видалити">
+        <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
             <span class="material-symbols-outlined">close</span>
         </button>
     `;
 
     // Обробники
-    row.querySelector('.btn-open-link').onclick = () => {
-        const url = row.querySelector('.link-url').value.trim();
+    row.querySelector('.ci-action').onclick = () => {
+        const url = row.querySelector('.ci-value').value.trim();
         if (url) {
             window.open(url, '_blank', 'noopener,noreferrer');
         } else {
@@ -575,8 +575,8 @@ function addLinkRow(link = { name: '', url: '' }) {
         }
     };
 
-    row.querySelector('.btn-remove-link').onclick = async () => {
-        const linkName = row.querySelector('.link-name').value.trim() || 'це посилання';
+    row.querySelector('.ci-remove').onclick = async () => {
+        const linkName = row.querySelector('.ci-prefix').value.trim() || 'це посилання';
         const confirmed = await showConfirmModal({
             title: 'Видалити посилання?',
             message: `Ви впевнені, що хочете видалити "${linkName}"?`,
@@ -602,11 +602,11 @@ function getLinks() {
     const container = document.getElementById('brand-links-container');
     if (!container) return [];
 
-    const rows = container.querySelectorAll('.brand-link-row');
+    const rows = container.querySelectorAll('.compound-input-row');
     return Array.from(rows)
         .map(row => ({
-            name: row.querySelector('.link-name')?.value.trim() || '',
-            url: row.querySelector('.link-url')?.value.trim() || ''
+            name: row.querySelector('.ci-prefix')?.value.trim() || '',
+            url: row.querySelector('.ci-value')?.value.trim() || ''
         }))
         .filter(link => link.url); // Тільки з URL
 }
@@ -636,7 +636,7 @@ function updateLinksEmptyState() {
     const emptyState = document.getElementById('brand-links-empty');
     if (!container || !emptyState) return;
 
-    const hasLinks = container.querySelectorAll('.brand-link-row').length > 0;
+    const hasLinks = container.querySelectorAll('.compound-input-row').length > 0;
     emptyState.classList.toggle('u-hidden', hasLinks);
 }
 
