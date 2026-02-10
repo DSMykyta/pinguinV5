@@ -9,7 +9,7 @@
  */
 
 import { priceState } from './price-init.js';
-import { createPseudoTable, renderBadge } from '../common/ui-table.js';
+import { createTable, renderBadge } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { getAvatarPath } from '../common/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
@@ -63,11 +63,22 @@ function initTableAPI() {
         ? priceState.visibleColumns
         : ['code', 'article', 'product', 'shiping_date', 'status', 'check', 'payment', 'update_date', 'reserve'];
 
-    tableAPI = createPseudoTable(container, {
-        columns: getColumns(),
+    const columns = getColumns();
+
+    // Колонки з фільтрами (для hover dropdown)
+    const filterColumns = columns
+        .filter(col => col.filterable)
+        .map(col => ({
+            id: col.id,
+            label: col.label,
+            filterType: col.filterType || 'values'
+        }));
+
+    tableAPI = createTable(container, {
+        columns: columns,
         visibleColumns: visibleCols,
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
-        rowActionsCustom: (row) => `
+        rowActions: (row) => `
             <input type="checkbox" class="row-checkbox" data-code="${escapeHtml(row.code)}">
             <button class="btn-icon btn-edit" data-code="${escapeHtml(row.code)}" title="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
@@ -75,10 +86,65 @@ function initTableAPI() {
         `,
         getRowId: (row) => row.code,
         emptyState: {
-            icon: 'receipt_long',
             message: 'Немає даних для відображення'
         },
-        withContainer: false
+        withContainer: false,
+        plugins: {
+            sorting: {
+                dataSource: () => priceState.priceItems,
+                onSort: async (sortedData) => {
+                    // Зберігаємо стан сортування (фактична фільтрація через applyAllFilters)
+                    const sortState = tableAPI.getSort?.() || {};
+                    priceState.sortState = {
+                        column: sortState.column,
+                        direction: sortState.direction
+                    };
+
+                    // Застосовуємо фільтри (які включають сортування)
+                    const { applyAllFilters } = await import('./price-events.js');
+                    applyAllFilters();
+
+                    // Перерендерюємо ТІЛЬКИ рядки
+                    await renderPriceTableRowsOnly();
+                },
+                columnTypes: {
+                    code: 'string',
+                    article: 'string',
+                    product: 'product',
+                    reserve: 'string',
+                    status: 'boolean',
+                    check: 'boolean',
+                    payment: 'boolean',
+                    shiping_date: 'string',
+                    update_date: 'date'
+                }
+            },
+            filters: {
+                dataSource: () => priceState.priceItems,
+                filterColumns: filterColumns,
+                onFilter: async (filters) => {
+                    priceState.columnFilters = filters;
+
+                    // Застосовуємо всі фільтри
+                    const { applyAllFilters } = await import('./price-events.js');
+                    applyAllFilters();
+
+                    // Скидаємо пагінацію
+                    priceState.pagination.currentPage = 1;
+
+                    // Перерендерюємо ТІЛЬКИ рядки
+                    await renderPriceTableRowsOnly();
+
+                    // Оновлюємо пагінацію
+                    if (priceState.paginationAPI) {
+                        priceState.paginationAPI.update({
+                            totalItems: priceState.filteredItems.length,
+                            currentPage: 1
+                        });
+                    }
+                }
+            }
+        }
     });
 
     // Зберігаємо в state для доступу з інших модулів

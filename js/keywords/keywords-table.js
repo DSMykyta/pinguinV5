@@ -10,7 +10,7 @@
 
 import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
-import { createPseudoTable } from '../common/ui-table.js';
+import { createTable, filterData } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import {
     registerActionHandlers,
@@ -121,11 +121,11 @@ function initTableAPI() {
         ? keywordsState.visibleColumns
         : ['local_id', 'param_type', 'name_uk', 'trigers'];
 
-    tableAPI = createPseudoTable(container, {
+    tableAPI = createTable(container, {
         columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             const hasGlossary = row.glossary_text && row.glossary_text.trim();
             const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
 
@@ -136,11 +136,37 @@ function initTableAPI() {
         },
         getRowId: (row) => row.local_id,
         emptyState: {
-            icon: 'key',
             message: 'Ключові слова не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'keywords')
+        onAfterRender: (container) => initActionHandlers(container, 'keywords'),
+        plugins: {
+            sorting: {
+                dataSource: () => getKeywords(),
+                onSort: async (sortedData) => {
+                    keywordsState.keywords = sortedData;
+                    keywordsState.pagination.currentPage = 1;
+                    renderKeywordsTableRowsOnly();
+                },
+                columnTypes: {
+                    local_id: 'id-text',
+                    param_type: 'string',
+                    name_uk: 'string',
+                    trigers: 'string'
+                }
+            },
+            filters: {
+                dataSource: () => getKeywords(),
+                filterColumns: [
+                    { id: 'param_type', label: 'Тип', filterType: 'values', labelMap: PARAM_TYPE_LABELS }
+                ],
+                onFilter: (filters) => {
+                    keywordsState.columnFilters = filters;
+                    keywordsState.pagination.currentPage = 1;
+                    renderKeywordsTableRowsOnly();
+                }
+            }
+        }
     });
 
     // Зберігаємо в state для доступу з інших модулів

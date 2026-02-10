@@ -2,19 +2,14 @@
 // Обробники подій для Banned Words
 
 import { bannedWordsState } from './banned-words-init.js';
-import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 
 /**
  * Ініціалізація всіх обробників подій
  */
 export function initBannedWordsEvents() {
-    // DEPRECATED: initCheckboxEvents() більше не потрібен
     // Обробка чекбоксів тепер виконується через batch actions system в banned-words-manage.js
-    // initCheckboxEvents();
-
-    // ПРИМІТКА: Сортування ініціалізується окремо через initBannedWordsSorting() та initCheckTabSorting()
-    // ПРИМІТКА: Фільтри і пошук обробляються в banned-words-aside.js
-
+    // Сортування тепер через Table LEGO плагіни (banned-words-manage.js, banned-words-check.js)
+    // Фільтри і пошук обробляються в banned-words-aside.js
 }
 
 /**
@@ -35,7 +30,6 @@ function initCheckboxEvents() {
                 bannedWordsState.selectedIds.delete(productId);
             }
 
-            // updateBulkActionButton(); // відключено
             updateHeaderCheckbox();
         }
     });
@@ -56,8 +50,6 @@ function initCheckboxEvents() {
                     bannedWordsState.selectedIds.delete(productId);
                 }
             });
-
-            // updateBulkActionButton(); // відключено
         }
     });
 }
@@ -87,94 +79,5 @@ function updateHeaderCheckbox() {
     }
 }
 
-// Старі функції (initStatusToggleEvents, initFilterEvents, initSortingEvents) видалені
-// - Фільтрація і пошук тепер обробляються в banned-words-aside.js
-// - Сортування тепер обробляється через ui-table-controls.js
-
-/**
- * Ініціалізація сортування для таблиці заборонених слів (tab-manage)
- */
-export function initBannedWordsSorting() {
-    const container = document.getElementById('banned-words-table-container');
-    if (!container) {
-        console.warn('⚠️ banned-words-table-container не знайдено');
-        return null;
-    }
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => bannedWordsState.bannedWords,
-        onSort: async (sortedData) => {
-            // Оновити масив заборонених слів
-            bannedWordsState.bannedWords = sortedData;
-
-            // Перерендерити таблицю
-            const { renderBannedWordsTable } = await import('./banned-words-manage.js');
-            await renderBannedWordsTable();
-
-            // ВАЖЛИВО: Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPI.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            local_id: 'id-number',
-            group_name_ua: 'string',  // ДОДАНО: Назва групи
-            name_uk: 'string',
-            name_ru: 'string',
-            banned_type: 'string',
-            banned_explaine: 'string',
-            banned_hint: 'string',
-            severity: 'string',       // ДОДАНО: Severity
-            cheaked_line: 'boolean'
-        }
-    });
-
-    return sortAPI;
-}
-
-/**
- * Ініціалізація сортування для check tabs
- * @param {string} tabId - ID табу (check-SheetName-word-column)
- */
-export function initCheckTabSorting(tabId) {
-    const container = document.getElementById(`check-results-${tabId}`);
-    if (!container) {
-        console.warn(`⚠️ check-results-${tabId} не знайдено`);
-        return null;
-    }
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => bannedWordsState.checkResults,
-        onSort: async (sortedData) => {
-            // Оновити результати перевірки
-            bannedWordsState.checkResults = sortedData;
-
-            // Знайти заборонене слово
-            const bannedWord = bannedWordsState.bannedWords.find(w => w.local_id === bannedWordsState.selectedWord);
-
-            // Перерендерити таблицю результатів (тепер експортована функція)
-            const { renderCheckResults } = await import('./banned-words-check.js');
-            await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
-
-            // ВАЖЛИВО: Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPI.getState();
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            local_id: 'id-number',
-            severity: 'string', // ДОДАНО
-            group_name_ua: 'string', // ДОДАНО
-            name_uk: 'string',
-            name_ru: 'string',
-            banned_type: 'string',
-            banned_explaine: 'string',
-            banned_hint: 'string',
-            cheaked_line: 'boolean'
-        }
-    });
-
-    return sortAPI;
-}
+// initBannedWordsSorting та initCheckTabSorting — тепер сортування
+// обробляється через Table LEGO плагіни в banned-words-manage.js та banned-words-check.js

@@ -6,7 +6,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { initCustomSelects } from '../common/ui-select.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createPseudoTable, renderBadge, renderSeverityBadge } from '../common/ui-table.js';
+import { createTable, renderBadge, renderSeverityBadge } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -122,10 +122,10 @@ function initManageTableAPI() {
         ? bannedWordsState.visibleColumns
         : ['local_id', 'severity', 'group_name_ua', 'banned_type', 'cheaked_line'];
 
-    manageTableAPI = createPseudoTable(container, {
+    manageTableAPI = createTable(container, {
         columns: getColumns(),
         visibleColumns: visibleCols,
-        rowActionsCustom: (row) => {
+        rowActions: (row) => {
             const selectedSet = bannedWordsState.selectedProducts['tab-manage'] || new Set();
             const isChecked = selectedSet.has(row.local_id);
             return `
@@ -136,11 +136,30 @@ function initManageTableAPI() {
         rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
         getRowId: (row) => row.local_id,
         emptyState: {
-            icon: 'search_off',
             message: 'Заборонені слова не знайдено'
         },
         withContainer: false,
-        onAfterRender: attachManageRowEventHandlers
+        onAfterRender: attachManageRowEventHandlers,
+        plugins: {
+            sorting: {
+                dataSource: () => bannedWordsState.bannedWords,
+                onSort: async (sortedData) => {
+                    bannedWordsState.bannedWords = sortedData;
+                    await renderBannedWordsTable();
+                },
+                columnTypes: {
+                    local_id: 'id-number',
+                    group_name_ua: 'string',
+                    name_uk: 'string',
+                    name_ru: 'string',
+                    banned_type: 'string',
+                    banned_explaine: 'string',
+                    banned_hint: 'string',
+                    severity: 'string',
+                    cheaked_line: 'boolean'
+                }
+            }
+        }
     });
 
     bannedWordsState.manageTableAPI = manageTableAPI;

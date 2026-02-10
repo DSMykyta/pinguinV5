@@ -11,10 +11,8 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly, getColumns } from './price-table.js';
-import { initTableSorting, updateSortIndicators } from '../common/ui-table-controls.js';
 
 let eventsInitialized = false;
-let isRestoringFilters = false; // Флаг для запобігання циклу при відновленні фільтрів
 
 /**
  * Ініціалізувати обробники подій
@@ -733,9 +731,7 @@ function initRefreshButton() {
 
             // Повний перерендер бо нові дані з сервера
             await renderPriceTable();
-
-            // Реініціалізуємо фільтри з новими даними
-            reinitColumnFiltersAfterRender();
+            // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
 
             // Оновлюємо пагінацію
             if (priceState.paginationAPI) {
@@ -751,189 +747,5 @@ function initRefreshButton() {
     });
 }
 
-/**
- * Ініціалізація сортування та фільтрації колонок для таблиці прайсу
- * - Клік по заголовку = сортування
- * - Hover 2 сек на заголовку з .filterable = dropdown з фільтрами
- */
-export function initPriceColumnFilters() {
-    const container = document.getElementById('price-table-container');
-    if (!container) {
-        console.warn('⚠️ price-table-container не знайдено');
-        return null;
-    }
-
-    const columns = getColumns();
-    const columnTypes = {
-        code: 'string',
-        article: 'string',
-        product: 'product',
-        reserve: 'string',
-        status: 'boolean',
-        check: 'boolean',
-        payment: 'boolean',
-        shiping_date: 'string',
-        update_date: 'date'
-    };
-
-    // Колонки з фільтрами (для hover dropdown)
-    const filterColumns = columns
-        .filter(col => col.filterable)
-        .map(col => ({
-            id: col.id,
-            label: col.label,
-            filterType: col.filterType || 'values'
-        }));
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => priceState.priceItems,
-        columnTypes: columnTypes,
-        filterColumns: filterColumns,
-        onSort: async (sortedData) => {
-            // Зберігаємо стан сортування
-            const sortState = sortAPI.getState();
-            priceState.sortState = {
-                column: sortState.column,
-                direction: sortState.direction
-            };
-
-            // Застосовуємо фільтри (які тепер включають сортування)
-            applyFilters();
-
-            // Перерендерюємо ТІЛЬКИ РЯДКИ таблиці
-            await renderPriceTableRowsOnly();
-
-            // Відновлюємо індикатори сортування після рендерингу
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        onFilter: async (activeFilters) => {
-            // Пропускаємо якщо це відновлення стану
-            if (isRestoringFilters) return;
-
-            // Зберігаємо фільтри в state
-            priceState.columnFilters = activeFilters;
-
-            // Застосовуємо всі фільтри
-            applyFilters();
-
-            // Скидаємо пагінацію
-            priceState.pagination.currentPage = 1;
-
-            // Перерендерюємо ТІЛЬКИ РЯДКИ таблиці
-            await renderPriceTableRowsOnly();
-
-            // Оновлюємо пагінацію
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
-        }
-    });
-
-    priceState.columnFiltersAPI = sortAPI;
-    return sortAPI;
-}
-
-/**
- * Реініціалізувати сортування/фільтрацію після рендерингу таблиці
- * (Викликається після renderPriceTable)
- */
-function reinitColumnFiltersAfterRender() {
-    // Якщо вже є API - знищуємо
-    if (priceState.columnFiltersAPI) {
-        priceState.columnFiltersAPI.destroy();
-    }
-
-    const container = document.getElementById('price-table-container');
-    if (!container) return;
-
-    // Перевіряємо чи є заголовок таблиці (якщо таблиця порожня - не реініціалізуємо)
-    const hasHeader = container.querySelector('.pseudo-table-header');
-    if (!hasHeader) {
-        return;
-    }
-
-    const columns = getColumns();
-    const columnTypes = {
-        code: 'string',
-        article: 'string',
-        product: 'product',
-        reserve: 'string',
-        status: 'boolean',
-        check: 'boolean',
-        payment: 'boolean',
-        shiping_date: 'string',
-        update_date: 'date'
-    };
-
-    // Зберігаємо поточні фільтри перед перестворенням
-    const savedFilters = priceState.columnFilters ? { ...priceState.columnFilters } : null;
-
-    // Колонки з фільтрами (для hover dropdown)
-    const filterColumns = columns
-        .filter(col => col.filterable)
-        .map(col => ({
-            id: col.id,
-            label: col.label,
-            filterType: col.filterType || 'values'
-        }));
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => priceState.priceItems,
-        columnTypes: columnTypes,
-        filterColumns: filterColumns,
-        onSort: async (sortedData) => {
-            const sortState = sortAPI.getState();
-            priceState.sortState = {
-                column: sortState.column,
-                direction: sortState.direction
-            };
-            applyFilters();
-            await renderPriceTableRowsOnly();
-
-            if (sortState.column && sortState.direction) {
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        onFilter: async (activeFilters) => {
-            if (isRestoringFilters) return;
-
-            priceState.columnFilters = activeFilters;
-            applyFilters();
-            priceState.pagination.currentPage = 1;
-            await renderPriceTableRowsOnly();
-
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
-        }
-    });
-
-    // Відновлюємо попередній стан фільтрів
-    if (savedFilters && Object.keys(savedFilters).length > 0) {
-        isRestoringFilters = true;
-        sortAPI.setFilters(savedFilters);
-        isRestoringFilters = false;
-    }
-
-    // Відновлюємо попередній стан сортування
-    if (priceState.sortState?.column && priceState.sortState?.direction) {
-        updateSortIndicators(container, priceState.sortState.column, priceState.sortState.direction);
-    }
-
-    priceState.columnFiltersAPI = sortAPI;
-}
-
-/**
- * Deprecated: Ініціалізація сортування (тепер інтегровано в initPriceColumnFilters)
- */
-export function initPriceSorting() {
-    return null;
-}
+// initPriceColumnFilters, reinitColumnFiltersAfterRender, initPriceSorting
+// — тепер сортування та фільтри обробляються через Table LEGO плагіни в price-table.js

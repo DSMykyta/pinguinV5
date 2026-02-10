@@ -162,14 +162,7 @@ async function handleFile(file) {
         // Повний перерендер бо нові дані з файлу
         const { renderPriceTable } = await import('./price-table.js');
         await renderPriceTable();
-
-        // Реініціалізуємо фільтри з новими даними
-        const { initPriceColumnFilters } = await import('./price-events.js');
-        const { priceState } = await import('./price-init.js');
-        if (priceState.columnFiltersAPI) {
-            priceState.columnFiltersAPI.destroy();
-        }
-        initPriceColumnFilters();
+        // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
 
         // Показуємо результат
         let message = `Оновлено: ${result.updated}, Додано: ${result.added}`;

@@ -14,7 +14,7 @@ import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrandLines } from './lines-data.js';
 import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
-import { createPseudoTable } from '../common/ui-table.js';
+import { createTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -105,22 +105,35 @@ function initLinesTableAPI() {
         ? brandsState.linesVisibleColumns
         : ['line_id', 'brand_id', 'name_uk'];
 
-    linesTableAPI = createPseudoTable(container, {
+    linesTableAPI = createTable(container, {
         columns: getLinesColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActionsCustom: (row) => actionButton({
+        rowActions: (row) => actionButton({
             action: 'edit',
             rowId: row.line_id,
             context: 'brand-lines'
         }),
         getRowId: (row) => row.line_id,
         emptyState: {
-            icon: 'category',
             message: 'Лінійки не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'brand-lines')
+        onAfterRender: (container) => initActionHandlers(container, 'brand-lines'),
+        plugins: {
+            sorting: {
+                dataSource: () => brandsState.brandLines || [],
+                onSort: async (sortedData) => {
+                    brandsState.brandLines = sortedData;
+                    renderLinesTable();
+                },
+                columnTypes: {
+                    line_id: 'id-text',
+                    brand_id: 'string',
+                    name_uk: 'string'
+                }
+            }
+        }
     });
 
     // Зберігаємо в state
