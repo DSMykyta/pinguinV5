@@ -59,6 +59,9 @@ Claude Writing Assistant
 test-*.html
 V4 ALL ALL резерв 12 10 25/
 
+# Local data files
+DATA/
+
 # Deprecated generators (kept locally as backup)
 js/generators/generator-text/
 
