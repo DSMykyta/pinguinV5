@@ -62,8 +62,9 @@
 export { createTableState } from './table-state.js';
 export { TableCore } from './table-core.js';
 export { SortingPlugin } from './table-sorting.js';
-export { FiltersPlugin } from './table-filters.js';
+export { FiltersPlugin, filterData } from './table-filters.js';
 export { CheckboxesPlugin } from './table-checkboxes.js';
+export { renderBadge, renderSeverityBadge, updateTableCounter } from './table-badges.js';
 
 // Import for internal use
 import { createTableState } from './table-state.js';
@@ -229,6 +230,10 @@ export function createTable(container, config = {}) {
         // DOM
         getContainer: () => tableCore.getContainer(),
         getDOM: () => tableCore.getDOM(),
+        findRow: (rowId) => tableCore.findRow(rowId),
+        updateCell: (rowId, columnId, content) => tableCore.updateCell(rowId, columnId, content),
+        addRowClass: (rowId, className) => tableCore.addRowClass(rowId, className),
+        removeRowClass: (rowId, className) => tableCore.removeRowClass(rowId, className),
 
         // Плагіни
         use: (plugin) => {
