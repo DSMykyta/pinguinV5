@@ -49,12 +49,7 @@
     gap: 2px;
 }
 
-.toolbar-separator {
-    width: 1px;
-    height: 24px;
-    background: var(--color-outline);
-    margin: 0 4px;
-}
+/* toolbar-separator — перенесено в toolbar.css */
 
 /* ============================================================================
    ОБЛАСТЬ РЕДАКТОРА (contentEditable)
@@ -171,36 +166,6 @@
 .rich-editor-content ::selection {
     background: var(--color-main);
     color: var(--color-on-main);
-}
-
-/* ============================================================================
-   АДАПТИВНІСТЬ
-   ============================================================================ */
-
-@media (max-width: 768px) {
-    .rich-editor-toolbar {
-        padding: 6px 8px;
-        gap: 2px;
-    }
-    
-    .rich-editor-toolbar .btn-icon {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .rich-editor-toolbar .btn-icon .material-symbols-outlined {
-        font-size: 18px;
-    }
-    
-    .toolbar-separator {
-        height: 20px;
-        margin: 0 2px;
-    }
-    
-    .rich-editor-content {
-        padding: 12px;
-        min-height: 150px;
-    }
 }
 
 /* ============================================================================
