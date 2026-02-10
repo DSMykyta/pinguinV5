@@ -52,7 +52,7 @@ export function createEditorTemplate(id, config) {
                         <span class="material-symbols-outlined">match_case</span>
                     </button>
                     <div class="toolbar-separator"></div>
-                    <div class="switch-container">
+                    <div class="switch-container switch-inline">
                         <input type="radio" id="${id}-mode-text" name="${id}-mode" value="text" checked>
                         <label for="${id}-mode-text" class="switch-label">Текст</label>
                         <input type="radio" id="${id}-mode-code" name="${id}-mode" value="code">

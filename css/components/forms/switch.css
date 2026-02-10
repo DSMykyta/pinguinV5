@@ -79,3 +79,38 @@
     background: var(--color-main);
     color: var(--color-on-main);
 }
+
+/* ============================================ */
+/* МОДИФІКАТОР: COMPACT (tiny розміри)          */
+/* ============================================ */
+
+.switch-container.switch-sm {
+    padding: 4px;
+    gap: 2px;
+    min-height: auto;
+    max-height: none;
+    font-size: 11px;
+}
+
+.switch-sm .switch-label {
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+}
+
+/* ============================================ */
+/* МОДИФІКАТОР: INLINE (без стилізації блоку)   */
+/* ============================================ */
+
+.switch-container.switch-inline {
+    padding: 0;
+    border: none;
+    background: transparent;
+    min-height: auto;
+    max-height: none;
+}
+
+.switch-inline .switch-label {
+    padding: 4px 8px;
+    border-radius: 4px;
+}

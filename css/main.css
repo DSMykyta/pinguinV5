@@ -13,12 +13,13 @@
 
 /* === ROOT VARIABLES === */
 @import url('root.css');
-@import url('typography.css');
+
 
 /* === FOUNDATION === */
 @import url('foundation/reset.css');
 @import url('foundation/scrollbar.css');
 @import url('foundation/selection.css');
+@import url('foundation/typography.css');
 
 /* === LAYOUT === */
 @import url('layout/layout-app.css');
