@@ -274,6 +274,63 @@ export class TableCore {
         return this.dom;
     }
 
+    // ==================== DOM UTILITIES ====================
+
+    /**
+     * Знайти рядок таблиці за ID
+     * @param {string|number} rowId - ID рядка
+     * @returns {HTMLElement|null} Елемент рядка або null
+     */
+    findRow(rowId) {
+        return this.container.querySelector(`[data-row-id="${rowId}"]`);
+    }
+
+    /**
+     * Оновити конкретну комірку в таблиці
+     * @param {string|number} rowId - ID рядка
+     * @param {string} columnId - ID колонки
+     * @param {string} newContent - Новий HTML контент
+     * @returns {boolean} true якщо оновлено успішно
+     */
+    updateCell(rowId, columnId, newContent) {
+        const row = this.findRow(rowId);
+        if (!row) return false;
+
+        const cell = row.querySelector(`[data-column="${columnId}"]`);
+        if (!cell) return false;
+
+        cell.innerHTML = newContent;
+        return true;
+    }
+
+    /**
+     * Додати клас до рядка таблиці
+     * @param {string|number} rowId - ID рядка
+     * @param {string} className - Клас для додавання
+     * @returns {boolean} true якщо успішно
+     */
+    addRowClass(rowId, className) {
+        const row = this.findRow(rowId);
+        if (!row) return false;
+
+        row.classList.add(className);
+        return true;
+    }
+
+    /**
+     * Видалити клас з рядка таблиці
+     * @param {string|number} rowId - ID рядка
+     * @param {string} className - Клас для видалення
+     * @returns {boolean} true якщо успішно
+     */
+    removeRowClass(rowId, className) {
+        const row = this.findRow(rowId);
+        if (!row) return false;
+
+        row.classList.remove(className);
+        return true;
+    }
+
     /**
      * Знищити таблицю
      */

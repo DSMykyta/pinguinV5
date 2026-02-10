@@ -107,6 +107,7 @@ export function createTableState(config = {}) {
      */
     function setData(newData) {
         state.data = newData || [];
+        state.filteredData = [...state.data];
         state.totalItems = state.data.length;
         runHook('onDataChange', state.data);
     }
