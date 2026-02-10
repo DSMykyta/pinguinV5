@@ -1,17 +1,21 @@
 /**
- * TYPOGRAPHY: DM Sans
+ * TYPOGRAPHY
  *
  * ПРИЗНАЧЕННЯ:
- * Типографіка проєкту — шрифт DM Sans підключений локально (офлайн).
- * Variable Font — один файл містить усі ваги від 100 до 900.
+ * Типографіка проєкту — всі шрифти підключені локально (офлайн).
+ *
+ * ШРИФТИ:
+ * - DM Sans (Variable)    — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
+ * - NyghtSerif (Static)   — заголовки секцій і шапок (h1–h4, .section-upper)
+ * - Roboto Mono (Variable) — код (rich-editor code mode, layout-section)
  *
  * СТРУКТУРА:
  * ┌──────────────────────────────────────────┐
- * │  @font-face          Підключення шрифту  │
+ * │  @font-face          Підключення шрифтів │
  * ├──────────────────────────────────────────┤
  * │  body                Базові налаштування │
  * ├──────────────────────────────────────────┤
- * │  h1–h4              Заголовки            │
+ * │  h1–h4              Заголовки (NyghtSerif)│
  * ├──────────────────────────────────────────┤
  * │  .body-l, .body-m   Текстові блоки       │
  * ├──────────────────────────────────────────┤
@@ -20,15 +24,13 @@
  * ├──────────────────────────────────────────┤
  * │  .section-upper     Uppercase акцент     │
  * └──────────────────────────────────────────┘
- *
- * ШРИФТ: DM Sans Variable (opsz, wght)
- * ФАЙЛИ: /fonts/DMSans-VariableFont_opsz,wght.ttf
- *        /fonts/DMSans-Italic-VariableFont_opsz,wght.ttf
  */
 
 /* ============================================ */
-/* 1. ПІДКЛЮЧЕННЯ ШРИФТУ (ЛОКАЛЬНО)            */
+/* 1. ПІДКЛЮЧЕННЯ ШРИФТІВ (ЛОКАЛЬНО)           */
 /* ============================================ */
+
+/* --- DM Sans (Variable Font) --- */
 @font-face {
     font-family: 'DM Sans';
     src: url('../fonts/DMSans-VariableFont_opsz,wght.ttf') format('truetype');
@@ -45,6 +47,88 @@
     font-display: swap;
 }
 
+/* --- NyghtSerif (Static Fonts) --- */
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-RegularItalic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-Dark.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NyghtSerif';
+    src: url('../fonts/NyghtSerif/NyghtSerif-DarkItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* --- Roboto Mono (Variable Font) --- */
 @font-face {
     font-family: 'Roboto Mono';
     src: url('../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
@@ -53,7 +137,18 @@
     font-display: swap;
 }
 
-/* 2. Базові налаштування */
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ============================================ */
+/* 2. БАЗОВІ НАЛАШТУВАННЯ                      */
+/* ============================================ */
+
 body {
     font-family: 'DM Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -61,75 +156,102 @@ body {
     color: var(--text-primary);
 }
 
-/* 3. Заголовки (Використовуємо ваші кольори) */
-h1, .h1 { 
-    font-size: 32px; 
-    font-weight: 700; 
-    line-height: 1.2; 
+/* ============================================ */
+/* 3. ЗАГОЛОВКИ (NyghtSerif)                   */
+/* ============================================ */
+
+h1, .h1 {
+    font-family: 'NyghtSerif', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
     color: var(--text-primary);
     margin: 0;
 }
 
-h2, .h2 { 
-    font-size: 24px; 
-    font-weight: 600; 
-    line-height: 1.3; 
+h2, .h2 {
+    font-family: 'NyghtSerif', serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
     color: var(--text-primary);
     margin: 0;
 }
 
-h3, .h3 { 
-    font-size: 20px; 
-    font-weight: 600; 
-    line-height: 1.4; 
+h3, .h3 {
+    font-family: 'NyghtSerif', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
     color: var(--text-primary);
     margin: 0;
 }
 
-h4, .h4 { 
-    font-size: 18px; 
-    font-weight: 600; 
+h4, .h4 {
+    font-family: 'NyghtSerif', serif;
+    font-size: 18px;
+    font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
 
-/* 4. Текстові блоки */
-.body-l { 
-    font-size: 16px; 
-    font-weight: 500; 
-    color: var(--text-primary); 
+/* ============================================ */
+/* 4. ТЕКСТОВІ БЛОКИ (DM Sans)                */
+/* ============================================ */
+
+.body-l {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
 }
 
-.body-m { 
-    font-size: 14px; 
-    font-weight: 400; 
-    color: var(--text-primary); 
+.body-m {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-primary);
 }
 
-/* 5. Додаткові стилі (Secondary & Hint кольори) */
-.caption { 
-    font-size: 13px; 
-    font-weight: 500; 
-    color: var(--text-secondary); 
+/* ============================================ */
+/* 5. ДОПОМІЖНИЙ ТЕКСТ                         */
+/* ============================================ */
+
+.caption {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
-.small { 
-    font-size: 12px; 
-    font-weight: 400; 
-    color: var(--text-secondary); 
+.small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
 }
 
-.tiny { 
-    font-size: 11px; 
-    font-weight: 400; 
-    color: var(--text-hint); 
+.tiny {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-hint);
 }
 
-/* 6. Спеціальний Uppercase (Використовує акцентний колір) */
+/* ============================================ */
+/* 6. СПЕЦІАЛЬНИЙ UPPERCASE (NyghtSerif)       */
+/* ============================================ */
+
 .section-upper {
+    font-family: 'NyghtSerif', serif;
     font-size: 18px;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--color-main); /* Використовує ваш головний колір rgb(9, 63, 69) */
+    color: var(--color-main);
     letter-spacing: 0.04em;
+}
+
+/* ============================================ */
+/* 7. МОНОШИРИННИЙ ШРИФТ (Roboto Mono)        */
+/* ============================================ */
+
+.input-left,
+.input-right,
+.gost-input {
+    font-family: 'Roboto Mono', monospace;
 }

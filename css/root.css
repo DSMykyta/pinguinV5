@@ -88,6 +88,9 @@
     --text-on-surface-variant: var(--color-on-surface-v);
     --text-color: var(--color-main);
 
+    /* --- ШРИФТИ --- */
+    --font-mono: 'Roboto Mono', monospace;
+
     /* --- УНІФІКОВАНІ ЗМІННІ ПАНЕЛЕЙ --- */
     --panel-width-collapsed: 72px;
     --panel-width-expanded: 320px;
