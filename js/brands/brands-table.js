@@ -8,14 +8,14 @@
  * 🔌 ПЛАГІН — можна видалити, система працюватиме без таблиці брендів.
  *
  * Рендеринг таблиці брендів з підтримкою пагінації, сортування та фільтрації.
- * Використовує Table LEGO систему (js/common/table/).
  */
 
 import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { getBrandLines } from './lines-data.js';
 import { brandsState } from './brands-state.js';
-import { createTable } from '../common/table/table-main.js';
+import { createPseudoTable } from '../common/ui-table.js';
+import { filterData } from '../common/ui-table-controls.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -83,7 +83,6 @@ export function getColumns() {
             sortable: true,
             searchable: true,
             filterable: true,
-            filterType: 'values',
             render: (value) => escapeHtml(value || '-')
         },
         {
@@ -91,7 +90,6 @@ export function getColumns() {
             label: 'Статус',
             sortable: true,
             filterable: true,
-            filterType: 'values',
             className: 'cell-s',
             render: (value) => {
                 const isActive = value !== 'inactive';
@@ -151,11 +149,11 @@ function initTableAPI() {
         ? brandsState.visibleColumns
         : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
-    tableAPI = createTable(container, {
+    tableAPI = createPseudoTable(container, {
         columns: getColumns(),
         visibleColumns: visibleCols,
         rowActionsHeader: ' ',
-        rowActions: (row) => actionButton({
+        rowActionsCustom: (row) => actionButton({
             action: 'edit',
             rowId: row.brand_id,
             context: 'brands'
@@ -166,38 +164,7 @@ function initTableAPI() {
             message: 'Бренди не знайдено'
         },
         withContainer: false,
-        plugins: {
-            sorting: {
-                columnTypes: {
-                    brand_id: 'id-text',
-                    name_uk: 'string',
-                    names_alt: 'string',
-                    country_option_id: 'string',
-                    lines_count: 'number'
-                }
-            },
-            filters: {
-                triggerMode: 'hover',
-                instantApply: true
-            }
-        }
-    });
-
-    // Ініціалізуємо action handlers після кожного рендерингу
-    tableAPI.registerHook('onRender', (container) => {
-        initActionHandlers(container, 'brands');
-    });
-
-    // На зміну фільтрів — оновити пагінацію і перерендерити
-    tableAPI.registerHook('onFilter', () => {
-        brandsState.pagination.currentPage = 1;
-        renderBrandsTableRowsOnly();
-    });
-
-    // На зміну сортування — оновити пагінацію і перерендерити
-    tableAPI.registerHook('onSort', () => {
-        brandsState.pagination.currentPage = 1;
-        renderBrandsTableRowsOnly();
+        onAfterRender: (container) => initActionHandlers(container, 'brands')
     });
 
     // Зберігаємо в state для доступу з інших модулів
@@ -205,56 +172,23 @@ function initTableAPI() {
 }
 
 /**
- * Збагатити дані брендів (додати lines_count)
- */
-function enrichBrandsData(brands) {
-    const lines = brandsState.brandLines || getBrandLines() || [];
-    return brands.map(b => ({
-        ...b,
-        lines_count: lines.filter(l => l.brand_id === b.brand_id).length
-    }));
-}
-
-/**
  * Отримати пагіновані дані
- * Читає відфільтровані/відсортовані дані з Table LEGO state,
- * застосовує пошук і пагінацію.
  */
 function getPaginatedData() {
-    // Дані з Table LEGO (вже відсортовані і відфільтровані плагінами)
-    let filtered = tableAPI ? [...tableAPI.getFilteredData()] : enrichBrandsData(getBrands());
+    const brands = getBrands();
+    const filteredBrands = applyFilters(brands);
 
-    // Застосовуємо зовнішній пошук
-    if (brandsState.searchQuery) {
-        const query = brandsState.searchQuery.toLowerCase();
-        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
-
-        filtered = filtered.filter(brand => {
-            return columns.some(column => {
-                const value = brand[column];
-
-                // Масив (names_alt)
-                if (Array.isArray(value)) {
-                    return value.some(v => v.toLowerCase().includes(query));
-                }
-
-                // Рядок
-                return value?.toString().toLowerCase().includes(query);
-            });
-        });
-    }
-
-    const totalAll = tableAPI ? tableAPI.getData().length : getBrands().length;
-    brandsState.pagination.totalItems = filtered.length;
+    // Зберігаємо totalItems в state для коректного перемикання табів
+    brandsState.pagination.totalItems = filteredBrands.length;
 
     const { currentPage, pageSize } = brandsState.pagination;
     const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filtered.length);
+    const end = Math.min(start + pageSize, filteredBrands.length);
 
     return {
-        all: totalAll,
-        filtered: filtered,
-        paginated: filtered.slice(start, end)
+        all: brands,
+        filtered: filteredBrands,
+        paginated: filteredBrands.slice(start, end)
     };
 }
 
@@ -286,7 +220,7 @@ export function renderBrandsTableRowsOnly() {
     // Оновлюємо тільки рядки
     tableAPI.updateRows(paginated);
 
-    updateStats(filtered.length, all);
+    updateStats(filtered.length, all.length);
 }
 
 /**
@@ -308,10 +242,6 @@ export function renderBrandsTable() {
         initTableAPI();
     }
 
-    // Збагачуємо дані і встановлюємо в Table LEGO state
-    const enriched = enrichBrandsData(brands);
-    tableAPI.setData(enriched);
-
     const { all, filtered, paginated } = getPaginatedData();
 
     // Оновити пагінацію
@@ -323,12 +253,56 @@ export function renderBrandsTable() {
         });
     }
 
-    // Рендер з пагінованими даними
+    // Повний рендер таблиці
     tableAPI.render(paginated);
 
     // Оновити статистику
-    updateStats(filtered.length, all);
+    updateStats(filtered.length, all.length);
 
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Застосувати фільтри
+ * @param {Array} brands - Масив брендів
+ * @returns {Array} Відфільтровані бренди
+ */
+function applyFilters(brands) {
+    let filtered = [...brands];
+
+    // Фільтри колонок (країна, статус)
+    if (brandsState.columnFilters && Object.keys(brandsState.columnFilters).length > 0) {
+        const filterColumns = [
+            { id: 'country_option_id', filterType: 'values' },
+            { id: 'brand_status', filterType: 'values' }
+        ];
+        filtered = filterData(filtered, brandsState.columnFilters, filterColumns);
+    }
+
+    // Пошук
+    if (brandsState.searchQuery) {
+        const query = brandsState.searchQuery.toLowerCase();
+        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
+
+        filtered = filtered.filter(brand => {
+            return columns.some(column => {
+                const value = brand[column];
+
+                // Масив (names_alt)
+                if (Array.isArray(value)) {
+                    return value.some(v => v.toLowerCase().includes(query));
+                }
+
+                // Рядок
+                return value?.toString().toLowerCase().includes(query);
+            });
+        });
+    }
+
+    return filtered;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -370,9 +344,6 @@ function updateStats(visible, total) {
  * Скинути tableAPI (для реініціалізації)
  */
 export function resetTableAPI() {
-    if (tableAPI) {
-        tableAPI.destroy();
-    }
     tableAPI = null;
     brandsState.tableAPI = null;
 }
@@ -389,6 +360,7 @@ registerBrandsPlugin('onInit', () => {
 // Реєструємо на хук onRender — для оновлення таблиці (тільки на активному табі)
 registerBrandsPlugin('onRender', () => {
     if (brandsState.activeTab === 'brands') {
-        renderBrandsTableRowsOnly();
+        renderBrandsTable();
     }
 });
+
