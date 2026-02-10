@@ -2,7 +2,7 @@
 :root {
     /* --- КОЛЬОРИ (Свіжа мінімалістична палітра) --- */
     --color-main: rgb(9, 63, 69);
-    --color-on-main: #ffffff;
+    --color-on-main: rgb(255, 255, 255);
 
     --color-main-c: rgba(9, 63, 69, 0.08);
     --color-on-main-c: rgb(9, 63, 69);
@@ -10,41 +10,39 @@
     --color-main-t-1: rgba(9, 63, 69, 0.1);
     --color-main-t-2: rgba(9, 63, 69, 0.2);
 
+    --color-secondary: rgb(39, 93, 99);
+    --color-on-secondary: rgb(255, 255, 255);
 
-    --color-secondary: rgb(9, 63, 69);
-    --color-on-secondary: #ffffff;
+    --color-secondary-c: rgba(39, 93, 99, 0.08);
+    --color-on-secondary-c: rgb(39, 93, 99);
 
-    --color-secondary-c: rgba(9, 63, 69, 0.08);
-    --color-on-secondary-c: rgb(9, 63, 69);
+    --color-tertiary: rgb(232, 110, 80);
+    --color-on-tertiary: rgb(255, 255, 255);
 
-
-    --color-tertiary: rgb(39, 93, 99);
-    --color-on-tertiary: #ffffff;
-
-    --color-tertiary-c: rgba(39, 93, 99, 0.08);
-    --color-on-tertiary-c: rgb(39, 93, 99);
+    --color-tertiary-c: rgba(232, 110, 80, 0.1);
+    --color-on-tertiary-c:rgb(190, 70, 50);
 
 
     --color-error: rgb(239, 68, 68);
-    --color-on-error: #ffffff;
+    --color-on-error: rgb(255, 255, 255);
 
     --color-error-c: rgba(239, 68, 68, 0.1);
     --color-on-error-c: rgb(239, 68, 68);
 
     --color-warning: rgb(245, 158, 11);
-    --color-on-warning: #ffffff;
+    --color-on-warning: rgb(255, 255, 255);
 
     --color-warning-c: rgba(245, 158, 11, 0.1);
     --color-on-warning-c: rgb(245, 158, 11);
 
     --color-success: rgb(16, 185, 129);
-    --color-on-success: #ffffff;
+    --color-on-success: rgb(255, 255, 255);
 
     --color-success-c: rgba(16, 185, 129, 0.1);
     --color-on-success-c: rgb(16, 185, 129);
 
     --color-info: rgb(59, 130, 246);
-    --color-on-info: #ffffff;
+    --color-on-info: rgb(255, 255, 255);
 
     --color-info-c: rgba(59, 130, 246, 0.1);
     --color-on-info-c: rgb(59, 130, 246);
@@ -65,9 +63,6 @@
     /* --- MODAL OVERLAY --- */
     --color-modal-overlay: rgba(23, 23, 23, 0.5);
 
-    /* --- ТІНІ (розширені) --- */
-    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
-
     /* --- РОЗМІРИ ТА ВІДСТУПИ --- */
     --radius-s: 8px;
     --radius-m: 12px;
@@ -81,6 +76,8 @@
     /* --- ТІНІ --- */
     --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
     --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+
 
     /* --- СТИЛІ ТЕКСТУ --- */
     --text-primary: #171717;
@@ -104,4 +101,48 @@
     --affinity-layout: #fb923c;
     --affinity-canvas: #60a5fa;
 
+}
+
+/* --- DARK MODE OVERRIDES --- */
+[data-theme="dark"] {
+    /* 1. ФОНИ (Інверсія) */
+    --color-surface: #121212;        /* Майже чорний, краще ніж #000 */
+    --color-background: #000000;     /* Глибокий чорний для фону сторінки */
+    --color-surface-c-low: #1e1e1e;  /* Трохи світліший за surface */
+    --color-surface-c: #2c2c2c;
+    --color-surface-c-high: #3d3d3d;
+    
+    --color-outline: #404040;        /* Темніші лінії */
+    --color-outline-v: #525252;
+
+    /* 2. ТЕКСТ (Інверсія) */
+    --text-primary: #e5e5e5;         /* Майже білий */
+    --text-secondary: #a3a3a3;       /* Світло-сірий */
+    --text-hint: rgba(255, 255, 255, 0.5);
+    
+    /* Колір тексту на поверхнях теж змінюється */
+    --color-on-surface: #e5e5e5;
+    --color-on-surface-v: #a3a3a3;
+
+    /* 3. ОСНОВНИЙ КОЛІР (Головний нюанс!) */
+    /* Твій оригінальний rgb(9, 63, 69) занадто темний для темної теми.
+       Він буде невидимим. Ми робимо його світлішим (Teal 200/300). */
+    --color-main: rgb(76, 166, 175); 
+    --color-on-main: rgb(0, 30, 35); /* Текст на кнопці стає темним */
+
+    /* Плашки тепер використовують світлий колір з прозорістю */
+    --color-main-c: rgba(76, 166, 175, 0.15); 
+    --color-on-main-c: rgb(130, 220, 230); /* Текст на плашках світлішає */
+
+    /* 4. ВТОРИННІ КОЛЬОРИ */
+    /* Coral теж робимо трохи пастельнішим або лишаємо яскравим */
+    --color-tertiary: rgb(255, 145, 120); 
+    --color-tertiary-c: rgba(255, 145, 120, 0.15);
+    --color-on-tertiary-c: rgb(255, 210, 200);
+
+    /* 5. ТІНІ */
+    /* Тіні на чорному не видно. В темній темі тіні часто роблять
+       ще темнішими або замінюють на світлі бордери/підсвічування */
+    --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.6);
+    --color-modal-overlay: rgba(0, 0, 0, 0.8);
 }

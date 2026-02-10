@@ -13,6 +13,7 @@
 
 /* === ROOT VARIABLES === */
 @import url('root.css');
+@import url('typography.css');
 
 /* === FOUNDATION === */
 @import url('foundation/reset.css');
