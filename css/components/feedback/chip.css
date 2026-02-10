@@ -121,8 +121,6 @@
     justify-content: center;
     padding: 4px 12px;
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
@@ -228,8 +226,6 @@
     background: var(--color-on-surface);
     color: var(--color-surface);
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 400;
     white-space: normal;
     min-width: 280px;
     max-width: 400px;
@@ -251,8 +247,6 @@
     background: var(--color-on-surface);
     color: var(--color-surface);
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 400;
     white-space: normal;
     min-width: 400px;
     max-width: 500px;
@@ -297,8 +291,6 @@
 .word-chip {
     display: inline-block;
     padding: 2px 8px;
-    font-size: 12px;
-    font-weight: 500;
     background: var(--color-surface-c-low);
     border: 1px solid var(--color-outline);
     border-radius: 8px;
@@ -309,13 +301,11 @@
 .word-chip.primary {
     background: var(--color-main-c);
     color: var(--color-main);
-    font-weight: 600;
 }
 
 /* Маленький варіант для таблиць */
 .word-chip-small {
     padding: 1px 6px;
-    font-size: 11px;
     margin: 1px;
 }
 
@@ -341,8 +331,6 @@
     border-radius: var(--radius-full);
     background: transparent;
     color: var(--color-on-surface);
-    font-size: 13px;
-    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;

@@ -46,7 +46,6 @@
     background: transparent;
     outline: none;
     flex: 1;
-    font-size: 14px;
     color: var(--color-on-surface);
 }
 

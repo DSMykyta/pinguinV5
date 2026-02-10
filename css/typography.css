@@ -1,7 +1,57 @@
-/* /css/typography.css */
+/**
+ * TYPOGRAPHY: DM Sans
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Типографіка проєкту — шрифт DM Sans підключений локально (офлайн).
+ * Variable Font — один файл містить усі ваги від 100 до 900.
+ *
+ * СТРУКТУРА:
+ * ┌──────────────────────────────────────────┐
+ * │  @font-face          Підключення шрифту  │
+ * ├──────────────────────────────────────────┤
+ * │  body                Базові налаштування │
+ * ├──────────────────────────────────────────┤
+ * │  h1–h4              Заголовки            │
+ * ├──────────────────────────────────────────┤
+ * │  .body-l, .body-m   Текстові блоки       │
+ * ├──────────────────────────────────────────┤
+ * │  .caption, .small,  Допоміжний текст     │
+ * │  .tiny                                   │
+ * ├──────────────────────────────────────────┤
+ * │  .section-upper     Uppercase акцент     │
+ * └──────────────────────────────────────────┘
+ *
+ * ШРИФТ: DM Sans Variable (opsz, wght)
+ * ФАЙЛИ: /fonts/DMSans-VariableFont_opsz,wght.ttf
+ *        /fonts/DMSans-Italic-VariableFont_opsz,wght.ttf
+ */
 
-/* 1. Підключення шрифту */
-@import url('https://fonts.googleapis.com');
+/* ============================================ */
+/* 1. ПІДКЛЮЧЕННЯ ШРИФТУ (ЛОКАЛЬНО)            */
+/* ============================================ */
+@font-face {
+    font-family: 'DM Sans';
+    src: url('../fonts/DMSans-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    src: url('../fonts/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
 
 /* 2. Базові налаштування */
 body {

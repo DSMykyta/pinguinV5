@@ -23,8 +23,6 @@
     border: none;
     border-radius: 8px;
     font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     background: var(--color-surface-c-high);
@@ -101,7 +99,6 @@
 /* Маленькі кнопки */
 .btn-small {
     padding: 4px 12px;
-    font-size: 13px;
 }
 
 .btn-icon-small {

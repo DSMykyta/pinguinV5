@@ -27,11 +27,3 @@
     padding: 12px 16px 8px;
 }
 
-.panel-item-title h3 {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-on-surface);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-}

@@ -42,13 +42,6 @@
     text-align: left;
 }
 
-.drop-zone.drop-zone-compact .drop-zone-text {
-    font-size: 15px;
-}
-
-.drop-zone.drop-zone-compact .drop-zone-hint {
-    font-size: 13px;
-}
 
 .drop-zone:hover {
     border-color: var(--primary);
@@ -83,14 +76,11 @@
 }
 
 .drop-zone-text {
-    font-size: 18px;
-    font-weight: 500;
     color: var(--on-surface);
     margin: 0;
 }
 
 .drop-zone-hint {
-    font-size: 14px;
     color: var(--on-surface-variant);
     margin: 0;
 }
@@ -142,7 +132,6 @@
     margin-bottom: 16px;
     background: var(--surface-container-low);
     border-radius: 8px;
-    font-size: 14px;
     color: var(--on-surface-variant);
 }
 
@@ -169,10 +158,6 @@
 
 .mapping-row.mapping-header {
     background: var(--surface-container);
-    font-weight: 500;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     color: var(--on-surface-variant);
 }
 
@@ -187,7 +172,6 @@
 }
 
 .mapping-label {
-    font-size: 14px;
     color: var(--on-surface);
 }
 
@@ -200,7 +184,6 @@
 }
 
 .mapping-preview {
-    font-size: 13px;
     color: var(--on-surface-variant);
     font-family: monospace;
     overflow: hidden;
@@ -229,9 +212,6 @@
 
 .preview-header h3 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--on-surface);
 }
 
 .preview-stats {
@@ -243,7 +223,6 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
     color: var(--on-surface-variant);
 }
 
@@ -273,7 +252,6 @@
 .preview-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
 }
 
 .preview-table thead {
@@ -291,11 +269,7 @@
 
 .preview-table th {
     background: var(--surface-container);
-    font-weight: 500;
     color: var(--on-surface-variant);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .preview-table td {
@@ -338,9 +312,7 @@
 
 /* File name display */
 .file-name {
-    font-size: 14px;
     color: var(--primary);
-    font-weight: 500;
 }
 
 .file-name:empty {
@@ -359,7 +331,6 @@
 }
 
 .input-hint {
-    font-size: 13px;
     color: var(--on-surface-variant);
 }
 
@@ -404,12 +375,10 @@
 }
 
 .radio-group-vertical .radio-content strong {
-    font-weight: 500;
     color: var(--on-surface);
 }
 
 .radio-group-vertical .radio-content small {
-    font-size: 12px;
     color: var(--on-surface-variant);
 }
 
@@ -422,7 +391,6 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    font-size: 14px;
     color: var(--on-surface);
     padding: 8px 12px;
     background: var(--surface-container-lowest);

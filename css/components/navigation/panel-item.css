@@ -54,8 +54,6 @@
     cursor: pointer;
     text-decoration: none;
 
-    font-size: 14px;
-    font-weight: 500;
     color: var(--color-on-surface-v);
 
     white-space: nowrap;

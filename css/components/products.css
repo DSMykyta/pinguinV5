@@ -32,13 +32,7 @@
     margin-bottom: 8px;
 }
 
-.bilingual-column-header .flag {
-    font-size: 20px;
-}
-
 .bilingual-column-header h4 {
-    font-size: 14px;
-    font-weight: 600;
     color: var(--color-main);
     margin: 0;
     text-transform: uppercase;
@@ -65,8 +59,6 @@
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-m, 8px);
     color: var(--color-on-surface-v);
-    font-size: 13px;
-    font-weight: 500;
     cursor: pointer;
     transition: all 0.15s ease;
 }
@@ -133,13 +125,11 @@
 }
 
 .product-name {
-    font-weight: 500;
     color: var(--color-on-surface);
     line-height: 1.3;
 }
 
 .product-name-secondary {
-    font-size: 12px;
     color: var(--color-on-surface-v);
 }
 
@@ -173,8 +163,6 @@
     background: none;
     border: none;
     color: var(--color-on-surface-v);
-    font-size: 13px;
-    font-weight: 500;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
@@ -197,7 +185,6 @@
 }
 
 .modal-tab .badge {
-    font-size: 11px;
     padding: 2px 6px;
 }
 
@@ -235,14 +222,11 @@
 }
 
 .form-section-title {
-    font-size: 16px;
-    font-weight: 600;
     color: var(--color-on-surface);
     margin: 0 0 4px 0;
 }
 
 .form-section-desc {
-    font-size: 13px;
     color: var(--color-on-surface-v);
     margin: 0;
 }
@@ -298,20 +282,13 @@
 }
 
 .preview-label {
-    font-size: 12px;
     color: var(--color-on-surface-v);
     min-width: 120px;
     flex-shrink: 0;
 }
 
 .preview-value {
-    font-size: 13px;
     color: var(--color-on-surface);
-    font-weight: 500;
-}
-
-.preview-value-large {
-    font-size: 16px;
 }
 
 .preview-html {
@@ -321,7 +298,6 @@
 .preview-html table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
 }
 
 .preview-html th,
@@ -382,8 +358,6 @@
 .photo-badge {
     background: var(--color-success);
     color: white;
-    font-size: 10px;
-    font-weight: 600;
     padding: 2px 6px;
     border-radius: var(--radius-s);
     align-self: flex-start;
@@ -426,10 +400,6 @@
     font-size: 32px;
 }
 
-.photo-item.photo-add span:last-child {
-    font-size: 12px;
-}
-
 /* Small photo items for variants */
 .photo-item.photo-small {
     width: 64px;
@@ -459,8 +429,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
-    font-weight: 500;
     color: var(--color-on-surface-v);
     margin-bottom: 8px;
 }
@@ -475,7 +443,6 @@
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    font-size: 14px;
     color: var(--color-on-surface);
 }
 
@@ -526,12 +493,10 @@
 }
 
 .variant-name {
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
 .variant-sku {
-    font-size: 12px;
     color: var(--color-on-surface-v);
 }
 
@@ -542,8 +507,6 @@
 }
 
 .variant-price {
-    font-size: 16px;
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
@@ -590,18 +553,15 @@
 }
 
 .variant-item-name {
-    font-weight: 500;
     color: var(--color-on-surface);
 }
 
 .variant-item-sku {
-    font-size: 12px;
     color: var(--color-on-surface-v);
     margin-left: 8px;
 }
 
 .variant-item-price {
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
@@ -633,8 +593,6 @@
 
 .composition-table th {
     background: var(--color-surface-c-low);
-    font-weight: 500;
-    font-size: 13px;
 }
 
 .composition-table td:last-child {
@@ -644,7 +602,6 @@
 
 .input-sm {
     padding: 6px 10px;
-    font-size: 13px;
 }
 
 .btn-icon-sm {
@@ -676,8 +633,6 @@
 .attributes-block-header {
     background: var(--color-surface-v);
     padding: 12px 16px;
-    font-size: 13px;
-    font-weight: 600;
     color: var(--color-on-surface);
     border-bottom: 1px solid var(--color-border);
 }
@@ -727,7 +682,6 @@
 
 .attributes-placeholder p {
     margin: 0;
-    font-size: 14px;
 }
 
 @media (max-width: 768px) {
@@ -749,7 +703,6 @@
 
 .seo-preview-title {
     color: #1a0dab;
-    font-size: 18px;
     line-height: 1.3;
     margin-bottom: 4px;
     cursor: pointer;
@@ -761,13 +714,11 @@
 
 .seo-preview-url {
     color: #006621;
-    font-size: 13px;
     margin-bottom: 4px;
 }
 
 .seo-preview-desc {
     color: #545454;
-    font-size: 13px;
     line-height: 1.4;
 }
 
@@ -809,13 +760,10 @@
 
 .wizard-title-block .modal-title {
     margin: 0;
-    font-size: 18px;
-    font-weight: 600;
 }
 
 .wizard-title-hint {
     margin: 0;
-    font-size: 13px;
     color: var(--color-on-surface-v);
 }
 
@@ -860,8 +808,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
     transition: all 0.2s ease;
 }
 
@@ -876,14 +822,12 @@
 }
 
 .wizard-step-label {
-    font-size: 12px;
     color: var(--color-on-surface-v);
     text-align: center;
 }
 
 .wizard-step.active .wizard-step-label {
     color: var(--color-main);
-    font-weight: 500;
 }
 
 .wizard-body {
@@ -930,14 +874,11 @@
 
 .wizard-content-header h3 {
     margin: 0 0 4px 0;
-    font-size: 18px;
-    font-weight: 600;
 }
 
 .wizard-content-header p {
     margin: 0;
     color: var(--color-on-surface-v);
-    font-size: 14px;
 }
 
 .wizard-content-body {
@@ -952,7 +893,6 @@
 }
 
 .wizard-footer-center {
-    font-size: 13px;
     color: var(--color-on-surface-v);
 }
 
@@ -992,12 +932,10 @@
 }
 
 .drop-zone-text strong {
-    font-size: 16px;
     color: var(--color-on-surface);
 }
 
 .drop-zone-text span {
-    font-size: 13px;
     color: var(--color-on-surface-v);
 }
 
@@ -1033,8 +971,6 @@
     gap: 8px;
     padding: 12px 16px;
     background: var(--color-surface-c);
-    font-weight: 500;
-    font-size: 13px;
 }
 
 .summary-card-header .material-symbols-outlined {
@@ -1050,7 +986,6 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
-    font-size: 13px;
 }
 
 .summary-item:last-child {
@@ -1062,7 +997,6 @@
 }
 
 .summary-value {
-    font-weight: 500;
     color: var(--color-on-surface);
 }
 
@@ -1091,7 +1025,6 @@
     padding: 12px 20px;
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-m);
-    font-size: 14px;
     transition: all 0.2s ease;
 }
 
@@ -1268,8 +1201,6 @@
 .wizard-content .form-group label {
     display: block;
     margin-bottom: 6px;
-    font-size: 13px;
-    font-weight: 500;
     color: var(--color-on-surface);
 }
 
@@ -1284,7 +1215,6 @@
     border-radius: var(--radius-s, 8px);
     background-color: var(--color-surface);
     color: var(--color-on-surface);
-    font-size: 14px;
     min-height: 40px;
     width: 100%;
     transition: border-color 150ms ease-in-out;
@@ -1311,7 +1241,6 @@
     border-radius: var(--radius-s, 8px);
     background-color: var(--color-surface);
     color: var(--color-on-surface);
-    font-size: 14px;
     min-height: 40px;
     width: 100%;
     cursor: pointer;
@@ -1361,9 +1290,7 @@
 
 /* ID Cell - base styles in pseudo-table.css */
 .product-id {
-    font-weight: 500;
     color: var(--color-on-surface-v);
-    font-size: 13px;
 }
 
 /* Storefronts Cell — іконки (ширина через cell-s) */
@@ -1454,8 +1381,6 @@
     border-radius: var(--radius-s);
     background: var(--color-surface);
     color: var(--color-on-surface);
-    font-size: 13px;
-    font-weight: 500;
     cursor: pointer;
     transition: all 150ms ease;
 }
@@ -1496,12 +1421,10 @@
 }
 
 .variant-name {
-    font-weight: 500;
     color: var(--color-on-surface);
 }
 
 .variant-sku {
-    font-size: 13px;
     color: var(--color-on-surface-v);
     font-family: monospace;
 }
@@ -1513,7 +1436,6 @@
 }
 
 .variant-price {
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
@@ -1556,12 +1478,10 @@
 }
 
 .group-name {
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
 .group-count {
-    font-size: 13px;
     color: var(--color-on-surface-v);
 }
 
@@ -1587,7 +1507,6 @@
 }
 
 .group-product-name {
-    font-size: 14px;
     color: var(--color-on-surface);
 }
 
@@ -1615,8 +1534,6 @@
 }
 
 .wizard-summary h2 {
-    font-size: 24px;
-    font-weight: 600;
     color: var(--color-on-surface);
     margin: 0 0 32px 0;
 }
@@ -1639,13 +1556,10 @@
 
 .summary-label {
     color: var(--color-on-surface-v);
-    font-size: 14px;
 }
 
 .summary-value {
     color: var(--color-on-surface);
-    font-weight: 500;
-    font-size: 14px;
 }
 
 .summary-actions {
@@ -1729,7 +1643,6 @@
 
 .mp-item-id {
     font-family: monospace;
-    font-size: 12px;
     color: var(--color-on-surface-v);
 }
 
@@ -1776,12 +1689,10 @@
 }
 
 .mapper-related-name {
-    font-weight: 500;
     color: var(--color-on-surface);
 }
 
 .mapper-related-meta {
-    font-size: 12px;
     color: var(--color-on-surface-v);
 }
 
@@ -1795,8 +1706,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
     color: var(--color-on-surface-v);
     margin-bottom: 16px;
 }
@@ -1816,6 +1725,5 @@
 }
 
 .empty-state-message {
-    font-size: 14px;
     color: var(--color-on-surface-v);
 }

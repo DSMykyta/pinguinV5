@@ -43,8 +43,6 @@
 .tab-content-header h2,
 .tab-header h2,
 .tab-title {
-    font-size: 24px;
-    font-weight: 600;
     color: var(--color-on-surface);
     margin: 0;
     display: flex;
@@ -59,9 +57,7 @@
 }
 
 .tab-stats {
-    font-size: 13px;
     color: var(--color-on-surface-variant);
-    font-weight: 400;
 }
 
 .tab-controls {

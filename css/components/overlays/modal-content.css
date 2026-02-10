@@ -11,8 +11,13 @@
  * - Split layout
  * - Article content
  *
+ * ТИПОГРАФІКА:
+ * Всі font-size/font-weight беруться з typography.css
+ * Тут залишаються лише layout та кольори
+ *
  * ЗАЛЕЖНОСТІ:
  * - modal.css (базова структура)
+ * - typography.css (розміри тексту)
  * - root.css (CSS змінні)
  */
 
@@ -26,7 +31,6 @@
 }
 
 .modal-confirm-message {
-    font-size: 16px;
     margin: 0 0 24px 0;
     color: var(--color-on-surface);
 }
@@ -65,14 +69,11 @@
 }
 
 .success-state-title {
-    font-size: 24px;
-    font-weight: 600;
     color: var(--color-on-surface);
     margin: 0;
 }
 
 .success-state-text {
-    font-size: 16px;
     color: var(--color-on-surface-v);
     margin: 0;
     text-align: center;
@@ -121,7 +122,6 @@
     min-height: 300px;
     max-height: 500px;
     overflow-y: auto;
-    font-size: 14px;
     line-height: 1.6;
     color: var(--color-on-surface);
     white-space: pre-wrap;
@@ -142,7 +142,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
     color: var(--color-on-surface-v);
 }
 
@@ -152,13 +151,10 @@
 }
 
 .product-text-stats .stat-item span:nth-child(2) {
-    font-size: 18px;
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
 .product-text-stats .stat-label {
-    font-size: 12px;
     white-space: nowrap;
 }
 
@@ -201,14 +197,11 @@
 
 .modal-section-title {
     margin: 0;
-    font-size: 18px;
-    font-weight: 600;
     line-height: 24px;
 }
 
 .modal-section-subtitle {
     margin: 0;
-    font-size: 13px;
     line-height: 18px;
     color: var(--color-on-surface-v);
 }
@@ -233,12 +226,10 @@
 }
 
 .modal-stat-label {
-    font-size: 12px;
     color: var(--color-on-surface-v);
 }
 
 .modal-stat-value {
-    font-size: 16px;
     font-weight: 600;
 }
 
@@ -312,7 +303,6 @@
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--color-outline-v);
-    font-size: 14px;
     font-weight: 600;
     color: var(--color-on-surface);
 }
@@ -339,7 +329,6 @@
     padding: 8px 12px;
     background: var(--color-surface-c-low);
     border-radius: var(--radius-s);
-    font-size: 13px;
     cursor: pointer;
     transition: background 0.15s ease;
 }
@@ -361,7 +350,6 @@
 }
 
 .modal-related-item-id {
-    font-size: 11px;
     color: var(--color-on-surface-v);
     font-family: var(--font-mono);
 }
@@ -383,7 +371,6 @@
 }
 
 .modal-related-empty-text {
-    font-size: 13px;
 }
 
 /* ============================================
@@ -436,26 +423,22 @@
 }
 
 /* ============================================
-   ARTICLE CONTENT
+   ARTICLE CONTENT (генерований HTML — потребує override)
    ============================================ */
 
 .article-content {
-    font-size: 14px;
     line-height: 1.6;
     color: var(--color-on-surface);
 }
 
 .article-content h2 {
     margin: 0 0 12px 0;
-    font-size: 20px;
-    font-weight: 600;
     color: var(--color-on-surface);
 }
 
 .article-content h3 {
     margin: 20px 0 8px 0;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 16px;
     color: var(--color-on-surface);
 }
 
@@ -487,7 +470,6 @@
     display: inline-block;
     padding: 2px 6px;
     font-family: var(--font-mono);
-    font-size: 12px;
     background: var(--color-surface-c-high);
     border-radius: var(--radius-xs);
     color: var(--color-primary);

@@ -100,9 +100,7 @@
     padding: 8px 12px;
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-xs, 4px);
-    font-size: 14px;
     background-color: var(--color-surface);
-    color: var(--color-on-surface);
     outline: none;
 }
 
@@ -122,8 +120,7 @@
 .custom-select-option {
     padding: 10px 16px;
     cursor: pointer;
-    transition: background-color 150ms ease-in-out, letter-spacing 150ms ease-in-out, font-style 150ms ease-in-out;
-    font-size: 14px;
+    transition: background-color 150ms ease-in-out;
     color: var(--color-on-surface);
     user-select: none;
 }
@@ -131,21 +128,16 @@
 /* Hover - тільки коли НЕ в keyboard mode */
 .custom-select-wrapper:not(.is-keyboard-nav) .custom-select-option:hover {
     background-color: var(--color-surface-c);
-    letter-spacing: 0.5px;
-    font-style: italic;
 }
 
 /* Keyboard focus - тільки коли в keyboard mode */
 .custom-select-wrapper.is-keyboard-nav .custom-select-option.is-focused {
     background-color: var(--color-surface-c);
-    letter-spacing: 0.5px;
-    font-style: italic;
 }
 
 .custom-select-option.is-selected {
     background-color: var(--color-main-c);
     color: var(--color-on-main-c);
-    font-weight: 600;
 }
 
 .custom-select-option.is-hidden {
@@ -160,8 +152,6 @@
     background-color: var(--color-secondary-c);
     color: var(--color-on-secondary-c);
     border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
     gap: 4px;
     max-width: 150px;
     overflow: hidden;
@@ -232,7 +222,11 @@
     padding: 16px;
     text-align: center;
     color: var(--color-on-surface-v);
-    font-size: 14px;
+}
+
+/* "Всі" text in value container */
+.custom-select-all-text {
+    color: var(--color-on-surface);
 }
 
 /* Select All option */
@@ -241,7 +235,6 @@
     align-items: center;
     gap: 8px;
     border-bottom: 1px solid var(--color-outline-v);
-    font-weight: 500;
 }
 
 .custom-select-option-all .select-all-checkbox {
@@ -250,8 +243,3 @@
     pointer-events: none;
 }
 
-/* "Всі" text in value container */
-.custom-select-all-text {
-    color: var(--color-on-surface);
-    font-weight: 500;
-}

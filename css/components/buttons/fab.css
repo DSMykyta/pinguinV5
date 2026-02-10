@@ -82,10 +82,6 @@
 }
 
 .fab-extended .fab-label {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    letter-spacing: 0.1px;
     position: relative;
     z-index: 1;
 }
