@@ -11,7 +11,7 @@
 import { brandsState } from './brands-state.js';
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
-import { loadBrands, getBrands } from './brands-data.js';
+import { loadBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
 import { initTableSorting } from '../common/ui-table-controls.js';
 
@@ -23,64 +23,6 @@ export function initBrandsEvents() {
     initRefreshButton();
     initLinesRefreshButton();
 
-}
-
-/**
- * Ініціалізувати сортування таблиці брендів
- * @returns {Object} API сортування
- */
-export function initBrandsSorting() {
-    const container = document.getElementById('brands-table-container');
-    if (!container) {
-        console.warn('⚠️ brands-table-container не знайдено');
-        return null;
-    }
-
-    const sortAPI = initTableSorting(container, {
-        dataSource: () => {
-            const lines = brandsState.brandLines || [];
-            return getBrands().map(b => {
-                b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
-                return b;
-            });
-        },
-        onSort: async (sortedData) => {
-            // Оновити масив брендів в state
-            brandsState.brands = sortedData;
-
-            // Перерендерити таблицю
-            await renderBrandsTable();
-
-            // Відновити візуальні індикатори після рендерингу
-            const sortState = sortAPI.getState();
-            if (sortState.column && sortState.direction) {
-                const { updateSortIndicators } = await import('../common/ui-table-controls.js');
-                updateSortIndicators(container, sortState.column, sortState.direction);
-            }
-        },
-        columnTypes: {
-            brand_id: 'id-text',
-            name_uk: 'string',
-            names_alt: 'string',
-            country_option_id: 'string',
-            brand_text: 'string',
-            brand_site_link: 'string',
-            lines_count: 'number'
-        },
-        filterColumns: [
-            { id: 'country_option_id', label: 'Країна', filterType: 'values' },
-            { id: 'brand_status', label: 'Статус', filterType: 'values' }
-        ],
-        onFilter: (filters) => {
-            brandsState.columnFilters = filters;
-            brandsState.pagination.currentPage = 1;
-            runHook('onRender');
-        }
-    });
-
-    brandsState.sortAPI = sortAPI;
-
-    return sortAPI;
 }
 
 /**
@@ -191,7 +133,7 @@ export function initBrandsSearch(searchInput) {
 // Реєструємо на хук onInit — ініціалізуємо обробники подій
 registerBrandsPlugin('onInit', () => {
     initBrandsEvents();
-    initBrandsSorting();
+    // Сортування брендів тепер вбудоване в Table LEGO (brands-table.js)
     initLinesSorting();
 });
 

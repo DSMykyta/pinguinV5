@@ -72,8 +72,14 @@ export class FiltersPlugin {
         // Додаємо обробники після рендерингу
         this.state.registerHook('onRender', () => this.attachHandlers());
 
-        // Закриваємо dropdown при зміні даних
-        this.state.registerHook('onDataChange', () => this.closeDropdown());
+        // При зміні даних: закриваємо dropdown і перезастосовуємо фільтри
+        this.state.registerHook('onDataChange', () => {
+            this.closeDropdown();
+            const filters = this.state.getFilters();
+            if (Object.keys(filters).length > 0) {
+                this.applyFilters();
+            }
+        });
     }
 
     /**
@@ -765,12 +771,21 @@ export class FiltersPlugin {
         this.state.setTotalItems(data.length);
         this.state.setPage(1);
 
+        // Перезастосовуємо сортування якщо активне
+        const sort = this.state.getSort();
+        if (sort.column && sort.direction) {
+            const sortPlugin = this.table.plugins.find(p => typeof p.sortData === 'function');
+            if (sortPlugin) {
+                sortPlugin.sortData(sort.column, sort.direction);
+            }
+        }
+
         // Оновлюємо індикатори
         this.updateFilterIndicators();
 
         // Викликаємо callback
         if (this.config.onFilter) {
-            this.config.onFilter(filters, data);
+            this.config.onFilter(filters, this.state.getFilteredData());
         }
     }
 
