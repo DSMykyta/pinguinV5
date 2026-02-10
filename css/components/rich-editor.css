@@ -56,36 +56,6 @@
     margin: 0 4px;
 }
 
-/* Кнопки тулбару */
-.rich-editor-toolbar .btn-icon {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-xs, 4px);
-    background: transparent;
-    color: var(--color-on-surface-v);
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.rich-editor-toolbar .btn-icon:hover {
-    background: var(--color-surface-c-high);
-    color: var(--color-on-surface);
-}
-
-.rich-editor-toolbar .btn-icon.active {
-    background: var(--color-main);
-    color: var(--color-on-main);
-}
-
-.rich-editor-toolbar .btn-icon .material-symbols-outlined {
-    font-size: 20px;
-}
-
 /* ============================================================================
    ОБЛАСТЬ РЕДАКТОРА (contentEditable)
    ============================================================================ */
@@ -132,34 +102,30 @@
     pointer-events: none;
 }
 
-/* Фокус */
-.rich-editor-content.focused {
-    /* Можна додати рамку якщо потрібно */
-}
-
 /* ============================================================================
    ФОРМАТУВАННЯ КОНТЕНТУ
    ============================================================================ */
 
+.rich-editor-content h1,
+.rich-editor-content h2,
+.rich-editor-content h3 {
+    margin: 0.5em 0;
+    color: var(--color-on-surface);
+}
+
 .rich-editor-content h1 {
     font-size: 1.75em;
     font-weight: 700;
-    margin: 0.5em 0;
-    color: var(--color-on-surface);
 }
 
 .rich-editor-content h2 {
     font-size: 1.5em;
     font-weight: 600;
-    margin: 0.5em 0;
-    color: var(--color-on-surface);
 }
 
 .rich-editor-content h3 {
     font-size: 1.25em;
     font-weight: 600;
-    margin: 0.5em 0;
-    color: var(--color-on-surface);
 }
 
 .rich-editor-content p {
@@ -235,24 +201,6 @@
         padding: 12px;
         min-height: 150px;
     }
-}
-
-/* ============================================================================
-   ТЕМНА ТЕМА (якщо потрібно)
-   ============================================================================ */
-
-[data-theme="dark"] .rich-editor-container {
-    border-color: var(--border-color-dark);
-}
-
-[data-theme="dark"] .rich-editor-toolbar {
-    background: var(--bg-secondary-dark);
-    border-color: var(--border-color-dark);
-}
-
-[data-theme="dark"] .rich-editor-content {
-    background: var(--bg-primary-dark);
-    color: var(--text-primary-dark);
 }
 
 /* ============================================================================
