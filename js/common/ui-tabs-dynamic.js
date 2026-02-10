@@ -248,7 +248,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
             message: `Ви впевнені, що хочете закрити "${tabLabel}"?`,
             confirmText: 'Закрити',
             cancelText: 'Скасувати',
-            confirmClass: 'btn-danger',
+            confirmClass: 'btn-delete',
             avatarState: 'confirmClose',
             avatarSize: 'small'
         });

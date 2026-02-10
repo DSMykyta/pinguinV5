@@ -203,7 +203,7 @@ async function showDeleteCharacteristicConfirm(id) {
         message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger'
+        confirmClass: 'btn-delete'
     });
 
     if (confirmed) {

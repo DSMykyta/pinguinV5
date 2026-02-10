@@ -194,7 +194,7 @@ async function showDeleteCategoryConfirm(id) {
         message: `Ви впевнені, що хочете видалити категорію "${category.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger'
+        confirmClass: 'btn-delete'
     });
 
     if (confirmed) {

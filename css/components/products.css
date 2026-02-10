@@ -1050,14 +1050,6 @@
     width: 100%;
 }
 
-.btn-danger {
-    color: var(--color-error);
-}
-
-.btn-danger:hover {
-    background: var(--color-error-c);
-}
-
 /* .text-muted - use global styles from pseudo-table.css */
 
 /* Badge styles - use global styles from badge.css */

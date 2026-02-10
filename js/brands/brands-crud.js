@@ -127,7 +127,7 @@ export async function showDeleteBrandConfirm(brandId) {
         message: `Ви впевнені, що хочете видалити бренд "${brand.name_uk}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger'
+        confirmClass: 'btn-delete'
     });
 
     if (confirmed) {
@@ -582,7 +582,7 @@ function addLinkRow(link = { name: '', url: '' }) {
             message: `Ви впевнені, що хочете видалити "${linkName}"?`,
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            confirmClass: 'btn-danger'
+            confirmClass: 'btn-delete'
         });
 
         if (confirmed) {

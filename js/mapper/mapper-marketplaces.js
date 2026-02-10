@@ -145,7 +145,7 @@ async function showDeleteMarketplaceConfirm(id) {
         message: `Ви впевнені, що хочете видалити маркетплейс "${marketplace.name}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger'
+        confirmClass: 'btn-delete'
     });
 
     if (confirmed) {

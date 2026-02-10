@@ -199,7 +199,7 @@ async function showDeleteOptionConfirm(id) {
         message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger'
+        confirmClass: 'btn-delete'
     });
 
     if (confirmed) {

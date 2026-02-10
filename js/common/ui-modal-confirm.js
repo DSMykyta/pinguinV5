@@ -31,7 +31,7 @@ import { renderAvatarState } from './avatar/avatar-ui-states.js';
  * Автоматично визначає який аватар показати
  */
 const BUTTON_TO_AVATAR_STATE = {
-    'btn-danger': 'confirmDelete',
+    'btn-delete': 'confirmDelete',
     'btn-warning': 'confirmReset',
     'btn-primary': 'confirmClose',
     'btn-secondary': 'confirmClose'
@@ -53,7 +53,7 @@ const DEFAULT_AVATAR_STATE = 'confirmClose';
  * @param {string} options.message - Текст повідомлення
  * @param {string} options.confirmText - Текст кнопки підтвердження (за замовчуванням 'Так')
  * @param {string} options.cancelText - Текст кнопки скасування (за замовчуванням 'Ні')
- * @param {string} options.confirmClass - Клас для кнопки підтвердження (за замовчуванням 'btn-danger')
+ * @param {string} options.confirmClass - Клас для кнопки підтвердження (за замовчуванням 'btn-delete')
  * @param {string|false} options.avatarState - Тип стану аватара або false для вимкнення
  *   - 'confirmClose' - закриття
  *   - 'confirmReset' - скидання
@@ -71,7 +71,7 @@ const DEFAULT_AVATAR_STATE = 'confirmClose';
  *   message: 'Ця дія незворотна. Ви впевнені?',
  *   confirmText: 'Видалити',
  *   cancelText: 'Скасувати',
- *   confirmClass: 'btn-danger'  // → автоматично avatarState: 'confirmDelete'
+ *   confirmClass: 'btn-delete'  // → автоматично avatarState: 'confirmDelete'
  * });
  *
  * @example
@@ -98,7 +98,7 @@ export async function showConfirmModal(options = {}) {
         message = 'Ви впевнені?',
         confirmText = 'Так',
         cancelText = 'Ні',
-        confirmClass = 'btn-danger',
+        confirmClass = 'btn-delete',
         avatarState = null,  // null = автовизначення
         avatarSize = 'lg'
     } = options;
@@ -225,7 +225,7 @@ export async function showDeleteConfirm(options = {}) {
         message: message || 'Ця дія незворотна. Ви впевнені?',
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-danger',
+        confirmClass: 'btn-delete',
         avatarState: 'confirmDelete'
     });
 }
@@ -275,7 +275,7 @@ export async function showCloseConfirm(options = {}) {
         message,
         confirmText: 'Закрити',
         cancelText: 'Залишити',
-        confirmClass: 'btn-danger',
+        confirmClass: 'btn-delete',
         avatarState: 'confirmClose'
     });
 }
