@@ -9,7 +9,7 @@
                 </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="brand-modal-title">Новий бренд</h1>
-                    <span class="badge badge-success" id="brand-status-badge">Активний</span>
+                    <span class="status-dot" id="brand-status-badge" style="background-color: var(--color-success);" title="Активний"></span>
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
@@ -61,7 +61,7 @@
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ 1: ІНФОРМАЦІЯ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-info" >
+                <section id="section-brand-info">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -76,13 +76,25 @@
                         <input type="hidden" id="brand-id">
 
                         <!-- Назва -->
-                        <div class="form-group">
-                            <label for="brand-name-uk">
-                                Назва бренду
-                                <span class="required">*</span>
-                            </label>
-                            <input type="text" id="brand-name-uk" class="input-main"
-                                placeholder="Наприклад: Optimum Nutrition" required>
+
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="brand-name-uk">
+                                    Назва бренду
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="brand-name-uk" class="input-main"
+                                    placeholder="Наприклад: Optimum Nutrition" required>
+                            </div>
+
+                            <!-- Країна -->
+                            <div class="form-group">
+                                <label for="brand-country">Країна</label>
+                                <input type="text" id="brand-country" class="input-main"
+                                    placeholder="Наприклад: Польща, США">
+                                <small class="form-hint">Пізніше буде вибір з опцій Mapper</small>
+                            </div>
+
                         </div>
 
                         <!-- Альтернативні назви -->
@@ -93,21 +105,13 @@
                             </div>
                             <small class="form-hint">Використовується для пошуку та розпізнавання бренду</small>
                         </div>
-
-                        <!-- Країна -->
-                        <div class="form-group">
-                            <label for="brand-country">Країна</label>
-                            <input type="text" id="brand-country" class="input-main"
-                                placeholder="Наприклад: Польща, США">
-                            <small class="form-hint">Пізніше буде вибір з опцій Mapper</small>
-                        </div>
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ 2: ПОСИЛАННЯ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-links" >
+                <section id="section-brand-links">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -133,7 +137,7 @@
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ 3: ТЕКСТ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-text" >
+                <section id="section-brand-text">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -144,14 +148,46 @@
                     </div>
 
                     <div id="brand-text-editor-container" class="section-content-full-height">
-                            <!-- UI Editor буде вставлений через JS -->
+                        <!-- UI Editor буде вставлений через JS -->
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 4: НАЛАШТУВАННЯ -->
+                <!-- СЕКЦІЯ 4: ЛІНІЙКИ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-settings" >
+                <section id="section-brand-lines">
+                    <div class="section-header u-align-end">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Лінійки бренду</h2>
+                            </div>
+                            <h3 class="small" id="brand-lines-stats">Показано 0 з 0</h3>
+                        </div>
+                        <div class="tab-controls">
+                            <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
+                            <div class="search-container">
+                                <span class="material-symbols-outlined">search</span>
+                                <input type="text" id="brand-lines-search" class="input-main"
+                                    placeholder="Пошук лінійок...">
+                            </div>
+                            <button class="btn-outline" id="btn-add-brand-line">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Додати лінійку</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="brand-lines-container" class="pseudo-table-container">
+                        <!-- Динамічний список лінійок додається через JS -->
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 5: НАЛАШТУВАННЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-settings">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -209,37 +245,6 @@
                                 <input type="hidden" id="brand-mapper-option-id">
                             </div>
                         </div>
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 5: ЛІНІЙКИ -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-lines" >
-                    <div class="section-header u-align-end">
-                        <div class="section-name-block">
-                            <div class="section-name">
-                                <h2 class="section-upper">Лінійки бренду</h2>
-                            </div>
-                            <h3 class="small" id="brand-lines-stats">Показано 0 з 0</h3>
-                        </div>
-                        <div class="tab-controls">
-                            <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
-                            <div class="search-container">
-                                <span class="material-symbols-outlined">search</span>
-                                <input type="text" id="brand-lines-search" class="input-main" placeholder="Пошук лінійок...">
-                            </div>
-                            <button class="btn-outline" id="btn-add-brand-line">
-                                <span class="material-symbols-outlined">add</span>
-                                <span>Додати лінійку</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="brand-lines-container" class="pseudo-table-container">
-                        <!-- Динамічний список лінійок додається через JS -->
                     </div>
                 </section>
 

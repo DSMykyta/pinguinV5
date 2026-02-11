@@ -689,11 +689,12 @@ function fillBrandForm(brand) {
     const statusRadio = document.querySelector(`input[name="brand-status"][value="${brand.brand_status || 'active'}"]`);
     if (statusRadio) statusRadio.checked = true;
 
-    // Статус badge
+    // Статус dot
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
-        statusBadge.textContent = brand.brand_status === 'inactive' ? 'Неактивний' : 'Активний';
-        statusBadge.className = `badge ${brand.brand_status === 'inactive' ? 'badge-warning' : 'badge-success'}`;
+        const isActive = brand.brand_status !== 'inactive';
+        statusBadge.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+        statusBadge.title = isActive ? 'Активний' : 'Неактивний';
     }
 
     // Посилання
@@ -740,11 +741,11 @@ function clearBrandForm() {
     const statusRadio = document.querySelector('input[name="brand-status"][value="active"]');
     if (statusRadio) statusRadio.checked = true;
 
-    // Статус badge
+    // Статус dot
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
-        statusBadge.textContent = 'Активний';
-        statusBadge.className = 'badge badge-success';
+        statusBadge.style.backgroundColor = 'var(--color-success)';
+        statusBadge.title = 'Активний';
     }
 
     // Посилання
