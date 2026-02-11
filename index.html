@@ -178,7 +178,8 @@
                     </div>
                     <h3 class="small">Редактор тексту з підсвічуванням</h3>
                 </div>
-                <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
+                <button id="reload-section-highlight" class="btn-icon btn-reload text-disabled"
+                    aria-label="Перезавантажити">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
             </div>
@@ -204,13 +205,16 @@
                         <button id="ghl-format-list" class="btn-icon" title="Список" aria-label="Список">
                             <span class="material-symbols-outlined">format_list_bulleted</span>
                         </button>
-                        <button id="ghl-format-lowercase" class="btn-icon" title="всі маленькі" aria-label="Нижній регістр">
+                        <button id="ghl-format-lowercase" class="btn-icon" title="всі маленькі"
+                            aria-label="Нижній регістр">
                             <span class="material-symbols-outlined">lowercase</span>
                         </button>
-                        <button id="ghl-format-uppercase" class="btn-icon" title="ВСІ ВЕЛИКІ" aria-label="Верхній регістр">
+                        <button id="ghl-format-uppercase" class="btn-icon" title="ВСІ ВЕЛИКІ"
+                            aria-label="Верхній регістр">
                             <span class="material-symbols-outlined">uppercase</span>
                         </button>
-                        <button id="ghl-format-titlecase" class="btn-icon" title="Кожне Слово З Великої" aria-label="Кожне слово з великої">
+                        <button id="ghl-format-titlecase" class="btn-icon" title="Кожне Слово З Великої"
+                            aria-label="Кожне слово з великої">
                             <span class="material-symbols-outlined">match_case</span>
                         </button>
                         <div class="toolbar-separator"></div>
@@ -226,9 +230,11 @@
                     </div>
                 </div>
                 <!-- Режим тексту: WYSIWYG редактор -->
-                <div id="ghl-editor" class="rich-editor-content" contenteditable="true" data-placeholder="Вставте сюди текст для перевірки..."></div>
+                <div id="ghl-editor" class="rich-editor-content" contenteditable="true"
+                    data-placeholder="Вставте сюди текст для перевірки..."></div>
                 <!-- Режим коду -->
-                <textarea id="ghl-code-editor" class="input-main rich-editor-code" style="display: none;" placeholder="HTML код..."></textarea>
+                <textarea id="ghl-code-editor" class="input-main rich-editor-code" style="display: none;"
+                    placeholder="HTML код..."></textarea>
             </div>
             <div id="ghl-text-stats" class="text-stats-container">
                 <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
@@ -373,14 +379,14 @@
                     <div class="image-tool-wrapper">
                         <div class="compound-input-row">
                             <div class="compound-input">
-                                <input type="url" id="gim-image-url" class="ci-value" placeholder="Вставте URL зображення...">
+                                <span class="material-symbols-outlined">link</span>
+                                <input type="url" id="gim-image-url" class="ci-value"
+                                    placeholder="Вставте URL зображення...">
+                                <button type="button" id="gim-load-url-btn" class="btn-icon ci-action"
+                                    data-tooltip="Додати URL">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
                             </div>
-                            <button type="button" id="gim-load-url-btn" class="btn-icon ci-action" data-tooltip="Додати URL">
-                                <span class="material-symbols-outlined">add</span>
-                            </button>
-                            <button type="button" class="btn-icon ci-remove" data-tooltip="Очистити">
-                                <span class="material-symbols-outlined">close</span>
-                            </button>
                         </div>
                         <div class="canvas-area">
 

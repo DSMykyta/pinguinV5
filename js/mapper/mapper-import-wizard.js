@@ -195,19 +195,19 @@ function renderStep2() {
             </p>
 
             <div class="tree-toolbar">
-                <button class="btn btn-text" id="tree-select-all">
+                <button class="btn-text" id="tree-select-all">
                     <span class="material-symbols-outlined">check_box</span>
                     Вибрати все
                 </button>
-                <button class="btn btn-text" id="tree-deselect-all">
+                <button class="btn-text" id="tree-deselect-all">
                     <span class="material-symbols-outlined">check_box_outline_blank</span>
                     Зняти все
                 </button>
-                <button class="btn btn-text" id="tree-expand-all">
+                <button class="btn-text" id="tree-expand-all">
                     <span class="material-symbols-outlined">unfold_more</span>
                     Розгорнути
                 </button>
-                <button class="btn btn-text" id="tree-collapse-all">
+                <button class="btn-text" id="tree-collapse-all">
                     <span class="material-symbols-outlined">unfold_less</span>
                     Згорнути
                 </button>
@@ -698,7 +698,7 @@ async function executeImport() {
         if (buttons) {
             buttons.style.display = 'flex';
             buttons.innerHTML = `
-                <button class="btn btn-primary" id="wizard-close">Закрити</button>
+                <button class="btn-primary" id="wizard-close">Закрити</button>
             `;
             document.getElementById('wizard-close')?.addEventListener('click', () => {
                 closeModal('mapper-import-wizard');
@@ -835,19 +835,19 @@ function updateWizardButtons() {
 
     buttons.innerHTML = `
         ${canBack ? `
-            <button class="btn btn-text" id="wizard-back">
+            <button class="btn-text" id="wizard-back">
                 <span class="material-symbols-outlined">arrow_back</span>
                 Назад
             </button>
         ` : '<div></div>'}
 
         ${isLastStep ? `
-            <button class="btn btn-primary" id="wizard-import" ${canNext ? '' : 'disabled'}>
+            <button class="btn-primary" id="wizard-import" ${canNext ? '' : 'disabled'}>
                 <span class="material-symbols-outlined">download</span>
                 Імпортувати
             </button>
         ` : `
-            <button class="btn btn-primary" id="wizard-next" ${canNext ? '' : 'disabled'}>
+            <button class="btn-primary" id="wizard-next" ${canNext ? '' : 'disabled'}>
                 Далі
                 <span class="material-symbols-outlined">arrow_forward</span>
             </button>

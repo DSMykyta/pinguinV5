@@ -357,8 +357,8 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-outline modal-cancel-btn">Скасувати</button>
-                    <button class="btn btn-primary modal-confirm-btn">Додати</button>
+                    <button class="btn-outline modal-cancel-btn">Скасувати</button>
+                    <button class="btn-primary modal-confirm-btn">Додати</button>
                 </div>
             </div>
         </div>
@@ -635,8 +635,8 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
-                    <button class="btn btn-primary" id="btn-confirm-category-mapping">
+                    <button class="btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn-primary" id="btn-confirm-category-mapping">
                         <span class="material-symbols-outlined">link</span>
                         <span>Замапити</span>
                     </button>
@@ -861,7 +861,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
                 <h3>Прив'язані категорії маркетплейсів</h3>
             </div>
             <div class="tab-controls">
-                <button class="btn btn-outline btn-map-mp">
+                <button class="btn-outline btn-map-mp">
                     <span class="material-symbols-outlined">link</span>
                     <span>Замапити</span>
                 </button>

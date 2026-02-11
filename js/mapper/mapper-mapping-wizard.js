@@ -389,7 +389,7 @@ function renderDone(body) {
                 Замаплено зв'язків: <strong>${results.mapped}</strong><br>
                 Пропущено: <strong>${results.skipped}</strong>
             </div>
-            <button class="btn btn-primary u-mt-16" onclick="document.querySelector('[data-modal-close]')?.click()">
+            <button class="btn-primary u-mt-16" onclick="document.querySelector('[data-modal-close]')?.click()">
                 Закрити
             </button>
         </div>

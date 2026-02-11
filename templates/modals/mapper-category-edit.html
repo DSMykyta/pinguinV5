@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
-                <button class="btn btn-primary" id="save-mapper-category">
+                <button class="btn-primary" id="save-mapper-category">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
                 </button>
@@ -62,11 +62,6 @@
 
                     <div class="section-content">
                         <!-- Прив'язки -->
-                        <div class="form-section-title">
-                            <span class="material-symbols-outlined">account_tree</span>
-                            <span>Ієрархія</span>
-                        </div>
-
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
                                 <label for="mapper-category-parent">Батьківська категорія</label>
@@ -76,17 +71,20 @@
                                 <p class="form-hint">Оберіть категорію вищого рівня</p>
                             </div>
 
+                        <!-- Тип категорії -->
                             <div class="form-group">
-                                <!-- Порожній для балансу -->
+                                <label>Групуюча категорія</label>
+                                <div class="switch-container switch-sm" id="mapper-category-grouping-switch">
+                                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false" checked>
+                                    <label for="mapper-category-grouping-no" class="switch-label">Ні</label>
+                                    <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
+                                    <label for="mapper-category-grouping-yes" class="switch-label">Так</label>
+                                </div>
+                                <p class="form-hint">Групуючі категорії містять підкатегорії, а не товари</p>
                             </div>
                         </div>
 
                         <!-- Назва -->
-                        <div class="form-section-title u-mt-24">
-                            <span class="material-symbols-outlined">edit</span>
-                            <span>Назва</span>
-                        </div>
-
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
                                 <label for="mapper-category-name-ua">
@@ -99,29 +97,6 @@
                             <div class="form-group">
                                 <label for="mapper-category-name-ru">Назва (RU)</label>
                                 <input type="text" id="mapper-category-name-ru" class="input-main" placeholder="Назва російською">
-                            </div>
-                        </div>
-
-                        <!-- Тип категорії -->
-                        <div class="form-section-title u-mt-24">
-                            <span class="material-symbols-outlined">category</span>
-                            <span>Тип</span>
-                        </div>
-
-                        <div class="form-grid form-grid-2">
-                            <div class="form-group">
-                                <label>Групуюча категорія</label>
-                                <div class="switch-container switch-sm" id="mapper-category-grouping-switch">
-                                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false" checked>
-                                    <label for="mapper-category-grouping-no" class="switch-label">Ні</label>
-                                    <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
-                                    <label for="mapper-category-grouping-yes" class="switch-label">Так</label>
-                                </div>
-                                <p class="form-hint">Групуючі категорії містять підкатегорії, а не товари</p>
-                            </div>
-
-                            <div class="form-group">
-                                <!-- Порожній для балансу -->
                             </div>
                         </div>
                     </div>
@@ -141,7 +116,7 @@
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="category-chars-search" class="input-main" placeholder="Пошук характеристик...">
                             </div>
-                            <button class="btn btn-outline" id="btn-add-category-char">
+                            <button class="btn-outline" id="btn-add-category-char">
                                 <span class="material-symbols-outlined">add</span>
                                 <span>Додати</span>
                             </button>

@@ -39,7 +39,7 @@ button {
 
     /* Size */
     padding: 8px 16px;
-    border-radius: 20px;
+    border-radius: 8px;
 
     /* Typography */
     font-family: 'DM Sans', sans-serif;
@@ -54,6 +54,7 @@ button {
 
 /* Стани кнопки */
 button:active:not(.tab-close-btn),
+button:hover:not(.tab-close-btn),
 .nav-icon {
     transform: scale(0.98);
 }

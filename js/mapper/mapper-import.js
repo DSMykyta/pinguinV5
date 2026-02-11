@@ -1507,8 +1507,8 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
-                    <button class="btn btn-primary" id="btn-confirm-category-mapping">
+                    <button class="btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn-primary" id="btn-confirm-category-mapping">
                         <span class="material-symbols-outlined">link</span>
                         <span>Замапити</span>
                     </button>

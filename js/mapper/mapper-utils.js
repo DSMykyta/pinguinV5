@@ -188,7 +188,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Закрити</button>
+                    <button class="btn-secondary modal-close-btn">Закрити</button>
                 </div>
             </div>
         </div>

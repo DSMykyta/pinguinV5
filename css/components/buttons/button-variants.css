@@ -2,10 +2,9 @@
  * COMPONENT: Button Variants
  *
  * ПРИЗНАЧЕННЯ:
- * Додаткові варіанти кнопок (базові, delete, reload, move).
+ * Додаткові варіанти кнопок (delete, reload, move).
  *
  * ВИКОРИСТАННЯ:
- * <button class="btn">Базова кнопка</button>
  * <button class="btn-delete">Видалити</button>
  * <button class="btn-reload">Оновити</button>
  * <button class="move-btn"><span class="material-symbols-outlined">drag_handle</span></button>
@@ -13,26 +12,6 @@
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-error, --color-main, --color-on-surface-v)
  */
-
-/* Базова кнопка */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 8px;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: var(--color-surface-c-high);
-    color: var(--color-on-surface);
-}
-
-.btn:hover {
-    background: var(--color-main-c);
-    color: var(--color-main);
-}
 
 /* Кнопка видалення */
 .btn-delete {

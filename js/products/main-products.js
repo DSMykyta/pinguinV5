@@ -568,7 +568,7 @@ function renderGroupsTab() {
     });
 
     html += `
-            <button class="btn btn-outline group-add-btn">
+            <button class="btn-outline group-add-btn">
                 <span class="material-symbols-outlined">add</span>
                 Створити групу зв'язків
             </button>
@@ -898,7 +898,7 @@ async function openVariantsModal(productId) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary" id="btn-add-variant-modal">
+                    <button class="btn-primary" id="btn-add-variant-modal">
                         <span class="material-symbols-outlined">add</span>
                         Додати варіант
                     </button>

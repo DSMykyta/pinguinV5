@@ -57,6 +57,7 @@
     display: flex;
     align-items: center;
     flex: 1;
+    gap: 8px;
     padding: 8px 16px;
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-s, 8px);
@@ -79,8 +80,8 @@
 /* ВНУТРІШНІ ІНПУТИ                            */
 /* ============================================ */
 
-.compound-input .ci-prefix,
-.compound-input .ci-value {
+.ci-prefix,
+.ci-value {
     border: none;
     background: transparent;
     padding: 0;
@@ -92,7 +93,7 @@
 }
 
 /* Префікс — короткий лейбл зліва */
-.compound-input .ci-prefix {
+.ci-prefix {
     flex: 0 0 auto;
     width: 50px;
     text-align: center;
@@ -103,16 +104,8 @@
 }
 
 /* Основне поле */
-.compound-input .ci-value {
+.ci-value {
     flex: 1;
-}
-
-/* ============================================ */
-/* КНОПКИ ДІЙ                                  */
-/* ============================================ */
-
-.compound-input-row .btn-icon {
-    flex-shrink: 0;
 }
 
 /* ============================================ */

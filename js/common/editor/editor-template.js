@@ -70,7 +70,7 @@ export function createEditorTemplate(id, config) {
             <div class="editor-find-replace">
                 <input type="text" id="${id}-find-input" class="input-main input-small" placeholder="Що знайти...">
                 <input type="text" id="${id}-replace-input" class="input-main input-small" placeholder="На що замінити...">
-                <button type="button" class="btn btn-small" id="${id}-replace-all-btn">Замінити все</button>
+                <button type="button" class="btn-small" id="${id}-replace-all-btn">Замінити все</button>
             </div>
             ` : ''}
 

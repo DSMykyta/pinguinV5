@@ -653,7 +653,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
                 <h3>Прив'язані характеристики маркетплейсів</h3>
             </div>
             <div class="tab-controls">
-                <button class="btn btn-outline btn-map-mp">
+                <button class="btn-outline btn-map-mp">
                     <span class="material-symbols-outlined">link</span>
                     <span>Замапити</span>
                 </button>
@@ -759,8 +759,8 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary modal-close-btn">Скасувати</button>
-                    <button id="btn-apply-char-mapping" class="btn btn-primary">
+                    <button class="btn-secondary modal-close-btn">Скасувати</button>
+                    <button id="btn-apply-char-mapping" class="btn-primary">
                         <span class="material-symbols-outlined">link</span>
                         <span>Замапити</span>
                     </button>
