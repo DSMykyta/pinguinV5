@@ -4,14 +4,27 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    TABLE LEGO - COLUMN TYPES                            ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  РЕЄСТР — Стандартні типи колонок з готовими render-функціями           ║
- * ║                                                                          ║
- * ║  ПРИЗНАЧЕННЯ:                                                            ║
- * ║  Уніфікація column definitions по всіх сторінках.                        ║
+ * ║  Реєстр стандартних типів колонок з готовими render-функціями.          ║
  * ║  Кожна сторінка описує колонки через col() замість ручного конфігу.     ║
+ * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
- * ║  ЕКСПОРТОВАНІ:                                                           ║
- * ║  - COLUMN_TYPES — Реєстр 11 стандартних типів                           ║
+ * ║  ТИПИ (13):                                                              ║
+ * ║  1.  word-chip     — ID, коди, артикули         [chip]                  ║
+ * ║  2.  name          — головна назва              <strong>                ║
+ * ║  3.  text          — звичайний текст            escaped string          ║
+ * ║  4.  status-dot    — кольорова крапка статусу   ● active/inactive      ║
+ * ║  5.  badge-toggle  — перемикач Так/Ні           clickable badge         ║
+ * ║  6.  severity-badge— іконка важливості          low/medium/high        ║
+ * ║  7.  counter       — число з badge              N×                      ║
+ * ║  8.  words-list    — список chips               first +N               ║
+ * ║  9.  photo         — зображення/placeholder     <img> / icon           ║
+ * ║  10. input         — редагований інпут          <input> або текст      ║
+ * ║  11. binding-chip  — чіп з tooltip              {count, tooltip}       ║
+ * ║  12. code          — технічне значення          <code>                  ║
+ * ║  13. select        — custom-select dropdown     <select> + options     ║
+ * ║                                                                          ║
+ * ║  ЕКСПОРТ:                                                               ║
+ * ║  - COLUMN_TYPES — Реєстр типів                                         ║
  * ║  - col(id, label, type, overrides) — Фабрика колонок                    ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -20,9 +33,9 @@ import { renderBadge, renderSeverityBadge } from './table-badges.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 /**
- * Стандартні типи колонок.
+ * Стандартні типи колонок (13 типів).
  * Кожен тип задає: className, sortable, searchable, render.
- * Сторінка може override-нути будь-яку властивість через col() overrides.
+ * Override render ЗАБОРОНЕНО — тільки структурні overrides (className, sortable, filterable тощо).
  */
 export const COLUMN_TYPES = {
 
@@ -132,6 +145,30 @@ export const COLUMN_TYPES = {
             if (!value || value.count == null) return '';
             const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip chip-active';
             return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
+        }
+    },
+
+    // 12. Code — технічне значення (slug, type, enum)
+    code: {
+        className: '',
+        sortable: true,
+        searchable: true,
+        render: (value) => value ? `<code>${escapeHtml(value)}</code>` : ''
+    },
+
+    // 13. Select — custom-select dropdown (потребує initCustomSelects після рендеру)
+    select: {
+        className: 'cell-m',
+        sortable: false,
+        render: (value, row, col) => {
+            const options = col.options || [];
+            const optionsHtml = options.map(opt => {
+                const optValue = typeof opt === 'string' ? opt : opt.value;
+                const optLabel = typeof opt === 'string' ? opt : opt.label;
+                const selected = String(optValue) === String(value ?? '') ? ' selected' : '';
+                return `<option value="${escapeHtml(optValue)}"${selected}>${escapeHtml(optLabel)}</option>`;
+            }).join('');
+            return `<select data-custom-select data-row-id="${escapeHtml(row.id || row.code || '')}" data-column-id="${escapeHtml(col.id || '')}"><option value="">—</option>${optionsHtml}</select>`;
         }
     }
 };

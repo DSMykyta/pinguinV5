@@ -276,7 +276,7 @@ function renderBindingsTooltip(bindingsInfo, entityType) {
  */
 function createBindingsColumn(entityType) {
     return {
-        id: '_bindings',
+        id: 'bindings',
         label: 'Прів.',
         sortable: true,
         className: 'cell-xs cell-center',
@@ -430,19 +430,24 @@ export function renderCurrentTab() {
  */
 function getCategoriesData() {
     const categories = getCategories().map(cat => {
-        // Обчислити рівень вкладеності
+        // Обчислити рівень вкладеності + breadcrumb шлях
         let level = 0;
         let current = cat;
+        const path = [cat.name_ua || cat.id];
+
         while (current && current.parent_id) {
             level++;
             const parent = findParentCategory(current.parent_id, null);
             if (parent) {
+                path.unshift(parent.name_ua || parent.id);
                 current = parent;
             } else {
                 break;
             }
             if (level > 10) break;
         }
+
+        const nestingTooltip = level === 0 ? 'Коренева категорія' : path.join(' → ');
 
         // Резолвити parent_id → назва
         const parentName = cat.parent_id
@@ -454,7 +459,7 @@ function getCategoriesData() {
 
         return {
             ...cat,
-            _nestingLevel: level,
+            _nestingLevel: { count: level, tooltip: nestingTooltip },
             parent_id: parentName,
             grouping,
             _editable: true
@@ -470,7 +475,7 @@ function getCategoriesData() {
 export function getCategoriesColumns(allCategories) {
     return [
         col('id', 'ID', 'word-chip'),
-        col('_nestingLevel', 'Рів.', 'counter'),
+        col('_nestingLevel', 'Рів.', 'binding-chip'),
         col('name_ua', 'Назва UA', 'name'),
         col('name_ru', 'Назва RU', 'text'),
         col('parent_id', 'Батьківська', 'text', { filterable: true }),
@@ -488,7 +493,7 @@ function initCategoriesTableAPI(container, allCategories) {
 
     const visibleCols = mapperState.visibleColumns.categories?.length > 0
         ? mapperState.visibleColumns.categories
-        : ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping', '_bindings'];
+        : ['id', '_nestingLevel', 'name_ua', 'parent_id', 'grouping', 'bindings'];
 
     const tableAPI = createTable(container, {
         columns: getCategoriesColumns(allCategories),
@@ -624,7 +629,7 @@ export function getCharacteristicsColumns(categoriesList) {
         col('id', 'ID', 'word-chip'),
         col('category_ids', 'Категорія', 'binding-chip'),
         col('name_ua', 'Назва', 'name'),
-        col('type', 'Тип', 'text', { filterable: true }),
+        col('type', 'Тип', 'code', { filterable: true }),
         col('is_global', 'Глобальна', 'status-dot', { filterable: true, className: 'cell-s cell-center' }),
         col('unit', 'Одиниця', 'text'),
         createBindingsColumn('characteristic')
@@ -639,7 +644,7 @@ function initCharacteristicsTableAPI(container, categoriesList) {
 
     const visibleCols = mapperState.visibleColumns.characteristics?.length > 0
         ? mapperState.visibleColumns.characteristics
-        : ['id', 'category_ids', 'name_ua', 'type', 'is_global', '_bindings'];
+        : ['id', 'category_ids', 'name_ua', 'type', 'is_global', 'bindings'];
 
     const tableAPI = createTable(container, {
         columns: getCharacteristicsColumns(categoriesList),
@@ -805,7 +810,7 @@ function initOptionsTableAPI(container, characteristicsList) {
 
     const visibleCols = mapperState.visibleColumns.options?.length > 0
         ? mapperState.visibleColumns.options
-        : ['id', 'characteristic_id', 'value_ua', '_bindings'];
+        : ['id', 'characteristic_id', 'value_ua', 'bindings'];
 
     const tableAPI = createTable(container, {
         columns: getOptionsColumns(characteristicsList),
@@ -915,7 +920,7 @@ export function getMarketplacesColumns() {
     return [
         col('id', 'ID', 'word-chip'),
         col('name', 'Назва', 'name'),
-        col('slug', 'Slug', 'text'),
+        col('slug', 'Slug', 'code'),
         col('is_active', 'Активний', 'status-dot', { filterable: true, className: 'cell-s cell-center' })
     ];
 }
