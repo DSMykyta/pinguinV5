@@ -384,14 +384,14 @@ const mapperColumnTypes = {
     name_ua: 'string',
     name_ru: 'string',
     type: 'string',
-    is_global: 'boolean',
-    is_active: 'boolean',
+    is_global: 'string',
+    is_active: 'string',
     value_ua: 'string',
     name: 'string',
     slug: 'string',
     parent_id: 'string',
     characteristic_id: 'string',
-    category_ids: 'string'
+    grouping: 'string'
 };
 
 /**
@@ -423,12 +423,43 @@ export function renderCurrentTab() {
 
 /**
  * Отримати дані категорій (тільки власні)
+ * Трансформує дані для стандартних типів колонок:
+ * - _nestingLevel: обчислює глибину вкладеності
+ * - parent_id: резолвить ID → назва батьківської категорії
+ * - grouping: нормалізує boolean для status-dot
  */
 function getCategoriesData() {
-    const categories = getCategories().map(cat => ({
-        ...cat,
-        _editable: true
-    }));
+    const categories = getCategories().map(cat => {
+        // Обчислити рівень вкладеності
+        let level = 0;
+        let current = cat;
+        while (current && current.parent_id) {
+            level++;
+            const parent = findParentCategory(current.parent_id, null);
+            if (parent) {
+                current = parent;
+            } else {
+                break;
+            }
+            if (level > 10) break;
+        }
+
+        // Резолвити parent_id → назва
+        const parentName = cat.parent_id
+            ? (findParentCategory(cat.parent_id, null)?.name_ua || cat.parent_id)
+            : '';
+
+        // Нормалізувати grouping для status-dot
+        const grouping = String(cat.grouping ?? '').toLowerCase() === 'true' ? 'active' : 'inactive';
+
+        return {
+            ...cat,
+            _nestingLevel: level,
+            parent_id: parentName,
+            grouping,
+            _editable: true
+        };
+    });
 
     return { categories };
 }
@@ -443,7 +474,7 @@ export function getCategoriesColumns(allCategories) {
         col('name_ua', 'Назва UA', 'name'),
         col('name_ru', 'Назва RU', 'text'),
         col('parent_id', 'Батьківська', 'text', { filterable: true }),
-        col('grouping', 'Групуюча', 'text', { filterable: true }),
+        col('grouping', 'Групуюча', 'status-dot', { filterable: true }),
         createBindingsColumn('category')
     ];
 }
@@ -547,14 +578,37 @@ export function renderCategoriesTable() {
 
 /**
  * Отримати дані характеристик (тільки власні)
+ * Трансформує дані для стандартних типів колонок:
+ * - category_ids: резолвить ID → { count, tooltip } для binding-chip
+ * - is_global: нормалізує boolean для status-dot
  */
 function getCharacteristicsData() {
     const categoriesList = getCategories();
+    const labelMap = _cachedCategoryLabelMap();
 
-    const characteristics = getCharacteristics().map(char => ({
-        ...char,
-        _editable: true
-    }));
+    const characteristics = getCharacteristics().map(char => {
+        const isGlobal = String(char.is_global ?? '').toLowerCase() === 'true' || char.is_global === true;
+
+        // Резолвити category_ids → { count, tooltip } для binding-chip
+        let categoryDisplay;
+        if (isGlobal) {
+            categoryDisplay = { count: '∞', tooltip: 'Глобальна характеристика для всіх категорій' };
+        } else {
+            const ids = (char.category_ids || '').split(',').map(s => s.trim()).filter(Boolean);
+            const names = ids.map(id => labelMap[id] || id);
+            categoryDisplay = {
+                count: ids.length,
+                tooltip: names.join('\n') || "Не прив'язано до категорій"
+            };
+        }
+
+        return {
+            ...char,
+            category_ids: categoryDisplay,
+            is_global: isGlobal ? 'active' : 'inactive',
+            _editable: true
+        };
+    });
 
     return {
         characteristics,
@@ -568,10 +622,10 @@ function getCharacteristicsData() {
 export function getCharacteristicsColumns(categoriesList) {
     return [
         col('id', 'ID', 'word-chip'),
-        col('category_ids', 'Категорія', 'counter', { filterable: true }),
+        col('category_ids', 'Категорія', 'binding-chip'),
         col('name_ua', 'Назва', 'name'),
         col('type', 'Тип', 'text', { filterable: true }),
-        col('is_global', 'Глобальна', 'text', { filterable: true, className: 'cell-s cell-center' }),
+        col('is_global', 'Глобальна', 'status-dot', { filterable: true, className: 'cell-s cell-center' }),
         col('unit', 'Одиниця', 'text'),
         createBindingsColumn('characteristic')
     ];
@@ -675,14 +729,54 @@ export function renderCharacteristicsTable() {
 
 /**
  * Отримати дані опцій (тільки власні)
+ * Трансформує дані для стандартних типів колонок:
+ * - characteristic_id: резолвить ID → назва характеристики
+ * - category_ids: резолвить через батьківську характеристику → { count, tooltip }
  */
 function getOptionsData() {
     const characteristicsList = getCharacteristics();
+    const charLabelMap = _cachedCharacteristicLabelMap();
+    const catLabelMap = _cachedCategoryLabelMap();
 
-    const options = getOptions().map(opt => ({
-        ...opt,
-        _editable: true
-    }));
+    const options = getOptions().map(opt => {
+        // Резолвити characteristic_id → назва
+        const charName = opt.characteristic_id
+            ? (charLabelMap[opt.characteristic_id] || opt.characteristic_id)
+            : '';
+
+        // Резолвити category_ids через батьківську характеристику
+        let categoryDisplay;
+        if (opt.characteristic_id) {
+            const parentChar = characteristicsList.find(c => c.id === opt.characteristic_id);
+            if (parentChar) {
+                const isGlobal = String(parentChar.is_global ?? '').toLowerCase() === 'true' || parentChar.is_global === true;
+                if (isGlobal) {
+                    categoryDisplay = { count: '∞', tooltip: 'Глобальна характеристика' };
+                } else {
+                    const ids = (parentChar.category_ids || '').split(',').map(s => s.trim()).filter(Boolean);
+                    const names = ids.map(id => catLabelMap[id] || id);
+                    categoryDisplay = { count: ids.length, tooltip: names.join('\n') || '-' };
+                }
+            }
+        }
+
+        if (!categoryDisplay) {
+            const ids = (opt.category_ids || '').split(',').map(s => s.trim()).filter(Boolean);
+            if (ids.length) {
+                const names = ids.map(id => catLabelMap[id] || id);
+                categoryDisplay = { count: ids.length, tooltip: names.join('\n') };
+            } else {
+                categoryDisplay = { count: 0, tooltip: '-' };
+            }
+        }
+
+        return {
+            ...opt,
+            characteristic_id: charName,
+            category_ids: categoryDisplay,
+            _editable: true
+        };
+    });
 
     return {
         options,
@@ -698,7 +792,7 @@ export function getOptionsColumns(characteristicsList) {
         col('id', 'ID', 'word-chip'),
         col('characteristic_id', 'Характеристика', 'text', { filterable: true }),
         col('value_ua', 'Значення', 'name'),
-        col('category_ids', 'Категорія', 'counter', { filterable: true }),
+        col('category_ids', 'Категорія', 'binding-chip'),
         createBindingsColumn('option')
     ];
 }
@@ -801,10 +895,13 @@ export function renderOptionsTable() {
 
 /**
  * Отримати дані маркетплейсів
+ * Трансформує дані для стандартних типів колонок:
+ * - is_active: нормалізує boolean для status-dot
  */
 function getMarketplacesData() {
     const marketplaces = getMarketplaces().map(mp => ({
         ...mp,
+        is_active: String(mp.is_active ?? '').toLowerCase() === 'true' ? 'active' : 'inactive',
         _editable: true
     }));
 
@@ -819,7 +916,7 @@ export function getMarketplacesColumns() {
         col('id', 'ID', 'word-chip'),
         col('name', 'Назва', 'name'),
         col('slug', 'Slug', 'text'),
-        col('is_active', 'Активний', 'text', { filterable: true, className: 'cell-s cell-center' })
+        col('is_active', 'Активний', 'status-dot', { filterable: true, className: 'cell-s cell-center' })
     ];
 }
 
@@ -1355,19 +1452,18 @@ function initTableCheckboxes(container, tabName, data) {
 function getFilterColumnsConfig(tabName) {
     const baseConfig = {
         categories: [
-            { id: 'parent_id', label: 'Батьківська', filterType: 'values', labelMap: _cachedCategoryLabelMap() },
-            { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'TRUE': 'Так', 'FALSE': 'Ні', 'true': 'Так', 'false': 'Ні', '': 'Ні' } }
+            { id: 'parent_id', label: 'Батьківська', filterType: 'values' },
+            { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
         characteristics: [
-            { id: 'category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
-            { id: 'is_global', label: 'Глобальна', filterType: 'values' }
+            { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
         options: [
-            { id: 'characteristic_id', label: 'Характеристика', filterType: 'values', labelMap: _cachedCharacteristicLabelMap() }
+            { id: 'characteristic_id', label: 'Характеристика', filterType: 'values' }
         ],
         marketplaces: [
-            { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'true': 'Активний', 'false': 'Неактивний' } }
+            { id: 'is_active', label: 'Активний', filterType: 'values', labelMap: { 'active': 'Активний', 'inactive': 'Неактивний' } }
         ]
     };
 

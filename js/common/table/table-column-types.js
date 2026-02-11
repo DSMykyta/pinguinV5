@@ -55,8 +55,11 @@ export const COLUMN_TYPES = {
         className: 'cell-xs cell-center',
         sortable: true,
         render: (value) => {
-            const map = { active: 'success', draft: 'warning', hidden: 'error', inactive: 'error' };
-            const color = map[value] || 'neutral';
+            const val = (typeof value === 'boolean')
+                ? (value ? 'active' : 'inactive')
+                : String(value ?? '').toLowerCase();
+            const map = { active: 'success', draft: 'warning', hidden: 'error', inactive: 'error', true: 'success', false: 'error' };
+            const color = map[val] || 'neutral';
             return `<span class="status-dot" style="background-color: var(--color-${color});" title="${escapeHtml(value ?? '')}"></span>`;
         }
     },
@@ -78,11 +81,11 @@ export const COLUMN_TYPES = {
         render: (value) => renderSeverityBadge(value)
     },
 
-    // 7. Counter — число з badge (1×, 2×)
+    // 7. Counter — число з badge (0×, 1×, 2×)
     counter: {
         className: 'cell-2xs cell-center',
         sortable: true,
-        render: (value) => value ? `<span class="match-count-badge">${value}×</span>` : ''
+        render: (value) => (value != null && value !== '') ? `<span class="match-count-badge">${value}×</span>` : ''
     },
 
     // 8. Words-list — список chips з "+N" counter
@@ -126,8 +129,9 @@ export const COLUMN_TYPES = {
         className: 'cell-xs cell-center',
         sortable: false,
         render: (value) => {
-            if (!value || !value.count) return '';
-            return `<span class="chip chip-active binding-chip" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
+            if (!value || value.count == null) return '';
+            const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip chip-active';
+            return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
         }
     }
 };
