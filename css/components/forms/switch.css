@@ -49,7 +49,6 @@
     width: min-content;
     min-height: 40px;
 
-    background-color: var(--color-surface-c-low);
     color: var(--color-on-surface);
     font-size: 14px;
 }
@@ -62,6 +61,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100%;
     padding: 6px 12px;
     border-radius: 6px;
     color: var(--color-on-surface-v);
@@ -79,11 +79,6 @@
 }
 
 .switch-container input[type="radio"]:checked + .switch-label {
-    background: var(--color-main-c);
-    color: var(--color-main);
-}
-
-.switch-container input[type="radio"]:checked + .switch-label:hover {
     background: var(--color-main);
     color: var(--color-on-main);
 }
@@ -95,7 +90,6 @@
 .switch-container.switch-sm {
     padding: 4px;
     gap: 2px;
-    min-height: auto;
     font-size: 11px;
 }
 
@@ -112,7 +106,6 @@
     padding: 0;
     border: none;
     background: transparent;
-    min-height: auto;
 }
 
 .switch-inline .switch-label {
