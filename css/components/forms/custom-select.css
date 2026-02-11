@@ -120,7 +120,9 @@
 .custom-select-option {
     padding: 10px 16px;
     cursor: pointer;
-    transition: background-color 150ms ease-in-out;
+    transition: background-color 150ms ease-in-out,
+                font-style 150ms ease-in-out,
+                letter-spacing 150ms ease-in-out;
     color: var(--color-on-surface);
     user-select: none;
 }
@@ -128,11 +130,15 @@
 /* Hover - тільки коли НЕ в keyboard mode */
 .custom-select-wrapper:not(.is-keyboard-nav) .custom-select-option:hover {
     background-color: var(--color-surface-c);
+    font-style: italic;
+    letter-spacing: 0.03em;
 }
 
 /* Keyboard focus - тільки коли в keyboard mode */
 .custom-select-wrapper.is-keyboard-nav .custom-select-option.is-focused {
     background-color: var(--color-surface-c);
+    font-style: italic;
+    letter-spacing: 0.03em;
 }
 
 .custom-select-option.is-selected {
