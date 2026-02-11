@@ -5,7 +5,7 @@
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
-import { renderTable as renderTableLego, renderBadge, col } from '../common/table/table-main.js';
+import { renderTable as renderTableLego, renderBadge, col, setupTableColumnsSelector } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -123,6 +123,17 @@ async function initProductsPage() {
 
     // Завантажуємо товари з localStorage (без демо-даних)
     productsData = getProducts();
+
+    // Ініціалізуємо dropdown вибору колонок
+    setupTableColumnsSelector({
+        containerId: 'table-columns-list',
+        getColumns,
+        state: { visibleColumns: ['id', 'photo', 'category', 'name_short', 'variants_count', 'status', 'show_on_site', 'storefronts'] },
+        checkboxPrefix: 'products-col',
+        onVisibilityChange: (selectedIds) => {
+            renderProductsTable(productsData);
+        }
+    });
 
     // Рендеримо таблицю товарів
     renderProductsTable(productsData);

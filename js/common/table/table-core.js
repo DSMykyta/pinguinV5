@@ -119,10 +119,12 @@ export class TableCore {
                     const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
                     const filterableClass = col.filterable ? ' filterable' : '';
 
+                    const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
+
                     return `
                         <div class="pseudo-table-cell ${cellClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
                              ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
-                             data-column="${col.id}">
+                             data-column="${col.id}"${colTypeAttr}>
                             <span>${col.label || col.id}</span>
                             ${!noHeaderSort && col.sortable ? '<span class="sort-indicator"><span class="material-symbols-outlined">unfold_more</span></span>' : ''}
                         </div>
@@ -161,9 +163,11 @@ export class TableCore {
                         cellContent = escapeHtml(value ?? ' ');
                     }
 
+                    const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
+
                     return `
                         <div class="pseudo-table-cell ${cellClass}${this.hiddenClass(col.id)}"
-                             data-column="${col.id}"
+                             data-column="${col.id}"${colTypeAttr}
                              ${tooltipAttr}>
                             ${cellContent}
                         </div>

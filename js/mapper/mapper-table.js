@@ -438,16 +438,8 @@ function getCategoriesData() {
  */
 export function getCategoriesColumns(allCategories) {
     return [
-        {
-            id: 'id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: '_nestingLevel',
-            label: 'Рів.',
+        col('id', 'ID', 'word-chip'),
+        col('_nestingLevel', 'Рів.', 'counter', {
             className: 'cell-xs cell-center',
             render: (value, row) => {
                 let level = 0;
@@ -471,24 +463,10 @@ export function getCategoriesColumns(allCategories) {
 
                 return `<span class="chip ${chipClass}" data-tooltip="${escapeHtml(tooltipText)}" data-tooltip-always>${level}</span>`;
             }
-        },
-        {
-            id: 'name_ua',
-            label: 'Назва UA',
-            sortable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'name_ru',
-            label: 'Назва RU',
-            sortable: true,
-            render: (value) => escapeHtml(value || '-')
-        },
-        {
-            id: 'parent_id',
-            label: 'Батьківська',
-            sortable: true,
+        }),
+        col('name_ua', 'Назва UA', 'name'),
+        col('name_ru', 'Назва RU', 'text'),
+        col('parent_id', 'Батьківська', 'text', {
             filterable: true,
             render: (value) => {
                 if (!value) return '-';
@@ -496,17 +474,14 @@ export function getCategoriesColumns(allCategories) {
                 if (parent) return escapeHtml(parent.name_ua || value);
                 return escapeHtml(value);
             }
-        },
-        {
-            id: 'grouping',
-            label: 'Групуюча',
-            sortable: true,
+        }),
+        col('grouping', 'Групуюча', 'text', {
             filterable: true,
             render: (value) => {
                 const isGrouping = value === 'TRUE' || value === true || value === 'true';
                 return isGrouping ? 'Так' : 'Ні';
             }
-        },
+        }),
         createBindingsColumn('category')
     ];
 }
@@ -630,19 +605,10 @@ function getCharacteristicsData() {
  */
 export function getCharacteristicsColumns(categoriesList) {
     return [
-        {
-            id: 'id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'category_ids',
-            label: 'Категорія',
-            sortable: true,
-            filterable: true,
+        col('id', 'ID', 'word-chip'),
+        col('category_ids', 'Категорія', 'counter', {
             className: 'cell-xs cell-center',
+            filterable: true,
             render: (value, row) => {
                 if (String(row.is_global).toLowerCase() === 'true' || row.is_global === true) {
                     return `<span class="chip chip-active" data-tooltip="Глобальна характеристика для всіх категорій" data-tooltip-always>∞</span>`;
@@ -661,25 +627,13 @@ export function getCharacteristicsColumns(categoriesList) {
 
                 return `<span class="chip" data-tooltip="${escapeHtml(categoryNames)}" data-tooltip-always>${count}</span>`;
             }
-        },
-        {
-            id: 'name_ua',
-            label: 'Назва',
-            sortable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'type',
-            label: 'Тип',
-            sortable: true,
+        }),
+        col('name_ua', 'Назва', 'name'),
+        col('type', 'Тип', 'text', {
             filterable: true,
             render: (value) => `<code>${escapeHtml(value || '-')}</code>`
-        },
-        {
-            id: 'is_global',
-            label: 'Глобальна',
-            sortable: true,
+        }),
+        col('is_global', 'Глобальна', 'text', {
             filterable: true,
             className: 'cell-s cell-center',
             render: (value) => {
@@ -687,13 +641,8 @@ export function getCharacteristicsColumns(categoriesList) {
                     ? '<span class="material-symbols-outlined" style="color: var(--color-success)">check_circle</span>'
                     : '<span class="material-symbols-outlined" style="color: var(--color-text-tertiary)">radio_button_unchecked</span>';
             }
-        },
-        {
-            id: 'unit',
-            label: 'Одиниця',
-            sortable: true,
-            render: (value) => escapeHtml(value || '-')
-        },
+        }),
+        col('unit', 'Одиниця', 'text'),
         createBindingsColumn('characteristic')
     ];
 }
@@ -816,36 +765,18 @@ function getOptionsData() {
  */
 export function getOptionsColumns(characteristicsList) {
     return [
-        {
-            id: 'id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'characteristic_id',
-            label: 'Характеристика',
-            sortable: true,
+        col('id', 'ID', 'word-chip'),
+        col('characteristic_id', 'Характеристика', 'text', {
             filterable: true,
             render: (value) => {
                 const char = characteristicsList.find(c => c.id === value);
                 return char ? escapeHtml(char.name_ua || value) : escapeHtml(value || '-');
             }
-        },
-        {
-            id: 'value_ua',
-            label: 'Значення',
-            sortable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'category_ids',
-            label: 'Категорія',
-            sortable: true,
-            filterable: true,
+        }),
+        col('value_ua', 'Значення', 'name'),
+        col('category_ids', 'Категорія', 'counter', {
             className: 'cell-xs cell-center',
+            filterable: true,
             render: (value, row) => {
                 let categoryIds = row.category_ids || '';
 
@@ -867,7 +798,6 @@ export function getOptionsColumns(characteristicsList) {
 
                 if (count === 0) return '<span class="chip">-</span>';
 
-                // Формуємо tooltip з назвами категорій
                 const labelMap = _cachedCategoryLabelMap();
                 const names = categoryIdsList.slice(0, 5).map(id => labelMap[id] || id);
                 let tooltip = names.join(', ');
@@ -875,7 +805,7 @@ export function getOptionsColumns(characteristicsList) {
 
                 return `<span class="chip" data-tooltip="${escapeHtml(tooltip)}">${count}</span>`;
             }
-        },
+        }),
         createBindingsColumn('option')
     ];
 }
@@ -993,30 +923,12 @@ function getMarketplacesData() {
  */
 export function getMarketplacesColumns() {
     return [
-        {
-            id: 'id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'name',
-            label: 'Назва',
-            sortable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'slug',
-            label: 'Slug',
-            sortable: true,
+        col('id', 'ID', 'word-chip'),
+        col('name', 'Назва', 'name'),
+        col('slug', 'Slug', 'text', {
             render: (value) => `<code>${escapeHtml(value || '')}</code>`
-        },
-        {
-            id: 'is_active',
-            label: 'Активний',
-            sortable: true,
+        }),
+        col('is_active', 'Активний', 'text', {
             filterable: true,
             className: 'cell-s cell-center',
             render: (value) => {
@@ -1025,7 +937,7 @@ export function getMarketplacesColumns() {
                     ? '<span class="severity-badge severity-low">Активний</span>'
                     : '<span class="severity-badge severity-high">Неактивний</span>';
             }
-        }
+        })
     ];
 }
 

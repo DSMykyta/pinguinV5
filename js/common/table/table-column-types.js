@@ -149,5 +149,5 @@ export const COLUMN_TYPES = {
  */
 export function col(id, label, type, overrides = {}) {
     const base = COLUMN_TYPES[type] || COLUMN_TYPES.text;
-    return { id, label, ...base, ...overrides };
+    return { id, label, type, ...base, ...overrides };
 }
