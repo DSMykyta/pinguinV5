@@ -22,7 +22,7 @@
  * ║  11. binding-chip  — чіп з tooltip              {count, tooltip}       ║
  * ║  12. code          — технічне значення          <code>                  ║
  * ║  13. select        — custom-select dropdown     <select> + options     ║
- * ║  14. links         — масив посилань             [{name,url}] → <a>     ║
+ * ║  14. links         — масив посилань             [{name,url}] → icon   ║
  * ║                                                                          ║
  * ║  ЕКСПОРТ:                                                               ║
  * ║  - COLUMN_TYPES — Реєстр типів                                         ║
@@ -173,18 +173,18 @@ export const COLUMN_TYPES = {
         }
     },
 
-    // 14. Links — масив посилань [{name, url}]
+    // 14. Links — масив посилань [{name, url}] → іконки btn-icon
     links: {
-        className: 'cell-l',
+        className: 'cell-s',
         sortable: false,
         searchable: false,
         render: (value) => {
-            if (!value || !Array.isArray(value) || !value.length) return '<span class="text-muted">—</span>';
+            if (!value || !Array.isArray(value) || !value.length) return '';
             return value.map(link => {
                 const name = escapeHtml(link.name || link.url || '');
                 const url = escapeHtml(link.url || '#');
-                return `<a href="${url}" target="_blank" rel="noopener" class="word-chip primary">${name}</a>`;
-            }).join(' ');
+                return `<a href="${url}" target="_blank" rel="noopener" class="btn-icon" data-tooltip="${name}"><span class="material-symbols-outlined">open_in_new</span></a>`;
+            }).join('');
         }
     }
 };

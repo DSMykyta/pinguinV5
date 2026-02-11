@@ -53,7 +53,7 @@ export function getColumns() {
         col('country_option_id', 'Країна', 'text', { filterable: true }),
         col('brand_status', 'Статус', 'status-dot', { filterable: true }),
         col('brand_links', 'Посилання', 'links'),
-        col('lines_count', 'Лінійки', 'counter')
+        col('bindings', 'Лінійки', 'binding-chip')
     ];
 }
 
@@ -92,7 +92,8 @@ function initTableAPI() {
                 dataSource: () => {
                     const lines = brandsState.brandLines || [];
                     return getBrands().map(b => {
-                        b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
+                        const count = lines.filter(l => l.brand_id === b.brand_id).length;
+                        b.bindings = { count, tooltip: `Лінійок: ${count}` };
                         return b;
                     });
                 },
@@ -105,9 +106,8 @@ function initTableAPI() {
                     name_uk: 'string',
                     names_alt: 'string',
                     country_option_id: 'string',
-                    brand_text: 'string',
-                    brand_site_link: 'string',
-                    lines_count: 'number'
+                    brand_status: 'string',
+                    bindings: 'binding-chip'
                 }
             },
             filters: {
@@ -136,7 +136,8 @@ function getPaginatedData() {
     const brands = getBrands();
     const lines = brandsState.brandLines || [];
     brands.forEach(b => {
-        b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
+        const count = lines.filter(l => l.brand_id === b.brand_id).length;
+        b.bindings = { count, tooltip: `Лінійок: ${count}` };
     });
     const filteredBrands = applyFilters(brands);
 
