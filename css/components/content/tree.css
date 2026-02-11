@@ -1,0 +1,185 @@
+/**
+ * COMPONENT: Content Tree
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Універсальне дерево з можливістю згортання/розгортання.
+ * Використовується для навігації по ієрархічних структурах.
+ *
+ * ВИКОРИСТАННЯ:
+ * <div class="tree">
+ *   <ul class="tree-level-0">
+ *     <li class="is-open">
+ *       <div class="tree-item-content">
+ *         <button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>
+ *         <a href="#article-1" class="tree-item-link">Категорія</a>
+ *       </div>
+ *       <ul class="tree-level-1">
+ *         <li>
+ *           <div class="tree-item-content">
+ *             <span class="leaf-placeholder"></span>
+ *             <span class="tree-item-name">Елемент</span>
+ *           </div>
+ *         </li>
+ *       </ul>
+ *     </li>
+ *   </ul>
+ * </div>
+ *
+ * КЛАСИ:
+ * - .tree                  — контейнер дерева
+ * - .tree-level-{N}        — рівень вкладеності (0, 1, 2...)
+ * - .tree-item-content     — контейнер елемента (flex row)
+ * - .toggle-btn            — кнопка згортання/розгортання
+ * - .tree-item-link        — посилання (для glossary)
+ * - .tree-item-name        — текстовий label (для mapper)
+ * - .leaf-placeholder      — заповнювач для листків без дітей
+ * - .is-open               — відкритий стан елемента з дітьми
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (CSS змінні)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - glossary.html (дерево навігації в aside)
+ * - mapper (дерево MP категорій)
+ */
+
+/* ============================================
+   TREE CONTAINER
+   ============================================ */
+
+.tree {
+    font-size: 14px;
+    overflow-y: auto;
+}
+
+.tree ul {
+    list-style: none;
+    padding-left: 16px;
+    margin: 0;
+}
+
+.tree li > ul {
+    display: none;
+}
+
+.tree li.is-open > ul {
+    display: block;
+}
+
+.tree li {
+    padding: 1px 0;
+}
+
+/* ============================================
+   TREE ITEM CONTENT
+   ============================================ */
+
+.tree-item-content {
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+    min-height: 36px;
+    gap: 8px;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.tree-item-content:hover {
+    background-color: var(--color-surface-c-low);
+}
+
+/* ============================================
+   TOGGLE BUTTON
+   ============================================ */
+
+.toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-surface-v);
+    flex-shrink: 0;
+}
+
+.toggle-btn .material-symbols-outlined {
+    font-size: 20px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.tree li:not(.is-open) > .tree-item-content .toggle-btn .material-symbols-outlined {
+    transform: rotate(-90deg);
+}
+
+/* ============================================
+   LEAF PLACEHOLDER
+   ============================================ */
+
+.leaf-placeholder {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   TREE ITEM LINK (glossary)
+   ============================================ */
+
+.tree-item-link {
+    text-decoration: none;
+    color: var(--color-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.tree-item-link:hover {
+    color: var(--color-main);
+}
+
+.tree-level-0 > li > .tree-item-content .tree-item-link {
+    font-weight: 500;
+}
+
+/* ============================================
+   TREE ITEM NAME (mapper)
+   ============================================ */
+
+.tree-item-name {
+    flex: 1;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================
+   TREE: compact custom-select-trigger
+   Для mapping trigger всередині дерева
+   ============================================ */
+
+.tree-item-content .custom-select-trigger {
+    min-height: unset;
+    max-height: unset;
+    padding: 4px 8px;
+    width: 200px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    gap: 4px;
+}
+
+.tree-item-content .custom-select-trigger .custom-select-arrow {
+    width: 16px;
+    height: 16px;
+}
+
+.tree-item-content .custom-select-trigger.is-mapped {
+    color: var(--color-on-surface);
+    border-color: var(--color-main);
+    background: var(--color-main-c);
+}

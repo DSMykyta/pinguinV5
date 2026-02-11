@@ -14,7 +14,7 @@ function buildTreeHtml(parentId, level = 0) {
     const children = tree[parentId] || [];
     if (children.length === 0) return '';
 
-    let html = `<ul class="glossary-tree-level-${level}">`;
+    let html = `<ul class="tree-level-${level}">`;
 
     children.forEach(item => {
         const hasChildren = item.children && item.children.length > 0;

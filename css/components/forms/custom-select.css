@@ -236,6 +236,31 @@
     color: var(--color-on-surface);
 }
 
+/* ============================================ */
+/* COMPACT TRIGGER (in pseudo-table rows)       */
+/* ============================================ */
+
+.pseudo-table-row .custom-select-trigger {
+    min-height: unset;
+    max-height: unset;
+    padding: 4px 8px;
+    width: 100%;
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    gap: 4px;
+}
+
+.pseudo-table-row .custom-select-trigger .custom-select-arrow {
+    width: 16px;
+    height: 16px;
+}
+
+.pseudo-table-row .custom-select-trigger.is-mapped {
+    color: var(--color-on-surface);
+    border-color: var(--color-main);
+    background: var(--color-main-c);
+}
+
 /* Select All option */
 .custom-select-option-all {
     display: flex;

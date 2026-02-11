@@ -429,8 +429,19 @@ function populateRelatedOptions(characteristicId) {
     };
 
     const columns = [
+        col('id', 'ID', 'word-chip'),
         col('value_ua', 'Назва', 'text', { className: 'cell-l' }),
-        col('id', 'ID', 'word-chip')
+        {
+            id: '_unlink',
+            label: '',
+            sortable: false,
+            className: 'cell-s',
+            render: (value, row) => actionButton({
+                action: 'unlink',
+                rowId: row.id,
+                data: { name: row.value_ua || row.id }
+            })
+        }
     ];
 
     registerActionHandlers('characteristic-options', {
@@ -467,15 +478,10 @@ function populateRelatedOptions(characteristicId) {
     const modalTableAPI = renderTableLego(container, {
         data: [],
         columns,
-        rowActionsHeader: ' ',
-        rowActions: (row) => `
-            <button class="btn-icon" data-row-id="${row.id}" data-action="edit" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="btn-icon" data-row-id="${row.id}" data-action="unlink" data-tooltip="Відв'язати">
-                <span class="material-symbols-outlined">link_off</span>
-            </button>
-        `,
+        rowActions: (row) => actionButton({
+            action: 'edit',
+            rowId: row.id
+        }),
         emptyState: { message: 'Опції відсутні' },
         withContainer: false,
         onAfterRender: (cont) => initActionHandlers(cont, 'characteristic-options'),
@@ -487,8 +493,8 @@ function populateRelatedOptions(characteristicId) {
                     renderTable(filteredData);
                 },
                 columnTypes: {
-                    value_ua: 'string',
-                    id: 'id-text'
+                    id: 'id-text',
+                    value_ua: 'string'
                 }
             }
         }
@@ -593,6 +599,11 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
     registerActionHandlers('mp-characteristic-mapping', {
         unmap: async (rowId, data) => {
             if (data.mappingId) {
+                const confirmed = await showConfirmModal({
+                    title: 'Відв\'язати характеристику',
+                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                });
+                if (!confirmed) return;
                 await deleteCharacteristicMapping(data.mappingId);
                 showToast('Маппінг видалено', 'success');
                 renderMappedMpCharacteristicsSections(ownCharId);

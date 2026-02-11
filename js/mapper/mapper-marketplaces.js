@@ -35,6 +35,7 @@ import {
     getOptionMappingByMpId
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
+import { initSectionNavigation } from './mapper-utils.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
@@ -247,23 +248,10 @@ function clearMarketplaceForm() {
 // ПЕРЕГЛЯД ДАНИХ МАРКЕТПЛЕЙСУ
 // ═══════════════════════════════════════════════════════════════════════════
 
-const mpDataModalState = {
-    marketplaceId: null,
-    marketplaceName: '',
-    activeTab: 'categories',
-    searchQuery: '',
-    categories: [],
-    characteristics: [],
-    options: []
-};
-
-const MP_DATA_PAGE_SIZE = 100;
-
 /**
- * Показати дані маркетплейсу
+ * Показати дані маркетплейсу (3 scroll-snap секції)
  */
 export async function showMarketplaceDataModal(id) {
-
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
 
@@ -272,185 +260,315 @@ export async function showMarketplaceDataModal(id) {
         return;
     }
 
-    mpDataModalState.marketplaceId = id;
-    mpDataModalState.marketplaceName = marketplace.name;
-    mpDataModalState.activeTab = 'categories';
-    mpDataModalState.searchQuery = '';
-
     await showModal('mapper-mp-data', null);
     await new Promise(resolve => requestAnimationFrame(resolve));
 
     const title = document.getElementById('mp-data-modal-title');
     if (title) title.textContent = `${marketplace.name} — Дані`;
 
-    // Активувати перший таб в sidebar
-    const sidebarNav = document.getElementById('mp-data-sidebar-nav');
-    if (sidebarNav) {
-        sidebarNav.querySelectorAll('[data-mp-tab]').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.mpTab === 'categories');
-        });
-    }
+    // Завантажити дані
+    if (getMpCategories().length === 0) await loadMpCategories();
+    if (getMpCharacteristics().length === 0) await loadMpCharacteristics();
+    if (getMpOptions().length === 0) await loadMpOptions();
 
-    await loadMpDataForModal(id);
-    initMpDataModalEvents();
-    renderMpDataModalTable();
-}
+    const categories = getMpCategories().filter(c => c.marketplace_id === id);
+    const characteristics = getMpCharacteristics().filter(c => c.marketplace_id === id);
+    const options = getMpOptions().filter(o => o.marketplace_id === id);
 
-async function loadMpDataForModal(marketplaceId) {
-    const allCats = getMpCategories();
-    const allChars = getMpCharacteristics();
-    const allOpts = getMpOptions();
-
-    if (allCats.length === 0) await loadMpCategories();
-    if (allChars.length === 0) await loadMpCharacteristics();
-    if (allOpts.length === 0) await loadMpOptions();
-
-    mpDataModalState.categories = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
-    mpDataModalState.characteristics = getMpCharacteristics().filter(c => c.marketplace_id === marketplaceId);
-    mpDataModalState.options = getMpOptions().filter(o => o.marketplace_id === marketplaceId);
-
+    // Оновити лічильники в sidebar
     const catCount = document.getElementById('mp-data-cat-count');
     const charCount = document.getElementById('mp-data-char-count');
     const optCount = document.getElementById('mp-data-opt-count');
+    if (catCount) catCount.textContent = categories.length;
+    if (charCount) charCount.textContent = characteristics.length;
+    if (optCount) optCount.textContent = options.length;
 
-    if (catCount) catCount.textContent = mpDataModalState.categories.length;
-    if (charCount) charCount.textContent = mpDataModalState.characteristics.length;
-    if (optCount) optCount.textContent = mpDataModalState.options.length;
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('mp-data-section-navigator');
 
+    // Заповнити кожну секцію незалежно
+    populateMpCategories(categories);
+    populateMpCharacteristics(characteristics);
+    populateMpOptions(options);
 }
 
-function initMpDataModalEvents() {
-    // Sidebar tab navigation
-    const tabButtons = document.querySelectorAll('#mp-data-sidebar-nav [data-mp-tab]');
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            mpDataModalState.activeTab = btn.dataset.mpTab;
-            mpDataModalState.searchQuery = '';
-            const searchInput = document.getElementById('mp-data-search');
-            if (searchInput) searchInput.value = '';
-            closeMappingPicker();
-            renderMpDataModalTable();
-        });
-    });
+// ═══════════════════════════════════════════════════════════════════════════
+// СЕКЦІЯ: КАТЕГОРІЇ (дерево)
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const searchInput = document.getElementById('mp-data-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            mpDataModalState.searchQuery = e.target.value.toLowerCase();
-            renderMpDataModalTable();
-        });
-    }
-
-    // Mapping trigger delegation (characteristics + options tabs)
-    const container = document.getElementById('mp-data-table-container');
-    if (container) {
-        container.addEventListener('click', (e) => {
-            const trigger = e.target.closest('.custom-select-trigger[data-entity-type]');
-            if (!trigger) return;
-            e.stopPropagation();
-
-            const entityType = trigger.dataset.entityType;
-            const mpEntityId = trigger.dataset.mpEntityId;
-            const mpExtId = trigger.dataset.mpExtId;
-            const currentValue = trigger.dataset.currentValue || '';
-
-            if (entityType === 'characteristic') {
-                const ownChars = getCharacteristics();
-                showMappingPicker(trigger, ownChars, currentValue, async (newValue) => {
-                    const oldMapping = getCharacteristicMappingByMpId(mpEntityId) || getCharacteristicMappingByMpId(mpExtId);
-                    if (oldMapping) {
-                        try { await deleteCharacteristicMapping(oldMapping.id); }
-                        catch { showToast('Помилка видалення', 'error'); return; }
-                    }
-                    if (newValue) {
-                        try {
-                            await createCharacteristicMapping(newValue, mpEntityId);
-                            showToast('Прив\'язано', 'success');
-                        } catch { showToast('Помилка прив\'язки', 'error'); return; }
-                    } else if (oldMapping) {
-                        showToast('Прив\'язку видалено', 'success');
-                    }
-                    const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
-                    trigger.dataset.currentValue = newValue || '';
-                    trigger.classList.toggle('is-mapped', !!newValue);
-                    const label = trigger.querySelector('.mp-tree-mapping-label');
-                    if (label) label.textContent = newChar ? (newChar.name_ua || newChar.id) : '—';
-                });
-            } else if (entityType === 'option') {
-                const ownOpts = getOptions();
-                showMappingPicker(trigger, ownOpts, currentValue, async (newValue) => {
-                    const oldMapping = getOptionMappingByMpId(mpEntityId) || getOptionMappingByMpId(mpExtId);
-                    if (oldMapping) {
-                        try { await deleteOptionMapping(oldMapping.id); }
-                        catch { showToast('Помилка видалення', 'error'); return; }
-                    }
-                    if (newValue) {
-                        try {
-                            await createOptionMapping(newValue, mpEntityId);
-                            showToast('Прив\'язано', 'success');
-                        } catch { showToast('Помилка прив\'язки', 'error'); return; }
-                    } else if (oldMapping) {
-                        showToast('Прив\'язку видалено', 'success');
-                    }
-                    const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
-                    trigger.dataset.currentValue = newValue || '';
-                    trigger.classList.toggle('is-mapped', !!newValue);
-                    const label = trigger.querySelector('.mp-tree-mapping-label');
-                    if (label) label.textContent = newOpt ? (newOpt.value_ua || newOpt.id) : '—';
-                }, (o) => o.value_ua || o.id);
-            }
-        });
-    }
-}
-
-function renderMpDataModalTable() {
-    const container = document.getElementById('mp-data-table-container');
+function populateMpCategories(allData) {
+    const container = document.getElementById('mp-data-cat-container');
+    const statsEl = document.getElementById('mp-data-cat-stats');
+    const searchInput = document.getElementById('mp-data-cat-search');
     if (!container) return;
 
-    const { activeTab, searchQuery } = mpDataModalState;
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
 
-    let data = [];
+    const renderTree = (data) => {
+        if (data.length === 0) {
+            container.innerHTML = renderAvatarState('empty', {
+                message: 'Категорії відсутні', size: 'medium',
+                containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+                messageClass: 'avatar-state-message', showMessage: true
+            });
+        } else {
+            renderMpCategoryTree(container, data);
+        }
+        updateStats(data.length, allData.length);
+    };
 
-    if (activeTab === 'categories') {
-        data = [...mpDataModalState.categories];
-    } else if (activeTab === 'characteristics') {
-        data = [...mpDataModalState.characteristics];
-    } else if (activeTab === 'options') {
-        data = [...mpDataModalState.options];
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            renderTree(allData);
+        } else {
+            const filtered = allData.filter(item => {
+                const name = extractMpName(item).toLowerCase();
+                const extId = (item.external_id || '').toLowerCase();
+                return name.includes(q) || extId.includes(q);
+            });
+            renderTree(filtered);
+        }
+    };
+
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    // Пошук
-    if (searchQuery) {
-        data = data.filter(item => {
-            const name = extractMpName(item).toLowerCase();
-            const extId = (item.external_id || '').toLowerCase();
-            return name.includes(searchQuery) || extId.includes(searchQuery);
-        });
+    renderTree(allData);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// СЕКЦІЯ: ХАРАКТЕРИСТИКИ (таблиця)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function populateMpCharacteristics(allData) {
+    const container = document.getElementById('mp-data-char-container');
+    const statsEl = document.getElementById('mp-data-char-stats');
+    const searchInput = document.getElementById('mp-data-char-search');
+    if (!container) return;
+
+    const ownChars = getCharacteristics();
+    let filteredData = preprocessCharsData(allData, ownChars);
+
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
+
+    const columns = [
+        col('external_id', 'ID', 'word-chip'),
+        col('_name', 'Назва', 'name'),
+        col('type', 'Тип', 'code'),
+        {
+            id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
+            render: (value, row) => {
+                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+            }
+        }
+    ];
+
+    const tableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        withContainer: false,
+        getRowId: row => row.id,
+        onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'characteristic'),
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => { filteredData = sortedData; renderTable(filteredData); },
+                columnTypes: { external_id: 'string', _name: 'string', type: 'string' }
+            }
+        }
+    });
+
+    const renderTable = (data) => {
+        tableAPI.render(data);
+        updateStats(data.length, allData.length);
+    };
+
+    const filterTableData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = preprocessCharsData(allData, ownChars);
+        } else {
+            filteredData = preprocessCharsData(allData, ownChars).filter(row =>
+                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
+                (row._name && row._name.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterTableData(e.target.value));
     }
 
-    const totalCount = activeTab === 'categories' ? mpDataModalState.categories.length :
-        activeTab === 'characteristics' ? mpDataModalState.characteristics.length :
-            mpDataModalState.options.length;
-    const statsEl = document.getElementById('mp-data-stats-text');
+    renderTable(filteredData);
+}
 
-    if (data.length === 0) {
-        container.innerHTML = renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
-        if (statsEl) statsEl.textContent = `Показано 0 з ${totalCount}`;
-        return;
+function preprocessCharsData(data, ownChars) {
+    return data.map(item => {
+        const mapping = getCharacteristicMappingByMpId(item.id) || getCharacteristicMappingByMpId(item.external_id);
+        const mappedId = mapping?.characteristic_id || '';
+        const mappedChar = mappedId ? ownChars.find(c => c.id === mappedId) : null;
+        return {
+            ...item,
+            _name: extractMpName(item) || item.external_id || '-',
+            _mappedId: mappedId,
+            _mappedLabel: mappedChar ? (mappedChar.name_ua || mappedChar.id) : ''
+        };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// СЕКЦІЯ: ОПЦІЇ (таблиця)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function populateMpOptions(allData) {
+    const container = document.getElementById('mp-data-opt-container');
+    const statsEl = document.getElementById('mp-data-opt-stats');
+    const searchInput = document.getElementById('mp-data-opt-search');
+    if (!container) return;
+
+    const ownOpts = getOptions();
+    let filteredData = preprocessOptsData(allData, ownOpts);
+
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
+
+    const columns = [
+        col('external_id', 'ID', 'word-chip'),
+        col('_name', 'Назва', 'name'),
+        col('_charName', 'Характ.', 'text', { className: 'cell-m' }),
+        {
+            id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
+            render: (value, row) => {
+                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+            }
+        }
+    ];
+
+    const tableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        withContainer: false,
+        getRowId: row => row.id,
+        onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'option'),
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => { filteredData = sortedData; renderTable(filteredData); },
+                columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' }
+            }
+        }
+    });
+
+    const renderTable = (data) => {
+        tableAPI.render(data);
+        updateStats(data.length, allData.length);
+    };
+
+    const filterTableData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = preprocessOptsData(allData, ownOpts);
+        } else {
+            filteredData = preprocessOptsData(allData, ownOpts).filter(row =>
+                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
+                (row._name && row._name.toLowerCase().includes(q)) ||
+                (row._charName && row._charName.toLowerCase().includes(q))
+            );
+        }
+        renderTable(filteredData);
+    };
+
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterTableData(e.target.value));
     }
 
-    if (statsEl) statsEl.textContent = `Показано ${data.length} з ${totalCount}`;
+    renderTable(filteredData);
+}
 
-    // Кожен таб — свій рендер
-    if (activeTab === 'categories') {
-        renderMpCategoryTree(container, data);
-    } else if (activeTab === 'characteristics') {
-        renderMpCharsTable(container, data);
-    } else if (activeTab === 'options') {
-        renderMpOptsTable(container, data);
-    }
+function preprocessOptsData(data, ownOpts) {
+    return data.map(item => {
+        const mapping = getOptionMappingByMpId(item.id) || getOptionMappingByMpId(item.external_id);
+        const mappedId = mapping?.option_id || '';
+        const mappedOpt = mappedId ? ownOpts.find(o => o.id === mappedId) : null;
+        return {
+            ...item,
+            _name: extractMpName(item) || item.external_id || '-',
+            _charName: item.char_name || item.char_id || '-',
+            _mappedId: mappedId,
+            _mappedLabel: mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : ''
+        };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAPPING TRIGGER DELEGATION (per-container)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initMappingTriggerDelegation(container, entityType) {
+    container.addEventListener('click', (e) => {
+        const trigger = e.target.closest('.custom-select-trigger[data-entity-type]');
+        if (!trigger) return;
+        e.stopPropagation();
+
+        const mpEntityId = trigger.dataset.mpEntityId;
+        const mpExtId = trigger.dataset.mpExtId;
+        const currentValue = trigger.dataset.currentValue || '';
+
+        if (entityType === 'characteristic') {
+            const ownChars = getCharacteristics();
+            showMappingPicker(trigger, ownChars, currentValue, async (newValue) => {
+                const oldMapping = getCharacteristicMappingByMpId(mpEntityId) || getCharacteristicMappingByMpId(mpExtId);
+                if (oldMapping) {
+                    try { await deleteCharacteristicMapping(oldMapping.id); }
+                    catch { showToast('Помилка видалення', 'error'); return; }
+                }
+                if (newValue) {
+                    try { await createCharacteristicMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
+                    catch { showToast('Помилка прив\'язки', 'error'); return; }
+                } else if (oldMapping) {
+                    showToast('Прив\'язку видалено', 'success');
+                }
+                const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
+                trigger.dataset.currentValue = newValue || '';
+                trigger.classList.toggle('is-mapped', !!newValue);
+                const label = trigger.querySelector('.mp-tree-mapping-label');
+                if (label) label.textContent = newChar ? (newChar.name_ua || newChar.id) : '—';
+            });
+        } else if (entityType === 'option') {
+            const ownOpts = getOptions();
+            showMappingPicker(trigger, ownOpts, currentValue, async (newValue) => {
+                const oldMapping = getOptionMappingByMpId(mpEntityId) || getOptionMappingByMpId(mpExtId);
+                if (oldMapping) {
+                    try { await deleteOptionMapping(oldMapping.id); }
+                    catch { showToast('Помилка видалення', 'error'); return; }
+                }
+                if (newValue) {
+                    try { await createOptionMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
+                    catch { showToast('Помилка прив\'язки', 'error'); return; }
+                } else if (oldMapping) {
+                    showToast('Прив\'язку видалено', 'success');
+                }
+                const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
+                trigger.dataset.currentValue = newValue || '';
+                trigger.classList.toggle('is-mapped', !!newValue);
+                const label = trigger.querySelector('.mp-tree-mapping-label');
+                if (label) label.textContent = newOpt ? (newOpt.value_ua || newOpt.id) : '—';
+            }, (o) => o.value_ua || o.id);
+        }
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -550,7 +668,7 @@ function renderMpCategoryTree(container, data) {
 
             return `
                 <li data-id="${escapeHtml(item.id)}" class="${classes}">
-                    <div class="tree-item-content mp-tree-item">
+                    <div class="tree-item-content">
                         ${toggleHtml}
                         <span class="tree-item-name">${escapeHtml(name)}</span>
                         <div class="${triggerClass}"
@@ -565,11 +683,11 @@ function renderMpCategoryTree(container, data) {
             `;
         }).join('');
 
-        return `<ul class="glossary-tree-level-${Math.min(level, 5)}">${items}</ul>`;
+        return `<ul class="tree-level-${Math.min(level, 5)}">${items}</ul>`;
     }
 
     const treeHtml = buildTree('root', 0);
-    container.innerHTML = `<div class="glossary-tree mp-category-tree">${treeHtml || renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}</div>`;
+    container.innerHTML = `<div class="tree">${treeHtml || renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}</div>`;
 
     // Toggle expand/collapse
     container.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -752,103 +870,3 @@ function getOrCreateMappingPicker() {
     return picker;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ТАБЛИЦІ ХАРАКТЕРИСТИК / ОПЦІЙ (з mapping trigger)
-// ═══════════════════════════════════════════════════════════════════════════
-
-function renderMpCharsTable(container, data) {
-    const ownChars = getCharacteristics();
-    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
-    const hasMore = data.length > MP_DATA_PAGE_SIZE;
-
-    const processedData = displayData.map(item => {
-        const mapping = getCharacteristicMappingByMpId(item.id) || getCharacteristicMappingByMpId(item.external_id);
-        const mappedId = mapping?.characteristic_id || '';
-        const mappedChar = mappedId ? ownChars.find(c => c.id === mappedId) : null;
-        return {
-            ...item,
-            _name: extractMpName(item) || item.external_id || '-',
-            _mappedId: mappedId,
-            _mappedLabel: mappedChar ? (mappedChar.name_ua || mappedChar.id) : ''
-        };
-    });
-
-    const columns = [
-        col('external_id', 'ID', 'word-chip'),
-        col('_name', 'Назва', 'name'),
-        col('type', 'Тип', 'code'),
-        {
-            id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
-            render: (value, row) => {
-                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
-                return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
-            }
-        }
-    ];
-
-    renderTableLego(container, {
-        columns,
-        data: processedData,
-        withContainer: false,
-        getRowId: row => row.id,
-        plugins: {
-            sorting: { columnTypes: { external_id: 'string', _name: 'string', type: 'string' } }
-        }
-    });
-
-    if (hasMore) {
-        const notice = document.createElement('div');
-        notice.style.cssText = 'text-align: center; padding: 1rem; color: var(--color-on-surface-v);';
-        notice.textContent = `Показано перші ${MP_DATA_PAGE_SIZE}. Використовуйте пошук.`;
-        container.appendChild(notice);
-    }
-}
-
-function renderMpOptsTable(container, data) {
-    const ownOpts = getOptions();
-    const displayData = data.slice(0, MP_DATA_PAGE_SIZE);
-    const hasMore = data.length > MP_DATA_PAGE_SIZE;
-
-    const processedData = displayData.map(item => {
-        const mapping = getOptionMappingByMpId(item.id) || getOptionMappingByMpId(item.external_id);
-        const mappedId = mapping?.option_id || '';
-        const mappedOpt = mappedId ? ownOpts.find(o => o.id === mappedId) : null;
-        return {
-            ...item,
-            _name: extractMpName(item) || item.external_id || '-',
-            _charName: item.char_name || item.char_id || '-',
-            _mappedId: mappedId,
-            _mappedLabel: mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : ''
-        };
-    });
-
-    const columns = [
-        col('external_id', 'ID', 'word-chip'),
-        col('_name', 'Назва', 'name'),
-        col('_charName', 'Характ.', 'text', { className: 'cell-m' }),
-        {
-            id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
-            render: (value, row) => {
-                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
-                return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
-            }
-        }
-    ];
-
-    renderTableLego(container, {
-        columns,
-        data: processedData,
-        withContainer: false,
-        getRowId: row => row.id,
-        plugins: {
-            sorting: { columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' } }
-        }
-    });
-
-    if (hasMore) {
-        const notice = document.createElement('div');
-        notice.style.cssText = 'text-align: center; padding: 1rem; color: var(--color-on-surface-v);';
-        notice.textContent = `Показано перші ${MP_DATA_PAGE_SIZE}. Використовуйте пошук.`;
-        container.appendChild(notice);
-    }
-}

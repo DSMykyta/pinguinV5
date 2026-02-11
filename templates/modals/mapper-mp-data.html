@@ -17,19 +17,19 @@
         <div class="modal-body-with-sidebar">
 
             <!-- SIDEBAR NAVIGATOR -->
-            <nav class="sidebar-navigator" id="mp-data-sidebar-nav">
+            <nav class="sidebar-navigator" id="mp-data-section-navigator">
                 <div class="sidebar-nav-main">
-                    <a class="sidebar-nav-item active" data-mp-tab="categories">
+                    <a href="#section-mp-data-categories" class="sidebar-nav-item active">
                         <span class="material-symbols-outlined">square</span>
                         <span class="sidebar-nav-label">Категорії</span>
                         <span class="tree-node-count" id="mp-data-cat-count">0</span>
                     </a>
-                    <a class="sidebar-nav-item" data-mp-tab="characteristics">
+                    <a href="#section-mp-data-chars" class="sidebar-nav-item">
                         <span class="material-symbols-outlined">change_history</span>
                         <span class="sidebar-nav-label">Характеристики</span>
                         <span class="tree-node-count" id="mp-data-char-count">0</span>
                     </a>
-                    <a class="sidebar-nav-item" data-mp-tab="options">
+                    <a href="#section-mp-data-options" class="sidebar-nav-item">
                         <span class="material-symbols-outlined">circle</span>
                         <span class="sidebar-nav-label">Опції</span>
                         <span class="tree-node-count" id="mp-data-opt-count">0</span>
@@ -37,24 +37,72 @@
                 </div>
             </nav>
 
-            <!-- CONTENT -->
+            <!-- CONTENT SECTIONS -->
             <main class="modal-fullscreen-content">
-                <section id="mp-data-section">
+
+                <!-- СЕКЦІЯ: КАТЕГОРІЇ -->
+                <section id="section-mp-data-categories">
                     <div class="section-header u-align-end">
                         <div class="section-name-block">
-                            <h3 class="small" id="mp-data-stats-text">Показано 0 з 0</h3>
+                            <div class="section-name">
+                                <h2 class="section-upper">Категорії</h2>
+                            </div>
+                            <h3 class="small" id="mp-data-cat-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
-                                <input type="text" id="mp-data-search" placeholder="Пошук..." class="input-main">
+                                <input type="text" id="mp-data-cat-search" class="input-main" placeholder="Пошук категорій...">
                             </div>
                         </div>
                     </div>
-                    <div id="mp-data-table-container" class="pseudo-table-container">
+                    <div id="mp-data-cat-container" class="pseudo-table-container">
                         <!-- Заповнюється JavaScript -->
                     </div>
                 </section>
+
+                <!-- СЕКЦІЯ: ХАРАКТЕРИСТИКИ -->
+                <section id="section-mp-data-chars">
+                    <div class="section-header u-align-end">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Характеристики</h2>
+                            </div>
+                            <h3 class="small" id="mp-data-char-stats">Показано 0 з 0</h3>
+                        </div>
+                        <div class="tab-controls">
+                            <div class="search-container">
+                                <span class="material-symbols-outlined">search</span>
+                                <input type="text" id="mp-data-char-search" class="input-main" placeholder="Пошук характеристик...">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mp-data-char-container" class="pseudo-table-container">
+                        <!-- Заповнюється JavaScript -->
+                    </div>
+                </section>
+
+                <!-- СЕКЦІЯ: ОПЦІЇ -->
+                <section id="section-mp-data-options">
+                    <div class="section-header u-align-end">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Опції</h2>
+                            </div>
+                            <h3 class="small" id="mp-data-opt-stats">Показано 0 з 0</h3>
+                        </div>
+                        <div class="tab-controls">
+                            <div class="search-container">
+                                <span class="material-symbols-outlined">search</span>
+                                <input type="text" id="mp-data-opt-search" class="input-main" placeholder="Пошук опцій...">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mp-data-opt-container" class="pseudo-table-container">
+                        <!-- Заповнюється JavaScript -->
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>

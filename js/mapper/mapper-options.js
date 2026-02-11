@@ -550,6 +550,11 @@ function renderMappedMpOptionsSections(ownOptionId) {
         unmap: async (rowId, data) => {
             const mappingId = data.mappingId;
             if (mappingId) {
+                const confirmed = await showConfirmModal({
+                    title: 'Відв\'язати опцію',
+                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                });
+                if (!confirmed) return;
                 try {
                     await deleteOptionMapping(mappingId);
                     showToast('Маппінг видалено', 'success');

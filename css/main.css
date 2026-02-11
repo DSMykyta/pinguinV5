@@ -93,7 +93,7 @@
 
 /* === COMPONENTS - CONTENT === */
 @import url('components/content/preview.css');
-@import url('components/content/glossary-tree.css');
+@import url('components/content/tree.css');
 @import url('components/content/glossary-article.css');
 @import url('components/content/section-misc.css');
 @import url('components/content/image-tool.css');

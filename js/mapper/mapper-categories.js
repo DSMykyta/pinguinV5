@@ -805,6 +805,11 @@ function renderMappedMpCategoriesSections(ownCatId) {
     registerActionHandlers('mp-category-mapping', {
         unmap: async (rowId, data) => {
             if (data.mappingId) {
+                const confirmed = await showConfirmModal({
+                    title: 'Відв\'язати категорію',
+                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                });
+                if (!confirmed) return;
                 await deleteCategoryMapping(data.mappingId);
                 showToast('Маппінг видалено', 'success');
                 renderMappedMpCategoriesSections(ownCatId);
