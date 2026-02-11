@@ -239,7 +239,7 @@ export function getColumns() {
         col('check', 'Перевірено', 'badge-toggle', { filterable: true }),
         col('payment', 'Оплата', 'badge-toggle', { filterable: true }),
         col('update_date', 'Оновлено', 'text', { searchable: false, filterable: true }),
-        col('reserve', 'Резерв', 'text', { filterable: true })
+        col('reserve', 'Резерв', 'reserve', { filterable: true, resolveAvatar: renderReserveCell })
     ];
 }
 
@@ -248,11 +248,11 @@ export function getColumns() {
  * Ім'я показується тільки в tooltip при наведенні
  */
 function renderReserveCell(value) {
-    if (!value) {
-        return '<span class="text-muted">-</span>';
-    }
+    if (!value) return null;
 
     const name = value.trim();
+    if (!name) return null;
+
     const userAvatar = priceState.usersMap?.[name] || priceState.usersMap?.[name.toLowerCase()];
 
     if (userAvatar) {

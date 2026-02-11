@@ -8,7 +8,7 @@
  * ║  Кожна сторінка описує колонки через col() замість ручного конфігу.     ║
  * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
- * ║  ТИПИ (14):                                                              ║
+ * ║  ТИПИ (15):                                                              ║
  * ║  1.  word-chip     — ID, коди, артикули         [chip]                  ║
  * ║  2.  name          — головна назва              <strong>                ║
  * ║  3.  text          — звичайний текст            escaped string          ║
@@ -23,6 +23,7 @@
  * ║  12. code          — технічне значення          <code>                  ║
  * ║  13. select        — custom-select dropdown     <select> + options     ║
  * ║  14. links         — масив посилань             [{name,url}] → icon   ║
+ * ║  15. reserve       — резерв N/D → avatar        badge + resolveAvatar  ║
  * ║                                                                          ║
  * ║  ЕКСПОРТ:                                                               ║
  * ║  - COLUMN_TYPES — Реєстр типів                                         ║
@@ -34,7 +35,7 @@ import { renderBadge, renderSeverityBadge } from './table-badges.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 /**
- * Стандартні типи колонок (14 типів).
+ * Стандартні типи колонок (15 типів).
  * Кожен тип задає: className, sortable, searchable, render.
  * Override render ЗАБОРОНЕНО — тільки структурні overrides (className, sortable, filterable тощо).
  */
@@ -185,6 +186,24 @@ export const COLUMN_TYPES = {
                 const url = escapeHtml(link.url || '#');
                 return `<a href="${url}" target="_blank" rel="noopener" class="btn-icon" data-tooltip="${name}"><span class="material-symbols-outlined">open_in_new</span></a>`;
             }).join('');
+        }
+    },
+
+    // 15. Reserve — badge N/D → avatar (resolveAvatar callback для аватарки)
+    reserve: {
+        className: 'cell-xs cell-center',
+        sortable: true,
+        render: (value, row, col) => {
+            const id = row.id || row.local_id || row.code;
+            if (!value || !String(value).trim()) {
+                return `<span class="badge clickable" data-badge-id="${escapeHtml(id)}:reserve" data-status="" style="cursor:pointer">N/D</span>`;
+            }
+            const name = String(value).trim();
+            if (col.resolveAvatar) {
+                const html = col.resolveAvatar(name);
+                if (html) return html;
+            }
+            return `<span data-tooltip="${escapeHtml(name)}">${escapeHtml(name)}</span>`;
         }
     }
 };

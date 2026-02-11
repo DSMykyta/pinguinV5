@@ -131,6 +131,25 @@ async function handleStatusBadgeClick(badge) {
     const [code, field] = badgeId.split(':');
     if (!code || !field) return;
 
+    // Reserve — окрема логіка: резервуємо на поточного юзера
+    if (field === 'reserve') {
+        try {
+            const { getCurrentUserName } = await import('../common/avatar/avatar-state.js');
+            const { reserveItem } = await import('./price-data.js');
+            const userName = getCurrentUserName();
+            if (!userName) return;
+
+            badge.classList.add('is-loading');
+            await reserveItem(code, userName);
+            await renderPriceTableRowsOnly();
+        } catch (error) {
+            console.error('Помилка резервування:', error);
+        } finally {
+            badge.classList.remove('is-loading');
+        }
+        return;
+    }
+
     // Визначаємо поточний стан по класу
     const currentValue = badge.classList.contains('badge-success');
     const newValue = !currentValue ? 'TRUE' : 'FALSE';
