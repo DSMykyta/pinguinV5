@@ -1140,7 +1140,7 @@ function renderEmptyState(container, tabName) {
         categories: 'square',
         characteristics: 'change_history',
         options: 'circle',
-        marketplaces: 'storefront'
+        marketplaces: 'hexagon'
     };
 
     const messages = {
