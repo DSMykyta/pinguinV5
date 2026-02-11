@@ -27,7 +27,7 @@
     font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
-    white-space: normal;                        /* Дозволити перенесення тексту */
+    white-space: pre-line;                       /* Зберігати \n як перенесення рядків */
     word-wrap: break-word;
     z-index: 10000;
     pointer-events: none;

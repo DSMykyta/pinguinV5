@@ -1115,9 +1115,9 @@ function updatePagination(totalItems) {
  */
 function renderEmptyState(container, tabName) {
     const icons = {
-        categories: 'folder',
-        characteristics: 'tune',
-        options: 'check_box',
+        categories: 'square',
+        characteristics: 'change_history',
+        options: 'circle',
         marketplaces: 'storefront'
     };
 
