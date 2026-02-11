@@ -224,11 +224,17 @@
     padding-bottom: 16px;
 }
 
-.modal-fullscreen-content section .section-content {
+.modal-fullscreen-content section .section-content,
+.modal-fullscreen-content section .pseudo-table-container {
     flex: 1 1 auto;
     overflow-y: scroll;
     min-height: 0;
     margin: 0;
+}
+
+.modal-fullscreen-content section .section-footer {
+    flex: 0 0 auto;
+    padding-top: 8px;
 }
 
 /* ============================================

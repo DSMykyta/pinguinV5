@@ -42,6 +42,8 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
+import { initPagination } from '../common/ui-pagination.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
 
@@ -349,10 +351,14 @@ function populateMpCharacteristics(allData) {
     const container = document.getElementById('mp-data-char-container');
     const statsEl = document.getElementById('mp-data-char-stats');
     const searchInput = document.getElementById('mp-data-char-search');
+    const paginationEl = document.getElementById('mp-data-char-pagination');
     if (!container) return;
 
     const ownChars = getCharacteristics();
-    let filteredData = preprocessCharsData(allData, ownChars);
+    const allProcessed = preprocessCharsData(allData, ownChars);
+    let filteredData = [...allProcessed];
+    let currentPage = 1;
+    let pageSize = 25;
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
@@ -380,36 +386,50 @@ function populateMpCharacteristics(allData) {
         plugins: {
             sorting: {
                 dataSource: () => filteredData,
-                onSort: (sortedData) => { filteredData = sortedData; renderTable(filteredData); },
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    currentPage = 1;
+                    renderPage();
+                },
                 columnTypes: { external_id: 'string', _name: 'string', type: 'string' }
             }
         }
     });
 
-    const renderTable = (data) => {
-        tableAPI.render(data);
-        updateStats(data.length, allData.length);
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        tableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
     const filterTableData = (query) => {
         const q = query.toLowerCase().trim();
         if (!q) {
-            filteredData = preprocessCharsData(allData, ownChars);
+            filteredData = [...allProcessed];
         } else {
-            filteredData = preprocessCharsData(allData, ownChars).filter(row =>
+            filteredData = allProcessed.filter(row =>
                 (row.external_id && row.external_id.toLowerCase().includes(q)) ||
                 (row._name && row._name.toLowerCase().includes(q))
             );
         }
-        renderTable(filteredData);
+        currentPage = 1;
+        renderPage();
     };
+
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     if (searchInput) {
         searchInput.value = '';
         searchInput.addEventListener('input', (e) => filterTableData(e.target.value));
     }
 
-    renderTable(filteredData);
+    renderPage();
 }
 
 function preprocessCharsData(data, ownChars) {
@@ -434,10 +454,14 @@ function populateMpOptions(allData) {
     const container = document.getElementById('mp-data-opt-container');
     const statsEl = document.getElementById('mp-data-opt-stats');
     const searchInput = document.getElementById('mp-data-opt-search');
+    const paginationEl = document.getElementById('mp-data-opt-pagination');
     if (!container) return;
 
     const ownOpts = getOptions();
-    let filteredData = preprocessOptsData(allData, ownOpts);
+    const allProcessed = preprocessOptsData(allData, ownOpts);
+    let filteredData = [...allProcessed];
+    let currentPage = 1;
+    let pageSize = 25;
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
@@ -465,37 +489,81 @@ function populateMpOptions(allData) {
         plugins: {
             sorting: {
                 dataSource: () => filteredData,
-                onSort: (sortedData) => { filteredData = sortedData; renderTable(filteredData); },
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    currentPage = 1;
+                    renderPage();
+                },
                 columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' }
+            },
+            filters: {
+                dataSource: () => allProcessed,
+                filterColumns: [
+                    { id: '_charName', label: 'Характеристика', filterType: 'values' }
+                ],
+                onFilter: (filters) => {
+                    columnFilters = filters;
+                    currentPage = 1;
+                    applyAllFilters();
+                }
             }
         }
     });
 
-    const renderTable = (data) => {
-        tableAPI.render(data);
-        updateStats(data.length, allData.length);
-    };
+    let columnFilters = {};
+    let searchQuery = '';
 
-    const filterTableData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = preprocessOptsData(allData, ownOpts);
-        } else {
-            filteredData = preprocessOptsData(allData, ownOpts).filter(row =>
-                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
-                (row._name && row._name.toLowerCase().includes(q)) ||
-                (row._charName && row._charName.toLowerCase().includes(q))
+    const applyAllFilters = () => {
+        let result = [...allProcessed];
+
+        // Текстовий пошук
+        if (searchQuery) {
+            result = result.filter(row =>
+                (row.external_id && row.external_id.toLowerCase().includes(searchQuery)) ||
+                (row._name && row._name.toLowerCase().includes(searchQuery)) ||
+                (row._charName && row._charName.toLowerCase().includes(searchQuery))
             );
         }
-        renderTable(filteredData);
+
+        // Колонкові фільтри
+        if (columnFilters && Object.keys(columnFilters).length > 0) {
+            for (const [colId, allowedValues] of Object.entries(columnFilters)) {
+                const allowed = new Set(allowedValues);
+                result = result.filter(row => {
+                    const val = row[colId] ? row[colId].toString().trim() : '';
+                    return val ? allowed.has(val) : allowed.has('__empty__');
+                });
+            }
+        }
+
+        filteredData = result;
+        renderPage();
     };
+
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        tableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
+    };
+
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     if (searchInput) {
         searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterTableData(e.target.value));
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            currentPage = 1;
+            applyAllFilters();
+        });
     }
 
-    renderTable(filteredData);
+    renderPage();
 }
 
 function preprocessOptsData(data, ownOpts) {
