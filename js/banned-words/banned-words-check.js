@@ -6,7 +6,7 @@ import { loadSheetDataForCheck, checkTextForBannedWords, updateProductStatus } f
 import { showLoader, showErrorDetails } from '../common/ui-loading.js';
 import { showToast } from '../common/ui-toast.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createTable, renderBadge } from '../common/table/table-main.js';
+import { createTable, col } from '../common/table/table-main.js';
 import { registerCheckTabPagination } from './banned-words-pagination.js';
 import {
     registerActionHandlers,
@@ -366,78 +366,25 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
     const showSheetColumn = selectedSheets.length > 1;
     const showColumnColumn = columnsWithErrors.length > 1;
 
-    const columns = [];
-
-    // ID
-    columns.push({
-        id: 'id',
-        label: 'ID',
-        sortable: true,
-        className: 'cell-m',
-        render: (value) => `<span class="badge">${escapeHtml(value)}</span>`
-    });
-
-    // Назва
-    columns.push({
-        id: 'title',
-        label: 'Назва',
-        sortable: true,
-        className: 'cell-l',
-        render: (value) => `<strong>${escapeHtml(value)}</strong>`
-    });
+    const columns = [
+        col('id', 'ID', 'word-chip'),
+        col('title', 'Назва', 'name', { className: 'cell-l' })
+    ];
 
     // Колонка "Аркуш" - тільки якщо обрано > 1 аркуша
     if (showSheetColumn) {
-        columns.push({
-            id: 'sheetName',
-            label: 'Аркуш',
-            sortable: true,
-            className: 'cell-l',
-            render: (value) => `<span class="text-muted">${escapeHtml(value || '')}</span>`
-        });
+        columns.push(col('sheetName', 'Аркуш', 'code', { className: 'cell-l' }));
     }
 
     // Колонка "Колонка" - тільки якщо помилки в > 1 колонці
     if (showColumnColumn) {
-        columns.push({
-            id: 'columnName',
-            label: 'Колонка',
-            sortable: true,
-            className: 'cell-l',
-            render: (value, row) => {
-                if (row.multipleColumns && row.columnNames) {
-                    const count = row.columnNames.length;
-                    const tooltip = row.columnNames.join(', ');
-                    return `<span class="badge badge-warning" title="${escapeHtml(tooltip)}">${count} колонки</span>`;
-                }
-                return `<span class="text-muted">${escapeHtml(value || '')}</span>`;
-            }
-        });
+        columns.push(col('columnName', 'Колонка', 'code', { className: 'cell-l' }));
     }
 
-    // Кількість входжень
-    columns.push({
-        id: 'matchCount',
-        label: 'Кількість',
-        sortable: true,
-        className: 'cell-2xs cell-center',
-        render: (value) => {
-            const count = value || 1;
-            return `<span class="match-count-badge">${count}×</span>`;
-        }
-    });
-
-    // Статус перевірки
-    columns.push({
-        id: 'cheaked_line',
-        label: 'Статус',
-        sortable: true,
-        className: 'cell-s cell-center',
-        render: (value, row) => renderBadge(value, 'checked', {
-            clickable: true,
-            id: row.id
-        })
-    });
+    columns.push(
+        col('matchCount', 'Кількість', 'counter'),
+        col('cheaked_line', 'Статус', 'badge-toggle')
+    );
 
     return columns;
 }
@@ -507,14 +454,11 @@ function initCheckTableAPI(tabId, container, selectedSheets, selectedColumns, co
                     await renderCheckResults(bannedWordsState.selectedSheet, bannedWord);
                 },
                 columnTypes: {
-                    local_id: 'id-number',
-                    severity: 'string',
-                    group_name_ua: 'string',
-                    name_uk: 'string',
-                    name_ru: 'string',
-                    banned_type: 'string',
-                    banned_explaine: 'string',
-                    banned_hint: 'string',
+                    id: 'id-text',
+                    title: 'string',
+                    sheetName: 'string',
+                    columnName: 'string',
+                    matchCount: 'number',
                     cheaked_line: 'boolean'
                 }
             }

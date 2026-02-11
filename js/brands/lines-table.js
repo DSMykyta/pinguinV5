@@ -14,8 +14,7 @@ import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrandLines } from './lines-data.js';
 import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
-import { createTable } from '../common/table/table-main.js';
-import { escapeHtml } from '../utils/text-utils.js';
+import { createTable, col } from '../common/table/table-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
     registerActionHandlers,
@@ -46,48 +45,22 @@ let linesTableAPI = null;
  */
 export function getLinesColumns() {
     return [
-        {
-            id: 'line_id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            searchable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'brand_id',
-            label: 'Бренд',
-            sortable: true,
-            searchable: true,
-            render: (value) => {
-                const brand = getBrandById(value);
-                if (brand) {
-                    return `<span class="word-chip">${escapeHtml(brand.name_uk)}</span>`;
-                }
-                return `<span class="word-chip text-muted">${escapeHtml(value || '-')}</span>`;
-            }
-        },
-        {
-            id: 'name_uk',
-            label: 'Назва лінійки',
-            sortable: true,
-            searchable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'line_logo_url',
-            label: 'Логотип',
-            sortable: false,
-            className: 'cell-m',
-            render: (value) => {
-                if (value) {
-                    return `<span class="material-symbols-outlined text-success" title="Є логотип">image</span>`;
-                }
-                return `<span class="material-symbols-outlined text-muted" title="Немає логотипу">image</span>`;
-            }
-        }
+        col('line_id', 'ID', 'word-chip'),
+        col('_brandName', 'Бренд', 'text'),
+        col('name_uk', 'Назва лінійки', 'name'),
+        col('_hasLogo', 'Логотип', 'status-dot', { className: 'cell-xs cell-center' })
     ];
+}
+
+/**
+ * Збагачує дані лінійок обчисленими полями
+ */
+function enrichLinesData(lines) {
+    return lines.map(l => ({
+        ...l,
+        _brandName: getBrandById(l.brand_id)?.name_uk || l.brand_id || '—',
+        _hasLogo: l.line_logo_url ? 'active' : 'inactive'
+    }));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -103,7 +76,7 @@ function initLinesTableAPI() {
 
     const visibleCols = brandsState.linesVisibleColumns.length > 0
         ? brandsState.linesVisibleColumns
-        : ['line_id', 'brand_id', 'name_uk'];
+        : ['line_id', '_brandName', 'name_uk'];
 
     linesTableAPI = createTable(container, {
         columns: getLinesColumns(),
@@ -122,14 +95,14 @@ function initLinesTableAPI() {
         onAfterRender: (container) => initActionHandlers(container, 'brand-lines'),
         plugins: {
             sorting: {
-                dataSource: () => brandsState.brandLines || [],
+                dataSource: () => enrichLinesData(brandsState.brandLines || []),
                 onSort: async (sortedData) => {
                     brandsState.brandLines = sortedData;
                     renderLinesTable();
                 },
                 columnTypes: {
                     line_id: 'id-text',
-                    brand_id: 'string',
+                    _brandName: 'string',
                     name_uk: 'string'
                 }
             }
@@ -144,7 +117,7 @@ function initLinesTableAPI() {
  * Отримати пагіновані дані лінійок
  */
 function getLinesPagedData() {
-    const lines = getBrandLines();
+    const lines = enrichLinesData(getBrandLines());
     const filteredLines = applyFilters(lines);
 
     // Зберігаємо totalItems в state для коректного перемикання табів
@@ -251,20 +224,11 @@ function applyFilters(lines) {
     // Пошук
     if (brandsState.linesSearchQuery) {
         const query = brandsState.linesSearchQuery.toLowerCase();
-        const columns = brandsState.linesSearchColumns || ['line_id', 'name_uk', 'brand_id'];
+        const columns = brandsState.linesSearchColumns || ['line_id', 'name_uk', '_brandName'];
 
         filtered = filtered.filter(line => {
             return columns.some(column => {
                 const value = line[column];
-
-                // Для brand_id шукаємо також по назві бренду
-                if (column === 'brand_id') {
-                    const brand = getBrandById(value);
-                    if (brand && brand.name_uk.toLowerCase().includes(query)) {
-                        return true;
-                    }
-                }
-
                 return value?.toString().toLowerCase().includes(query);
             });
         });

@@ -56,7 +56,7 @@ export const brandsState = {
     columnFilters: {},
 
     // Видимі колонки для лінійок
-    linesVisibleColumns: ['line_id', 'brand_id', 'name_uk'],
+    linesVisibleColumns: ['line_id', '_brandName', 'name_uk'],
 
     // ═══════════════════════════════════════════════════════════════════════
     // СОРТУВАННЯ

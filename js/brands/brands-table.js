@@ -51,8 +51,8 @@ export function getColumns() {
         col('name_uk', 'Назва', 'name'),
         col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),
         col('country_option_id', 'Країна', 'text', { filterable: true }),
-        col('brand_status', 'Статус', 'text', { className: 'cell-s', searchable: false, filterable: true }),
-        col('brand_links', 'Посилання', 'text', { sortable: false, searchable: false, className: 'cell-l' }),
+        col('brand_status', 'Статус', 'status-dot', { filterable: true }),
+        col('brand_links', 'Посилання', 'links'),
         col('lines_count', 'Лінійки', 'counter')
     ];
 }
@@ -134,6 +134,10 @@ function initTableAPI() {
  */
 function getPaginatedData() {
     const brands = getBrands();
+    const lines = brandsState.brandLines || [];
+    brands.forEach(b => {
+        b.lines_count = lines.filter(l => l.brand_id === b.brand_id).length;
+    });
     const filteredBrands = applyFilters(brands);
 
     // Зберігаємо totalItems в state для коректного перемикання табів

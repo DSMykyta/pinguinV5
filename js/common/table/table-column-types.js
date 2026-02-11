@@ -8,7 +8,7 @@
  * ║  Кожна сторінка описує колонки через col() замість ручного конфігу.     ║
  * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
- * ║  ТИПИ (13):                                                              ║
+ * ║  ТИПИ (14):                                                              ║
  * ║  1.  word-chip     — ID, коди, артикули         [chip]                  ║
  * ║  2.  name          — головна назва              <strong>                ║
  * ║  3.  text          — звичайний текст            escaped string          ║
@@ -22,6 +22,7 @@
  * ║  11. binding-chip  — чіп з tooltip              {count, tooltip}       ║
  * ║  12. code          — технічне значення          <code>                  ║
  * ║  13. select        — custom-select dropdown     <select> + options     ║
+ * ║  14. links         — масив посилань             [{name,url}] → <a>     ║
  * ║                                                                          ║
  * ║  ЕКСПОРТ:                                                               ║
  * ║  - COLUMN_TYPES — Реєстр типів                                         ║
@@ -33,7 +34,7 @@ import { renderBadge, renderSeverityBadge } from './table-badges.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 /**
- * Стандартні типи колонок (13 типів).
+ * Стандартні типи колонок (14 типів).
  * Кожен тип задає: className, sortable, searchable, render.
  * Override render ЗАБОРОНЕНО — тільки структурні overrides (className, sortable, filterable тощо).
  */
@@ -169,6 +170,21 @@ export const COLUMN_TYPES = {
                 return `<option value="${escapeHtml(optValue)}"${selected}>${escapeHtml(optLabel)}</option>`;
             }).join('');
             return `<select data-custom-select data-row-id="${escapeHtml(row.id || row.code || '')}" data-column-id="${escapeHtml(col.id || '')}"><option value="">—</option>${optionsHtml}</select>`;
+        }
+    },
+
+    // 14. Links — масив посилань [{name, url}]
+    links: {
+        className: 'cell-l',
+        sortable: false,
+        searchable: false,
+        render: (value) => {
+            if (!value || !Array.isArray(value) || !value.length) return '<span class="text-muted">—</span>';
+            return value.map(link => {
+                const name = escapeHtml(link.name || link.url || '');
+                const url = escapeHtml(link.url || '#');
+                return `<a href="${url}" target="_blank" rel="noopener" class="word-chip primary">${name}</a>`;
+            }).join(' ');
         }
     }
 };

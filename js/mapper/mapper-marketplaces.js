@@ -470,7 +470,7 @@ function populateMpOptions(allData) {
     const columns = [
         col('external_id', 'ID', 'word-chip'),
         col('_name', 'Назва', 'name'),
-        col('_charName', 'Характ.', 'text', { className: 'cell-m' }),
+        col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }),
         {
             id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
             render: (value, row) => {
@@ -526,15 +526,7 @@ function populateMpOptions(allData) {
         }
 
         // Колонкові фільтри
-        if (columnFilters && Object.keys(columnFilters).length > 0) {
-            for (const [colId, allowedValues] of Object.entries(columnFilters)) {
-                const allowed = new Set(allowedValues);
-                result = result.filter(row => {
-                    const val = row[colId] ? row[colId].toString().trim() : '';
-                    return val ? allowed.has(val) : allowed.has('__empty__');
-                });
-            }
-        }
+        result = applyColumnFilters(result, columnFilters, [{ id: '_charName', filterType: 'values' }]);
 
         filteredData = result;
         renderPage();
