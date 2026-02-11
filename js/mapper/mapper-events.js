@@ -89,8 +89,13 @@ function initBindingChipClicks() {
         if (entityType === 'category') {
             const { showBindingsModal } = await import('./mapper-categories.js');
             showBindingsModal(entityId, entityName);
+        } else if (entityType === 'characteristic') {
+            const { showBindingsModal } = await import('./mapper-characteristics.js');
+            showBindingsModal(entityId, entityName);
+        } else if (entityType === 'option') {
+            const { showBindingsModal } = await import('./mapper-options.js');
+            showBindingsModal(entityId, entityName);
         }
-        // TODO: характеристики та опції — аналогічно
     });
 }
 

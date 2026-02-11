@@ -332,13 +332,31 @@ async function loadAsideMapper() {
             });
         }
 
-        // Ініціалізувати кнопку маппінг-візарда
+        // Ініціалізувати кнопки маппінг-візардів
         const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
         if (mappingWizardBtn) {
             mappingWizardBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
                 showMappingWizard();
+            });
+        }
+
+        const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
+        if (charWizardBtn) {
+            charWizardBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const { showCharacteristicMappingWizard } = await import('./mapper-mapping-wizard-characteristics.js');
+                showCharacteristicMappingWizard();
+            });
+        }
+
+        const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
+        if (optWizardBtn) {
+            optWizardBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const { showOptionMappingWizard } = await import('./mapper-mapping-wizard-options.js');
+                showOptionMappingWizard();
             });
         }
 
