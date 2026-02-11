@@ -54,16 +54,7 @@ const PARAM_TYPE_LABELS = {
 export function getColumns() {
     return [
         col('local_id', 'ID', 'word-chip'),
-        col('param_type', 'Тип', 'text', {
-            className: 'cell-s',
-            filterable: true,
-            filterType: 'values',
-            render: (value) => {
-                if (!value) return '<span class="text-muted">—</span>';
-                const label = PARAM_TYPE_LABELS[value] || value;
-                return `<span>${escapeHtml(label)}</span>`;
-            }
-        }),
+        col('param_type', 'Тип', 'text', { className: 'cell-s', filterable: true, filterType: 'values' }),
         col('name_uk', 'Назва', 'name'),
         col('trigers', 'Тригери', 'words-list', { sortable: true, searchable: true })
     ];

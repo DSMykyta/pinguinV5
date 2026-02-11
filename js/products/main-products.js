@@ -71,30 +71,14 @@ let productsData = [];
  */
 export function getColumns() {
     return [
-        col('id', 'ID', 'word-chip', {
-            render: (value) => `<span class="product-id">${value}</span>`
-        }),
+        col('id', 'ID', 'word-chip'),
         col('photo', 'Фото', 'photo'),
         col('category', 'Категорія', 'text', { className: 'cell-m', searchable: false }),
-        col('name_short', 'Назва', 'name', {
-            render: (value) => `<span class="product-name">${value}</span>`
-        }),
-        col('variants_count', 'Варіанти', 'counter', {
-            className: 'cell-s cell-center',
-            render: (value, row) => actionButton({ action: 'variants', rowId: row.id, context: 'products', label: value, extraClass: 'btn-variants-count' })
-        }),
-        col('status', 'Статус', 'status-dot', {
-            render: (value) => getStatusDot(value)
-        }),
-        col('show_on_site', 'Вивід', 'badge-toggle', {
-            render: (value, row) => renderBadge(value, 'boolean', { clickable: true, id: row.id })
-        }),
-        col('storefronts', 'Вітрини', 'text', {
-            sortable: false,
-            searchable: false,
-            className: 'cell-s',
-            render: (value) => getStorefrontLinks(value)
-        })
+        col('name_short', 'Назва', 'name'),
+        col('variants_count', 'Варіанти', 'counter'),
+        col('status', 'Статус', 'status-dot'),
+        col('show_on_site', 'Вивід', 'badge-toggle'),
+        col('storefronts', 'Вітрини', 'text', { sortable: false, searchable: false, className: 'cell-s' })
     ];
 }
 

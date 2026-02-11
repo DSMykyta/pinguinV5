@@ -49,53 +49,11 @@ export function getColumns() {
     return [
         col('brand_id', 'ID', 'word-chip'),
         col('name_uk', 'Назва', 'name'),
-        col('names_alt', 'Альтернативні назви', 'words-list', {
-            searchable: true,
-            render: (value) => {
-                if (Array.isArray(value) && value.length > 0) {
-                    return value.map(n => `<span class="word-chip">${escapeHtml(n)}</span>`).join(' ');
-                }
-                return '-';
-            }
-        }),
+        col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),
         col('country_option_id', 'Країна', 'text', { filterable: true }),
-        col('brand_status', 'Статус', 'text', {
-            className: 'cell-s',
-            searchable: false,
-            filterable: true,
-            render: (value) => {
-                const isActive = value !== 'inactive';
-                const badgeClass = isActive ? 'badge-success' : 'badge-warning';
-                const text = isActive ? 'Активний' : 'Неактивний';
-                return `<span class="badge ${badgeClass}">${text}</span>`;
-            }
-        }),
-        col('brand_links', 'Посилання', 'text', {
-            sortable: false,
-            searchable: false,
-            className: 'cell-l',
-            render: (value) => {
-                if (!Array.isArray(value) || value.length === 0) {
-                    return `<span class="material-symbols-outlined text-muted" title="Немає посилань">link_off</span>`;
-                }
-                const count = value.length;
-                return `
-                    <span class="badge badge-outline" title="${count} посилань">
-                        <span class="material-symbols-outlined">link</span>
-                        ${count}
-                    </span>
-                `;
-            }
-        }),
-        col('lines_count', 'Лінійки', 'counter', {
-            className: 'cell-2xs cell-center',
-            render: (value, row) => {
-                const count = getBrandLines().filter(l => l.brand_id === row.brand_id).length;
-                return count > 0
-                    ? `<span class="badge badge-outline">${count}</span>`
-                    : '<span class="text-muted">-</span>';
-            }
-        })
+        col('brand_status', 'Статус', 'text', { className: 'cell-s', searchable: false, filterable: true }),
+        col('brand_links', 'Посилання', 'text', { sortable: false, searchable: false, className: 'cell-l' }),
+        col('lines_count', 'Лінійки', 'counter')
     ];
 }
 

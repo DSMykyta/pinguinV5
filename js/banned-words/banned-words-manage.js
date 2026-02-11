@@ -49,9 +49,7 @@ export function getColumns() {
         col('local_id', 'ID', 'word-chip'),
         col('severity', ' ', 'severity-badge', { searchable: true }),
         col('group_name_ua', 'Назва Групи', 'name'),
-        col('banned_type', 'Тип', 'text', {
-            render: (value) => value || '<span style="color: var(--color-on-surface-v);">не вказано</span>'
-        }),
+        col('banned_type', 'Тип', 'text'),
         col('cheaked_line', 'Перевірено', 'badge-toggle')
     ];
 }

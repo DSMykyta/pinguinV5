@@ -232,59 +232,14 @@ export async function renderPriceTable() {
 export function getColumns() {
     return [
         col('code', 'Код', 'word-chip'),
-        col('article', 'Артикул', 'input', {
-            className: 'cell-s',
-            sortable: true,
-            searchable: true,
-            render: (value, row) => {
-                if (value) {
-                    return `<span class="article-value">${escapeHtml(value)}</span>`;
-                }
-                return `<input type="text" class="input-main input-article" data-code="${escapeHtml(row.code)}" placeholder="Артикул">`;
-            }
-        }),
-        col('product', 'Товар', 'name', {
-            sortKey: 'product',
-            render: (value, row) => formatProductDisplay(row)
-        }),
-        col('shiping_date', 'Відправка', 'word-chip', {
-            className: '',
-            searchable: false,
-            filterable: true,
-            render: (value) => {
-                const displayValue = value || 'ненаявно';
-                return `<span class="word-chip">${escapeHtml(displayValue)}</span>`;
-            }
-        }),
-        col('status', 'Викладено', 'badge-toggle', {
-            filterable: true,
-            render: (value, row) => renderBadge(value, 'checked', {
-                clickable: true,
-                id: `${row.code}:status`
-            })
-        }),
-        col('check', 'Перевірено', 'badge-toggle', {
-            filterable: true,
-            render: (value, row) => renderBadge(value, 'checked', {
-                clickable: true,
-                id: `${row.code}:check`
-            })
-        }),
-        col('payment', 'Оплата', 'badge-toggle', {
-            filterable: true,
-            render: (value, row) => renderBadge(value, 'checked', {
-                clickable: true,
-                id: `${row.code}:payment`
-            })
-        }),
-        col('update_date', 'Оновлено', 'text', {
-            searchable: false,
-            filterable: true
-        }),
-        col('reserve', 'Резерв', 'text', {
-            filterable: true,
-            render: (value) => renderReserveCell(value)
-        })
+        col('article', 'Артикул', 'input', { className: 'cell-s', sortable: true, searchable: true }),
+        col('product', 'Товар', 'name', { sortKey: 'product' }),
+        col('shiping_date', 'Відправка', 'word-chip', { className: '', searchable: false, filterable: true }),
+        col('status', 'Викладено', 'badge-toggle', { filterable: true }),
+        col('check', 'Перевірено', 'badge-toggle', { filterable: true }),
+        col('payment', 'Оплата', 'badge-toggle', { filterable: true }),
+        col('update_date', 'Оновлено', 'text', { searchable: false, filterable: true }),
+        col('reserve', 'Резерв', 'text', { filterable: true })
     ];
 }
 
