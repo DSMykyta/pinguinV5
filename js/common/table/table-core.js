@@ -158,7 +158,7 @@ export class TableCore {
 
                     let cellContent;
                     if (col.render && typeof col.render === 'function') {
-                        cellContent = col.render(value, row);
+                        cellContent = col.render(value, row, col);
                     } else {
                         cellContent = escapeHtml(value ?? ' ');
                     }

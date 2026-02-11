@@ -265,6 +265,17 @@ function populateBrandLines(brandId) {
             sortable: true,
             className: 'cell-l',
             render: (value, row) => escapeHtml(value || row.line_id || '-')
+        },
+        {
+            id: '_unlink',
+            label: ' ',
+            sortable: false,
+            className: 'cell-xs',
+            render: (value, row) => `
+                <button class="btn-icon" data-row-id="${escapeHtml(row.line_id)}" data-action="unlink" data-tooltip="Відв'язати від бренду">
+                    <span class="material-symbols-outlined">link_off</span>
+                </button>
+            `
         }
     ];
 
@@ -276,9 +287,6 @@ function populateBrandLines(brandId) {
         rowActions: (row) => `
             <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
                 <span class="material-symbols-outlined">edit</span>
-            </button>
-            <button class="btn-icon" data-row-id="${row.line_id}" data-action="unlink" data-tooltip="Відв'язати від бренду">
-                <span class="material-symbols-outlined">link_off</span>
             </button>
         `,
         emptyState: { message: 'Лінійки відсутні' },

@@ -433,7 +433,7 @@ function populateRelatedOptions(characteristicId) {
         col('value_ua', 'Назва', 'text', { className: 'cell-l' }),
         {
             id: '_unlink',
-            label: '',
+            label: ' ',
             sortable: false,
             className: 'cell-s',
             render: (value, row) => actionButton({
