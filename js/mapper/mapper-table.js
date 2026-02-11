@@ -290,7 +290,7 @@ function createBindingsColumn(entityType) {
     };
 }
 
-import { createTable, filterData } from '../common/table/table-main.js';
+import { createTable, filterData, col } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -436,7 +436,7 @@ function getCategoriesData() {
 /**
  * Отримати конфігурацію колонок для категорій
  */
-function getCategoriesColumns(allCategories) {
+export function getCategoriesColumns(allCategories) {
     return [
         {
             id: 'id',
@@ -628,7 +628,7 @@ function getCharacteristicsData() {
 /**
  * Отримати конфігурацію колонок для характеристик
  */
-function getCharacteristicsColumns(categoriesList) {
+export function getCharacteristicsColumns(categoriesList) {
     return [
         {
             id: 'id',
@@ -814,7 +814,7 @@ function getOptionsData() {
 /**
  * Отримати конфігурацію колонок для опцій
  */
-function getOptionsColumns(characteristicsList) {
+export function getOptionsColumns(characteristicsList) {
     return [
         {
             id: 'id',
@@ -991,7 +991,7 @@ function getMarketplacesData() {
 /**
  * Отримати конфігурацію колонок для маркетплейсів
  */
-function getMarketplacesColumns() {
+export function getMarketplacesColumns() {
     return [
         {
             id: 'id',

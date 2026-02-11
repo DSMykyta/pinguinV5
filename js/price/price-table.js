@@ -9,7 +9,7 @@
  */
 
 import { priceState } from './price-init.js';
-import { createTable, renderBadge } from '../common/table/table-main.js';
+import { createTable, renderBadge, col } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { getAvatarPath } from '../common/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
@@ -231,17 +231,8 @@ export async function renderPriceTable() {
  */
 export function getColumns() {
     return [
-        {
-            id: 'code',
-            label: 'Код',
-            className: 'cell-m',
-            sortable: true,
-            searchable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'article',
-            label: 'Артикул',
+        col('code', 'Код', 'word-chip'),
+        col('article', 'Артикул', 'input', {
             className: 'cell-s',
             sortable: true,
             searchable: true,
@@ -251,74 +242,49 @@ export function getColumns() {
                 }
                 return `<input type="text" class="input-main input-article" data-code="${escapeHtml(row.code)}" placeholder="Артикул">`;
             }
-        },
-        {
-            id: 'product',
-            label: 'Товар',
-            className: 'cell-xl',
-            sortable: true,
-            searchable: true,
+        }),
+        col('product', 'Товар', 'name', {
             sortKey: 'product',
             render: (value, row) => formatProductDisplay(row)
-        },
-        {
-            id: 'shiping_date',
-            label: 'Відправка',
-            sortable: true,
+        }),
+        col('shiping_date', 'Відправка', 'word-chip', {
+            className: '',
+            searchable: false,
             filterable: true,
             render: (value) => {
                 const displayValue = value || 'ненаявно';
                 return `<span class="word-chip">${escapeHtml(displayValue)}</span>`;
             }
-        },
-        {
-            id: 'status',
-            label: 'Викладено',
-            className: 'cell-s cell-center',
-            sortable: true,
+        }),
+        col('status', 'Викладено', 'badge-toggle', {
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:status`
             })
-        },
-        {
-            id: 'check',
-            label: 'Перевірено',
-            className: 'cell-s cell-center',
-            sortable: true,
+        }),
+        col('check', 'Перевірено', 'badge-toggle', {
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:check`
             })
-        },
-        {
-            id: 'payment',
-            label: 'Оплата',
-            className: 'cell-s cell-center',
-            sortable: true,
+        }),
+        col('payment', 'Оплата', 'badge-toggle', {
             filterable: true,
             render: (value, row) => renderBadge(value, 'checked', {
                 clickable: true,
                 id: `${row.code}:payment`
             })
-        },
-        {
-            id: 'update_date',
-            label: 'Оновлено',
-            sortable: true,
+        }),
+        col('update_date', 'Оновлено', 'text', {
+            searchable: false,
+            filterable: true
+        }),
+        col('reserve', 'Резерв', 'text', {
             filterable: true,
-            render: (value) => escapeHtml(value || '-')
-        },
-        {
-            id: 'reserve',
-            label: 'Резерв',
-            sortable: true,
-            filterable: true,
-            searchable: true,
             render: (value) => renderReserveCell(value)
-        }
+        })
     ];
 }
 

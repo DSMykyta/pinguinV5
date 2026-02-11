@@ -650,7 +650,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
                     <h2>Маркетплейси</h2>
                     <span class="word-chip">${totalCount}</span>
                 </div>
-                <h3>Прив'язані характеристики маркетплейсів</h3>
+                <span class="small">Прив'язані характеристики маркетплейсів</span>
             </div>
             <div class="tab-controls">
                 <button class="btn-outline btn-map-mp">

@@ -9,48 +9,40 @@
  */
 
 import { mapperState } from './mapper-state.js';
-import { renderCurrentTab } from './mapper-table.js';
+import {
+    renderCurrentTab,
+    getCategoriesColumns, getCharacteristicsColumns,
+    getOptionsColumns, getMarketplacesColumns
+} from './mapper-table.js';
 import {
     loadMapperData,
     loadMpCategories, loadMpCharacteristics, loadMpOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
-import { createColumnSelector } from '../common/ui-table-columns.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
 /**
- * Конфігурація колонок для кожного табу
+ * Отримати конфігурацію колонок для dropdown видимості
+ * Автоматично читає з реальних колонок таблиці
  */
-const columnConfigs = {
-    categories: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name_ua', label: 'Назва UA', checked: true },
-        { id: 'name_ru', label: 'Назва RU', checked: false },
-        { id: 'parent_id', label: 'Батьківська', checked: true }
-    ],
-    characteristics: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name_ua', label: 'Назва UA', checked: true },
-        { id: 'name_ru', label: 'Назва RU', checked: false },
-        { id: 'type', label: 'Тип', checked: true },
-        { id: 'is_global', label: 'Глобальна', checked: true },
-        { id: 'unit', label: 'Одиниця', checked: false },
-        { id: 'category_ids', label: 'Категорії', checked: false }
-    ],
-    options: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'characteristic_id', label: 'Характеристика', checked: true },
-        { id: 'value_ua', label: 'Значення UA', checked: true },
-        { id: 'value_ru', label: 'Значення RU', checked: false },
-        { id: 'sort_order', label: 'Порядок', checked: false }
-    ],
-    marketplaces: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name', label: 'Назва', checked: true },
-        { id: 'slug', label: 'Slug', checked: true },
-        { id: 'is_active', label: 'Активний', checked: true }
-    ]
-};
+function getColumnConfigs(tab) {
+    const columnGetters = {
+        categories: () => getCategoriesColumns([]),
+        characteristics: () => getCharacteristicsColumns([]),
+        options: () => getOptionsColumns([]),
+        marketplaces: () => getMarketplacesColumns()
+    };
+
+    const getter = columnGetters[tab];
+    if (!getter) return [];
+
+    return getter().map(col => ({
+        id: col.id,
+        label: col.label,
+        checked: true
+    }));
+}
 
 /**
  * Ініціалізувати всі обробники подій
@@ -110,15 +102,15 @@ function initColumnSelectors() {
 
     tabs.forEach(tab => {
         const containerId = `table-columns-list-mapper-${tab}`;
-        const columns = columnConfigs[tab];
+        const columns = getColumnConfigs(tab);
 
-        if (!columns) return;
+        if (!columns.length) return;
 
         // Встановити початкові видимі колонки зі стану
-        const initialVisible = mapperState.visibleColumns[tab] || columns.filter(c => c.checked).map(c => c.id);
-        const columnsWithState = columns.map(col => ({
-            ...col,
-            checked: initialVisible.includes(col.id)
+        const initialVisible = mapperState.visibleColumns[tab] || columns.map(c => c.id);
+        const columnsWithState = columns.map(c => ({
+            ...c,
+            checked: initialVisible.includes(c.id)
         }));
 
         createColumnSelector(containerId, columnsWithState, {

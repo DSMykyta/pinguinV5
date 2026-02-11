@@ -5,7 +5,7 @@
 
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
-import { renderTable as renderTableLego, renderBadge } from '../common/table/table-main.js';
+import { renderTable as renderTableLego, renderBadge, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -65,6 +65,38 @@ let selectedProducts = new Set();
 
 // Активні товари (з localStorage)
 let productsData = [];
+
+/**
+ * Отримати конфігурацію колонок для таблиці товарів
+ */
+export function getColumns() {
+    return [
+        col('id', 'ID', 'word-chip', {
+            render: (value) => `<span class="product-id">${value}</span>`
+        }),
+        col('photo', 'Фото', 'photo'),
+        col('category', 'Категорія', 'text', { className: 'cell-m', searchable: false }),
+        col('name_short', 'Назва', 'name', {
+            render: (value) => `<span class="product-name">${value}</span>`
+        }),
+        col('variants_count', 'Варіанти', 'counter', {
+            className: 'cell-s cell-center',
+            render: (value, row) => actionButton({ action: 'variants', rowId: row.id, context: 'products', label: value, extraClass: 'btn-variants-count' })
+        }),
+        col('status', 'Статус', 'status-dot', {
+            render: (value) => getStatusDot(value)
+        }),
+        col('show_on_site', 'Вивід', 'badge-toggle', {
+            render: (value, row) => renderBadge(value, 'boolean', { clickable: true, id: row.id })
+        }),
+        col('storefronts', 'Вітрини', 'text', {
+            sortable: false,
+            searchable: false,
+            className: 'cell-s',
+            render: (value) => getStorefrontLinks(value)
+        })
+    ];
+}
 
 // Дані з таблиць
 let sheetsData = {
@@ -162,65 +194,7 @@ function renderProductsTable(products) {
     // Використовуємо Table LEGO renderTable
     renderTableLego(container, {
         data: filtered,
-        columns: [
-            {
-                id: 'id',
-                label: 'ID',
-                sortable: true,
-                className: 'cell-m',
-                render: (value) => `<span class="product-id">${value}</span>`
-            },
-            {
-                id: 'photo',
-                label: 'Фото',
-                sortable: false,
-                className: 'cell-xs cell-center cell-photo',
-                render: (value, row) => value
-                    ? `<img src="${value}" alt="${row.name_short}" class="product-thumb">`
-                    : `<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>`
-            },
-            {
-                id: 'category',
-                label: 'Категорія',
-                sortable: true,
-                className: 'cell-m'
-            },
-            {
-                id: 'name_short',
-                label: 'Назва',
-                sortable: true,
-                className: 'cell-xl',
-                render: (value) => `<span class="product-name">${value}</span>`
-            },
-            {
-                id: 'variants_count',
-                label: 'Варіанти',
-                sortable: false,
-                className: 'cell-s cell-center',
-                render: (value, row) => actionButton({ action: 'variants', rowId: row.id, context: 'products', label: value, extraClass: 'btn-variants-count' })
-            },
-            {
-                id: 'status',
-                label: 'Статус',
-                sortable: true,
-                className: 'cell-xs cell-center',
-                render: (value) => getStatusDot(value)
-            },
-            {
-                id: 'show_on_site',
-                label: 'Вивід',
-                sortable: false,
-                className: 'cell-s cell-center',
-                render: (value, row) => renderBadge(value, 'boolean', { clickable: true, id: row.id })
-            },
-            {
-                id: 'storefronts',
-                label: 'Вітрини',
-                sortable: false,
-                className: 'cell-s cell-storefronts',
-                render: (value) => getStorefrontLinks(value)
-            }
-        ],
+        columns: getColumns(),
         rowActions: (row) => {
             const isChecked = selectedProducts.has(row.id);
             return `
@@ -463,7 +437,7 @@ function renderVariantsTab() {
                 id: 'productPhoto',
                 label: 'Фото',
                 sortable: false,
-                className: 'cell-xs cell-center cell-photo',
+                className: 'cell-xs cell-center',
                 render: (value) => `<img src="${value}" alt="" class="product-thumb">`
             },
             {

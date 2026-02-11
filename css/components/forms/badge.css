@@ -17,10 +17,6 @@
     box-shadow: var(--shadow-1);
 }
 
-.cell-id .badge:hover {
-    box-shadow: none;
-}
-
 .badge-neutral {
     color: var(--color-on-error);
     border: 1px solid var(--color-error);

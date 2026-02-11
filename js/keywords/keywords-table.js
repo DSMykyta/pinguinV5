@@ -10,7 +10,7 @@
 
 import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
-import { createTable, filterData } from '../common/table/table-main.js';
+import { createTable, filterData, col } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import {
     registerActionHandlers,
@@ -53,20 +53,9 @@ const PARAM_TYPE_LABELS = {
  */
 export function getColumns() {
     return [
-        {
-            id: 'local_id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            searchable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'param_type',
-            label: 'Тип',
+        col('local_id', 'ID', 'word-chip'),
+        col('param_type', 'Тип', 'text', {
             className: 'cell-s',
-            sortable: true,
-            searchable: true,
             filterable: true,
             filterType: 'values',
             render: (value) => {
@@ -74,39 +63,9 @@ export function getColumns() {
                 const label = PARAM_TYPE_LABELS[value] || value;
                 return `<span>${escapeHtml(label)}</span>`;
             }
-        },
-        {
-            id: 'name_uk',
-            label: 'Назва',
-            sortable: true,
-            searchable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'trigers',
-            label: 'Тригери',
-            className: 'cell-l',
-            sortable: true,
-            searchable: true,
-            render: (value) => {
-                if (!value) return '<span class="text-muted">—</span>';
-                const triggers = value.split(',').map(t => t.trim()).filter(Boolean);
-
-                if (triggers.length === 0) return '<span class="text-muted">—</span>';
-
-                // Показувати тільки перший тригер + "+N" якщо є більше
-                const firstTrigger = `<span class="word-chip primary">${escapeHtml(triggers[0])}</span>`;
-                const hiddenCount = triggers.length - 1;
-
-                let chipsHtml = firstTrigger;
-                if (hiddenCount > 0) {
-                    chipsHtml += ` <span class="word-chip neutral">+${hiddenCount}</span>`;
-                }
-
-                return `<div class="cell-words-list">${chipsHtml}</div>`;
-            }
-        }
+        }),
+        col('name_uk', 'Назва', 'name'),
+        col('trigers', 'Тригери', 'words-list', { sortable: true, searchable: true })
     ];
 }
 

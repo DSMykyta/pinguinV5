@@ -133,14 +133,6 @@
     color: var(--color-on-surface-v);
 }
 
-/* Фото товару — розміри зображення (ширина через cell-xs) */
-.cell-photo img {
-    width: 48px;
-    height: 48px;
-    object-fit: cover;
-    border-radius: 6px;
-}
-
 /* Modal with Tabs - base modal styles in modal.css */
 
 /* .modal-header-actions - use global from modal.css */
@@ -1285,13 +1277,7 @@
     color: var(--color-on-surface-v);
 }
 
-/* Storefronts Cell — іконки (ширина через cell-s) */
-.cell-storefronts {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
+/* Storefronts — іконки */
 .storefront-link {
     display: inline-flex;
     align-items: center;

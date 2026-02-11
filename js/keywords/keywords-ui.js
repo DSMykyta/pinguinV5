@@ -7,7 +7,7 @@
  */
 
 import { keywordsState } from './keywords-init.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
 import { renderKeywordsTable, getColumns } from './keywords-table.js';
 
 /**

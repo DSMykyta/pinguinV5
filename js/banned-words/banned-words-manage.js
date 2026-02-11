@@ -6,7 +6,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { initCustomSelects } from '../common/ui-select.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createTable, renderBadge, renderSeverityBadge } from '../common/table/table-main.js';
+import { createTable, renderBadge, renderSeverityBadge, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -46,47 +46,13 @@ const renderWordChips = (value, isPrimary = false) => {
  */
 export function getColumns() {
     return [
-        {
-            id: 'local_id',
-            label: 'ID',
-            sortable: true,
-            searchable: true,
-            className: 'cell-m',
-            render: (value) => `<span class="word-chip">${value || 'Невідомо'}</span>`
-        },
-        {
-            id: 'severity',
-            label: ' ',
-            sortable: true,
-            searchable: true,
-            className: 'cell-2xs cell-center',
-            render: (value) => renderSeverityBadge(value)
-        },
-        {
-            id: 'group_name_ua',
-            label: 'Назва Групи',
-            sortable: true,
-            searchable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || 'N/A')}</strong>`
-        },
-        {
-            id: 'banned_type',
-            label: 'Тип',
-            sortable: true,
-            searchable: true,
+        col('local_id', 'ID', 'word-chip'),
+        col('severity', ' ', 'severity-badge', { searchable: true }),
+        col('group_name_ua', 'Назва Групи', 'name'),
+        col('banned_type', 'Тип', 'text', {
             render: (value) => value || '<span style="color: var(--color-on-surface-v);">не вказано</span>'
-        },
-        {
-            id: 'cheaked_line',
-            label: 'Перевірено',
-            sortable: true,
-            className: 'cell-s cell-center',
-            render: (value, row) => renderBadge(value, 'checked', {
-                clickable: true,
-                id: row.local_id
-            })
-        }
+        }),
+        col('cheaked_line', 'Перевірено', 'badge-toggle')
     ];
 }
 

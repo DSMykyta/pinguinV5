@@ -29,7 +29,8 @@
                         <span class="material-symbols-outlined">edit</span>
                         <span class="sidebar-nav-label">Основні дані</span>
                     </a>
-                    <a href="#section-option-dependent" class="sidebar-nav-item u-hidden" id="nav-option-dependent" aria-label="Дочірні опції">
+                    <a href="#section-option-dependent" class="sidebar-nav-item u-hidden" id="nav-option-dependent"
+                        aria-label="Дочірні опції">
                         <span class="material-symbols-outlined">account_tree</span>
                         <span class="sidebar-nav-label">Дочірні опції</span>
                     </a>
@@ -47,7 +48,7 @@
             <main class="modal-fullscreen-content">
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
-                <section id="section-option-main" >
+                <section id="section-option-main">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -56,24 +57,20 @@
                                     <span class="material-symbols-outlined">info</span>
                                 </button>
                             </div>
-                            <h3 class="small">Налаштування власної опції</h3>
+                            <span class="small">Налаштування власної опції</span>
                         </div>
                     </div>
 
                     <div class="section-content">
                         <!-- Прив'язки -->
-                        <div class="form-section-title">
-                            <span class="material-symbols-outlined">link</span>
-                            <span>Прив'язка до характеристики</span>
-                        </div>
-
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
                                 <label for="mapper-option-char">
                                     Характеристика
                                     <span class="required">*</span>
                                 </label>
-                                <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику" required>
+                                <select id="mapper-option-char" data-custom-select placeholder="Оберіть характеристику"
+                                    required>
                                     <option value="">-- Оберіть характеристику --</option>
                                 </select>
                                 <p class="form-hint">Оберіть характеристику, до якої належить опція</p>
@@ -81,42 +78,44 @@
 
                             <div class="form-group">
                                 <label for="mapper-option-parent">Батьківська опція</label>
-                                <select id="mapper-option-parent" data-custom-select data-placeholder="Без батьківської опції">
+                                <select id="mapper-option-parent" data-custom-select
+                                    data-placeholder="Без батьківської опції">
                                     <option value="">— Без батьківської опції —</option>
                                 </select>
                                 <p class="form-hint">При виборі батьківської опції з'явиться дропдаун з цією опцією</p>
                             </div>
                         </div>
 
-                        <div class="form-grid form-grid-2">
-                            <div class="form-group">
-                                <label for="mapper-option-order">Порядок сортування</label>
-                                <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0" min="0">
-                                <p class="form-hint">Менше число = вища позиція в списку</p>
-                            </div>
-                        </div>
+
 
                         <!-- Значення -->
-                        <div class="form-section-title u-mt-24">
-                            <span class="material-symbols-outlined">edit</span>
-                            <span>Значення</span>
-                        </div>
-
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
                                 <label for="mapper-option-value-ua">
                                     Значення (UA)
                                     <span class="required">*</span>
                                 </label>
-                                <input type="text" id="mapper-option-value-ua" class="input-main" placeholder="Значення українською" required>
+                                <input type="text" id="mapper-option-value-ua" class="input-main"
+                                    placeholder="Значення українською" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="mapper-option-value-ru">Значення (RU)</label>
-                                <input type="text" id="mapper-option-value-ru" class="input-main" placeholder="Значення російською">
+                                <input type="text" id="mapper-option-value-ru" class="input-main"
+                                    placeholder="Значення російською">
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label for="mapper-option-order">Порядок сортування</label>
+                            <input type="number" id="mapper-option-order" class="input-main" placeholder="0" value="0"
+                                min="0">
+                            <p class="form-hint">Менше число = вища позиція в списку</p>
+                        </div>
+                    </div>
+
                 </section>
 
                 <!-- СЕКЦІЯ: ЗАЛЕЖНІ ХАРАКТЕРИСТИКИ -->
@@ -131,7 +130,8 @@
                         <div class="tab-controls">
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
-                                <input type="text" id="option-chars-search" class="input-main" placeholder="Пошук опцій...">
+                                <input type="text" id="option-chars-search" class="input-main"
+                                    placeholder="Пошук опцій...">
                             </div>
                         </div>
                     </div>

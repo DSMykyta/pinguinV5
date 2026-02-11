@@ -14,7 +14,7 @@ import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
 import { getBrandLines } from './lines-data.js';
 import { brandsState } from './brands-state.js';
-import { createTable, filterData } from '../common/table/table-main.js';
+import { createTable, filterData, col } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
@@ -47,68 +47,37 @@ let tableAPI = null;
  */
 export function getColumns() {
     return [
-        {
-            id: 'brand_id',
-            label: 'ID',
-            className: 'cell-m',
-            sortable: true,
-            searchable: true,
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'name_uk',
-            label: 'Назва',
-            sortable: true,
-            searchable: true,
-            className: 'cell-xl',
-            render: (value) => `<strong>${escapeHtml(value || '')}</strong>`
-        },
-        {
-            id: 'names_alt',
-            label: 'Альтернативні назви',
-            sortable: true,
+        col('brand_id', 'ID', 'word-chip'),
+        col('name_uk', 'Назва', 'name'),
+        col('names_alt', 'Альтернативні назви', 'words-list', {
             searchable: true,
             render: (value) => {
-                // value тепер масив
                 if (Array.isArray(value) && value.length > 0) {
                     return value.map(n => `<span class="word-chip">${escapeHtml(n)}</span>`).join(' ');
                 }
                 return '-';
             }
-        },
-        {
-            id: 'country_option_id',
-            label: 'Країна',
-            sortable: true,
-            searchable: true,
-            filterable: true,
-            render: (value) => escapeHtml(value || '-')
-        },
-        {
-            id: 'brand_status',
-            label: 'Статус',
-            sortable: true,
-            filterable: true,
+        }),
+        col('country_option_id', 'Країна', 'text', { filterable: true }),
+        col('brand_status', 'Статус', 'text', {
             className: 'cell-s',
+            searchable: false,
+            filterable: true,
             render: (value) => {
                 const isActive = value !== 'inactive';
                 const badgeClass = isActive ? 'badge-success' : 'badge-warning';
                 const text = isActive ? 'Активний' : 'Неактивний';
                 return `<span class="badge ${badgeClass}">${text}</span>`;
             }
-        },
-        {
-            id: 'brand_links',
-            label: 'Посилання',
+        }),
+        col('brand_links', 'Посилання', 'text', {
             sortable: false,
+            searchable: false,
             className: 'cell-l',
             render: (value) => {
-                // value тепер масив [{name, url}, ...]
                 if (!Array.isArray(value) || value.length === 0) {
                     return `<span class="material-symbols-outlined text-muted" title="Немає посилань">link_off</span>`;
                 }
-
-                // Показати кількість посилань
                 const count = value.length;
                 return `
                     <span class="badge badge-outline" title="${count} посилань">
@@ -117,11 +86,8 @@ export function getColumns() {
                     </span>
                 `;
             }
-        },
-        {
-            id: 'lines_count',
-            label: 'Лінійки',
-            sortable: true,
+        }),
+        col('lines_count', 'Лінійки', 'counter', {
             className: 'cell-2xs cell-center',
             render: (value, row) => {
                 const count = getBrandLines().filter(l => l.brand_id === row.brand_id).length;
@@ -129,7 +95,7 @@ export function getColumns() {
                     ? `<span class="badge badge-outline">${count}</span>`
                     : '<span class="text-muted">-</span>';
             }
-        }
+        })
     ];
 }
 

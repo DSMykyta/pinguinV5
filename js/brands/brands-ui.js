@@ -12,7 +12,7 @@
 
 import { brandsState } from './brands-state.js';
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
 import { getColumns } from './brands-table.js';
 
 /**

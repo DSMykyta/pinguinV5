@@ -858,7 +858,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
                     <h2>Маркетплейси</h2>
                     <span class="word-chip">${totalCount}</span>
                 </div>
-                <h3>Прив'язані категорії маркетплейсів</h3>
+                <span class="small">Прив'язані категорії маркетплейсів</span>
             </div>
             <div class="tab-controls">
                 <button class="btn-outline btn-map-mp">

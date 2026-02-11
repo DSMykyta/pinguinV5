@@ -14,7 +14,7 @@
 
 import { bannedWordsState } from './banned-words-init.js';
 import { populateSelect } from '../common/ui-select.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/ui-table-columns.js';
+import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
 import { getColumns } from './banned-words-manage.js';
 
 /**
