@@ -2,36 +2,24 @@
  * COMPONENT: Compound Input
  *
  * ПРИЗНАЧЕННЯ:
- * Універсальний складений інпут — кілька полів в одному бордері + кнопки дій.
- * Використовується для посилань, URL, складених значень.
+ * Контейнер з бордером для кількох інпутів/кнопок в одному рядку.
+ * Інпути всередині — ghost (без класу), бордер дає контейнер.
  *
  * СТРУКТУРА:
  * ┌─────────────────────────────────────────────────┐
  * │ .compound-input-row                             │
  * │  ┌──────────────────────────────┐  [btn] [btn]  │
  * │  │ .compound-input              │               │
- * │  │  [ci-prefix | ci-value]      │               │
+ * │  │  [input | input]             │               │
  * │  └──────────────────────────────┘               │
  * └─────────────────────────────────────────────────┘
  *
  * HTML:
- * <!-- З префіксом (посилання бренду) -->
  * <div class="compound-input-row">
  *   <div class="compound-input">
- *     <input type="text" class="ci-prefix" placeholder="ua, de...">
- *     <input type="url" class="ci-value" placeholder="https://...">
+ *     <input type="text" placeholder="Значення...">
  *   </div>
- *   <button class="btn-icon ci-action"><span class="material-symbols-outlined">open_in_new</span></button>
- *   <button class="btn-icon ci-remove"><span class="material-symbols-outlined">close</span></button>
- * </div>
- *
- * <!-- Без префікса (URL інпут) -->
- * <div class="compound-input-row">
- *   <div class="compound-input">
- *     <input type="url" class="ci-value" placeholder="https://...">
- *   </div>
- *   <button class="btn-icon ci-action"><span class="material-symbols-outlined">add</span></button>
- *   <button class="btn-icon ci-remove"><span class="material-symbols-outlined">close</span></button>
+ *   <button class="btn-icon"><span class="material-symbols-outlined">close</span></button>
  * </div>
  *
  * ЗАЛЕЖНОСТІ:
@@ -76,37 +64,6 @@
     padding: 7px 15px;
 }
 
-/* ============================================ */
-/* ВНУТРІШНІ ІНПУТИ                            */
-/* ============================================ */
-
-.ci-prefix,
-.ci-value {
-    border: none;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    color: var(--color-on-surface);
-    outline: none;
-    height: auto;
-    min-height: auto;
-}
-
-/* Префікс — короткий лейбл зліва */
-.ci-prefix {
-    flex: 0 0 auto;
-    width: 50px;
-    text-align: center;
-    color: var(--color-on-surface-v);
-    border-right: 1px solid var(--color-outline);
-    padding-right: 12px;
-    margin-right: 12px;
-}
-
-/* Основне поле */
-.ci-value {
-    flex: 1;
-}
 
 /* ============================================ */
 /* СПИСОК (контейнер для динамічних рядків)    */
@@ -117,6 +74,7 @@
     flex-direction: column;
     gap: 8px;
 }
+
 
 /* Empty state */
 .compound-input-empty {

@@ -249,7 +249,6 @@ h4, .h4 {
 /* ============================================ */
 
 .input-left,
-.input-right,
-.gost-input {
+.input-right {
     font-family: 'Roboto Mono', monospace;
 }

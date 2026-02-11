@@ -171,37 +171,34 @@ function createModal() {
                         </div>
                     </div>
 
-                    <!-- Right column: toggle switches with text -->
+                    <!-- Right column: toggle switches -->
                     <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="form-group">
                             <label>Викладено</label>
-                            <label class="toggle-switch-segmented">
-                                <input type="checkbox" id="edit-status">
-                                <span class="slider">
-                                    <span class="text-off">Ні</span>
-                                    <span class="text-on">Так</span>
-                                </span>
-                            </label>
+                            <div class="switch switch-bordered switch-fit">
+                                <input type="radio" id="edit-status-off" name="edit-status" value="FALSE" checked>
+                                <label for="edit-status-off" class="switch-label">Ні</label>
+                                <input type="radio" id="edit-status-on" name="edit-status" value="TRUE">
+                                <label for="edit-status-on" class="switch-label">Так</label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Перевірено</label>
-                            <label class="toggle-switch-segmented">
-                                <input type="checkbox" id="edit-check">
-                                <span class="slider">
-                                    <span class="text-off">Ні</span>
-                                    <span class="text-on">Так</span>
-                                </span>
-                            </label>
+                            <div class="switch switch-bordered switch-fit">
+                                <input type="radio" id="edit-check-off" name="edit-check" value="FALSE" checked>
+                                <label for="edit-check-off" class="switch-label">Ні</label>
+                                <input type="radio" id="edit-check-on" name="edit-check" value="TRUE">
+                                <label for="edit-check-on" class="switch-label">Так</label>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Оплачено</label>
-                            <label class="toggle-switch-segmented">
-                                <input type="checkbox" id="edit-payment">
-                                <span class="slider">
-                                    <span class="text-off">Ні</span>
-                                    <span class="text-on">Так</span>
-                                </span>
-                            </label>
+                            <div class="switch switch-bordered switch-fit">
+                                <input type="radio" id="edit-payment-off" name="edit-payment" value="FALSE" checked>
+                                <label for="edit-payment-off" class="switch-label">Ні</label>
+                                <input type="radio" id="edit-payment-on" name="edit-payment" value="TRUE">
+                                <label for="edit-payment-on" class="switch-label">Так</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,10 +284,15 @@ function fillModalData(item) {
     document.getElementById('edit-packaging').value = item.packaging || '';
     document.getElementById('edit-flavor').value = item.flavor || '';
 
-    // Toggles
-    document.getElementById('edit-status').checked = item.status === 'TRUE' || item.status === true;
-    document.getElementById('edit-check').checked = item.check === 'TRUE' || item.check === true;
-    document.getElementById('edit-payment').checked = item.payment === 'TRUE' || item.payment === true;
+    // Toggles (radio switches)
+    const setSwitch = (name, value) => {
+        const isTrue = value === 'TRUE' || value === true;
+        const radio = document.getElementById(`${name}-${isTrue ? 'on' : 'off'}`);
+        if (radio) radio.checked = true;
+    };
+    setSwitch('edit-status', item.status);
+    setSwitch('edit-check', item.check);
+    setSwitch('edit-payment', item.payment);
 
     // Reserve dropdown - populate users
     const usersList = document.getElementById('reserve-users-list');
@@ -378,23 +380,25 @@ async function saveChanges() {
             await reserveItem(code, newReserve);
         }
 
-        // Статуси
-        const newStatus = document.getElementById('edit-status').checked;
-        const currentStatus = currentItem.status === 'TRUE' || currentItem.status === true;
+        // Статуси (radio switches)
+        const getSwitch = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || 'FALSE';
+
+        const newStatus = getSwitch('edit-status');
+        const currentStatus = (currentItem.status === 'TRUE' || currentItem.status === true) ? 'TRUE' : 'FALSE';
         if (newStatus !== currentStatus) {
-            await updateItemStatus(code, 'status', newStatus ? 'TRUE' : 'FALSE');
+            await updateItemStatus(code, 'status', newStatus);
         }
 
-        const newCheck = document.getElementById('edit-check').checked;
-        const currentCheck = currentItem.check === 'TRUE' || currentItem.check === true;
+        const newCheck = getSwitch('edit-check');
+        const currentCheck = (currentItem.check === 'TRUE' || currentItem.check === true) ? 'TRUE' : 'FALSE';
         if (newCheck !== currentCheck) {
-            await updateItemStatus(code, 'check', newCheck ? 'TRUE' : 'FALSE');
+            await updateItemStatus(code, 'check', newCheck);
         }
 
-        const newPayment = document.getElementById('edit-payment').checked;
-        const currentPayment = currentItem.payment === 'TRUE' || currentItem.payment === true;
+        const newPayment = getSwitch('edit-payment');
+        const currentPayment = (currentItem.payment === 'TRUE' || currentItem.payment === true) ? 'TRUE' : 'FALSE';
         if (newPayment !== currentPayment) {
-            await updateItemStatus(code, 'payment', newPayment ? 'TRUE' : 'FALSE');
+            await updateItemStatus(code, 'payment', newPayment);
         }
 
         // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!

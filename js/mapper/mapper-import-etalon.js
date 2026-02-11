@@ -168,7 +168,7 @@ function buildCategoryMultiSelect() {
 
     let html = `
         <label>Категорії (прив'язка)</label>
-        <input type="text" class="input-main u-mb-4" placeholder="Пошук категорій..." id="etalon-cat-search" />
+        <input type="text" class="u-mb-4" placeholder="Пошук категорій..." id="etalon-cat-search" />
         <div id="etalon-categories-list" style="max-height:200px;overflow-y:auto;border:1px solid var(--color-border);border-radius:var(--radius-m);padding:4px;">
     `;
 

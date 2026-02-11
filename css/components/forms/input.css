@@ -4,39 +4,65 @@
  * ПРИЗНАЧЕННЯ:
  * Універсальне текстове поле вводу для форм та панелей інструментів.
  *
- * ВИКОРИСТАННЯ:
- * Для всіх текстових полів (text, email, url, number тощо).
+ * АРХІТЕКТУРА:
+ * - <input> без класу = ghost (прозорий, без бордерів)
+ * - <input class="input-main"> = з бордером, hover, focus
  *
  * HTML ПРИКЛАД:
  * <input type="text" class="input-main" placeholder="Введіть текст...">
- * <input type="email" class="input-main" value="example@mail.com">
+ * <input type="text" placeholder="Пошук..."> <!-- ghost -->
  *
  * КЛАСИ:
- * - .input-main - базовий клас
- * - .input-main:focus - стан фокусу
+ * - (без класу) - ghost інпут (прозорий)
+ * - .input-main - з бордером, padding, hover/focus
  * - .input-main:disabled - вимкнений стан
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-main, --color-outline)
- *
- * ЗАСТОСУВАННЯ:
- * - Всі форми додавання/редагування
- * - SEO генератор
- * - Table генератор
- * - Поля пошуку
  */
 
-.input-main {
-    width: 100%;
-    background-color: transparent;
+/* ============================================ */
+/* GLOBAL RESET — ghost за замовчуванням        */
+/* ============================================ */
+
+input[type="text"],
+input[type="search"],
+input[type="url"],
+input[type="email"],
+input[type="number"],
+input:not([type]) {
     border: none;
-    color: var(--color-main);
+    background: transparent;
+    outline: none;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+    padding: 8px 16px;
+}
+
+/* ============================================ */
+/* .input-main — бордер, hover, focus           */
+/* ============================================ */
+
+.input-main {
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
     line-height: 1.5;
-    height: 32px;
-    padding: 0 8px;
+    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.input-main:hover {
+    border-color: var(--color-on-surface-v);
 }
 
 .input-main:focus {
+    border-color: var(--color-main);
+    border-width: 2px;
+    padding: 7px 15px;
     outline: none;
 }
 

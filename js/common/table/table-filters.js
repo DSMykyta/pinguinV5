@@ -15,7 +15,7 @@
  * ║    <div class="dropdown-menu" data-column="..." style="position:fixed">  ║
  * ║      <div class="dropdown-header">Label</div>                           ║
  * ║      <div class="dropdown-search">                                       ║
- * ║        <input class="input-main" placeholder="Пошук..." data-filter-search>║
+ * ║        <input placeholder="Пошук..." data-filter-search>                ║
  * ║      </div>                                                              ║
  * ║      <div class="dropdown-body">                                         ║
  * ║        <label class="dropdown-item filter-select-all">                   ║
@@ -257,7 +257,7 @@ export class FiltersPlugin {
             <div class="dropdown-header">${columnLabel}</div>
             ${hasSearch ? `
                 <div class="dropdown-search">
-                    <input type="text" class="input-main" placeholder="Пошук..." data-filter-search>
+                    <input type="text" placeholder="Пошук..." data-filter-search>
                 </div>
             ` : ''}
             <div class="dropdown-body">

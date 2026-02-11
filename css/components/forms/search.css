@@ -42,11 +42,7 @@
 }
 
 .search-container input {
-    border: none;
-    background: transparent;
-    outline: none;
     flex: 1;
-    color: var(--color-on-surface);
 }
 
 .search-container input::placeholder {

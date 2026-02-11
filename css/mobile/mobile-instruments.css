@@ -681,7 +681,6 @@
     }
 
     /* Input fields */
-    .gost-input,
     .input-main {
         font-size: 16px !important; /* Prevents zoom on iOS */
         padding: 12px !important;
@@ -710,8 +709,8 @@
         height: 40px !important;
     }
 
-    /* Switch container */
-    .switch-container {
+    /* Switch */
+    .switch {
         width: 100% !important;
         justify-content: center !important;
     }

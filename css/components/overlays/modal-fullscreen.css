@@ -253,37 +253,7 @@
     margin: 0;
 }
 
-/* Custom input styling */
-.modal-fullscreen .form-group input[type="text"],
-.modal-fullscreen .form-group input[type="number"],
-.modal-fullscreen .form-group input[type="search"],
-.modal-fullscreen .form-group textarea {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-s, 8px);
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    font-size: 14px;
-    min-height: 40px;
-    width: 100%;
-    transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
-}
-
-.modal-fullscreen .form-group input:hover,
-.modal-fullscreen .form-group textarea:hover {
-    border-color: var(--color-on-surface-v);
-}
-
-.modal-fullscreen .form-group input:focus,
-.modal-fullscreen .form-group textarea:focus {
-    border-color: var(--color-main);
-    border-width: 2px;
-    outline: none;
-    padding: 7px 15px;
-}
-
+/* Textarea в модалі */
 .modal-fullscreen .form-group textarea {
     min-height: 80px;
     max-height: none;

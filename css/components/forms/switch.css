@@ -1,76 +1,51 @@
 /**
- * COMPONENT: Switch (Radio Toggle)
+ * COMPONENT: Switch
  *
  * ПРИЗНАЧЕННЯ:
- * Перемикач у вигляді radio buttons з лейблами.
- * Візуально виглядає як segmented control / toggle button group.
+ * Єдиний перемикач для всіх контекстів.
+ * Base: full width, без бордеру, compact.
  *
  * ВИКОРИСТАННЯ:
- * <!-- Базовий -->
- * <div class="switch-container">
- *   <input type="radio" id="option1" name="group" value="option1" checked>
- *   <label for="option1" class="switch-label">Опція 1</label>
- *   <input type="radio" id="option2" name="group" value="option2">
- *   <label for="option2" class="switch-label">Опція 2</label>
- * </div>
- *
- * <!-- З плаваючою плашкою -->
- * <div class="switch-container switch-slider">
- *   <input type="radio" id="s1" name="grp" value="a" checked>
- *   <label for="s1" class="switch-label">Опція 1</label>
- *   <input type="radio" id="s2" name="grp" value="b">
- *   <label for="s2" class="switch-label">Опція 2</label>
+ * <div class="switch">
+ *   <input type="radio" id="a" name="grp" value="a" checked>
+ *   <label for="a" class="switch-label">Опція 1</label>
+ *   <input type="radio" id="b" name="grp" value="b">
+ *   <label for="b" class="switch-label">Опція 2</label>
  * </div>
  *
  * МОДИФІКАТОРИ:
- * - .switch-sm      — compact (tiny розміри, 11px)
- * - .switch-inline  — без стилізації блоку (тільки кольори кнопок)
- * - .switch-slider  — плаваюча плашка (animated pill indicator)
+ * - .switch-bordered — з бордером
+ * - .switch-fit     — width: fit-content
+ * - .switch-sm      — compact (менший шрифт/padding)
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main-c, --color-main, --color-on-surface-v)
+ * - root.css (--color-main, --color-on-main, --color-on-surface-v)
  */
 
-/* ============================================ */
-/* БАЗОВИЙ SWITCH                              */
-/* ============================================ */
-
-.switch-container {
+.switch {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px;
-
-    border: 1px solid var(--color-outline);
+    gap: 2px;
+    padding: 2px;
     border-radius: var(--radius-xs, 4px);
-
-    transition: border-color 150ms ease-in-out;
-
-    width: min-content;
-    min-height: 40px;
-
-    color: var(--color-on-surface);
-    font-size: 14px;
+    font-size: 13px;
 }
 
-.switch-container input[type="radio"] {
+.switch input[type="radio"] {
     display: none;
 }
 
 .switch-label {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: stretch;
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--color-on-surface-v);
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
     white-space: nowrap;
-    font-size: inherit;
-    position: relative;
-    z-index: 1;
 }
 
 .switch-label:hover {
@@ -78,98 +53,27 @@
     color: var(--color-on-surface);
 }
 
-.switch-container input[type="radio"]:checked + .switch-label {
+.switch input[type="radio"]:checked + .switch-label {
     background: var(--color-main);
     color: var(--color-on-main);
 }
 
-/* ============================================ */
-/* МОДИФІКАТОР: COMPACT (tiny розміри)          */
-/* ============================================ */
-
-.switch-container.switch-sm {
+/* Modifier: bordered */
+.switch-bordered {
+    border: 1px solid var(--color-outline);
     padding: 4px;
-    gap: 2px;
+}
+
+/* Modifier: fit-content */
+.switch-fit {
+    width: fit-content;
+}
+
+/* Modifier: compact */
+.switch-sm {
     font-size: 11px;
 }
 
 .switch-sm .switch-label {
     padding: 3px 8px;
-    border-radius: 4px;
-}
-
-/* ============================================ */
-/* МОДИФІКАТОР: INLINE (без стилізації блоку)   */
-/* ============================================ */
-
-.switch-container.switch-inline {
-    padding: 0;
-    border: none;
-    background: transparent;
-}
-
-.switch-inline .switch-label {
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-/* ============================================ */
-/* МОДИФІКАТОР: SLIDER (плаваюча плашка)        */
-/* ============================================ */
-
-.switch-container.switch-slider {
-    position: relative;
-    border-radius: var(--radius-s, 8px);
-    background-color: var(--color-surface-c-low);
-}
-
-/* Плаваюча плашка — псевдоелемент */
-.switch-slider::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    width: calc(50% - 4px);
-    height: calc(100% - 8px);
-    background: var(--color-main-c);
-    border-radius: 6px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 0;
-}
-
-/* Плашка їде вправо коли 2-й чекнутий */
-.switch-slider:has(input:nth-of-type(2):checked)::before {
-    transform: translateX(calc(100% + 4px));
-}
-
-/* Лейбли без власного фону — фон дає плашка */
-.switch-slider input[type="radio"]:checked + .switch-label {
-    background: transparent;
-    color: var(--color-main);
-}
-
-.switch-slider input[type="radio"]:checked + .switch-label:hover {
-    background: transparent;
-    color: var(--color-main);
-}
-
-.switch-slider .switch-label:hover {
-    background: transparent;
-    color: var(--color-on-surface);
-}
-
-/* ============================================ */
-/* SLIDER + SM (compact плаваюча плашка)        */
-/* ============================================ */
-
-.switch-slider.switch-sm::before {
-    top: 3px;
-    left: 3px;
-    width: calc(50% - 3px);
-    height: calc(100% - 6px);
-    border-radius: 4px;
-}
-
-.switch-slider.switch-sm:has(input:nth-of-type(2):checked)::before {
-    transform: translateX(calc(100% + 3px));
 }
