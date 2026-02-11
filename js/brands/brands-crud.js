@@ -25,6 +25,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -637,6 +638,9 @@ function updateLinksEmptyState() {
     if (!container || !emptyState) return;
 
     const hasLinks = container.querySelectorAll('.compound-input-row').length > 0;
+    if (!hasLinks && !emptyState.innerHTML.trim()) {
+        emptyState.innerHTML = renderAvatarState('empty', { message: 'Посилання відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
+    }
     emptyState.classList.toggle('u-hidden', hasLinks);
 }
 

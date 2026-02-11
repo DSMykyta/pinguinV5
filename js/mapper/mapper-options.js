@@ -40,6 +40,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -603,7 +604,7 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
                     <h2>Маркетплейси</h2>
                     <span class="word-chip">${totalCount}</span>
                 </div>
-                <h3>Прив'язані опції маркетплейсів</h3>
+                <span class="smal">Прив'язані опції маркетплейсів</span>
             </div>
             <div class="tab-controls">
                 <button class="btn-outline btn-map-mp">
@@ -614,7 +615,7 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
         </div>
         <div class="section-content">
             <div class="mp-items-list">
-                ${cardsHtml || '<p class="u-text-muted u-p-16">Немає прив\'язок</p>'}
+                ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>
     `;

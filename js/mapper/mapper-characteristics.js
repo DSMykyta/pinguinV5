@@ -40,6 +40,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import {
     initSectionNavigation,
@@ -408,11 +409,7 @@ function clearRelatedOptions() {
     if (!container) return;
 
     relatedOptionsTableAPI = null;
-    container.innerHTML = `
-        <div class="empty-state-container">
-            <div class="empty-state-message">Опції з'являться після збереження</div>
-        </div>
-    `;
+    container.innerHTML = renderAvatarState('empty', { message: "Опції з'являться після збереження", size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
     if (statsEl) statsEl.textContent = 'Показано 0 з 0';
     if (searchInput) searchInput.value = '';
 }
@@ -661,7 +658,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
         </div>
         <div class="section-content">
             <div class="mp-items-list">
-                ${cardsHtml || '<p class="u-text-muted u-p-16">Немає прив\'язок</p>'}
+                ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>
     `;

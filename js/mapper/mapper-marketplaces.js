@@ -39,6 +39,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
 
@@ -373,11 +374,7 @@ function renderMpDataModalTable() {
     const statsEl = document.getElementById('mp-data-stats-text');
 
     if (data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state-container">
-                <div class="avatar-state-message">Дані відсутні</div>
-            </div>
-        `;
+        container.innerHTML = renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
         if (statsEl) statsEl.textContent = `Показано 0 з ${totalCount}`;
         return;
     }
@@ -510,7 +507,7 @@ function renderMpCategoryTree(container, data) {
     }
 
     const treeHtml = buildTree('root', 0);
-    container.innerHTML = `<div class="glossary-tree mp-category-tree">${treeHtml || '<p class="u-text-muted u-p-16">Дані відсутні</p>'}</div>`;
+    container.innerHTML = `<div class="glossary-tree mp-category-tree">${treeHtml || renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}</div>`;
 
     // Toggle expand/collapse
     container.querySelectorAll('.toggle-btn').forEach(btn => {
