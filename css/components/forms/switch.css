@@ -173,3 +173,15 @@
 .switch-slider.switch-sm:has(input:nth-of-type(2):checked)::before {
     transform: translateX(calc(100% + 3px));
 }
+
+/* ============================================ */
+/* SLIDER + SM (compact плаваюча плашка)        */
+/* ============================================ */
+
+.format-toolbar .format-toolbar {
+    align-self: auto;
+}
+
+.format-toolbar .switch-container {
+    min-height: auto;
+}
