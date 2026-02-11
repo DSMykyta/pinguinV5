@@ -41,7 +41,7 @@ import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
-import { renderTable as renderTableLego } from '../common/table/table-main.js';
+import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -429,20 +429,8 @@ function populateRelatedOptions(characteristicId) {
     };
 
     const columns = [
-        {
-            id: 'value_ua',
-            label: 'Назва',
-            sortable: true,
-            className: 'cell-l',
-            render: (value) => escapeHtml(value || '')
-        },
-        {
-            id: 'id',
-            label: 'ID',
-            sortable: true,
-            className: 'cell-m',
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        }
+        col('value_ua', 'Назва', 'text', { className: 'cell-l' }),
+        col('id', 'ID', 'word-chip')
     ];
 
     registerActionHandlers('characteristic-options', {
@@ -539,7 +527,7 @@ function populateRelatedOptions(characteristicId) {
 
 function renderMappedMpCharacteristicsSections(ownCharId) {
     const nav = document.getElementById('char-section-navigator');
-    const content = document.querySelector('.modal-fullscreen-content');
+    const content = nav?.closest('.modal-fullscreen-container')?.querySelector('.modal-fullscreen-content');
     if (!nav || !content) return;
 
     nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());

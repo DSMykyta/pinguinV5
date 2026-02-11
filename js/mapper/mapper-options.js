@@ -49,7 +49,7 @@ import {
     buildMpViewModal,
     showMapToMpModal
 } from './mapper-utils.js';
-import { renderTable as renderTableLego } from '../common/table/table-main.js';
+import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -409,20 +409,8 @@ function populateRelatedChildOptions(optionId) {
 
     // Конфігурація колонок
     const columns = [
-        {
-            id: 'id',
-            label: 'ID',
-            sortable: true,
-            className: 'cell-m',
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'value_ua',
-            label: 'Значення',
-            sortable: true,
-            className: 'cell-l',
-            render: (value, row) => escapeHtml(value || row.id || '-')
-        }
+        col('id', 'ID', 'word-chip'),
+        col('value_ua', 'Значення', 'text', { className: 'cell-l' })
     ];
 
     // Реєструємо обробники дій
@@ -495,7 +483,7 @@ function populateRelatedChildOptions(optionId) {
 
 function renderMappedMpOptionsSections(ownOptionId) {
     const nav = document.getElementById('option-section-navigator');
-    const content = document.querySelector('.modal-fullscreen-content');
+    const content = nav?.closest('.modal-fullscreen-container')?.querySelector('.modal-fullscreen-content');
     if (!nav || !content) return;
 
     nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());

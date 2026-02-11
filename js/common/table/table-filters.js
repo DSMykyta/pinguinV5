@@ -83,6 +83,15 @@ export class FiltersPlugin {
         this.table = table;
         this.state = state;
 
+        // Відновити збережений стан фільтрів
+        if (this.config.initialFilters) {
+            for (const [columnId, values] of Object.entries(this.config.initialFilters)) {
+                if (Array.isArray(values)) {
+                    this.activeFilters.set(columnId, new Set(values));
+                }
+            }
+        }
+
         // Налаштовуємо hover після кожного рендеру
         this.state.registerHook('onRender', () => this.setupHoverDropdowns());
 

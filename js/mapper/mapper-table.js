@@ -391,7 +391,10 @@ const mapperColumnTypes = {
     slug: 'string',
     parent_id: 'string',
     characteristic_id: 'string',
-    grouping: 'string'
+    grouping: 'string',
+    _nestingLevel: 'binding-chip',
+    category_ids: 'binding-chip',
+    bindings: 'binding-chip'
 };
 
 /**
@@ -533,7 +536,8 @@ function initCategoriesTableAPI(container, allCategories) {
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
                 },
-                columnTypes: mapperColumnTypes
+                columnTypes: mapperColumnTypes,
+                initialSort: mapperState.sortState?.categories || null
             },
             filters: {
                 dataSource: () => {
@@ -545,7 +549,8 @@ function initCategoriesTableAPI(container, allCategories) {
                     mapperState.columnFilters.categories = filters;
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
-                }
+                },
+                initialFilters: mapperState.columnFilters?.categories || null
             }
         }
     });
@@ -684,7 +689,8 @@ function initCharacteristicsTableAPI(container, categoriesList) {
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
                 },
-                columnTypes: mapperColumnTypes
+                columnTypes: mapperColumnTypes,
+                initialSort: mapperState.sortState?.characteristics || null
             },
             filters: {
                 dataSource: () => {
@@ -696,7 +702,8 @@ function initCharacteristicsTableAPI(container, categoriesList) {
                     mapperState.columnFilters.characteristics = filters;
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
-                }
+                },
+                initialFilters: mapperState.columnFilters?.characteristics || null
             }
         }
     });
@@ -850,7 +857,8 @@ function initOptionsTableAPI(container, characteristicsList) {
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
                 },
-                columnTypes: mapperColumnTypes
+                columnTypes: mapperColumnTypes,
+                initialSort: mapperState.sortState?.options || null
             },
             filters: {
                 dataSource: () => {
@@ -862,7 +870,8 @@ function initOptionsTableAPI(container, characteristicsList) {
                     mapperState.columnFilters.options = filters;
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
-                }
+                },
+                initialFilters: mapperState.columnFilters?.options || null
             }
         }
     });
@@ -974,7 +983,8 @@ function initMarketplacesTableAPI(container) {
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
                 },
-                columnTypes: mapperColumnTypes
+                columnTypes: mapperColumnTypes,
+                initialSort: mapperState.sortState?.marketplaces || null
             },
             filters: {
                 dataSource: () => {
@@ -986,7 +996,8 @@ function initMarketplacesTableAPI(container) {
                     mapperState.columnFilters.marketplaces = filters;
                     mapperState.pagination.currentPage = 1;
                     renderCurrentTab();
-                }
+                },
+                initialFilters: mapperState.columnFilters?.marketplaces || null
             }
         }
     });
@@ -1028,13 +1039,24 @@ export function renderMarketplacesTable() {
 function sortArrayLocal(array, column, direction) {
     if (!column || !direction) return array;
 
+    const colType = mapperColumnTypes[column];
+
     return [...array].sort((a, b) => {
         let aVal = a[column];
         let bVal = b[column];
 
+        // binding-chip: витягнути .count з об'єкта { count, tooltip }
+        if (colType === 'binding-chip') {
+            if (aVal && typeof aVal === 'object' && 'count' in aVal) aVal = aVal.count;
+            if (bVal && typeof bVal === 'object' && 'count' in bVal) bVal = bVal.count;
+            aVal = aVal === '∞' ? Infinity : (parseFloat(aVal) || 0);
+            bVal = bVal === '∞' ? Infinity : (parseFloat(bVal) || 0);
+            return direction === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+
         // Перетворюємо в рядки для порівняння
-        aVal = (aVal || '').toString();
-        bVal = (bVal || '').toString();
+        aVal = (aVal ?? '').toString();
+        bVal = (bVal ?? '').toString();
 
         // Обробка пустих значень - завжди в кінець
         if (!aVal && !bVal) return 0;

@@ -16,7 +16,8 @@
  * ║  - .sort-indicator .material-symbols-outlined — іконка                   ║
  * ║  - .sorted-asc / .sorted-desc — CSS класи стану                         ║
  * ║                                                                          ║
- * ║  ТИПИ: string, number, date, boolean, id-number, id-text, product       ║
+ * ║  ТИПИ: string, number, date, boolean, id-number, id-text, product,     ║
+ * ║        binding-chip                                                     ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -43,6 +44,11 @@ export class SortingPlugin {
     init(table, state) {
         this.table = table;
         this.state = state;
+
+        // Відновити збережений стан сортування
+        if (this.config.initialSort?.column) {
+            this.state.setSort(this.config.initialSort.column, this.config.initialSort.direction);
+        }
 
         // Додаємо обробник після рендерингу
         this.state.registerHook('onRender', () => this.attachHandlers());
@@ -178,6 +184,14 @@ export class SortingPlugin {
                     aVal = ((a.brand || '') + ' ' + (a.name || '')).trim();
                     bVal = ((b.brand || '') + ' ' + (b.name || '')).trim();
                     comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
+                    break;
+
+                case 'binding-chip':
+                    if (aVal && typeof aVal === 'object' && 'count' in aVal) aVal = aVal.count;
+                    if (bVal && typeof bVal === 'object' && 'count' in bVal) bVal = bVal.count;
+                    aVal = aVal === '∞' ? Infinity : (parseFloat(aVal) || 0);
+                    bVal = bVal === '∞' ? Infinity : (parseFloat(bVal) || 0);
+                    comparison = aVal - bVal;
                     break;
 
                 case 'string':
@@ -321,6 +335,11 @@ export class SortingPlugin {
                 return new Date(value || 0).getTime();
             case 'product':
                 return ((item.brand || '') + ' ' + (item.name || '')).trim();
+            case 'binding-chip': {
+                let v = value;
+                if (v && typeof v === 'object' && 'count' in v) v = v.count;
+                return v === '∞' ? Infinity : (parseFloat(v) || 0);
+            }
             case 'string':
             default:
                 return (value || '').toString().toLowerCase();
