@@ -128,14 +128,15 @@
 }
 
 /* Hover - тільки коли НЕ в keyboard mode */
-.custom-select-wrapper:not(.is-keyboard-nav) .custom-select-option:hover {
+/* PORTAL: Селектори через panel, бо при відкритті panel переміщується в body */
+.custom-select-panel:not(.is-keyboard-nav) .custom-select-option:hover {
     background-color: var(--color-surface-c);
     font-style: italic;
     letter-spacing: 0.03em;
 }
 
 /* Keyboard focus - тільки коли в keyboard mode */
-.custom-select-wrapper.is-keyboard-nav .custom-select-option.is-focused {
+.custom-select-panel.is-keyboard-nav .custom-select-option.is-focused {
     background-color: var(--color-surface-c);
     font-style: italic;
     letter-spacing: 0.03em;

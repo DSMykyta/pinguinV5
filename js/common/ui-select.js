@@ -448,7 +448,7 @@ class CustomSelect {
             const optionEl = e.target.closest('.custom-select-option');
             if (optionEl) {
                 // Вимикаємо keyboard mode - тепер працює hover
-                this.wrapper.classList.remove('is-keyboard-nav');
+                this.panel.classList.remove('is-keyboard-nav');
                 // Скидаємо всі is-focused
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
                     opt.classList.remove('is-focused');
@@ -510,7 +510,7 @@ class CustomSelect {
      */
     _moveFocus(direction, visibleOptions) {
         // Вмикаємо keyboard mode - відключає hover
-        this.wrapper.classList.add('is-keyboard-nav');
+        this.panel.classList.add('is-keyboard-nav');
 
         // Скидаємо попередній фокус
         visibleOptions.forEach(opt => opt.classList.remove('is-focused'));
@@ -657,8 +657,9 @@ class CustomSelect {
 
         this.wrapper.classList.remove('is-open');
         this.wrapper.classList.remove('is-open-upward');
-        // PORTAL FIX: Знімаємо клас з panel
+        // PORTAL FIX: Знімаємо класи з panel
         this.panel.classList.remove('is-open');
+        this.panel.classList.remove('is-keyboard-nav');
 
         // Скидаємо fixed стилі
         this.panel.style.position = '';
