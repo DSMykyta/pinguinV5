@@ -612,7 +612,9 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         }
     });
 
-    initActionHandlers(content, 'mp-characteristic-mapping');
+    // Cleanup попередній listener перед повторною ініціалізацією
+    if (content._cleanupMpMapping) content._cleanupMpMapping();
+    content._cleanupMpMapping = initActionHandlers(content, 'mp-characteristic-mapping');
 }
 
 function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {

@@ -818,7 +818,9 @@ function renderMappedMpCategoriesSections(ownCatId) {
         }
     });
 
-    initActionHandlers(content, 'mp-category-mapping');
+    // Cleanup попередній listener перед повторною ініціалізацією
+    if (content._cleanupMpMapping) content._cleanupMpMapping();
+    content._cleanupMpMapping = initActionHandlers(content, 'mp-category-mapping');
 }
 
 function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
