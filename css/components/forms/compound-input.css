@@ -61,11 +61,6 @@
     padding: 0;
 }
 
-.compound-input input:first-child:not(:only-child) {
-    flex: none;
-    width: auto;
-}
-
 .compound-input input + input {
     border-left: 1px solid var(--color-outline);
     padding-left: 12px;
