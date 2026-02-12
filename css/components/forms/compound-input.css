@@ -46,11 +46,19 @@
     align-items: center;
     flex: 1;
     gap: 8px;
+    padding: 8px 16px;
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-s, 8px);
     background-color: var(--color-surface);
-    height: 40px;
+    color: var(--color-on-surface);
+    font-size: 14px;
+    min-height: 40px;
+    line-height: 1.5;
     transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.compound-input input {
+    padding: 0;
 }
 
 .compound-input:hover {
@@ -58,10 +66,12 @@
 }
 
 .compound-input:focus-within {
-    border-color: var(--color-main);
-    border-width: 2px;
-    padding: 7px 15px;
+    outline: 2px solid var(--color-main);
+    outline-offset: -2px;
+    border-color: transparent;
 }
+
+
 
 
 /* ============================================ */
