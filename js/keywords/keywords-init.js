@@ -16,6 +16,7 @@ import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 export const keywordsState = {
     keywords: [],
+    _dataLoaded: false,      // Прапорець: дані завантажено
     searchQuery: '',
     searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],

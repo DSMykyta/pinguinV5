@@ -50,6 +50,8 @@ export async function loadKeywords() {
             _rowIndex: index + 2 // +2 бо заголовок + 1-based indexing
         }));
 
+        keywordsState._dataLoaded = true;
+
         return keywordsState.keywords;
     } catch (error) {
         console.error('❌ Помилка завантаження ключових слів:', error);
@@ -90,6 +92,11 @@ function generateLocalId() {
 export async function addKeyword(keywordData) {
 
     try {
+        // Переконатися що дані завантажені перед генерацією ID
+        if (!keywordsState._dataLoaded) {
+            await loadKeywords();
+        }
+
         // Генерувати local_id автоматично
         const local_id = generateLocalId();
 
