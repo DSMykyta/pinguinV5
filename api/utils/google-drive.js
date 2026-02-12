@@ -7,6 +7,11 @@
 // Надає функції для роботи з Google Drive API v3.
 // Авторизація через OAuth2 refresh token (файли зберігаються на Drive користувача).
 //
+// СТРУКТУРА НА DRIVE:
+// pinguin-v5/              ← GOOGLE_DRIVE_ROOT_FOLDER_ID
+//   ├── brand-logos/       ← створюється автоматично
+//   └── ...                ← майбутні підпапки
+//
 // ЕКСПОРТОВАНІ ФУНКЦІЇ:
 // ┌────────────────────────────┬──────────────────────────────┐
 // │ uploadBrandLogo            │ Завантажити логотип бренду   │
@@ -17,14 +22,17 @@
 // - GOOGLE_OAUTH_CLIENT_ID: OAuth2 Client ID
 // - GOOGLE_OAUTH_CLIENT_SECRET: OAuth2 Client Secret
 // - GOOGLE_OAUTH_REFRESH_TOKEN: OAuth2 Refresh Token
-// - GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID: ID папки brand-logos на Drive
+// - GOOGLE_DRIVE_ROOT_FOLDER_ID: ID кореневої папки (pinguin-v5)
 // =========================================================================
 
 const { google } = require('googleapis');
 const { Readable } = require('stream');
 
 // Environment variables
-const BRAND_LOGOS_FOLDER_ID = process.env.GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID;
+const ROOT_FOLDER_ID = process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID;
+
+// Кеш ID підпапок (щоб не шукати кожен раз)
+const folderCache = {};
 
 // =========================================================================
 // ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
@@ -49,11 +57,51 @@ function getDriveClient() {
 }
 
 // =========================================================================
+// ПІДПАПКИ
+// =========================================================================
+
+/**
+ * Знайти або створити підпапку в кореневій папці.
+ * Результат кешується на час життя serverless function.
+ *
+ * @param {Object} drive - Google Drive client
+ * @param {string} folderName - Назва підпапки (наприклад "brand-logos")
+ * @returns {Promise<string>} ID підпапки
+ */
+async function getOrCreateSubfolder(drive, folderName) {
+  if (folderCache[folderName]) return folderCache[folderName];
+
+  // Шукаємо існуючу підпапку
+  const res = await drive.files.list({
+    q: `name='${folderName}' and '${ROOT_FOLDER_ID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id)',
+  });
+
+  if (res.data.files && res.data.files.length > 0) {
+    folderCache[folderName] = res.data.files[0].id;
+    return folderCache[folderName];
+  }
+
+  // Створюємо нову підпапку
+  const folder = await drive.files.create({
+    requestBody: {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [ROOT_FOLDER_ID],
+    },
+    fields: 'id',
+  });
+
+  folderCache[folderName] = folder.data.id;
+  return folderCache[folderName];
+}
+
+// =========================================================================
 // ОПЕРАЦІЇ
 // =========================================================================
 
 /**
- * Завантажити логотип бренду в папку brand-logos на Google Drive.
+ * Завантажити логотип бренду в підпапку brand-logos на Google Drive.
  * Якщо файл з такою назвою вже існує — оновлює його.
  *
  * @param {Buffer} fileBuffer - Вміст файлу
@@ -63,11 +111,12 @@ function getDriveClient() {
  */
 async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
   const drive = getDriveClient();
+  const folderId = await getOrCreateSubfolder(drive, 'brand-logos');
 
   // Шукаємо існуючий файл з такою назвою в папці
   const escapedName = fileName.replace(/'/g, "\\'");
   const existing = await drive.files.list({
-    q: `name='${escapedName}' and '${BRAND_LOGOS_FOLDER_ID}' in parents and trashed=false`,
+    q: `name='${escapedName}' and '${folderId}' in parents and trashed=false`,
     fields: 'files(id, name)',
   });
 
@@ -88,7 +137,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
     const response = await drive.files.create({
       requestBody: {
         name: fileName,
-        parents: [BRAND_LOGOS_FOLDER_ID],
+        parents: [folderId],
       },
       media: {
         mimeType,
