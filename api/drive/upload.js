@@ -26,8 +26,6 @@
 const { corsMiddleware } = require('../utils/cors');
 const { uploadBrandLogo } = require('../utils/google-drive');
 
-// Дозволені MIME типи (оголошено тут щоб config був внизу після module.exports)
-
 // Дозволені MIME типи
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
 const MAX_SIZE = 4 * 1024 * 1024; // 4 MB

@@ -17,7 +17,7 @@
 // КОНФІГУРАЦІЯ (з .env):
 // - GOOGLE_SERVICE_ACCOUNT_EMAIL: email Service Account
 // - GOOGLE_PRIVATE_KEY: приватний ключ
-// - GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID: ID папки brand-logos на Drive
+// - GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID: ID папки brand-logos на Shared Drive
 // =========================================================================
 
 const { google } = require('googleapis');
@@ -42,7 +42,7 @@ function getDriveClient() {
       client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
       private_key: GOOGLE_PRIVATE_KEY,
     },
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
+    scopes: ['https://www.googleapis.com/auth/drive'],
   });
 
   return google.drive({ version: 'v3', auth });
@@ -69,6 +69,8 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
   const existing = await drive.files.list({
     q: `name='${escapedName}' and '${BRAND_LOGOS_FOLDER_ID}' in parents and trashed=false`,
     fields: 'files(id, name)',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   let fileId;
@@ -82,6 +84,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         mimeType,
         body: Readable.from(fileBuffer),
       },
+      supportsAllDrives: true,
     });
   } else {
     // Створюємо новий файл
@@ -95,6 +98,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         body: Readable.from(fileBuffer),
       },
       fields: 'id',
+      supportsAllDrives: true,
     });
     fileId = response.data.id;
 
@@ -105,6 +109,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         role: 'reader',
         type: 'anyone',
       },
+      supportsAllDrives: true,
     });
   }
 
@@ -120,7 +125,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
  */
 async function deleteBrandLogo(fileId) {
   const drive = getDriveClient();
-  await drive.files.delete({ fileId });
+  await drive.files.delete({ fileId, supportsAllDrives: true });
 }
 
 module.exports = {
