@@ -40,6 +40,11 @@ input:not([type])) {
     padding: 8px 16px;
 }
 
+input::placeholder {
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
+}
+
 /* ============================================ */
 /* .input-main — бордер, hover, focus           */
 /* ============================================ */
@@ -68,11 +73,6 @@ input:not([type])) {
 .input-main:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-.input-main::placeholder {
-    color: var(--color-on-surface-v);
-    opacity: 0.6;
 }
 
 /* ContentEditable placeholder */
