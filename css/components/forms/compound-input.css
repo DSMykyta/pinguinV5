@@ -46,11 +46,10 @@
     align-items: center;
     flex: 1;
     gap: 8px;
-    padding: 8px 16px;
     border: 1px solid var(--color-outline);
     border-radius: var(--radius-s, 8px);
     background-color: var(--color-surface);
-    min-height: 40px;
+    height: 40px;
     transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
 }
 
