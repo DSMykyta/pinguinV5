@@ -5,8 +5,7 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Надає функції для роботи з Google Drive API v3.
-// Використовує той же Service Account що і google-sheets.js,
-// але зі скоупом drive.file (доступ тільки до файлів створених додатком).
+// Авторизація через OAuth2 refresh token (файли зберігаються на Drive користувача).
 //
 // ЕКСПОРТОВАНІ ФУНКЦІЇ:
 // ┌────────────────────────────┬──────────────────────────────┐
@@ -15,17 +14,16 @@
 // └────────────────────────────┴──────────────────────────────┘
 //
 // КОНФІГУРАЦІЯ (з .env):
-// - GOOGLE_SERVICE_ACCOUNT_EMAIL: email Service Account
-// - GOOGLE_PRIVATE_KEY: приватний ключ
-// - GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID: ID папки brand-logos на Shared Drive
+// - GOOGLE_OAUTH_CLIENT_ID: OAuth2 Client ID
+// - GOOGLE_OAUTH_CLIENT_SECRET: OAuth2 Client Secret
+// - GOOGLE_OAUTH_REFRESH_TOKEN: OAuth2 Refresh Token
+// - GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID: ID папки brand-logos на Drive
 // =========================================================================
 
 const { google } = require('googleapis');
 const { Readable } = require('stream');
 
 // Environment variables
-const GOOGLE_SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-const GOOGLE_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 const BRAND_LOGOS_FOLDER_ID = process.env.GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID;
 
 // =========================================================================
@@ -34,18 +32,20 @@ const BRAND_LOGOS_FOLDER_ID = process.env.GOOGLE_DRIVE_BRAND_LOGOS_FOLDER_ID;
 
 /**
  * Створює авторизованого клієнта Google Drive API v3
+ * через OAuth2 refresh token (квота зараховується на акаунт користувача)
  * @returns {Object} Google Drive API client
  */
 function getDriveClient() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: GOOGLE_PRIVATE_KEY,
-    },
-    scopes: ['https://www.googleapis.com/auth/drive'],
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_OAUTH_CLIENT_ID,
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+  );
+
+  oauth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
   });
 
-  return google.drive({ version: 'v3', auth });
+  return google.drive({ version: 'v3', auth: oauth2Client });
 }
 
 // =========================================================================
@@ -69,8 +69,6 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
   const existing = await drive.files.list({
     q: `name='${escapedName}' and '${BRAND_LOGOS_FOLDER_ID}' in parents and trashed=false`,
     fields: 'files(id, name)',
-    supportsAllDrives: true,
-    includeItemsFromAllDrives: true,
   });
 
   let fileId;
@@ -84,7 +82,6 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         mimeType,
         body: Readable.from(fileBuffer),
       },
-      supportsAllDrives: true,
     });
   } else {
     // Створюємо новий файл
@@ -98,7 +95,6 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         body: Readable.from(fileBuffer),
       },
       fields: 'id',
-      supportsAllDrives: true,
     });
     fileId = response.data.id;
 
@@ -109,7 +105,6 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
         role: 'reader',
         type: 'anyone',
       },
-      supportsAllDrives: true,
     });
   }
 
@@ -125,7 +120,7 @@ async function uploadBrandLogo(fileBuffer, fileName, mimeType) {
  */
 async function deleteBrandLogo(fileId) {
   const drive = getDriveClient();
-  await drive.files.delete({ fileId, supportsAllDrives: true });
+  await drive.files.delete({ fileId });
 }
 
 module.exports = {
