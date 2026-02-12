@@ -104,6 +104,18 @@
     object-fit: cover;
     border-radius: var(--radius-s);
     border: 1px solid var(--color-outline);
+    flex-shrink: 0;
+}
+
+/* Зменшити padding для клітинок з фото */
+.pseudo-table-cell.cell-xs:has(.product-thumb) {
+    padding: 8px;
+}
+
+/* Лого брендів — contain щоб не обрізати */
+#brands-table-container .product-thumb {
+    object-fit: contain;
+    background: var(--color-surface);
 }
 
 .product-thumb-empty {
