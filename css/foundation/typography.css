@@ -5,7 +5,7 @@
  * Типографіка проєкту — всі шрифти підключені локально (офлайн).
  *
  * ШРИФТИ:
- * - DM Sans (Variable)    — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
+ * - Geologica (Variable)    — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
  * - NyghtSerif (Static)   — заголовки секцій і шапок (h1–h4, .section-upper)
  * - Roboto Mono (Variable) — код (rich-editor code mode, layout-section)
  *
@@ -30,20 +30,12 @@
 /* 1. ПІДКЛЮЧЕННЯ ШРИФТІВ (ЛОКАЛЬНО)           */
 /* ============================================ */
 
-/* --- DM Sans (Variable Font) --- */
+/* --- Geologica (Variable Font) --- */
 @font-face {
-    font-family: 'DM Sans';
-    src: url('../fonts/DMSans-VariableFont_opsz,wght.ttf') format('truetype');
+    font-family: 'Geologica';
+    src: url('../fonts/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'DM Sans';
-    src: url('../fonts/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype');
-    font-weight: 100 900;
-    font-style: italic;
     font-display: swap;
 }
 
@@ -150,7 +142,7 @@
 /* ============================================ */
 
 body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geologica', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--text-primary);
@@ -194,7 +186,7 @@ h4, .h4 {
 }
 
 /* ============================================ */
-/* 4. ТЕКСТОВІ БЛОКИ (DM Sans)                */
+/* 4. ТЕКСТОВІ БЛОКИ (Geologica)                */
 /* ============================================ */
 
 .body-l {
