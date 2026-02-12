@@ -565,7 +565,7 @@ function addLinkRow(link = { name: '', url: '' }) {
     row.className = 'compound-input-row';
     row.innerHTML = `
         <div class="compound-input">
-            <input type="text" value="${escapeHtml(link.name)}" placeholder="ua, de...">
+            <input type="text" class="input-short" value="${escapeHtml(link.name)}" placeholder="ua, de...">
             <input type="url" value="${escapeHtml(link.url)}" placeholder="https://...">
         </div>
         <button type="button" class="btn-icon ci-action" data-tooltip="Відкрити">
@@ -731,10 +731,9 @@ async function handleLogoFileUpload(file) {
     const dropzone = document.getElementById('brand-logo-dropzone');
     if (!dropzone) return;
 
-    // Валідація типу
-    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
-    if (!allowed.includes(file.type)) {
-        showToast('Непідтримуваний формат. Дозволені: PNG, JPG, WebP, SVG', 'error');
+    // Валідація типу (будь-яке зображення — конвертується в WebP на сервері)
+    if (!file.type.startsWith('image/')) {
+        showToast('Файл не є зображенням', 'error');
         return;
     }
 
