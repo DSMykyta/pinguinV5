@@ -5,6 +5,7 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Ендпоінт для завантаження логотипів брендів на Google Drive.
+// Всі зображення конвертуються в WebP через sharp.
 //
 // ЕНДПОІНТ:
 // - POST /api/drive/upload
@@ -18,25 +19,65 @@
 //    - { url: "https://...", brandName: "..." }
 //
 // ОБМЕЖЕННЯ:
-// - Формати: PNG, JPG, WebP, SVG
+// - Вхідні формати: PNG, JPG, WebP, AVIF, GIF, TIFF, SVG
+// - Вихідний формат: завжди WebP
 // - Розмір: до 4 MB
-// - Ім'я файлу на Drive: "{brandName}.{ext}"
+// - Ім'я файлу на Drive: "{normalized_brand_name}.webp"
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
 const { uploadBrandLogo } = require('../utils/google-drive');
+const sharp = require('sharp');
 
-// Дозволені MIME типи
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+// Дозволені вхідні MIME типи (конвертуються в WebP)
+const ALLOWED_TYPES = [
+  'image/png', 'image/jpeg', 'image/webp', 'image/svg+xml',
+  'image/avif', 'image/gif', 'image/tiff',
+];
 const MAX_SIZE = 4 * 1024 * 1024; // 4 MB
 
-// Розширення за MIME типом
-const EXT_MAP = {
-  'image/png': '.png',
-  'image/jpeg': '.jpg',
-  'image/webp': '.webp',
-  'image/svg+xml': '.svg',
-};
+// =========================================================================
+// UTILS
+// =========================================================================
+
+/**
+ * Нормалізація назви бренду для імені файлу:
+ * "Ion8" → "ion8", "Optimum Nutrition" → "optimum_nutrition"
+ */
+function normalizeBrandName(name) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_\-]/g, '');
+}
+
+/**
+ * Конвертує будь-яке зображення в WebP через sharp
+ */
+async function convertToWebP(buffer) {
+  return sharp(buffer)
+    .webp({ quality: 85 })
+    .toBuffer();
+}
+
+/**
+ * Парсинг JSON body з raw request (бо bodyParser вимкнено)
+ */
+function parseJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk) => { data += chunk; });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(data));
+      } catch (e) {
+        reject(new Error('Invalid JSON body'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
 
 // =========================================================================
 // MAIN HANDLER
@@ -93,11 +134,10 @@ async function handleFileUpload(req, res) {
     bb.on('file', (name, stream, info) => {
       mimeType = info.mimeType;
 
-      // Валідація MIME типу
       if (!ALLOWED_TYPES.includes(mimeType)) {
         stream.resume();
         resolve(res.status(400).json({
-          error: `Непідтримуваний формат: ${mimeType}. Дозволені: PNG, JPG, WebP, SVG`,
+          error: `Непідтримуваний формат: ${mimeType}`,
         }));
         return;
       }
@@ -132,10 +172,10 @@ async function handleFileUpload(req, res) {
       }
 
       try {
-        const ext = EXT_MAP[mimeType] || '.png';
-        const driveName = `${brandName}${ext}`;
+        const webpBuffer = await convertToWebP(fileBuffer);
+        const driveName = `${normalizeBrandName(brandName)}.webp`;
 
-        const result = await uploadBrandLogo(fileBuffer, driveName, mimeType);
+        const result = await uploadBrandLogo(webpBuffer, driveName, 'image/webp');
         resolve(res.status(200).json({
           success: true,
           thumbnailUrl: result.thumbnailUrl,
@@ -171,20 +211,10 @@ async function handleUrlUpload(req, res) {
     return res.status(400).json({ error: 'brandName є обов\'язковим полем' });
   }
 
-  // Завантажити зображення з URL
   const response = await fetch(url);
   if (!response.ok) {
     return res.status(400).json({
       error: `Не вдалося завантажити зображення з URL: ${response.status}`,
-    });
-  }
-
-  const contentType = response.headers.get('content-type') || 'image/png';
-  const mimeType = contentType.split(';')[0].trim();
-
-  if (!ALLOWED_TYPES.includes(mimeType)) {
-    return res.status(400).json({
-      error: `URL повернув непідтримуваний тип: ${mimeType}. Дозволені: PNG, JPG, WebP, SVG`,
     });
   }
 
@@ -195,36 +225,14 @@ async function handleUrlUpload(req, res) {
     return res.status(400).json({ error: 'Зображення занадто велике. Максимум 4 MB' });
   }
 
-  const ext = EXT_MAP[mimeType] || '.png';
-  const driveName = `${brandName}${ext}`;
+  const webpBuffer = await convertToWebP(fileBuffer);
+  const driveName = `${normalizeBrandName(brandName)}.webp`;
 
-  const result = await uploadBrandLogo(fileBuffer, driveName, mimeType);
+  const result = await uploadBrandLogo(webpBuffer, driveName, 'image/webp');
   return res.status(200).json({
     success: true,
     thumbnailUrl: result.thumbnailUrl,
     fileId: result.fileId,
-  });
-}
-
-// =========================================================================
-// UTILS
-// =========================================================================
-
-/**
- * Парсинг JSON body з raw request (бо bodyParser вимкнено)
- */
-function parseJsonBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', (chunk) => { data += chunk; });
-    req.on('end', () => {
-      try {
-        resolve(JSON.parse(data));
-      } catch (e) {
-        reject(new Error('Invalid JSON body'));
-      }
-    });
-    req.on('error', reject);
   });
 }
 
