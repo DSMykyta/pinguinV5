@@ -50,7 +50,7 @@ export const brandsState = {
     // ═══════════════════════════════════════════════════════════════════════
 
     // Видимі колонки за замовчуванням (brand_text прихований - занадто довгий)
-    visibleColumns: ['brand_id', 'name_uk', 'names_alt', 'country_option_id', 'brand_status', 'brand_links', 'bindings'],
+    visibleColumns: ['brand_logo_url', 'brand_id', 'name_uk', 'names_alt', 'country_option_id', 'brand_status', 'brand_links', 'bindings'],
 
     // Фільтри колонок (країна, статус — dropdown з чекбоксами)
     columnFilters: {},

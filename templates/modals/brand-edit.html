@@ -223,16 +223,41 @@
                             </div>
                         </div>
 
-                        <!-- Логотип (зарезервовано) -->
+                        <!-- Логотип -->
                         <div class="form-group u-mt-24">
                             <label>Логотип</label>
-                            <div class="preview-box">
-                                <div class="preview-item">
-                                    <span class="material-symbols-outlined text-muted">image</span>
-                                    <span class="text-muted">Завантаження логотипу буде доступне пізніше</span>
-                                </div>
-                                <input type="hidden" id="brand-logo-url">
+
+                            <!-- Preview: видимий коли є лого -->
+                            <div id="brand-logo-preview" class="brand-logo-preview u-hidden">
+                                <img id="brand-logo-preview-img" src="" alt="Логотип бренду" class="brand-logo-preview-img">
+                                <button type="button" class="btn-icon brand-logo-remove" id="btn-remove-brand-logo" data-tooltip="Видалити логотип">
+                                    <span class="material-symbols-outlined">close</span>
+                                </button>
                             </div>
+
+                            <!-- Drop zone: видимий коли немає лого -->
+                            <div id="brand-logo-dropzone" class="drop-zone drop-zone-compact">
+                                <div class="drop-zone-content">
+                                    <span class="material-symbols-outlined drop-zone-icon">upload</span>
+                                    <div class="drop-zone-text-wrap">
+                                        <p class="drop-zone-text">Перетягніть зображення або натисніть</p>
+                                        <p class="drop-zone-hint">PNG, JPG, WebP, SVG. Макс. 4 MB</p>
+                                    </div>
+                                </div>
+                                <input type="file" id="brand-logo-file-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+                            </div>
+
+                            <!-- URL input: альтернатива drag-and-drop -->
+                            <div class="brand-logo-url-input u-mt-8">
+                                <div class="compound-input">
+                                    <input type="url" id="brand-logo-url-field" placeholder="Або вставте URL зображення...">
+                                    <button type="button" class="btn-icon ci-action" id="btn-upload-from-url" data-tooltip="Завантажити з URL">
+                                        <span class="material-symbols-outlined">download</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="brand-logo-url">
                         </div>
 
                         <!-- Mapper інтеграція (зарезервовано) -->

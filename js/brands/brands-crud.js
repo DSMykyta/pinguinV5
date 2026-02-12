@@ -26,6 +26,7 @@ import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderTable as renderTableLego } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../utils/api-client.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -148,6 +149,7 @@ function initModalComponents() {
     initAltNamesHandlers();
     initLinksHandlers();
     initBrandLinesHandler();
+    initLogoHandlers();
     initSaveHandler();
     initSectionNavigation();
 }
@@ -652,6 +654,184 @@ function updateLinksEmptyState() {
     emptyState.classList.toggle('u-hidden', hasLinks);
 }
 
+/**
+ * Ініціалізувати обробники завантаження логотипу:
+ * - Drop zone drag-and-drop
+ * - Drop zone click → file input
+ * - URL input + кнопка завантаження
+ * - Кнопка видалення логотипу
+ */
+function initLogoHandlers() {
+    const dropzone = document.getElementById('brand-logo-dropzone');
+    const fileInput = document.getElementById('brand-logo-file-input');
+    const urlField = document.getElementById('brand-logo-url-field');
+    const urlBtn = document.getElementById('btn-upload-from-url');
+    const removeBtn = document.getElementById('btn-remove-brand-logo');
+
+    if (!dropzone) return;
+
+    // Клік на drop zone → відкрити file input
+    dropzone.addEventListener('click', () => fileInput?.click());
+
+    // Вибір файлу
+    fileInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleLogoFileUpload(file);
+        fileInput.value = '';
+    });
+
+    // Drag-and-drop
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('drag-over');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) handleLogoFileUpload(file);
+    });
+
+    // Завантаження з URL
+    urlBtn?.addEventListener('click', () => {
+        const url = urlField?.value.trim();
+        if (url) handleLogoUrlUpload(url);
+        else showToast('Введіть URL зображення', 'warning');
+    });
+
+    // Enter в URL полі
+    urlField?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            urlBtn?.click();
+        }
+    });
+
+    // Видалення логотипу
+    removeBtn?.addEventListener('click', handleRemoveLogo);
+}
+
+/**
+ * Отримати назву бренду з форми (для іменування файлу)
+ */
+function getCurrentBrandName() {
+    return document.getElementById('brand-name-uk')?.value.trim() || 'brand';
+}
+
+/**
+ * Завантажити логотип з файлу (file input або drag-and-drop)
+ * @param {File} file
+ */
+async function handleLogoFileUpload(file) {
+    const dropzone = document.getElementById('brand-logo-dropzone');
+    if (!dropzone) return;
+
+    // Валідація типу
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+    if (!allowed.includes(file.type)) {
+        showToast('Непідтримуваний формат. Дозволені: PNG, JPG, WebP, SVG', 'error');
+        return;
+    }
+
+    // Валідація розміру (4 MB)
+    if (file.size > 4 * 1024 * 1024) {
+        showToast('Файл занадто великий. Максимум 4 MB', 'error');
+        return;
+    }
+
+    dropzone.classList.add('is-loading');
+
+    try {
+        const brandName = getCurrentBrandName();
+        const result = await uploadBrandLogoFile(file, brandName);
+
+        dropzone.classList.remove('is-loading');
+        dropzone.classList.add('is-success');
+        setTimeout(() => dropzone.classList.remove('is-success'), 2000);
+
+        setLogoPreview(result.thumbnailUrl);
+        showToast('Логотип завантажено', 'success');
+    } catch (error) {
+        console.error('❌ Помилка завантаження логотипу:', error);
+        dropzone.classList.remove('is-loading');
+        dropzone.classList.add('is-error');
+        setTimeout(() => dropzone.classList.remove('is-error'), 2000);
+        showToast('Помилка завантаження логотипу', 'error');
+    }
+}
+
+/**
+ * Завантажити логотип з URL
+ * @param {string} url
+ */
+async function handleLogoUrlUpload(url) {
+    const dropzone = document.getElementById('brand-logo-dropzone');
+    if (!dropzone) return;
+
+    dropzone.classList.add('is-loading');
+
+    try {
+        const brandName = getCurrentBrandName();
+        const result = await uploadBrandLogoUrl(url, brandName);
+
+        dropzone.classList.remove('is-loading');
+        dropzone.classList.add('is-success');
+        setTimeout(() => dropzone.classList.remove('is-success'), 2000);
+
+        setLogoPreview(result.thumbnailUrl);
+
+        // Очистити URL поле
+        const urlField = document.getElementById('brand-logo-url-field');
+        if (urlField) urlField.value = '';
+
+        showToast('Логотип завантажено з URL', 'success');
+    } catch (error) {
+        console.error('❌ Помилка завантаження з URL:', error);
+        dropzone.classList.remove('is-loading');
+        dropzone.classList.add('is-error');
+        setTimeout(() => dropzone.classList.remove('is-error'), 2000);
+        showToast('Помилка завантаження з URL', 'error');
+    }
+}
+
+/**
+ * Видалити логотип (очистити preview, показати dropzone)
+ */
+function handleRemoveLogo() {
+    const hiddenInput = document.getElementById('brand-logo-url');
+    if (hiddenInput) hiddenInput.value = '';
+
+    const preview = document.getElementById('brand-logo-preview');
+    const dropzone = document.getElementById('brand-logo-dropzone');
+
+    if (preview) preview.classList.add('u-hidden');
+    if (dropzone) dropzone.classList.remove('u-hidden');
+}
+
+/**
+ * Показати preview логотипу, сховати dropzone
+ * @param {string} thumbnailUrl - Публічний URL зображення
+ */
+function setLogoPreview(thumbnailUrl) {
+    const preview = document.getElementById('brand-logo-preview');
+    const previewImg = document.getElementById('brand-logo-preview-img');
+    const dropzone = document.getElementById('brand-logo-dropzone');
+    const hiddenInput = document.getElementById('brand-logo-url');
+
+    // Оновити hidden input (зберігається в Google Sheets)
+    if (hiddenInput) hiddenInput.value = thumbnailUrl;
+
+    // Показати preview, сховати dropzone
+    if (previewImg) previewImg.src = thumbnailUrl;
+    if (preview) preview.classList.remove('u-hidden');
+    if (dropzone) dropzone.classList.add('u-hidden');
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // FORM DATA
 // ═══════════════════════════════════════════════════════════════════════════
@@ -721,9 +901,16 @@ function fillBrandForm(brand) {
     const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
     if (mapperIdDisplay) mapperIdDisplay.textContent = brand.mapper_option_id || '—';
 
-    // Logo URL (зарезервовано)
+    // Logo URL
     const logoUrlField = document.getElementById('brand-logo-url');
     if (logoUrlField) logoUrlField.value = brand.brand_logo_url || '';
+
+    // Показати preview якщо є URL, інакше dropzone
+    if (brand.brand_logo_url) {
+        setLogoPreview(brand.brand_logo_url);
+    } else {
+        handleRemoveLogo();
+    }
 }
 
 /**
@@ -767,9 +954,10 @@ function clearBrandForm() {
     const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
     if (mapperIdDisplay) mapperIdDisplay.textContent = '—';
 
-    // Logo URL (зарезервовано)
+    // Logo URL
     const logoUrlField = document.getElementById('brand-logo-url');
     if (logoUrlField) logoUrlField.value = '';
+    handleRemoveLogo();
 
     // Лінійки - очистити для нового бренду
     const linesContainer = document.getElementById('brand-lines-container');

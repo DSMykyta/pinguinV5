@@ -8,8 +8,9 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "googleapis": "^128.0.0"
+    "busboy": "^1.6.0",
+    "googleapis": "^128.0.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "engines": {
     "node": ">=18.x"

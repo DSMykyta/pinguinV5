@@ -47,6 +47,7 @@ let tableAPI = null;
  */
 export function getColumns() {
     return [
+        col('brand_logo_url', '', 'photo'),
         col('brand_id', 'ID', 'word-chip'),
         col('name_uk', 'Назва', 'name'),
         col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),

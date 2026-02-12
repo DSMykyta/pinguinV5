@@ -351,6 +351,52 @@ async function callSheetsAPI(action, params = {}) {
   return result.data;
 }
 
+// ============= Google Drive API =============
+
+const API_DRIVE_UPLOAD = `${API_BASE}/api/drive/upload`;
+
+/**
+ * Завантажити логотип бренду на Google Drive (файл).
+ * @param {File} file - File об'єкт з input або drag-and-drop
+ * @param {string} brandName - Назва бренду для іменування файлу
+ * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
+ */
+async function uploadBrandLogoFile(file, brandName) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('brandName', brandName);
+
+  const response = await fetch(API_DRIVE_UPLOAD, {
+    method: 'POST',
+    body: formData,
+    // НЕ встановлюємо Content-Type — браузер сам додасть boundary для FormData
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
+/**
+ * Завантажити логотип бренду на Google Drive з URL.
+ * @param {string} imageUrl - URL зображення
+ * @param {string} brandName - Назва бренду для іменування файлу
+ * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
+ */
+async function uploadBrandLogoUrl(imageUrl, brandName) {
+  const response = await fetch(API_DRIVE_UPLOAD, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ url: imageUrl, brandName }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
 // ============= Експорт =============
 
 // ES6 модульні експорти
@@ -364,7 +410,9 @@ export {
   sheetsBatchUpdate,
   sheetsBatchUpdateSpreadsheet,
   sheetsGetSheetNames,
-  handleApiError
+  handleApiError,
+  uploadBrandLogoFile,
+  uploadBrandLogoUrl
 };
 
 // Глобальний об'єкт для доступу до API
@@ -391,6 +439,12 @@ window.apiClient = {
 
   // Універсальна функція (нова)
   callSheetsAPI,
+
+  // Google Drive API
+  drive: {
+    uploadBrandLogoFile,
+    uploadBrandLogoUrl,
+  },
 
   // Утиліти
   showError,
