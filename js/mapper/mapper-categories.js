@@ -581,11 +581,14 @@ function populateRelatedCharacteristics(categoryId) {
     const refreshBtn = document.getElementById('refresh-category-chars');
     if (refreshBtn) {
         refreshBtn.onclick = () => {
+            const icon = refreshBtn.querySelector('.material-symbols-outlined');
+            icon?.classList.add('is-spinning');
             allData = loadData();
             filteredData = [...allData];
             if (searchInput) searchInput.value = '';
             currentPage = 1;
             renderPage();
+            setTimeout(() => icon?.classList.remove('is-spinning'), 300);
         };
     }
 

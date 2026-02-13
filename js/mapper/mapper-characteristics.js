@@ -544,8 +544,11 @@ function populateRelatedOptions(characteristicId) {
     const refreshBtn = document.getElementById('refresh-char-options');
     if (refreshBtn) {
         refreshBtn.onclick = () => {
+            const icon = refreshBtn.querySelector('.material-symbols-outlined');
+            icon?.classList.add('is-spinning');
             if (searchInput) searchInput.value = '';
             refreshData();
+            setTimeout(() => icon?.classList.remove('is-spinning'), 300);
         };
     }
 
