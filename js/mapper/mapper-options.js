@@ -50,6 +50,7 @@ import {
     showMapToMpModal
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { initPagination } from '../common/ui-pagination.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -382,14 +383,16 @@ function populateRelatedChildOptions(optionId) {
     const container = document.getElementById('option-related-chars');
     const statsEl = document.getElementById('option-chars-stats');
     const searchInput = document.getElementById('option-chars-search');
+    const paginationEl = document.getElementById('option-children-pagination');
     const navItem = document.getElementById('nav-option-dependent');
     const section = document.getElementById('section-option-dependent');
 
     if (!container) return;
 
-    const options = getOptions();
-    const allData = options.filter(opt => opt.parent_option_id === optionId);
+    let allData = getOptions().filter(opt => opt.parent_option_id === optionId);
     let filteredData = [...allData];
+    let currentPage = 1;
+    let pageSize = 25;
 
     // Функція оновлення статистики
     const updateStats = (shown, total) => {
@@ -397,26 +400,72 @@ function populateRelatedChildOptions(optionId) {
     };
 
     // Приховуємо/показуємо секцію залежно від наявності дочірніх опцій
+    const updateVisibility = () => {
+        if (allData.length === 0) {
+            if (navItem) navItem.classList.add('u-hidden');
+            if (section) section.classList.add('u-hidden');
+        } else {
+            if (navItem) navItem.classList.remove('u-hidden');
+            if (section) section.classList.remove('u-hidden');
+        }
+    };
+
+    updateVisibility();
     if (allData.length === 0) {
-        if (navItem) navItem.classList.add('u-hidden');
-        if (section) section.classList.add('u-hidden');
         if (statsEl) statsEl.textContent = 'Показано 0 з 0';
         return;
     }
 
-    if (navItem) navItem.classList.remove('u-hidden');
-    if (section) section.classList.remove('u-hidden');
-
-    // Конфігурація колонок
+    // Конфігурація колонок — з unlink
     const columns = [
         col('id', 'ID', 'word-chip'),
-        col('value_ua', 'Значення', 'text', { className: 'cell-l' })
+        col('value_ua', 'Значення', 'text', { className: 'cell-l' }),
+        {
+            id: '_unlink',
+            label: ' ',
+            sortable: false,
+            className: 'cell-s',
+            render: (value, row) => actionButton({
+                action: 'unlink',
+                rowId: row.id,
+                data: { name: row.value_ua || row.id }
+            })
+        }
     ];
+
+    // Функція оновлення даних (для refresh та unlink)
+    const refreshData = () => {
+        allData = getOptions().filter(opt => opt.parent_option_id === optionId);
+        filteredData = [...allData];
+        currentPage = 1;
+        updateVisibility();
+        renderPage();
+    };
 
     // Реєструємо обробники дій
     registerActionHandlers('option-child-options', {
         edit: async (rowId) => {
             await showEditOptionModal(rowId);
+        },
+        unlink: async (rowId, data) => {
+            const confirmed = await showConfirmModal({
+                title: 'Відв\'язати дочірню опцію?',
+                message: `Ви впевнені, що хочете відв'язати опцію "${data.name}" від батьківської?`,
+                confirmText: 'Відв\'язати',
+                cancelText: 'Скасувати',
+                confirmClass: 'btn-warning'
+            });
+
+            if (confirmed) {
+                try {
+                    await updateOption(rowId, { parent_option_id: '' });
+                    showToast('Опцію відв\'язано', 'success');
+                    refreshData();
+                } catch (error) {
+                    console.error('❌ Помилка відв\'язування опції:', error);
+                    showToast('Помилка відв\'язування опції', 'error');
+                }
+            }
         }
     });
 
@@ -436,7 +485,8 @@ function populateRelatedChildOptions(optionId) {
                 dataSource: () => filteredData,
                 onSort: (sortedData) => {
                     filteredData = sortedData;
-                    renderTable(filteredData);
+                    currentPage = 1;
+                    renderPage();
                 },
                 columnTypes: {
                     id: 'id-text',
@@ -446,10 +496,21 @@ function populateRelatedChildOptions(optionId) {
         }
     });
 
-    const renderTable = (data) => {
-        modalTableAPI.render(data);
-        updateStats(data.length, allData.length);
+    // Функція рендерингу сторінки з пагінацією
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        modalTableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
+
+    // Ініціалізація пагінації
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     // Функція пошуку
     const filterData = (query) => {
@@ -462,7 +523,8 @@ function populateRelatedChildOptions(optionId) {
                 (row.value_ua && row.value_ua.toLowerCase().includes(q))
             );
         }
-        renderTable(filteredData);
+        currentPage = 1;
+        renderPage();
     };
 
     // Підключаємо пошук
@@ -471,10 +533,17 @@ function populateRelatedChildOptions(optionId) {
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    // Перший рендер
-    renderTable(filteredData);
+    // Кнопка refresh
+    const refreshBtn = document.getElementById('refresh-option-children');
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            if (searchInput) searchInput.value = '';
+            refreshData();
+        };
+    }
 
-    // Сортування через Table LEGO плагін
+    // Перший рендер
+    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

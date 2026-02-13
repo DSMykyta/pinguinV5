@@ -128,6 +128,9 @@
                             <h3 class="small" id="option-chars-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
+                            <button class="btn-icon" id="refresh-option-children" aria-label="Оновити">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="option-chars-search"
@@ -138,6 +141,22 @@
 
                     <div id="option-related-chars" class="pseudo-table-container">
                         <!-- Заповнюється динамічно -->
+                    </div>
+                    <div class="section-footer" id="option-children-pagination">
+                        <div class="pagination-container">
+                            <div class="pagination-nav"></div>
+                            <div class="page-size-selector">
+                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
+                                    <span class="page-size-label">25</span>
+                                </button>
+                                <div class="page-size-menu">
+                                    <button class="page-size-option" data-page-size="25">25</button>
+                                    <button class="page-size-option" data-page-size="50">50</button>
+                                    <button class="page-size-option" data-page-size="100">100</button>
+                                    <button class="page-size-option" data-page-size="999999">Всі</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

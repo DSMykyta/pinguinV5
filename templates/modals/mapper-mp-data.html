@@ -8,8 +8,14 @@
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div class="modal-fullscreen-title">
-                    <h1 id="mp-data-modal-title">Дані маркетплейсу</h1>
+                    <h1 id="mp-data-modal-title">Маркетплейс</h1>
                 </div>
+            </div>
+            <div class="modal-fullscreen-header-right">
+                <button class="btn-primary" id="save-mapper-marketplace">
+                    <span class="material-symbols-outlined">save</span>
+                    <span>Зберегти</span>
+                </button>
             </div>
         </header>
 
@@ -19,7 +25,15 @@
             <!-- SIDEBAR NAVIGATOR -->
             <nav class="sidebar-navigator" id="mp-data-section-navigator">
                 <div class="sidebar-nav-main">
-                    <a href="#section-mp-data-categories" class="sidebar-nav-item active">
+                    <a href="#section-mp-info" class="sidebar-nav-item active">
+                        <span class="material-symbols-outlined">edit</span>
+                        <span class="sidebar-nav-label">Основні дані</span>
+                    </a>
+                    <a href="#section-mp-normalization" class="sidebar-nav-item">
+                        <span class="material-symbols-outlined">tune</span>
+                        <span class="sidebar-nav-label">Нормалізація</span>
+                    </a>
+                    <a href="#section-mp-data-categories" class="sidebar-nav-item">
                         <span class="material-symbols-outlined">square</span>
                         <span class="sidebar-nav-label">Категорії</span>
                         <span class="tree-node-count" id="mp-data-cat-count">0</span>
@@ -35,10 +49,123 @@
                         <span class="tree-node-count" id="mp-data-opt-count">0</span>
                     </a>
                 </div>
+                <div class="sidebar-nav-footer">
+                    <button type="button" class="btn-delete u-hidden" id="delete-mapper-marketplace" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                        <span class="sidebar-nav-label">Видалити</span>
+                    </button>
+                </div>
             </nav>
 
             <!-- CONTENT SECTIONS -->
             <main class="modal-fullscreen-content">
+
+                <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
+                <section id="section-mp-info">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Основні дані</h2>
+                            </div>
+                            <h3 class="small">Налаштування маркетплейсу</h3>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-mp-name">
+                                    Назва
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="mapper-mp-name" class="input-main" placeholder="Наприклад: Rozetka" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mapper-mp-slug">
+                                    Slug
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
+                                <p class="form-hint">Унікальний код (латиницею, без пробілів)</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Статус</label>
+                            <div class="switch switch-sm" id="mapper-mp-active-switch">
+                                <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
+                                <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
+                                <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
+                                <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
+                            </div>
+                            <p class="form-hint">Неактивні маркетплейси не відображаються в списках вибору</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- СЕКЦІЯ: НОРМАЛІЗАЦІЯ -->
+                <section id="section-mp-normalization">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Нормалізація полів</h2>
+                            </div>
+                            <h3 class="small">Вкажіть назви полів JSON, які використовує цей маркетплейс</h3>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <!-- Категорії -->
+                        <div class="form-group"><label><strong>Категорії</strong></label></div>
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-cat-name">Назва</label>
+                                <input type="text" id="mapper-mp-cm-cat-name" class="input-short"
+                                       placeholder="nameUa, name_ru, title">
+                            </div>
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-cat-parent">Батьківська ID</label>
+                                <input type="text" id="mapper-mp-cm-cat-parent" class="input-short"
+                                       placeholder="parentId, parent_id">
+                            </div>
+                        </div>
+
+                        <!-- Характеристики -->
+                        <div class="form-group"><label><strong>Характеристики</strong></label></div>
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-char-name">Назва</label>
+                                <input type="text" id="mapper-mp-cm-char-name" class="input-short"
+                                       placeholder="title, name">
+                            </div>
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-char-type">Тип</label>
+                                <input type="text" id="mapper-mp-cm-char-type" class="input-short"
+                                       placeholder="type, param_type">
+                            </div>
+                        </div>
+
+                        <!-- Опції -->
+                        <div class="form-group"><label><strong>Опції</strong></label></div>
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-opt-name">Назва</label>
+                                <input type="text" id="mapper-mp-cm-opt-name" class="input-short"
+                                       placeholder="label, name_uk">
+                            </div>
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-opt-char-id">ID характеристики</label>
+                                <input type="text" id="mapper-mp-cm-opt-char-id" class="input-short"
+                                       placeholder="characteristicId, char_id">
+                            </div>
+                        </div>
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label for="mapper-mp-cm-opt-char-name">Назва характеристики</label>
+                                <input type="text" id="mapper-mp-cm-opt-char-name" class="input-short"
+                                       placeholder="characteristicTitle">
+                            </div>
+                            <div class="form-group"></div>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- СЕКЦІЯ: КАТЕГОРІЇ -->
                 <section id="section-mp-data-categories">
@@ -50,6 +177,9 @@
                             <h3 class="small" id="mp-data-cat-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
+                            <button class="btn-icon" id="refresh-mp-data-cats" aria-label="Оновити">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-cat-search" placeholder="Пошук категорій...">
@@ -58,6 +188,22 @@
                     </div>
                     <div id="mp-data-cat-container" class="pseudo-table-container">
                         <!-- Заповнюється JavaScript -->
+                    </div>
+                    <div class="section-footer" id="mp-data-cat-pagination">
+                        <div class="pagination-container">
+                            <div class="pagination-nav"></div>
+                            <div class="page-size-selector">
+                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
+                                    <span class="page-size-label">Всі</span>
+                                </button>
+                                <div class="page-size-menu">
+                                    <button class="page-size-option" data-page-size="25">25</button>
+                                    <button class="page-size-option" data-page-size="50">50</button>
+                                    <button class="page-size-option" data-page-size="100">100</button>
+                                    <button class="page-size-option" data-page-size="999999">Всі</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -71,6 +217,9 @@
                             <h3 class="small" id="mp-data-char-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
+                            <button class="btn-icon" id="refresh-mp-data-chars" aria-label="Оновити">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-char-search" placeholder="Пошук характеристик...">
@@ -108,6 +257,9 @@
                             <h3 class="small" id="mp-data-opt-stats">Показано 0 з 0</h3>
                         </div>
                         <div class="tab-controls">
+                            <button class="btn-icon" id="refresh-mp-data-opts" aria-label="Оновити">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
                             <div class="search-container">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-opt-search" placeholder="Пошук опцій...">

@@ -28,7 +28,7 @@
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
     addCharacteristic, updateCharacteristic, deleteCharacteristic, getCharacteristics,
-    getCategories, getMarketplaces, getOptions, updateOption,
+    getCategories, getMarketplaces, getOptions, updateOption, addOption,
     getMpCharacteristics, getMappedMpCharacteristics,
     createCharacteristicMapping, batchCreateCharacteristicMapping, deleteCharacteristicMapping,
     autoMapCharacteristics
@@ -42,6 +42,7 @@ import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { initPagination } from '../common/ui-pagination.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -181,13 +182,6 @@ export async function showEditCharacteristicModal(id) {
         saveBtn.onclick = () => handleUpdateCharacteristic(id);
     }
 
-    const addOptionBtn = document.getElementById('btn-add-char-option');
-    if (addOptionBtn) {
-        addOptionBtn.onclick = async () => {
-            const { showAddOptionModal } = await import('./mapper-options.js');
-            await showAddOptionModal(id);
-        };
-    }
 }
 
 async function showDeleteCharacteristicConfirm(id) {
@@ -418,14 +412,24 @@ function populateRelatedOptions(characteristicId) {
     const container = document.getElementById('char-related-options');
     const statsEl = document.getElementById('char-options-stats');
     const searchInput = document.getElementById('char-options-search');
+    const paginationEl = document.getElementById('char-options-pagination');
     if (!container) return;
 
-    const options = getOptions();
-    const allData = options.filter(opt => opt.characteristic_id === characteristicId);
+    let allData = getOptions().filter(opt => opt.characteristic_id === characteristicId);
     let filteredData = [...allData];
+    let currentPage = 1;
+    let pageSize = 25;
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
+
+    // Функція оновлення даних (для refresh, unlink, add)
+    const refreshData = () => {
+        allData = getOptions().filter(opt => opt.characteristic_id === characteristicId);
+        filteredData = [...allData];
+        currentPage = 1;
+        renderPage();
     };
 
     const columns = [
@@ -465,7 +469,7 @@ function populateRelatedOptions(characteristicId) {
                 try {
                     await updateOption(rowId, { characteristic_id: '' });
                     showToast('Опцію відв\'язано', 'success');
-                    populateRelatedOptions(characteristicId);
+                    refreshData();
                 } catch (error) {
                     console.error('❌ Помилка відв\'язування опції:', error);
                     showToast('Помилка відв\'язування опції', 'error');
@@ -490,7 +494,8 @@ function populateRelatedOptions(characteristicId) {
                 dataSource: () => filteredData,
                 onSort: (sortedData) => {
                     filteredData = sortedData;
-                    renderTable(filteredData);
+                    currentPage = 1;
+                    renderPage();
                 },
                 columnTypes: {
                     id: 'id-text',
@@ -500,10 +505,21 @@ function populateRelatedOptions(characteristicId) {
         }
     });
 
-    const renderTable = (data) => {
-        modalTableAPI.render(data);
-        updateStats(data.length, allData.length);
+    // Функція рендерингу сторінки з пагінацією
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        modalTableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
+
+    // Ініціалізація пагінації
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     const filterData = (query) => {
         const q = query.toLowerCase().trim();
@@ -515,7 +531,8 @@ function populateRelatedOptions(characteristicId) {
                 (row.value_ua && row.value_ua.toLowerCase().includes(q))
             );
         }
-        renderTable(filteredData);
+        currentPage = 1;
+        renderPage();
     };
 
     if (searchInput) {
@@ -523,8 +540,100 @@ function populateRelatedOptions(characteristicId) {
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    // Перший рендер (сортування через Table LEGO плагін)
-    renderTable(filteredData);
+    // Кнопка refresh
+    const refreshBtn = document.getElementById('refresh-char-options');
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            if (searchInput) searchInput.value = '';
+            refreshData();
+        };
+    }
+
+    // Кнопка "Додати опцію" — inline оверлей без закриття основної модалки
+    const addOptionBtn = document.getElementById('btn-add-char-option');
+    if (addOptionBtn) {
+        addOptionBtn.onclick = () => {
+            showAddOptionToCharacteristicModal(characteristicId, refreshData);
+        };
+    }
+
+    // Перший рендер
+    renderPage();
+}
+
+/**
+ * Inline модалка для швидкого додавання опції до характеристики
+ * (без закриття основної модалки редагування)
+ */
+function showAddOptionToCharacteristicModal(characteristicId, onSuccess) {
+    const modalHtml = `
+        <div class="modal-overlay is-open">
+            <div class="modal-container modal-small">
+                <div class="modal-header">
+                    <h2 class="modal-title">Додати опцію</h2>
+                    <div class="modal-header-actions">
+                        <button class="segment modal-close-btn" aria-label="Закрити">
+                            <div class="state-layer">
+                                <span class="material-symbols-outlined">close</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="inline-option-value-ua">
+                            Значення (UA) <span class="required">*</span>
+                        </label>
+                        <input type="text" id="inline-option-value-ua" class="input-main" placeholder="Значення українською" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inline-option-value-ru">Значення (RU)</label>
+                        <input type="text" id="inline-option-value-ru" class="input-main" placeholder="Значення російською">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary modal-close-btn">Скасувати</button>
+                    <button class="btn-primary" id="inline-option-confirm">
+                        <span class="material-symbols-outlined">add</span>
+                        <span>Додати</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const modalOverlay = createModalOverlay(modalHtml);
+    const cleanup = () => closeModalOverlay(modalOverlay);
+
+    setupModalCloseHandlers(modalOverlay, cleanup);
+
+    const confirmBtn = document.getElementById('inline-option-confirm');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async () => {
+            const valueUa = document.getElementById('inline-option-value-ua')?.value.trim();
+            const valueRu = document.getElementById('inline-option-value-ru')?.value.trim();
+
+            if (!valueUa) {
+                showToast('Введіть значення опції', 'error');
+                return;
+            }
+
+            try {
+                await addOption({
+                    characteristic_id: characteristicId,
+                    value_ua: valueUa,
+                    value_ru: valueRu || '',
+                    sort_order: '0'
+                });
+                showToast('Опцію додано', 'success');
+                cleanup();
+                if (onSuccess) onSuccess();
+            } catch (error) {
+                console.error('❌ Помилка додавання опції:', error);
+                showToast('Помилка додавання опції', 'error');
+            }
+        });
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -50,6 +50,7 @@ import {
     showMapToMpModal
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { initPagination } from '../common/ui-pagination.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -419,6 +420,7 @@ function populateRelatedCharacteristics(categoryId) {
     const container = document.getElementById('category-related-chars');
     const statsEl = document.getElementById('category-chars-stats');
     const searchInput = document.getElementById('category-chars-search');
+    const paginationEl = document.getElementById('category-chars-pagination');
     if (!container) return;
 
     // Отримуємо дані
@@ -435,10 +437,12 @@ function populateRelatedCharacteristics(categoryId) {
 
     let allData = loadData();
     let filteredData = [...allData];
+    let currentPage = 1;
+    let pageSize = 25;
 
     // Функція оновлення статистики
-    const updateStats = (count) => {
-        if (statsEl) statsEl.textContent = `Прив'язано ${count}`;
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
     // Конфігурація колонок
@@ -485,7 +489,8 @@ function populateRelatedCharacteristics(categoryId) {
                 dataSource: () => filteredData,
                 onSort: (sortedData) => {
                     filteredData = sortedData;
-                    renderTable(filteredData);
+                    currentPage = 1;
+                    renderPage();
                 },
                 columnTypes: {
                     id: 'id-text',
@@ -495,11 +500,21 @@ function populateRelatedCharacteristics(categoryId) {
         }
     });
 
-    // Функція рендерингу таблиці
-    const renderTable = (data) => {
-        modalTableAPI.render(data);
-        updateStats(allData.length);
+    // Функція рендерингу сторінки з пагінацією
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        modalTableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
+
+    // Ініціалізація пагінації
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     // Обробник відв'язування
     const handleUnlinkCharacteristic = async (charId, charName, catId) => {
@@ -515,28 +530,25 @@ function populateRelatedCharacteristics(categoryId) {
 
         if (confirmed) {
             try {
-                // Отримуємо поточну характеристику
                 const characteristics = getCharacteristics();
                 const char = characteristics.find(c => c.id === charId);
                 if (!char) return;
 
-                // Видаляємо categoryId зі списку
                 const currentIds = char.category_ids
                     ? String(char.category_ids).split(',').map(id => id.trim()).filter(id => id)
                     : [];
                 const newIds = currentIds.filter(id => id !== catId);
 
-                // Оновлюємо характеристику (тільки поле category_ids)
                 await updateCharacteristic(charId, {
                     category_ids: newIds.join(',')
                 });
 
                 showToast('Характеристику відв\'язано', 'success');
 
-                // Перезавантажуємо дані
                 allData = loadData();
                 filteredData = [...allData];
-                renderTable(filteredData);
+                currentPage = 1;
+                renderPage();
             } catch (error) {
                 console.error('❌ Помилка відв\'язування:', error);
                 showToast('Помилка відв\'язування характеристики', 'error');
@@ -555,7 +567,8 @@ function populateRelatedCharacteristics(categoryId) {
                 (row.name_ua && row.name_ua.toLowerCase().includes(q))
             );
         }
-        renderTable(filteredData);
+        currentPage = 1;
+        renderPage();
     };
 
     // Підключаємо пошук
@@ -564,21 +577,33 @@ function populateRelatedCharacteristics(categoryId) {
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
+    // Кнопка refresh
+    const refreshBtn = document.getElementById('refresh-category-chars');
+    if (refreshBtn) {
+        refreshBtn.onclick = () => {
+            allData = loadData();
+            filteredData = [...allData];
+            if (searchInput) searchInput.value = '';
+            currentPage = 1;
+            renderPage();
+        };
+    }
+
     // Кнопка "Додати" - прив'язати характеристику до категорії
     const addBtn = document.getElementById('btn-add-category-char');
     if (addBtn) {
         addBtn.addEventListener('click', async () => {
             await showAddCharacteristicToCategoryModal(categoryId, () => {
-                // Колбек після прив'язки - оновлюємо дані
                 allData = loadData();
                 filteredData = [...allData];
-                renderTable(filteredData);
+                currentPage = 1;
+                renderPage();
             });
         });
     }
 
-    // Перший рендер (сортування через Table LEGO плагін)
-    renderTable(filteredData);
+    // Перший рендер
+    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

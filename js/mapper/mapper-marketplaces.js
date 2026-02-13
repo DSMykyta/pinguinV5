@@ -12,8 +12,8 @@
  * ║  ЕКСПОРТОВАНІ ФУНКЦІЇ:                                                   ║
  * ║  - init() — Ініціалізація плагіна (реєстрація hooks)                     ║
  * ║  - showAddMarketplaceModal() — Модалка додавання                         ║
- * ║  - showEditMarketplaceModal(id) — Модалка редагування                    ║
- * ║  - showMarketplaceDataModal(id) — Перегляд даних маркетплейсу            ║
+ * ║  - showEditMarketplaceModal(id) — Модалка редагування + дані             ║
+ * ║  - showMarketplaceDataModal(id) — Alias → showEditMarketplaceModal       ║
  * ║                                                                          ║
  * ║  ЗАЛЕЖНОСТІ:                                                             ║
  * ║  - mapper-state.js (state, hooks)                                        ║
@@ -76,18 +76,17 @@ function handleDataLoaded() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CRUD МОДАЛКИ
+// ЄДИНА МОДАЛКА МАРКЕТПЛЕЙСУ (fullscreen)
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Показати модальне вікно для додавання маркетплейсу
+ * Показати модалку для додавання маркетплейсу
  */
 export async function showAddMarketplaceModal() {
-
-    await showModal('mapper-marketplace-edit', null);
+    await showModal('mapper-mp-data', null);
     await new Promise(resolve => requestAnimationFrame(resolve));
 
-    const title = document.getElementById('modal-title');
+    const title = document.getElementById('mp-data-modal-title');
     if (title) title.textContent = 'Додати маркетплейс';
 
     const deleteBtn = document.getElementById('delete-mapper-marketplace');
@@ -96,16 +95,15 @@ export async function showAddMarketplaceModal() {
     clearMarketplaceForm();
 
     const saveBtn = document.getElementById('save-mapper-marketplace');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveNewMarketplace;
-    }
+    if (saveBtn) saveBtn.onclick = handleSaveNewMarketplace;
+
+    initSectionNavigation('mp-data-section-navigator');
 }
 
 /**
- * Показати модальне вікно для редагування маркетплейсу
+ * Показати модалку для редагування / перегляду маркетплейсу
  */
 export async function showEditMarketplaceModal(id) {
-
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
 
@@ -114,11 +112,13 @@ export async function showEditMarketplaceModal(id) {
         return;
     }
 
-    await showModal('mapper-marketplace-edit', null);
+    await showModal('mapper-mp-data', null);
+    await new Promise(resolve => requestAnimationFrame(resolve));
 
-    const title = document.getElementById('modal-title');
-    if (title) title.textContent = 'Редагувати маркетплейс';
+    const title = document.getElementById('mp-data-modal-title');
+    if (title) title.textContent = marketplace.name;
 
+    // Кнопка видалення
     const deleteBtn = document.getElementById('delete-mapper-marketplace');
     if (deleteBtn) {
         deleteBtn.classList.remove('u-hidden');
@@ -128,13 +128,79 @@ export async function showEditMarketplaceModal(id) {
         };
     }
 
+    // Заповнити форму
     fillMarketplaceForm(marketplace);
 
+    // Кнопка збереження
     const saveBtn = document.getElementById('save-mapper-marketplace');
-    if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateMarketplace(id);
+    if (saveBtn) saveBtn.onclick = () => handleUpdateMarketplace(id);
+
+    // Завантажити дані
+    if (getMpCategories().length === 0) await loadMpCategories();
+    if (getMpCharacteristics().length === 0) await loadMpCharacteristics();
+    if (getMpOptions().length === 0) await loadMpOptions();
+
+    const categories = getMpCategories().filter(c => c.marketplace_id === id);
+    const characteristics = getMpCharacteristics().filter(c => c.marketplace_id === id);
+    const options = getMpOptions().filter(o => o.marketplace_id === id);
+
+    // Оновити лічильники в sidebar
+    const catCount = document.getElementById('mp-data-cat-count');
+    const charCount = document.getElementById('mp-data-char-count');
+    const optCount = document.getElementById('mp-data-opt-count');
+    if (catCount) catCount.textContent = categories.length;
+    if (charCount) charCount.textContent = characteristics.length;
+    if (optCount) optCount.textContent = options.length;
+
+    // Ініціалізувати scroll-snap навігацію
+    initSectionNavigation('mp-data-section-navigator');
+
+    // Парсити column_mapping маркетплейсу
+    let columnMapping = {};
+    try { columnMapping = JSON.parse(marketplace.column_mapping || '{}'); }
+    catch { columnMapping = {}; }
+
+    // Заповнити кожну секцію незалежно
+    populateMpCategories(categories, columnMapping.categories);
+    populateMpCharacteristics(characteristics, columnMapping.characteristics);
+    populateMpOptions(options, columnMapping.options);
+
+    // Refresh кнопки
+    const refreshCatsBtn = document.getElementById('refresh-mp-data-cats');
+    if (refreshCatsBtn) {
+        refreshCatsBtn.onclick = async () => {
+            await loadMpCategories();
+            const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
+            if (catCount) catCount.textContent = freshCats.length;
+            populateMpCategories(freshCats, columnMapping.categories);
+        };
+    }
+
+    const refreshCharsBtn = document.getElementById('refresh-mp-data-chars');
+    if (refreshCharsBtn) {
+        refreshCharsBtn.onclick = async () => {
+            await loadMpCharacteristics();
+            const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
+            if (charCount) charCount.textContent = freshChars.length;
+            populateMpCharacteristics(freshChars, columnMapping.characteristics);
+        };
+    }
+
+    const refreshOptsBtn = document.getElementById('refresh-mp-data-opts');
+    if (refreshOptsBtn) {
+        refreshOptsBtn.onclick = async () => {
+            await loadMpOptions();
+            const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
+            if (optCount) optCount.textContent = freshOpts.length;
+            populateMpOptions(freshOpts, columnMapping.options);
+        };
     }
 }
+
+/**
+ * Alias для зворотної сумісності (view = edit)
+ */
+export const showMarketplaceDataModal = showEditMarketplaceModal;
 
 async function showDeleteMarketplaceConfirm(id) {
     const marketplaces = getMarketplaces();
@@ -303,59 +369,6 @@ function clearMarketplaceForm() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ПЕРЕГЛЯД ДАНИХ МАРКЕТПЛЕЙСУ
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Показати дані маркетплейсу (3 scroll-snap секції)
- */
-export async function showMarketplaceDataModal(id) {
-    const marketplaces = getMarketplaces();
-    const marketplace = marketplaces.find(m => m.id === id);
-
-    if (!marketplace) {
-        showToast('Маркетплейс не знайдено', 'error');
-        return;
-    }
-
-    await showModal('mapper-mp-data', null);
-    await new Promise(resolve => requestAnimationFrame(resolve));
-
-    const title = document.getElementById('mp-data-modal-title');
-    if (title) title.textContent = `${marketplace.name} — Дані`;
-
-    // Завантажити дані
-    if (getMpCategories().length === 0) await loadMpCategories();
-    if (getMpCharacteristics().length === 0) await loadMpCharacteristics();
-    if (getMpOptions().length === 0) await loadMpOptions();
-
-    const categories = getMpCategories().filter(c => c.marketplace_id === id);
-    const characteristics = getMpCharacteristics().filter(c => c.marketplace_id === id);
-    const options = getMpOptions().filter(o => o.marketplace_id === id);
-
-    // Оновити лічильники в sidebar
-    const catCount = document.getElementById('mp-data-cat-count');
-    const charCount = document.getElementById('mp-data-char-count');
-    const optCount = document.getElementById('mp-data-opt-count');
-    if (catCount) catCount.textContent = categories.length;
-    if (charCount) charCount.textContent = characteristics.length;
-    if (optCount) optCount.textContent = options.length;
-
-    // Ініціалізувати scroll-snap навігацію
-    initSectionNavigation('mp-data-section-navigator');
-
-    // Парсити column_mapping маркетплейсу
-    let columnMapping = {};
-    try { columnMapping = JSON.parse(marketplace.column_mapping || '{}'); }
-    catch { columnMapping = {}; }
-
-    // Заповнити кожну секцію незалежно
-    populateMpCategories(categories, columnMapping.categories);
-    populateMpCharacteristics(characteristics, columnMapping.characteristics);
-    populateMpOptions(options, columnMapping.options);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // СЕКЦІЯ: КАТЕГОРІЇ (дерево)
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -363,45 +376,61 @@ function populateMpCategories(allData, catMapping) {
     const container = document.getElementById('mp-data-cat-container');
     const statsEl = document.getElementById('mp-data-cat-stats');
     const searchInput = document.getElementById('mp-data-cat-search');
+    const paginationEl = document.getElementById('mp-data-cat-pagination');
     if (!container) return;
+
+    let filteredData = [...allData];
+    let currentPage = 1;
+    let pageSize = 999999; // Дерево — показати все за замовчуванням
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
-    const renderTree = (data) => {
-        if (data.length === 0) {
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+
+        if (paginatedData.length === 0) {
             container.innerHTML = renderAvatarState('empty', {
                 message: 'Категорії відсутні', size: 'medium',
                 containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
-            renderMpCategoryTree(container, data, catMapping);
+            renderMpCategoryTree(container, paginatedData, catMapping);
         }
-        updateStats(data.length, allData.length);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
     const filterData = (query) => {
         const q = query.toLowerCase().trim();
         if (!q) {
-            renderTree(allData);
+            filteredData = [...allData];
         } else {
-            const filtered = allData.filter(item => {
+            filteredData = allData.filter(item => {
                 const name = extractMpName(item, catMapping).toLowerCase();
                 const extId = (item.external_id || '').toLowerCase();
                 return name.includes(q) || extId.includes(q);
             });
-            renderTree(filtered);
         }
+        currentPage = 1;
+        renderPage();
     };
+
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
 
     if (searchInput) {
         searchInput.value = '';
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    renderTree(allData);
+    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
