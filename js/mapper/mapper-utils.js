@@ -284,3 +284,19 @@ export async function showMapToMpModal({ marketplaces, getMpEntities, getEntityL
         btn.onclick = () => closeModal(MODAL_ID);
     });
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// КАСКАДНІ ПОПЕРЕДЖЕННЯ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Побудувати HTML-блок деталей каскадних наслідків видалення
+ * @param {Array<{icon: string, text: string}>} items - Масив рядків наслідків
+ * @returns {string} HTML або '' якщо масив порожній
+ */
+export function buildCascadeDetails(items) {
+    if (!items || items.length === 0) return '';
+    return items.map(item =>
+        `<div class="cascade-item"><span class="material-symbols-outlined">${item.icon}</span><span>${item.text}</span></div>`
+    ).join('');
+}

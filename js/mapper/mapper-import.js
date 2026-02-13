@@ -496,6 +496,43 @@ function validateImport() {
 /**
  * Виконати імпорт
  */
+/**
+ * Зберегти оригінальний файл довідника на Google Drive
+ * та записати file_id у відповідну MP категорію.
+ */
+async function saveReferenceFileToDrive(state) {
+    const { uploadReferenceFile, callSheetsAPI } = await import('../utils/api-client.js');
+    const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
+
+    const marketplace = getMarketplaces().find(m => m.id === state.marketplaceId);
+    if (!marketplace?.slug) return;
+
+    // Завантажуємо файл на Drive
+    const result = await uploadReferenceFile(state.file, marketplace.slug);
+    if (!result?.fileId) return;
+
+    // Визначаємо MP категорію для цього імпорту (через адаптер)
+    const adapterCategory = state.adapter?.getCategory?.(state) || null;
+    if (!adapterCategory?.id) return;
+
+    // Завантажуємо свіжі MP категорії
+    await loadMpCategories();
+    const mpCats = getMpCategories();
+    const mpCat = mpCats.find(c =>
+        c.marketplace_id === state.marketplaceId &&
+        c.external_id === adapterCategory.id
+    );
+
+    if (!mpCat?._rowIndex) return;
+
+    // Оновлюємо стовпець H (file_id) для цієї MP категорії
+    await callSheetsAPI('update', {
+        range: `Mapper_MP_Categories!H${mpCat._rowIndex}`,
+        values: [[result.fileId]],
+        spreadsheetType: 'main'
+    });
+}
+
 async function executeImport() {
     const importBtn = document.getElementById('execute-mapper-import');
     const modalContent = document.querySelector('#modal-mapper-import .modal-body');
@@ -526,6 +563,16 @@ async function executeImport() {
             await importCharacteristicsAndOptions((percent, msg) => {
                 loader.updateProgress(20 + percent * 0.75, msg);
             });
+        }
+
+        // Зберігаємо оригінальний файл на Google Drive
+        if (importState.file && importState.marketplaceId) {
+            loader.updateProgress(95, 'Збереження довідника на Google Drive...');
+            try {
+                await saveReferenceFileToDrive(importState);
+            } catch (err) {
+                console.warn('⚠️ Не вдалося зберегти довідник на Drive:', err);
+            }
         }
 
         loader.updateProgress(100, 'Імпорт завершено!');

@@ -38,6 +38,7 @@ let isRendering = false;
 
 // Table API instance
 let tableAPI = null;
+let _actionCleanup = null;
 
 // Мапа типів параметрів для відображення
 const PARAM_TYPE_LABELS = {
@@ -89,7 +90,10 @@ function initTableAPI() {
             message: 'Ключові слова не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'keywords'),
+        onAfterRender: (container) => {
+            if (_actionCleanup) _actionCleanup();
+            _actionCleanup = initActionHandlers(container, 'keywords');
+        },
         plugins: {
             sorting: {
                 dataSource: () => getKeywords(),

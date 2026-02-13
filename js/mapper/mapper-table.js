@@ -378,6 +378,9 @@ registerActionHandlers('mapper-marketplaces', {
 // Map для зберігання tableAPI для кожного табу mapper
 const mapperTableAPIs = new Map();
 
+// Cleanup функції для action handlers (запобігає накопиченню слухачів)
+const actionCleanups = new Map();
+
 // Спільні типи колонок для сортування
 const mapperColumnTypes = {
     id: 'string',
@@ -514,7 +517,8 @@ function initCategoriesTableAPI(container, allCategories) {
         },
         withContainer: false,
         onAfterRender: (cont) => {
-            initActionHandlers(cont, 'mapper-categories');
+            if (actionCleanups.has('categories')) actionCleanups.get('categories')();
+            actionCleanups.set('categories', initActionHandlers(cont, 'mapper-categories'));
             const { categories } = getCategoriesData();
             const filteredData = applyFilters(categories, 'categories');
             const { paginatedData } = applyPagination(filteredData);
@@ -667,7 +671,8 @@ function initCharacteristicsTableAPI(container, categoriesList) {
         },
         withContainer: false,
         onAfterRender: (cont) => {
-            initActionHandlers(cont, 'mapper-characteristics');
+            if (actionCleanups.has('characteristics')) actionCleanups.get('characteristics')();
+            actionCleanups.set('characteristics', initActionHandlers(cont, 'mapper-characteristics'));
             const { characteristics } = getCharacteristicsData();
             const filteredData = applyFilters(characteristics, 'characteristics');
             const { paginatedData } = applyPagination(filteredData);
@@ -835,7 +840,8 @@ function initOptionsTableAPI(container, characteristicsList) {
         },
         withContainer: false,
         onAfterRender: (cont) => {
-            initActionHandlers(cont, 'mapper-options');
+            if (actionCleanups.has('options')) actionCleanups.get('options')();
+            actionCleanups.set('options', initActionHandlers(cont, 'options'));
             const { options } = getOptionsData();
             const filteredData = applyFilters(options, 'options');
             const { paginatedData } = applyPagination(filteredData);
@@ -960,7 +966,8 @@ function initMarketplacesTableAPI(container) {
         },
         withContainer: false,
         onAfterRender: (cont) => {
-            initActionHandlers(cont, 'mapper-marketplaces');
+            if (actionCleanups.has('marketplaces')) actionCleanups.get('marketplaces')();
+            actionCleanups.set('marketplaces', initActionHandlers(cont, 'mapper-marketplaces'));
             const { marketplaces } = getMarketplacesData();
             const filteredData = applyFilters(marketplaces, 'marketplaces');
             const { paginatedData } = applyPagination(filteredData);

@@ -31,7 +31,8 @@ import {
     getCharacteristics, getMarketplaces,
     getMpOptions, getMappedMpOptions,
     createOptionMapping, batchCreateOptionMapping, deleteOptionMapping,
-    autoMapOptions
+    autoMapOptions,
+    getMapOptions, getOptionDependencies
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -47,7 +48,8 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers,
     buildMpViewModal,
-    showMapToMpModal
+    showMapToMpModal,
+    buildCascadeDetails
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import { initPagination } from '../common/ui-pagination.js';
@@ -196,17 +198,39 @@ async function showDeleteOptionConfirm(id) {
         return;
     }
 
+    // Каскадні попередження
+    const deps = getOptionDependencies(id);
+    const items = [];
+    if (deps.mappings > 0)
+        items.push({ icon: 'link_off', text: `<strong>${deps.mappings}</strong> прив'язок до МП буде видалено` });
+    if (deps.children > 0)
+        items.push({ icon: 'circle', text: `<strong>${deps.children}</strong> дочірніх опцій буде відв'язано` });
+
     const confirmed = await showConfirmModal({
         title: 'Видалити опцію?',
         message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'btn-delete',
+        details: buildCascadeDetails(items)
     });
 
     if (confirmed) {
         try {
             await deleteOption(id);
+
+            // Каскадне очищення: видалити маппінги
+            const optMappings = getMapOptions().filter(m => m.option_id === id);
+            for (const mapping of optMappings) {
+                await deleteOptionMapping(mapping.id);
+            }
+
+            // Каскадне очищення: відв'язати дочірні опції
+            const children = getOptions().filter(o => o.parent_option_id === id);
+            for (const child of children) {
+                await updateOption(child.id, { parent_option_id: '' });
+            }
+
             showToast('Опцію видалено', 'success');
             renderCurrentTab();
         } catch (error) {
@@ -471,6 +495,7 @@ function populateRelatedChildOptions(optionId) {
     });
 
     // Створюємо Table LEGO API один раз
+    let optChildCleanup = null;
     const modalTableAPI = renderTableLego(container, {
         data: [],
         columns,
@@ -480,7 +505,10 @@ function populateRelatedChildOptions(optionId) {
         }),
         emptyState: { message: 'Дочірні опції відсутні' },
         withContainer: false,
-        onAfterRender: (cont) => initActionHandlers(cont, 'option-child-options'),
+        onAfterRender: (cont) => {
+            if (optChildCleanup) optChildCleanup();
+            optChildCleanup = initActionHandlers(cont, 'option-child-options');
+        },
         plugins: {
             sorting: {
                 dataSource: () => filteredData,
@@ -625,14 +653,26 @@ function renderMappedMpOptionsSections(ownOptionId) {
             if (mappingId) {
                 const confirmed = await showConfirmModal({
                     title: 'Відв\'язати опцію',
-                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                    message: 'Зняти прив\'язку з маркетплейсу?'
                 });
                 if (!confirmed) return;
                 try {
+                    const mapping = getMapOptions().find(m => m.id === mappingId);
+                    const undoData = mapping ? { ownId: mapping.option_id, mpId: mapping.mp_option_id } : null;
                     await deleteOptionMapping(mappingId);
-                    showToast('Маппінг видалено', 'success');
                     renderMappedMpOptionsSections(ownOptionId);
                     renderCurrentTab();
+                    showToast('Прив\'язку знято', 'success', undoData ? {
+                        duration: 6000,
+                        action: {
+                            label: 'Відмінити',
+                            onClick: async () => {
+                                await createOptionMapping(undoData.ownId, undoData.mpId);
+                                renderMappedMpOptionsSections(ownOptionId);
+                                renderCurrentTab();
+                            }
+                        }
+                    } : 3000);
                 } catch (error) {
                     showToast('Помилка видалення маппінгу', 'error');
                 }
@@ -1084,7 +1124,7 @@ function renderBindingsRows(ownOptionId, container) {
             btn.disabled = true;
             try {
                 await deleteOptionMapping(mappingId);
-                showToast('Прив\'язку видалено', 'success');
+                showToast('Прив\'язку знято', 'success');
                 renderBindingsRows(ownOptionId, container);
             } catch (err) {
                 showToast('Помилка видалення', 'error');

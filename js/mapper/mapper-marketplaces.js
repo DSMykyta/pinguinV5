@@ -32,10 +32,12 @@ import {
     createCharacteristicMapping, deleteCharacteristicMapping,
     getCharacteristicMappingByMpId,
     createOptionMapping, deleteOptionMapping,
-    getOptionMappingByMpId
+    getOptionMappingByMpId,
+    deleteCategoryMappingByMpId, deleteCharacteristicMappingByMpId, deleteOptionMappingByMpId,
+    getMarketplaceDependencies
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { initSectionNavigation } from './mapper-utils.js';
+import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
@@ -225,16 +227,44 @@ async function showDeleteMarketplaceConfirm(id) {
         return;
     }
 
+    // Каскадні попередження
+    const deps = getMarketplaceDependencies(id);
+    const items = [];
+    if (deps.mpCategories > 0)
+        items.push({ icon: 'square', text: `<strong>${deps.mpCategories}</strong> категорій МП` });
+    if (deps.mpCharacteristics > 0)
+        items.push({ icon: 'change_history', text: `<strong>${deps.mpCharacteristics}</strong> характеристик МП` });
+    if (deps.mpOptions > 0)
+        items.push({ icon: 'circle', text: `<strong>${deps.mpOptions}</strong> опцій МП` });
+    if (deps.totalMappings > 0)
+        items.push({ icon: 'link_off', text: `<strong>${deps.totalMappings}</strong> прив'язок буде видалено` });
+
     const confirmed = await showConfirmModal({
         title: 'Видалити маркетплейс?',
         message: `Ви впевнені, що хочете видалити маркетплейс "${marketplace.name}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'btn-delete',
+        details: buildCascadeDetails(items)
     });
 
     if (confirmed) {
         try {
+            // Каскадне очищення: видалити маппінги MP-сутностей
+            const mpCats = getMpCategories().filter(c => c.marketplace_id === id);
+            const mpChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
+            const mpOpts = getMpOptions().filter(o => o.marketplace_id === id);
+
+            for (const mpCat of mpCats) {
+                await deleteCategoryMappingByMpId(mpCat.id);
+            }
+            for (const mpChar of mpChars) {
+                await deleteCharacteristicMappingByMpId(mpChar.id);
+            }
+            for (const mpOpt of mpOpts) {
+                await deleteOptionMappingByMpId(mpOpt.id);
+            }
+
             await deleteMarketplace(id);
             showToast('Маркетплейс видалено', 'success');
             renderCurrentTab();
@@ -339,8 +369,10 @@ function updateMpStatusDot(isActive) {
 function initMpStatusToggle() {
     const activeYes = document.getElementById('mapper-mp-active-yes');
     const activeNo = document.getElementById('mapper-mp-active-no');
-    if (activeYes) activeYes.addEventListener('change', () => updateMpStatusDot(true));
+    if (!activeYes || activeYes.dataset.toggleInited) return;
+    activeYes.addEventListener('change', () => updateMpStatusDot(true));
     if (activeNo) activeNo.addEventListener('change', () => updateMpStatusDot(false));
+    activeYes.dataset.toggleInited = '1';
 }
 
 function fillMarketplaceForm(marketplace) {
@@ -704,7 +736,11 @@ function preprocessOptsData(data, ownOpts, optMapping) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initMappingTriggerDelegation(container, entityType) {
-    container.addEventListener('click', (e) => {
+    // Cleanup попередній handler щоб не накопичувались
+    const key = `_mappingDelegation_${entityType}`;
+    if (container[key]) container.removeEventListener('click', container[key]);
+
+    const handler = (e) => {
         const trigger = e.target.closest('.custom-select-trigger[data-entity-type]');
         if (!trigger) return;
         e.stopPropagation();
@@ -725,7 +761,7 @@ function initMappingTriggerDelegation(container, entityType) {
                     try { await createCharacteristicMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
                     catch { showToast('Помилка прив\'язки', 'error'); return; }
                 } else if (oldMapping) {
-                    showToast('Прив\'язку видалено', 'success');
+                    showToast('Прив\'язку знято', 'success');
                 }
                 const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
@@ -745,7 +781,7 @@ function initMappingTriggerDelegation(container, entityType) {
                     try { await createOptionMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
                     catch { showToast('Помилка прив\'язки', 'error'); return; }
                 } else if (oldMapping) {
-                    showToast('Прив\'язку видалено', 'success');
+                    showToast('Прив\'язку знято', 'success');
                 }
                 const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
@@ -754,7 +790,9 @@ function initMappingTriggerDelegation(container, entityType) {
                 if (label) label.textContent = newOpt ? (newOpt.value_ua || newOpt.id) : '—';
             }, (o) => o.value_ua || o.id);
         }
-    });
+    };
+    container.addEventListener('click', handler);
+    container[key] = handler;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -917,8 +955,11 @@ function renderMpCategoryTree(container, data, catMapping) {
         });
     });
 
-    // Mapping trigger click → shared picker popup
-    container.addEventListener('click', (e) => {
+    // Mapping trigger click → shared picker popup (cleanup попередній, щоб не накопичувались)
+    if (container._mappingClickHandler) {
+        container.removeEventListener('click', container._mappingClickHandler);
+    }
+    const mappingClickHandler = (e) => {
         const trigger = e.target.closest('.custom-select-trigger');
         if (!trigger) return;
         e.stopPropagation();
@@ -950,7 +991,7 @@ function renderMpCategoryTree(container, data, catMapping) {
                     return;
                 }
             } else if (oldMapping) {
-                showToast('Прив\'язку видалено', 'success');
+                showToast('Прив\'язку знято', 'success');
             }
 
             // Оновити trigger
@@ -960,7 +1001,9 @@ function renderMpCategoryTree(container, data, catMapping) {
             const label = trigger.querySelector('.mp-tree-mapping-label');
             if (label) label.textContent = newCat ? (newCat.name_ua || newCat.id) : '—';
         });
-    });
+    };
+    container.addEventListener('click', mappingClickHandler);
+    container._mappingClickHandler = mappingClickHandler;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

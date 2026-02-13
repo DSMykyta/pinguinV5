@@ -49,9 +49,6 @@ export function initModals() {
         if (closeTrigger && closeTrigger.closest('.modal-container, .modal-fullscreen-container')) {
              e.preventDefault();
              closeModal();
-
-             // Диспатчимо подію закриття
-             document.dispatchEvent(new CustomEvent('modal-closed'));
         }
     });
 
@@ -59,9 +56,6 @@ export function initModals() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && document.body.classList.contains('is-modal-open')) {
             closeModal();
-
-            // Диспатчимо подію закриття
-            document.dispatchEvent(new CustomEvent('modal-closed'));
         }
     });
 }

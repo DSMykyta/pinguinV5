@@ -397,6 +397,60 @@ async function uploadBrandLogoUrl(imageUrl, brandName) {
   return data;
 }
 
+// ============= Google Drive References API =============
+
+const API_DRIVE_REFERENCES = `${API_BASE}/api/drive/references`;
+
+/**
+ * Завантажити довідник маркетплейсу на Google Drive.
+ * @param {File} file - File об'єкт (xlsx, csv, etc.)
+ * @param {string} marketplaceSlug - Slug маркетплейсу (наприклад "rozetka")
+ * @returns {Promise<{success: boolean, fileId: string, name: string, downloadUrl: string}>}
+ */
+async function uploadReferenceFile(file, marketplaceSlug) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('marketplaceSlug', marketplaceSlug);
+
+  const response = await fetch(API_DRIVE_REFERENCES, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
+/**
+ * Отримати список довідників маркетплейсу з Google Drive.
+ * @param {string} marketplaceSlug - Slug маркетплейсу
+ * @returns {Promise<Array<{fileId: string, name: string, mimeType: string, size: string, modifiedTime: string, downloadUrl: string}>>}
+ */
+async function listReferenceFiles(marketplaceSlug) {
+  const response = await fetch(`${API_DRIVE_REFERENCES}?marketplace=${encodeURIComponent(marketplaceSlug)}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to list files');
+  return data.files || [];
+}
+
+/**
+ * Видалити довідник з Google Drive.
+ * @param {string} fileId - ID файлу на Google Drive
+ * @returns {Promise<{success: boolean}>}
+ */
+async function deleteReferenceFile(fileId) {
+  const response = await fetch(API_DRIVE_REFERENCES, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileId }),
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Delete failed');
+  return data;
+}
+
 // ============= Експорт =============
 
 // ES6 модульні експорти
@@ -412,7 +466,10 @@ export {
   sheetsGetSheetNames,
   handleApiError,
   uploadBrandLogoFile,
-  uploadBrandLogoUrl
+  uploadBrandLogoUrl,
+  uploadReferenceFile,
+  listReferenceFiles,
+  deleteReferenceFile
 };
 
 // Глобальний об'єкт для доступу до API
@@ -444,6 +501,9 @@ window.apiClient = {
   drive: {
     uploadBrandLogoFile,
     uploadBrandLogoUrl,
+    uploadReferenceFile,
+    listReferenceFiles,
+    deleteReferenceFile,
   },
 
   // Утиліти

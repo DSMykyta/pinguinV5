@@ -10,12 +10,18 @@
 // СТРУКТУРА НА DRIVE:
 // pinguin-v5/              ← GOOGLE_DRIVE_ROOT_FOLDER_ID
 //   ├── brand-logos/       ← створюється автоматично
-//   └── ...                ← майбутні підпапки
+//   └── довідники/         ← довідники маркетплейсів
+//       ├── rozetka/
+//       ├── epicentr/
+//       └── ...
 //
 // ЕКСПОРТОВАНІ ФУНКЦІЇ:
 // ┌────────────────────────────┬──────────────────────────────┐
 // │ uploadBrandLogo            │ Завантажити логотип бренду   │
 // │ deleteBrandLogo            │ Видалити логотип з Drive     │
+// │ uploadFile                 │ Завантажити файл у підпапку  │
+// │ listFiles                  │ Список файлів у підпапці     │
+// │ deleteFile                 │ Видалити файл з Drive        │
 // └────────────────────────────┴──────────────────────────────┘
 //
 // КОНФІГУРАЦІЯ (з .env):
@@ -172,7 +178,167 @@ async function deleteBrandLogo(fileId) {
   await drive.files.delete({ fileId });
 }
 
+// =========================================================================
+// ДОВІДНИКИ (REFERENCE FILES)
+// =========================================================================
+
+/**
+ * Знайти або створити вкладену підпапку (parent → child).
+ * Кешує результат на час життя serverless function.
+ *
+ * @param {Object} drive - Google Drive client
+ * @param {string} parentId - ID батьківської папки
+ * @param {string} folderName - Назва підпапки
+ * @returns {Promise<string>} ID підпапки
+ */
+async function getOrCreateNestedFolder(drive, parentId, folderName) {
+  const cacheKey = `${parentId}/${folderName}`;
+  if (folderCache[cacheKey]) return folderCache[cacheKey];
+
+  const escapedName = folderName.replace(/'/g, "\\'");
+  const res = await drive.files.list({
+    q: `name='${escapedName}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id)',
+  });
+
+  if (res.data.files && res.data.files.length > 0) {
+    folderCache[cacheKey] = res.data.files[0].id;
+    return folderCache[cacheKey];
+  }
+
+  const folder = await drive.files.create({
+    requestBody: {
+      name: folderName,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [parentId],
+    },
+    fields: 'id',
+  });
+
+  folderCache[cacheKey] = folder.data.id;
+  return folderCache[cacheKey];
+}
+
+/**
+ * Завантажити файл у вкладену підпапку довідники/{slug}/.
+ * Якщо файл з такою назвою вже існує — замінює його.
+ *
+ * @param {Buffer} fileBuffer - Вміст файлу
+ * @param {string} fileName - Ім'я файлу (наприклад "category_report_274390.xlsx")
+ * @param {string} mimeType - MIME тип
+ * @param {string} marketplaceSlug - Slug маркетплейсу (наприклад "rozetka")
+ * @returns {Promise<{fileId: string, name: string, downloadUrl: string}>}
+ */
+async function uploadFile(fileBuffer, fileName, mimeType, marketplaceSlug) {
+  const drive = getDriveClient();
+
+  // довідники/ → довідники/{slug}/
+  const referencesId = await getOrCreateSubfolder(drive, 'довідники');
+  const mpFolderId = await getOrCreateNestedFolder(drive, referencesId, marketplaceSlug);
+
+  // Шукаємо існуючий файл з такою назвою
+  const escapedName = fileName.replace(/'/g, "\\'");
+  const existing = await drive.files.list({
+    q: `name='${escapedName}' and '${mpFolderId}' in parents and trashed=false`,
+    fields: 'files(id)',
+  });
+
+  let fileId;
+
+  if (existing.data.files && existing.data.files.length > 0) {
+    // Оновлюємо існуючий
+    fileId = existing.data.files[0].id;
+    await drive.files.update({
+      fileId,
+      media: {
+        mimeType,
+        body: Readable.from(fileBuffer),
+      },
+    });
+  } else {
+    // Створюємо новий
+    const response = await drive.files.create({
+      requestBody: {
+        name: fileName,
+        parents: [mpFolderId],
+      },
+      media: {
+        mimeType,
+        body: Readable.from(fileBuffer),
+      },
+      fields: 'id',
+    });
+    fileId = response.data.id;
+
+    // Робимо публічним для скачування
+    await drive.permissions.create({
+      fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+  }
+
+  const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+  return { fileId, name: fileName, downloadUrl };
+}
+
+/**
+ * Список файлів у підпапці довідники/{slug}/.
+ *
+ * @param {string} marketplaceSlug - Slug маркетплейсу
+ * @returns {Promise<Array<{fileId: string, name: string, mimeType: string, size: string, modifiedTime: string, downloadUrl: string}>>}
+ */
+async function listFiles(marketplaceSlug) {
+  const drive = getDriveClient();
+
+  // Знаходимо папку довідники/
+  const referencesId = await getOrCreateSubfolder(drive, 'довідники');
+
+  // Шукаємо підпапку маркетплейсу (не створюємо якщо немає)
+  const escapedSlug = marketplaceSlug.replace(/'/g, "\\'");
+  const folderRes = await drive.files.list({
+    q: `name='${escapedSlug}' and '${referencesId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id)',
+  });
+
+  if (!folderRes.data.files || folderRes.data.files.length === 0) {
+    return []; // Папки немає — файлів немає
+  }
+
+  const mpFolderId = folderRes.data.files[0].id;
+
+  // Список файлів у папці
+  const res = await drive.files.list({
+    q: `'${mpFolderId}' in parents and trashed=false and mimeType!='application/vnd.google-apps.folder'`,
+    fields: 'files(id, name, mimeType, size, modifiedTime)',
+    orderBy: 'modifiedTime desc',
+  });
+
+  return (res.data.files || []).map(f => ({
+    fileId: f.id,
+    name: f.name,
+    mimeType: f.mimeType,
+    size: f.size || '0',
+    modifiedTime: f.modifiedTime,
+    downloadUrl: `https://drive.google.com/uc?export=download&id=${f.id}`,
+  }));
+}
+
+/**
+ * Видалити файл з Google Drive
+ * @param {string} fileId - ID файлу
+ */
+async function deleteFile(fileId) {
+  const drive = getDriveClient();
+  await drive.files.delete({ fileId });
+}
+
 module.exports = {
   uploadBrandLogo,
   deleteBrandLogo,
+  uploadFile,
+  listFiles,
+  deleteFile,
 };

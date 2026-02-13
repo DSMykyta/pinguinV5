@@ -29,7 +29,8 @@ import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-s
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
     getCharacteristics, getOptions, updateCharacteristic, getMpCategories, getMarketplaces,
-    createCategoryMapping, batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
+    createCategoryMapping, batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping,
+    getMapCategories, getCategoryDependencies
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -47,7 +48,8 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers,
     buildMpViewModal,
-    showMapToMpModal
+    showMapToMpModal,
+    buildCascadeDetails
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import { initPagination } from '../common/ui-pagination.js';
@@ -193,17 +195,43 @@ async function showDeleteCategoryConfirm(id) {
         return;
     }
 
+    // Каскадні попередження
+    const deps = getCategoryDependencies(id);
+    const items = [];
+    if (deps.mappings > 0)
+        items.push({ icon: 'link_off', text: `<strong>${deps.mappings}</strong> прив'язок до МП буде видалено` });
+    if (deps.characteristics > 0)
+        items.push({ icon: 'change_history', text: `<strong>${deps.characteristics}</strong> характеристик буде відв'язано` });
+
     const confirmed = await showConfirmModal({
         title: 'Видалити категорію?',
         message: `Ви впевнені, що хочете видалити категорію "${category.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'btn-delete',
+        details: buildCascadeDetails(items)
     });
 
     if (confirmed) {
         try {
             await deleteCategory(id);
+
+            // Каскадне очищення: видалити маппінги
+            const catMappings = getMapCategories().filter(m => m.category_id === id);
+            for (const mapping of catMappings) {
+                await deleteCategoryMapping(mapping.id);
+            }
+
+            // Каскадне очищення: відв'язати характеристики
+            const linkedChars = getCharacteristics().filter(c => {
+                if (!c.category_ids) return false;
+                return c.category_ids.split(',').map(cid => cid.trim()).includes(id);
+            });
+            for (const char of linkedChars) {
+                const newIds = char.category_ids.split(',').map(cid => cid.trim()).filter(cid => cid !== id).join(',');
+                await updateCharacteristic(char.id, { category_ids: newIds });
+            }
+
             showToast('Категорію видалено', 'success');
             renderCurrentTab();
         } catch (error) {
@@ -276,8 +304,10 @@ function updateCategoryGroupingDot(isGrouping) {
 function initGroupingToggleHandler() {
     const groupingYes = document.getElementById('mapper-category-grouping-yes');
     const groupingNo = document.getElementById('mapper-category-grouping-no');
-    if (groupingYes) groupingYes.addEventListener('change', () => updateCategoryGroupingDot(true));
+    if (!groupingYes || groupingYes.dataset.toggleInited) return;
+    groupingYes.addEventListener('change', () => updateCategoryGroupingDot(true));
     if (groupingNo) groupingNo.addEventListener('change', () => updateCategoryGroupingDot(false));
+    groupingYes.dataset.toggleInited = '1';
 }
 
 function fillCategoryForm(category) {
@@ -506,6 +536,7 @@ function populateRelatedCharacteristics(categoryId) {
     });
 
     // Створюємо Table LEGO API один раз
+    let catCharsCleanup = null;
     const modalTableAPI = renderTableLego(container, {
         data: [],
         columns,
@@ -515,7 +546,10 @@ function populateRelatedCharacteristics(categoryId) {
         }),
         emptyState: { message: 'Характеристики відсутні' },
         withContainer: false,
-        onAfterRender: (cont) => initActionHandlers(cont, 'category-characteristics'),
+        onAfterRender: (cont) => {
+            if (catCharsCleanup) catCharsCleanup();
+            catCharsCleanup = initActionHandlers(cont, 'category-characteristics');
+        },
         plugins: {
             sorting: {
                 dataSource: () => filteredData,
@@ -867,13 +901,25 @@ function renderMappedMpCategoriesSections(ownCatId) {
             if (data.mappingId) {
                 const confirmed = await showConfirmModal({
                     title: 'Відв\'язати категорію',
-                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                    message: 'Зняти прив\'язку з маркетплейсу?'
                 });
                 if (!confirmed) return;
+                const mapping = getMapCategories().find(m => m.id === data.mappingId);
+                const undoData = mapping ? { ownId: mapping.category_id, mpId: mapping.mp_category_id } : null;
                 await deleteCategoryMapping(data.mappingId);
-                showToast('Маппінг видалено', 'success');
                 renderMappedMpCategoriesSections(ownCatId);
                 renderCurrentTab();
+                showToast('Прив\'язку знято', 'success', undoData ? {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createCategoryMapping(undoData.ownId, undoData.mpId);
+                            renderMappedMpCategoriesSections(ownCatId);
+                            renderCurrentTab();
+                        }
+                    }
+                } : 3000);
             }
         }
     });
@@ -1132,9 +1178,20 @@ function renderBindingsRows(ownCatId, container) {
 
             btn.disabled = true;
             try {
+                const mapping = getMapCategories().find(m => m.id === mappingId);
+                const undoData = mapping ? { ownId: mapping.category_id, mpId: mapping.mp_category_id } : null;
                 await deleteCategoryMapping(mappingId);
-                showToast('Прив\'язку видалено', 'success');
                 renderBindingsRows(ownCatId, container);
+                showToast('Прив\'язку знято', 'success', undoData ? {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createCategoryMapping(undoData.ownId, undoData.mpId);
+                            renderBindingsRows(ownCatId, container);
+                        }
+                    }
+                } : 3000);
             } catch (err) {
                 showToast('Помилка видалення', 'error');
                 btn.disabled = false;

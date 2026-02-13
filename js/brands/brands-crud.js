@@ -157,7 +157,7 @@ function initModalComponents() {
 
 function initBrandStatusToggle() {
     const dot = document.getElementById('brand-status-badge');
-    if (!dot) return;
+    if (!dot || dot.dataset.toggleInited) return;
     document.querySelectorAll('input[name="brand-status"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isActive = radio.value === 'active';
@@ -166,6 +166,7 @@ function initBrandStatusToggle() {
             dot.title = isActive ? 'Активний' : 'Неактивний';
         });
     });
+    dot.dataset.toggleInited = '1';
 }
 
 /**

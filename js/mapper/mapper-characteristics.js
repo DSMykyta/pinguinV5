@@ -44,7 +44,8 @@ import {
     getCategories, getMarketplaces, getOptions, updateOption, addOption,
     getMpCharacteristics, getMappedMpCharacteristics,
     createCharacteristicMapping, batchCreateCharacteristicMapping, deleteCharacteristicMapping,
-    autoMapCharacteristics
+    autoMapCharacteristics,
+    getMapCharacteristics, getCharacteristicDependencies
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -62,7 +63,8 @@ import {
     closeModalOverlay,
     setupModalCloseHandlers,
     buildMpViewModal,
-    showMapToMpModal
+    showMapToMpModal,
+    buildCascadeDetails
 } from './mapper-utils.js';
 import {
     registerActionHandlers,
@@ -206,17 +208,39 @@ async function showDeleteCharacteristicConfirm(id) {
         return;
     }
 
+    // Каскадні попередження
+    const deps = getCharacteristicDependencies(id);
+    const items = [];
+    if (deps.mappings > 0)
+        items.push({ icon: 'link_off', text: `<strong>${deps.mappings}</strong> прив'язок до МП буде видалено` });
+    if (deps.options > 0)
+        items.push({ icon: 'circle', text: `<strong>${deps.options}</strong> опцій буде відв'язано` });
+
     const confirmed = await showConfirmModal({
         title: 'Видалити характеристику?',
         message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'btn-delete',
+        details: buildCascadeDetails(items)
     });
 
     if (confirmed) {
         try {
             await deleteCharacteristic(id);
+
+            // Каскадне очищення: видалити маппінги
+            const charMappings = getMapCharacteristics().filter(m => m.characteristic_id === id);
+            for (const mapping of charMappings) {
+                await deleteCharacteristicMapping(mapping.id);
+            }
+
+            // Каскадне очищення: відв'язати опції
+            const orphanOptions = getOptions().filter(o => o.characteristic_id === id);
+            for (const opt of orphanOptions) {
+                await updateOption(opt.id, { characteristic_id: '' });
+            }
+
             showToast('Характеристику видалено', 'success');
             renderCurrentTab();
         } catch (error) {
@@ -376,15 +400,14 @@ function updateCharGlobalDot(isGlobal) {
 function initGlobalToggleHandler() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
+    if (!globalYes || globalYes.dataset.toggleInited) return;
 
-    if (globalYes) {
-        globalYes.addEventListener('change', () => {
-            if (globalYes.checked) {
-                toggleCategoriesField(true);
-                updateCharGlobalDot(true);
-            }
-        });
-    }
+    globalYes.addEventListener('change', () => {
+        if (globalYes.checked) {
+            toggleCategoriesField(true);
+            updateCharGlobalDot(true);
+        }
+    });
     if (globalNo) {
         globalNo.addEventListener('change', () => {
             if (globalNo.checked) {
@@ -393,6 +416,7 @@ function initGlobalToggleHandler() {
             }
         });
     }
+    globalYes.dataset.toggleInited = '1';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -510,6 +534,7 @@ function populateRelatedOptions(characteristicId) {
     });
 
     // Створюємо Table LEGO API один раз
+    let charOptsCleanup = null;
     const modalTableAPI = renderTableLego(container, {
         data: [],
         columns,
@@ -519,7 +544,10 @@ function populateRelatedOptions(characteristicId) {
         }),
         emptyState: { message: 'Опції відсутні' },
         withContainer: false,
-        onAfterRender: (cont) => initActionHandlers(cont, 'characteristic-options'),
+        onAfterRender: (cont) => {
+            if (charOptsCleanup) charOptsCleanup();
+            charOptsCleanup = initActionHandlers(cont, 'characteristic-options');
+        },
         plugins: {
             sorting: {
                 dataSource: () => filteredData,
@@ -744,13 +772,25 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
             if (data.mappingId) {
                 const confirmed = await showConfirmModal({
                     title: 'Відв\'язати характеристику',
-                    message: 'Ви впевнені, що хочете видалити цю прив\'язку?'
+                    message: 'Зняти прив\'язку з маркетплейсу?'
                 });
                 if (!confirmed) return;
+                const mapping = getMapCharacteristics().find(m => m.id === data.mappingId);
+                const undoData = mapping ? { ownId: mapping.characteristic_id, mpId: mapping.mp_characteristic_id } : null;
                 await deleteCharacteristicMapping(data.mappingId);
-                showToast('Маппінг видалено', 'success');
                 renderMappedMpCharacteristicsSections(ownCharId);
                 renderCurrentTab();
+                showToast('Прив\'язку знято', 'success', undoData ? {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createCharacteristicMapping(undoData.ownId, undoData.mpId);
+                            renderMappedMpCharacteristicsSections(ownCharId);
+                            renderCurrentTab();
+                        }
+                    }
+                } : 3000);
             }
         }
     });
@@ -1202,9 +1242,20 @@ function renderBindingsRows(ownCharId, container) {
 
             btn.disabled = true;
             try {
+                const mapping = getMapCharacteristics().find(m => m.id === mappingId);
+                const undoData = mapping ? { ownId: mapping.characteristic_id, mpId: mapping.mp_characteristic_id } : null;
                 await deleteCharacteristicMapping(mappingId);
-                showToast('Прив\'язку видалено', 'success');
                 renderBindingsRows(ownCharId, container);
+                showToast('Прив\'язку знято', 'success', undoData ? {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createCharacteristicMapping(undoData.ownId, undoData.mpId);
+                            renderBindingsRows(ownCharId, container);
+                        }
+                    }
+                } : 3000);
             } catch (err) {
                 showToast('Помилка видалення', 'error');
                 btn.disabled = false;

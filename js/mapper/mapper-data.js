@@ -41,6 +41,42 @@ const SHEET_GIDS = {
     MAP_OPTIONS: '1405967910'
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// HARD DELETE ХЕЛПЕРИ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Фізично видалити рядок з Google Sheets (hard delete)
+ * @param {string} sheetGidKey - Ключ у SHEET_GIDS (напр. 'CATEGORIES')
+ * @param {number} rowIndex - 1-based індекс рядка в аркуші
+ */
+async function hardDeleteRow(sheetGidKey, rowIndex) {
+    await callSheetsAPI('batchUpdateSpreadsheet', {
+        requests: [{
+            deleteDimension: {
+                range: {
+                    sheetId: parseInt(SHEET_GIDS[sheetGidKey]),
+                    dimension: 'ROWS',
+                    startIndex: rowIndex - 1,
+                    endIndex: rowIndex
+                }
+            }
+        }],
+        spreadsheetType: 'main'
+    });
+}
+
+/**
+ * Зсунути _rowIndex для всіх елементів нижче видаленого рядка
+ * @param {Array} stateArray - Масив стейту (напр. mapperState.categories)
+ * @param {number} deletedRowIndex - 1-based індекс видаленого рядка
+ */
+function adjustRowIndices(stateArray, deletedRowIndex) {
+    stateArray.forEach(item => {
+        if (item._rowIndex > deletedRowIndex) item._rowIndex--;
+    });
+}
+
 /**
  * Завантажити всі дані для Mapper
  */
@@ -140,7 +176,7 @@ export async function loadCategories() {
             if (!obj.parent_id && obj.parent_local_id) obj.parent_id = obj.parent_local_id;
 
             return obj;
-        });
+        }).filter(item => item.id);
 
         return mapperState.categories;
     } catch (error) {
@@ -203,7 +239,7 @@ export async function loadCharacteristics() {
             }
 
             return obj;
-        });
+        }).filter(item => item.id);
 
         return mapperState.characteristics;
     } catch (error) {
@@ -247,7 +283,7 @@ export async function loadOptions() {
             if (!obj.value_ru && obj.name_ru) obj.value_ru = obj.name_ru;
 
             return obj;
-        });
+        }).filter(item => item.id);
 
         return mapperState.options;
     } catch (error) {
@@ -274,7 +310,7 @@ export async function loadMapCategories() {
         }
 
         const headers = result[0];
-        const rows = result.slice(1).filter(row => row[0]); // Фільтруємо порожні рядки
+        const rows = result.slice(1);
 
         mapperState.mapCategories = rows.map((row, index) => {
             const obj = { _rowIndex: index + 2 };
@@ -282,7 +318,7 @@ export async function loadMapCategories() {
                 obj[header] = row[i] || '';
             });
             return obj;
-        });
+        }).filter(item => item.id);
 
         return mapperState.mapCategories;
     } catch (error) {
@@ -311,15 +347,13 @@ export async function loadMapCharacteristics() {
         const headers = result[0];
         const rows = result.slice(1);
 
-        mapperState.mapCharacteristics = rows
-            .filter(row => row[0]) // Фільтруємо порожні рядки
-            .map((row, index) => {
-                const obj = { _rowIndex: index + 2 };
-                headers.forEach((header, i) => {
-                    obj[header] = row[i] || '';
-                });
-                return obj;
+        mapperState.mapCharacteristics = rows.map((row, index) => {
+            const obj = { _rowIndex: index + 2 };
+            headers.forEach((header, i) => {
+                obj[header] = row[i] || '';
             });
+            return obj;
+        }).filter(item => item.id);
 
         return mapperState.mapCharacteristics;
     } catch (error) {
@@ -354,7 +388,7 @@ export async function loadMapOptions() {
                 obj[header] = row[i] || '';
             });
             return obj;
-        });
+        }).filter(item => item.id);
 
         return mapperState.mapOptions;
     } catch (error) {
@@ -498,15 +532,11 @@ export async function deleteCategory(id) {
         }
 
         const category = mapperState.categories[index];
-        const range = `${SHEETS.CATEGORIES}!A${category._rowIndex}:G${category._rowIndex}`;
+        const rowIndex = category._rowIndex;
 
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '']],
-            spreadsheetType: 'main'
-        });
-
+        await hardDeleteRow('CATEGORIES', rowIndex);
         mapperState.categories.splice(index, 1);
+        adjustRowIndices(mapperState.categories, rowIndex);
     } catch (error) {
         console.error('❌ Помилка видалення категорії:', error);
         throw error;
@@ -618,15 +648,11 @@ export async function deleteCharacteristic(id) {
         }
 
         const characteristic = mapperState.characteristics[index];
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
+        const rowIndex = characteristic._rowIndex;
 
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '']],
-            spreadsheetType: 'main'
-        });
-
+        await hardDeleteRow('CHARACTERISTICS', rowIndex);
         mapperState.characteristics.splice(index, 1);
+        adjustRowIndices(mapperState.characteristics, rowIndex);
     } catch (error) {
         console.error('❌ Помилка видалення характеристики:', error);
         throw error;
@@ -728,15 +754,11 @@ export async function deleteOption(id) {
         }
 
         const option = mapperState.options[index];
-        const range = `${SHEETS.OPTIONS}!A${option._rowIndex}:H${option._rowIndex}`;
+        const rowIndex = option._rowIndex;
 
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '', '']],
-            spreadsheetType: 'main'
-        });
-
+        await hardDeleteRow('OPTIONS', rowIndex);
         mapperState.options.splice(index, 1);
+        adjustRowIndices(mapperState.options, rowIndex);
     } catch (error) {
         console.error('❌ Помилка видалення опції:', error);
         throw error;
@@ -836,15 +858,11 @@ export async function deleteMarketplace(id) {
         }
 
         const marketplace = mapperState.marketplaces[index];
-        const range = `${SHEETS.MARKETPLACES}!A${marketplace._rowIndex}:G${marketplace._rowIndex}`;
+        const rowIndex = marketplace._rowIndex;
 
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '']],
-            spreadsheetType: 'main'
-        });
-
+        await hardDeleteRow('MARKETPLACES', rowIndex);
         mapperState.marketplaces.splice(index, 1);
+        adjustRowIndices(mapperState.marketplaces, rowIndex);
     } catch (error) {
         console.error('❌ Помилка видалення маркетплейсу:', error);
         throw error;
@@ -893,6 +911,69 @@ export function getMpCharacteristics() {
 
 export function getMpOptions() {
     return mapperState.mpOptions || [];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ЗАЛЕЖНОСТІ (для каскадних попереджень при видаленні)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Порахувати залежності категорії
+ */
+export function getCategoryDependencies(categoryId) {
+    const mappings = mapperState.mapCategories.filter(m => m.category_id === categoryId);
+    const characteristics = mapperState.characteristics.filter(c => {
+        if (!c.category_ids) return false;
+        return c.category_ids.split(',').map(id => id.trim()).includes(categoryId);
+    });
+    return { mappings: mappings.length, characteristics: characteristics.length };
+}
+
+/**
+ * Порахувати залежності характеристики
+ */
+export function getCharacteristicDependencies(characteristicId) {
+    const mappings = mapperState.mapCharacteristics.filter(m => m.characteristic_id === characteristicId);
+    const options = mapperState.options.filter(o => o.characteristic_id === characteristicId);
+    return { mappings: mappings.length, options: options.length };
+}
+
+/**
+ * Порахувати залежності опції
+ */
+export function getOptionDependencies(optionId) {
+    const mappings = mapperState.mapOptions.filter(m => m.option_id === optionId);
+    const children = mapperState.options.filter(o => o.parent_option_id === optionId);
+    return { mappings: mappings.length, children: children.length };
+}
+
+/**
+ * Порахувати залежності маркетплейсу
+ */
+export function getMarketplaceDependencies(marketplaceId) {
+    const cats = mapperState.mpCategories.filter(c => c.marketplace_id === marketplaceId);
+    const chars = mapperState.mpCharacteristics.filter(c => c.marketplace_id === marketplaceId);
+    const opts = mapperState.mpOptions.filter(o => o.marketplace_id === marketplaceId);
+
+    const catMappings = mapperState.mapCategories.filter(m =>
+        cats.some(c => c.id === m.mp_category_id || c.external_id === m.mp_category_id)
+    );
+    const charMappings = mapperState.mapCharacteristics.filter(m =>
+        chars.some(c => c.id === m.mp_characteristic_id || c.external_id === m.mp_characteristic_id)
+    );
+    const optMappings = mapperState.mapOptions.filter(m =>
+        opts.some(o => o.id === m.mp_option_id || o.external_id === m.mp_option_id)
+    );
+
+    return {
+        mpCategories: cats.length,
+        mpCharacteristics: chars.length,
+        mpOptions: opts.length,
+        catMappings: catMappings.length,
+        charMappings: charMappings.length,
+        optMappings: optMappings.length,
+        totalMappings: catMappings.length + charMappings.length + optMappings.length
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -945,7 +1026,7 @@ export async function loadMpCategories() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.MP_CATEGORIES}!A:G`,
+            range: `${SHEETS.MP_CATEGORIES}!A:H`,
             spreadsheetType: 'main'
         });
 
@@ -1234,22 +1315,30 @@ export async function deleteCategoryMapping(mappingId) {
             throw new Error(`Маппінг ${mappingId} не знайдено`);
         }
 
-        // Видалити рядок (очистити)
-        await callSheetsAPI('update', {
-            range: `${SHEETS.MAP_CATEGORIES}!A${mapping._rowIndex}:D${mapping._rowIndex}`,
-            values: [['', '', '', '']],
-            spreadsheetType: 'main'
-        });
+        const rowIndex = mapping._rowIndex;
+        await hardDeleteRow('MAP_CATEGORIES', rowIndex);
 
         // Видалити з локального стану
         const index = mapperState.mapCategories.findIndex(m => m.id === mappingId);
         if (index !== -1) {
             mapperState.mapCategories.splice(index, 1);
         }
+        adjustRowIndices(mapperState.mapCategories, rowIndex);
 
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу категорії:', error);
         throw error;
+    }
+}
+
+/**
+ * Видалити маппінг категорії по ID MP категорії
+ * @param {string} mpCatId - ID MP категорії
+ */
+export async function deleteCategoryMappingByMpId(mpCatId) {
+    const mapping = mapperState.mapCategories.find(m => m.mp_category_id === mpCatId);
+    if (mapping) {
+        await deleteCategoryMapping(mapping.id);
     }
 }
 
@@ -1338,18 +1427,15 @@ export async function deleteCharacteristicMapping(mappingId) {
             throw new Error(`Маппінг ${mappingId} не знайдено`);
         }
 
-        // Видалити рядок (очистити)
-        await callSheetsAPI('update', {
-            range: `${SHEETS.MAP_CHARACTERISTICS}!A${mapping._rowIndex}:D${mapping._rowIndex}`,
-            values: [['', '', '', '']],
-            spreadsheetType: 'main'
-        });
+        const rowIndex = mapping._rowIndex;
+        await hardDeleteRow('MAP_CHARACTERISTICS', rowIndex);
 
         // Видалити з локального стану
         const index = mapperState.mapCharacteristics.findIndex(m => m.id === mappingId);
         if (index !== -1) {
             mapperState.mapCharacteristics.splice(index, 1);
         }
+        adjustRowIndices(mapperState.mapCharacteristics, rowIndex);
 
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу:', error);
@@ -1500,18 +1586,15 @@ export async function deleteOptionMapping(mappingId) {
             throw new Error(`Маппінг ${mappingId} не знайдено`);
         }
 
-        // Видалити рядок (очистити)
-        await callSheetsAPI('update', {
-            range: `${SHEETS.MAP_OPTIONS}!A${mapping._rowIndex}:D${mapping._rowIndex}`,
-            values: [['', '', '', '']],
-            spreadsheetType: 'main'
-        });
+        const rowIndex = mapping._rowIndex;
+        await hardDeleteRow('MAP_OPTIONS', rowIndex);
 
         // Видалити з локального стану
         const index = mapperState.mapOptions.findIndex(m => m.id === mappingId);
         if (index !== -1) {
             mapperState.mapOptions.splice(index, 1);
         }
+        adjustRowIndices(mapperState.mapOptions, rowIndex);
 
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу опції:', error);

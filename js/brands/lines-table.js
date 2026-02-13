@@ -35,6 +35,7 @@ registerActionHandlers('brand-lines', {
 
 // Table API instance
 let linesTableAPI = null;
+let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -92,7 +93,10 @@ function initLinesTableAPI() {
             message: 'Лінійки не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'brand-lines'),
+        onAfterRender: (container) => {
+            if (_actionCleanup) _actionCleanup();
+            _actionCleanup = initActionHandlers(container, 'brand-lines');
+        },
         plugins: {
             sorting: {
                 dataSource: () => enrichLinesData(brandsState.brandLines || []),

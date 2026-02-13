@@ -36,6 +36,7 @@ registerActionHandlers('brands', {
 
 // Table API instance
 let tableAPI = null;
+let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -87,7 +88,10 @@ function initTableAPI() {
             message: 'Бренди не знайдено'
         },
         withContainer: false,
-        onAfterRender: (container) => initActionHandlers(container, 'brands'),
+        onAfterRender: (container) => {
+            if (_actionCleanup) _actionCleanup();
+            _actionCleanup = initActionHandlers(container, 'brands');
+        },
         plugins: {
             sorting: {
                 dataSource: () => {

@@ -54,6 +54,7 @@ const DEFAULT_AVATAR_STATE = 'confirmClose';
  * @param {string} options.confirmText - Текст кнопки підтвердження (за замовчуванням 'Так')
  * @param {string} options.cancelText - Текст кнопки скасування (за замовчуванням 'Ні')
  * @param {string} options.confirmClass - Клас для кнопки підтвердження (за замовчуванням 'btn-delete')
+ * @param {string} options.details - HTML-рядок з деталями наслідків (каскадні попередження), показується під message
  * @param {string|false} options.avatarState - Тип стану аватара або false для вимкнення
  *   - 'confirmClose' - закриття
  *   - 'confirmReset' - скидання
@@ -100,7 +101,8 @@ export async function showConfirmModal(options = {}) {
         cancelText = 'Ні',
         confirmClass = 'btn-delete',
         avatarState = null,  // null = автовизначення
-        avatarSize = 'lg'
+        avatarSize = 'lg',
+        details = ''
     } = options;
 
     return new Promise(async (resolve) => {
@@ -127,6 +129,18 @@ export async function showConfirmModal(options = {}) {
 
         if (messageElement) {
             messageElement.textContent = message;
+        }
+
+        // Деталі наслідків (каскадні попередження)
+        const detailsEl = document.getElementById('modal-confirm-details');
+        if (detailsEl) {
+            if (details) {
+                detailsEl.innerHTML = details;
+                detailsEl.classList.remove('u-hidden');
+            } else {
+                detailsEl.innerHTML = '';
+                detailsEl.classList.add('u-hidden');
+            }
         }
 
         // Визначаємо стан аватара

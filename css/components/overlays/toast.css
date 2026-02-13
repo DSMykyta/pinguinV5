@@ -12,6 +12,8 @@
 }
 
 .toast {
+    display: flex;
+    align-items: center;
     padding: 14px 16px;
     /* M3: Радіус Snackbar (4px) */
     border-radius: 4px;
@@ -50,4 +52,33 @@
 
 .toast-info {
     background-color: var(--md-sys-color-inverse-surface, #313033);
+}
+
+/* ============================================
+   ACTION BUTTON (M3 Snackbar Action)
+   ============================================ */
+
+.toast-message {
+    flex: 1;
+}
+
+.toast-action {
+    margin-left: 16px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--md-sys-color-inverse-primary, #D0BCFF);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+}
+
+.toast-action:hover {
+    opacity: 0.8;
+}
+
+.toast-error .toast-action {
+    color: var(--md-sys-color-error, #B3261E);
 }

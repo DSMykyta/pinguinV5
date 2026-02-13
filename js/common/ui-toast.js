@@ -17,14 +17,45 @@ function getOrCreateToastContainer() {
  * Показує спливаюче повідомлення (toast).
  * @param {string} message - Текст повідомлення.
  * @param {string} [type='success'] - Тип повідомлення ('success', 'error', 'info').
- * @param {number} [duration=3000] - Тривалість показу в мілісекундах.
+ * @param {number|Object} [durationOrOptions=3000] - Тривалість (мс) або об'єкт опцій.
+ * @param {number} [durationOrOptions.duration=5000] - Тривалість показу в мілісекундах.
+ * @param {Object} [durationOrOptions.action] - Action button для toast (M3 Snackbar pattern).
+ * @param {string} durationOrOptions.action.label - Текст кнопки.
+ * @param {Function} durationOrOptions.action.onClick - Callback при натисканні.
  */
-export function showToast(message, type = 'success', duration = 3000) {
+export function showToast(message, type = 'success', durationOrOptions = 3000) {
+    let duration, action;
+    if (typeof durationOrOptions === 'object') {
+        duration = durationOrOptions.duration || 5000;
+        action = durationOrOptions.action;
+    } else {
+        duration = durationOrOptions;
+    }
+
     const toastContainer = getOrCreateToastContainer();
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+
+    // Текст повідомлення
+    const textSpan = document.createElement('span');
+    textSpan.className = 'toast-message';
+    textSpan.textContent = message;
+    toast.appendChild(textSpan);
+
+    // Action button (якщо є)
+    if (action) {
+        const btn = document.createElement('button');
+        btn.className = 'toast-action';
+        btn.textContent = action.label;
+        btn.addEventListener('click', () => {
+            clearTimeout(dismissTimer);
+            action.onClick();
+            toast.classList.remove('toast-visible');
+            toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        });
+        toast.appendChild(btn);
+    }
 
     toastContainer.appendChild(toast);
 
@@ -34,9 +65,9 @@ export function showToast(message, type = 'success', duration = 3000) {
     }, 10);
 
     // Зникнення та видалення після завершення тривалості
-    setTimeout(() => {
+    const dismissTimer = setTimeout(() => {
         toast.classList.remove('toast-visible');
-        
+
         // Чекаємо завершення анімації зникнення перед видаленням з DOM
         toast.addEventListener('transitionend', () => {
             if (toast.parentNode) {
