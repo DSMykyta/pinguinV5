@@ -14,6 +14,12 @@
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
+                <div class="switch switch-bordered switch-fit" id="brand-status-switch">
+                    <input type="radio" id="brand-status-no" name="brand-status" value="inactive">
+                    <label for="brand-status-no" class="switch-label">Неактивний</label>
+                    <input type="radio" id="brand-status-yes" name="brand-status" value="active" checked>
+                    <label for="brand-status-yes" class="switch-label">Активний</label>
+                </div>
                 <button class="btn-primary" id="btn-save-brand">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
@@ -202,27 +208,6 @@
                     </div>
 
                     <div class="section-content">
-                        <!-- Статус -->
-                        <div class="form-group">
-                            <label>Статус бренду</label>
-                            <div class="radio-group">
-                                <label class="radio-item">
-                                    <input type="radio" name="brand-status" class="input-main"value="active" checked>
-                                    <span class="radio-label">
-                                        <span class="material-symbols-outlined">check_circle</span>
-                                        Активний
-                                    </span>
-                                </label>
-                                <label class="radio-item">
-                                    <input type="radio" name="brand-status" value="inactive">
-                                    <span class="radio-label">
-                                        <span class="material-symbols-outlined">cancel</span>
-                                        Неактивний
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
                         <!-- Логотип -->
                         <div class="form-group u-mt-24">
                             <label>Логотип</label>

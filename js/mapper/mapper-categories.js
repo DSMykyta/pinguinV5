@@ -111,6 +111,7 @@ export async function showAddCategoryModal() {
 
     clearCategoryForm();
     populateParentCategorySelect();
+    initGroupingToggleHandler();
 
     if (modalEl) initCustomSelects(modalEl);
     initSectionNavigation('category-section-navigator');
@@ -159,6 +160,7 @@ export async function showEditCategoryModal(id) {
     }
 
     populateParentCategorySelect(id);
+    initGroupingToggleHandler();
     if (modalEl) initCustomSelects(modalEl);
     fillCategoryForm(category);
     populateRelatedCharacteristics(id);
@@ -262,6 +264,21 @@ function getCategoryFormData() {
     };
 }
 
+function updateCategoryGroupingDot(isGrouping) {
+    const dot = document.getElementById('category-grouping-dot');
+    if (dot) {
+        dot.style.backgroundColor = isGrouping ? 'var(--color-warning)' : 'var(--color-success)';
+        dot.title = isGrouping ? 'Групуюча' : 'Товарна';
+    }
+}
+
+function initGroupingToggleHandler() {
+    const groupingYes = document.getElementById('mapper-category-grouping-yes');
+    const groupingNo = document.getElementById('mapper-category-grouping-no');
+    if (groupingYes) groupingYes.addEventListener('change', () => updateCategoryGroupingDot(true));
+    if (groupingNo) groupingNo.addEventListener('change', () => updateCategoryGroupingDot(false));
+}
+
 function fillCategoryForm(category) {
     const nameUaField = document.getElementById('mapper-category-name-ua');
     const nameRuField = document.getElementById('mapper-category-name-ru');
@@ -273,10 +290,10 @@ function fillCategoryForm(category) {
     if (nameRuField) nameRuField.value = category.name_ru || '';
     if (parentField) parentField.value = category.parent_id || '';
 
-    // Set grouping radio
     const isGrouping = category.grouping === 'TRUE' || category.grouping === true || category.grouping === 'true';
     if (groupingYes) groupingYes.checked = isGrouping;
     if (groupingNo) groupingNo.checked = !isGrouping;
+    updateCategoryGroupingDot(isGrouping);
 }
 
 function clearCategoryForm() {
@@ -290,9 +307,9 @@ function clearCategoryForm() {
     if (nameRuField) nameRuField.value = '';
     if (parentField) parentField.value = '';
 
-    // Reset grouping to default (No)
     if (groupingYes) groupingYes.checked = false;
     if (groupingNo) groupingNo.checked = true;
+    updateCategoryGroupingDot(false);
 }
 
 function populateParentCategorySelect(excludeId = null) {

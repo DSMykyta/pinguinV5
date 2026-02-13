@@ -9,9 +9,16 @@
                 </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="category-modal-title">Категорія</h1>
+                    <span class="status-dot" id="category-grouping-dot" style="background-color: var(--color-success);" title="Товарна"></span>
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
+                <div class="switch switch-bordered switch-fit" id="mapper-category-grouping-switch">
+                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false" checked>
+                    <label for="mapper-category-grouping-no" class="switch-label">Товарна</label>
+                    <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
+                    <label for="mapper-category-grouping-yes" class="switch-label">Групуюча</label>
+                </div>
                 <button class="btn-primary" id="save-mapper-category">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
@@ -71,17 +78,6 @@
                                 <p class="form-hint">Оберіть категорію вищого рівня</p>
                             </div>
 
-                        <!-- Тип категорії -->
-                            <div class="form-group">
-                                <label>Групуюча категорія</label>
-                                <div class="switch switch-bordered switch-fit" id="mapper-category-grouping-switch">
-                                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false" checked>
-                                    <label for="mapper-category-grouping-no" class="switch-label">Ні</label>
-                                    <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
-                                    <label for="mapper-category-grouping-yes" class="switch-label">Так</label>
-                                </div>
-                                <p class="form-hint">Не містить товарів</p>
-                            </div>
                         </div>
 
                         <!-- Назва -->

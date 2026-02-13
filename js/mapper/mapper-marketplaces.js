@@ -93,6 +93,7 @@ export async function showAddMarketplaceModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearMarketplaceForm();
+    initMpStatusToggle();
 
     const saveBtn = document.getElementById('save-mapper-marketplace');
     if (saveBtn) saveBtn.onclick = handleSaveNewMarketplace;
@@ -130,6 +131,7 @@ export async function showEditMarketplaceModal(id) {
 
     // Заповнити форму
     fillMarketplaceForm(marketplace);
+    initMpStatusToggle();
 
     // Кнопка збереження
     const saveBtn = document.getElementById('save-mapper-marketplace');
@@ -325,6 +327,21 @@ function buildColumnMappingFromForm() {
     return result;
 }
 
+function updateMpStatusDot(isActive) {
+    const dot = document.getElementById('mp-data-status-dot');
+    if (dot) {
+        dot.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+        dot.title = isActive ? 'Активний' : 'Неактивний';
+    }
+}
+
+function initMpStatusToggle() {
+    const activeYes = document.getElementById('mapper-mp-active-yes');
+    const activeNo = document.getElementById('mapper-mp-active-no');
+    if (activeYes) activeYes.addEventListener('change', () => updateMpStatusDot(true));
+    if (activeNo) activeNo.addEventListener('change', () => updateMpStatusDot(false));
+}
+
 function fillMarketplaceForm(marketplace) {
     const nameField = document.getElementById('mapper-mp-name');
     const slugField = document.getElementById('mapper-mp-slug');
@@ -337,6 +354,7 @@ function fillMarketplaceForm(marketplace) {
     const isActive = marketplace.is_active === true || String(marketplace.is_active).toLowerCase() === 'true';
     if (activeYes) activeYes.checked = isActive;
     if (activeNo) activeNo.checked = !isActive;
+    updateMpStatusDot(isActive);
 
     fillColumnMappingForm(marketplace.column_mapping);
 }
@@ -371,6 +389,7 @@ function clearMarketplaceForm() {
     if (slugField) slugField.value = '';
     if (activeYes) activeYes.checked = true;
     if (activeNo) activeNo.checked = false;
+    updateMpStatusDot(true);
 
     // Очистити поля нормалізації
     ['mapper-mp-cm-cat-name', 'mapper-mp-cm-cat-parent',

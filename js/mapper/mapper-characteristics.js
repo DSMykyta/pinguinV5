@@ -320,6 +320,7 @@ function fillCharacteristicForm(characteristic) {
     if (globalNo) globalNo.checked = !isGlobal;
 
     toggleCategoriesField(isGlobal);
+    updateCharGlobalDot(isGlobal);
 }
 
 function clearCharacteristicForm() {
@@ -353,6 +354,7 @@ function clearCharacteristicForm() {
     }
 
     toggleCategoriesField(false);
+    updateCharGlobalDot(false);
 }
 
 function toggleCategoriesField(isGlobal) {
@@ -362,18 +364,32 @@ function toggleCategoriesField(isGlobal) {
     }
 }
 
+function updateCharGlobalDot(isGlobal) {
+    const dot = document.getElementById('char-global-dot');
+    if (dot) {
+        dot.style.backgroundColor = isGlobal ? 'var(--color-success)' : 'var(--color-error)';
+        dot.title = isGlobal ? 'Глобальна' : 'Категорійна';
+    }
+}
+
 function initGlobalToggleHandler() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
 
     if (globalYes) {
         globalYes.addEventListener('change', () => {
-            if (globalYes.checked) toggleCategoriesField(true);
+            if (globalYes.checked) {
+                toggleCategoriesField(true);
+                updateCharGlobalDot(true);
+            }
         });
     }
     if (globalNo) {
         globalNo.addEventListener('change', () => {
-            if (globalNo.checked) toggleCategoriesField(false);
+            if (globalNo.checked) {
+                toggleCategoriesField(false);
+                updateCharGlobalDot(false);
+            }
         });
     }
 }

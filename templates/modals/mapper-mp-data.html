@@ -9,9 +9,16 @@
                 </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="mp-data-modal-title">Маркетплейс</h1>
+                    <span class="status-dot" id="mp-data-status-dot" style="background-color: var(--color-success);" title="Активний"></span>
                 </div>
             </div>
             <div class="modal-fullscreen-header-right">
+                <div class="switch switch-bordered switch-fit" id="mapper-mp-active-switch">
+                    <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
+                    <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
+                    <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
+                    <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
+                </div>
                 <button class="btn-primary" id="save-mapper-marketplace">
                     <span class="material-symbols-outlined">save</span>
                     <span>Зберегти</span>
@@ -87,16 +94,6 @@
                                 <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
                                 <p class="form-hint">Унікальний код (латиницею, без пробілів)</p>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Статус</label>
-                            <div class="switch switch-bordered switch-fit" id="mapper-mp-active-switch">
-                                <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
-                                <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
-                                <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
-                                <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
-                            </div>
-                            <p class="form-hint">Неактивні маркетплейси не відображаються в списках вибору</p>
                         </div>
                     </div>
                 </section>

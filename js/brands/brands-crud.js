@@ -152,6 +152,19 @@ function initModalComponents() {
     initLogoHandlers();
     initSaveHandler();
     initSectionNavigation();
+    initBrandStatusToggle();
+}
+
+function initBrandStatusToggle() {
+    const dot = document.getElementById('brand-status-badge');
+    if (!dot) return;
+    document.querySelectorAll('input[name="brand-status"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            const isActive = radio.value === 'active';
+            dot.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+            dot.title = isActive ? 'Активний' : 'Неактивний';
+        });
+    });
 }
 
 /**
