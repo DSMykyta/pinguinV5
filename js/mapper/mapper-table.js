@@ -951,7 +951,6 @@ function initMarketplacesTableAPI(container) {
         rowActions: (row) => {
             return `
                 <input type="checkbox" class="row-checkbox" data-row-id="${escapeHtml(row.id)}" data-tab="marketplaces">
-                ${actionButton({ action: 'view', rowId: row.id, context: 'mapper-marketplaces' })}
                 ${actionButton({ action: 'edit', rowId: row.id, context: 'mapper-marketplaces' })}
             `;
         },
