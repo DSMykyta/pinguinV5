@@ -33,7 +33,7 @@
 /* --- Geologica (Variable Font) --- */
 @font-face {
     font-family: 'Geologica';
-    src: url('../fonts/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf') format('truetype');
+    src: url('../../fonts/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -42,7 +42,7 @@
 /* --- NyghtSerif (Static Fonts) --- */
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-Light.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-Light.ttf') format('truetype');
     font-weight: 300;
     font-style: normal;
     font-display: swap;
@@ -50,7 +50,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-LightItalic.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-LightItalic.ttf') format('truetype');
     font-weight: 300;
     font-style: italic;
     font-display: swap;
@@ -58,7 +58,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-Regular.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -66,7 +66,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-RegularItalic.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-RegularItalic.ttf') format('truetype');
     font-weight: 400;
     font-style: italic;
     font-display: swap;
@@ -74,7 +74,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-Medium.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-Medium.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -82,7 +82,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-MediumItalic.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-MediumItalic.ttf') format('truetype');
     font-weight: 500;
     font-style: italic;
     font-display: swap;
@@ -90,7 +90,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-Bold.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -98,7 +98,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-BoldItalic.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-BoldItalic.ttf') format('truetype');
     font-weight: 700;
     font-style: italic;
     font-display: swap;
@@ -106,7 +106,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-Dark.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-Dark.ttf') format('truetype');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -114,7 +114,7 @@
 
 @font-face {
     font-family: 'NyghtSerif';
-    src: url('../fonts/NyghtSerif/NyghtSerif-DarkItalic.ttf') format('truetype');
+    src: url('../../fonts/NyghtSerif/NyghtSerif-DarkItalic.ttf') format('truetype');
     font-weight: 900;
     font-style: italic;
     font-display: swap;
@@ -123,7 +123,7 @@
 /* --- Roboto Mono (Variable Font) --- */
 @font-face {
     font-family: 'Roboto Mono';
-    src: url('../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
+    src: url('../../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -131,7 +131,7 @@
 
 @font-face {
     font-family: 'Roboto Mono';
-    src: url('../fonts/RobotoMono-Italic-VariableFont_wght.ttf') format('truetype');
+    src: url('../../fonts/RobotoMono-Italic-VariableFont_wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: italic;
     font-display: swap;

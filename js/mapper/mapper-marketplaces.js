@@ -46,6 +46,7 @@ import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
 import { initPagination } from '../common/ui-pagination.js';
+import { listReferenceFiles, deleteReferenceFile } from '../utils/api-client.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
 
@@ -169,6 +170,9 @@ export async function showEditMarketplaceModal(id) {
     populateMpCharacteristics(characteristics, columnMapping.characteristics);
     populateMpOptions(options, columnMapping.options);
 
+    // Довідники (файли на Google Drive)
+    populateMpReferences(marketplace.slug);
+
     // Refresh кнопки
     const refreshCatsBtn = document.getElementById('refresh-mp-data-cats');
     if (refreshCatsBtn) {
@@ -208,6 +212,17 @@ export async function showEditMarketplaceModal(id) {
                 const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
                 if (optCount) optCount.textContent = freshOpts.length;
                 populateMpOptions(freshOpts, columnMapping.options);
+            } finally { icon?.classList.remove('is-spinning'); }
+        };
+    }
+
+    const refreshRefsBtn = document.getElementById('refresh-mp-data-refs');
+    if (refreshRefsBtn) {
+        refreshRefsBtn.onclick = async () => {
+            const icon = refreshRefsBtn.querySelector('.material-symbols-outlined');
+            icon?.classList.add('is-spinning');
+            try {
+                await populateMpReferences(marketplace.slug);
             } finally { icon?.classList.remove('is-spinning'); }
         };
     }
@@ -430,6 +445,98 @@ function clearMarketplaceForm() {
      'mapper-mp-cm-opt-name', 'mapper-mp-cm-opt-char-id',
      'mapper-mp-cm-opt-char-name'
     ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// СЕКЦІЯ: ДОВІДНИКИ (файли на Google Drive)
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function populateMpReferences(slug) {
+    const container = document.getElementById('mp-data-ref-container');
+    const statsEl = document.getElementById('mp-data-ref-stats');
+    const countEl = document.getElementById('mp-data-ref-count');
+    if (!container) return;
+
+    container.innerHTML = renderAvatarState('loading', {
+        message: 'Завантаження...', size: 'small',
+        containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+        messageClass: 'avatar-state-message', showMessage: true
+    });
+
+    let files = [];
+    try {
+        files = await listReferenceFiles(slug);
+    } catch (err) {
+        console.error('Failed to load reference files:', err);
+        container.innerHTML = renderAvatarState('error', {
+            message: 'Помилка завантаження файлів', size: 'small',
+            containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message', showMessage: true
+        });
+        return;
+    }
+
+    if (statsEl) statsEl.textContent = `Файлів: ${files.length}`;
+    if (countEl) countEl.textContent = files.length;
+
+    if (files.length === 0) {
+        container.innerHTML = renderAvatarState('empty', {
+            message: 'Довідники відсутні', size: 'medium',
+            containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message', showMessage: true
+        });
+        return;
+    }
+
+    const rows = files.map(f => {
+        const sizeKb = f.size ? Math.round(Number(f.size) / 1024) : 0;
+        const sizeLabel = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
+        const date = f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : '';
+        return `
+            <div class="mp-item-card" data-file-id="${escapeHtml(f.fileId)}">
+                <div class="mp-item-header">
+                    <span class="mp-item-id">${escapeHtml(f.name)}</span>
+                    <div class="mp-item-actions">
+                        <a href="${escapeHtml(f.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
+                            <span class="material-symbols-outlined">download</span>
+                        </a>
+                        <button class="btn-icon ref-delete-btn" data-file-id="${escapeHtml(f.fileId)}" data-file-name="${escapeHtml(f.name)}" title="Видалити" aria-label="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="mp-item-fields">
+                    <span class="small">${sizeLabel}</span>
+                    <span class="small">${date}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.innerHTML = `<div class="mp-items-list">${rows}</div>`;
+
+    // Обробники видалення
+    container.querySelectorAll('.ref-delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+            const fileId = btn.dataset.fileId;
+            const fileName = btn.dataset.fileName;
+            const confirmed = await showConfirmModal({
+                title: 'Видалити довідник?',
+                message: `Видалити файл "${fileName}" з Google Drive?`,
+                confirmText: 'Видалити',
+                cancelText: 'Скасувати',
+                confirmClass: 'btn-delete'
+            });
+            if (!confirmed) return;
+            try {
+                await deleteReferenceFile(fileId);
+                showToast('Файл видалено', 'success');
+                await populateMpReferences(slug);
+            } catch (err) {
+                showToast('Помилка видалення файлу', 'error');
+            }
+        };
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

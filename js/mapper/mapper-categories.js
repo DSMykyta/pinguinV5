@@ -933,15 +933,22 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
     const cardsHtml = Object.entries(byMarketplace).map(([mpId, { name, items }]) => {
         return items.map(item => {
             const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
+            const fileId = item.file_id || '';
+            const downloadBtn = fileId
+                ? `<a href="https://drive.google.com/uc?export=download&id=${escapeHtml(fileId)}" target="_blank" class="btn-icon" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">download</span></a>`
+                : '';
             return `
                 <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
                     <div class="mp-item-header">
                         <span class="mp-item-id">${escapeHtml(name)}</span>
-                        ${actionButton({
-                            action: 'unmap',
-                            rowId: item.id,
-                            data: { mappingId: item._mappingId }
-                        })}
+                        <div class="mp-item-actions">
+                            ${downloadBtn}
+                            ${actionButton({
+                                action: 'unmap',
+                                rowId: item.id,
+                                data: { mappingId: item._mappingId }
+                            })}
+                        </div>
                     </div>
                     <div class="mp-item-fields">
                         <div class="form-grid form-grid-2">
