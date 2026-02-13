@@ -105,12 +105,19 @@
 /* ============================================ */
 
 .tree-expand-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tree-expand-icon:hover {
+    color: var(--color-on-surface);
 }
 
 .tree-expand-icon .material-symbols-outlined {
@@ -173,15 +180,16 @@
 
 .tree-node-children {
     overflow: hidden;
-}
-
-.tree-node-children.tree-collapsed {
-    display: none;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.15s ease-in, opacity 0.1s ease-in;
 }
 
 .tree-node-children.tree-expanded {
-    display: block;
+    max-height: 1000px;
+    opacity: 1;
     background: var(--color-surface-c-low);
+    transition: max-height 0.4s ease-out, opacity 0.2s ease-out;
 }
 
 /* ============================================ */

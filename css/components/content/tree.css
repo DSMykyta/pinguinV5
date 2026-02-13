@@ -59,11 +59,16 @@
 }
 
 .tree li > ul {
-    display: none;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.15s ease-in, opacity 0.1s ease-in;
 }
 
 .tree li.is-open > ul {
-    display: block;
+    max-height: 1000px;
+    opacity: 1;
+    transition: max-height 0.4s ease-out, opacity 0.2s ease-out;
 }
 
 .tree li {
@@ -81,11 +86,11 @@
     border-radius: 4px;
     min-height: 36px;
     gap: 8px;
-    transition: background-color 0.15s ease-in-out;
+    transition: background-color 150ms ease;
 }
 
 .tree-item-content:hover {
-    background-color: var(--color-surface-c-low);
+    background-color: var(--color-surface-c);
 }
 
 /* ============================================
@@ -102,6 +107,11 @@
     justify-content: center;
     color: var(--color-on-surface-v);
     flex-shrink: 0;
+}
+
+/* Override move-btn cursor when used as tree toggle */
+.toggle-btn.move-btn {
+    cursor: pointer;
 }
 
 .toggle-btn .material-symbols-outlined {
