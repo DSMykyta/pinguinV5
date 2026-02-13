@@ -238,25 +238,25 @@ function sortProducts(products, key, direction) {
  * Статус як кольоровий кружок
  */
 function getStatusDot(status) {
-    let color, title;
+    let cls, title;
     switch (status) {
         case 'active':
-            color = 'var(--color-success)';
+            cls = 'is-success';
             title = 'Активний';
             break;
         case 'draft':
-            color = 'var(--color-outline)';
+            cls = 'is-neutral';
             title = 'Чернетка';
             break;
         case 'hidden':
-            color = 'var(--color-warning)';
+            cls = 'is-warning';
             title = 'Прихований';
             break;
         default:
-            color = 'var(--color-outline)';
+            cls = 'is-neutral';
             title = status;
     }
-    return `<span class="status-dot" style="background-color: ${color};" title="${title}"></span>`;
+    return `<span class="status-dot ${cls}" title="${title}"></span>`;
 }
 
 // renderBoolBadge видалено - використовується renderBadge з ui-table.js

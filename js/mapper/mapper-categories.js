@@ -267,7 +267,8 @@ function getCategoryFormData() {
 function updateCategoryGroupingDot(isGrouping) {
     const dot = document.getElementById('category-grouping-dot');
     if (dot) {
-        dot.style.backgroundColor = isGrouping ? 'var(--color-warning)' : 'var(--color-success)';
+        dot.classList.remove('is-success', 'is-warning');
+        dot.classList.add(isGrouping ? 'is-warning' : 'is-success');
         dot.title = isGrouping ? 'Групуюча' : 'Товарна';
     }
 }

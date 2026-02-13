@@ -75,7 +75,7 @@ export const COLUMN_TYPES = {
                 : String(value ?? '').toLowerCase();
             const map = { active: 'success', draft: 'warning', hidden: 'error', inactive: 'error', true: 'success', false: 'error' };
             const color = map[val] || 'neutral';
-            return `<span class="status-dot" style="background-color: var(--color-${color});" title="${escapeHtml(value ?? '')}"></span>`;
+            return `<span class="status-dot is-${color}" title="${escapeHtml(value ?? '')}"></span>`;
         }
     },
 

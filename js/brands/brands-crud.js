@@ -161,7 +161,8 @@ function initBrandStatusToggle() {
     document.querySelectorAll('input[name="brand-status"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isActive = radio.value === 'active';
-            dot.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+            dot.classList.remove('is-success', 'is-error');
+            dot.classList.add(isActive ? 'is-success' : 'is-error');
             dot.title = isActive ? 'Активний' : 'Неактивний';
         });
     });
@@ -893,7 +894,8 @@ function fillBrandForm(brand) {
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
         const isActive = brand.brand_status !== 'inactive';
-        statusBadge.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+        statusBadge.classList.remove('is-success', 'is-error');
+        statusBadge.classList.add(isActive ? 'is-success' : 'is-error');
         statusBadge.title = isActive ? 'Активний' : 'Неактивний';
     }
 
@@ -951,7 +953,8 @@ function clearBrandForm() {
     // Статус dot
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
-        statusBadge.style.backgroundColor = 'var(--color-success)';
+        statusBadge.classList.remove('is-success', 'is-error');
+        statusBadge.classList.add('is-success');
         statusBadge.title = 'Активний';
     }
 

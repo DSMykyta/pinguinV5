@@ -330,7 +330,8 @@ function buildColumnMappingFromForm() {
 function updateMpStatusDot(isActive) {
     const dot = document.getElementById('mp-data-status-dot');
     if (dot) {
-        dot.style.backgroundColor = isActive ? 'var(--color-success)' : 'var(--color-error)';
+        dot.classList.remove('is-success', 'is-error');
+        dot.classList.add(isActive ? 'is-success' : 'is-error');
         dot.title = isActive ? 'Активний' : 'Неактивний';
     }
 }
