@@ -9,6 +9,19 @@
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Управління власними характеристиками та маппінг MP характеристик.       ║
  * ║                                                                          ║
+ * ║  БЛОКИ ХАРАКТЕРИСТИК (block_number):                                     ║
+ * ║  Секція "Характеристики":                                                ║
+ * ║    1 — Скільки там?      (вага, порції, капсули, розмір)                  ║
+ * ║    2 — Який він?         (вид, тип, матеріал, форма, склад)              ║
+ * ║    3 — Кому це?          (стать, вік)                                    ║
+ * ║    4 — Навіщо це?        (призначення, дія, особливості)                 ║
+ * ║    5 — Звідки це?        (країна, коди, сертифікати, гарантія)           ║
+ * ║    6 — Куди відправляти? (упаковка, габарити, доставка)                  ║
+ * ║  Інші секції:                                                            ║
+ * ║    8 — Варіант           (смак, колір, EAN варіанту)                     ║
+ * ║    9 — Інше              (комплектація, системні поля)                   ║
+ * ║  Детальніше: docs/CHARACTERISTICS-BLOCKS.md                              ║
+ * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ ФУНКЦІЇ:                                                   ║
  * ║  - init() — Ініціалізація плагіна (реєстрація hooks)                     ║
  * ║  - showAddCharacteristicModal() — Модалка додавання                      ║
@@ -269,7 +282,7 @@ function getCharacteristicFormData() {
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         block_number: document.getElementById('mapper-char-block')?.value || '',
         is_global: isGlobal,
-        category_ids: isGlobal ? '' : selectedCategories.join(',')
+        category_ids: isGlobal === 'TRUE' ? '' : selectedCategories.join(',')
     };
 }
 
@@ -434,7 +447,8 @@ function populateRelatedOptions(characteristicId) {
 
     const columns = [
         col('id', 'ID', 'word-chip'),
-        col('value_ua', 'Назва', 'text', { className: 'cell-l' }),
+        col('value_ua', 'Значення', 'name'),
+        col('value_ru', 'Назва (RU)', 'text'),
         {
             id: '_unlink',
             label: ' ',

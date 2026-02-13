@@ -419,7 +419,8 @@ function populateRelatedChildOptions(optionId) {
     // Конфігурація колонок — з unlink
     const columns = [
         col('id', 'ID', 'word-chip'),
-        col('value_ua', 'Значення', 'text', { className: 'cell-l' }),
+        col('value_ua', 'Значення', 'name'),
+        col('value_ru', 'Назва (RU)', 'text'),
         {
             id: '_unlink',
             label: ' ',

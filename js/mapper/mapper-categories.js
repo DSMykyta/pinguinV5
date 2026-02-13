@@ -28,7 +28,7 @@
 import { mapperState, registerHook, markPluginLoaded, runHook } from './mapper-state.js';
 import {
     addCategory, updateCategory, deleteCategory, getCategories,
-    getCharacteristics, updateCharacteristic, getMpCategories, getMarketplaces,
+    getCharacteristics, getOptions, updateCharacteristic, getMpCategories, getMarketplaces,
     createCategoryMapping, batchCreateCategoryMapping, getMappedMpCategories, deleteCategoryMapping
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
@@ -446,9 +446,23 @@ function populateRelatedCharacteristics(categoryId) {
     };
 
     // Конфігурація колонок
+    const allOptions = getOptions();
     const columns = [
         col('id', 'ID', 'word-chip'),
-        col('name_ua', 'Назва', 'text', { className: 'cell-l' }),
+        col('category_ids', 'Категорія', 'binding-chip'),
+        col('name_ua', 'Назва', 'name'),
+        col('type', 'Тип', 'code'),
+        {
+            id: '_optCount',
+            label: 'Опції',
+            sortable: true,
+            className: 'cell-xs cell-center',
+            render: (value, row) => {
+                const count = allOptions.filter(o => o.characteristic_id === row.id).length;
+                const cls = count === 0 ? 'chip' : 'chip chip-active';
+                return `<span class="${cls}">${count}</span>`;
+            }
+        },
         {
             id: '_unlink',
             label: ' ',

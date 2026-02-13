@@ -42,7 +42,8 @@ import {
     getDependentCharacteristics,
     hasChildCharacteristics,
     getFieldType,
-    BLOCK_NAMES
+    BLOCK_NAMES,
+    CHARACTERISTIC_BLOCKS
 } from './products-data-service.js';
 
 import {
@@ -1109,8 +1110,8 @@ function renderCharacteristicsByBlocks(container, categoryId = null) {
     const sortedBlocks = Object.entries(blocks).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
 
     sortedBlocks.forEach(([blockNum, block]) => {
-        // Пропускаємо блоки Варіанти та Опис (вони в окремих кроках)
-        if (blockNum === '7' || blockNum === '8') return;
+        // Тільки блоки секції "Характеристики" (1–5), решта в інших секціях
+        if (!CHARACTERISTIC_BLOCKS.includes(Number(blockNum))) return;
 
         html += `
             <div class="attributes-block" data-block="${blockNum}">
