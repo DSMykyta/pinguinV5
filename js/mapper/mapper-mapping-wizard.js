@@ -248,7 +248,7 @@ function renderFilterPhase() {
     body.innerHTML = `
         <div style="margin-bottom:16px;">
             <label style="font-weight:500;margin-bottom:6px;display:block;">Пошук по назві</label>
-            <input type="text" id="wizard-search" placeholder="Наприклад: протеїн, спорт..." value="${escapeHtml(wizardState.searchQuery)}" />
+            <input type="text" class="input-main"  id="wizard-search" placeholder="Наприклад: протеїн, спорт..." value="${escapeHtml(wizardState.searchQuery)}" />
         </div>
         <div style="margin-bottom:16px;">
             <label style="font-weight:500;margin-bottom:6px;display:block;">Маркетплейси</label>
