@@ -761,7 +761,22 @@ function initMappingTriggerDelegation(container, entityType) {
                     try { await createCharacteristicMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
                     catch { showToast('Помилка прив\'язки', 'error'); return; }
                 } else if (oldMapping) {
-                    showToast('Прив\'язку знято', 'success');
+                    const undoOwnId = oldMapping.characteristic_id;
+                    const undoMpId = oldMapping.mp_characteristic_id;
+                    showToast('Прив\'язку знято', 'success', {
+                        duration: 6000,
+                        action: {
+                            label: 'Відмінити',
+                            onClick: async () => {
+                                await createCharacteristicMapping(undoOwnId, undoMpId);
+                                const restoredChar = ownChars.find(c => c.id === undoOwnId);
+                                trigger.dataset.currentValue = undoOwnId;
+                                trigger.classList.add('is-mapped');
+                                const lbl = trigger.querySelector('.mp-tree-mapping-label');
+                                if (lbl) lbl.textContent = restoredChar ? (restoredChar.name_ua || restoredChar.id) : undoOwnId;
+                            }
+                        }
+                    });
                 }
                 const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
@@ -781,7 +796,22 @@ function initMappingTriggerDelegation(container, entityType) {
                     try { await createOptionMapping(newValue, mpEntityId); showToast('Прив\'язано', 'success'); }
                     catch { showToast('Помилка прив\'язки', 'error'); return; }
                 } else if (oldMapping) {
-                    showToast('Прив\'язку знято', 'success');
+                    const undoOwnId = oldMapping.option_id;
+                    const undoMpId = oldMapping.mp_option_id;
+                    showToast('Прив\'язку знято', 'success', {
+                        duration: 6000,
+                        action: {
+                            label: 'Відмінити',
+                            onClick: async () => {
+                                await createOptionMapping(undoOwnId, undoMpId);
+                                const restoredOpt = ownOpts.find(o => o.id === undoOwnId);
+                                trigger.dataset.currentValue = undoOwnId;
+                                trigger.classList.add('is-mapped');
+                                const lbl = trigger.querySelector('.mp-tree-mapping-label');
+                                if (lbl) lbl.textContent = restoredOpt ? (restoredOpt.value_ua || restoredOpt.id) : undoOwnId;
+                            }
+                        }
+                    });
                 }
                 const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
@@ -991,7 +1021,22 @@ function renderMpCategoryTree(container, data, catMapping) {
                     return;
                 }
             } else if (oldMapping) {
-                showToast('Прив\'язку знято', 'success');
+                const undoOwnId = oldMapping.category_id;
+                const undoMpId = oldMapping.mp_category_id;
+                showToast('Прив\'язку знято', 'success', {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createCategoryMapping(undoOwnId, undoMpId);
+                            const restoredCat = ownCategories.find(c => c.id === undoOwnId);
+                            trigger.dataset.currentCatId = undoOwnId;
+                            trigger.classList.add('is-mapped');
+                            const lbl = trigger.querySelector('.mp-tree-mapping-label');
+                            if (lbl) lbl.textContent = restoredCat ? (restoredCat.name_ua || restoredCat.id) : undoOwnId;
+                        }
+                    }
+                });
             }
 
             // Оновити trigger

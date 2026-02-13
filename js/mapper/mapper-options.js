@@ -1123,9 +1123,20 @@ function renderBindingsRows(ownOptionId, container) {
 
             btn.disabled = true;
             try {
+                const mapping = getMapOptions().find(m => m.id === mappingId);
+                const undoData = mapping ? { ownId: mapping.option_id, mpId: mapping.mp_option_id } : null;
                 await deleteOptionMapping(mappingId);
-                showToast('Прив\'язку знято', 'success');
                 renderBindingsRows(ownOptionId, container);
+                showToast('Прив\'язку знято', 'success', undoData ? {
+                    duration: 6000,
+                    action: {
+                        label: 'Відмінити',
+                        onClick: async () => {
+                            await createOptionMapping(undoData.ownId, undoData.mpId);
+                            renderBindingsRows(ownOptionId, container);
+                        }
+                    }
+                } : 3000);
             } catch (err) {
                 showToast('Помилка видалення', 'error');
                 btn.disabled = false;
