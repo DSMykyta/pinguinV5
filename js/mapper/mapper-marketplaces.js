@@ -216,8 +216,35 @@ function getMarketplaceFormData() {
     return {
         name: document.getElementById('mapper-mp-name')?.value.trim() || '',
         slug: document.getElementById('mapper-mp-slug')?.value.trim() || '',
-        is_active: isActive
+        is_active: isActive,
+        column_mapping: JSON.stringify(buildColumnMappingFromForm())
     };
+}
+
+/**
+ * Зібрати column_mapping з полів нормалізації у формі
+ */
+function buildColumnMappingFromForm() {
+    const v = (id) => document.getElementById(id)?.value.trim() || '';
+
+    const categories = {};
+    if (v('mapper-mp-cm-cat-name'))   categories.name = v('mapper-mp-cm-cat-name');
+    if (v('mapper-mp-cm-cat-parent')) categories.parent_id = v('mapper-mp-cm-cat-parent');
+
+    const characteristics = {};
+    if (v('mapper-mp-cm-char-name')) characteristics.name = v('mapper-mp-cm-char-name');
+    if (v('mapper-mp-cm-char-type')) characteristics.type = v('mapper-mp-cm-char-type');
+
+    const options = {};
+    if (v('mapper-mp-cm-opt-name'))      options.name = v('mapper-mp-cm-opt-name');
+    if (v('mapper-mp-cm-opt-char-id'))   options.char_id = v('mapper-mp-cm-opt-char-id');
+    if (v('mapper-mp-cm-opt-char-name')) options.char_name = v('mapper-mp-cm-opt-char-name');
+
+    const result = {};
+    if (Object.keys(categories).length)      result.categories = categories;
+    if (Object.keys(characteristics).length) result.characteristics = characteristics;
+    if (Object.keys(options).length)         result.options = options;
+    return result;
 }
 
 function fillMarketplaceForm(marketplace) {
@@ -232,6 +259,28 @@ function fillMarketplaceForm(marketplace) {
     const isActive = marketplace.is_active === true || String(marketplace.is_active).toLowerCase() === 'true';
     if (activeYes) activeYes.checked = isActive;
     if (activeNo) activeNo.checked = !isActive;
+
+    fillColumnMappingForm(marketplace.column_mapping);
+}
+
+/**
+ * Заповнити поля нормалізації зі збереженого column_mapping
+ */
+function fillColumnMappingForm(rawMapping) {
+    let cm = {};
+    try { cm = JSON.parse(typeof rawMapping === 'string' ? rawMapping || '{}' : '{}'); }
+    catch { cm = {}; }
+    if (typeof rawMapping === 'object' && rawMapping !== null) cm = rawMapping;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+
+    set('mapper-mp-cm-cat-name',      cm.categories?.name);
+    set('mapper-mp-cm-cat-parent',    cm.categories?.parent_id);
+    set('mapper-mp-cm-char-name',     cm.characteristics?.name);
+    set('mapper-mp-cm-char-type',     cm.characteristics?.type);
+    set('mapper-mp-cm-opt-name',      cm.options?.name);
+    set('mapper-mp-cm-opt-char-id',   cm.options?.char_id);
+    set('mapper-mp-cm-opt-char-name', cm.options?.char_name);
 }
 
 function clearMarketplaceForm() {
@@ -244,6 +293,13 @@ function clearMarketplaceForm() {
     if (slugField) slugField.value = '';
     if (activeYes) activeYes.checked = true;
     if (activeNo) activeNo.checked = false;
+
+    // Очистити поля нормалізації
+    ['mapper-mp-cm-cat-name', 'mapper-mp-cm-cat-parent',
+     'mapper-mp-cm-char-name', 'mapper-mp-cm-char-type',
+     'mapper-mp-cm-opt-name', 'mapper-mp-cm-opt-char-id',
+     'mapper-mp-cm-opt-char-name'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -288,17 +344,22 @@ export async function showMarketplaceDataModal(id) {
     // Ініціалізувати scroll-snap навігацію
     initSectionNavigation('mp-data-section-navigator');
 
+    // Парсити column_mapping маркетплейсу
+    let columnMapping = {};
+    try { columnMapping = JSON.parse(marketplace.column_mapping || '{}'); }
+    catch { columnMapping = {}; }
+
     // Заповнити кожну секцію незалежно
-    populateMpCategories(categories);
-    populateMpCharacteristics(characteristics);
-    populateMpOptions(options);
+    populateMpCategories(categories, columnMapping.categories);
+    populateMpCharacteristics(characteristics, columnMapping.characteristics);
+    populateMpOptions(options, columnMapping.options);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // СЕКЦІЯ: КАТЕГОРІЇ (дерево)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function populateMpCategories(allData) {
+function populateMpCategories(allData, catMapping) {
     const container = document.getElementById('mp-data-cat-container');
     const statsEl = document.getElementById('mp-data-cat-stats');
     const searchInput = document.getElementById('mp-data-cat-search');
@@ -316,7 +377,7 @@ function populateMpCategories(allData) {
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
-            renderMpCategoryTree(container, data);
+            renderMpCategoryTree(container, data, catMapping);
         }
         updateStats(data.length, allData.length);
     };
@@ -327,7 +388,7 @@ function populateMpCategories(allData) {
             renderTree(allData);
         } else {
             const filtered = allData.filter(item => {
-                const name = extractMpName(item).toLowerCase();
+                const name = extractMpName(item, catMapping).toLowerCase();
                 const extId = (item.external_id || '').toLowerCase();
                 return name.includes(q) || extId.includes(q);
             });
@@ -347,7 +408,7 @@ function populateMpCategories(allData) {
 // СЕКЦІЯ: ХАРАКТЕРИСТИКИ (таблиця)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function populateMpCharacteristics(allData) {
+function populateMpCharacteristics(allData, charMapping) {
     const container = document.getElementById('mp-data-char-container');
     const statsEl = document.getElementById('mp-data-char-stats');
     const searchInput = document.getElementById('mp-data-char-search');
@@ -355,7 +416,7 @@ function populateMpCharacteristics(allData) {
     if (!container) return;
 
     const ownChars = getCharacteristics();
-    const allProcessed = preprocessCharsData(allData, ownChars);
+    const allProcessed = preprocessCharsData(allData, ownChars, charMapping);
     let filteredData = [...allProcessed];
     let currentPage = 1;
     let pageSize = 25;
@@ -365,7 +426,7 @@ function populateMpCharacteristics(allData) {
     };
 
     const columns = [
-        col('external_id', 'ID', 'word-chip'),
+        col('external_id', 'ID', 'word-chip'),  
         col('_name', 'Назва', 'name'),
         col('type', 'Тип', 'code'),
         {
@@ -432,14 +493,14 @@ function populateMpCharacteristics(allData) {
     renderPage();
 }
 
-function preprocessCharsData(data, ownChars) {
+function preprocessCharsData(data, ownChars, charMapping) {
     return data.map(item => {
         const mapping = getCharacteristicMappingByMpId(item.id) || getCharacteristicMappingByMpId(item.external_id);
         const mappedId = mapping?.characteristic_id || '';
         const mappedChar = mappedId ? ownChars.find(c => c.id === mappedId) : null;
         return {
             ...item,
-            _name: extractMpName(item) || item.external_id || '-',
+            _name: extractMpName(item, charMapping) || item.external_id || '-',
             _mappedId: mappedId,
             _mappedLabel: mappedChar ? (mappedChar.name_ua || mappedChar.id) : ''
         };
@@ -450,7 +511,7 @@ function preprocessCharsData(data, ownChars) {
 // СЕКЦІЯ: ОПЦІЇ (таблиця)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function populateMpOptions(allData) {
+function populateMpOptions(allData, optMapping) {
     const container = document.getElementById('mp-data-opt-container');
     const statsEl = document.getElementById('mp-data-opt-stats');
     const searchInput = document.getElementById('mp-data-opt-search');
@@ -458,7 +519,7 @@ function populateMpOptions(allData) {
     if (!container) return;
 
     const ownOpts = getOptions();
-    const allProcessed = preprocessOptsData(allData, ownOpts);
+    const allProcessed = preprocessOptsData(allData, ownOpts, optMapping);
     let filteredData = [...allProcessed];
     let currentPage = 1;
     let pageSize = 25;
@@ -558,15 +619,19 @@ function populateMpOptions(allData) {
     renderPage();
 }
 
-function preprocessOptsData(data, ownOpts) {
+function preprocessOptsData(data, ownOpts, optMapping) {
     return data.map(item => {
         const mapping = getOptionMappingByMpId(item.id) || getOptionMappingByMpId(item.external_id);
         const mappedId = mapping?.option_id || '';
         const mappedOpt = mappedId ? ownOpts.find(o => o.id === mappedId) : null;
         return {
             ...item,
-            _name: extractMpName(item) || item.external_id || '-',
-            _charName: item.char_name || item.char_id || '-',
+            _name: extractMpName(item, optMapping) || item.external_id || '-',
+            _charName: resolveMpField(item, 'char_name', optMapping)
+                || item.char_name
+                || resolveMpField(item, 'char_id', optMapping)
+                || item.char_id
+                || '-',
             _mappedId: mappedId,
             _mappedLabel: mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : ''
         };
@@ -635,8 +700,40 @@ function initMappingTriggerDelegation(container, entityType) {
 // ДЕРЕВО MP КАТЕГОРІЙ
 // ═══════════════════════════════════════════════════════════════════════════
 
-function extractMpName(obj) {
+/**
+ * Отримати значення стандартного поля з MP об'єкта через column_mapping
+ * @param {object} obj - MP об'єкт
+ * @param {string} standardField - Стандартна назва поля (name, parent_id, type, char_id, char_name)
+ * @param {object} entityMapping - Маппінг для типу сутності (напр. cm.categories)
+ * @returns {string|undefined}
+ */
+function resolveMpField(obj, standardField, entityMapping) {
+    if (!obj || typeof obj !== 'object') return undefined;
+
+    // 1. Перевірити column_mapping
+    if (entityMapping && entityMapping[standardField]) {
+        const mpFieldName = entityMapping[standardField];
+        if (obj[mpFieldName] !== undefined && obj[mpFieldName] !== '') {
+            return obj[mpFieldName];
+        }
+    }
+
+    // 2. Fallback: стандартне ім'я напряму
+    if (obj[standardField] !== undefined && obj[standardField] !== '') {
+        return obj[standardField];
+    }
+
+    return undefined;
+}
+
+function extractMpName(obj, entityMapping) {
     if (!obj || typeof obj !== 'object') return '';
+
+    // 1. Перевірити column_mapping
+    const mapped = resolveMpField(obj, 'name', entityMapping);
+    if (mapped) return mapped;
+
+    // 2. Евристичний fallback
     if (obj.name_ua) return obj.name_ua;
     if (obj.nameUa) return obj.nameUa;
     if (obj.titleUk) return obj.titleUk;
@@ -664,7 +761,7 @@ function findCatMapping(mpCat) {
 /**
  * Рендерити дерево MP категорій
  */
-function renderMpCategoryTree(container, data) {
+function renderMpCategoryTree(container, data, catMapping) {
     const ownCategories = getCategories();
 
     // Побудувати дерево: parentJsonId → [children]
@@ -684,7 +781,8 @@ function renderMpCategoryTree(container, data) {
     });
 
     data.forEach(item => {
-        const rawParent = item.parentId ?? item.parent_id ?? '';
+        const rawParent = resolveMpField(item, 'parent_id', catMapping)
+            ?? item.parentId ?? item.parent_id ?? '';
         const parentId = rawParent === 0 || rawParent === '0' || rawParent === null ? '' : String(rawParent);
         const key = (parentId && dataSet.has(parentId)) ? parentId : 'root';
         if (!byParent.has(key)) byParent.set(key, []);
@@ -693,7 +791,7 @@ function renderMpCategoryTree(container, data) {
 
     // Сортувати кожен рівень по назві
     byParent.forEach(children => {
-        children.sort((a, b) => extractMpName(a).localeCompare(extractMpName(b), 'uk'));
+        children.sort((a, b) => extractMpName(a, catMapping).localeCompare(extractMpName(b, catMapping), 'uk'));
     });
 
     // Рекурсивний рендер — замість <select> рендеримо клікабельний trigger
@@ -705,7 +803,7 @@ function renderMpCategoryTree(container, data) {
             const jsonId = String(item._jsonId || item.external_id || '');
             const hasChildren = byParent.has(jsonId) && byParent.get(jsonId).length > 0;
             const isOpen = false;
-            const name = extractMpName(item) || item.external_id || '?';
+            const name = extractMpName(item, catMapping) || item.external_id || '?';
 
             // Знайти поточний маппінг
             const mapping = findCatMapping(item);
