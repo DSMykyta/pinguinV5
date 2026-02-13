@@ -47,6 +47,7 @@ import { renderTable as renderTableLego, col } from '../common/table/table-main.
 import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { listReferenceFiles, deleteReferenceFile } from '../utils/api-client.js';
+import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
 
@@ -455,6 +456,8 @@ async function populateMpReferences(slug) {
     const container = document.getElementById('mp-data-ref-container');
     const statsEl = document.getElementById('mp-data-ref-stats');
     const countEl = document.getElementById('mp-data-ref-count');
+    const searchInput = document.getElementById('mp-data-ref-search');
+    const paginationEl = document.getElementById('mp-data-ref-pagination');
     if (!container) return;
 
     container.innerHTML = renderAvatarState('loading', {
@@ -463,9 +466,9 @@ async function populateMpReferences(slug) {
         messageClass: 'avatar-state-message', showMessage: true
     });
 
-    let files = [];
+    let allFiles = [];
     try {
-        files = await listReferenceFiles(slug);
+        allFiles = await listReferenceFiles(slug);
     } catch (err) {
         console.error('Failed to load reference files:', err);
         container.innerHTML = renderAvatarState('error', {
@@ -476,67 +479,176 @@ async function populateMpReferences(slug) {
         return;
     }
 
-    if (statsEl) statsEl.textContent = `Файлів: ${files.length}`;
-    if (countEl) countEl.textContent = files.length;
+    if (countEl) countEl.textContent = allFiles.length;
 
-    if (files.length === 0) {
-        container.innerHTML = renderAvatarState('empty', {
-            message: 'Довідники відсутні', size: 'medium',
-            containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
-            messageClass: 'avatar-state-message', showMessage: true
-        });
-        return;
-    }
-
-    const rows = files.map(f => {
-        const sizeKb = f.size ? Math.round(Number(f.size) / 1024) : 0;
-        const sizeLabel = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
-        const date = f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : '';
-        return `
-            <div class="mp-item-card" data-file-id="${escapeHtml(f.fileId)}">
-                <div class="mp-item-header">
-                    <span class="mp-item-id">${escapeHtml(f.name)}</span>
-                    <div class="mp-item-actions">
-                        <a href="${escapeHtml(f.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
-                            <span class="material-symbols-outlined">download</span>
-                        </a>
-                        <button class="btn-icon ref-delete-btn" data-file-id="${escapeHtml(f.fileId)}" data-file-name="${escapeHtml(f.name)}" title="Видалити" aria-label="Видалити">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="mp-item-fields">
-                    <span class="small">${sizeLabel}</span>
-                    <span class="small">${date}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    container.innerHTML = `<div class="mp-items-list">${rows}</div>`;
-
-    // Обробники видалення
-    container.querySelectorAll('.ref-delete-btn').forEach(btn => {
-        btn.onclick = async () => {
-            const fileId = btn.dataset.fileId;
-            const fileName = btn.dataset.fileName;
-            const confirmed = await showConfirmModal({
-                title: 'Видалити довідник?',
-                message: `Видалити файл "${fileName}" з Google Drive?`,
-                confirmText: 'Видалити',
-                cancelText: 'Скасувати',
-                confirmClass: 'btn-delete'
-            });
-            if (!confirmed) return;
-            try {
-                await deleteReferenceFile(fileId);
-                showToast('Файл видалено', 'success');
-                await populateMpReferences(slug);
-            } catch (err) {
-                showToast('Помилка видалення файлу', 'error');
-            }
+    // Підготувати дані
+    const allData = allFiles.map(f => {
+        const sizeBytes = Number(f.size) || 0;
+        const sizeKb = Math.round(sizeBytes / 1024);
+        return {
+            ...f,
+            id: f.fileId,
+            _size: sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`,
+            _date: f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : ''
         };
     });
+
+    let filteredData = [...allData];
+    let currentPage = 1;
+    let pageSize = 25;
+
+    const updateStats = (shown, total) => {
+        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
+    };
+
+    // Колонки таблиці
+    const columns = [
+        col('name', 'Назва', 'name'),
+        col('_size', 'Розмір', 'code', { className: 'cell-s' }),
+        col('_date', 'Дата', 'text', { className: 'cell-s' }),
+        {
+            id: '_actions', label: ' ', sortable: false, className: 'cell-s',
+            render: (value, row) => `
+                <div class="mp-item-actions">
+                    <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
+                        <span class="material-symbols-outlined">download</span>
+                    </a>
+                    <button class="btn-icon ref-delete-btn" data-file-id="${escapeHtml(row.fileId)}" data-file-name="${escapeHtml(row.name)}" title="Видалити" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            `
+        }
+    ];
+
+    const BATCH_TAB = 'mp-references';
+
+    // Batch bar
+    const existingBar = getBatchBar(BATCH_TAB);
+    if (existingBar) existingBar.destroy();
+
+    const batchBar = createBatchActionsBar({
+        tabId: BATCH_TAB,
+        actions: [
+            {
+                label: 'Завантажити',
+                icon: 'download',
+                primary: true,
+                handler: (selectedIds) => {
+                    const selectedFiles = allData.filter(f => selectedIds.includes(f.id));
+                    selectedFiles.forEach(f => {
+                        window.open(f.downloadUrl, '_blank');
+                    });
+                    batchBar.deselectAll();
+                }
+            },
+            {
+                label: 'Видалити',
+                icon: 'delete',
+                handler: async (selectedIds) => {
+                    const confirmed = await showConfirmModal({
+                        title: 'Видалити довідники?',
+                        message: `Видалити ${selectedIds.length} файлів з Google Drive?`,
+                        confirmText: 'Видалити',
+                        cancelText: 'Скасувати',
+                        confirmClass: 'btn-delete'
+                    });
+                    if (!confirmed) return;
+                    try {
+                        for (const fId of selectedIds) {
+                            await deleteReferenceFile(fId);
+                        }
+                        showToast(`Видалено ${selectedIds.length} файлів`, 'success');
+                        batchBar.deselectAll();
+                        await populateMpReferences(slug);
+                    } catch (err) {
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
+    });
+
+    // Table LEGO
+    const tableAPI = renderTableLego(container, {
+        data: [],
+        columns,
+        withContainer: false,
+        getRowId: row => row.id,
+        emptyState: { message: 'Довідники відсутні' },
+        onAfterRender: (cont) => {
+            cont.querySelectorAll('.ref-delete-btn').forEach(btn => {
+                btn.onclick = async (e) => {
+                    e.stopPropagation();
+                    const fileId = btn.dataset.fileId;
+                    const fileName = btn.dataset.fileName;
+                    const confirmed = await showConfirmModal({
+                        title: 'Видалити довідник?',
+                        message: `Видалити файл "${fileName}" з Google Drive?`,
+                        confirmText: 'Видалити',
+                        cancelText: 'Скасувати',
+                        confirmClass: 'btn-delete'
+                    });
+                    if (!confirmed) return;
+                    try {
+                        await deleteReferenceFile(fileId);
+                        showToast('Файл видалено', 'success');
+                        await populateMpReferences(slug);
+                    } catch (err) {
+                        showToast('Помилка видалення файлу', 'error');
+                    }
+                };
+            });
+        },
+        plugins: {
+            sorting: {
+                dataSource: () => filteredData,
+                onSort: (sortedData) => {
+                    filteredData = sortedData;
+                    currentPage = 1;
+                    renderPage();
+                },
+                columnTypes: { name: 'string', _size: 'string', _date: 'string' }
+            },
+            checkboxes: {
+                batchBar: () => getBatchBar(BATCH_TAB)
+            }
+        }
+    });
+
+    const renderPage = () => {
+        const start = (currentPage - 1) * pageSize;
+        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
+        tableAPI.render(paginatedData);
+        updateStats(filteredData.length, allData.length);
+        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
+    };
+
+    const filterData = (query) => {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            filteredData = [...allData];
+        } else {
+            filteredData = allData.filter(row =>
+                row.name.toLowerCase().includes(q)
+            );
+        }
+        currentPage = 1;
+        renderPage();
+    };
+
+    const paginationAPI = paginationEl ? initPagination(paginationEl, {
+        currentPage, pageSize,
+        totalItems: filteredData.length,
+        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
+    }) : null;
+
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+    }
+
+    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
