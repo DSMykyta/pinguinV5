@@ -47,7 +47,7 @@ import { renderTable as renderTableLego, col } from '../common/table/table-main.
 import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
 import { createColumnSelector } from '../common/table/table-columns.js';
 import { initPagination } from '../common/ui-pagination.js';
-import { listReferenceFiles, deleteReferenceFile } from '../utils/api-client.js';
+import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
@@ -168,12 +168,12 @@ export async function showEditMarketplaceModal(id) {
     catch { columnMapping = {}; }
 
     // Заповнити кожну секцію незалежно
-    populateMpCategories(categories, columnMapping.categories);
+    populateMpCategories(categories, columnMapping.categories, marketplace.slug, id);
     populateMpCharacteristics(characteristics, columnMapping.characteristics);
     populateMpOptions(options, columnMapping.options);
 
     // Довідники (файли на Google Drive)
-    populateMpReferences(marketplace.slug);
+    populateMpReferences(marketplace.slug, id);
 
     // Refresh кнопки
     const refreshCatsBtn = document.getElementById('refresh-mp-data-cats');
@@ -185,7 +185,7 @@ export async function showEditMarketplaceModal(id) {
                 await loadMpCategories();
                 const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
                 if (catCount) catCount.textContent = freshCats.length;
-                populateMpCategories(freshCats, columnMapping.categories);
+                populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
             } finally { icon?.classList.remove('is-spinning'); }
         };
     }
@@ -224,7 +224,7 @@ export async function showEditMarketplaceModal(id) {
             const icon = refreshRefsBtn.querySelector('.material-symbols-outlined');
             icon?.classList.add('is-spinning');
             try {
-                await populateMpReferences(marketplace.slug);
+                await populateMpReferences(marketplace.slug, id);
             } finally { icon?.classList.remove('is-spinning'); }
         };
     }
@@ -453,7 +453,7 @@ function clearMarketplaceForm() {
 // СЕКЦІЯ: ДОВІДНИКИ (файли на Google Drive)
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function populateMpReferences(slug) {
+async function populateMpReferences(slug, marketplaceId) {
     const container = document.getElementById('mp-data-ref-container');
     const statsEl = document.getElementById('mp-data-ref-stats');
     const countEl = document.getElementById('mp-data-ref-count');
@@ -482,6 +482,18 @@ async function populateMpReferences(slug) {
 
     if (countEl) countEl.textContent = allFiles.length;
 
+    // Побудувати mapу fileId → назва категорії
+    const fileIdToCat = {};
+    if (marketplaceId) {
+        const mpCats = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
+        mpCats.forEach(cat => {
+            if (cat.file_id) {
+                const catName = cat.name || cat.name_ua || cat.external_id || '';
+                fileIdToCat[cat.file_id] = catName;
+            }
+        });
+    }
+
     // Підготувати дані
     const allData = allFiles.map(f => {
         const sizeBytes = Number(f.size) || 0;
@@ -490,7 +502,8 @@ async function populateMpReferences(slug) {
             ...f,
             id: f.fileId,
             _size: sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`,
-            _date: f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : ''
+            _date: f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : '',
+            _category: fileIdToCat[f.fileId] || ''
         };
     });
 
@@ -504,6 +517,7 @@ async function populateMpReferences(slug) {
 
     // Колонки таблиці
     const columns = [
+        col('_category', 'Категорія', 'text'),
         col('name', 'Назва', 'name'),
         col('_size', 'Розмір', 'code', { className: 'cell-s' }),
         col('_date', 'Дата', 'text', { className: 'cell-s' }),
@@ -561,7 +575,7 @@ async function populateMpReferences(slug) {
                         }
                         showToast(`Видалено ${selectedIds.length} файлів`, 'success');
                         batchBar.deselectAll();
-                        await populateMpReferences(slug);
+                        await populateMpReferences(slug, marketplaceId);
                     } catch (err) {
                         showToast('Помилка видалення', 'error');
                     }
@@ -594,7 +608,7 @@ async function populateMpReferences(slug) {
                     try {
                         await deleteReferenceFile(fileId);
                         showToast('Файл видалено', 'success');
-                        await populateMpReferences(slug);
+                        await populateMpReferences(slug, marketplaceId);
                     } catch (err) {
                         showToast('Помилка видалення файлу', 'error');
                     }
@@ -609,7 +623,7 @@ async function populateMpReferences(slug) {
                     currentPage = 1;
                     renderPage();
                 },
-                columnTypes: { name: 'string', _size: 'string', _date: 'string' }
+                columnTypes: { _category: 'string', name: 'string', _size: 'string', _date: 'string' }
             },
             checkboxes: {
                 batchBar: () => getBatchBar(BATCH_TAB)
@@ -648,8 +662,9 @@ async function populateMpReferences(slug) {
     }) : null;
 
     // Column visibility selector
-    const refVisibleColumns = ['name', '_size', '_date', '_actions'];
+    const refVisibleColumns = ['_category', 'name', '_size', '_date', '_actions'];
     const refColumnsForSelector = [
+        { id: '_category', label: 'Категорія', checked: true },
         { id: 'name', label: 'Назва', checked: true },
         { id: '_size', label: 'Розмір', checked: true },
         { id: '_date', label: 'Дата', checked: true }
@@ -664,7 +679,7 @@ async function populateMpReferences(slug) {
     });
 
     // Search columns selector
-    const refSearchColumns = ['name'];
+    const refSearchColumns = ['name', '_category'];
     createColumnSelector('mp-data-ref-search-columns', refColumnsForSelector, {
         checkboxPrefix: 'mp-ref-search',
         onChange: (selectedIds) => { refSearchColumns.length = 0; refSearchColumns.push(...selectedIds); }
@@ -682,7 +697,7 @@ async function populateMpReferences(slug) {
 // СЕКЦІЯ: КАТЕГОРІЇ (дерево)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function populateMpCategories(allData, catMapping) {
+function populateMpCategories(allData, catMapping, slug, marketplaceId) {
     const container = document.getElementById('mp-data-cat-container');
     const statsEl = document.getElementById('mp-data-cat-stats');
     const searchInput = document.getElementById('mp-data-cat-search');
@@ -702,7 +717,7 @@ function populateMpCategories(allData, catMapping) {
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
-            renderMpCategoryTree(container, filteredData, catMapping);
+            renderMpCategoryTree(container, filteredData, catMapping, slug, marketplaceId);
         }
         updateStats(filteredData.length, allData.length);
     };
@@ -1221,7 +1236,7 @@ function findCatMapping(mpCat) {
 /**
  * Рендерити дерево MP категорій
  */
-function renderMpCategoryTree(container, data, catMapping) {
+function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) {
     const ownCategories = getCategories();
 
     // Побудувати дерево: parentJsonId → [children]
@@ -1284,11 +1299,21 @@ function renderMpCategoryTree(container, data, catMapping) {
 
             const triggerClass = mappedCatId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
 
+            const fileId = item.file_id || '';
+            const downloadBtn = fileId
+                ? `<a href="https://drive.google.com/uc?export=download&id=${escapeHtml(fileId)}" target="_blank" class="btn-icon" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">download</span></a>`
+                : '';
+            const uploadBtn = `<button class="btn-icon cat-upload-btn" data-cat-id="${escapeHtml(item.id)}" data-cat-ext-id="${escapeHtml(item.external_id || '')}" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">upload</span></button>`;
+
             return `
                 <li data-id="${escapeHtml(item.id)}" class="${classes}">
                     <div class="tree-item-content">
                         ${toggleHtml}
                         <span class="tree-item-name">${escapeHtml(name)}</span>
+                        <div class="mp-item-actions">
+                            ${downloadBtn}
+                            ${uploadBtn}
+                        </div>
                         <div class="${triggerClass}"
                              data-mp-cat-id="${escapeHtml(item.id)}"
                              data-current-cat-id="${escapeHtml(mappedCatId)}">
@@ -1315,6 +1340,51 @@ function renderMpCategoryTree(container, data, catMapping) {
             if (li) li.classList.toggle('is-open');
         });
     });
+
+    // Upload button per category
+    if (slug) {
+        container.querySelectorAll('.cat-upload-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const catId = btn.dataset.catId;
+                const catExtId = btn.dataset.catExtId;
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.xlsx,.xls,.csv,.json,.txt,.pdf';
+                fileInput.onchange = async () => {
+                    const file = fileInput.files?.[0];
+                    if (!file) return;
+                    btn.disabled = true;
+                    const icon = btn.querySelector('.material-symbols-outlined');
+                    if (icon) icon.textContent = 'hourglass_empty';
+                    try {
+                        const result = await uploadReferenceFile(file, slug);
+                        if (result?.fileId && catId) {
+                            const mpCat = data.find(c => c.id === catId);
+                            if (mpCat?._rowIndex) {
+                                await callSheetsAPI('update', {
+                                    range: `Mapper_MP_Categories!H${mpCat._rowIndex}`,
+                                    values: [[result.fileId]],
+                                    spreadsheetType: 'main'
+                                });
+                                mpCat.file_id = result.fileId;
+                            }
+                        }
+                        showToast('Довідник завантажено', 'success');
+                        // Перемалювати дерево щоб показати іконку download
+                        renderMpCategoryTree(container, data, catMapping, slug, marketplaceId);
+                    } catch (err) {
+                        console.error('Upload failed:', err);
+                        showToast('Помилка завантаження файлу', 'error');
+                    } finally {
+                        btn.disabled = false;
+                        if (icon) icon.textContent = 'upload';
+                    }
+                };
+                fileInput.click();
+            });
+        });
+    }
 
     // Mapping trigger click → shared picker popup (cleanup попередній, щоб не накопичувались)
     if (container._mappingClickHandler) {
