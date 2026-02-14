@@ -55,9 +55,7 @@ import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select
 import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
-import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
-import { initPagination } from '../common/ui-pagination.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -464,45 +462,9 @@ function clearRelatedOptions() {
 }
 
 function populateRelatedOptions(characteristicId) {
-    const container = document.getElementById('char-related-options');
-    const statsEl = document.getElementById('char-options-stats');
-    const searchInput = document.getElementById('char-options-search');
-    const paginationEl = document.getElementById('char-options-pagination');
-    if (!container) return;
+    if (!document.getElementById('char-related-options')) return;
 
-    let allData = getOptions().filter(opt => opt.characteristic_id === characteristicId);
-    let filteredData = [...allData];
-    let currentPage = 1;
-    let pageSize = 25;
-
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    // Функція оновлення даних (для refresh, unlink, add)
-    const refreshData = () => {
-        allData = getOptions().filter(opt => opt.characteristic_id === characteristicId);
-        filteredData = [...allData];
-        currentPage = 1;
-        renderPage();
-    };
-
-    const columns = [
-        col('id', 'ID', 'word-chip'),
-        col('value_ua', 'Значення', 'name'),
-        col('value_ru', 'Назва (RU)', 'text'),
-        {
-            id: '_unlink',
-            label: ' ',
-            sortable: false,
-            className: 'cell-s',
-            render: (value, row) => actionButton({
-                action: 'unlink',
-                rowId: row.id,
-                data: { name: row.value_ua || row.id }
-            })
-        }
-    ];
+    const loadData = () => getOptions().filter(opt => opt.characteristic_id === characteristicId);
 
     registerActionHandlers('characteristic-options', {
         edit: async (rowId) => {
@@ -510,7 +472,8 @@ function populateRelatedOptions(characteristicId) {
             await showEditOptionModal(rowId);
         },
         unlink: async (rowId) => {
-            const option = allData.find(o => o.id === rowId);
+            const options = getOptions();
+            const option = options.find(o => o.id === rowId);
             const optionName = option?.value_ua || rowId;
 
             const confirmed = await showConfirmModal({
@@ -525,7 +488,7 @@ function populateRelatedOptions(characteristicId) {
                 try {
                     await updateOption(rowId, { characteristic_id: '' });
                     showToast('Опцію відв\'язано', 'success');
-                    refreshData();
+                    managed.setData(loadData());
                 } catch (error) {
                     console.error('❌ Помилка відв\'язування опції:', error);
                     showToast('Помилка відв\'язування опції', 'error');
@@ -534,97 +497,42 @@ function populateRelatedOptions(characteristicId) {
         }
     });
 
-    // Створюємо Table LEGO API один раз
     let charOptsCleanup = null;
-    const modalTableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        rowActions: (row) => actionButton({
-            action: 'edit',
-            rowId: row.id
-        }),
-        emptyState: { message: 'Опції відсутні' },
-        withContainer: false,
-        onAfterRender: (cont) => {
-            if (charOptsCleanup) charOptsCleanup();
-            charOptsCleanup = initActionHandlers(cont, 'characteristic-options');
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
-                },
-                columnTypes: {
-                    id: 'id-text',
-                    value_ua: 'string'
-                }
+
+    const managed = createManagedTable({
+        container: 'char-related-options',
+        columns: [
+            { ...col('id', 'ID', 'word-chip'), searchable: true },
+            { ...col('value_ua', 'Значення', 'name'), searchable: true },
+            { ...col('value_ru', 'Назва (RU)', 'text'), searchable: true, checked: true },
+            {
+                id: '_unlink', label: ' ', sortable: false, className: 'cell-s',
+                render: (value, row) => actionButton({
+                    action: 'unlink', rowId: row.id,
+                    data: { name: row.value_ua || row.id }
+                })
+            }
+        ],
+        data: loadData(),
+        columnsListId: 'char-options-columns-list',
+        searchColumnsId: 'char-options-search-columns',
+        searchInputId: 'char-options-search',
+        statsId: 'char-options-stats',
+        paginationId: 'char-options-pagination',
+        checkboxPrefix: 'char-opts',
+        tableConfig: {
+            rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
+            emptyState: { message: 'Опції відсутні' },
+            withContainer: false,
+            onAfterRender: (cont) => {
+                if (charOptsCleanup) charOptsCleanup();
+                charOptsCleanup = initActionHandlers(cont, 'characteristic-options');
+            },
+            plugins: {
+                sorting: { columnTypes: { id: 'id-text', value_ua: 'string' } }
             }
         }
     });
-
-    // ── Column visibility selector ──
-    const charOptsSearchColumns = ['id', 'value_ua'];
-    createColumnSelector('char-options-columns-list', [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'value_ua', label: 'Значення', checked: true },
-        { id: 'value_ru', label: 'Назва (RU)', checked: true }
-    ], {
-        checkboxPrefix: 'char-opts-col',
-        onChange: (selectedIds) => {
-            modalTableAPI.setVisibleColumns?.(selectedIds);
-            renderPage();
-        }
-    });
-
-    // ── Search columns selector ──
-    createColumnSelector('char-options-search-columns', [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'value_ua', label: 'Значення', checked: true },
-        { id: 'value_ru', label: 'Назва (RU)', checked: false }
-    ], {
-        checkboxPrefix: 'char-opts-search',
-        onChange: (selectedIds) => { charOptsSearchColumns.length = 0; charOptsSearchColumns.push(...selectedIds); }
-    });
-
-    // Функція рендерингу сторінки з пагінацією
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-        modalTableAPI.render(paginatedData);
-        updateStats(paginatedData.length, filteredData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
-    };
-
-    // Ініціалізація пагінації
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
-
-    const filterData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = [...allData];
-        } else {
-            filteredData = allData.filter(row =>
-                charOptsSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                })
-            );
-        }
-        currentPage = 1;
-        renderPage();
-    };
-
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterData(e.target.value));
-    }
 
     // Кнопка refresh
     const refreshBtn = document.getElementById('refresh-char-options');
@@ -632,22 +540,18 @@ function populateRelatedOptions(characteristicId) {
         refreshBtn.onclick = () => {
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
             icon?.classList.add('is-spinning');
-            if (searchInput) searchInput.value = '';
-            refreshData();
+            managed.setData(loadData());
             setTimeout(() => icon?.classList.remove('is-spinning'), 300);
         };
     }
 
-    // Кнопка "Додати опцію" — inline оверлей без закриття основної модалки
+    // Кнопка "Додати опцію"
     const addOptionBtn = document.getElementById('btn-add-char-option');
     if (addOptionBtn) {
         addOptionBtn.onclick = () => {
-            showAddOptionToCharacteristicModal(characteristicId, refreshData);
+            showAddOptionToCharacteristicModal(characteristicId, () => managed.setData(loadData()));
         };
     }
-
-    // Перший рендер
-    renderPage();
 }
 
 /**

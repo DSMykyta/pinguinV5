@@ -110,6 +110,30 @@
 }
 
 /* ============================================ */
+/* CHECKBOXES INSIDE DROPDOWNS                  */
+/* Override global checkbox.css pill/circle      */
+/* ============================================ */
+
+.dropdown-item input[type="checkbox"],
+.dropdown-body input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background-size: 14px 14px;
+}
+
+.dropdown-item input[type="checkbox"]:hover,
+.dropdown-body input[type="checkbox"]:hover {
+    border-radius: 4px;
+}
+
+.dropdown-item input[type="checkbox"]:checked,
+.dropdown-body input[type="checkbox"]:checked {
+    border-radius: 4px;
+    background-size: 14px 14px;
+}
+
+/* ============================================ */
 /* TABLE COLUMN FILTERS                         */
 /* ============================================ */
 

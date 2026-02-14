@@ -51,9 +51,7 @@ import {
     showMapToMpModal,
     buildCascadeDetails
 } from './mapper-utils.js';
-import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
-import { initPagination } from '../common/ui-pagination.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -466,11 +464,7 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
 }
 
 function populateRelatedCharacteristics(categoryId) {
-    const container = document.getElementById('category-related-chars');
-    const statsEl = document.getElementById('category-chars-stats');
-    const searchInput = document.getElementById('category-chars-search');
-    const paginationEl = document.getElementById('category-chars-pagination');
-    if (!container) return;
+    if (!document.getElementById('category-related-chars')) return;
 
     // Отримуємо дані
     const loadData = () => {
@@ -484,48 +478,9 @@ function populateRelatedCharacteristics(categoryId) {
         });
     };
 
-    let allData = loadData();
-    let filteredData = [...allData];
-    let currentPage = 1;
-    let pageSize = 25;
-
-    // Функція оновлення статистики
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    // Конфігурація колонок
     const allOptions = getOptions();
-    const columns = [
-        col('id', 'ID', 'word-chip'),
-        col('category_ids', 'Категорія', 'binding-chip'),
-        col('name_ua', 'Назва', 'name'),
-        col('type', 'Тип', 'code'),
-        {
-            id: '_optCount',
-            label: 'Опції',
-            sortable: true,
-            className: 'cell-xs cell-center',
-            render: (value, row) => {
-                const count = allOptions.filter(o => o.characteristic_id === row.id).length;
-                const cls = count === 0 ? 'chip' : 'chip chip-active';
-                return `<span class="${cls}">${count}</span>`;
-            }
-        },
-        {
-            id: '_unlink',
-            label: ' ',
-            sortable: false,
-            className: 'cell-s',
-            render: (value, row) => actionButton({
-                action: 'unlink',
-                rowId: row.id,
-                data: { name: row.name_ua || row.id }
-            })
-        }
-    ];
 
-    // Реєструємо обробники дій для цього контексту
+    // Реєструємо обробники дій
     registerActionHandlers('category-characteristics', {
         edit: async (rowId) => {
             const { showEditCharacteristicModal } = await import('./mapper-characteristics.js');
@@ -536,79 +491,52 @@ function populateRelatedCharacteristics(categoryId) {
         }
     });
 
-    // Створюємо Table LEGO API один раз
     let catCharsCleanup = null;
-    const modalTableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        rowActions: (row) => actionButton({
-            action: 'edit',
-            rowId: row.id
-        }),
-        emptyState: { message: 'Характеристики відсутні' },
-        withContainer: false,
-        onAfterRender: (cont) => {
-            if (catCharsCleanup) catCharsCleanup();
-            catCharsCleanup = initActionHandlers(cont, 'category-characteristics');
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
-                },
-                columnTypes: {
-                    id: 'id-text',
-                    name_ua: 'string'
+
+    const managed = createManagedTable({
+        container: 'category-related-chars',
+        columns: [
+            { ...col('id', 'ID', 'word-chip'), searchable: true },
+            { ...col('category_ids', 'Категорія', 'binding-chip'), searchable: true, searchChecked: false },
+            { ...col('name_ua', 'Назва', 'name'), searchable: true },
+            { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
+            {
+                id: '_optCount', label: 'Опції', sortable: true,
+                className: 'cell-xs cell-center',
+                render: (value, row) => {
+                    const count = allOptions.filter(o => o.characteristic_id === row.id).length;
+                    const cls = count === 0 ? 'chip' : 'chip chip-active';
+                    return `<span class="${cls}">${count}</span>`;
                 }
+            },
+            {
+                id: '_unlink', label: ' ', sortable: false, className: 'cell-s',
+                render: (value, row) => actionButton({
+                    action: 'unlink', rowId: row.id,
+                    data: { name: row.name_ua || row.id }
+                })
+            }
+        ],
+        data: loadData(),
+        columnsListId: 'category-chars-columns-list',
+        searchColumnsId: 'category-chars-search-columns',
+        searchInputId: 'category-chars-search',
+        statsId: 'category-chars-stats',
+        paginationId: 'category-chars-pagination',
+        checkboxPrefix: 'cat-chars',
+        tableConfig: {
+            rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
+            emptyState: { message: 'Характеристики відсутні' },
+            withContainer: false,
+            onAfterRender: (cont) => {
+                if (catCharsCleanup) catCharsCleanup();
+                catCharsCleanup = initActionHandlers(cont, 'category-characteristics');
+            },
+            plugins: {
+                sorting: { columnTypes: { id: 'id-text', name_ua: 'string' } }
             }
         }
     });
-
-    // ── Column visibility selector ──
-    const catCharsSearchColumns = ['id', 'name_ua'];
-    createColumnSelector('category-chars-columns-list', [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'category_ids', label: 'Категорія', checked: true },
-        { id: 'name_ua', label: 'Назва', checked: true },
-        { id: 'type', label: 'Тип', checked: true },
-        { id: '_optCount', label: 'Опції', checked: true }
-    ], {
-        checkboxPrefix: 'cat-chars-col',
-        onChange: (selectedIds) => {
-            modalTableAPI.setVisibleColumns?.(selectedIds);
-            renderPage();
-        }
-    });
-
-    // ── Search columns selector ──
-    createColumnSelector('category-chars-search-columns', [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name_ua', label: 'Назва', checked: true },
-        { id: 'type', label: 'Тип', checked: false },
-        { id: 'category_ids', label: 'Категорія', checked: false }
-    ], {
-        checkboxPrefix: 'cat-chars-search',
-        onChange: (selectedIds) => { catCharsSearchColumns.length = 0; catCharsSearchColumns.push(...selectedIds); }
-    });
-
-    // Функція рендерингу сторінки з пагінацією
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-        modalTableAPI.render(paginatedData);
-        updateStats(paginatedData.length, filteredData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
-    };
-
-    // Ініціалізація пагінації
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
 
     // Обробник відв'язування
     const handleUnlinkCharacteristic = async (charId, charName, catId) => {
@@ -633,16 +561,9 @@ function populateRelatedCharacteristics(categoryId) {
                     : [];
                 const newIds = currentIds.filter(id => id !== catId);
 
-                await updateCharacteristic(charId, {
-                    category_ids: newIds.join(',')
-                });
-
+                await updateCharacteristic(charId, { category_ids: newIds.join(',') });
                 showToast('Характеристику відв\'язано', 'success');
-
-                allData = loadData();
-                filteredData = [...allData];
-                currentPage = 1;
-                renderPage();
+                managed.setData(loadData());
             } catch (error) {
                 console.error('❌ Помилка відв\'язування:', error);
                 showToast('Помилка відв\'язування характеристики', 'error');
@@ -650,59 +571,26 @@ function populateRelatedCharacteristics(categoryId) {
         }
     };
 
-    // Функція пошуку
-    const filterData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = [...allData];
-        } else {
-            filteredData = allData.filter(row =>
-                catCharsSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                })
-            );
-        }
-        currentPage = 1;
-        renderPage();
-    };
-
-    // Підключаємо пошук
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterData(e.target.value));
-    }
-
     // Кнопка refresh
     const refreshBtn = document.getElementById('refresh-category-chars');
     if (refreshBtn) {
         refreshBtn.onclick = () => {
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
             icon?.classList.add('is-spinning');
-            allData = loadData();
-            filteredData = [...allData];
-            if (searchInput) searchInput.value = '';
-            currentPage = 1;
-            renderPage();
+            managed.setData(loadData());
             setTimeout(() => icon?.classList.remove('is-spinning'), 300);
         };
     }
 
-    // Кнопка "Додати" - прив'язати характеристику до категорії
+    // Кнопка "Додати"
     const addBtn = document.getElementById('btn-add-category-char');
     if (addBtn) {
         addBtn.addEventListener('click', async () => {
             await showAddCharacteristicToCategoryModal(categoryId, () => {
-                allData = loadData();
-                filteredData = [...allData];
-                currentPage = 1;
-                renderPage();
+                managed.setData(loadData());
             });
         });
     }
-
-    // Перший рендер
-    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

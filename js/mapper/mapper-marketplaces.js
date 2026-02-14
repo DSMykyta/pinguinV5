@@ -46,10 +46,8 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
-import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
-import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import { createColumnSelector } from '../common/table/table-columns.js';
-import { initPagination } from '../common/ui-pagination.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
@@ -481,10 +479,6 @@ async function clearCategoryFileIds(fileIds, marketplaceId) {
 
 async function populateMpReferences(slug, marketplaceId) {
     const container = document.getElementById('mp-data-ref-container');
-    const statsEl = document.getElementById('mp-data-ref-stats');
-    const countEl = document.getElementById('mp-data-ref-count');
-    const searchInput = document.getElementById('mp-data-ref-search');
-    const paginationEl = document.getElementById('mp-data-ref-pagination');
     if (!container) return;
 
     container.innerHTML = renderAvatarState('loading', {
@@ -506,6 +500,7 @@ async function populateMpReferences(slug, marketplaceId) {
         return;
     }
 
+    const countEl = document.getElementById('mp-data-ref-count');
     if (countEl) countEl.textContent = allFiles.length;
 
     // Побудувати mapу fileId → назва категорії
@@ -514,8 +509,7 @@ async function populateMpReferences(slug, marketplaceId) {
         const mpCats = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
         mpCats.forEach(cat => {
             if (cat.file_id) {
-                const catName = cat.name || cat.name_ua || cat.external_id || '';
-                fileIdToCat[cat.file_id] = catName;
+                fileIdToCat[cat.file_id] = cat.name || cat.name_ua || cat.external_id || '';
             }
         });
     }
@@ -533,38 +527,8 @@ async function populateMpReferences(slug, marketplaceId) {
         };
     });
 
-    let filteredData = [...allData];
-    let currentPage = 1;
-    let pageSize = 25;
-
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    // Колонки таблиці
-    const columns = [
-        col('_category', 'Категорія', 'text'),
-        col('name', 'Назва', 'name'),
-        col('_size', 'Розмір', 'code', { className: 'cell-s' }),
-        col('_date', 'Дата', 'text', { className: 'cell-s' }),
-        {
-            id: '_actions', label: ' ', sortable: false, className: 'cell-s',
-            render: (value, row) => `
-                <div class="mp-item-actions">
-                    <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
-                        <span class="material-symbols-outlined">download</span>
-                    </a>
-                    <button class="btn-icon ref-delete-btn" data-file-id="${escapeHtml(row.fileId)}" data-file-name="${escapeHtml(row.name)}" title="Видалити" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            `
-        }
-    ];
-
-    const BATCH_TAB = 'mp-references';
-
     // Batch bar
+    const BATCH_TAB = 'mp-references';
     const existingBar = getBatchBar(BATCH_TAB);
     if (existingBar) existingBar.destroy();
 
@@ -572,33 +536,23 @@ async function populateMpReferences(slug, marketplaceId) {
         tabId: BATCH_TAB,
         actions: [
             {
-                label: 'Завантажити',
-                icon: 'download',
-                primary: true,
+                label: 'Завантажити', icon: 'download', primary: true,
                 handler: (selectedIds) => {
-                    const selectedFiles = allData.filter(f => selectedIds.includes(f.id));
-                    selectedFiles.forEach(f => {
-                        window.open(f.downloadUrl, '_blank');
-                    });
+                    allData.filter(f => selectedIds.includes(f.id)).forEach(f => window.open(f.downloadUrl, '_blank'));
                     batchBar.deselectAll();
                 }
             },
             {
-                label: 'Видалити',
-                icon: 'delete',
+                label: 'Видалити', icon: 'delete',
                 handler: async (selectedIds) => {
                     const confirmed = await showConfirmModal({
                         title: 'Видалити довідники?',
                         message: `Видалити ${selectedIds.length} файлів з Google Drive?`,
-                        confirmText: 'Видалити',
-                        cancelText: 'Скасувати',
-                        confirmClass: 'btn-delete'
+                        confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'btn-delete'
                     });
                     if (!confirmed) return;
                     try {
-                        for (const fId of selectedIds) {
-                            await deleteReferenceFile(fId);
-                        }
+                        for (const fId of selectedIds) await deleteReferenceFile(fId);
                         await clearCategoryFileIds(selectedIds, marketplaceId);
                         showToast(`Видалено ${selectedIds.length} файлів`, 'success');
                         batchBar.deselectAll();
@@ -611,114 +565,67 @@ async function populateMpReferences(slug, marketplaceId) {
         ]
     });
 
-    // Table LEGO
-    const tableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        withContainer: false,
-        getRowId: row => row.id,
-        emptyState: { message: 'Довідники відсутні' },
-        onAfterRender: (cont) => {
-            cont.querySelectorAll('.ref-delete-btn').forEach(btn => {
-                btn.onclick = async (e) => {
-                    e.stopPropagation();
-                    const fileId = btn.dataset.fileId;
-                    const fileName = btn.dataset.fileName;
-                    const confirmed = await showConfirmModal({
-                        title: 'Видалити довідник?',
-                        message: `Видалити файл "${fileName}" з Google Drive?`,
-                        confirmText: 'Видалити',
-                        cancelText: 'Скасувати',
-                        confirmClass: 'btn-delete'
-                    });
-                    if (!confirmed) return;
-                    try {
-                        await deleteReferenceFile(fileId);
-                        await clearCategoryFileIds([fileId], marketplaceId);
-                        showToast('Файл видалено', 'success');
-                        await populateMpReferences(slug, marketplaceId);
-                    } catch (err) {
-                        showToast('Помилка видалення файлу', 'error');
-                    }
-                };
-            });
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
-                },
-                columnTypes: { _category: 'string', name: 'string', _size: 'string', _date: 'string' }
+    createManagedTable({
+        container: 'mp-data-ref-container',
+        columns: [
+            { ...col('_category', 'Категорія', 'text'), searchable: true },
+            { ...col('name', 'Назва', 'name'), searchable: true },
+            { ...col('_size', 'Розмір', 'code', { className: 'cell-s' }), searchable: true },
+            { ...col('_date', 'Дата', 'text', { className: 'cell-s' }), searchable: true },
+            {
+                id: '_actions', label: ' ', sortable: false, className: 'cell-s',
+                render: (value, row) => `
+                    <div class="mp-item-actions">
+                        <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
+                            <span class="material-symbols-outlined">download</span>
+                        </a>
+                        <button class="btn-icon ref-delete-btn" data-file-id="${escapeHtml(row.fileId)}" data-file-name="${escapeHtml(row.name)}" title="Видалити" aria-label="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
+                `
+            }
+        ],
+        data: allData,
+        columnsListId: 'mp-data-ref-columns-list',
+        searchColumnsId: 'mp-data-ref-search-columns',
+        searchInputId: 'mp-data-ref-search',
+        statsId: 'mp-data-ref-stats',
+        paginationId: 'mp-data-ref-pagination',
+        checkboxPrefix: 'mp-ref',
+        tableConfig: {
+            withContainer: false,
+            getRowId: row => row.id,
+            emptyState: { message: 'Довідники відсутні' },
+            onAfterRender: (cont) => {
+                cont.querySelectorAll('.ref-delete-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        e.stopPropagation();
+                        const fileId = btn.dataset.fileId;
+                        const fileName = btn.dataset.fileName;
+                        const confirmed = await showConfirmModal({
+                            title: 'Видалити довідник?',
+                            message: `Видалити файл "${fileName}" з Google Drive?`,
+                            confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'btn-delete'
+                        });
+                        if (!confirmed) return;
+                        try {
+                            await deleteReferenceFile(fileId);
+                            await clearCategoryFileIds([fileId], marketplaceId);
+                            showToast('Файл видалено', 'success');
+                            await populateMpReferences(slug, marketplaceId);
+                        } catch (err) {
+                            showToast('Помилка видалення файлу', 'error');
+                        }
+                    };
+                });
             },
-            checkboxes: {
-                batchBar: () => getBatchBar(BATCH_TAB)
+            plugins: {
+                sorting: { columnTypes: { _category: 'string', name: 'string', _size: 'string', _date: 'string' } },
+                checkboxes: { batchBar: () => getBatchBar(BATCH_TAB) }
             }
         }
     });
-
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-        tableAPI.render(paginatedData);
-        updateStats(paginatedData.length, filteredData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
-    };
-
-    const filterData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = [...allData];
-        } else {
-            filteredData = allData.filter(row =>
-                refSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                })
-            );
-        }
-        currentPage = 1;
-        renderPage();
-    };
-
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
-
-    // Column visibility selector
-    const refVisibleColumns = ['_category', 'name', '_size', '_date', '_actions'];
-    const refColumnsForSelector = [
-        { id: '_category', label: 'Категорія', checked: true },
-        { id: 'name', label: 'Назва', checked: true },
-        { id: '_size', label: 'Розмір', checked: true },
-        { id: '_date', label: 'Дата', checked: true }
-    ];
-    createColumnSelector('mp-data-ref-columns-list', refColumnsForSelector, {
-        checkboxPrefix: 'mp-ref-col',
-        onChange: (selectedIds) => {
-            const visible = [...selectedIds, '_actions'];
-            tableAPI.setVisibleColumns?.(visible);
-            renderPage();
-        }
-    });
-
-    // Search columns selector
-    const refSearchColumns = ['name', '_category'];
-    createColumnSelector('mp-data-ref-search-columns', refColumnsForSelector, {
-        checkboxPrefix: 'mp-ref-search',
-        onChange: (selectedIds) => { refSearchColumns.length = 0; refSearchColumns.push(...selectedIds); }
-    });
-
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterData(e.target.value));
-    }
-
-    renderPage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -789,149 +696,58 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function populateMpCharacteristics(allData, charMapping) {
-    const container = document.getElementById('mp-data-char-container');
-    const statsEl = document.getElementById('mp-data-char-stats');
-    const searchInput = document.getElementById('mp-data-char-search');
-    const paginationEl = document.getElementById('mp-data-char-pagination');
-    if (!container) return;
+    if (!document.getElementById('mp-data-char-container')) return;
 
     const ownChars = getCharacteristics();
     const allProcessed = preprocessCharsData(allData, ownChars, charMapping);
-    let filteredData = [...allProcessed];
-    let columnFilters = {};
-    let currentPage = 1;
-    let pageSize = 25;
 
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    const filterColumnsConfig = [
-        { id: 'category_name', label: 'Категорія', filterType: 'contains' },
-        { id: 'type', label: 'Тип', filterType: 'values' }
-    ];
-
-    const columns = [
-        col('external_id', 'ID', 'word-chip'),
-        {
-            id: 'category_name', label: 'Категорія',
-            className: 'cell-xs cell-center', sortable: false, filterable: true,
-            render: (value) => {
-                const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
-                const count = names.length;
-                const tooltip = names.join('\n') || "Не прив'язано до категорій";
-                const cls = count === 0 ? 'chip' : 'chip chip-active';
-                return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
-            }
-        },
-        col('_name', 'Назва', 'name'),
-        col('type', 'Тип', 'code', { filterable: true }),
-        {
-            id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
-            render: (value, row) => {
-                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
-                return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
-            }
-        }
-    ];
-
-    // Search columns selector
-    const charSearchColumns = ['external_id', '_name'];
-    createColumnSelector('mp-data-char-search-columns', [
-        { id: 'external_id', label: 'ID', checked: true },
-        { id: '_name', label: 'Назва', checked: true },
-        { id: 'category_name', label: 'Категорія', checked: false },
-        { id: 'type', label: 'Тип', checked: false }
-    ], {
-        checkboxPrefix: 'mp-char-search',
-        onChange: (selectedIds) => { charSearchColumns.length = 0; charSearchColumns.push(...selectedIds); }
-    });
-
-    // Column visibility selector
-    createColumnSelector('mp-data-char-columns-list', [
-        { id: 'external_id', label: 'ID', checked: true },
-        { id: 'category_name', label: 'Категорія', checked: true },
-        { id: '_name', label: 'Назва', checked: true },
-        { id: 'type', label: 'Тип', checked: true },
-        { id: '_mapping', label: 'Наша характ.', checked: true }
-    ], {
-        checkboxPrefix: 'mp-char-col',
-        onChange: (selectedIds) => {
-            tableAPI.setVisibleColumns?.(selectedIds);
-            renderPage();
-        }
-    });
-
-    const getFilteredData = () => {
-        let data = [...allProcessed];
-        if (Object.keys(columnFilters).length > 0) {
-            data = applyColumnFilters(data, columnFilters, filterColumnsConfig);
-        }
-        const q = searchInput?.value?.toLowerCase().trim() || '';
-        if (q) {
-            data = data.filter(row =>
-                charSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                })
-            );
-        }
-        return data;
-    };
-
-    const tableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        withContainer: false,
-        getRowId: row => row.id,
-        onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'characteristic'),
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
-                },
-                columnTypes: { external_id: 'string', _name: 'string', type: 'string' }
+    createManagedTable({
+        container: 'mp-data-char-container',
+        columns: [
+            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            {
+                id: 'category_name', label: 'Категорія', searchable: true, checked: true,
+                className: 'cell-xs cell-center', sortable: false, filterable: true,
+                render: (value) => {
+                    const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
+                    const count = names.length;
+                    const tooltip = names.join('\n') || "Не прив'язано до категорій";
+                    const cls = count === 0 ? 'chip' : 'chip chip-active';
+                    return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
+                }
             },
-            filters: {
-                dataSource: () => allProcessed,
-                filterColumns: filterColumnsConfig,
-                onFilter: (filters) => {
-                    columnFilters = filters;
-                    filteredData = getFilteredData();
-                    currentPage = 1;
-                    renderPage();
+            { ...col('_name', 'Назва', 'name'), searchable: true },
+            { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true, checked: true },
+            {
+                id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
+                render: (value, row) => {
+                    const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                    return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+                }
+            }
+        ],
+        data: allProcessed,
+        columnsListId: 'mp-data-char-columns-list',
+        searchColumnsId: 'mp-data-char-search-columns',
+        searchInputId: 'mp-data-char-search',
+        statsId: 'mp-data-char-stats',
+        paginationId: 'mp-data-char-pagination',
+        checkboxPrefix: 'mp-char',
+        tableConfig: {
+            withContainer: false,
+            getRowId: row => row.id,
+            onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'characteristic'),
+            plugins: {
+                sorting: { columnTypes: { external_id: 'string', _name: 'string', type: 'string' } },
+                filters: {
+                    filterColumns: [
+                        { id: 'category_name', label: 'Категорія', filterType: 'contains' },
+                        { id: 'type', label: 'Тип', filterType: 'values' }
+                    ]
                 }
             }
         }
     });
-
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-        tableAPI.render(paginatedData);
-        updateStats(paginatedData.length, filteredData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
-    };
-
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
-
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', () => {
-            filteredData = getFilteredData();
-            currentPage = 1;
-            renderPage();
-        });
-    }
-
-    renderPage();
 }
 
 function preprocessCharsData(data, ownChars, charMapping) {
@@ -953,137 +769,46 @@ function preprocessCharsData(data, ownChars, charMapping) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function populateMpOptions(allData, optMapping) {
-    const container = document.getElementById('mp-data-opt-container');
-    const statsEl = document.getElementById('mp-data-opt-stats');
-    const searchInput = document.getElementById('mp-data-opt-search');
-    const paginationEl = document.getElementById('mp-data-opt-pagination');
-    if (!container) return;
+    if (!document.getElementById('mp-data-opt-container')) return;
 
     const ownOpts = getOptions();
     const allProcessed = preprocessOptsData(allData, ownOpts, optMapping);
-    let filteredData = [...allProcessed];
-    let currentPage = 1;
-    let pageSize = 25;
 
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    const columns = [
-        col('external_id', 'ID', 'word-chip'),
-        col('_name', 'Назва', 'name'),
-        col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }),
-        {
-            id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
-            render: (value, row) => {
-                const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
-                return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+    createManagedTable({
+        container: 'mp-data-opt-container',
+        columns: [
+            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            { ...col('_name', 'Назва', 'name'), searchable: true },
+            { ...col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }), searchable: true },
+            {
+                id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
+                render: (value, row) => {
+                    const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                    return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+                }
             }
-        }
-    ];
-
-    const tableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        withContainer: false,
-        getRowId: row => row.id,
-        onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'option'),
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
-                },
-                columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' }
-            },
-            filters: {
-                dataSource: () => allProcessed,
-                filterColumns: [
-                    { id: '_charName', label: 'Характеристика', filterType: 'values' }
-                ],
-                onFilter: (filters) => {
-                    columnFilters = filters;
-                    currentPage = 1;
-                    applyAllFilters();
+        ],
+        data: allProcessed,
+        columnsListId: 'mp-data-opt-columns-list',
+        searchColumnsId: 'mp-data-opt-search-columns',
+        searchInputId: 'mp-data-opt-search',
+        statsId: 'mp-data-opt-stats',
+        paginationId: 'mp-data-opt-pagination',
+        checkboxPrefix: 'mp-opt',
+        tableConfig: {
+            withContainer: false,
+            getRowId: row => row.id,
+            onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'option'),
+            plugins: {
+                sorting: { columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' } },
+                filters: {
+                    filterColumns: [
+                        { id: '_charName', label: 'Характеристика', filterType: 'values' }
+                    ]
                 }
             }
         }
     });
-
-    let columnFilters = {};
-    let searchQuery = '';
-
-    // Search columns selector
-    const optSearchColumns = ['external_id', '_name', '_charName'];
-    createColumnSelector('mp-data-opt-search-columns', [
-        { id: 'external_id', label: 'ID', checked: true },
-        { id: '_name', label: 'Назва', checked: true },
-        { id: '_charName', label: 'Характеристика', checked: true }
-    ], {
-        checkboxPrefix: 'mp-opt-search',
-        onChange: (selectedIds) => { optSearchColumns.length = 0; optSearchColumns.push(...selectedIds); }
-    });
-
-    // Column visibility selector
-    createColumnSelector('mp-data-opt-columns-list', [
-        { id: 'external_id', label: 'ID', checked: true },
-        { id: '_name', label: 'Назва', checked: true },
-        { id: '_charName', label: 'Характеристика', checked: true },
-        { id: '_mapping', label: 'Наша опція', checked: true }
-    ], {
-        checkboxPrefix: 'mp-opt-col',
-        onChange: (selectedIds) => {
-            tableAPI.setVisibleColumns?.(selectedIds);
-            renderPage();
-        }
-    });
-
-    const applyAllFilters = () => {
-        let result = [...allProcessed];
-
-        // Текстовий пошук
-        if (searchQuery) {
-            result = result.filter(row =>
-                optSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(searchQuery);
-                })
-            );
-        }
-
-        // Колонкові фільтри
-        result = applyColumnFilters(result, columnFilters, [{ id: '_charName', filterType: 'values' }]);
-
-        filteredData = result;
-        renderPage();
-    };
-
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-        tableAPI.render(paginatedData);
-        updateStats(paginatedData.length, filteredData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
-    };
-
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
-
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase().trim();
-            currentPage = 1;
-            applyAllFilters();
-        });
-    }
-
-    renderPage();
 }
 
 function preprocessOptsData(data, ownOpts, optMapping) {
