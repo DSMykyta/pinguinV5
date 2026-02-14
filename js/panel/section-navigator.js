@@ -1,60 +1,119 @@
 // js/layout/ui-section-navigator.js
 
 /**
- * Ініціалізує логіку для нового фіксованого навігатора секцій.
- * - Додає плавну прокрутку по кліку.
- * - Додає "Scroll Spy" для підсвічування активної іконки.
+ * Ініціалізує логіку для навігатора секцій.
+ * - Плавна прокрутка по кліку.
+ * - Scroll Spy для підсвічування активної іконки.
+ * - Плавна прокрутка колесом миші між секціями.
  */
 export function initSectionNavigator() {
     const navigator = document.getElementById('section-navigator');
     if (!navigator) return;
 
-    // 1. Плавна прокрутка по кліку
+    const contentMain = document.getElementById('content-main');
+    const sections = [...document.querySelectorAll('main > section[id]')];
+    const navIcons = navigator.querySelectorAll('.nav-icon');
+
+    if (sections.length === 0 || !contentMain) return;
+
+    let isAnimating = false;
+
+    // Скидаємо блокування коли скрол завершився
+    contentMain.addEventListener('scrollend', () => {
+        isAnimating = false;
+    });
+
+    function getCurrentSectionIndex() {
+        const scrollTop = contentMain.scrollTop;
+        let closest = 0;
+        let closestDist = Infinity;
+        for (let i = 0; i < sections.length; i++) {
+            const dist = Math.abs(sections[i].offsetTop - scrollTop);
+            if (dist < closestDist) {
+                closestDist = dist;
+                closest = i;
+            }
+        }
+        return closest;
+    }
+
+    function scrollToSection(index) {
+        if (index < 0 || index >= sections.length) return;
+        isAnimating = true;
+        contentMain.scrollTo({
+            top: sections[index].offsetTop,
+            behavior: 'smooth'
+        });
+        // Fallback якщо scrollend не підтримується
+        setTimeout(() => { isAnimating = false; }, 1000);
+    }
+
+    // --- 1. Плавна прокрутка по кліку ---
     navigator.addEventListener('click', (e) => {
         const navIcon = e.target.closest('.nav-icon');
-        // Перевіряємо, чи це дійсно клік по посиланню з хешем
         if (!navIcon || !navIcon.hash) return;
-        
-        e.preventDefault(); // Забороняємо стандартний "стрибок"
-        const targetId = navIcon.hash;
-        const targetElement = document.querySelector(targetId);
-        
+
+        e.preventDefault();
+        const targetElement = document.querySelector(navIcon.hash);
+
         if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            const index = sections.indexOf(targetElement);
+            scrollToSection(index !== -1 ? index : 0);
         }
     });
 
-    // 2. Scroll Spy (підсвічування активної секції)
-    const sections = document.querySelectorAll('main > section[id]');
-    const navIcons = navigator.querySelectorAll('.nav-icon');
-
-    if (sections.length === 0) return;
-
+    // --- 2. Scroll Spy ---
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const sectionId = entry.target.id;
             const correspondingIcon = navigator.querySelector(`.nav-icon[href="#${sectionId}"]`);
-            
-            // Якщо секція входить в центральну зону перегляду
+
             if (entry.isIntersecting) {
-                // Видаляємо .is-active з усіх іконок
                 navIcons.forEach(icon => icon.classList.remove('is-active'));
-                // Додаємо .is-active до потрібної
                 if (correspondingIcon) {
                     correspondingIcon.classList.add('is-active');
                 }
             }
         });
     }, {
-        root: document.getElementById('content-main'), // Скрол відбувається всередині #content-main
-        rootMargin: '-50% 0px -50% 0px', // Активується, коли секція досягає центру екрану
-        threshold: 0 // Спрацьовує як тільки секція торкнеться цієї зони
+        root: contentMain,
+        rootMargin: '-50% 0px -50% 0px',
+        threshold: 0
     });
 
-    // Починаємо спостереження за всіма секціями
     sections.forEach(section => observer.observe(section));
 
+    // --- 3. Плавна прокрутка колесом миші ---
+    contentMain.addEventListener('wheel', (e) => {
+        if (isAnimating) {
+            e.preventDefault();
+            return;
+        }
+
+        // Якщо курсор всередині секції з внутрішнім скролом — дозволяємо скрол секції
+        const section = e.target.closest('section');
+        if (section) {
+            const canScroll = section.scrollHeight > section.clientHeight + 1;
+            if (canScroll) {
+                const atTop = section.scrollTop <= 0;
+                const atBottom = section.scrollTop + section.clientHeight >= section.scrollHeight - 2;
+
+                if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
+                    return; // Секція ще може скролитись — не перехоплюємо
+                }
+            }
+        }
+
+        // Секція на межі або не має скролу — переходимо до іншої секції
+        e.preventDefault();
+
+        const current = getCurrentSectionIndex();
+        const next = e.deltaY > 0
+            ? Math.min(current + 1, sections.length - 1)
+            : Math.max(current - 1, 0);
+
+        if (next !== current) {
+            scrollToSection(next);
+        }
+    }, { passive: false });
 }
