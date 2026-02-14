@@ -109,6 +109,13 @@
     left: auto;
 }
 
+/* Зменшити checkbox в dropdown (без зміни border-radius) */
+.dropdown-item input[type="checkbox"],
+.dropdown-body input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    background-size: 14px 14px;
+}
 
 /* ============================================ */
 /* TABLE COLUMN FILTERS                         */
