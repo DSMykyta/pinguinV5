@@ -27,6 +27,7 @@
  */
 
 import { initTabs } from './ui-tabs.js';
+import { initDropdowns } from './ui-dropdown.js';
 
 // Кеш завантажених шаблонів
 const modalTemplateCache = new Map();
@@ -109,6 +110,9 @@ export async function showModal(modalId, triggerElement = null) {
         if (modalBody) {
             initTabs(modalBody);
         }
+
+        // Ініціалізація дропдаунів (якщо є)
+        initDropdowns();
 
         // Диспатч події відкриття
         dispatchModalEvent('modal-opened', modalId, triggerElement, modalElement);

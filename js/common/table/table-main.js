@@ -55,6 +55,7 @@ export { CheckboxesPlugin } from './table-checkboxes.js';
 export { renderBadge, renderSeverityBadge, updateTableCounter } from './table-badges.js';
 export { createColumnSelector, setupTableColumnsSelector, setupSearchColumnsSelector } from './table-columns.js';
 export { col, COLUMN_TYPES } from './table-column-types.js';
+export { createManagedTable } from './table-managed.js';
 
 // Import for internal use
 import { createTableState } from './table-state.js';

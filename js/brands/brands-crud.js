@@ -24,8 +24,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { renderTable as renderTableLego } from '../common/table/table-main.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
+import { createManagedTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../utils/api-client.js';
@@ -256,171 +255,98 @@ function initBrandLinesHandler() {
  */
 function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
-    const statsEl = document.getElementById('brand-lines-stats');
-    const searchInput = document.getElementById('brand-lines-search');
     if (!container) return;
 
-    // Дані для таблиці
     const allData = getBrandLinesByBrandId(brandId) || [];
-    let filteredData = [...allData];
 
-    // Функція оновлення статистики
-    const updateStats = (shown, total) => {
-        if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
-    };
-
-    // Конфігурація колонок
-    const columns = [
-        {
-            id: 'line_id',
-            label: 'ID',
-            sortable: true,
-            className: 'cell-m',
-            render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
-        },
-        {
-            id: 'name_uk',
-            label: 'Назва',
-            sortable: true,
-            className: 'cell-l',
-            render: (value, row) => escapeHtml(value || row.line_id || '-')
-        },
-        {
-            id: '_unlink',
-            label: '',
-            sortable: false,
-            className: 'cell-xs',
-            render: (value, row) => `
-                <button class="btn-icon" data-row-id="${escapeHtml(row.line_id)}" data-action="unlink" data-tooltip="Відв'язати від бренду">
-                    <span class="material-symbols-outlined">link_off</span>
+    const managed = createManagedTable({
+        container: 'brand-lines-container',
+        columns: [
+            {
+                id: 'line_id', label: 'ID', sortable: true, searchable: true, checked: true,
+                className: 'cell-m',
+                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+            },
+            {
+                id: 'name_uk', label: 'Назва', sortable: true, searchable: true, checked: true,
+                className: 'cell-l',
+                render: (value, row) => escapeHtml(value || row.line_id || '-')
+            },
+            {
+                id: '_unlink', label: '', sortable: false, searchable: false, checked: true,
+                className: 'cell-xs',
+                render: (value, row) => `
+                    <button class="btn-icon" data-row-id="${escapeHtml(row.line_id)}" data-action="unlink" data-tooltip="Відв'язати від бренду">
+                        <span class="material-symbols-outlined">link_off</span>
+                    </button>
+                `
+            }
+        ],
+        data: allData,
+        columnsListId: 'brand-lines-columns-list',
+        searchColumnsId: 'brand-lines-search-columns',
+        searchInputId: 'brand-lines-search',
+        statsId: 'brand-lines-stats',
+        checkboxPrefix: 'brand-lines',
+        pageSize: null,
+        tableConfig: {
+            rowActionsHeader: ' ',
+            rowActions: (row) => `
+                <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
+                    <span class="material-symbols-outlined">edit</span>
                 </button>
-            `
-        }
-    ];
-
-    // Створюємо Table LEGO API один раз
-    const modalTableAPI = renderTableLego(container, {
-        data: [],
-        columns,
-        rowActionsHeader: ' ',
-        rowActions: (row) => `
-            <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
-                <span class="material-symbols-outlined">edit</span>
-            </button>
-        `,
-        emptyState: { message: 'Лінійки відсутні' },
-        withContainer: false,
-        onAfterRender: (cont) => {
-            // Обробники для редагування
-            cont.querySelectorAll('[data-action="edit"]').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const lineId = btn.dataset.rowId;
-                    if (lineId) {
-                        const { showEditLineModal } = await import('./lines-crud.js');
-                        await showEditLineModal(lineId);
-                    }
-                });
-            });
-
-            // Обробники для відв'язування
-            cont.querySelectorAll('[data-action="unlink"]').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const lineId = btn.dataset.rowId;
-                    if (!lineId) return;
-
-                    const line = filteredData.find(l => l.line_id === lineId);
-                    const lineName = line?.name_uk || lineId;
-
-                    const confirmed = await showConfirmModal({
-                        title: 'Відв\'язати лінійку?',
-                        message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
-                        confirmText: 'Відв\'язати',
-                        cancelText: 'Скасувати',
-                        confirmClass: 'btn-warning'
-                    });
-
-                    if (confirmed) {
-                        try {
-                            await updateBrandLine(lineId, { brand_id: '' });
-                            showToast('Лінійку відв\'язано від бренду', 'success');
-                            populateBrandLines(brandId);
-                        } catch (error) {
-                            console.error('❌ Помилка відв\'язування лінійки:', error);
-                            showToast('Помилка відв\'язування лінійки', 'error');
+            `,
+            emptyState: { message: 'Лінійки відсутні' },
+            withContainer: false,
+            onAfterRender: (cont) => {
+                cont.querySelectorAll('[data-action="edit"]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const lineId = btn.dataset.rowId;
+                        if (lineId) {
+                            const { showEditLineModal } = await import('./lines-crud.js');
+                            await showEditLineModal(lineId);
                         }
-                    }
+                    });
                 });
-            });
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => filteredData,
-                onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    renderTable(filteredData);
-                },
-                columnTypes: {
-                    line_id: 'id-text',
-                    name_uk: 'string'
+
+                cont.querySelectorAll('[data-action="unlink"]').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const lineId = btn.dataset.rowId;
+                        if (!lineId) return;
+
+                        const line = managed.getFilteredData().find(l => l.line_id === lineId);
+                        const lineName = line?.name_uk || lineId;
+
+                        const confirmed = await showConfirmModal({
+                            title: 'Відв\'язати лінійку?',
+                            message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
+                            confirmText: 'Відв\'язати',
+                            cancelText: 'Скасувати',
+                            confirmClass: 'btn-warning'
+                        });
+
+                        if (confirmed) {
+                            try {
+                                await updateBrandLine(lineId, { brand_id: '' });
+                                showToast('Лінійку відв\'язано від бренду', 'success');
+                                populateBrandLines(brandId);
+                            } catch (error) {
+                                console.error('❌ Помилка відв\'язування лінійки:', error);
+                                showToast('Помилка відв\'язування лінійки', 'error');
+                            }
+                        }
+                    });
+                });
+            },
+            plugins: {
+                sorting: {
+                    columnTypes: { line_id: 'id-text', name_uk: 'string' }
                 }
             }
         }
     });
-
-    // ── Column visibility selector ──
-    const brandLinesSearchColumns = ['line_id', 'name_uk'];
-    createColumnSelector('brand-lines-columns-list', [
-        { id: 'line_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: 'Назва', checked: true }
-    ], {
-        checkboxPrefix: 'brand-lines-col',
-        onChange: (selectedIds) => {
-            modalTableAPI.setVisibleColumns?.(selectedIds);
-            renderTable(filteredData);
-        }
-    });
-
-    // ── Search columns selector ──
-    createColumnSelector('brand-lines-search-columns', [
-        { id: 'line_id', label: 'ID', checked: true },
-        { id: 'name_uk', label: 'Назва', checked: true }
-    ], {
-        checkboxPrefix: 'brand-lines-search',
-        onChange: (selectedIds) => { brandLinesSearchColumns.length = 0; brandLinesSearchColumns.push(...selectedIds); }
-    });
-
-    // Функція рендерингу таблиці
-    const renderTable = (data) => {
-        modalTableAPI.render(data);
-        updateStats(data.length, allData.length);
-    };
-
-    // Функція пошуку
-    const filterData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = [...allData];
-        } else {
-            filteredData = allData.filter(row =>
-                brandLinesSearchColumns.some(colId => {
-                    const val = row[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                })
-            );
-        }
-        renderTable(filteredData);
-    };
-
-    // Підключаємо пошук
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterData(e.target.value));
-    }
-
-    // Перший рендер (сортування через Table LEGO плагін)
-    renderTable(filteredData);
 }
 
 /**
