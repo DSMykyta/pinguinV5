@@ -52,6 +52,7 @@ import {
     buildCascadeDetails
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { initPagination } from '../common/ui-pagination.js';
 import {
     registerActionHandlers,
@@ -566,6 +567,33 @@ function populateRelatedCharacteristics(categoryId) {
         }
     });
 
+    // ── Column visibility selector ──
+    const catCharsSearchColumns = ['id', 'name_ua'];
+    createColumnSelector('category-chars-columns-list', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'category_ids', label: 'Категорія', checked: true },
+        { id: 'name_ua', label: 'Назва', checked: true },
+        { id: 'type', label: 'Тип', checked: true },
+        { id: '_optCount', label: 'Опції', checked: true }
+    ], {
+        checkboxPrefix: 'cat-chars-col',
+        onChange: (selectedIds) => {
+            modalTableAPI.setVisibleColumns?.(selectedIds);
+            renderPage();
+        }
+    });
+
+    // ── Search columns selector ──
+    createColumnSelector('category-chars-search-columns', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'name_ua', label: 'Назва', checked: true },
+        { id: 'type', label: 'Тип', checked: false },
+        { id: 'category_ids', label: 'Категорія', checked: false }
+    ], {
+        checkboxPrefix: 'cat-chars-search',
+        onChange: (selectedIds) => { catCharsSearchColumns.length = 0; catCharsSearchColumns.push(...selectedIds); }
+    });
+
     // Функція рендерингу сторінки з пагінацією
     const renderPage = () => {
         const start = (currentPage - 1) * pageSize;
@@ -629,8 +657,10 @@ function populateRelatedCharacteristics(categoryId) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(row =>
-                (row.id && row.id.toLowerCase().includes(q)) ||
-                (row.name_ua && row.name_ua.toLowerCase().includes(q))
+                catCharsSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         currentPage = 1;

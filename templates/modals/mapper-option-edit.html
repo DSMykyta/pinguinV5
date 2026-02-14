@@ -128,13 +128,29 @@
                             <span class="small" id="option-chars-stats">Показано 0 з 0</span>
                         </div>
                         <div class="tab-controls">
+                            <div class="dropdown-wrapper">
+                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
+                                    <span class="material-symbols-outlined">view_column</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Показати колонки</div>
+                                    <div id="option-chars-columns-list" class="dropdown-body"></div>
+                                </div>
+                            </div>
                             <button class="btn-icon" id="refresh-option-children" aria-label="Оновити">
                                 <span class="material-symbols-outlined">refresh</span>
                             </button>
-                            <div class="search-container">
+                            <div class="search-container dropdown-wrapper">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="option-chars-search"
                                     placeholder="Пошук опцій...">
+                                <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+                                    <span class="material-symbols-outlined">filter_list</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Колонки для пошуку</div>
+                                    <div id="option-chars-search-columns" class="dropdown-body"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

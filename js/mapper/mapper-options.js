@@ -52,6 +52,7 @@ import {
     buildCascadeDetails
 } from './mapper-utils.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { initPagination } from '../common/ui-pagination.js';
 import {
     registerActionHandlers,
@@ -525,6 +526,30 @@ function populateRelatedChildOptions(optionId) {
         }
     });
 
+    // ── Column visibility selector ──
+    const optCharsSearchColumns = ['id', 'value_ua'];
+    createColumnSelector('option-chars-columns-list', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'value_ua', label: 'Значення', checked: true },
+        { id: 'value_ru', label: 'Назва (RU)', checked: true }
+    ], {
+        checkboxPrefix: 'opt-chars-col',
+        onChange: (selectedIds) => {
+            modalTableAPI.setVisibleColumns?.(selectedIds);
+            renderPage();
+        }
+    });
+
+    // ── Search columns selector ──
+    createColumnSelector('option-chars-search-columns', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'value_ua', label: 'Значення', checked: true },
+        { id: 'value_ru', label: 'Назва (RU)', checked: false }
+    ], {
+        checkboxPrefix: 'opt-chars-search',
+        onChange: (selectedIds) => { optCharsSearchColumns.length = 0; optCharsSearchColumns.push(...selectedIds); }
+    });
+
     // Функція рендерингу сторінки з пагінацією
     const renderPage = () => {
         const start = (currentPage - 1) * pageSize;
@@ -548,8 +573,10 @@ function populateRelatedChildOptions(optionId) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(row =>
-                (row.id && row.id.toLowerCase().includes(q)) ||
-                (row.value_ua && row.value_ua.toLowerCase().includes(q))
+                optCharsSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         currentPage = 1;

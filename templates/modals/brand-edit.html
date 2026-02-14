@@ -173,13 +173,29 @@
                             <span class="small" id="brand-lines-stats">Показано 0 з 0</span>
                         </div>
                         <div class="tab-controls">
+                            <div class="dropdown-wrapper">
+                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
+                                    <span class="material-symbols-outlined">view_column</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Показати колонки</div>
+                                    <div id="brand-lines-columns-list" class="dropdown-body"></div>
+                                </div>
+                            </div>
                             <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
                                 <span class="material-symbols-outlined">refresh</span>
                             </button>
-                            <div class="search-container">
+                            <div class="search-container dropdown-wrapper">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="brand-lines-search"
                                     placeholder="Пошук лінійок...">
+                                <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+                                    <span class="material-symbols-outlined">filter_list</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Колонки для пошуку</div>
+                                    <div id="brand-lines-search-columns" class="dropdown-body"></div>
+                                </div>
                             </div>
                             <button class="btn-outline" id="btn-add-brand-line">
                                 <span class="material-symbols-outlined">add</span>

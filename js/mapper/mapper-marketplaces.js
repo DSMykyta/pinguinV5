@@ -45,6 +45,7 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
 import { filterData as applyColumnFilters } from '../common/table/table-filters.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { listReferenceFiles, deleteReferenceFile } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
@@ -630,7 +631,10 @@ async function populateMpReferences(slug) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(row =>
-                row.name.toLowerCase().includes(q)
+                refSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         currentPage = 1;
@@ -642,6 +646,29 @@ async function populateMpReferences(slug) {
         totalItems: filteredData.length,
         onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
     }) : null;
+
+    // Column visibility selector
+    const refVisibleColumns = ['name', '_size', '_date', '_actions'];
+    const refColumnsForSelector = [
+        { id: 'name', label: 'Назва', checked: true },
+        { id: '_size', label: 'Розмір', checked: true },
+        { id: '_date', label: 'Дата', checked: true }
+    ];
+    createColumnSelector('mp-data-ref-columns-list', refColumnsForSelector, {
+        checkboxPrefix: 'mp-ref-col',
+        onChange: (selectedIds) => {
+            const visible = [...selectedIds, '_actions'];
+            tableAPI.setVisibleColumns?.(visible);
+            renderPage();
+        }
+    });
+
+    // Search columns selector
+    const refSearchColumns = ['name'];
+    createColumnSelector('mp-data-ref-search-columns', refColumnsForSelector, {
+        checkboxPrefix: 'mp-ref-search',
+        onChange: (selectedIds) => { refSearchColumns.length = 0; refSearchColumns.push(...selectedIds); }
+    });
 
     if (searchInput) {
         searchInput.value = '';
@@ -680,15 +707,27 @@ function populateMpCategories(allData, catMapping) {
         updateStats(filteredData.length, allData.length);
     };
 
+    // Search columns selector for categories
+    const catSearchColumns = ['name', 'external_id'];
+    createColumnSelector('mp-data-cat-search-columns', [
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'external_id', label: 'ID', checked: true }
+    ], {
+        checkboxPrefix: 'mp-cat-search',
+        onChange: (selectedIds) => { catSearchColumns.length = 0; catSearchColumns.push(...selectedIds); }
+    });
+
     const filterData = (query) => {
         const q = query.toLowerCase().trim();
         if (!q) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(item => {
-                const name = extractMpName(item, catMapping).toLowerCase();
-                const extId = (item.external_id || '').toLowerCase();
-                return name.includes(q) || extId.includes(q);
+                return catSearchColumns.some(colId => {
+                    if (colId === 'name') return extractMpName(item, catMapping).toLowerCase().includes(q);
+                    const val = item[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                });
             });
         }
         render();
@@ -753,6 +792,33 @@ function populateMpCharacteristics(allData, charMapping) {
         }
     ];
 
+    // Search columns selector
+    const charSearchColumns = ['external_id', '_name'];
+    createColumnSelector('mp-data-char-search-columns', [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: '_name', label: 'Назва', checked: true },
+        { id: 'category_name', label: 'Категорія', checked: false },
+        { id: 'type', label: 'Тип', checked: false }
+    ], {
+        checkboxPrefix: 'mp-char-search',
+        onChange: (selectedIds) => { charSearchColumns.length = 0; charSearchColumns.push(...selectedIds); }
+    });
+
+    // Column visibility selector
+    createColumnSelector('mp-data-char-columns-list', [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: 'category_name', label: 'Категорія', checked: true },
+        { id: '_name', label: 'Назва', checked: true },
+        { id: 'type', label: 'Тип', checked: true },
+        { id: '_mapping', label: 'Наша характ.', checked: true }
+    ], {
+        checkboxPrefix: 'mp-char-col',
+        onChange: (selectedIds) => {
+            tableAPI.setVisibleColumns?.(selectedIds);
+            renderPage();
+        }
+    });
+
     const getFilteredData = () => {
         let data = [...allProcessed];
         if (Object.keys(columnFilters).length > 0) {
@@ -761,8 +827,10 @@ function populateMpCharacteristics(allData, charMapping) {
         const q = searchInput?.value?.toLowerCase().trim() || '';
         if (q) {
             data = data.filter(row =>
-                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
-                (row._name && row._name.toLowerCase().includes(q))
+                charSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         return data;
@@ -904,15 +972,41 @@ function populateMpOptions(allData, optMapping) {
     let columnFilters = {};
     let searchQuery = '';
 
+    // Search columns selector
+    const optSearchColumns = ['external_id', '_name', '_charName'];
+    createColumnSelector('mp-data-opt-search-columns', [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: '_name', label: 'Назва', checked: true },
+        { id: '_charName', label: 'Характеристика', checked: true }
+    ], {
+        checkboxPrefix: 'mp-opt-search',
+        onChange: (selectedIds) => { optSearchColumns.length = 0; optSearchColumns.push(...selectedIds); }
+    });
+
+    // Column visibility selector
+    createColumnSelector('mp-data-opt-columns-list', [
+        { id: 'external_id', label: 'ID', checked: true },
+        { id: '_name', label: 'Назва', checked: true },
+        { id: '_charName', label: 'Характеристика', checked: true },
+        { id: '_mapping', label: 'Наша опція', checked: true }
+    ], {
+        checkboxPrefix: 'mp-opt-col',
+        onChange: (selectedIds) => {
+            tableAPI.setVisibleColumns?.(selectedIds);
+            renderPage();
+        }
+    });
+
     const applyAllFilters = () => {
         let result = [...allProcessed];
 
         // Текстовий пошук
         if (searchQuery) {
             result = result.filter(row =>
-                (row.external_id && row.external_id.toLowerCase().includes(searchQuery)) ||
-                (row._name && row._name.toLowerCase().includes(searchQuery)) ||
-                (row._charName && row._charName.toLowerCase().includes(searchQuery))
+                optSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(searchQuery);
+                })
             );
         }
 

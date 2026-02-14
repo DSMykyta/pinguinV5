@@ -108,12 +108,28 @@
                             <span class="small" id="category-chars-stats">Прив'язано 0</span>
                         </div>
                         <div class="tab-controls">
+                            <div class="dropdown-wrapper">
+                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
+                                    <span class="material-symbols-outlined">view_column</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Показати колонки</div>
+                                    <div id="category-chars-columns-list" class="dropdown-body"></div>
+                                </div>
+                            </div>
                             <button class="btn-icon" id="refresh-category-chars" aria-label="Оновити">
                                 <span class="material-symbols-outlined">refresh</span>
                             </button>
-                            <div class="search-container">
+                            <div class="search-container dropdown-wrapper">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="category-chars-search" placeholder="Пошук характеристик...">
+                                <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+                                    <span class="material-symbols-outlined">filter_list</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Колонки для пошуку</div>
+                                    <div id="category-chars-search-columns" class="dropdown-body"></div>
+                                </div>
                             </div>
                             <button class="btn-outline" id="btn-add-category-char">
                                 <span class="material-symbols-outlined">add</span>

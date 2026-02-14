@@ -56,6 +56,7 @@ import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { renderTable as renderTableLego, col } from '../common/table/table-main.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { initPagination } from '../common/ui-pagination.js';
 import {
     initSectionNavigation,
@@ -564,6 +565,30 @@ function populateRelatedOptions(characteristicId) {
         }
     });
 
+    // ── Column visibility selector ──
+    const charOptsSearchColumns = ['id', 'value_ua'];
+    createColumnSelector('char-options-columns-list', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'value_ua', label: 'Значення', checked: true },
+        { id: 'value_ru', label: 'Назва (RU)', checked: true }
+    ], {
+        checkboxPrefix: 'char-opts-col',
+        onChange: (selectedIds) => {
+            modalTableAPI.setVisibleColumns?.(selectedIds);
+            renderPage();
+        }
+    });
+
+    // ── Search columns selector ──
+    createColumnSelector('char-options-search-columns', [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'value_ua', label: 'Значення', checked: true },
+        { id: 'value_ru', label: 'Назва (RU)', checked: false }
+    ], {
+        checkboxPrefix: 'char-opts-search',
+        onChange: (selectedIds) => { charOptsSearchColumns.length = 0; charOptsSearchColumns.push(...selectedIds); }
+    });
+
     // Функція рендерингу сторінки з пагінацією
     const renderPage = () => {
         const start = (currentPage - 1) * pageSize;
@@ -586,8 +611,10 @@ function populateRelatedOptions(characteristicId) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(row =>
-                (row.id && row.id.toLowerCase().includes(q)) ||
-                (row.value_ua && row.value_ua.toLowerCase().includes(q))
+                charOptsSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         currentPage = 1;

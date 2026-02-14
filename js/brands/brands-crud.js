@@ -24,6 +24,7 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { renderTable as renderTableLego } from '../common/table/table-main.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../utils/api-client.js';
@@ -367,6 +368,28 @@ function populateBrandLines(brandId) {
         }
     });
 
+    // ── Column visibility selector ──
+    const brandLinesSearchColumns = ['line_id', 'name_uk'];
+    createColumnSelector('brand-lines-columns-list', [
+        { id: 'line_id', label: 'ID', checked: true },
+        { id: 'name_uk', label: 'Назва', checked: true }
+    ], {
+        checkboxPrefix: 'brand-lines-col',
+        onChange: (selectedIds) => {
+            modalTableAPI.setVisibleColumns?.(selectedIds);
+            renderTable(filteredData);
+        }
+    });
+
+    // ── Search columns selector ──
+    createColumnSelector('brand-lines-search-columns', [
+        { id: 'line_id', label: 'ID', checked: true },
+        { id: 'name_uk', label: 'Назва', checked: true }
+    ], {
+        checkboxPrefix: 'brand-lines-search',
+        onChange: (selectedIds) => { brandLinesSearchColumns.length = 0; brandLinesSearchColumns.push(...selectedIds); }
+    });
+
     // Функція рендерингу таблиці
     const renderTable = (data) => {
         modalTableAPI.render(data);
@@ -380,8 +403,10 @@ function populateBrandLines(brandId) {
             filteredData = [...allData];
         } else {
             filteredData = allData.filter(row =>
-                (row.line_id && row.line_id.toLowerCase().includes(q)) ||
-                (row.name_uk && row.name_uk.toLowerCase().includes(q))
+                brandLinesSearchColumns.some(colId => {
+                    const val = row[colId];
+                    return val && String(val).toLowerCase().includes(q);
+                })
             );
         }
         renderTable(filteredData);
