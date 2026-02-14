@@ -638,23 +638,21 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
     const searchInput = document.getElementById('mp-data-cat-search');
     if (!container) return;
 
-    let filteredData = [...allData];
-
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
     const render = () => {
-        if (filteredData.length === 0) {
+        if (allData.length === 0) {
             container.innerHTML = renderAvatarState('empty', {
                 message: 'Категорії відсутні', size: 'medium',
                 containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
-            renderMpCategoryTree(container, filteredData, catMapping, slug, marketplaceId);
+            renderMpCategoryTree(container, [...allData], catMapping, slug, marketplaceId);
         }
-        updateStats(filteredData.length, allData.length);
+        updateStats(allData.length, allData.length);
     };
 
     // Search columns selector for categories
@@ -667,26 +665,74 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
         onChange: (selectedIds) => { catSearchColumns.length = 0; catSearchColumns.push(...selectedIds); }
     });
 
-    const filterData = (query) => {
+    // DOM-based пошук з авторозгортанням батьків
+    const applySearch = (query) => {
         const q = query.toLowerCase().trim();
+        const tree = container.querySelector('.tree');
+        if (!tree) return;
+
+        const allLi = tree.querySelectorAll('li');
+
         if (!q) {
-            filteredData = [...allData];
-        } else {
-            filteredData = allData.filter(item => {
-                return catSearchColumns.some(colId => {
-                    if (colId === 'name') return extractMpName(item, catMapping).toLowerCase().includes(q);
-                    const val = item[colId];
-                    return val && String(val).toLowerCase().includes(q);
-                });
+            allLi.forEach(li => {
+                li.style.display = '';
+                li.classList.remove('is-open');
             });
+            updateStats(allData.length, allData.length);
+            return;
         }
-        render();
+
+        // Сховати все
+        allLi.forEach(li => {
+            li.style.display = 'none';
+            li.classList.remove('is-open');
+        });
+
+        // Знайти співпадіння
+        let matchCount = 0;
+        allLi.forEach(li => {
+            const nameEl = li.querySelector(':scope > .tree-item-content > .tree-item-name');
+            if (!nameEl) return;
+
+            let matches = false;
+            if (catSearchColumns.includes('name')) {
+                matches = nameEl.textContent.toLowerCase().includes(q);
+            }
+            if (!matches && catSearchColumns.includes('external_id')) {
+                const extId = li.dataset.extId || li.dataset.id || '';
+                matches = extId.toLowerCase().includes(q);
+            }
+
+            if (matches) {
+                matchCount++;
+                li.style.display = '';
+                // Показати і розгорнути всіх батьків
+                let parent = li.parentElement?.closest('li');
+                while (parent) {
+                    parent.style.display = '';
+                    parent.classList.add('is-open');
+                    parent = parent.parentElement?.closest('li');
+                }
+            }
+        });
+
+        updateStats(matchCount, allData.length);
     };
 
     if (searchInput) {
         searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterData(e.target.value));
+        searchInput.oninput = (e) => applySearch(e.target.value);
     }
+
+    // Expand/Collapse all
+    const expandBtn = document.getElementById('mp-tree-expand-all');
+    const collapseBtn = document.getElementById('mp-tree-collapse-all');
+    if (expandBtn) expandBtn.onclick = () => {
+        container.querySelectorAll('li.has-children').forEach(li => li.classList.add('is-open'));
+    };
+    if (collapseBtn) collapseBtn.onclick = () => {
+        container.querySelectorAll('li.has-children').forEach(li => li.classList.remove('is-open'));
+    };
 
     render();
 }
@@ -1137,7 +1183,29 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
         children.sort((a, b) => extractMpName(a, catMapping).localeCompare(extractMpName(b, catMapping), 'uk'));
     });
 
-    // Рекурсивний рендер — замість <select> рендеримо клікабельний trigger
+    // Статистика нащадків (з мемоізацією)
+    const statsCache = new Map();
+    function countDescendantStats(parentKey) {
+        if (statsCache.has(parentKey)) return statsCache.get(parentKey);
+        const children = byParent.get(parentKey);
+        if (!children) { statsCache.set(parentKey, { total: 0, mapped: 0 }); return { total: 0, mapped: 0 }; }
+        let total = 0, mapped = 0;
+        children.forEach(child => {
+            const childId = String(child._jsonId || child.external_id || '');
+            if (!child._synthetic) {
+                total++;
+                if (findCatMapping(child)) mapped++;
+            }
+            const sub = countDescendantStats(childId);
+            total += sub.total;
+            mapped += sub.mapped;
+        });
+        const result = { total, mapped };
+        statsCache.set(parentKey, result);
+        return result;
+    }
+
+    // Рекурсивний рендер
     function buildTree(parentKey, level) {
         const children = byParent.get(parentKey);
         if (!children || children.length === 0) return '';
@@ -1145,48 +1213,41 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
         const items = children.map(item => {
             const jsonId = String(item._jsonId || item.external_id || '');
             const hasChildren = byParent.has(jsonId) && byParent.get(jsonId).length > 0;
-            const isOpen = false;
             const isSynthetic = item._synthetic;
             const name = extractMpName(item, catMapping) || item.external_id || '?';
 
-            // Синтетичні батьки — тільки назва і toggle, без маппінгу/кнопок
-            if (isSynthetic) {
-                const toggleHtml = hasChildren
-                    ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
-                    : `<span class="leaf-placeholder"></span>`;
-                const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
-                const classes = [
-                    hasChildren ? 'has-children' : ''
-                ].filter(Boolean).join(' ');
+            const toggleHtml = hasChildren
+                ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
+                : `<span class="leaf-placeholder"></span>`;
+            const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
+            const classes = hasChildren ? 'has-children' : '';
 
+            // Badge для вузлів з дітьми: "mapped/total"
+            let badgeHtml = '';
+            if (hasChildren) {
+                const stats = countDescendantStats(jsonId);
+                badgeHtml = `<span class="tree-node-count">${stats.mapped}/${stats.total}</span>`;
+            }
+
+            // Синтетичні батьки — тільки назва, toggle і badges
+            if (isSynthetic) {
                 return `
                     <li data-id="${escapeHtml(jsonId)}" class="${classes}">
                         <div class="tree-item-content">
                             ${toggleHtml}
                             <span class="tree-item-name synthetic-parent">${escapeHtml(name)}</span>
+                            ${badgeHtml}
                         </div>
                         ${childrenHtml}
                     </li>
                 `;
             }
 
-            // Знайти поточний маппінг
+            // Реальні категорії — маппінг + кнопки
             const mapping = findCatMapping(item);
             const mappedCatId = mapping?.category_id || '';
             const mappedCat = mappedCatId ? ownCategories.find(c => c.id === mappedCatId) : null;
             const mappedLabel = mappedCat ? (mappedCat.name_ua || mappedCat.id) : '';
-
-            const toggleHtml = hasChildren
-                ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
-                : `<span class="leaf-placeholder"></span>`;
-
-            const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
-
-            const classes = [
-                hasChildren ? 'has-children' : '',
-                isOpen ? 'is-open' : ''
-            ].filter(Boolean).join(' ');
-
             const triggerClass = mappedCatId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
 
             const fileId = item.file_id || '';
@@ -1196,10 +1257,11 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             const uploadBtn = `<button class="btn-icon cat-upload-btn" data-cat-id="${escapeHtml(item.id)}" data-cat-ext-id="${escapeHtml(item.external_id || '')}" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">upload</span></button>`;
 
             return `
-                <li data-id="${escapeHtml(item.id)}" class="${classes}">
+                <li data-id="${escapeHtml(item.id)}" data-ext-id="${escapeHtml(item.external_id || '')}" class="${classes}">
                     <div class="tree-item-content">
                         ${toggleHtml}
                         <span class="tree-item-name">${escapeHtml(name)}</span>
+                        ${badgeHtml}
                         <div class="mp-item-actions">
                             ${downloadBtn}
                             ${uploadBtn}
