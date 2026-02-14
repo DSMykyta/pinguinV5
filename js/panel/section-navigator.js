@@ -13,7 +13,6 @@ export function initSectionNavigator() {
     // --- Sliding Pill Setup ---
     const pill = document.createElement('div');
     pill.className = 'nav-pill';
-    navigator.style.position = 'relative';
     navigator.appendChild(pill);
 
     let activeIcon = null;
