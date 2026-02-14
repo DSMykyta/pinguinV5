@@ -231,6 +231,10 @@ async function loadAsideMapper() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
+        // Ініціалізувати dropdowns для динамічно завантаженого HTML
+        const { initDropdowns } = await import('../common/ui-dropdown.js');
+        initDropdowns();
+
         // Кнопка очистки пошуку — setSearchQuery('')
         const clearSearchBtn = document.getElementById('clear-search-mapper');
         const searchInput = document.getElementById('search-mapper');
