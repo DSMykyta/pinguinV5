@@ -2,48 +2,61 @@
 
 /**
  * Ініціалізує логіку для навігатора секцій.
- * - Sliding indicator (підложка що їде між кнопками).
- * - Плавна прокрутка по кліку.
- * - Scroll Spy для підсвічування активної іконки.
- * - Плавна прокрутка колесом миші між секціями.
+ * - Sliding indicator (підложка що їде між кнопками) — на ВСІХ сторінках.
+ * - Плавна прокрутка по кліку — тільки на сторінках із секціями.
+ * - Scroll Spy — тільки на сторінках із секціями.
+ * - Плавна прокрутка колесом миші — тільки на сторінках із секціями.
  */
 export function initSectionNavigator() {
-    const navigator = document.getElementById('section-navigator');
-    if (!navigator) return;
+    // Знаходимо навігатор на будь-якій сторінці (scroll або tabbed)
+    const nav = document.getElementById('section-navigator')
+             || document.querySelector('.section-navigator');
+    if (!nav) return;
 
     const contentMain = document.getElementById('content-main');
     const sections = [...document.querySelectorAll('main > section[id]')];
-    const navIcons = navigator.querySelectorAll('.nav-icon');
 
-    if (sections.length === 0 || !contentMain) return;
+    // ═══════════════════════════════════════════════
+    //  ІНДИКАТОР — працює на ВСІХ сторінках
+    // ═══════════════════════════════════════════════
 
-    // --- 0. Створюємо підложку-індикатор ---
     const indicator = document.createElement('div');
     indicator.className = 'nav-indicator';
-    navigator.appendChild(indicator);
+    nav.appendChild(indicator);
 
     function moveIndicator() {
-        const activeIcon = navigator.querySelector('.nav-icon.is-active');
-        if (!activeIcon) return;
-
+        const activeIcon = nav.querySelector('.nav-icon.is-active, .nav-icon.active');
+        if (!activeIcon) {
+            indicator.style.width = '0';
+            return;
+        }
         indicator.style.transform = `translateX(${activeIcon.offsetLeft}px)`;
         indicator.style.width = `${activeIcon.offsetWidth}px`;
     }
 
     // Початкова позиція без анімації
     moveIndicator();
-    // Вмикаємо transition після першого кадру
     requestAnimationFrame(() => {
         indicator.classList.add('is-ready');
     });
 
-    // --- Слідкування за hover (іконки розширюються — індикатор їде за ними) ---
+    // Автоматичне слідкування за зміною класів (.active / .is-active)
+    // Працює і для scroll spy, і для ui-tabs.js
+    const classObserver = new MutationObserver(moveIndicator);
+    classObserver.observe(nav, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+        childList: true
+    });
+
+    // Hover tracking — індикатор їде покадрово за розширенням іконок
     let trackingRAF = null;
     let stopTimeout = null;
 
     function startTracking() {
         clearTimeout(stopTimeout);
-        indicator.classList.remove('is-ready'); // Вимикаємо transition — слідкуємо покадрово
+        indicator.classList.remove('is-ready');
         if (trackingRAF) return;
         function track() {
             moveIndicator();
@@ -59,16 +72,21 @@ export function initSectionNavigator() {
         }
         moveIndicator();
         requestAnimationFrame(() => {
-            indicator.classList.add('is-ready'); // Повертаємо transition
+            indicator.classList.add('is-ready');
         });
     }
 
-    navigator.addEventListener('mouseenter', startTracking);
-    navigator.addEventListener('mouseleave', () => {
-        stopTimeout = setTimeout(stopTracking, 600); // Чекаємо поки іконка стисне назад
+    nav.addEventListener('mouseenter', startTracking);
+    nav.addEventListener('mouseleave', () => {
+        stopTimeout = setTimeout(stopTracking, 600);
     });
 
-    // --- 1. Плавна прокрутка по кліку ---
+    // ═══════════════════════════════════════════════
+    //  SCROLL FEATURES — тільки на сторінках із секціями
+    // ═══════════════════════════════════════════════
+
+    if (sections.length === 0 || !contentMain) return;
+
     let isAnimating = false;
 
     contentMain.addEventListener('scrollend', () => {
@@ -99,7 +117,8 @@ export function initSectionNavigator() {
         setTimeout(() => { isAnimating = false; }, 1000);
     }
 
-    navigator.addEventListener('click', (e) => {
+    // Плавна прокрутка по кліку на навігатор
+    nav.addEventListener('click', (e) => {
         const navIcon = e.target.closest('.nav-icon');
         if (!navIcon || !navIcon.hash) return;
 
@@ -112,18 +131,18 @@ export function initSectionNavigator() {
         }
     });
 
-    // --- 2. Scroll Spy + рух індикатора ---
+    // Scroll Spy
+    const navIcons = nav.querySelectorAll('.nav-icon');
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const sectionId = entry.target.id;
-            const correspondingIcon = navigator.querySelector(`.nav-icon[href="#${sectionId}"]`);
+            const correspondingIcon = nav.querySelector(`.nav-icon[href="#${sectionId}"]`);
 
             if (entry.isIntersecting) {
                 navIcons.forEach(icon => icon.classList.remove('is-active'));
                 if (correspondingIcon) {
                     correspondingIcon.classList.add('is-active');
                 }
-                moveIndicator();
             }
         });
     }, {
@@ -134,7 +153,7 @@ export function initSectionNavigator() {
 
     sections.forEach(section => observer.observe(section));
 
-    // --- 3. Плавна прокрутка колесом миші ---
+    // Плавна прокрутка колесом миші
     contentMain.addEventListener('wheel', (e) => {
         if (isAnimating) {
             e.preventDefault();
