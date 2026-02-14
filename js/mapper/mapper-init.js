@@ -28,6 +28,7 @@ import { renderCurrentTab, invalidateLookupCaches } from './mapper-table.js';
 import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-events.js';
 import { createLazyLoader } from '../common/util-lazy-load.js';
 import { initPagination } from '../common/ui-pagination.js';
+import { createColumnSelector } from '../common/table/table-columns.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
@@ -35,6 +36,46 @@ import { loadMapperPlugins } from './mapper-main.js';
 // Re-export mapperState для зворотної сумісності
 export { mapperState } from './mapper-state.js';
 import { mapperState, runHook } from './mapper-state.js';
+
+// Конфігурація колонок пошуку для кожного табу
+const SEARCH_COLUMNS_CONFIG = {
+    categories: [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'name_ua', label: 'Назва UA', checked: true },
+        { id: 'name_ru', label: 'Назва RU', checked: true }
+    ],
+    characteristics: [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'name_ua', label: 'Назва UA', checked: true },
+        { id: 'name_ru', label: 'Назва RU', checked: true },
+        { id: 'type', label: 'Тип', checked: true }
+    ],
+    options: [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'value_ua', label: 'Значення UA', checked: true },
+        { id: 'value_ru', label: 'Значення RU', checked: true }
+    ],
+    marketplaces: [
+        { id: 'id', label: 'ID', checked: true },
+        { id: 'name', label: 'Назва', checked: true },
+        { id: 'slug', label: 'Slug', checked: true }
+    ]
+};
+
+let _searchColsSelector = null;
+
+function updateSearchColumnsSelector(tabName) {
+    const config = SEARCH_COLUMNS_CONFIG[tabName];
+    if (!config) return;
+    if (_searchColsSelector) _searchColsSelector.destroy();
+    _searchColsSelector = createColumnSelector('search-mapper-search-columns', config, {
+        checkboxPrefix: 'mapper-search',
+        onChange: (selectedIds) => {
+            mapperState.searchColumns[tabName] = selectedIds;
+            if (mapperState.searchQuery) renderCurrentTab();
+        }
+    });
+}
 
 /**
  * Головна функція ініціалізації модуля Mapper
@@ -89,6 +130,9 @@ function initTabSwitching() {
                 const clearBtn = document.getElementById('clear-search-mapper');
                 if (clearBtn) clearBtn.classList.add('u-hidden');
             }
+
+            // Оновити search columns selector для нового табу
+            updateSearchColumnsSelector(tabName);
 
             // Lazy load даних для цього табу
             await ensureTabData(tabName);
@@ -293,6 +337,9 @@ async function loadAsideMapper() {
                 }
             });
         }
+
+        // Ініціалізувати search columns selector
+        updateSearchColumnsSelector(mapperState.activeTab || 'categories');
 
         // Ініціалізувати кнопки додавання в aside
         const addCategoryBtn = document.getElementById('btn-add-category-aside');
