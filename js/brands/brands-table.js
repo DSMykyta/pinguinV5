@@ -188,7 +188,7 @@ export function renderBrandsTableRowsOnly() {
     // Оновлюємо тільки рядки
     tableAPI.updateRows(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 }
 
 /**
@@ -225,7 +225,7 @@ export function renderBrandsTable() {
     tableAPI.render(paginated);
 
     // Оновити статистику
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 
 }
 

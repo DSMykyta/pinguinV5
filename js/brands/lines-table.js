@@ -167,7 +167,7 @@ export function renderLinesTableRowsOnly() {
     // Оновлюємо тільки рядки
     linesTableAPI.updateRows(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 }
 
 /**
@@ -209,7 +209,7 @@ export function renderLinesTable() {
     linesTableAPI.render(paginated);
 
     // Оновити статистику
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 
 }
 

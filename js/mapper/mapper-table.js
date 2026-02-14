@@ -587,7 +587,7 @@ export function renderCategoriesTable() {
 
     updatePagination(totalItems);
     tableAPI.render(paginatedData);
-    updateStats('categories', filteredData.length, categories.length);
+    updateStats('categories', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -751,7 +751,7 @@ export function renderCharacteristicsTable() {
 
     updatePagination(totalItems);
     tableAPI.render(paginatedData);
-    updateStats('characteristics', filteredData.length, characteristics.length);
+    updateStats('characteristics', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -920,7 +920,7 @@ export function renderOptionsTable() {
 
     updatePagination(totalItems);
     tableAPI.render(paginatedData);
-    updateStats('options', filteredData.length, options.length);
+    updateStats('options', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -1046,7 +1046,7 @@ export function renderMarketplacesTable() {
 
     updatePagination(totalItems);
     tableAPI.render(paginatedData);
-    updateStats('marketplaces', filteredData.length, marketplaces.length);
+    updateStats('marketplaces', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -1277,7 +1277,7 @@ export function renderCategoriesTableRowsOnly() {
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('categories', filteredData.length, categories.length);
+    updateStats('categories', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -1296,7 +1296,7 @@ export function renderCharacteristicsTableRowsOnly() {
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('characteristics', filteredData.length, characteristics.length);
+    updateStats('characteristics', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -1315,7 +1315,7 @@ export function renderOptionsTableRowsOnly() {
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('options', filteredData.length, options.length);
+    updateStats('options', paginatedData.length, filteredData.length);
 }
 
 /**
@@ -1334,7 +1334,7 @@ export function renderMarketplacesTableRowsOnly() {
 
     updatePagination(totalItems);
     tableAPI.updateRows(paginatedData);
-    updateStats('marketplaces', filteredData.length, marketplaces.length);
+    updateStats('marketplaces', paginatedData.length, filteredData.length);
 }
 
 // Сховище для event delegation handlers (для cleanup)

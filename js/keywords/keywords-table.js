@@ -170,7 +170,7 @@ export function renderKeywordsTableRowsOnly() {
     // Оновлюємо тільки рядки
     tableAPI.updateRows(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 }
 
 /**
@@ -214,7 +214,7 @@ export function renderKeywordsTable() {
     // Повний рендер таблиці
     tableAPI.render(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 
 
     isRendering = false;

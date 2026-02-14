@@ -49,7 +49,8 @@ export function applyFiltersToTableRows() {
         }
     });
 
-    updateStats(priceState.filteredItems.length, priceState.priceItems.length);
+    const pageVisible = Math.min(pageSize, priceState.filteredItems.length - startIndex);
+    updateStats(Math.max(0, pageVisible), priceState.filteredItems.length);
 }
 
 /**
@@ -193,7 +194,7 @@ export async function renderPriceTableRowsOnly() {
     // Оновлюємо тільки рядки
     tableAPI.updateRows(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 }
 
 /**
@@ -222,7 +223,7 @@ export async function renderPriceTable() {
     // Повний рендер таблиці
     tableAPI.render(paginated);
 
-    updateStats(filtered.length, all.length);
+    updateStats(paginated.length, filtered.length);
 }
 
 /**
