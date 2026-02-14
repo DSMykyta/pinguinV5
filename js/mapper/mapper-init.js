@@ -30,7 +30,7 @@ import { mapperState, runHook } from './mapper-state.js';
  */
 export async function initMapper() {
     initTooltips();
-    loadAsideMapper();
+    await loadAsideMapper();
     initMapperPagination();
     initTabSwitching();
     await loadMapperPlugins();

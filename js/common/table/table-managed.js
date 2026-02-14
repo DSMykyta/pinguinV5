@@ -371,6 +371,20 @@ export function createManagedTable(config) {
             }
         },
 
+        /** Змінити сторінку та розмір сторінки */
+        setPage(page, size) {
+            currentPage = page;
+            if (size != null) currentPageSize = size;
+            renderPage();
+        },
+
+        /** Встановити пошуковий запит програмно */
+        setSearchQuery(query) {
+            searchQuery = (query || '').toLowerCase().trim();
+            if (searchInput) searchInput.value = query || '';
+            applyFilters();
+        },
+
         /** Cleanup */
         destroy() {
             unbindSearchInput();
