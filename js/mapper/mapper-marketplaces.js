@@ -1251,10 +1251,14 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             const triggerClass = mappedCatId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
 
             const fileId = item.file_id || '';
-            const downloadBtn = fileId
-                ? `<a href="https://drive.google.com/uc?export=download&id=${escapeHtml(fileId)}" target="_blank" class="btn-icon" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">download</span></a>`
-                : '';
-            const uploadBtn = `<button class="btn-icon cat-upload-btn" data-cat-id="${escapeHtml(item.id)}" data-cat-ext-id="${escapeHtml(item.external_id || '')}" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">upload</span></button>`;
+            let downloadBtn = '';
+            let uploadBtn = '';
+            if (!hasChildren) {
+                downloadBtn = fileId
+                    ? `<a href="https://drive.google.com/uc?export=download&id=${escapeHtml(fileId)}" target="_blank" class="btn-icon" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">download</span></a>`
+                    : '';
+                uploadBtn = `<button class="btn-icon cat-upload-btn" data-cat-id="${escapeHtml(item.id)}" data-cat-ext-id="${escapeHtml(item.external_id || '')}" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">upload</span></button>`;
+            }
 
             return `
                 <li data-id="${escapeHtml(item.id)}" data-ext-id="${escapeHtml(item.external_id || '')}" class="${classes}">
