@@ -11,6 +11,7 @@
  * ║  4. Stats ("Показано X з Y")                                            ║
  * ║  5. Пагінація (опціонально)                                             ║
  * ║  6. Filters plugin (column filters + text search)                       ║
+ * ║  7. activate/deactivate для спільного пошуку між табами                  ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -34,6 +35,7 @@ import { initPagination } from '../ui-pagination.js';
  * @param {Object} [config.tableConfig] - Конфіг для Table LEGO (plugins, rowActions, etc.)
  * @param {number|null} [config.pageSize=25] - Розмір сторінки (null = без пагінації)
  * @param {string} [config.checkboxPrefix='managed'] - Префікс для checkbox IDs
+ * @param {Function} [config.dataTransform] - Функція трансформації даних перед рендером
  *
  * Формат колонки:
  * {
@@ -58,12 +60,13 @@ export function createManagedTable(config) {
         paginationId,
         tableConfig = {},
         pageSize = 25,
-        checkboxPrefix = 'managed'
+        checkboxPrefix = 'managed',
+        dataTransform
     } = config;
 
     // ── Internal state ──
-    let allData = [...data];
-    let filteredData = [...data];
+    let allData = dataTransform ? dataTransform([...data]) : [...data];
+    let filteredData = [...allData];
     let searchQuery = '';
     let columnFilters = {};
     let currentPage = 1;
@@ -75,10 +78,17 @@ export function createManagedTable(config) {
 
     let searchColsSelector = null;
     let paginationAPI = null;
+    let isActive = true;
+    let searchHandler = null;
+    let debounceTimer = null;
+
+    // ── Shared search config IDs (saved for activate/deactivate) ──
+    const _searchInputId = searchInputId;
+    const _searchColumnsId = searchColumnsId;
 
     // ── DOM refs ──
     const statsEl = statsId ? document.getElementById(statsId) : null;
-    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
+    let searchInput = _searchInputId ? document.getElementById(_searchInputId) : null;
     const paginationEl = paginationId ? document.getElementById(paginationId) : null;
 
     // ── Filter columns config (from plugins.filters) ──
@@ -142,7 +152,7 @@ export function createManagedTable(config) {
 
     // ── 3. Search columns selector ──
     function rebuildSearchColumnsSelector() {
-        if (!searchColumnsId) return;
+        if (!_searchColumnsId) return;
 
         // Searchable columns that are currently visible
         const searchableVisible = columns
@@ -157,7 +167,7 @@ export function createManagedTable(config) {
             searchColsSelector.destroy();
         }
 
-        searchColsSelector = createColumnSelector(searchColumnsId, searchableVisible, {
+        searchColsSelector = createColumnSelector(_searchColumnsId, searchableVisible, {
             checkboxPrefix: `${checkboxPrefix}-search`,
             onChange: (selectedIds) => {
                 searchColumnIds = selectedIds;
@@ -169,8 +179,10 @@ export function createManagedTable(config) {
         searchColumnIds = searchColumnIds.filter(id => visibleColumnIds.includes(id));
     }
 
-    // Initial build
-    rebuildSearchColumnsSelector();
+    // Initial build (only if active)
+    if (_searchColumnsId) {
+        rebuildSearchColumnsSelector();
+    }
 
     // ── 4. Combined filtering (column filters + text search) ──
     function applyFilters() {
@@ -196,13 +208,50 @@ export function createManagedTable(config) {
         renderPage();
     }
 
-    if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase().trim();
-            applyFilters();
-        });
+    // ── Search input binding with debounce ──
+    function createSearchHandler() {
+        return (e) => {
+            const value = e.target.value.toLowerCase().trim();
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchQuery = value;
+                applyFilters();
+            }, 200);
+        };
     }
+
+    function bindSearchInput() {
+        if (!_searchInputId) return;
+        searchInput = document.getElementById(_searchInputId);
+        if (!searchInput) return;
+
+        // Remove old handler if exists
+        unbindSearchInput();
+
+        searchHandler = createSearchHandler();
+        searchInput.addEventListener('input', searchHandler);
+
+        // Restore current search query to input
+        if (searchQuery) {
+            searchInput.value = searchQuery;
+        } else {
+            searchInput.value = '';
+        }
+    }
+
+    function unbindSearchInput() {
+        if (searchInput && searchHandler) {
+            searchInput.removeEventListener('input', searchHandler);
+        }
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+        }
+        searchHandler = null;
+    }
+
+    // Initial bind
+    bindSearchInput();
 
     // ── 5. Pagination ──
     if (paginationEl && pageSize) {
@@ -262,9 +311,9 @@ export function createManagedTable(config) {
             renderPage();
         },
 
-        /** Повна заміна даних */
+        /** Повна заміна даних (скидає пошук та фільтри) */
         setData(newData) {
-            allData = [...newData];
+            allData = dataTransform ? dataTransform([...newData]) : [...newData];
             searchQuery = '';
             columnFilters = {};
             if (searchInput) searchInput.value = '';
@@ -273,9 +322,20 @@ export function createManagedTable(config) {
             renderPage();
         },
 
+        /** Оновити дані (зберігає пошук та фільтри) */
+        updateData(newData) {
+            allData = dataTransform ? dataTransform([...newData]) : [...newData];
+            applyFilters();
+        },
+
         /** Поточні відфільтровані дані */
         getFilteredData() {
             return filteredData;
+        },
+
+        /** Кількість відфільтрованих рядків */
+        getFilteredCount() {
+            return filteredData.length;
         },
 
         /** Всі дані */
@@ -288,10 +348,33 @@ export function createManagedTable(config) {
             applyFilters();
         },
 
+        /** Підключити спільний пошук та search columns selector */
+        activate() {
+            if (isActive) return;
+            isActive = true;
+            bindSearchInput();
+            rebuildSearchColumnsSelector();
+            // Re-apply current search query
+            if (searchQuery) {
+                applyFilters();
+            }
+        },
+
+        /** Відключити від спільного пошуку */
+        deactivate() {
+            if (!isActive) return;
+            isActive = false;
+            unbindSearchInput();
+            if (searchColsSelector) {
+                searchColsSelector.destroy();
+                searchColsSelector = null;
+            }
+        },
+
         /** Cleanup */
         destroy() {
+            unbindSearchInput();
             if (searchColsSelector) searchColsSelector.destroy();
-            if (searchInput) searchInput.value = '';
             tableAPI.destroy?.();
         }
     };

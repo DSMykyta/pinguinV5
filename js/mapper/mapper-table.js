@@ -664,10 +664,6 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
         checkboxPrefix: `mapper-${tabName}`
     });
 
-    // Зберегти visible columns при зміні
-    const origActivate = mt.activate.bind(mt);
-    const origDeactivate = mt.deactivate.bind(mt);
-
     managedTables[tabName] = mt;
     mapperState.managedTables = managedTables;
 
