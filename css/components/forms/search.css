@@ -41,7 +41,7 @@
     color: var(--color-on-surface-v);
 }
 
-.search-container input {
+.search-container > input {
     flex: 1;
 }
 
