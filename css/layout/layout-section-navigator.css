@@ -15,31 +15,7 @@
     border-radius: var(--radius-full);
 }
 
-/* Sliding pill indicator */
-.nav-pill {
-    position: absolute;
-    top: 6px;
-    left: 0;
-    height: 32px;
-    border-radius: var(--radius-full);
-    background-color: var(--color-main-t-2);
-    box-shadow: var(--shadow-1);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s ease;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0;
-}
-
-.nav-pill.is-ready {
-    opacity: 1;
-}
-
 .nav-icon {
-    position: relative;
-    z-index: 1;
-
     display: flex;
     align-items: center;
     justify-content: start;
@@ -51,13 +27,14 @@
     cursor: pointer;
     text-decoration: none;
     color: var(--color-on-surface);
-
+    
     height: 32px;
     max-width: 32px;
     overflow: hidden;
-
-    transition: max-width 0.55s ease,
-                color 0.3s ease;
+    
+    transition: max-width 0.55s ease, 
+                background-color 0.5s ease, 
+                color 0.5s ease;
 }
 
 .nav-icon .material-symbols-outlined {
@@ -74,8 +51,9 @@
 }
 
 .nav-icon:hover {
+    background-color: var(--color-main-c);
     color: var(--color-main);
-
+    
     max-width: 400px;
     padding-right: 16px;
 }
@@ -87,7 +65,9 @@
 
 .nav-icon.is-active,
 .nav-icon.active {
+    background-color: var(--color-main-t-2);
     color: var(--color-main);
+    box-shadow: var(--shadow-1);
 }
 
 .nav-icon.is-active .material-symbols-outlined {
