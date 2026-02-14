@@ -344,14 +344,23 @@ export async function deleteBrand(brandId) {
 
         const brand = brandsState.brands[brandIndex];
 
-        const range = `${SHEET_NAME}!A${brand._rowIndex}:I${brand._rowIndex}`;
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '', '', '']],
+        const rowIndex = brand._rowIndex;
+        await callSheetsAPI('batchUpdateSpreadsheet', {
+            requests: [{
+                deleteDimension: {
+                    range: {
+                        sheetId: parseInt(SHEET_GID),
+                        dimension: 'ROWS',
+                        startIndex: rowIndex - 1,
+                        endIndex: rowIndex
+                    }
+                }
+            }],
             spreadsheetType: 'main'
         });
 
         brandsState.brands.splice(brandIndex, 1);
+        brandsState.brands.forEach(b => { if (b._rowIndex > rowIndex) b._rowIndex--; });
 
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);

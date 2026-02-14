@@ -34,7 +34,10 @@ import {
     createOptionMapping, deleteOptionMapping,
     getOptionMappingByMpId,
     deleteCategoryMappingByMpId, deleteCharacteristicMappingByMpId, deleteOptionMappingByMpId,
-    getMarketplaceDependencies
+    getMarketplaceDependencies,
+    loadMapCategories, loadMapCharacteristics, loadMapOptions,
+    getMapCharacteristics, getMapOptions,
+    deleteAllMpDataForMarketplace
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
@@ -142,10 +145,13 @@ export async function showEditMarketplaceModal(id) {
     const saveBtn = document.getElementById('save-mapper-marketplace');
     if (saveBtn) saveBtn.onclick = () => handleUpdateMarketplace(id);
 
-    // Завантажити дані
+    // Завантажити MP дані + маппінги (lazy — тільки якщо ще не завантажені)
     if (getMpCategories().length === 0) await loadMpCategories();
     if (getMpCharacteristics().length === 0) await loadMpCharacteristics();
     if (getMpOptions().length === 0) await loadMpOptions();
+    if (getMapCategories().length === 0) await loadMapCategories();
+    if (getMapCharacteristics().length === 0) await loadMapCharacteristics();
+    if (getMapOptions().length === 0) await loadMapOptions();
 
     const categories = getMpCategories().filter(c => c.marketplace_id === id);
     const characteristics = getMpCharacteristics().filter(c => c.marketplace_id === id);
@@ -281,6 +287,9 @@ async function showDeleteMarketplaceConfirm(id) {
             for (const mpOpt of mpOpts) {
                 await deleteOptionMappingByMpId(mpOpt.id);
             }
+
+            // Видалити самі MP сутності (категорії, характеристики, опції МП)
+            await deleteAllMpDataForMarketplace(id);
 
             await deleteMarketplace(id);
             showToast('Маркетплейс видалено', 'success');
@@ -1389,7 +1398,21 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
                                 mpCat.file_id = result.fileId;
                             }
                         }
-                        showToast('Довідник завантажено', 'success');
+                        // Імпорт характеристик/опцій з файлу
+                        if (icon) icon.textContent = 'sync';
+                        try {
+                            const { importReferenceForCategory } = await import('./mapper-import.js');
+                            const marketplace = getMarketplaces().find(m => m.slug === slug);
+                            const mpCatData = typeof mpCat.data === 'string' ? JSON.parse(mpCat.data || '{}') : (mpCat.data || {});
+                            await importReferenceForCategory(file, marketplace, {
+                                external_id: mpCat.external_id,
+                                name: mpCatData.name || mpCatData.name_ua || mpCat.external_id
+                            });
+                            showToast('Довідник завантажено та імпортовано', 'success');
+                        } catch (importErr) {
+                            console.error('Import failed:', importErr);
+                            showToast('Файл збережено, але імпорт не вдався', 'warning');
+                        }
                         // Перемалювати дерево щоб показати іконку download
                         renderMpCategoryTree(container, data, catMapping, slug, marketplaceId);
                     } catch (err) {

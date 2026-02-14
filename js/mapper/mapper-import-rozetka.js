@@ -191,6 +191,22 @@ const rozetkaAdapter = {
         const category = parseCategory(file.name, rawData);
         importState._adapterData = { category };
 
+        // Очищуємо N/D в колонках опцій (col 5=option_id, col 6=option_name)
+        // N/D означає що характеристика — вільне поле вводу, без фіксованих опцій
+        const headerRow = 2; // Rozetka headerRow
+        importState.rawData = rawData.map((row, i) => {
+            if (i < headerRow) return row;
+            const optId = String(row[5] || '').trim();
+            const optName = String(row[6] || '').trim();
+            if (optId === 'N/D' || optName === 'N/D') {
+                const cleaned = [...row];
+                cleaned[5] = '';
+                cleaned[6] = '';
+                return cleaned;
+            }
+            return row;
+        });
+
         showCategoryInfo(category, file.name);
         showToast(`Файл Rozetka прочитано: ${rawData.length - 2} записів`, 'success');
     },

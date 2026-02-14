@@ -78,6 +78,65 @@ function adjustRowIndices(stateArray, deletedRowIndex) {
 }
 
 /**
+ * Batch hard delete — видаляє кілька рядків з одного аркуша за один API call.
+ * Рядки сортуються у зворотному порядку щоб індекси не зсувались між видаленнями.
+ * @param {string} sheetGidKey - Ключ у SHEET_GIDS
+ * @param {number[]} rowIndices - Масив 1-based індексів рядків
+ */
+async function hardDeleteRowsBatch(sheetGidKey, rowIndices) {
+    if (rowIndices.length === 0) return;
+    const sorted = [...rowIndices].sort((a, b) => b - a);
+    const requests = sorted.map(rowIndex => ({
+        deleteDimension: {
+            range: {
+                sheetId: parseInt(SHEET_GIDS[sheetGidKey]),
+                dimension: 'ROWS',
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex
+            }
+        }
+    }));
+    await callSheetsAPI('batchUpdateSpreadsheet', { requests, spreadsheetType: 'main' });
+}
+
+/**
+ * Видалити елементи з state-масиву після batch delete та зсунути _rowIndex.
+ * @param {Array} stateArray - Масив стейту
+ * @param {Array} deletedItems - Масив видалених об'єктів (мають _rowIndex)
+ */
+function adjustAfterBatchDelete(stateArray, deletedItems) {
+    const sortedRows = deletedItems
+        .map(item => item._rowIndex)
+        .filter(Boolean)
+        .sort((a, b) => b - a);
+    for (const rowIndex of sortedRows) {
+        const idx = stateArray.findIndex(item => item._rowIndex === rowIndex);
+        if (idx !== -1) stateArray.splice(idx, 1);
+        adjustRowIndices(stateArray, rowIndex);
+    }
+}
+
+/**
+ * Каскадне видалення всіх MP сутностей маркетплейсу
+ * (mp_categories, mp_characteristics, mp_options).
+ * Маппінги видаляються окремо ДО виклику цієї функції.
+ * @param {string} marketplaceId
+ */
+export async function deleteAllMpDataForMarketplace(marketplaceId) {
+    const mpOpts = mapperState.mpOptions.filter(o => o.marketplace_id === marketplaceId);
+    const mpChars = mapperState.mpCharacteristics.filter(c => c.marketplace_id === marketplaceId);
+    const mpCats = mapperState.mpCategories.filter(c => c.marketplace_id === marketplaceId);
+
+    await hardDeleteRowsBatch('MP_OPTIONS', mpOpts.map(o => o._rowIndex).filter(Boolean));
+    await hardDeleteRowsBatch('MP_CHARACTERISTICS', mpChars.map(c => c._rowIndex).filter(Boolean));
+    await hardDeleteRowsBatch('MP_CATEGORIES', mpCats.map(c => c._rowIndex).filter(Boolean));
+
+    adjustAfterBatchDelete(mapperState.mpOptions, mpOpts);
+    adjustAfterBatchDelete(mapperState.mpCharacteristics, mpChars);
+    adjustAfterBatchDelete(mapperState.mpCategories, mpCats);
+}
+
+/**
  * Завантажити всі дані для Mapper
  */
 export async function loadMapperData() {

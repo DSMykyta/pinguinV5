@@ -227,14 +227,23 @@ export async function deleteBrandLine(lineId) {
 
         const line = brandsState.brandLines[lineIndex];
 
-        const range = `${SHEET_NAME}!A${line._rowIndex}:D${line._rowIndex}`;
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '']],
+        const rowIndex = line._rowIndex;
+        await callSheetsAPI('batchUpdateSpreadsheet', {
+            requests: [{
+                deleteDimension: {
+                    range: {
+                        sheetId: parseInt(SHEET_GID),
+                        dimension: 'ROWS',
+                        startIndex: rowIndex - 1,
+                        endIndex: rowIndex
+                    }
+                }
+            }],
             spreadsheetType: 'main'
         });
 
         brandsState.brandLines.splice(lineIndex, 1);
+        brandsState.brandLines.forEach(l => { if (l._rowIndex > rowIndex) l._rowIndex--; });
 
     } catch (error) {
         console.error('❌ Помилка видалення лінійки:', error);

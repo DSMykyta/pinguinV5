@@ -893,6 +893,97 @@ async function importCharacteristicsAndOptions(onProgress = () => { }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// HEADLESS IMPORT (для upload довідника з дерева категорій)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Імпорт довідника без UI — викликається при upload файлу до категорії МП.
+ * Парсить файл через адаптер, створює MP характеристики/опції.
+ *
+ * @param {File} file — файл довідника
+ * @param {Object} marketplace — { id, slug, name }
+ * @param {Object} mpCategory — { external_id, name }
+ * @returns {Promise<{chars: number, opts: number}>} — кількість створених записів
+ */
+export async function importReferenceForCategory(file, marketplace, mpCategory) {
+    const savedState = importState;
+
+    const adapter = findAdapter(marketplace);
+    if (!adapter) throw new Error('Немає адаптера для цього маркетплейсу');
+
+    const config = adapter.getConfig();
+
+    importState = {
+        file,
+        rawData: [],
+        parsedData: [],
+        fileHeaders: [],
+        mapping: {},
+        marketplaceId: marketplace.id,
+        dataType: config.dataType || 'adapter_pack',
+        headerRow: config.headerRow || 1,
+        adapter,
+        _adapterData: null
+    };
+
+    try {
+        // 1. Парсинг файлу (Excel/CSV)
+        const rawData = await parseFileRaw(file);
+        importState.rawData = rawData;
+
+        // 2. Адаптер обробляє файл (встановлює _adapterData, фільтрує рядки тощо)
+        adapter.onFileLoaded(file, rawData, importState);
+
+        // 3. Перевизначаємо категорію — вона вже відома з дерева
+        importState._adapterData = importState._adapterData || {};
+        importState._adapterData.category = {
+            id: mpCategory.external_id,
+            name: mpCategory.name || mpCategory.external_id
+        };
+
+        // 4. Заголовки + маппінг колонок (headless — без DOM)
+        const headerRow = importState.headerRow || 1;
+        const headerRowData = importState.rawData[headerRow - 1];
+        if (!headerRowData) throw new Error('Файл не містить заголовків');
+
+        const headers = headerRowData.map((h, i) => ({
+            index: i,
+            name: String(h || `Колонка ${i + 1}`).trim()
+        }));
+
+        importState.fileHeaders = headers;
+        importState.parsedData = importState.rawData.slice(headerRow).map(row =>
+            headers.map((_, i) => String(row[i] || '').trim())
+        );
+
+        // Auto-detect mapping
+        autoDetectMappingSilent(headers);
+
+        // Fixed mapping від адаптера (перезаписує auto-detect)
+        if (adapter.getFixedMapping) {
+            const fixed = adapter.getFixedMapping(headers);
+            if (fixed) Object.assign(importState.mapping, fixed);
+        }
+
+        // 5. onBeforeImport (створює категорію якщо ще не існує)
+        if (adapter.onBeforeImport) {
+            await adapter.onBeforeImport(importState, () => {});
+        }
+
+        // 6. Імпорт характеристик та опцій
+        await importCharacteristicsAndOptions(() => {});
+
+        // 7. Перезавантажити дані в стейт
+        const { loadMpCharacteristics, loadMpOptions } = await import('./mapper-data.js');
+        await loadMpCharacteristics();
+        await loadMpOptions();
+
+    } finally {
+        importState = savedState;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // BATCH МАППІНГ
 // ═══════════════════════════════════════════════════════════════════════════
 

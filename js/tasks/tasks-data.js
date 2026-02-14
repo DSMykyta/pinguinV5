@@ -442,14 +442,23 @@ export async function deleteTask(taskId) {
             throw new Error('Ви не можете видаляти чужі задачі');
         }
 
-        const range = `${SHEET_NAME}!A${task._rowIndex}:M${task._rowIndex}`;
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '', '', '', '']],
+        const rowIndex = task._rowIndex;
+        await callSheetsAPI('batchUpdateSpreadsheet', {
+            requests: [{
+                deleteDimension: {
+                    range: {
+                        sheetId: parseInt(SHEET_GID),
+                        dimension: 'ROWS',
+                        startIndex: rowIndex - 1,
+                        endIndex: rowIndex
+                    }
+                }
+            }],
             spreadsheetType: 'users'
         });
 
         tasksState.tasks.splice(taskIndex, 1);
+        tasksState.tasks.forEach(t => { if (t._rowIndex > rowIndex) t._rowIndex--; });
 
     } catch (error) {
         console.error('❌ Помилка видалення задачі:', error);

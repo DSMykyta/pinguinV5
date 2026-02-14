@@ -188,14 +188,23 @@ export async function deleteKeyword(localId) {
 
         const entry = keywordsState.keywords[entryIndex];
 
-        const range = `${SHEET_NAME}!A${entry._rowIndex}:M${entry._rowIndex}`;
-        await callSheetsAPI('update', {
-            range: range,
-            values: [['', '', '', '', '', '', '', '', '', '', '', '', '']],
+        const rowIndex = entry._rowIndex;
+        await callSheetsAPI('batchUpdateSpreadsheet', {
+            requests: [{
+                deleteDimension: {
+                    range: {
+                        sheetId: parseInt(SHEET_GID),
+                        dimension: 'ROWS',
+                        startIndex: rowIndex - 1,
+                        endIndex: rowIndex
+                    }
+                }
+            }],
             spreadsheetType: 'main'
         });
 
         keywordsState.keywords.splice(entryIndex, 1);
+        keywordsState.keywords.forEach(k => { if (k._rowIndex > rowIndex) k._rowIndex--; });
 
     } catch (error) {
         console.error('❌ Помилка видалення ключового слова:', error);
