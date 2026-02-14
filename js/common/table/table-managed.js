@@ -11,6 +11,9 @@
  * ║  4. Stats ("Показано X з Y")                                            ║
  * ║  5. Пагінація (опціонально)                                             ║
  * ║  6. Filters plugin (column filters + text search)                       ║
+ * ║  7. dataTransform — трансформація даних перед фільтрацією               ║
+ * ║  8. preFilter — додатковий зовнішній фільтр                             ║
+ * ║  9. activate/deactivate — для табів зі спільним пошуком                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -20,30 +23,20 @@ import { filterData as applyColumnFilters } from './table-filters.js';
 import { initPagination } from '../ui-pagination.js';
 
 /**
- * Створити керовану таблицю з автоматичною зв'язкою компонентів
- *
  * @param {Object} config
- * @param {string|HTMLElement} config.container - ID або елемент контейнера таблиці
- * @param {Array} config.columns - Масив колонок (розширений формат, див. нижче)
- * @param {Array} config.data - Початкові дані
- * @param {string} [config.columnsListId] - ID dropdown body для видимості колонок
- * @param {string} [config.searchColumnsId] - ID dropdown body для колонок пошуку
- * @param {string} [config.searchInputId] - ID input пошуку
- * @param {string} [config.statsId] - ID елемента статистики
- * @param {string} [config.paginationId] - ID footer елемента пагінації
- * @param {Object} [config.tableConfig] - Конфіг для Table LEGO (plugins, rowActions, etc.)
- * @param {number|null} [config.pageSize=25] - Розмір сторінки (null = без пагінації)
- * @param {string} [config.checkboxPrefix='managed'] - Префікс для checkbox IDs
- *
- * Формат колонки:
- * {
- *   id: string,           // обов'язково
- *   label: string,        // обов'язково
- *   searchable: boolean,  // чи доступна для пошуку (default: false)
- *   checked: boolean,     // чи видима за замовчуванням (default: true)
- *   // + стандартні поля Table LEGO: sortable, className, render, filterable
- * }
- *
+ * @param {string|HTMLElement} config.container
+ * @param {Array} config.columns
+ * @param {Array} config.data
+ * @param {string} [config.columnsListId]
+ * @param {string} [config.searchColumnsId]
+ * @param {string} [config.searchInputId]
+ * @param {string} [config.statsId]
+ * @param {string} [config.paginationId]
+ * @param {Object} [config.tableConfig]
+ * @param {number|null} [config.pageSize=25]
+ * @param {string} [config.checkboxPrefix='managed']
+ * @param {Function} [config.dataTransform] - (data) => transformedData
+ * @param {Function} [config.preFilter] - (data) => filteredData
  * @returns {Object} Managed Table API
  */
 export function createManagedTable(config) {
@@ -58,16 +51,19 @@ export function createManagedTable(config) {
         paginationId,
         tableConfig = {},
         pageSize = 25,
-        checkboxPrefix = 'managed'
+        checkboxPrefix = 'managed',
+        dataTransform = null,
+        preFilter = null
     } = config;
 
     // ── Internal state ──
     let allData = [...data];
-    let filteredData = [...data];
+    let filteredData = [];
     let searchQuery = '';
     let columnFilters = {};
     let currentPage = 1;
     let currentPageSize = pageSize || 999999;
+    let active = true;
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
     let searchColumnIds = columns
         .filter(c => c.searchable && c.checked !== false)
@@ -83,6 +79,11 @@ export function createManagedTable(config) {
 
     // ── Filter columns config (from plugins.filters) ──
     const filterColumnsConfig = tableConfig.plugins?.filters?.filterColumns || [];
+
+    // ── Helper: get transformed data ──
+    function getWorkingData() {
+        return dataTransform ? dataTransform([...allData]) : [...allData];
+    }
 
     // ── 1. Create table ──
     const tableColumns = columns.map(({ searchable, checked, ...col }) => col);
@@ -101,16 +102,15 @@ export function createManagedTable(config) {
             ...tableConfig.plugins,
             sorting: tableConfig.plugins?.sorting ? {
                 ...tableConfig.plugins.sorting,
-                dataSource: () => filteredData,
+                dataSource: () => getWorkingData(),
                 onSort: (sortedData) => {
-                    filteredData = sortedData;
-                    currentPage = 1;
-                    renderPage();
+                    allData = sortedData;
+                    applyFilters();
                 }
             } : undefined,
             filters: tableConfig.plugins?.filters ? {
                 ...tableConfig.plugins.filters,
-                dataSource: () => allData,
+                dataSource: () => getWorkingData(),
                 onFilter: (filters) => {
                     columnFilters = filters;
                     applyFilters();
@@ -144,7 +144,6 @@ export function createManagedTable(config) {
     function rebuildSearchColumnsSelector() {
         if (!searchColumnsId) return;
 
-        // Searchable columns that are currently visible
         const searchableVisible = columns
             .filter(c => c.searchable && visibleColumnIds.includes(c.id))
             .map(c => ({
@@ -174,18 +173,26 @@ export function createManagedTable(config) {
 
     // ── 4. Combined filtering (column filters + text search) ──
     function applyFilters() {
-        let data = [...allData];
+        let data = getWorkingData();
+
+        // 0. Pre-filter (зовнішня логіка: paramTypeFilter, activeTab тощо)
+        if (preFilter) {
+            data = preFilter(data);
+        }
 
         // 1. Column filters (from FiltersPlugin)
         if (Object.keys(columnFilters).length > 0 && filterColumnsConfig.length > 0) {
             data = applyColumnFilters(data, columnFilters, filterColumnsConfig);
         }
 
-        // 2. Text search
+        // 2. Text search (підтримка масивів — names_alt, trigers)
         if (searchQuery) {
             data = data.filter(row =>
                 searchColumnIds.some(colId => {
                     const val = row[colId];
+                    if (Array.isArray(val)) {
+                        return val.some(v => String(v).toLowerCase().includes(searchQuery));
+                    }
                     return val && String(val).toLowerCase().includes(searchQuery);
                 })
             );
@@ -196,12 +203,15 @@ export function createManagedTable(config) {
         renderPage();
     }
 
+    // ── Search input handling ──
+    function onSearchInput(e) {
+        if (!active) return;
+        searchQuery = e.target.value.toLowerCase().trim();
+        applyFilters();
+    }
+
     if (searchInput) {
-        searchInput.value = '';
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase().trim();
-            applyFilters();
-        });
+        searchInput.addEventListener('input', onSearchInput);
     }
 
     // ── 5. Pagination ──
@@ -221,7 +231,7 @@ export function createManagedTable(config) {
     // ── 6. Render ──
     function renderPage() {
         let pageData;
-        if (paginationAPI && currentPageSize < 100000) {
+        if (currentPageSize < 100000) {
             const start = (currentPage - 1) * currentPageSize;
             pageData = filteredData.slice(start, start + currentPageSize);
         } else {
@@ -247,7 +257,7 @@ export function createManagedTable(config) {
     }
 
     // ── Initial render ──
-    renderPage();
+    applyFilters();
 
     // ── Public API ──
     return {
@@ -262,15 +272,19 @@ export function createManagedTable(config) {
             renderPage();
         },
 
-        /** Повна заміна даних */
+        /** Повна заміна даних (скидає пошук + фільтри) */
         setData(newData) {
             allData = [...newData];
             searchQuery = '';
             columnFilters = {};
             if (searchInput) searchInput.value = '';
-            filteredData = [...allData];
-            currentPage = 1;
-            renderPage();
+            applyFilters();
+        },
+
+        /** Оновити дані (зберігає пошук + фільтри) */
+        updateData(newData) {
+            allData = [...newData];
+            applyFilters();
         },
 
         /** Поточні відфільтровані дані */
@@ -278,20 +292,62 @@ export function createManagedTable(config) {
             return filteredData;
         },
 
+        /** Кількість відфільтрованих */
+        getFilteredCount() {
+            return filteredData.length;
+        },
+
         /** Всі дані */
         getAllData() {
             return allData;
         },
 
-        /** Повторно застосувати пошук + фільтри (після зовнішньої зміни даних) */
+        /** Повторно застосувати пошук + фільтри */
         refilter() {
             applyFilters();
         },
 
+        /** Встановити пошуковий запит програмно */
+        setSearchQuery(query) {
+            searchQuery = (query || '').toLowerCase().trim();
+            if (searchInput && active) {
+                searchInput.value = query || '';
+            }
+            applyFilters();
+        },
+
+        /** Зовнішнє керування пагінацією (для спільного footer) */
+        setPage(page, size) {
+            currentPage = page;
+            if (size !== undefined) currentPageSize = size;
+            renderPage();
+        },
+
+        /** Активувати (для табів зі спільним search input) */
+        activate() {
+            active = true;
+            if (searchInput) {
+                searchInput.value = searchQuery || '';
+            }
+            rebuildSearchColumnsSelector();
+            renderPage();
+        },
+
+        /** Деактивувати */
+        deactivate() {
+            active = false;
+            if (searchColsSelector) {
+                searchColsSelector.destroy();
+                searchColsSelector = null;
+            }
+        },
+
         /** Cleanup */
         destroy() {
+            if (searchInput) {
+                searchInput.removeEventListener('input', onSearchInput);
+            }
             if (searchColsSelector) searchColsSelector.destroy();
-            if (searchInput) searchInput.value = '';
             tableAPI.destroy?.();
         }
     };
