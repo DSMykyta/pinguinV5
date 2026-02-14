@@ -14,8 +14,6 @@
 
 import { bannedWordsState } from './banned-words-init.js';
 import { populateSelect } from '../common/ui-select.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
-import { getColumns } from './banned-words-manage.js';
 
 /**
  * Показати controls для вибраного табу
@@ -36,19 +34,10 @@ export function showTabControls(tabType) {
 
 /**
  * Показати aside панелі та заповнити їх даними
+ * Column selectors тепер в createManagedTable (banned-words-manage.js)
  */
 export function showAsidePanels() {
-    // Заповнити селекти для перевірки
     populateCheckSelects();
-
-    // Заповнити колонки таблиці ПЕРЕД колонками пошуку
-    populateTableColumns();
-
-    // Заповнити колонки для пошуку (залежать від visibleColumns)
-    populateSearchColumns();
-
-    // Ініціалізувати чекбокс приховування (вимкнено - елемент не знайдено)
-    // initHideCheckedToggle();
 }
 
 /**
@@ -74,41 +63,10 @@ export function populateCheckSelects() {
 
 }
 
-/**
- * Заповнити колонки для пошуку в aside
- * Використовує універсальну функцію setupSearchColumnsSelector
- */
-export function populateSearchColumns() {
-    setupSearchColumnsSelector({
-        containerId: 'search-columns-list',
-        getColumns,
-        state: bannedWordsState,
-        checkboxPrefix: 'search-col-banned'
-    });
-}
-
-/**
- * Заповнити колонки таблиці в dropdown
- * Використовує універсальну функцію setupTableColumnsSelector
- */
-export function populateTableColumns() {
-    setupTableColumnsSelector({
-        containerId: 'table-columns-list',
-        getColumns,
-        state: bannedWordsState,
-        checkboxPrefix: 'banned-col',
-        searchColumnsContainerId: 'search-columns-list',
-        onVisibilityChange: async (selectedIds) => {
-            // Оновити visible columns в tableAPI якщо він існує
-            if (bannedWordsState.manageTableAPI) {
-                bannedWordsState.manageTableAPI.setVisibleColumns(selectedIds);
-            }
-            // Перемальовати таблицю
-            const { renderBannedWordsTable } = await import('./banned-words-manage.js');
-            await renderBannedWordsTable();
-        }
-    });
-}
+// populateSearchColumns та populateTableColumns видалені
+// Column selectors тепер в createManagedTable (banned-words-manage.js)
+export function populateSearchColumns() {}
+export function populateTableColumns() {}
 
 /**
  * Ініціалізувати чекбокс приховування перевірених рядків

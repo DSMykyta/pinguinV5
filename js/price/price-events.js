@@ -6,11 +6,12 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Обробники подій для таблиці прайсу.
+ * Пошук, колонки, сортування, column filters — через createManagedTable (price-table.js).
  */
 
 import { priceState } from './price-init.js';
-import { updateItemStatus, updateItemArticle, filterByReserve } from './price-data.js';
-import { renderPriceTable, renderPriceTableRowsOnly, getColumns } from './price-table.js';
+import { updateItemStatus, updateItemArticle } from './price-data.js';
+import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
 
 let eventsInitialized = false;
 
@@ -36,19 +37,14 @@ export function initPriceEvents() {
     // Обробник кнопки оновлення
     initRefreshButton();
 
-    // Обробник пошуку
-    initSearchEvents();
-
     // Обробник batch actions
     initBatchActions();
-
 }
 
 /**
  * Обробник кліків по таблиці
  */
 async function handleTableClick(e) {
-    // Клік по badge статусу
     const badge = e.target.closest('.badge.clickable');
     if (badge) {
         e.preventDefault();
@@ -56,7 +52,6 @@ async function handleTableClick(e) {
         return;
     }
 
-    // Клік по кнопці редагування
     const editBtn = e.target.closest('.btn-edit');
     if (editBtn) {
         e.preventDefault();
@@ -69,14 +64,6 @@ async function handleTableClick(e) {
  * Обробник зміни значень
  */
 async function handleTableChange(e) {
-    // Зміна в input артикулу
-    const articleInput = e.target.closest('.input-article');
-    if (articleInput) {
-        // Артикул вводиться одноразово через paste
-        return;
-    }
-
-    // Select all checkbox
     if (e.target.id === 'select-all-price') {
         handleSelectAll(e.target.checked);
         return;
@@ -90,10 +77,9 @@ async function handleTableKeydown(e) {
     const articleInput = e.target.closest('.input-article');
     if (!articleInput) return;
 
-    // Enter - зберегти і вийти
     if (e.key === 'Enter') {
         e.preventDefault();
-        articleInput.blur(); // Викличе handleArticleBlur
+        articleInput.blur();
     }
 }
 
@@ -110,7 +96,6 @@ async function handleArticleBlur(e) {
     if (code && value) {
         try {
             await updateItemArticle(code, value);
-            // Замінюємо input на span
             articleInput.replaceWith(createArticleSpan(value));
         } catch (error) {
             console.error('Помилка збереження артикулу:', error);
@@ -121,17 +106,15 @@ async function handleArticleBlur(e) {
 
 /**
  * Обробник кліку по badge статусу
- * Формат data-badge-id: "code:field" (наприклад "CN16085:status")
  */
 async function handleStatusBadgeClick(badge) {
     const badgeId = badge.dataset.badgeId;
     if (!badgeId) return;
 
-    // Парсимо формат "code:field"
     const [code, field] = badgeId.split(':');
     if (!code || !field) return;
 
-    // Reserve — окрема логіка: резервуємо на поточного юзера
+    // Reserve — окрема логіка
     if (field === 'reserve') {
         try {
             const { getCurrentUserName } = await import('../common/avatar/avatar-state.js');
@@ -141,7 +124,7 @@ async function handleStatusBadgeClick(badge) {
 
             badge.classList.add('is-loading');
             await reserveItem(code, userName);
-            await renderPriceTableRowsOnly();
+            renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Помилка резервування:', error);
         } finally {
@@ -150,54 +133,18 @@ async function handleStatusBadgeClick(badge) {
         return;
     }
 
-    // Визначаємо поточний стан по класу
     const currentValue = badge.classList.contains('badge-success');
     const newValue = !currentValue ? 'TRUE' : 'FALSE';
 
     try {
-        // Показуємо loading стан
         badge.classList.add('is-loading');
-
         await updateItemStatus(code, field, newValue);
-
-        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-        await renderPriceTableRowsOnly();
-
+        renderPriceTableRowsOnly();
     } catch (error) {
         console.error('Помилка оновлення статусу:', error);
         alert('Помилка оновлення статусу');
     } finally {
         badge.classList.remove('is-loading');
-    }
-}
-
-/**
- * Оновити візуальний стан badge (deprecated - тепер використовуємо renderPriceTable)
- */
-function updateBadgeVisual(badge, isTrue, type) {
-    badge.dataset.value = isTrue;
-
-    if (isTrue) {
-        badge.classList.remove('badge-secondary');
-        badge.classList.add('badge-success');
-    } else {
-        badge.classList.remove('badge-success');
-        badge.classList.add('badge-secondary');
-    }
-
-    const icon = badge.querySelector('.material-symbols-outlined');
-    const label = badge.querySelector('.badge-label');
-
-    if (icon) {
-        icon.textContent = isTrue ? 'check' : 'close';
-    }
-
-    if (label) {
-        if (type === 'status') {
-            label.textContent = isTrue ? 'Викладено' : 'Не викладено';
-        } else {
-            label.textContent = isTrue ? 'Перевірено' : 'Не перевірено';
-        }
     }
 }
 
@@ -213,7 +160,6 @@ async function handleEditClick(btn) {
         return;
     }
 
-    // Відкриваємо модал редагування
     const { openEditModal } = await import('./price-edit-modal.js');
     openEditModal(item);
 }
@@ -242,366 +188,64 @@ function createArticleSpan(value) {
  * Ініціалізувати обробники табів резервів (юзерів) та статусів
  */
 function initReserveTabsEvents() {
-    // Таби резервів (юзери) в section-navigator
     const sectionNavigator = document.getElementById('tabs-head-container');
     if (sectionNavigator) {
-        sectionNavigator.addEventListener('click', async (e) => {
+        sectionNavigator.addEventListener('click', (e) => {
             const tabBtn = e.target.closest('.nav-icon[data-reserve-filter]');
             if (!tabBtn) return;
 
-            // Видаляємо active з усіх табів в navigator
             sectionNavigator.querySelectorAll('.nav-icon').forEach(btn => {
                 btn.classList.remove('active');
             });
-
-            // Додаємо active до поточного
             tabBtn.classList.add('active');
 
-            // Фільтруємо дані по резерву
-            const filter = tabBtn.dataset.reserveFilter;
-            priceState.currentReserveFilter = filter;
+            priceState.currentReserveFilter = tabBtn.dataset.reserveFilter;
 
-            // Скидаємо фільтр колонки reserve щоб не конфліктував з табом
-            if (priceState.columnFilters && priceState.columnFilters.reserve) {
-                delete priceState.columnFilters.reserve;
-            }
-
-            applyFilters();
-
-            // Скидаємо пагінацію
-            priceState.pagination.currentPage = 1;
-
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            await renderPriceTableRowsOnly();
-
-            // Оновлюємо пагінацію
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
+            // refilter через managed table (preFilter читає currentReserveFilter)
+            renderPriceTableRowsOnly();
         });
     }
 
-    // Таби статусів
     const statusTabsContainer = document.getElementById('status-filter-tabs');
     if (statusTabsContainer) {
-        statusTabsContainer.addEventListener('click', async (e) => {
+        statusTabsContainer.addEventListener('click', (e) => {
             const tabBtn = e.target.closest('.nav-icon');
             if (!tabBtn) return;
 
-            // Видаляємо active з усіх
             statusTabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
                 btn.classList.remove('active');
             });
-
-            // Додаємо active до поточного
             tabBtn.classList.add('active');
 
-            // Фільтруємо дані по статусу
-            const filter = tabBtn.dataset.statusFilter;
-            priceState.currentStatusFilter = filter;
-            applyFilters();
+            priceState.currentStatusFilter = tabBtn.dataset.statusFilter;
 
-            // Скидаємо пагінацію
-            priceState.pagination.currentPage = 1;
-
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            await renderPriceTableRowsOnly();
-
-            // Оновлюємо пагінацію
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
+            // refilter через managed table (preFilter читає currentStatusFilter)
+            renderPriceTableRowsOnly();
         });
     }
 }
 
 /**
- * Ініціалізувати пошук
+ * Ініціалізувати кнопку оновлення
  */
-function initSearchEvents() {
-    const searchInput = document.getElementById('search-price');
-    const clearBtn = document.getElementById('clear-search-price');
+function initRefreshButton() {
+    const refreshBtn = document.getElementById('refresh-tab-price');
+    if (!refreshBtn) return;
 
-    if (!searchInput) return;
+    refreshBtn.addEventListener('click', async () => {
+        const icon = refreshBtn.querySelector('.material-symbols-outlined');
+        if (icon) icon.classList.add('is-spinning');
 
-    searchInput.addEventListener('input', async (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        priceState.searchQuery = query;
-
-        // Показуємо/ховаємо кнопку очистки
-        if (clearBtn) {
-            clearBtn.classList.toggle('u-hidden', !query);
-        }
-
-        // Фільтруємо
-        applyFilters();
-
-        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-        await renderPriceTableRowsOnly();
-
-        // Оновлюємо пагінацію
-        if (priceState.paginationAPI) {
-            priceState.paginationAPI.update({
-                totalItems: priceState.filteredItems.length,
-                currentPage: 1
-            });
+        try {
+            const { loadPriceData } = await import('./price-data.js');
+            await loadPriceData();
+            renderPriceTable();
+        } catch (error) {
+            console.error('Помилка оновлення:', error);
+        } finally {
+            if (icon) icon.classList.remove('is-spinning');
         }
     });
-
-    if (clearBtn) {
-        clearBtn.addEventListener('click', async () => {
-            searchInput.value = '';
-            priceState.searchQuery = '';
-            clearBtn.classList.add('u-hidden');
-
-            applyFilters();
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            await renderPriceTableRowsOnly();
-
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length,
-                    currentPage: 1
-                });
-            }
-        });
-    }
-}
-
-/**
- * Застосувати всі фільтри (експортована версія)
- */
-export function applyAllFilters() {
-    applyFilters();
-}
-
-/**
- * Застосувати всі фільтри (резерв + статус + пошук + колонки)
- */
-function applyFilters() {
-    let items = [...priceState.priceItems];
-
-    // 1. Фільтр по резерву (юзеру) або спеціальний фільтр
-    const reserveFilter = priceState.currentReserveFilter || 'all';
-    if (reserveFilter === 'not_posted') {
-        // Не викладено - рядки без артикулів
-        items = items.filter(item => !item.article || item.article.trim() === '');
-    } else if (reserveFilter === 'suggestions') {
-        // Пропозиції - варіації товарів, де інші смаки вже викладені
-        items = getSuggestions(items);
-    } else if (reserveFilter !== 'all') {
-        // Звичайний фільтр по резерву (ім'я користувача)
-        items = items.filter(item => (item.reserve || '').trim() === reserveFilter);
-    }
-
-    // 2. Фільтр по статусу (в межах обраного резерву)
-    const statusFilter = priceState.currentStatusFilter || 'all';
-    if (statusFilter !== 'all') {
-        switch (statusFilter) {
-            case 'reserved':
-                // Всі зарезервовані
-                items = items.filter(item => item.reserve && item.reserve.trim() !== '');
-                break;
-            case 'posted':
-                // Викладені (status = TRUE)
-                items = items.filter(item =>
-                    (item.status === 'TRUE' || item.status === true)
-                );
-                break;
-            case 'checked':
-                // Перевірені (check = TRUE)
-                items = items.filter(item =>
-                    (item.check === 'TRUE' || item.check === true)
-                );
-                break;
-            case 'paid':
-                // Оплачені (payment = TRUE)
-                items = items.filter(item =>
-                    (item.payment === 'TRUE' || item.payment === true)
-                );
-                break;
-        }
-    }
-
-    // 3. Фільтр по пошуку
-    if (priceState.searchQuery) {
-        const query = priceState.searchQuery.toLowerCase();
-        const cols = priceState.searchColumns || ['code', 'article', 'product', 'reserve'];
-
-        items = items.filter(item => {
-            return cols.some(col => {
-                // 'product' шукає по name + brand
-                if (col === 'product') {
-                    const name = item.name || '';
-                    const brand = item.brand || '';
-                    return String(name).toLowerCase().includes(query) ||
-                           String(brand).toLowerCase().includes(query);
-                }
-                const val = item[col];
-                return val && String(val).toLowerCase().includes(query);
-            });
-        });
-    }
-
-    // 4. Фільтри по колонках (з dropdown в заголовках)
-    if (priceState.columnFilters && Object.keys(priceState.columnFilters).length > 0) {
-        const columns = getColumns();
-
-        items = items.filter(item => {
-            for (const [columnId, allowedValues] of Object.entries(priceState.columnFilters)) {
-                const column = columns.find(c => c.id === columnId);
-                const itemValue = item[columnId];
-                const allowedSet = new Set(allowedValues);
-
-                if (column?.filterType === 'exists') {
-                    // Фільтр по наявності значення
-                    const hasValue = itemValue && itemValue.toString().trim() !== '';
-
-                    if (allowedSet.has('__exists__') && allowedSet.has('__empty__')) {
-                        // Обидва вибрані - показуємо все
-                        continue;
-                    } else if (allowedSet.has('__exists__') && !allowedSet.has('__empty__') && !hasValue) {
-                        return false;
-                    } else if (allowedSet.has('__empty__') && !allowedSet.has('__exists__') && hasValue) {
-                        return false;
-                    } else if (!allowedSet.has('__exists__') && !allowedSet.has('__empty__')) {
-                        return false;
-                    }
-                } else {
-                    // Звичайний фільтр по значенню
-                    const normalizedValue = itemValue ? itemValue.toString().trim() : '';
-
-                    if (normalizedValue) {
-                        // Є значення - перевіряємо чи воно дозволене
-                        if (!allowedSet.has(normalizedValue)) {
-                            return false;
-                        }
-                    } else {
-                        // Порожнє значення - перевіряємо чи дозволено __empty__
-                        if (!allowedSet.has('__empty__')) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        });
-    }
-
-    // 5. Застосувати сортування якщо є збережений стан
-    if (priceState.sortState?.column && priceState.sortState?.direction) {
-        items = applySorting(items, priceState.sortState.column, priceState.sortState.direction);
-    }
-
-    priceState.filteredItems = items;
-}
-
-/**
- * Застосувати сортування до масиву
- */
-function applySorting(items, column, direction) {
-    const columnTypes = {
-        code: 'string',
-        article: 'string',
-        product: 'product',
-        reserve: 'string',
-        status: 'boolean',
-        check: 'boolean',
-        payment: 'boolean',
-        shiping_date: 'string',
-        update_date: 'date'
-    };
-
-    const type = columnTypes[column] || 'string';
-
-    return [...items].sort((a, b) => {
-        let aVal = a[column];
-        let bVal = b[column];
-
-        // Для product - brand + name + packaging + flavor
-        if (type === 'product') {
-            aVal = `${a.brand || ''} ${a.name || ''} ${a.packaging || ''} ${a.flavor || ''}`.trim();
-            bVal = `${b.brand || ''} ${b.name || ''} ${b.packaging || ''} ${b.flavor || ''}`.trim();
-        }
-
-        // Для boolean
-        if (type === 'boolean') {
-            aVal = (aVal === 'TRUE' || aVal === true) ? 1 : 0;
-            bVal = (bVal === 'TRUE' || bVal === true) ? 1 : 0;
-            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-            return 0;
-        }
-
-        // Для дати (підтримка DD.MM.YY)
-        if (type === 'date') {
-            const parseDate = (val) => {
-                if (val && typeof val === 'string' && val.match(/^\d{2}\.\d{2}\.\d{2}$/)) {
-                    const [day, month, year] = val.split('.');
-                    return new Date(2000 + parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
-                }
-                return val ? new Date(val).getTime() : 0;
-            };
-            aVal = parseDate(aVal);
-            bVal = parseDate(bVal);
-            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-            return 0;
-        }
-
-        // Для рядків - НЕ toLowerCase, localeCompare сам ігнорує регістр
-        aVal = String(aVal || '');
-        bVal = String(bVal || '');
-
-        // Пусті значення завжди в кінець
-        const aEmpty = aVal.trim() === '';
-        const bEmpty = bVal.trim() === '';
-        if (aEmpty && bEmpty) return 0;
-        if (aEmpty) return 1;
-        if (bEmpty) return -1;
-
-        // Українське сортування
-        const comparison = aVal.localeCompare(bVal, 'uk', { sensitivity: 'base' });
-        return direction === 'asc' ? comparison : -comparison;
-    });
-}
-
-/**
- * Отримати пропозиції - варіації товарів, де інші смаки/розміри вже викладені
- * Товар вважається варіацією якщо brand + name + packaging однакові
- */
-function getSuggestions(items) {
-    // Групуємо товари по brand + name + packaging (без flavor)
-    const groups = new Map();
-
-    for (const item of items) {
-        const key = `${item.brand || ''}|${item.name || ''}|${item.packaging || ''}`.toLowerCase();
-        if (!groups.has(key)) {
-            groups.set(key, []);
-        }
-        groups.get(key).push(item);
-    }
-
-    const suggestions = [];
-
-    for (const [key, groupItems] of groups) {
-        // Шукаємо групи де є хоча б один викладений товар (з артикулом)
-        const hasPosted = groupItems.some(item => item.article && item.article.trim() !== '');
-
-        if (hasPosted) {
-            // Додаємо всі НЕ викладені товари з цієї групи як пропозиції
-            const notPosted = groupItems.filter(item => !item.article || item.article.trim() === '');
-            suggestions.push(...notPosted);
-        }
-    }
-
-    return suggestions;
 }
 
 /**
@@ -614,19 +258,16 @@ function initBatchActions() {
 
     if (!container || !batchBar) return;
 
-    // Делегування для чекбоксів
     container.addEventListener('change', (e) => {
         if (e.target.classList.contains('row-checkbox') || e.target.id === 'select-all-price') {
             updateBatchBar();
         }
     });
 
-    // Кнопка "Зарезервувати" - резервує на поточного авторизованого користувача
     document.getElementById('batch-reserve-btn')?.addEventListener('click', async () => {
         const selected = getSelectedCodes();
         if (selected.length === 0) return;
 
-        // Перевіряємо авторизацію
         if (!window.isAuthorized || !window.currentUser) {
             alert('Потрібно авторизуватися для резервування');
             return;
@@ -638,7 +279,6 @@ function initBatchActions() {
             return;
         }
 
-        // Перевіряємо чи є вже зарезервовані товари
         const alreadyReserved = selected.filter(code => {
             const item = priceState.priceItems.find(i => i.code === code);
             return item && item.reserve && item.reserve.trim() !== '';
@@ -646,7 +286,6 @@ function initBatchActions() {
 
         if (alreadyReserved.length > 0) {
             alert(`${alreadyReserved.length} товар(ів) вже зарезервовано іншими користувачами. Змінити резерв можна тільки через кнопку редагування.`);
-            // Фільтруємо тільки незарезервовані
             const toReserve = selected.filter(code => !alreadyReserved.includes(code));
             if (toReserve.length === 0) return;
             await batchReserve(toReserve, userName);
@@ -667,7 +306,6 @@ function initBatchActions() {
         await batchUpdateStatus(selected, 'check', 'TRUE');
     });
 
-    // Кнопка "Скасувати вибір"
     document.getElementById('batch-clear-btn')?.addEventListener('click', () => {
         clearSelection();
     });
@@ -690,14 +328,11 @@ function initBatchActions() {
     }
 
     function clearSelection() {
-        // Знімаємо всі чекбокси
         container.querySelectorAll('.row-checkbox:checked').forEach(cb => {
             cb.checked = false;
         });
-        // Знімаємо "вибрати все"
         const selectAll = document.getElementById('select-all-price');
         if (selectAll) selectAll.checked = false;
-        // Оновлюємо панель
         updateBatchBar();
     }
 
@@ -708,7 +343,7 @@ function initBatchActions() {
                 await reserveItem(code, userName);
             }
             clearSelection();
-            await renderPriceTableRowsOnly();
+            renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Batch reserve error:', error);
             alert('Помилка масового резервування');
@@ -721,8 +356,7 @@ function initBatchActions() {
                 await updateItemStatus(code, field, value);
             }
             clearSelection();
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            await renderPriceTableRowsOnly();
+            renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Batch update error:', error);
             alert('Помилка масового оновлення');
@@ -730,41 +364,4 @@ function initBatchActions() {
     }
 }
 
-/**
- * Ініціалізувати кнопку оновлення
- */
-function initRefreshButton() {
-    const refreshBtn = document.getElementById('refresh-tab-price');
-    if (!refreshBtn) return;
-
-    refreshBtn.addEventListener('click', async () => {
-        const icon = refreshBtn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('is-spinning');
-
-        try {
-            const { loadPriceData } = await import('./price-data.js');
-            await loadPriceData();
-
-            // Застосовуємо поточний фільтр
-            filterByReserve(priceState.currentReserveFilter);
-
-            // Повний перерендер бо нові дані з сервера
-            await renderPriceTable();
-            // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
-
-            // Оновлюємо пагінацію
-            if (priceState.paginationAPI) {
-                priceState.paginationAPI.update({
-                    totalItems: priceState.filteredItems.length
-                });
-            }
-        } catch (error) {
-            console.error('Помилка оновлення:', error);
-        } finally {
-            if (icon) icon.classList.remove('is-spinning');
-        }
-    });
-}
-
-// initPriceColumnFilters, reinitColumnFiltersAfterRender, initPriceSorting
-// — тепер сортування та фільтри обробляються через Table LEGO плагіни в price-table.js
+// Пошук, applyFilters, applySorting — тепер через createManagedTable (price-table.js)

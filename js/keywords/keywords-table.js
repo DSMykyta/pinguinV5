@@ -5,13 +5,12 @@
  * ║                    KEYWORDS - TABLE RENDERING                            ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * Використовує універсальний createPseudoTable API для рендерингу таблиці.
+ * Використовує createManagedTable для таблиці + пошуку + колонок.
  */
 
 import { getKeywords } from './keywords-data.js';
 import { keywordsState } from './keywords-init.js';
-import { createTable, filterData, col } from '../common/table/table-main.js';
-import { escapeHtml } from '../utils/text-utils.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -33,14 +32,8 @@ registerActionHandlers('keywords', {
     }
 });
 
-// Прапорець для запобігання рекурсивного виклику
-let isRendering = false;
-
-// Table API instance
-let tableAPI = null;
 let _actionCleanup = null;
 
-// Мапа типів параметрів для відображення
 const PARAM_TYPE_LABELS = {
     'category': 'Категорія',
     'characteristic': 'Характеристика',
@@ -49,9 +42,10 @@ const PARAM_TYPE_LABELS = {
     'other': 'Інше'
 };
 
-/**
- * Отримати конфігурацію колонок для таблиці ключових слів
- */
+// ═══════════════════════════════════════════════════════════════════════════
+// COLUMNS
+// ═══════════════════════════════════════════════════════════════════════════
+
 export function getColumns() {
     return [
         col('local_id', 'ID', 'word-chip'),
@@ -61,249 +55,109 @@ export function getColumns() {
     ];
 }
 
-/**
- * Ініціалізувати таблицю (викликається один раз)
- */
-function initTableAPI() {
-    const container = document.getElementById('keywords-table-container');
-    if (!container || tableAPI) return;
+// ═══════════════════════════════════════════════════════════════════════════
+// MANAGED TABLE
+// ═══════════════════════════════════════════════════════════════════════════
 
+let keywordsManagedTable = null;
+
+function initKeywordsTable() {
     const visibleCols = keywordsState.visibleColumns.length > 0
         ? keywordsState.visibleColumns
         : ['local_id', 'param_type', 'name_uk', 'trigers'];
 
-    tableAPI = createTable(container, {
-        columns: getColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActions: (row) => {
-            const hasGlossary = row.glossary_text && row.glossary_text.trim();
-            const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
+    const searchCols = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers'];
 
-            return `
-                ${actionButton({ action: 'view', rowId: row.local_id, context: 'keywords', extraClass, title: 'Переглянути глосарій' })}
-                ${actionButton({ action: 'edit', rowId: row.local_id, context: 'keywords' })}
-            `;
-        },
-        getRowId: (row) => row.local_id,
-        emptyState: {
-            message: 'Ключові слова не знайдено'
-        },
-        withContainer: false,
-        onAfterRender: (container) => {
-            if (_actionCleanup) _actionCleanup();
-            _actionCleanup = initActionHandlers(container, 'keywords');
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => getKeywords(),
-                onSort: async (sortedData) => {
-                    keywordsState.keywords = sortedData;
-                    keywordsState.pagination.currentPage = 1;
-                    renderKeywordsTableRowsOnly();
-                },
-                columnTypes: {
-                    local_id: 'id-text',
-                    param_type: 'string',
-                    name_uk: 'string',
-                    trigers: 'string'
-                }
+    keywordsManagedTable = createManagedTable({
+        container: 'keywords-table-container',
+        columns: getColumns().map(c => ({
+            ...c,
+            searchable: searchCols.includes(c.id) || c.searchable === true,
+            checked: visibleCols.includes(c.id)
+        })),
+        data: getKeywords(),
+
+        // DOM IDs
+        columnsListId: 'table-columns-list-keywords',
+        searchColumnsId: 'search-columns-list-keywords',
+        searchInputId: 'search-keywords',
+        statsId: 'tab-stats-keywords',
+        paginationId: null,
+
+        tableConfig: {
+            rowActionsHeader: ' ',
+            rowActions: (row) => {
+                const hasGlossary = row.glossary_text && row.glossary_text.trim();
+                const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
+                return `
+                    ${actionButton({ action: 'view', rowId: row.local_id, context: 'keywords', extraClass, title: 'Переглянути глосарій' })}
+                    ${actionButton({ action: 'edit', rowId: row.local_id, context: 'keywords' })}
+                `;
             },
-            filters: {
-                dataSource: () => getKeywords(),
-                filterColumns: [
-                    { id: 'param_type', label: 'Тип', filterType: 'values', labelMap: PARAM_TYPE_LABELS }
-                ],
-                onFilter: (filters) => {
-                    keywordsState.columnFilters = filters;
-                    keywordsState.pagination.currentPage = 1;
-                    renderKeywordsTableRowsOnly();
+            getRowId: (row) => row.local_id,
+            emptyState: { message: 'Ключові слова не знайдено' },
+            withContainer: false,
+            onAfterRender: (container) => {
+                if (_actionCleanup) _actionCleanup();
+                _actionCleanup = initActionHandlers(container, 'keywords');
+            },
+            plugins: {
+                sorting: {
+                    columnTypes: {
+                        local_id: 'id-text',
+                        param_type: 'string',
+                        name_uk: 'string',
+                        trigers: 'string'
+                    }
+                },
+                filters: {
+                    filterColumns: [
+                        { id: 'param_type', label: 'Тип', filterType: 'values', labelMap: PARAM_TYPE_LABELS }
+                    ]
                 }
             }
-        }
+        },
+
+        preFilter: (data) => {
+            if (keywordsState.paramTypeFilter && keywordsState.paramTypeFilter !== 'all') {
+                return data.filter(e => e.param_type === keywordsState.paramTypeFilter);
+            }
+            return data;
+        },
+
+        pageSize: 10,
+        checkboxPrefix: 'keywords'
     });
 
-    // Зберігаємо в state для доступу з інших модулів
-    keywordsState.tableAPI = tableAPI;
+    keywordsState.tableAPI = keywordsManagedTable.tableAPI;
+    keywordsState.keywordsManagedTable = keywordsManagedTable;
 }
 
-/**
- * Отримати відфільтровані та пагіновані дані
- */
-function getFilteredPaginatedData() {
-    const keywords = getKeywords();
-    const filteredKeywords = applyFilters(keywords);
+// ═══════════════════════════════════════════════════════════════════════════
+// PUBLIC RENDER
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const { currentPage, pageSize } = keywordsState.pagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filteredKeywords.length);
-
-    return {
-        all: keywords,
-        filtered: filteredKeywords,
-        paginated: filteredKeywords.slice(start, end)
-    };
-}
-
-/**
- * Оновити тільки рядки таблиці (заголовок залишається)
- * Використовується при фільтрації/сортуванні/пагінації/пошуку
- */
-export function renderKeywordsTableRowsOnly() {
-    if (!tableAPI) {
-        // Якщо API ще не створено - робимо повний рендер
-        renderKeywordsTable();
-        return;
-    }
-
-    const { all, filtered, paginated } = getFilteredPaginatedData();
-
-    // Оновлюємо пагінацію
-    if (keywordsState.paginationAPI) {
-        keywordsState.paginationAPI.update({
-            currentPage: keywordsState.pagination.currentPage,
-            pageSize: keywordsState.pagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Оновлюємо тільки рядки
-    tableAPI.updateRows(paginated);
-
-    updateStats(paginated.length, filtered.length);
-}
-
-/**
- * Повний рендеринг таблиці (заголовок + рядки)
- * Використовується при початковому завантаженні та refresh
- */
 export function renderKeywordsTable() {
-    // Запобігаємо рекурсивному виклику
-    if (isRendering) return;
-    isRendering = true;
-
-
-    const container = document.getElementById('keywords-table-container');
-    if (!container) {
-        isRendering = false;
+    if (!keywordsManagedTable) {
+        initKeywordsTable();
         return;
     }
-
-    // Ініціалізуємо API якщо потрібно
-    if (!tableAPI) {
-        initTableAPI();
-    }
-
-    const { all, filtered, paginated } = getFilteredPaginatedData();
-
-    if (!all || all.length === 0) {
-        renderEmptyState();
-        isRendering = false;
-        return;
-    }
-
-    // Оновлюємо пагінацію
-    if (keywordsState.paginationAPI) {
-        keywordsState.paginationAPI.update({
-            currentPage: keywordsState.pagination.currentPage,
-            pageSize: keywordsState.pagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Повний рендер таблиці
-    tableAPI.render(paginated);
-
-    updateStats(paginated.length, filtered.length);
-
-
-    isRendering = false;
+    keywordsManagedTable.updateData(getKeywords());
 }
 
-/**
- * Застосувати фільтри до даних
- */
-function applyFilters(keywords) {
-    let filtered = [...keywords];
-
-    // Застосувати фільтр типів з кнопок header
-    if (keywordsState.paramTypeFilter && keywordsState.paramTypeFilter !== 'all') {
-        filtered = filtered.filter(entry => entry.param_type === keywordsState.paramTypeFilter);
+export function renderKeywordsTableRowsOnly() {
+    if (keywordsManagedTable) {
+        keywordsManagedTable.refilter();
+    } else {
+        renderKeywordsTable();
     }
-
-    // Застосувати фільтри по колонках (з dropdown в заголовках)
-    if (keywordsState.columnFilters && Object.keys(keywordsState.columnFilters).length > 0) {
-        filtered = filtered.filter(item => {
-            for (const [columnId, allowedValues] of Object.entries(keywordsState.columnFilters)) {
-                const itemValue = item[columnId];
-                const allowedSet = new Set(allowedValues);
-
-                const normalizedValue = itemValue ? itemValue.toString().trim() : '';
-
-                if (normalizedValue) {
-                    if (!allowedSet.has(normalizedValue)) {
-                        return false;
-                    }
-                } else {
-                    if (!allowedSet.has('__empty__')) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        });
-    }
-
-    // Застосувати пошук
-    if (keywordsState.searchQuery) {
-        const query = keywordsState.searchQuery.toLowerCase();
-        const columns = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers'];
-
-        filtered = filtered.filter(entry => {
-            return columns.some(column => {
-                const value = entry[column];
-                return value?.toString().toLowerCase().includes(query);
-            });
-        });
-    }
-
-    return filtered;
 }
 
-/**
- * Показати порожній стан
- */
-function renderEmptyState() {
-    const container = document.getElementById('keywords-table-container');
-    if (!container) return;
-
-    import('../utils/avatar-states.js').then(({ renderAvatarState }) => {
-        container.innerHTML = renderAvatarState('empty', {
-            size: 'medium',
-            containerClass: 'empty-state-container',
-            avatarClass: 'empty-state-avatar',
-            messageClass: 'avatar-state-message',
-            showMessage: true
-        });
-    });
-
-    updateStats(0, 0);
-}
-
-/**
- * Оновити статистику
- */
-function updateStats(visible, total) {
-    const statsEl = document.getElementById('tab-stats-keywords');
-    if (!statsEl) return;
-
-    statsEl.textContent = `Показано ${visible} з ${total}`;
-}
-
-/**
- * Скинути tableAPI (для реініціалізації)
- */
 export function resetTableAPI() {
-    tableAPI = null;
+    if (keywordsManagedTable) {
+        keywordsManagedTable.destroy();
+        keywordsManagedTable = null;
+    }
     keywordsState.tableAPI = null;
+    keywordsState.keywordsManagedTable = null;
 }

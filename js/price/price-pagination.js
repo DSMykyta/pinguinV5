@@ -9,7 +9,6 @@
  */
 
 import { priceState } from './price-init.js';
-import { renderPriceTableRowsOnly } from './price-table.js';
 import { initPagination } from '../common/ui-pagination.js';
 
 /**
@@ -23,16 +22,14 @@ export function initPaginationForPrice() {
         return;
     }
 
-    // Використовуємо універсальну пагінацію
     priceState.paginationAPI = initPagination(footer, {
         currentPage: priceState.pagination.currentPage,
         pageSize: priceState.pagination.pageSize,
         totalItems: priceState.filteredItems.length,
-        onPageChange: async (page, pageSize) => {
+        onPageChange: (page, pageSize) => {
             priceState.pagination.currentPage = page;
             priceState.pagination.pageSize = pageSize;
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            await renderPriceTableRowsOnly();
+            priceState.priceManagedTable?.setPage(page, pageSize);
         }
     });
 

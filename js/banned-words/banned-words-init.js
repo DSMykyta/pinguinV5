@@ -166,7 +166,7 @@ async function updateUIWithData() {
     // 3. Ініціалізувати pagination ПЕРЕД рендерингом таблиці
     initPaginationForBannedWords();
 
-    // 4. Відрендерити таблицю
+    // 4. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
     const { renderBannedWordsTable, initManageTabFilters } = await import('./banned-words-manage.js');
     await renderBannedWordsTable();
 
@@ -176,7 +176,6 @@ async function updateUIWithData() {
     // 5. Ініціалізувати події
     const { initBannedWordsEvents } = await import('./banned-words-events.js');
     initBannedWordsEvents();
-    // Сортування тепер через Table LEGO плагіни (banned-words-manage.js)
 
     // 6. Ініціалізувати обробники табу управління та aside
     initManageTabEvents();

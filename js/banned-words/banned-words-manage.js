@@ -6,7 +6,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { initCustomSelects } from '../common/ui-select.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { createTable, renderBadge, renderSeverityBadge, col } from '../common/table/table-main.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -26,24 +26,10 @@ registerActionHandlers('banned-words-manage', {
     }
 });
 
-// Table API instance
-let manageTableAPI = null;
+// ═══════════════════════════════════════════════════════════════════════════
+// COLUMNS
+// ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Допоміжна функція для рендерингу чіпів
- */
-const renderWordChips = (value, isPrimary = false) => {
-    if (!value) return '-';
-    const words = value.split(',').map(s => s.trim()).filter(Boolean);
-    if (words.length === 0) return '-';
-    const primaryClass = isPrimary ? ' primary' : '';
-    const chipsHtml = words.map(word => `<span class="word-chip${primaryClass}">${escapeHtml(word)}</span>`).join('');
-    return `<div class="cell-words-list">${chipsHtml}</div>`;
-};
-
-/**
- * Отримати конфігурацію колонок для таблиці заборонених слів
- */
 export function getColumns() {
     return [
         col('local_id', 'ID', 'word-chip'),
@@ -54,89 +40,88 @@ export function getColumns() {
     ];
 }
 
-/**
- * Рендер табу управління забороненими словами
- */
-export async function renderBannedWordsManageTab() {
+// ═══════════════════════════════════════════════════════════════════════════
+// MANAGED TABLE
+// ═══════════════════════════════════════════════════════════════════════════
 
-    // Рендер таблиці
-    await renderBannedWordsTable();
+let managedTable = null;
 
-}
-
-/**
- * Оновити лічильники на сторінці
- */
-function updateCounters(pageCount, totalCount) {
-    // Оновити статистику в tab header
-    const tabStats = document.getElementById('tab-stats-manage');
-    if (tabStats) {
-        tabStats.textContent = `Показано ${pageCount} з ${totalCount}`;
-    }
-}
-
-/**
- * Ініціалізувати таблицю управління (викликається один раз)
- */
-function initManageTableAPI() {
-    const container = document.getElementById('banned-words-table-container');
-    if (!container || manageTableAPI) return;
-
+function initManagedBannedWordsTable() {
     const visibleCols = (bannedWordsState.visibleColumns && bannedWordsState.visibleColumns.length > 0)
         ? bannedWordsState.visibleColumns
         : ['local_id', 'severity', 'group_name_ua', 'banned_type', 'cheaked_line'];
 
-    manageTableAPI = createTable(container, {
-        columns: getColumns(),
-        visibleColumns: visibleCols,
-        rowActions: (row) => {
-            const selectedSet = bannedWordsState.selectedProducts['tab-manage'] || new Set();
-            const isChecked = selectedSet.has(row.local_id);
-            return `
-                <input type="checkbox" class="row-checkbox" data-product-id="${escapeHtml(row.local_id)}" ${isChecked ? 'checked' : ''}>
-                ${actionButton({ action: 'edit', rowId: row.local_id, context: 'banned-words-manage' })}
-            `;
-        },
-        rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
-        getRowId: (row) => row.local_id,
-        emptyState: {
-            message: 'Заборонені слова не знайдено'
-        },
-        withContainer: false,
-        onAfterRender: attachManageRowEventHandlers,
-        plugins: {
-            sorting: {
-                dataSource: () => bannedWordsState.bannedWords,
-                onSort: async (sortedData) => {
-                    bannedWordsState.bannedWords = sortedData;
-                    await renderBannedWordsTable();
-                },
-                columnTypes: {
-                    local_id: 'id-number',
-                    group_name_ua: 'string',
-                    name_uk: 'string',
-                    name_ru: 'string',
-                    banned_type: 'string',
-                    banned_explaine: 'string',
-                    banned_hint: 'string',
-                    severity: 'string',
-                    cheaked_line: 'boolean'
+    const searchCols = (bannedWordsState.searchColumns && bannedWordsState.searchColumns.length > 0)
+        ? bannedWordsState.searchColumns
+        : ['local_id', 'group_name_ua', 'banned_type'];
+
+    managedTable = createManagedTable({
+        container: 'banned-words-table-container',
+        columns: getColumns().map(c => ({
+            ...c,
+            searchable: searchCols.includes(c.id) || c.searchable === true,
+            checked: visibleCols.includes(c.id)
+        })),
+        data: bannedWordsState.bannedWords,
+
+        // DOM IDs
+        columnsListId: 'table-columns-list',
+        searchColumnsId: 'search-columns-list',
+        searchInputId: 'search-banned-words',
+        statsId: 'tab-stats-manage',
+        paginationId: null, // спільна пагінація — керується ззовні
+
+        tableConfig: {
+            rowActions: (row) => {
+                const selectedSet = bannedWordsState.selectedProducts['tab-manage'] || new Set();
+                const isChecked = selectedSet.has(row.local_id);
+                return `
+                    <input type="checkbox" class="row-checkbox" data-product-id="${escapeHtml(row.local_id)}" ${isChecked ? 'checked' : ''}>
+                    ${actionButton({ action: 'edit', rowId: row.local_id, context: 'banned-words-manage' })}
+                `;
+            },
+            rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
+            getRowId: (row) => row.local_id,
+            emptyState: { message: 'Заборонені слова не знайдено' },
+            withContainer: false,
+            onAfterRender: attachManageRowEventHandlers,
+            plugins: {
+                sorting: {
+                    columnTypes: {
+                        local_id: 'id-number',
+                        group_name_ua: 'string',
+                        banned_type: 'string',
+                        severity: 'string',
+                        cheaked_line: 'boolean'
+                    }
                 }
             }
-        }
+        },
+
+        preFilter: (data) => {
+            const activeFilter = bannedWordsState.tabFilters['tab-manage'] || 'all';
+            if (activeFilter === 'checked') {
+                return data.filter(w => w.cheaked_line === 'TRUE' || w.cheaked_line === true);
+            } else if (activeFilter === 'unchecked') {
+                return data.filter(w => w.cheaked_line !== 'TRUE' && w.cheaked_line !== true);
+            }
+            return data;
+        },
+
+        pageSize: 10,
+        checkboxPrefix: 'banned'
     });
 
-    bannedWordsState.manageTableAPI = manageTableAPI;
+    bannedWordsState.manageTableAPI = managedTable.tableAPI;
+    bannedWordsState.manageManagedTable = managedTable;
 }
 
 /**
  * Додати обробники подій для рядків таблиці управління
  */
 async function attachManageRowEventHandlers(container) {
-    // Ініціалізувати ui-actions
     initActionHandlers(container, 'banned-words-manage');
 
-    // Додати обробник кліків на clickable badges
     container.querySelectorAll('.badge.clickable').forEach(badge => {
         badge.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -147,16 +132,13 @@ async function attachManageRowEventHandlers(container) {
         });
     });
 
-    // Ініціалізувати batch actions для tab-manage
     const { initBatchActionsBar, toggleProductSelection, selectAll, deselectAll, isAllSelected } = await import('./banned-words-batch.js');
     initBatchActionsBar('tab-manage');
 
-    // Обробник для чекбоксу "вибрати всі"
     const selectAllCheckbox = container.querySelector('.select-all-checkbox');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', (e) => {
             const allIds = Array.from(container.querySelectorAll('.row-checkbox')).map(cb => cb.dataset.productId);
-
             if (e.target.checked) {
                 selectAll('tab-manage', allIds);
             } else {
@@ -165,13 +147,10 @@ async function attachManageRowEventHandlers(container) {
         });
     }
 
-    // Обробник для чекбоксів рядків
     container.querySelectorAll('.row-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', () => {
             const wordId = checkbox.dataset.productId;
             toggleProductSelection('tab-manage', wordId);
-
-            // Оновити стан "select all" checkbox
             if (selectAllCheckbox) {
                 selectAllCheckbox.checked = isAllSelected('tab-manage');
             }
@@ -179,123 +158,37 @@ async function attachManageRowEventHandlers(container) {
     });
 }
 
-/**
- * Отримати відфільтровані та пагіновані дані
- */
-function getManageFilteredPaginatedData() {
-    let filteredWords = [...bannedWordsState.bannedWords];
+// ═══════════════════════════════════════════════════════════════════════════
+// PUBLIC RENDER
+// ═══════════════════════════════════════════════════════════════════════════
 
-    // 1. СПОЧАТКУ застосувати фільтр табу
-    const activeFilter = bannedWordsState.tabFilters['tab-manage'] || 'all';
-    if (activeFilter === 'checked') {
-        filteredWords = filteredWords.filter(word => word.cheaked_line === 'TRUE' || word.cheaked_line === true);
-    } else if (activeFilter === 'unchecked') {
-        filteredWords = filteredWords.filter(word => word.cheaked_line !== 'TRUE' && word.cheaked_line !== true);
-    }
-
-    // 2. ПОТІМ пошук
-    if (bannedWordsState.searchQuery) {
-        const query = bannedWordsState.searchQuery.toLowerCase();
-        const columns = bannedWordsState.searchColumns || ['name_uk', 'name_ru'];
-
-        filteredWords = filteredWords.filter(word => {
-            return columns.some(column => {
-                const value = word[column];
-                if (column === 'cheaked_line') {
-                    const checkValue = (value === 'TRUE' || value === true) ? 'так true' : 'ні false';
-                    return checkValue.includes(query);
-                }
-                return value?.toString().toLowerCase().includes(query);
-            });
-        });
-    }
-
-    // Отримати пагінацію для tab-manage
-    const tabPagination = bannedWordsState.tabPaginations['tab-manage'] || {
-        currentPage: 1,
-        pageSize: 10,
-        totalItems: 0
-    };
-
-    tabPagination.totalItems = filteredWords.length;
-
-    const startIndex = (tabPagination.currentPage - 1) * tabPagination.pageSize;
-    const endIndex = Math.min(startIndex + tabPagination.pageSize, filteredWords.length);
-
-    return {
-        all: bannedWordsState.bannedWords,
-        filtered: filteredWords,
-        paginated: filteredWords.slice(startIndex, endIndex)
-    };
+export async function renderBannedWordsManageTab() {
+    await renderBannedWordsTable();
 }
 
-/**
- * Оновити тільки рядки таблиці (заголовок залишається)
- */
-export async function renderBannedWordsTableRowsOnly() {
-    if (!manageTableAPI) {
-        await renderBannedWordsTable();
+export async function renderBannedWordsTable() {
+    if (!managedTable) {
+        initManagedBannedWordsTable();
         return;
     }
-
-    const { all, filtered, paginated } = getManageFilteredPaginatedData();
-
-    // Оновити footer pagination UI
-    const footer = document.querySelector('.footer');
-    if (footer && footer._paginationAPI) {
-        footer._paginationAPI.update({
-            currentPage: bannedWordsState.tabPaginations['tab-manage']?.currentPage || 1,
-            totalItems: filtered.length
-        });
-    }
-
-    // Оновлюємо тільки рядки
-    manageTableAPI.updateRows(paginated);
-
-    updateCounters(paginated.length, filtered.length);
+    managedTable.updateData(bannedWordsState.bannedWords);
 }
 
-/**
- * Рендер таблиці заборонених слів (повний рендер)
- */
-export async function renderBannedWordsTable() {
-    const container = document.getElementById('banned-words-table-container');
-    if (!container) return;
-
-    // Ініціалізуємо API якщо потрібно
-    if (!manageTableAPI) {
-        initManageTableAPI();
-    }
-
-    const { all, filtered, paginated } = getManageFilteredPaginatedData();
-
-    // Оновити лічильники
-    updateCounters(paginated.length, filtered.length);
-
-    // Оновити footer pagination UI
-    const footer = document.querySelector('.footer');
-    if (footer && footer._paginationAPI) {
-        footer._paginationAPI.update({
-            currentPage: bannedWordsState.tabPaginations['tab-manage']?.currentPage || 1,
-            totalItems: filtered.length
-        });
-    }
-
-    // Повний рендер таблиці
-    manageTableAPI.render(paginated);
-
-    // Якщо немає даних
-    if (paginated.length === 0) {
-        updateCounters(0, all.length);
+export async function renderBannedWordsTableRowsOnly() {
+    if (managedTable) {
+        managedTable.refilter();
+    } else {
+        await renderBannedWordsTable();
     }
 }
 
-/**
- * Скинути manageTableAPI (для реініціалізації)
- */
 export function resetManageTableAPI() {
-    manageTableAPI = null;
+    if (managedTable) {
+        managedTable.destroy();
+        managedTable = null;
+    }
     bannedWordsState.manageTableAPI = null;
+    bannedWordsState.manageManagedTable = null;
 }
 
 /**
@@ -604,8 +497,8 @@ export function initManageTabFilters() {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Перерендерити таблицю з новим фільтром
-            await renderBannedWordsTable();
+            // refilter через managed table (preFilter читає tabFilters)
+            renderBannedWordsTableRowsOnly();
 
         });
     });

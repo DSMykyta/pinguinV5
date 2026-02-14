@@ -5,17 +5,14 @@
  * ║                    BRAND LINES - TABLE RENDERING                         ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 ПЛАГІН — можна видалити, система працюватиме без таблиці лінійок.
- *
- * Рендеринг таблиці лінійок брендів з підтримкою пагінації та фільтрації.
+ * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці лінійок.
  */
 
 import { registerBrandsPlugin } from './brands-plugins.js';
 import { getBrandLines } from './lines-data.js';
 import { getBrandById } from './brands-data.js';
 import { brandsState } from './brands-state.js';
-import { createTable, col } from '../common/table/table-main.js';
-import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -33,17 +30,12 @@ registerActionHandlers('brand-lines', {
     }
 });
 
-// Table API instance
-let linesTableAPI = null;
 let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Отримати конфігурацію колонок для таблиці лінійок
- */
 export function getLinesColumns() {
     return [
         col('line_id', 'ID', 'word-chip'),
@@ -53,9 +45,6 @@ export function getLinesColumns() {
     ];
 }
 
-/**
- * Збагачує дані лінійок обчисленими полями
- */
 function enrichLinesData(lines) {
     return lines.map(l => ({
         ...l,
@@ -65,222 +54,93 @@ function enrichLinesData(lines) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// TABLE API INITIALIZATION
+// MANAGED TABLE
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Ініціалізувати таблицю лінійок (викликається один раз)
- */
-function initLinesTableAPI() {
-    const container = document.getElementById('lines-table-container');
-    if (!container || linesTableAPI) return;
-
+function initLinesTable() {
     const visibleCols = brandsState.linesVisibleColumns.length > 0
         ? brandsState.linesVisibleColumns
         : ['line_id', '_brandName', 'name_uk'];
 
-    linesTableAPI = createTable(container, {
-        columns: getLinesColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActions: (row) => actionButton({
-            action: 'edit',
-            rowId: row.line_id,
-            context: 'brand-lines'
-        }),
-        getRowId: (row) => row.line_id,
-        emptyState: {
-            message: 'Лінійки не знайдено'
-        },
-        withContainer: false,
-        onAfterRender: (container) => {
-            if (_actionCleanup) _actionCleanup();
-            _actionCleanup = initActionHandlers(container, 'brand-lines');
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => enrichLinesData(brandsState.brandLines || []),
-                onSort: async (sortedData) => {
-                    brandsState.brandLines = sortedData;
-                    renderLinesTable();
-                },
-                columnTypes: {
-                    line_id: 'id-text',
-                    _brandName: 'string',
-                    name_uk: 'string'
+    const searchCols = brandsState.linesSearchColumns || ['line_id', 'name_uk', '_brandName'];
+
+    brandsState.linesManagedTable = createManagedTable({
+        container: 'lines-table-container',
+        columns: getLinesColumns().map(c => ({
+            ...c,
+            searchable: searchCols.includes(c.id),
+            checked: visibleCols.includes(c.id)
+        })),
+        data: enrichLinesData(getBrandLines()),
+
+        // DOM IDs — спільний search input з brands, search columns перемикається через activate/deactivate
+        columnsListId: 'table-columns-list-lines',
+        searchColumnsId: 'search-columns-list-brands',
+        searchInputId: 'search-brands',
+        statsId: 'tab-stats-lines',
+        paginationId: null,
+
+        tableConfig: {
+            rowActionsHeader: ' ',
+            rowActions: (row) => actionButton({
+                action: 'edit',
+                rowId: row.line_id,
+                context: 'brand-lines'
+            }),
+            getRowId: (row) => row.line_id,
+            emptyState: { message: 'Лінійки не знайдено' },
+            withContainer: false,
+            onAfterRender: (container) => {
+                if (_actionCleanup) _actionCleanup();
+                _actionCleanup = initActionHandlers(container, 'brand-lines');
+            },
+            plugins: {
+                sorting: {
+                    columnTypes: {
+                        line_id: 'id-text',
+                        _brandName: 'string',
+                        name_uk: 'string'
+                    }
                 }
             }
-        }
+        },
+
+        dataTransform: (data) => enrichLinesData(data),
+
+        pageSize: 25,
+        checkboxPrefix: 'lines'
     });
 
-    // Зберігаємо в state
-    brandsState.linesTableAPI = linesTableAPI;
-}
+    // Деактивувати одразу — brands таб активний за замовчуванням
+    brandsState.linesManagedTable.deactivate();
 
-/**
- * Отримати пагіновані дані лінійок
- */
-function getLinesPagedData() {
-    const lines = enrichLinesData(getBrandLines());
-    const filteredLines = applyFilters(lines);
-
-    // Зберігаємо totalItems в state для коректного перемикання табів
-    brandsState.linesPagination.totalItems = filteredLines.length;
-
-    const { currentPage, pageSize } = brandsState.linesPagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filteredLines.length);
-
-    return {
-        all: lines,
-        filtered: filteredLines,
-        paginated: filteredLines.slice(start, end)
-    };
+    brandsState.linesTableAPI = brandsState.linesManagedTable.tableAPI;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RENDER
+// PUBLIC RENDER
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Оновити тільки рядки таблиці лінійок (заголовок залишається)
- */
-export function renderLinesTableRowsOnly() {
+export function renderLinesTable() {
     if (brandsState.activeTab !== 'lines') return;
 
-    if (!linesTableAPI) {
-        renderLinesTable();
+    if (!brandsState.linesManagedTable) {
+        initLinesTable();
+        brandsState.linesManagedTable.activate();
         return;
     }
-
-    const { all, filtered, paginated } = getLinesPagedData();
-
-    // Оновлюємо пагінацію
-    if (brandsState.paginationAPI) {
-        brandsState.paginationAPI.update({
-            currentPage: brandsState.linesPagination.currentPage,
-            pageSize: brandsState.linesPagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Оновлюємо тільки рядки
-    linesTableAPI.updateRows(paginated);
-
-    updateStats(paginated.length, filtered.length);
+    brandsState.linesManagedTable.updateData(getBrandLines());
 }
 
-/**
- * Рендерити таблицю лінійок (повний рендер)
- */
-export function renderLinesTable() {
-    // Перевіряємо чи активний таб лінійок
-    if (brandsState.activeTab !== 'lines') {
-        return;
-    }
-
-
-    const container = document.getElementById('lines-table-container');
-    if (!container) return;
-
-    const lines = getBrandLines();
-    if (!lines || lines.length === 0) {
-        renderEmptyState();
-        return;
-    }
-
-    // Ініціалізуємо API якщо потрібно
-    if (!linesTableAPI) {
-        initLinesTableAPI();
-    }
-
-    const { all, filtered, paginated } = getLinesPagedData();
-
-    // Оновити пагінацію
-    if (brandsState.paginationAPI) {
-        brandsState.paginationAPI.update({
-            currentPage: brandsState.linesPagination.currentPage,
-            pageSize: brandsState.linesPagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Повний рендер таблиці
-    linesTableAPI.render(paginated);
-
-    // Оновити статистику
-    updateStats(paginated.length, filtered.length);
-
+export function renderLinesTableRowsOnly() {
+    renderLinesTable();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FILTERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Застосувати фільтри
- * @param {Array} lines - Масив лінійок
- * @returns {Array} Відфільтровані лінійки
- */
-function applyFilters(lines) {
-    let filtered = [...lines];
-
-    // Пошук
-    if (brandsState.linesSearchQuery) {
-        const query = brandsState.linesSearchQuery.toLowerCase();
-        const columns = brandsState.linesSearchColumns || ['line_id', 'name_uk', '_brandName'];
-
-        filtered = filtered.filter(line => {
-            return columns.some(column => {
-                const value = line[column];
-                return value?.toString().toLowerCase().includes(query);
-            });
-        });
-    }
-
-    return filtered;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Відрендерити порожній стан
- */
-function renderEmptyState() {
-    const container = document.getElementById('lines-table-container');
-    if (!container) return;
-
-    const avatarHtml = renderAvatarState('empty', {
-        size: 'medium',
-        containerClass: 'empty-state-container',
-        avatarClass: 'empty-state-avatar',
-        messageClass: 'avatar-state-message',
-        showMessage: true
-    });
-
-    container.innerHTML = avatarHtml;
-    updateStats(0, 0);
-}
-
-/**
- * Оновити статистику
- * @param {number} visible - Кількість видимих
- * @param {number} total - Загальна кількість
- */
-function updateStats(visible, total) {
-    const statsEl = document.getElementById('tab-stats-lines');
-    if (!statsEl) return;
-
-    statsEl.textContent = `Показано ${visible} з ${total}`;
-}
-
-/**
- * Скинути linesTableAPI (для реініціалізації)
- */
 export function resetLinesTableAPI() {
-    linesTableAPI = null;
+    if (brandsState.linesManagedTable) {
+        brandsState.linesManagedTable.destroy();
+        brandsState.linesManagedTable = null;
+    }
     brandsState.linesTableAPI = null;
 }
 
@@ -288,24 +148,27 @@ export function resetLinesTableAPI() {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Реєструємо на хук onInit — рендеримо таблицю після завантаження даних
 registerBrandsPlugin('onInit', () => {
     if (brandsState.activeTab === 'lines') {
         renderLinesTable();
     }
 });
 
-// Реєструємо на хук onRender — для оновлення таблиці
 registerBrandsPlugin('onRender', () => {
-    if (brandsState.activeTab === 'lines') {
-        renderLinesTable();
+    if (brandsState.activeTab === 'lines' && brandsState.linesManagedTable) {
+        brandsState.linesManagedTable.refilter();
     }
 });
 
-// Реєструємо на хук onTabChange — для рендерингу при перемиканні табу
 registerBrandsPlugin('onTabChange', (tab) => {
     if (tab === 'lines') {
-        renderLinesTable();
+        brandsState.brandsManagedTable?.deactivate();
+        if (!brandsState.linesManagedTable) {
+            initLinesTable();
+        }
+        brandsState.linesManagedTable.activate();
+    } else {
+        brandsState.linesManagedTable?.deactivate();
+        brandsState.brandsManagedTable?.activate();
     }
 });
-

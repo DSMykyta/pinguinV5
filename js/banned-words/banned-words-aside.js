@@ -251,46 +251,45 @@ export function initManageTabEvents() {
         });
     }
 
-    // Пошук
+    // Пошук — для tab-manage керується через createManagedTable (banned-words-manage.js)
+    // Для check табів — ручна фільтрація через renderFn
     const searchInput = document.getElementById('search-banned-words');
     const clearSearchBtn = document.getElementById('clear-search-banned-words');
 
     if (searchInput) {
         searchInput.addEventListener('input', async (e) => {
-            bannedWordsState.searchQuery = e.target.value.toLowerCase();
-
-            // Показати/сховати кнопку очищення
             if (clearSearchBtn) {
                 clearSearchBtn.classList.toggle('u-hidden', !(e.target.value));
             }
 
-            // Знайти активний таб і викликати його renderFn
+            // Для check табів — ручна фільтрація (tab-manage керується managed table)
             const activeTab = document.querySelector('.tab-content.active');
             if (activeTab) {
                 const tabId = activeTab.dataset.tabContent;
-                const tabPagination = bannedWordsState.tabPaginations[tabId];
-                if (tabPagination && tabPagination.renderFn) {
-                    await tabPagination.renderFn();
+                if (tabId !== 'tab-manage') {
+                    bannedWordsState.searchQuery = e.target.value.toLowerCase();
+                    const tabPagination = bannedWordsState.tabPaginations[tabId];
+                    if (tabPagination?.renderFn) await tabPagination.renderFn();
                 }
             }
         });
     }
 
-    // Кнопка очищення пошуку
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', async () => {
             if (searchInput) {
                 searchInput.value = '';
-                bannedWordsState.searchQuery = '';
                 clearSearchBtn.classList.add('u-hidden');
 
-                // Знайти активний таб і викликати його renderFn
                 const activeTab = document.querySelector('.tab-content.active');
                 if (activeTab) {
                     const tabId = activeTab.dataset.tabContent;
-                    const tabPagination = bannedWordsState.tabPaginations[tabId];
-                    if (tabPagination && tabPagination.renderFn) {
-                        await tabPagination.renderFn();
+                    if (tabId === 'tab-manage') {
+                        bannedWordsState.manageManagedTable?.setSearchQuery('');
+                    } else {
+                        bannedWordsState.searchQuery = '';
+                        const tabPagination = bannedWordsState.tabPaginations[tabId];
+                        if (tabPagination?.renderFn) await tabPagination.renderFn();
                     }
                 }
             }

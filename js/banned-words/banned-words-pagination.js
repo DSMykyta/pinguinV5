@@ -65,8 +65,10 @@ export function initPaginationForBannedWords() {
                 updateTabState(tabId, { currentPage: page, pageSize: pageSize });
             }
 
-            // 4. Викликати функцію рендерингу для цього табу
-            if (tabPagination.renderFn) {
+            // 4. Для tab-manage — використовуємо managed table setPage
+            if (tabId === 'tab-manage' && bannedWordsState.manageManagedTable) {
+                bannedWordsState.manageManagedTable.setPage(page, pageSize);
+            } else if (tabPagination.renderFn) {
                 await tabPagination.renderFn();
             } else {
                 console.warn(`⚠️ Не знайдено renderFn для табу ${tabId}`);

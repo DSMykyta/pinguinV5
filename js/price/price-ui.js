@@ -9,10 +9,12 @@
  */
 
 import { priceState } from './price-init.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
 import { getAvatarPath } from '../common/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
-import { getColumns } from './price-table.js';
+
+// Column selectors тепер в createManagedTable (price-table.js)
+export function populateSearchColumns() {}
+export function populateTableColumns() {}
 
 /**
  * Заповнити таби резервів (юзерів) з аватарками в section-navigator
@@ -57,42 +59,8 @@ export function populateReserveTabs() {
 }
 
 
-/**
- * Заповнити колонки для пошуку в aside
- * Використовує універсальну функцію setupSearchColumnsSelector
- */
-export function populateSearchColumns() {
-    setupSearchColumnsSelector({
-        containerId: 'search-columns-list-price',
-        getColumns,
-        state: priceState,
-        checkboxPrefix: 'search-col-price'
-    });
-}
-
-/**
- * Заповнити колонки таблиці в dropdown
- * Використовує універсальну функцію setupTableColumnsSelector
- */
-export function populateTableColumns() {
-    setupTableColumnsSelector({
-        containerId: 'table-columns-list-price',
-        getColumns,
-        state: priceState,
-        checkboxPrefix: 'price-col',
-        searchColumnsContainerId: 'search-columns-list-price',
-        onVisibilityChange: async (selectedIds) => {
-            // Оновити visible columns в tableAPI якщо він існує
-            if (priceState.tableAPI) {
-                priceState.tableAPI.setVisibleColumns(selectedIds);
-            }
-            // Повний перерендер бо змінюється структура таблиці
-            const { renderPriceTable } = await import('./price-table.js');
-            await renderPriceTable();
-            // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
-        }
-    });
-}
+// populateSearchColumns та populateTableColumns видалені
+// Column selectors тепер в createManagedTable (price-table.js)
 
 /**
  * Показати/сховати секцію

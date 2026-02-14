@@ -7,11 +7,12 @@
  */
 
 import { loadKeywords } from './keywords-data.js';
-import { renderKeywordsTable, renderKeywordsTableRowsOnly } from './keywords-table.js';
-import { initKeywordsEvents, initKeywordsSearch } from './keywords-events.js';
+import { renderKeywordsTable } from './keywords-table.js';
+import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
+import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 export const keywordsState = {
@@ -54,16 +55,14 @@ async function checkAuthAndLoadData() {
         try {
             await loadKeywords();
 
-            const { populateSearchColumns, populateTableColumns, initParamTypeFilters } = await import('./keywords-ui.js');
-            populateTableColumns();
-            populateSearchColumns();
-            initParamTypeFilters();
-
-            const { initDropdowns } = await import('../common/ui-dropdown.js');
+            // Рендер таблиці (createManagedTable створює колонки + пошук автоматично)
+            renderKeywordsTable();
             initDropdowns();
 
-            renderKeywordsTable();
-            // Сортування/фільтри тепер через Table LEGO плагіни (keywords-table.js)
+            // Фільтри типів (кнопки в header)
+            const { initParamTypeFilters } = await import('./keywords-ui.js');
+            initParamTypeFilters();
+
             initKeywordsEvents();
 
         } catch (error) {
@@ -89,8 +88,7 @@ function initKeywordsPagination() {
         onPageChange: (page, pageSize) => {
             keywordsState.pagination.currentPage = page;
             keywordsState.pagination.pageSize = pageSize;
-            // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
-            renderKeywordsTableRowsOnly();
+            keywordsState.keywordsManagedTable?.setPage(page, pageSize);
         }
     });
 
@@ -143,11 +141,7 @@ async function loadAsideKeywords() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
-
-        const searchInput = document.getElementById('search-keywords');
-        if (searchInput) {
-            initKeywordsSearch(searchInput);
-        }
+        // Пошук тепер керується через createManagedTable (keywords-table.js)
 
         const addBtn = document.getElementById('btn-add-keyword-aside');
         if (addBtn) {
@@ -157,14 +151,11 @@ async function loadAsideKeywords() {
         }
 
         const clearSearchBtn = document.getElementById('clear-search-keywords');
+        const searchInput = document.getElementById('search-keywords');
         if (clearSearchBtn && searchInput) {
             clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                keywordsState.searchQuery = '';
-                keywordsState.pagination.currentPage = 1;
+                keywordsState.keywordsManagedTable?.setSearchQuery('');
                 clearSearchBtn.classList.add('u-hidden');
-                // Оновлюємо тільки рядки, зберігаючи заголовок з dropdown
-                renderKeywordsTableRowsOnly();
             });
 
             searchInput.addEventListener('input', () => {

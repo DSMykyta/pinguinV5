@@ -5,58 +5,6 @@
  * ║                    BRANDS - UI MANAGEMENT                                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 ПЛАГІН — можна видалити, система працюватиме без UI компонентів.
- *
- * Відповідає за UI компоненти: селектори колонок, фільтри пошуку тощо
+ * 🔌 ПЛАГІН — Column selectors тепер в createManagedTable (brands-table.js, lines-table.js).
+ *    Цей файл збережено для можливих майбутніх UI компонентів.
  */
-
-import { brandsState } from './brands-state.js';
-import { registerBrandsPlugin, runHook } from './brands-plugins.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
-import { getColumns } from './brands-table.js';
-
-/**
- * Заповнити колонки для пошуку в aside
- * Використовує універсальну функцію setupSearchColumnsSelector
- */
-export function populateSearchColumns() {
-    setupSearchColumnsSelector({
-        containerId: 'search-columns-list-brands',
-        getColumns,
-        state: brandsState,
-        checkboxPrefix: 'search-col-brands'
-    });
-}
-
-/**
- * Заповнити колонки таблиці в dropdown
- * Використовує універсальну функцію setupTableColumnsSelector
- */
-export function populateTableColumns() {
-    setupTableColumnsSelector({
-        containerId: 'table-columns-list-brands',
-        getColumns,
-        state: brandsState,
-        checkboxPrefix: 'brands-col',
-        searchColumnsContainerId: 'search-columns-list-brands',
-        onVisibilityChange: async (selectedIds) => {
-            // Оновити visible columns в tableAPI якщо він існує
-            if (brandsState.tableAPI) {
-                brandsState.tableAPI.setVisibleColumns(selectedIds);
-            }
-            // Перемальовати таблицю
-            runHook('onRender');
-        }
-    });
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PLUGIN REGISTRATION
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Реєструємо на хук onInit — заповнюємо UI компоненти
-registerBrandsPlugin('onInit', () => {
-    populateSearchColumns();
-    populateTableColumns();
-});
-

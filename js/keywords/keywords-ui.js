@@ -4,46 +4,17 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    KEYWORDS - UI MANAGEMENT                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Column selectors тепер в createManagedTable (keywords-table.js).
+ * Тут залишається тільки initParamTypeFilters.
  */
 
 import { keywordsState } from './keywords-init.js';
-import { setupSearchColumnsSelector, setupTableColumnsSelector } from '../common/table/table-columns.js';
-import { renderKeywordsTable, getColumns } from './keywords-table.js';
+import { renderKeywordsTableRowsOnly } from './keywords-table.js';
 
-/**
- * Заповнити колонки для пошуку в aside
- * Використовує універсальну функцію setupSearchColumnsSelector
- */
-export function populateSearchColumns() {
-    setupSearchColumnsSelector({
-        containerId: 'search-columns-list-keywords',
-        getColumns,
-        state: keywordsState,
-        checkboxPrefix: 'search-col-keywords'
-    });
-}
-
-/**
- * Заповнити колонки таблиці в dropdown
- * Використовує універсальну функцію setupTableColumnsSelector
- */
-export function populateTableColumns() {
-    setupTableColumnsSelector({
-        containerId: 'table-columns-list-keywords',
-        getColumns,
-        state: keywordsState,
-        checkboxPrefix: 'keywords-col',
-        searchColumnsContainerId: 'search-columns-list-keywords',
-        onVisibilityChange: async (selectedIds) => {
-            // Оновити visible columns в tableAPI якщо він існує
-            if (keywordsState.tableAPI) {
-                keywordsState.tableAPI.setVisibleColumns(selectedIds);
-            }
-            // Перемальовати таблицю
-            renderKeywordsTable();
-        }
-    });
-}
+// Column selectors тепер в createManagedTable (keywords-table.js)
+export function populateSearchColumns() {}
+export function populateTableColumns() {}
 
 // Фіксовані типи параметрів (порядок і іконки як в Mapper)
 const PARAM_TYPES = [
@@ -82,35 +53,27 @@ export function initParamTypeFilters() {
         `;
     });
 
-    // Заповнити контейнер
     container.innerHTML = buttonsHTML;
 
-    // Встановити початковий фільтр
     if (!keywordsState.paramTypeFilter) {
         keywordsState.paramTypeFilter = 'all';
     }
 
-    // Додати обробники подій для всіх кнопок
     const filterButtons = container.querySelectorAll('[data-filter-type="param_type"]');
 
     filterButtons.forEach(button => {
         button.addEventListener('click', () => {
             const filter = button.dataset.filter;
 
-            // Оновити стан фільтру
             keywordsState.paramTypeFilter = filter;
 
-            // Оновити UI активних кнопок
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Скинути сторінку на першу
             keywordsState.pagination.currentPage = 1;
 
-            // Перерендерити таблицю з новим фільтром
-            renderKeywordsTable();
-
+            // refilter через managed table (preFilter читає paramTypeFilter)
+            renderKeywordsTableRowsOnly();
         });
     });
-
 }

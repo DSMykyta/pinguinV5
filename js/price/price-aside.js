@@ -9,7 +9,6 @@
  */
 
 import { priceState } from './price-init.js';
-import { filterByReserve } from './price-data.js';
 
 /**
  * Завантажити aside панель
@@ -47,72 +46,30 @@ export async function loadAside() {
 
 /**
  * Ініціалізувати події aside панелі
+ * Пошук тепер керується через createManagedTable (price-table.js)
  */
 export function initAsideEvents() {
-    initSearchEvents();
+    initClearSearchButton();
     initImportFromAside();
 }
 
 /**
- * Ініціалізувати пошук
+ * Ініціалізувати кнопку очистки пошуку
+ * Пошук input тепер керується через createManagedTable
  */
-function initSearchEvents() {
-    const searchInput = document.getElementById('search-price');
+function initClearSearchButton() {
     const clearBtn = document.getElementById('clear-search-price');
+    const searchInput = document.getElementById('search-price');
 
-    if (!searchInput) return;
+    if (!clearBtn || !searchInput) return;
 
-    searchInput.addEventListener('input', async (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        priceState.searchQuery = query;
-
-        if (clearBtn) {
-            clearBtn.classList.toggle('u-hidden', query === '');
-        }
-
-        filterPriceItems(query);
-
-        // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-        const { renderPriceTableRowsOnly } = await import('./price-table.js');
-        await renderPriceTableRowsOnly();
+    clearBtn.addEventListener('click', () => {
+        priceState.priceManagedTable?.setSearchQuery('');
+        clearBtn.classList.add('u-hidden');
     });
 
-    if (clearBtn) {
-        clearBtn.addEventListener('click', async () => {
-            searchInput.value = '';
-            priceState.searchQuery = '';
-            clearBtn.classList.add('u-hidden');
-
-            filterPriceItems('');
-
-            // Тільки рядки - заголовок з dropdown-ами НЕ чіпаємо!
-            const { renderPriceTableRowsOnly } = await import('./price-table.js');
-            await renderPriceTableRowsOnly();
-        });
-    }
-}
-
-/**
- * Фільтрувати товари за пошуковим запитом
- */
-function filterPriceItems(query) {
-    filterByReserve(priceState.currentReserveFilter);
-
-    if (!query) return;
-
-    priceState.filteredItems = priceState.filteredItems.filter(item => {
-        const searchFields = [
-            item.code,
-            item.article,
-            item.brand,
-            item.name,
-            item.category,
-            item.reserve
-        ];
-
-        return searchFields.some(field =>
-            field && field.toLowerCase().includes(query)
-        );
+    searchInput.addEventListener('input', () => {
+        clearBtn.classList.toggle('u-hidden', !searchInput.value.trim());
     });
 }
 

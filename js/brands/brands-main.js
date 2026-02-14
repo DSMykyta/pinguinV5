@@ -58,6 +58,7 @@ import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
 import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
+import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -166,15 +167,15 @@ function initBrandsPagination() {
         pageSize: brandsState.pagination.pageSize,
         totalItems: brandsState.pagination.totalItems,
         onPageChange: (page, pageSize) => {
-            // Визначити яку пагінацію оновлювати
             if (brandsState.activeTab === 'lines') {
                 brandsState.linesPagination.currentPage = page;
                 brandsState.linesPagination.pageSize = pageSize;
+                brandsState.linesManagedTable?.setPage(page, pageSize);
             } else {
                 brandsState.pagination.currentPage = page;
                 brandsState.pagination.pageSize = pageSize;
+                brandsState.brandsManagedTable?.setPage(page, pageSize);
             }
-            runHook('onRender');
         }
     });
 
@@ -284,13 +285,10 @@ async function loadAsideBrands() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
+        // Ініціалізувати dropdowns в aside
+        initDropdowns();
 
-        // Ініціалізувати пошук
-        const searchInput = document.getElementById('search-brands');
-        if (searchInput) {
-            const { initBrandsSearch } = await import('./brands-events.js');
-            initBrandsSearch(searchInput);
-        }
+        // Пошук тепер керується через createManagedTable (brands-table.js, lines-table.js)
 
         // Ініціалізувати кнопку "Додати бренд"
         const addBrandBtn = document.getElementById('btn-add-brand-aside');
@@ -310,18 +308,20 @@ async function loadAsideBrands() {
             });
         }
 
-        // Ініціалізувати кнопку очистки пошуку
+        // Кнопка очистки пошуку
         const clearSearchBtn = document.getElementById('clear-search-brands');
+        const searchInput = document.getElementById('search-brands');
         if (clearSearchBtn && searchInput) {
             clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                brandsState.searchQuery = '';
-                brandsState.pagination.currentPage = 1;
+                // Очищаємо пошук в активній managed table
+                if (brandsState.activeTab === 'lines') {
+                    brandsState.linesManagedTable?.setSearchQuery('');
+                } else {
+                    brandsState.brandsManagedTable?.setSearchQuery('');
+                }
                 clearSearchBtn.classList.add('u-hidden');
-                runHook('onRender');
             });
 
-            // Показати/сховати кнопку очистки при введенні
             searchInput.addEventListener('input', () => {
                 if (searchInput.value.trim()) {
                     clearSearchBtn.classList.remove('u-hidden');

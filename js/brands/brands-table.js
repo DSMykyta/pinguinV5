@@ -5,18 +5,13 @@
  * ║                    BRANDS - TABLE RENDERING                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 ПЛАГІН — можна видалити, система працюватиме без таблиці брендів.
- *
- * Рендеринг таблиці брендів з підтримкою пагінації, сортування та фільтрації.
+ * 🔌 ПЛАГІН — Використовує createManagedTable для таблиці + пошуку + колонок.
  */
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { getBrands } from './brands-data.js';
-import { getBrandLines } from './lines-data.js';
 import { brandsState } from './brands-state.js';
-import { createTable, filterData, col } from '../common/table/table-main.js';
-import { escapeHtml } from '../utils/text-utils.js';
-import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -34,18 +29,12 @@ registerActionHandlers('brands', {
     }
 });
 
-// Table API instance
-let tableAPI = null;
 let _actionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Отримати конфігурацію колонок для таблиці брендів
- * ПРИМІТКА: Колонка 'brand_text' (Опис) видалена за запитом
- */
 export function getColumns() {
     return [
         col('brand_logo_url', ' ', 'photo'),
@@ -60,259 +49,103 @@ export function getColumns() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// TABLE API INITIALIZATION
+// MANAGED TABLE
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Ініціалізувати таблицю (викликається один раз)
- */
-function initTableAPI() {
-    const container = document.getElementById('brands-table-container');
-    if (!container || tableAPI) return;
-
+function initBrandsTable() {
     const visibleCols = brandsState.visibleColumns.length > 0
         ? brandsState.visibleColumns
         : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
-    tableAPI = createTable(container, {
-        columns: getColumns(),
-        visibleColumns: visibleCols,
-        rowActionsHeader: ' ',
-        rowActions: (row) => actionButton({
-            action: 'edit',
-            rowId: row.brand_id,
-            context: 'brands'
-        }),
-        getRowId: (row) => row.brand_id,
-        emptyState: {
-            message: 'Бренди не знайдено'
-        },
-        withContainer: false,
-        onAfterRender: (container) => {
-            if (_actionCleanup) _actionCleanup();
-            _actionCleanup = initActionHandlers(container, 'brands');
-        },
-        plugins: {
-            sorting: {
-                dataSource: () => {
-                    const lines = brandsState.brandLines || [];
-                    return getBrands().map(b => {
-                        const count = lines.filter(l => l.brand_id === b.brand_id).length;
-                        b.bindings = { count, tooltip: `Лінійок: ${count}` };
-                        return b;
-                    });
-                },
-                onSort: async (sortedData) => {
-                    brandsState.brands = sortedData;
-                    renderBrandsTable();
-                },
-                columnTypes: {
-                    brand_id: 'id-text',
-                    name_uk: 'string',
-                    names_alt: 'string',
-                    country_option_id: 'string',
-                    brand_status: 'string',
-                    bindings: 'binding-chip'
-                }
+    const searchCols = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
+
+    brandsState.brandsManagedTable = createManagedTable({
+        container: 'brands-table-container',
+        columns: getColumns().map(c => ({
+            ...c,
+            searchable: searchCols.includes(c.id) || c.searchable === true,
+            checked: visibleCols.includes(c.id)
+        })),
+        data: getBrands(),
+
+        // DOM IDs
+        columnsListId: 'table-columns-list-brands',
+        searchColumnsId: 'search-columns-list-brands',
+        searchInputId: 'search-brands',
+        statsId: 'tab-stats-brands',
+        paginationId: null, // спільна пагінація — керується ззовні
+
+        tableConfig: {
+            rowActionsHeader: ' ',
+            rowActions: (row) => actionButton({
+                action: 'edit',
+                rowId: row.brand_id,
+                context: 'brands'
+            }),
+            getRowId: (row) => row.brand_id,
+            emptyState: { message: 'Бренди не знайдено' },
+            withContainer: false,
+            onAfterRender: (container) => {
+                if (_actionCleanup) _actionCleanup();
+                _actionCleanup = initActionHandlers(container, 'brands');
             },
-            filters: {
-                dataSource: () => getBrands(),
-                filterColumns: [
-                    { id: 'country_option_id', label: 'Країна', filterType: 'values' },
-                    { id: 'brand_status', label: 'Статус', filterType: 'values' }
-                ],
-                onFilter: (filters) => {
-                    brandsState.columnFilters = filters;
-                    brandsState.pagination.currentPage = 1;
-                    runHook('onRender');
+            plugins: {
+                sorting: {
+                    columnTypes: {
+                        brand_id: 'id-text',
+                        name_uk: 'string',
+                        names_alt: 'string',
+                        country_option_id: 'string',
+                        brand_status: 'string',
+                        bindings: 'binding-chip'
+                    }
+                },
+                filters: {
+                    filterColumns: [
+                        { id: 'country_option_id', label: 'Країна', filterType: 'values' },
+                        { id: 'brand_status', label: 'Статус', filterType: 'values' }
+                    ]
                 }
             }
-        }
-    });
+        },
 
-    // Зберігаємо в state для доступу з інших модулів
-    brandsState.tableAPI = tableAPI;
-}
-
-/**
- * Отримати пагіновані дані
- */
-function getPaginatedData() {
-    const brands = getBrands();
-    const lines = brandsState.brandLines || [];
-    brands.forEach(b => {
-        const count = lines.filter(l => l.brand_id === b.brand_id).length;
-        b.bindings = { count, tooltip: `Лінійок: ${count}` };
-    });
-    const filteredBrands = applyFilters(brands);
-
-    // Зберігаємо totalItems в state для коректного перемикання табів
-    brandsState.pagination.totalItems = filteredBrands.length;
-
-    const { currentPage, pageSize } = brandsState.pagination;
-    const start = (currentPage - 1) * pageSize;
-    const end = Math.min(start + pageSize, filteredBrands.length);
-
-    return {
-        all: brands,
-        filtered: filteredBrands,
-        paginated: filteredBrands.slice(start, end)
-    };
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Оновити тільки рядки таблиці (заголовок залишається)
- * Використовується при фільтрації/сортуванні/пагінації/пошуку
- */
-export function renderBrandsTableRowsOnly() {
-    if (!tableAPI) {
-        renderBrandsTable();
-        return;
-    }
-
-    const { all, filtered, paginated } = getPaginatedData();
-
-    // Оновлюємо пагінацію
-    if (brandsState.paginationAPI) {
-        brandsState.paginationAPI.update({
-            currentPage: brandsState.pagination.currentPage,
-            pageSize: brandsState.pagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Оновлюємо тільки рядки
-    tableAPI.updateRows(paginated);
-
-    updateStats(paginated.length, filtered.length);
-}
-
-/**
- * Рендерити таблицю брендів (повний рендер)
- */
-export function renderBrandsTable() {
-
-    const container = document.getElementById('brands-table-container');
-    if (!container) return;
-
-    const brands = getBrands();
-    if (!brands || brands.length === 0) {
-        renderEmptyState();
-        return;
-    }
-
-    // Ініціалізуємо API якщо потрібно
-    if (!tableAPI) {
-        initTableAPI();
-    }
-
-    const { all, filtered, paginated } = getPaginatedData();
-
-    // Оновити пагінацію
-    if (brandsState.paginationAPI) {
-        brandsState.paginationAPI.update({
-            currentPage: brandsState.pagination.currentPage,
-            pageSize: brandsState.pagination.pageSize,
-            totalItems: filtered.length
-        });
-    }
-
-    // Повний рендер таблиці
-    tableAPI.render(paginated);
-
-    // Оновити статистику
-    updateStats(paginated.length, filtered.length);
-
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FILTERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Застосувати фільтри
- * @param {Array} brands - Масив брендів
- * @returns {Array} Відфільтровані бренди
- */
-function applyFilters(brands) {
-    let filtered = [...brands];
-
-    // Фільтри колонок (країна, статус)
-    if (brandsState.columnFilters && Object.keys(brandsState.columnFilters).length > 0) {
-        const filterColumns = [
-            { id: 'country_option_id', filterType: 'values' },
-            { id: 'brand_status', filterType: 'values' }
-        ];
-        filtered = filterData(filtered, brandsState.columnFilters, filterColumns);
-    }
-
-    // Пошук
-    if (brandsState.searchQuery) {
-        const query = brandsState.searchQuery.toLowerCase();
-        const columns = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
-
-        filtered = filtered.filter(brand => {
-            return columns.some(column => {
-                const value = brand[column];
-
-                // Масив (names_alt)
-                if (Array.isArray(value)) {
-                    return value.some(v => v.toLowerCase().includes(query));
-                }
-
-                // Рядок
-                return value?.toString().toLowerCase().includes(query);
+        dataTransform: (data) => {
+            const lines = brandsState.brandLines || [];
+            return data.map(b => {
+                const count = lines.filter(l => l.brand_id === b.brand_id).length;
+                return { ...b, bindings: { count, tooltip: `Лінійок: ${count}` } };
             });
-        });
-    }
+        },
 
-    return filtered;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Відрендерити порожній стан
- */
-function renderEmptyState() {
-    const container = document.getElementById('brands-table-container');
-    if (!container) return;
-
-    const avatarHtml = renderAvatarState('empty', {
-        size: 'medium',
-        containerClass: 'empty-state-container',
-        avatarClass: 'empty-state-avatar',
-        messageClass: 'avatar-state-message',
-        showMessage: true
+        pageSize: 25,
+        checkboxPrefix: 'brands'
     });
 
-    container.innerHTML = avatarHtml;
-    updateStats(0, 0);
+    // Зберігаємо tableAPI в state для сумісності
+    brandsState.tableAPI = brandsState.brandsManagedTable.tableAPI;
 }
 
-/**
- * Оновити статистику
- * @param {number} visible - Кількість видимих
- * @param {number} total - Загальна кількість
- */
-function updateStats(visible, total) {
-    const statsEl = document.getElementById('tab-stats-brands');
-    if (!statsEl) return;
+// ═══════════════════════════════════════════════════════════════════════════
+// PUBLIC RENDER
+// ═══════════════════════════════════════════════════════════════════════════
 
-    statsEl.textContent = `Показано ${visible} з ${total}`;
+export function renderBrandsTable() {
+    if (!brandsState.brandsManagedTable) {
+        initBrandsTable();
+        return;
+    }
+    brandsState.brandsManagedTable.updateData(getBrands());
 }
 
-/**
- * Скинути tableAPI (для реініціалізації)
- */
+export function renderBrandsTableRowsOnly() {
+    renderBrandsTable();
+}
+
 export function resetTableAPI() {
-    tableAPI = null;
+    if (brandsState.brandsManagedTable) {
+        brandsState.brandsManagedTable.destroy();
+        brandsState.brandsManagedTable = null;
+    }
     brandsState.tableAPI = null;
 }
 
@@ -320,15 +153,12 @@ export function resetTableAPI() {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Реєструємо на хук onInit — рендеримо таблицю після завантаження даних
 registerBrandsPlugin('onInit', () => {
     renderBrandsTable();
 });
 
-// Реєструємо на хук onRender — для оновлення таблиці (тільки на активному табі)
 registerBrandsPlugin('onRender', () => {
-    if (brandsState.activeTab === 'brands') {
-        renderBrandsTable();
+    if (brandsState.activeTab === 'brands' && brandsState.brandsManagedTable) {
+        brandsState.brandsManagedTable.refilter();
     }
 });
-

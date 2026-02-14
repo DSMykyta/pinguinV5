@@ -159,24 +159,21 @@ async function updateUIWithData() {
     const { initPaginationForPrice } = await import('./price-pagination.js');
     initPaginationForPrice();
 
-    // 4. Заповнити колонки пошуку
-    const { populateSearchColumns, populateReserveTabs, populateTableColumns } = await import('./price-ui.js');
-    populateSearchColumns();
-
-    // 5. Заповнити таби резервів (юзерів з аватарками)
+    // 4. Заповнити таби резервів (юзерів з аватарками)
+    const { populateReserveTabs } = await import('./price-ui.js');
     populateReserveTabs();
 
-    // 6. Відрендерити таблицю
+    // 5. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
     const { renderPriceTable } = await import('./price-table.js');
-    await renderPriceTable();
+    renderPriceTable();
+
+    // 6. Ініціалізувати dropdowns
+    const { initDropdowns } = await import('../common/ui-dropdown.js');
+    initDropdowns();
 
     // 7. Ініціалізувати події таблиці
     const { initPriceEvents } = await import('./price-events.js');
     initPriceEvents();
-    // Сортування/фільтри тепер через Table LEGO плагіни (price-table.js)
-
-    // 10. Ініціалізувати колонки таблиці
-    populateTableColumns();
 }
 
 /**

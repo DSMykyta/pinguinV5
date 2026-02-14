@@ -87,19 +87,7 @@ function initLinesRefreshButton() {
 // initLinesSorting — тепер сортування лінійок
 // обробляється через Table LEGO плагіни в lines-table.js
 
-/**
- * Ініціалізувати пошук
- * @param {HTMLElement} searchInput - Поле пошуку
- */
-export function initBrandsSearch(searchInput) {
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', (e) => {
-        brandsState.searchQuery = e.target.value.trim();
-        brandsState.pagination.currentPage = 1; // Скинути на першу сторінку
-        runHook('onRender');
-    });
-}
+// Пошук тепер керується через createManagedTable (brands-table.js, lines-table.js)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PLUGIN REGISTRATION
