@@ -8,11 +8,12 @@
  * 🔌 ПЛАГІН — можна видалити, система працюватиме без модалів редагування.
  *
  * Модальні вікна для додавання, редагування та видалення брендів.
- * Використовує fullscreen modal з 4 секціями:
- * - Інформація (назва, альт. назви, країна)
+ * Використовує fullscreen modal з 5 секціями:
+ * - Інформація (назва, альт. назви, країна, логотип)
+ * - Лінійки (таблиця лінійок бренду)
  * - Посилання (динамічний список)
- * - Текст (ui-editor)
- * - Налаштування (статус, логотип, mapper)
+ * - Маркетплейси (присутність на МП)
+ * - Опис (ui-editor)
  */
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
@@ -933,13 +934,9 @@ function fillBrandForm(brand) {
         textEditor.setValue(brand.brand_text || '');
     }
 
-    // Mapper option ID (зарезервовано)
+    // Mapper option ID
     const mapperIdField = document.getElementById('brand-mapper-option-id');
     if (mapperIdField) mapperIdField.value = brand.mapper_option_id || '';
-
-    // Відображення mapper ID
-    const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
-    if (mapperIdDisplay) mapperIdDisplay.textContent = brand.mapper_option_id || '—';
 
     // Logo URL
     const logoUrlField = document.getElementById('brand-logo-url');
@@ -987,13 +984,9 @@ function clearBrandForm() {
     // Посилання
     setLinks([]);
 
-    // Mapper option ID (зарезервовано)
+    // Mapper option ID
     const mapperIdField = document.getElementById('brand-mapper-option-id');
     if (mapperIdField) mapperIdField.value = '';
-
-    // Відображення mapper ID
-    const mapperIdDisplay = document.getElementById('brand-mapper-id-display');
-    if (mapperIdDisplay) mapperIdDisplay.textContent = '—';
 
     // Logo URL
     const logoUrlField = document.getElementById('brand-logo-url');

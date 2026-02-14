@@ -36,23 +36,33 @@
                         <span class="material-symbols-outlined">info</span>
                         <span class="sidebar-nav-label">Інформація</span>
                     </a>
-                    <a href="#section-brand-links" class="sidebar-nav-item" aria-label="Посилання">
-                        <span class="material-symbols-outlined">link</span>
-                        <span class="sidebar-nav-label">Посилання</span>
-                    </a>
-                    <a href="#section-brand-text" class="sidebar-nav-item" aria-label="Текст">
-                        <span class="material-symbols-outlined">article</span>
-                        <span class="sidebar-nav-label">Текст</span>
-                    </a>
                     <a href="#section-brand-lines" class="sidebar-nav-item" aria-label="Лінійки">
                         <span class="material-symbols-outlined">category</span>
                         <span class="sidebar-nav-label">Лінійки</span>
                     </a>
-                    <a href="#section-brand-settings" class="sidebar-nav-item" aria-label="Налаштування">
-                        <span class="material-symbols-outlined">settings</span>
-                        <span class="sidebar-nav-label">Налаштування</span>
+                    <a href="#section-brand-links" class="sidebar-nav-item" aria-label="Посилання">
+                        <span class="material-symbols-outlined">link</span>
+                        <span class="sidebar-nav-label">Посилання</span>
+                    </a>
+                    <a href="#section-brand-marketplaces" class="sidebar-nav-item" aria-label="Маркетплейси">
+                        <span class="material-symbols-outlined">storefront</span>
+                        <span class="sidebar-nav-label">Маркетплейси</span>
+                    </a>
+                    <a href="#section-brand-text" class="sidebar-nav-item" aria-label="Опис">
+                        <span class="material-symbols-outlined">article</span>
+                        <span class="sidebar-nav-label">Опис</span>
                     </a>
                 </div>
+
+                <!-- Preview: видимий коли є лого -->
+                <div id="brand-logo-preview" class="brand-logo-preview u-hidden">
+                    <img id="brand-logo-preview-img" src="" alt="Логотип бренду" class="brand-logo-preview-img">
+                    <button type="button" class="btn-icon brand-logo-remove" id="btn-remove-brand-logo"
+                        data-tooltip="Видалити логотип">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+
                 <div class="sidebar-nav-footer">
                     <button type="button" class="btn-delete u-hidden" id="btn-delete-brand" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
@@ -63,6 +73,10 @@
 
             <!-- КОНТЕНТ - секції -->
             <main class="modal-fullscreen-content">
+
+                <!-- Hidden fields -->
+                <input type="hidden" id="brand-id">
+                <input type="hidden" id="brand-mapper-option-id">
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ 1: ІНФОРМАЦІЯ -->
@@ -78,10 +92,6 @@
                     </div>
 
                     <div class="section-content">
-                        <!-- ID (прихований) -->
-                        <input type="hidden" id="brand-id">
-
-                        <!-- Назва -->
 
                         <div class="form-grid form-grid-3">
                             <div class="form-grid">
@@ -106,57 +116,96 @@
                             <!-- Альтернативні назви -->
                             <div class="form-group">
                                 <label>Альтернативні назви</label>
-                                <div id="brand-names-alt-container" class="form-grid"class="compound-input-list">
+                                <div id="brand-names-alt-container" class="form-grid" class="compound-input-list">
                                     <!-- Динамічні інпути додаються через JS -->
                                 </div>
                             </div>
 
                             <!-- Логотип -->
-                        <div class="form-group u-mt-24">
-                            <label>Логотип</label>
+                            <div class="form-group">
+                                <label>Логотип</label>
 
-                            <!-- Preview: видимий коли є лого -->
-                            <div id="brand-logo-preview" class="brand-logo-preview u-hidden">
-                                <img id="brand-logo-preview-img" src="" alt="Логотип бренду" class="brand-logo-preview-img">
-                                <button type="button" class="btn-icon brand-logo-remove" id="btn-remove-brand-logo" data-tooltip="Видалити логотип">
-                                    <span class="material-symbols-outlined">close</span>
-                                </button>
-                            </div>
-
-                            
-                            <!-- URL input: альтернатива drag-and-drop -->
-                            <div class="brand-logo-url-input u-mt-8">
-                                <div class="compound-input">
-                                    <input type="url" id="brand-logo-url-field" placeholder="Або вставте URL зображення...">
-                                    <button type="button" class="btn-icon ci-action" id="btn-upload-from-url" data-tooltip="Завантажити з URL">
-                                        <span class="material-symbols-outlined">download</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Drop zone: видимий коли немає лого -->
-                            <div id="brand-logo-dropzone" class="drop-zone drop-zone-compact">
-                                <div class="drop-zone-content">
-                                    <span class="material-symbols-outlined drop-zone-icon">upload</span>
-                                    <div class="drop-zone-text-wrap">
-                                        <p class="drop-zone-text">Перетягніть зображення або натисніть</p>
-                                        <p class="drop-zone-hint">Будь-який формат зображення → WebP. Макс. 4 MB</p>
+                                <!-- URL input: альтернатива drag-and-drop -->
+                                <div class="brand-logo-url-input">
+                                    <div class="compound-input">
+                                        <input type="url" id="brand-logo-url-field"
+                                            placeholder="Або вставте URL зображення...">
+                                        <button type="button" class="btn-icon ci-action" id="btn-upload-from-url"
+                                            data-tooltip="Завантажити з URL">
+                                            <span class="material-symbols-outlined">download</span>
+                                        </button>
                                     </div>
                                 </div>
-                                <input type="file" id="brand-logo-file-input" accept="image/*" hidden>
-                            </div>                            
 
-                            <input type="hidden" id="brand-logo-url">
+                                <!-- Drop zone: видимий коли немає лого -->
+                                <div id="brand-logo-dropzone" class="drop-zone drop-zone-compact">
+                                    <div class="drop-zone-content">
+                                        <span class="material-symbols-outlined drop-zone-icon">upload</span>
+                                        <div class="drop-zone-text-wrap">
+                                            <p class="drop-zone-text">Перетягніть зображення або натисніть</p>
+                                            <p class="drop-zone-hint">Будь-який формат зображення → WebP. Макс. 4 MB</p>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="brand-logo-file-input" accept="image/*" hidden>
+                                </div>
+
+                                <input type="hidden" id="brand-logo-url">
+                            </div>
+
                         </div>
-
-                        </div>
-
 
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 2: ПОСИЛАННЯ -->
+                <!-- СЕКЦІЯ 2: ЛІНІЙКИ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-lines">
+                    <div class="section-header u-align-end">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Лінійки бренду</h2>
+                            </div>
+                            <span class="small" id="brand-lines-stats">Показано 0 з 0</span>
+                        </div>
+                        <div class="tab-controls">
+                            <div class="dropdown-wrapper">
+                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
+                                    <span class="material-symbols-outlined">view_column</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Показати колонки</div>
+                                    <div id="brand-lines-columns-list" class="dropdown-body"></div>
+                                </div>
+                            </div>
+                            <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </button>
+                            <div class="search-container dropdown-wrapper">
+                                <span class="material-symbols-outlined">search</span>
+                                <input type="text" id="brand-lines-search" placeholder="Пошук лінійок...">
+                                <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
+                                    <span class="material-symbols-outlined">filter_list</span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-header">Колонки для пошуку</div>
+                                    <div id="brand-lines-search-columns" class="dropdown-body"></div>
+                                </div>
+                            </div>
+                            <button class="btn-outline" id="btn-add-brand-line">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Додати лінійку</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="brand-lines-container" class="pseudo-table-container">
+                        <!-- Динамічний список лінійок додається через JS -->
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 3: ПОСИЛАННЯ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-brand-links">
                     <div class="section-header">
@@ -182,13 +231,33 @@
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 3: ТЕКСТ -->
+                <!-- СЕКЦІЯ 4: МАРКЕТПЛЕЙСИ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-brand-marketplaces">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Маркетплейси</h2>
+                            </div>
+                            <span class="small">Присутність бренду на маркетплейсах</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div id="brand-marketplaces-container">
+                            <!-- Заповнюється динамічно через JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ 5: ОПИС -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-brand-text">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Текст бренду</h2>
+                                <h2 class="section-upper">Опис</h2>
                             </div>
                             <span class="small">Опис бренду для сайту</span>
                         </div>
@@ -196,87 +265,6 @@
 
                     <div id="brand-text-editor-container" class="section-content-full-height">
                         <!-- UI Editor буде вставлений через JS -->
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 4: ЛІНІЙКИ -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-lines">
-                    <div class="section-header u-align-end">
-                        <div class="section-name-block">
-                            <div class="section-name">
-                                <h2 class="section-upper">Лінійки бренду</h2>
-                            </div>
-                            <span class="small" id="brand-lines-stats">Показано 0 з 0</span>
-                        </div>
-                        <div class="tab-controls">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="brand-lines-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
-                            <div class="search-container dropdown-wrapper">
-                                <span class="material-symbols-outlined">search</span>
-                                <input type="text" id="brand-lines-search"
-                                    placeholder="Пошук лінійок...">
-                                <button class="btn-icon panel-hide" data-dropdown-trigger aria-label="Фільтри пошуку">
-                                    <span class="material-symbols-outlined">filter_list</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Колонки для пошуку</div>
-                                    <div id="brand-lines-search-columns" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button class="btn-outline" id="btn-add-brand-line">
-                                <span class="material-symbols-outlined">add</span>
-                                <span>Додати лінійку</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="brand-lines-container" class="pseudo-table-container">
-                        <!-- Динамічний список лінійок додається через JS -->
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 5: НАЛАШТУВАННЯ -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-brand-settings">
-                    <div class="section-header">
-                        <div class="section-name-block">
-                            <div class="section-name">
-                                <h2 class="section-upper">Налаштування</h2>
-                            </div>
-                            <span class="small">Статус та інтеграції</span>
-                        </div>
-                    </div>
-
-                    <div class="section-content">
-                        
-
-                        <!-- Mapper інтеграція (зарезервовано) -->
-                        <div class="form-group u-mt-24">
-                            <label>Зв'язок з Mapper</label>
-                            <div class="preview-box">
-                                <div class="preview-item">
-                                    <span class="preview-label">mapper_option_id:</span>
-                                    <span class="preview-value text-muted" id="brand-mapper-id-display">—</span>
-                                </div>
-                                <div class="preview-item">
-                                    <span class="text-muted">Синхронізація з Mapper буде доступна пізніше</span>
-                                </div>
-                                <input type="hidden" id="brand-mapper-option-id">
-                            </div>
-                        </div>
                     </div>
                 </section>
 
