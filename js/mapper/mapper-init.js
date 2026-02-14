@@ -3,104 +3,39 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    MAPPER - INITIALIZATION                               ║
- * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║                                                                          ║
- * ║  🔒 ЯДРО (не видаляти):                                                  ║
- * ║  ├── mapper-init.js       — Ініціалізація модуля                         ║
- * ║  ├── mapper-main.js       — Точка входу, завантаження плагінів           ║
- * ║  ├── mapper-state.js      — Централізований state + hooks                ║
- * ║  ├── mapper-utils.js      — Спільні утиліти                              ║
- * ║  ├── mapper-data.js       — API операції з даними                        ║
- * ║  └── mapper-table.js      — Рендеринг таблиць                            ║
- * ║                                                                          ║
- * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
- * ║  ├── mapper-categories.js      — Категорії CRUD + модалки                ║
- * ║  ├── mapper-characteristics.js — Характеристики CRUD + модалки           ║
- * ║  ├── mapper-options.js         — Опції CRUD + модалки                    ║
- * ║  ├── mapper-marketplaces.js    — Маркетплейси CRUD + модалки             ║
- * ║  └── mapper-import.js          — Імпорт даних (TODO)                     ║
- * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * Пошук, колонки видимості, колонки пошуку — все через createManagedTable.
+ * Aside: кнопка очистки пошуку + кнопки додавання.
  */
 
 import { loadMapperData } from './mapper-data.js';
-import { renderCurrentTab, invalidateLookupCaches } from './mapper-table.js';
-import { initMapperEvents, initMapperSearch, initMapperSorting } from './mapper-events.js';
+import {
+    renderCurrentTab, invalidateLookupCaches,
+    initAllMapperTables, ensureTabManagedTable, switchMapperTab,
+    getMapperManagedTable
+} from './mapper-table.js';
+import { initMapperEvents } from './mapper-events.js';
 import { createLazyLoader } from '../common/util-lazy-load.js';
 import { initPagination } from '../common/ui-pagination.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
 
-// Re-export mapperState для зворотної сумісності
 export { mapperState } from './mapper-state.js';
 import { mapperState, runHook } from './mapper-state.js';
-
-// Конфігурація колонок пошуку для кожного табу
-const SEARCH_COLUMNS_CONFIG = {
-    categories: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name_ua', label: 'Назва UA', checked: true },
-        { id: 'name_ru', label: 'Назва RU', checked: true }
-    ],
-    characteristics: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name_ua', label: 'Назва UA', checked: true },
-        { id: 'name_ru', label: 'Назва RU', checked: true },
-        { id: 'type', label: 'Тип', checked: true }
-    ],
-    options: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'value_ua', label: 'Значення UA', checked: true },
-        { id: 'value_ru', label: 'Значення RU', checked: true }
-    ],
-    marketplaces: [
-        { id: 'id', label: 'ID', checked: true },
-        { id: 'name', label: 'Назва', checked: true },
-        { id: 'slug', label: 'Slug', checked: true }
-    ]
-};
-
-let _searchColsSelector = null;
-
-function updateSearchColumnsSelector(tabName) {
-    const config = SEARCH_COLUMNS_CONFIG[tabName];
-    if (!config) return;
-    if (_searchColsSelector) _searchColsSelector.destroy();
-    _searchColsSelector = createColumnSelector('search-mapper-search-columns', config, {
-        checkboxPrefix: 'mapper-search',
-        onChange: (selectedIds) => {
-            mapperState.searchColumns[tabName] = selectedIds;
-            if (mapperState.searchQuery) renderCurrentTab();
-        }
-    });
-}
 
 /**
  * Головна функція ініціалізації модуля Mapper
  */
 export async function initMapper() {
-
-    // Ініціалізувати tooltip систему
     initTooltips();
-
-    // Завантажити aside
     loadAsideMapper();
-
-    // Ініціалізувати пагінацію
     initMapperPagination();
-
-    // Ініціалізувати обробники табів
     initTabSwitching();
-
-    // Завантажити плагіни
     await loadMapperPlugins();
-
-    // Перевірити авторизацію та завантажити дані
     checkAuthAndLoadData();
 
-    // Слухати події зміни авторизації
     document.addEventListener('auth-state-changed', (event) => {
         if (event.detail.isAuthorized) {
             checkAuthAndLoadData();
@@ -109,7 +44,7 @@ export async function initMapper() {
 }
 
 /**
- * Ініціалізація перемикання табів
+ * Ініціалізація перемикання табів — використовує switchMapperTab (activate/deactivate)
  */
 function initTabSwitching() {
     const tabButtons = document.querySelectorAll('[data-tab-target^="tab-mapper-"]');
@@ -117,13 +52,13 @@ function initTabSwitching() {
     tabButtons.forEach(button => {
         button.addEventListener('click', async () => {
             const tabId = button.dataset.tabTarget;
-            const tabName = tabId.replace('tab-mapper-', '');
+            const newTab = tabId.replace('tab-mapper-', '');
+            const oldTab = mapperState.activeTab;
 
-            mapperState.activeTab = tabName;
+            mapperState.activeTab = newTab;
             mapperState.pagination.currentPage = 1;
-            mapperState.searchQuery = '';
 
-            // Оновити пошуковий інпут
+            // Очистити пошуковий інпут
             const searchInput = document.getElementById('search-mapper');
             if (searchInput) {
                 searchInput.value = '';
@@ -131,21 +66,22 @@ function initTabSwitching() {
                 if (clearBtn) clearBtn.classList.add('u-hidden');
             }
 
-            // Оновити search columns selector для нового табу
-            updateSearchColumnsSelector(tabName);
+            // switchMapperTab: deactivate old → activate new (search columns перебудовуються)
+            switchMapperTab(newTab, oldTab);
 
             // Lazy load даних для цього табу
-            await ensureTabData(tabName);
-            renderCurrentTab();
+            await ensureTabData(newTab);
 
+            // Ensure managed table exists
+            ensureTabManagedTable(newTab);
+
+            // Рендер
+            renderCurrentTab();
         });
     });
 }
 
-/**
- * Перевірити авторизацію та завантажити дані
- */
-// Lazy loaders для відкладеного завантаження даних по табах
+// Lazy loaders
 let lazyCharacteristics = null;
 let lazyOptions = null;
 
@@ -165,54 +101,48 @@ function createTabLoaders() {
     });
 }
 
-/**
- * Завантажити дані для табу (lazy — тільки при першому відкритті)
- */
 export async function ensureTabData(tabName) {
     if (tabName === 'characteristics' && lazyCharacteristics) {
         await lazyCharacteristics.load();
     } else if (tabName === 'options' && lazyOptions) {
-        // Опції залежать від характеристик
         if (lazyCharacteristics) await lazyCharacteristics.load();
         await lazyOptions.load();
     }
 }
 
 async function checkAuthAndLoadData() {
-
-    // Перевіряємо глобальний стан авторизації
     if (window.isAuthorized) {
-
         try {
-            // Завантажити основні дані (маркетплейси, власні категорії/характеристики/опції)
             await loadMapperData();
 
-            // Завантажити тільки категорії MP + маппінги категорій (найнеобхідніше)
             const { loadMpCategories, loadMapCategories } = await import('./mapper-data.js');
-            await Promise.all([
-                loadMpCategories(),
-                loadMapCategories()
-            ]);
+            await Promise.all([loadMpCategories(), loadMapCategories()]);
 
-            // Створити lazy loaders для інших табів
             createTabLoaders();
 
-            // Ініціалізувати dropdowns після заповнення
+            // Ініціалізувати dropdowns
             const { initDropdowns } = await import('../common/ui-dropdown.js');
             initDropdowns();
 
-            // Повідомити плагіни про завантаження даних
             runHook('onDataLoaded');
 
-            // Відрендерити поточний таб
+            // Lazy load даних для активного табу
             await ensureTabData(mapperState.activeTab);
+
+            // Створити managed tables (categories + marketplaces)
+            initAllMapperTables();
+
+            // Ensure active tab has managed table
+            ensureTabManagedTable(mapperState.activeTab);
+
+            // Рендер
             renderCurrentTab();
+
+            // Ініціалізувати dropdowns після рендеру
+            initDropdowns();
 
             // Ініціалізувати обробники подій
             initMapperEvents();
-
-            // Ініціалізувати сортування таблиць
-            initMapperSorting();
 
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
@@ -224,14 +154,12 @@ async function checkAuthAndLoadData() {
 }
 
 /**
- * Ініціалізувати пагінацію
+ * Ініціалізувати пагінацію — спільна для всіх табів.
+ * onPageChange → setPage() активного managed table.
  */
 function initMapperPagination() {
     const footer = document.querySelector('.footer');
-    if (!footer) {
-        console.warn('⚠️ Footer не знайдено');
-        return;
-    }
+    if (!footer) return;
 
     const paginationAPI = initPagination(footer, {
         currentPage: mapperState.pagination.currentPage,
@@ -240,17 +168,17 @@ function initMapperPagination() {
         onPageChange: (page, pageSize) => {
             mapperState.pagination.currentPage = page;
             mapperState.pagination.pageSize = pageSize;
-            renderCurrentTab();
+
+            const mt = getMapperManagedTable(mapperState.activeTab);
+            if (mt) {
+                mt.setPage(page, pageSize);
+            }
         }
     });
 
     mapperState.paginationAPI = paginationAPI;
-
 }
 
-/**
- * Відрендерити стан "Потрібна авторизація"
- */
 function renderAuthRequiredState() {
     const containers = [
         'mapper-categories-table-container',
@@ -262,8 +190,7 @@ function renderAuthRequiredState() {
     containers.forEach(containerId => {
         const container = document.getElementById(containerId);
         if (!container) return;
-
-        const avatarHtml = renderAvatarState('authLogin', {
+        container.innerHTML = renderAvatarState('authLogin', {
             message: 'Авторизуйтесь для завантаження даних',
             size: 'medium',
             containerClass: 'empty-state-container',
@@ -271,20 +198,14 @@ function renderAuthRequiredState() {
             messageClass: 'avatar-state-message',
             showMessage: true
         });
-
-        container.innerHTML = avatarHtml;
     });
 }
 
-/**
- * Відрендерити стан помилки
- */
 function renderErrorState() {
     const activeTab = mapperState.activeTab;
     const container = document.getElementById(`mapper-${activeTab}-table-container`);
     if (!container) return;
-
-    const avatarHtml = renderAvatarState('error', {
+    container.innerHTML = renderAvatarState('error', {
         message: 'Помилка завантаження даних',
         size: 'medium',
         containerClass: 'empty-state-container',
@@ -292,12 +213,12 @@ function renderErrorState() {
         messageClass: 'avatar-state-message',
         showMessage: true
     });
-
-    container.innerHTML = avatarHtml;
 }
 
 /**
- * Завантажити aside панель
+ * Завантажити aside панель.
+ * Пошук тепер керується через createManagedTable (searchInputId).
+ * Тут тільки кнопка очистки + кнопки додавання.
  */
 async function loadAsideMapper() {
     const panelRightContent = document.getElementById('panel-right-content');
@@ -310,38 +231,23 @@ async function loadAsideMapper() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
-
-        // Ініціалізувати пошук
-        const searchInput = document.getElementById('search-mapper');
-        if (searchInput) {
-            initMapperSearch(searchInput);
-        }
-
-        // Ініціалізувати кнопку очистки пошуку
+        // Кнопка очистки пошуку — setSearchQuery('')
         const clearSearchBtn = document.getElementById('clear-search-mapper');
+        const searchInput = document.getElementById('search-mapper');
+
         if (clearSearchBtn && searchInput) {
             clearSearchBtn.addEventListener('click', () => {
-                searchInput.value = '';
-                mapperState.searchQuery = '';
-                mapperState.pagination.currentPage = 1;
+                const mt = getMapperManagedTable(mapperState.activeTab);
+                if (mt) mt.setSearchQuery('');
                 clearSearchBtn.classList.add('u-hidden');
-                renderCurrentTab();
             });
 
-            // Показати/сховати кнопку очистки при введенні
             searchInput.addEventListener('input', () => {
-                if (searchInput.value.trim()) {
-                    clearSearchBtn.classList.remove('u-hidden');
-                } else {
-                    clearSearchBtn.classList.add('u-hidden');
-                }
+                clearSearchBtn.classList.toggle('u-hidden', !searchInput.value.trim());
             });
         }
 
-        // Ініціалізувати search columns selector
-        updateSearchColumnsSelector(mapperState.activeTab || 'categories');
-
-        // Ініціалізувати кнопки додавання в aside
+        // Кнопки додавання в aside
         const addCategoryBtn = document.getElementById('btn-add-category-aside');
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', async () => {
@@ -366,11 +272,9 @@ async function loadAsideMapper() {
             });
         }
 
-        // Ініціалізувати кнопку імпорту
         const importBtn = document.getElementById('btn-import-aside');
         if (importBtn) {
             importBtn.addEventListener('click', async () => {
-                // Завантажуємо адаптери маркетплейсів
                 await import('./mapper-import-rozetka.js');
                 await import('./mapper-import-epicentr.js');
                 await import('./mapper-import-etalon.js');
@@ -379,7 +283,6 @@ async function loadAsideMapper() {
             });
         }
 
-        // Ініціалізувати кнопки маппінг-візардів
         const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
         if (mappingWizardBtn) {
             mappingWizardBtn.addEventListener('click', async (e) => {
@@ -411,5 +314,3 @@ async function loadAsideMapper() {
         console.error('❌ Помилка завантаження aside-mapper.html:', error);
     }
 }
-
-// getActiveTab / setActiveTab — використовуйте з mapper-state.js

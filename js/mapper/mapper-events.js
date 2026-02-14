@@ -6,67 +6,27 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Обробники подій для Marketplace Mapper.
+ * Пошук та колонки тепер керуються через createManagedTable (mapper-table.js).
  */
 
 import { mapperState } from './mapper-state.js';
-import {
-    renderCurrentTab,
-    getCategoriesColumns, getCharacteristicsColumns,
-    getOptionsColumns, getMarketplacesColumns
-} from './mapper-table.js';
+import { renderCurrentTab } from './mapper-table.js';
 import {
     loadMapperData,
     loadMpCategories, loadMpCharacteristics, loadMpOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
-
-/**
- * Отримати конфігурацію колонок для dropdown видимості
- * Автоматично читає з реальних колонок таблиці
- */
-function getColumnConfigs(tab) {
-    const columnGetters = {
-        categories: () => getCategoriesColumns([]),
-        characteristics: () => getCharacteristicsColumns([]),
-        options: () => getOptionsColumns([]),
-        marketplaces: () => getMarketplacesColumns()
-    };
-
-    const getter = columnGetters[tab];
-    if (!getter) return [];
-
-    return getter().map(col => ({
-        id: col.id,
-        label: col.label,
-        checked: true
-    }));
-}
 
 /**
  * Ініціалізувати всі обробники подій
  */
 export function initMapperEvents() {
-
-    // Кнопки оновлення табів
     initRefreshButtons();
-
-    // Кнопки додавання
     initAddButtons();
-
-    // Кнопка імпорту
     initImportButton();
-
-    // Селектори колонок
-    initColumnSelectors();
-
-    // Batch actions bars
     initMapperBatchActions();
-
-    // Клік по чіпу прив'язок → модал прив'язок
     initBindingChipClicks();
-
 }
 
 /**
@@ -99,57 +59,8 @@ function initBindingChipClicks() {
     });
 }
 
-/**
- * Ініціалізувати селектори колонок для всіх табів
- */
-function initColumnSelectors() {
-    const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
-
-    tabs.forEach(tab => {
-        const containerId = `table-columns-list-mapper-${tab}`;
-        const columns = getColumnConfigs(tab);
-
-        if (!columns.length) return;
-
-        // Встановити початкові видимі колонки зі стану
-        const initialVisible = mapperState.visibleColumns[tab] || columns.map(c => c.id);
-        const columnsWithState = columns.map(c => ({
-            ...c,
-            checked: initialVisible.includes(c.id)
-        }));
-
-        createColumnSelector(containerId, columnsWithState, {
-            checkboxPrefix: `mapper-${tab}-col`,
-            onChange: (selectedIds) => {
-                mapperState.visibleColumns[tab] = selectedIds;
-                renderCurrentTab();
-            }
-        });
-    });
-
-}
-
-/**
- * Ініціалізувати пошук
- */
-export function initMapperSearch(searchInput) {
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', (e) => {
-        mapperState.searchQuery = e.target.value.toLowerCase();
-        mapperState.pagination.currentPage = 1;
-        renderCurrentTab();
-    });
-
-    // Enter для пошуку
-    searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            renderCurrentTab();
-        }
-    });
-
-}
+// initColumnSelectors — видалено, createManagedTable керує колонками через columnsListId
+// initMapperSearch — видалено, createManagedTable керує пошуком через searchInputId
 
 /**
  * Ініціалізувати кнопки оновлення
@@ -161,13 +72,10 @@ function initRefreshButtons() {
         const btn = document.getElementById(`refresh-tab-mapper-${tab}`);
         if (btn) {
             btn.addEventListener('click', async () => {
-
-                // Показати стан завантаження
                 btn.disabled = true;
                 btn.querySelector('.material-symbols-outlined').classList.add('is-spinning');
 
                 try {
-                    // Завантажуємо ВСІ дані: базові + MP + маппінги
                     await Promise.all([
                         loadMapperData(),
                         loadMpCategories(),
@@ -193,7 +101,6 @@ function initRefreshButtons() {
  * Ініціалізувати кнопки додавання
  */
 function initAddButtons() {
-    // Категорії
     const addCategoryBtn = document.getElementById('btn-add-mapper-category');
     if (addCategoryBtn) {
         addCategoryBtn.addEventListener('click', async () => {
@@ -202,7 +109,6 @@ function initAddButtons() {
         });
     }
 
-    // Характеристики
     const addCharacteristicBtn = document.getElementById('btn-add-mapper-characteristic');
     if (addCharacteristicBtn) {
         addCharacteristicBtn.addEventListener('click', async () => {
@@ -211,7 +117,6 @@ function initAddButtons() {
         });
     }
 
-    // Опції
     const addOptionBtn = document.getElementById('btn-add-mapper-option');
     if (addOptionBtn) {
         addOptionBtn.addEventListener('click', async () => {
@@ -220,7 +125,6 @@ function initAddButtons() {
         });
     }
 
-    // Маркетплейси
     const addMarketplaceBtn = document.getElementById('btn-add-mapper-marketplace');
     if (addMarketplaceBtn) {
         addMarketplaceBtn.addEventListener('click', async () => {
@@ -257,7 +161,6 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    // Розділити на власні та MP
                     const ownIds = [];
                     const mpIds = [];
                     selectedIds.forEach(id => {
@@ -270,14 +173,12 @@ function initMapperBatchActions() {
                         }
                     });
 
-                    // Якщо тільки власні - нічого робити
                     if (mpIds.length === 0) {
                         const { showToast } = await import('../common/ui-toast.js');
                         showToast('Оберіть MP категорії для маппінгу', 'warning');
                         return;
                     }
 
-                    // Якщо 1 власна + MP категорії - підтвердити і замапити
                     if (ownIds.length === 1) {
                         const { batchCreateCategoryMapping, getCategories } = await import('./mapper-data.js');
                         const { showToast } = await import('../common/ui-toast.js');
@@ -308,21 +209,18 @@ function initMapperBatchActions() {
                         return;
                     }
 
-                    // Якщо кілька власних - попередження
                     if (ownIds.length > 1) {
                         const { showToast } = await import('../common/ui-toast.js');
                         showToast('Оберіть тільки одну власну категорію', 'warning');
                         return;
                     }
 
-                    // Тільки MP - показати модалку вибору
                     const { showSelectOwnCategoryModal } = await import('./mapper-categories.js');
                     await showSelectOwnCategoryModal(mpIds);
                 }
             }
         ],
-        onSelectionChange: (count) => {
-        }
+        onSelectionChange: (count) => {}
     });
 
     // Batch bar для характеристик
@@ -335,7 +233,6 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    // Розділити на власні та MP
                     const ownIds = [];
                     const mpIds = [];
                     selectedIds.forEach(id => {
@@ -404,8 +301,7 @@ function initMapperBatchActions() {
                 }
             }
         ],
-        onSelectionChange: (count) => {
-        }
+        onSelectionChange: (count) => {}
     });
 
     // Batch bar для опцій
@@ -418,7 +314,6 @@ function initMapperBatchActions() {
                 icon: 'link',
                 primary: true,
                 handler: async (selectedIds, tabId) => {
-                    // Розділити на власні та MP
                     const ownIds = [];
                     const mpIds = [];
                     selectedIds.forEach(id => {
@@ -487,16 +382,13 @@ function initMapperBatchActions() {
                 }
             }
         ],
-        onSelectionChange: (count) => {
-        }
+        onSelectionChange: (count) => {}
     });
-
 }
 
-/**
- * Ініціалізувати сортування для всіх табів
- * Сортування управляється через initMapperColumnFilters() в mapper-table.js
- */
-export function initMapperSorting() {
-    // no-op: сортування ініціалізується при рендері таблиць через mapper-table.js
-}
+// initMapperSorting — видалено, createManagedTable керує сортуванням через plugins.sorting
+export function initMapperSorting() {}
+// initMapperSearch — видалено, createManagedTable керує пошуком
+export function initMapperSearch() {}
+// initColumnSelectors — видалено, createManagedTable керує колонками
+export function initColumnSelectors() {}
