@@ -284,6 +284,9 @@ async function loadAsideBrands() {
         const html = await response.text();
         panelRightContent.innerHTML = html;
 
+        // Ініціалізувати dropdowns для динамічно завантаженого HTML
+        const { initDropdowns } = await import('../common/ui-dropdown.js');
+        initDropdowns();
 
         // Ініціалізувати пошук
         const searchInput = document.getElementById('search-brands');

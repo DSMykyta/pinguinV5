@@ -30,7 +30,7 @@ import { mapperState, runHook } from './mapper-state.js';
  */
 export async function initMapper() {
     initTooltips();
-    loadAsideMapper();
+    await loadAsideMapper();
     initMapperPagination();
     initTabSwitching();
     await loadMapperPlugins();
@@ -230,6 +230,10 @@ async function loadAsideMapper() {
 
         const html = await response.text();
         panelRightContent.innerHTML = html;
+
+        // Ініціалізувати dropdowns для динамічно завантаженого HTML
+        const { initDropdowns } = await import('../common/ui-dropdown.js');
+        initDropdowns();
 
         // Кнопка очистки пошуку — setSearchQuery('')
         const clearSearchBtn = document.getElementById('clear-search-mapper');
