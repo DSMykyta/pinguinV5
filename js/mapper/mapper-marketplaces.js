@@ -659,32 +659,25 @@ function populateMpCategories(allData, catMapping) {
     const container = document.getElementById('mp-data-cat-container');
     const statsEl = document.getElementById('mp-data-cat-stats');
     const searchInput = document.getElementById('mp-data-cat-search');
-    const paginationEl = document.getElementById('mp-data-cat-pagination');
     if (!container) return;
 
     let filteredData = [...allData];
-    let currentPage = 1;
-    let pageSize = 999999; // Дерево — показати все за замовчуванням
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
-    const renderPage = () => {
-        const start = (currentPage - 1) * pageSize;
-        const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
-
-        if (paginatedData.length === 0) {
+    const render = () => {
+        if (filteredData.length === 0) {
             container.innerHTML = renderAvatarState('empty', {
                 message: 'Категорії відсутні', size: 'medium',
                 containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
-            renderMpCategoryTree(container, paginatedData, catMapping);
+            renderMpCategoryTree(container, filteredData, catMapping);
         }
         updateStats(filteredData.length, allData.length);
-        if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
     const filterData = (query) => {
@@ -698,22 +691,15 @@ function populateMpCategories(allData, catMapping) {
                 return name.includes(q) || extId.includes(q);
             });
         }
-        currentPage = 1;
-        renderPage();
+        render();
     };
-
-    const paginationAPI = paginationEl ? initPagination(paginationEl, {
-        currentPage, pageSize,
-        totalItems: filteredData.length,
-        onPageChange: (page, size) => { currentPage = page; pageSize = size; renderPage(); }
-    }) : null;
 
     if (searchInput) {
         searchInput.value = '';
         searchInput.addEventListener('input', (e) => filterData(e.target.value));
     }
 
-    renderPage();
+    render();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
