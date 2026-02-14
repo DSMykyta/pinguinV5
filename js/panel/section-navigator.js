@@ -2,6 +2,7 @@
 
 /**
  * Ініціалізує логіку для навігатора секцій.
+ * - Sliding indicator (підложка що їде між кнопками).
  * - Плавна прокрутка по кліку.
  * - Scroll Spy для підсвічування активної іконки.
  * - Плавна прокрутка колесом миші між секціями.
@@ -16,9 +17,29 @@ export function initSectionNavigator() {
 
     if (sections.length === 0 || !contentMain) return;
 
+    // --- 0. Створюємо підложку-індикатор ---
+    const indicator = document.createElement('div');
+    indicator.className = 'nav-indicator';
+    navigator.appendChild(indicator);
+
+    function moveIndicator() {
+        const activeIcon = navigator.querySelector('.nav-icon.is-active');
+        if (!activeIcon) return;
+
+        indicator.style.transform = `translateX(${activeIcon.offsetLeft}px)`;
+        indicator.style.width = `${activeIcon.offsetWidth}px`;
+    }
+
+    // Початкова позиція без анімації
+    moveIndicator();
+    // Вмикаємо transition після першого кадру
+    requestAnimationFrame(() => {
+        indicator.classList.add('is-ready');
+    });
+
+    // --- 1. Плавна прокрутка по кліку ---
     let isAnimating = false;
 
-    // Скидаємо блокування коли скрол завершився
     contentMain.addEventListener('scrollend', () => {
         isAnimating = false;
     });
@@ -44,11 +65,9 @@ export function initSectionNavigator() {
             top: sections[index].offsetTop,
             behavior: 'smooth'
         });
-        // Fallback якщо scrollend не підтримується
         setTimeout(() => { isAnimating = false; }, 1000);
     }
 
-    // --- 1. Плавна прокрутка по кліку ---
     navigator.addEventListener('click', (e) => {
         const navIcon = e.target.closest('.nav-icon');
         if (!navIcon || !navIcon.hash) return;
@@ -62,7 +81,7 @@ export function initSectionNavigator() {
         }
     });
 
-    // --- 2. Scroll Spy ---
+    // --- 2. Scroll Spy + рух індикатора ---
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const sectionId = entry.target.id;
@@ -73,6 +92,7 @@ export function initSectionNavigator() {
                 if (correspondingIcon) {
                     correspondingIcon.classList.add('is-active');
                 }
+                moveIndicator();
             }
         });
     }, {
@@ -90,7 +110,6 @@ export function initSectionNavigator() {
             return;
         }
 
-        // Якщо курсор всередині секції з внутрішнім скролом — дозволяємо скрол секції
         const section = e.target.closest('section');
         if (section) {
             const canScroll = section.scrollHeight > section.clientHeight + 1;
@@ -99,12 +118,11 @@ export function initSectionNavigator() {
                 const atBottom = section.scrollTop + section.clientHeight >= section.scrollHeight - 2;
 
                 if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
-                    return; // Секція ще може скролитись — не перехоплюємо
+                    return;
                 }
             }
         }
 
-        // Секція на межі або не має скролу — переходимо до іншої секції
         e.preventDefault();
 
         const current = getCurrentSectionIndex();
