@@ -620,7 +620,7 @@ async function populateMpReferences(slug) {
         const start = (currentPage - 1) * pageSize;
         const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
         tableAPI.render(paginatedData);
-        updateStats(filteredData.length, allData.length);
+        updateStats(paginatedData.length, filteredData.length);
         if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
@@ -801,7 +801,7 @@ function populateMpCharacteristics(allData, charMapping) {
         const start = (currentPage - 1) * pageSize;
         const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
         tableAPI.render(paginatedData);
-        updateStats(filteredData.length, allData.length);
+        updateStats(paginatedData.length, filteredData.length);
         if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
@@ -927,7 +927,7 @@ function populateMpOptions(allData, optMapping) {
         const start = (currentPage - 1) * pageSize;
         const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
         tableAPI.render(paginatedData);
-        updateStats(filteredData.length, allData.length);
+        updateStats(paginatedData.length, filteredData.length);
         if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 

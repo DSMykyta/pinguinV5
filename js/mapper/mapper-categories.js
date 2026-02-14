@@ -571,7 +571,7 @@ function populateRelatedCharacteristics(categoryId) {
         const start = (currentPage - 1) * pageSize;
         const paginatedData = pageSize > 100000 ? filteredData : filteredData.slice(start, start + pageSize);
         modalTableAPI.render(paginatedData);
-        updateStats(filteredData.length, allData.length);
+        updateStats(paginatedData.length, filteredData.length);
         if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
