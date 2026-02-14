@@ -37,6 +37,37 @@ export function initSectionNavigator() {
         indicator.classList.add('is-ready');
     });
 
+    // --- Слідкування за hover (іконки розширюються — індикатор їде за ними) ---
+    let trackingRAF = null;
+    let stopTimeout = null;
+
+    function startTracking() {
+        clearTimeout(stopTimeout);
+        indicator.classList.remove('is-ready'); // Вимикаємо transition — слідкуємо покадрово
+        if (trackingRAF) return;
+        function track() {
+            moveIndicator();
+            trackingRAF = requestAnimationFrame(track);
+        }
+        trackingRAF = requestAnimationFrame(track);
+    }
+
+    function stopTracking() {
+        if (trackingRAF) {
+            cancelAnimationFrame(trackingRAF);
+            trackingRAF = null;
+        }
+        moveIndicator();
+        requestAnimationFrame(() => {
+            indicator.classList.add('is-ready'); // Повертаємо transition
+        });
+    }
+
+    navigator.addEventListener('mouseenter', startTracking);
+    navigator.addEventListener('mouseleave', () => {
+        stopTimeout = setTimeout(stopTracking, 600); // Чекаємо поки іконка стисне назад
+    });
+
     // --- 1. Плавна прокрутка по кліку ---
     let isAnimating = false;
 
