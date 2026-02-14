@@ -453,6 +453,23 @@ function clearMarketplaceForm() {
 // СЕКЦІЯ: ДОВІДНИКИ (файли на Google Drive)
 // ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Очистити file_id у категоріях, що посилаються на видалений файл
+ */
+async function clearCategoryFileIds(fileIds, marketplaceId) {
+    const mpCats = getMpCategories().filter(c => c.marketplace_id === marketplaceId);
+    for (const cat of mpCats) {
+        if (cat.file_id && fileIds.includes(cat.file_id) && cat._rowIndex) {
+            await callSheetsAPI('update', {
+                range: `Mapper_MP_Categories!H${cat._rowIndex}`,
+                values: [['']],
+                spreadsheetType: 'main'
+            });
+            cat.file_id = '';
+        }
+    }
+}
+
 async function populateMpReferences(slug, marketplaceId) {
     const container = document.getElementById('mp-data-ref-container');
     const statsEl = document.getElementById('mp-data-ref-stats');
@@ -573,6 +590,7 @@ async function populateMpReferences(slug, marketplaceId) {
                         for (const fId of selectedIds) {
                             await deleteReferenceFile(fId);
                         }
+                        await clearCategoryFileIds(selectedIds, marketplaceId);
                         showToast(`Видалено ${selectedIds.length} файлів`, 'success');
                         batchBar.deselectAll();
                         await populateMpReferences(slug, marketplaceId);
@@ -607,6 +625,7 @@ async function populateMpReferences(slug, marketplaceId) {
                     if (!confirmed) return;
                     try {
                         await deleteReferenceFile(fileId);
+                        await clearCategoryFileIds([fileId], marketplaceId);
                         showToast('Файл видалено', 'success');
                         await populateMpReferences(slug, marketplaceId);
                     } catch (err) {
