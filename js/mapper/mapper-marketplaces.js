@@ -716,6 +716,7 @@ function populateMpCharacteristics(allData, charMapping) {
     const ownChars = getCharacteristics();
     const allProcessed = preprocessCharsData(allData, ownChars, charMapping);
     let filteredData = [...allProcessed];
+    let columnFilters = {};
     let currentPage = 1;
     let pageSize = 25;
 
@@ -723,10 +724,26 @@ function populateMpCharacteristics(allData, charMapping) {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;
     };
 
+    const filterColumnsConfig = [
+        { id: 'category_name', label: 'Категорія', filterType: 'contains' },
+        { id: 'type', label: 'Тип', filterType: 'values' }
+    ];
+
     const columns = [
-        col('external_id', 'ID', 'word-chip'),  
+        col('external_id', 'ID', 'word-chip'),
+        {
+            id: 'category_name', label: 'Категорія',
+            className: 'cell-xs cell-center', sortable: false, filterable: true,
+            render: (value) => {
+                const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
+                const count = names.length;
+                const tooltip = names.join('\n') || "Не прив'язано до категорій";
+                const cls = count === 0 ? 'chip' : 'chip chip-active';
+                return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
+            }
+        },
         col('_name', 'Назва', 'name'),
-        col('type', 'Тип', 'code'),
+        col('type', 'Тип', 'code', { filterable: true }),
         {
             id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
             render: (value, row) => {
@@ -735,6 +752,21 @@ function populateMpCharacteristics(allData, charMapping) {
             }
         }
     ];
+
+    const getFilteredData = () => {
+        let data = [...allProcessed];
+        if (Object.keys(columnFilters).length > 0) {
+            data = applyColumnFilters(data, columnFilters, filterColumnsConfig);
+        }
+        const q = searchInput?.value?.toLowerCase().trim() || '';
+        if (q) {
+            data = data.filter(row =>
+                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
+                (row._name && row._name.toLowerCase().includes(q))
+            );
+        }
+        return data;
+    };
 
     const tableAPI = renderTableLego(container, {
         data: [],
@@ -751,6 +783,16 @@ function populateMpCharacteristics(allData, charMapping) {
                     renderPage();
                 },
                 columnTypes: { external_id: 'string', _name: 'string', type: 'string' }
+            },
+            filters: {
+                dataSource: () => allProcessed,
+                filterColumns: filterColumnsConfig,
+                onFilter: (filters) => {
+                    columnFilters = filters;
+                    filteredData = getFilteredData();
+                    currentPage = 1;
+                    renderPage();
+                }
             }
         }
     });
@@ -763,20 +805,6 @@ function populateMpCharacteristics(allData, charMapping) {
         if (paginationAPI) paginationAPI.update({ totalItems: filteredData.length, currentPage, pageSize });
     };
 
-    const filterTableData = (query) => {
-        const q = query.toLowerCase().trim();
-        if (!q) {
-            filteredData = [...allProcessed];
-        } else {
-            filteredData = allProcessed.filter(row =>
-                (row.external_id && row.external_id.toLowerCase().includes(q)) ||
-                (row._name && row._name.toLowerCase().includes(q))
-            );
-        }
-        currentPage = 1;
-        renderPage();
-    };
-
     const paginationAPI = paginationEl ? initPagination(paginationEl, {
         currentPage, pageSize,
         totalItems: filteredData.length,
@@ -785,7 +813,11 @@ function populateMpCharacteristics(allData, charMapping) {
 
     if (searchInput) {
         searchInput.value = '';
-        searchInput.addEventListener('input', (e) => filterTableData(e.target.value));
+        searchInput.addEventListener('input', () => {
+            filteredData = getFilteredData();
+            currentPage = 1;
+            renderPage();
+        });
     }
 
     renderPage();

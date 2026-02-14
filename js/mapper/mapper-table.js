@@ -618,6 +618,7 @@ function getCharacteristicsData() {
 
         return {
             ...char,
+            _raw_category_ids: char.category_ids || '',
             category_ids: categoryDisplay,
             is_global: isGlobal ? 'active' : 'inactive',
             _editable: true
@@ -636,7 +637,16 @@ function getCharacteristicsData() {
 export function getCharacteristicsColumns(categoriesList) {
     return [
         col('id', 'ID', 'word-chip'),
-        col('category_ids', 'Категорія', 'binding-chip'),
+        {
+            id: '_raw_category_ids', label: 'Категорія',
+            className: 'cell-xs cell-center', sortable: false, filterable: true,
+            render: (value, row) => {
+                const display = row.category_ids;
+                if (!display || display.count == null) return '';
+                const cls = (display.count === 0 || display.count === '0') ? 'chip' : 'chip chip-active';
+                return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(display.tooltip || '')}" data-tooltip-always style="cursor:pointer">${display.count}</span>`;
+            }
+        },
         col('name_ua', 'Назва', 'name'),
         col('type', 'Тип', 'code', { filterable: true }),
         col('is_global', 'Глобальна', 'status-dot', { filterable: true, className: 'cell-s cell-center' }),
@@ -653,7 +663,7 @@ function initCharacteristicsTableAPI(container, categoriesList) {
 
     const visibleCols = mapperState.visibleColumns.characteristics?.length > 0
         ? mapperState.visibleColumns.characteristics
-        : ['id', 'category_ids', 'name_ua', 'type', 'is_global', 'bindings'];
+        : ['id', '_raw_category_ids', 'name_ua', 'type', 'is_global', 'bindings'];
 
     const tableAPI = createTable(container, {
         columns: getCharacteristicsColumns(categoriesList),
@@ -1489,6 +1499,7 @@ function getFilterColumnsConfig(tabName) {
             { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
         characteristics: [
+            { id: '_raw_category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
             { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
