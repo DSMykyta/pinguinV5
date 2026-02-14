@@ -88,6 +88,41 @@ async function loadPriceStats() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// ЗАВАНТАЖЕННЯ ДАНИХ БРЕНДІВ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Завантажити статистику брендів з Main Spreadsheet.
+ * @returns {Promise<void>} Оновлює tasksState.brandsStats
+ */
+async function loadBrandsStats() {
+    try {
+        const result = await callSheetsAPI('get', {
+            range: 'Brands!A:F',
+            spreadsheetType: 'main'
+        });
+
+        if (!result || !Array.isArray(result) || result.length <= 1) {
+            tasksState.brandsStats = { total: 0, active: 0, inactive: 0, loaded: true };
+            return;
+        }
+
+        const dataRows = result.slice(1).filter(row => row[0]); // рядки з brand_id
+        const active = dataRows.filter(row => (row[5] || '').toLowerCase() === 'active').length;
+
+        tasksState.brandsStats = {
+            total: dataRows.length,
+            active,
+            inactive: dataRows.length - active,
+            loaded: true
+        };
+    } catch (error) {
+        console.warn('[Cabinet] ⚠️ Не вдалося завантажити статистику брендів:', error.message);
+        tasksState.brandsStats = { total: 0, active: 0, inactive: 0, loaded: true };
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // СТАТИСТИКА ЗАДАЧ
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -108,7 +143,8 @@ function getTaskStats() {
         active: myTasks.filter(t => ['todo', 'in_progress'].includes(t.status) && t.type === 'task').length,
         urgent: myTasks.filter(t => ['todo', 'in_progress'].includes(t.status) && t.priority === 'urgent').length,
         done: myTasks.filter(t => t.status === 'done').length,
-        info: myTasks.filter(t => ['info', 'script', 'reference'].includes(t.type)).length
+        info: myTasks.filter(t => ['info', 'script', 'reference'].includes(t.type)).length,
+        total: myTasks.length
     };
 }
 
@@ -265,20 +301,38 @@ function renderGreeting() {
 function renderStats() {
     const stats = getTaskStats();
     const price = tasksState.priceStats;
+    const brands = tasksState.brandsStats || {};
 
     return `
         <div class="grid2" style="margin-top: 16px;">
-            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: default;">
+            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
+                 data-cabinet-navigate="section-tasks">
                 <span class="material-symbols-outlined panel-box-icon">task_alt</span>
                 <strong style="font-size: 24px;">${stats.active}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">активних задач</span>
                 ${stats.urgent > 0 ? `<span class="chip chip-error" style="font-size: 11px;">${stats.urgent} термінових</span>` : ''}
             </div>
-            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: default;">
+
+            <a href="price.html" class="panel-box" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
                 <span class="material-symbols-outlined panel-box-icon">inventory_2</span>
-                <strong style="font-size: 24px;">${price.loaded ? price.noArticle : '...'}</strong>
-                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">без артикулу</span>
+                <strong style="font-size: 24px;">${price.loaded ? price.totalReserved : '...'}</strong>
+                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">зарезервовано</span>
+                ${price.loaded && price.noArticle > 0 ? `<span class="chip chip-error" style="font-size: 11px;">${price.noArticle} без артикулу</span>` : ''}
                 ${price.loaded && price.canPost > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${price.canPost} можна викласти</span>` : ''}
+            </a>
+
+            <a href="brands.html" class="panel-box" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
+                <span class="material-symbols-outlined panel-box-icon">shopping_bag</span>
+                <strong style="font-size: 24px;">${brands.loaded ? brands.total : '...'}</strong>
+                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">брендів</span>
+                ${brands.loaded && brands.active > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${brands.active} активних</span>` : ''}
+            </a>
+
+            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
+                 data-cabinet-navigate="section-tasks" data-cabinet-type-filter="info">
+                <span class="material-symbols-outlined panel-box-icon">lightbulb</span>
+                <strong style="font-size: 24px;">${stats.info}</strong>
+                <span class="avatar-state-message" style="font-size: 12px; max-width: none;">записів інфо</span>
             </div>
         </div>
     `;
@@ -341,6 +395,99 @@ function renderPinned() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// НЕЩОДАВНЯ АКТИВНІСТЬ
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Згенерувати HTML для нещодавньої активності.
+ * Останні 5 оновлених задач поточного юзера.
+ *
+ * @returns {string} HTML (порожній рядок якщо немає активності)
+ */
+function renderRecentActivity() {
+    const userId = tasksState.currentUserId;
+    if (!userId) return '';
+
+    const recentTasks = tasksState.tasks
+        .filter(t =>
+            (t.created_by === userId || isUserAssigned(t.assigned_to, userId)) &&
+            t.updated_at
+        )
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+        .slice(0, 5);
+
+    if (recentTasks.length === 0) return '';
+
+    const TYPE_ICONS = {
+        task: 'task_alt',
+        info: 'lightbulb',
+        script: 'code',
+        reference: 'link'
+    };
+    const STATUS_ICONS = {
+        todo: 'radio_button_unchecked',
+        in_progress: 'pending',
+        done: 'check_circle'
+    };
+
+    const items = recentTasks.map(t => {
+        const typeIcon = TYPE_ICONS[t.type] || TYPE_ICONS.task;
+        const statusIcon = STATUS_ICONS[t.status] || STATUS_ICONS.todo;
+        const timeAgo = formatTimeAgo(t.updated_at);
+
+        return `
+            <div class="content-card" data-task-id="${t.id}" data-recent="true" style="max-width: none; min-width: 0;">
+                <div class="content-card-header">
+                    <h4 class="content-card-title">${escapeHtml(t.title)}</h4>
+                    <span class="badge">
+                        <span class="material-symbols-outlined">${statusIcon}</span>
+                    </span>
+                </div>
+                <div class="content-card-footer">
+                    <div class="content-card-footer-left">
+                        <span class="badge">
+                            <span class="material-symbols-outlined">${typeIcon}</span>
+                        </span>
+                        <span style="font-size: 11px; opacity: 0.7;">${timeAgo}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div style="margin-top: 16px;">
+            <div class="section-name" style="margin-bottom: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 18px; opacity: 0.5;">history</span>
+                <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary);">Нещодавня активність</span>
+            </div>
+            <div class="u-flex-col-8">${items}</div>
+        </div>
+    `;
+}
+
+/**
+ * Відформатувати дату у відносний час (українською)
+ * @param {string} dateStr - ISO datetime
+ * @returns {string}
+ */
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'щойно';
+    if (diffMin < 60) return `${diffMin} хв тому`;
+    if (diffHours < 24) return `${diffHours} год тому`;
+    if (diffDays < 7) return `${diffDays} дн тому`;
+    return date.toLocaleDateString('uk-UA');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ГОЛОВНИЙ РЕНДЕР КАБІНЕТУ
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -355,12 +502,18 @@ async function renderCabinet() {
     const user = window.currentUser;
     if (!user) return;
 
-    // Завантажити прайс-статистику паралельно (якщо ще не завантажено)
-    if (!tasksState.priceStats.loaded) {
-        loadPriceStats().then(() => {
-            // Перерендерити тільки статистику
+    // Завантажити прайс та бренд статистику паралельно (якщо ще не завантажено)
+    const statsToLoad = [];
+    if (!tasksState.priceStats.loaded) statsToLoad.push(loadPriceStats());
+    if (!tasksState.brandsStats?.loaded) statsToLoad.push(loadBrandsStats());
+
+    if (statsToLoad.length > 0) {
+        Promise.allSettled(statsToLoad).then(() => {
             const statsEl = container.querySelector('[data-cabinet-stats]');
-            if (statsEl) statsEl.outerHTML = `<div data-cabinet-stats>${renderStats()}</div>`;
+            if (statsEl) {
+                statsEl.outerHTML = `<div data-cabinet-stats>${renderStats()}</div>`;
+                initStatCardNavigation(container);
+            }
         });
     }
 
@@ -368,10 +521,13 @@ async function renderCabinet() {
         ${renderGreeting()}
         <div data-cabinet-stats>${renderStats()}</div>
         ${renderPinned()}
+        ${renderRecentActivity()}
     `;
 
-    // Обробники для відкріплення
+    // Обробники
     initPinnedHandlers(container);
+    initRecentActivityHandlers(container);
+    initStatCardNavigation(container);
 }
 
 /**
@@ -404,6 +560,63 @@ function initPinnedHandlers(container) {
     });
 }
 
+/**
+ * Ініціалізувати обробники кліків на картках нещодавньої активності
+ * @param {HTMLElement} container
+ */
+function initRecentActivityHandlers(container) {
+    container.querySelectorAll('.content-card[data-recent="true"]').forEach(card => {
+        card.addEventListener('click', async (e) => {
+            if (e.target.closest('[data-action]')) return;
+            const taskId = card.dataset.taskId;
+            try {
+                const { showTaskViewModal } = await import('./tasks-crud.js');
+                showTaskViewModal(taskId);
+            } catch (err) {
+                console.warn('tasks-crud.js не завантажено');
+            }
+        });
+    });
+}
+
+/**
+ * Ініціалізувати навігацію з stat-карток до секцій
+ * @param {HTMLElement} container
+ */
+function initStatCardNavigation(container) {
+    container.querySelectorAll('[data-cabinet-navigate]').forEach(el => {
+        el.addEventListener('click', () => {
+            const targetId = el.dataset.cabinetNavigate;
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Якщо вказано фільтр типу — активувати його
+            const typeFilter = el.dataset.cabinetTypeFilter;
+            if (typeFilter) {
+                tasksState.filters.type = [typeFilter];
+
+                // Синхронізувати filter pills
+                const pillsContainer = document.getElementById('type-filter-pills');
+                if (pillsContainer) {
+                    pillsContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                    const targetPill = pillsContainer.querySelector(`[data-type-filter="${typeFilter}"]`);
+                    if (targetPill) targetPill.classList.add('active');
+                }
+
+                // Синхронізувати aside чекбокси
+                document.querySelectorAll('[data-filter="type"]').forEach(cb => {
+                    cb.checked = cb.value === typeFilter;
+                });
+
+                tasksState.pagination.currentPage = 1;
+                runHook('onRender');
+            }
+        });
+    });
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // УТИЛІТИ
 // ═══════════════════════════════════════════════════════════════════════════
@@ -427,4 +640,4 @@ function escapeHtml(text) {
 registerTasksPlugin('onInit', renderCabinet);
 registerTasksPlugin('onTaskUpdate', renderCabinet);
 
-export { renderCabinet, loadPriceStats, getPinnedTasks, getPinnedIds };
+export { renderCabinet, loadPriceStats, loadBrandsStats, getPinnedTasks, getPinnedIds };

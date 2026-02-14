@@ -217,13 +217,6 @@ export function getTasksForCurrentTab() {
                 hasOtherAssignees(t.assigned_to, currentUserId)
             );
             break;
-        case 'info':
-            // Інфо - всі мої записи типу info/script/reference
-            filtered = filtered.filter(t =>
-                t.created_by === currentUserId &&
-                ['info', 'script', 'reference'].includes(t.type)
-            );
-            break;
     }
 
     // Фільтр по статусу

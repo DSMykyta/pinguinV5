@@ -25,6 +25,7 @@ import { showToast } from '../common/ui-toast.js';
 function initEvents() {
     initRefreshButtons();
     initFilterCheckboxes();
+    initFilterPills();
 }
 
 /**
@@ -86,7 +87,67 @@ function initFilterCheckboxes() {
             // Викликати хук
             runHook('onFilterChange');
             runHook('onRender');
+
+            // Синхронізувати filter pills з чекбоксами
+            syncFilterPillsFromState();
         });
+    });
+}
+
+/**
+ * Ініціалізувати filter pills у header секції задач
+ */
+function initFilterPills() {
+    const pillsContainer = document.getElementById('type-filter-pills');
+    if (!pillsContainer) return;
+
+    pillsContainer.addEventListener('click', (e) => {
+        const pill = e.target.closest('[data-type-filter]');
+        if (!pill) return;
+
+        const filterValue = pill.dataset.typeFilter;
+
+        // Оновити активну pill
+        pillsContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+
+        // Оновити стан фільтрів
+        if (filterValue === 'all') {
+            tasksState.filters.type = [];
+        } else {
+            tasksState.filters.type = [filterValue];
+        }
+
+        // Синхронізувати aside чекбокси
+        document.querySelectorAll('[data-filter="type"]').forEach(cb => {
+            if (filterValue === 'all') {
+                cb.checked = false;
+            } else {
+                cb.checked = cb.value === filterValue;
+            }
+        });
+
+        tasksState.pagination.currentPage = 1;
+        runHook('onFilterChange');
+        runHook('onRender');
+    });
+}
+
+/**
+ * Синхронізувати стан filter pills з tasksState.filters.type
+ */
+function syncFilterPillsFromState() {
+    const pillsContainer = document.getElementById('type-filter-pills');
+    if (!pillsContainer) return;
+
+    const activeTypes = tasksState.filters.type;
+    pillsContainer.querySelectorAll('.filter-pill').forEach(p => {
+        const val = p.dataset.typeFilter;
+        if (val === 'all') {
+            p.classList.toggle('active', activeTypes.length === 0);
+        } else {
+            p.classList.toggle('active', activeTypes.length === 1 && activeTypes[0] === val);
+        }
     });
 }
 

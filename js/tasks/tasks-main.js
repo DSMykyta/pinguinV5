@@ -37,6 +37,8 @@ import { registerPanelInitializer } from '../panel/panel-right.js';
 
 registerPanelInitializer('aside-tasks', initAsideTasksHandlers);
 registerPanelInitializer('aside-cabinet', initAsideCabinetHandlers);
+registerPanelInitializer('aside-cabinet-links', initAsideCabinetLinksHandlers);
+registerPanelInitializer('aside-admin', initAsideAdminHandlers);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -48,6 +50,7 @@ const PLUGINS = [
     './tasks-crud.js',
     './tasks-events.js',
     './tasks-ui.js',
+    './tasks-links.js',
 ];
 
 /**
@@ -143,13 +146,6 @@ async function checkAuthAndLoadData() {
         tasksState.activeTab = 'my';
         await runHookAsync('onInit', tasksState.tasks);
 
-        // Рендеримо секцію Інформація (activeTab = 'info')
-        tasksState.activeTab = 'info';
-        runHook('onRender');
-
-        // Повертаємо на 'my' як основний
-        tasksState.activeTab = 'my';
-
     } catch (error) {
         console.error('❌ Помилка завантаження даних:', error);
         renderErrorState();
@@ -195,14 +191,8 @@ function initRefreshButton() {
         try {
             await loadTasks();
 
-            // Оновити обидві секції
             tasksState.activeTab = 'my';
             runHook('onRender');
-
-            tasksState.activeTab = 'info';
-            runHook('onRender');
-
-            tasksState.activeTab = 'my';
 
         } catch (error) {
             console.error('❌ Помилка оновлення:', error);
@@ -230,18 +220,6 @@ function initAddButtons() {
         });
     }
 
-    // Кнопка "Додати запис" в секції Інформація
-    const addInfoBtn = document.getElementById('btn-add-info');
-    if (addInfoBtn) {
-        addInfoBtn.addEventListener('click', async () => {
-            try {
-                const { showAddTaskModal } = await import('./tasks-crud.js');
-                showAddTaskModal();
-            } catch (e) {
-                console.warn('tasks-crud.js не завантажено');
-            }
-        });
-    }
 }
 
 /**
@@ -338,6 +316,79 @@ function initAsideCabinetHandlers() {
 }
 
 /**
+ * Ініціалізувати обробники в aside-cabinet-links
+ * Викликається panel-right.js після завантаження шаблону
+ */
+function initAsideCabinetLinksHandlers() {
+    const searchInput = document.getElementById('search-cabinet-links');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const container = document.getElementById('links-container');
+            if (!container) return;
+
+            container.querySelectorAll('[data-link-name]').forEach(item => {
+                const name = (item.dataset.linkName || '').toLowerCase();
+                const desc = (item.dataset.linkDesc || '').toLowerCase();
+                item.style.display = (name.includes(query) || desc.includes(query) || !query)
+                    ? '' : 'none';
+            });
+        });
+    }
+
+    const clearBtn = document.getElementById('clear-search-cabinet-links');
+    if (clearBtn && searchInput) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+            clearBtn.classList.add('u-hidden');
+        });
+        searchInput.addEventListener('input', () => {
+            clearBtn.classList.toggle('u-hidden', !searchInput.value.trim());
+        });
+    }
+
+    // Чекбокси категорій
+    document.querySelectorAll('[data-link-category-filter]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const category = cb.dataset.linkCategoryFilter;
+            const container = document.getElementById('links-container');
+            if (!container) return;
+
+            const group = container.querySelector(`[data-links-group="${category}"]`);
+            if (group) {
+                group.style.display = cb.checked ? '' : 'none';
+            }
+        });
+    });
+}
+
+/**
+ * Ініціалізувати обробники в aside-admin
+ * Викликається panel-right.js після завантаження шаблону
+ */
+function initAsideAdminHandlers() {
+    const statsEl = document.getElementById('aside-admin-stats');
+    if (!statsEl) return;
+
+    const totalTasks = tasksState.tasks.length;
+    const totalUsers = tasksState.users.length;
+
+    statsEl.innerHTML = `
+        <div class="u-flex-col-8">
+            <span style="font-size: 12px;">
+                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">task_alt</span>
+                Задачі: <strong>${totalTasks}</strong>
+            </span>
+            <span style="font-size: 12px;">
+                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: -2px;">group</span>
+                Користувачі: <strong>${totalUsers}</strong>
+            </span>
+        </div>
+    `;
+}
+
+/**
  * Оновити статистику в aside-cabinet
  * Показує кількість задач по статусах
  */
@@ -407,6 +458,19 @@ function renderAuthRequiredState() {
     if (tasksContainer) {
         tasksContainer.innerHTML = renderAvatarState('authRequired', {
             message: 'Авторизуйтесь для перегляду задач',
+            size: 'lg',
+            containerClass: 'empty-state-container',
+            avatarClass: 'empty-state-avatar',
+            messageClass: 'avatar-state-message',
+            showMessage: true
+        });
+    }
+
+    // Показуємо в посиланнях
+    const linksContainer = document.getElementById('links-container');
+    if (linksContainer) {
+        linksContainer.innerHTML = renderAvatarState('authRequired', {
+            message: 'Авторизуйтесь для перегляду посилань',
             size: 'lg',
             containerClass: 'empty-state-container',
             avatarClass: 'empty-state-avatar',

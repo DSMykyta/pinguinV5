@@ -225,8 +225,7 @@ function renderCard(task) {
 
 function renderEmptyState(container) {
     const messages = {
-        my: 'У вас ще немає задач',
-        info: 'Немає збереженої інформації'
+        my: 'У вас ще немає задач'
     };
 
     const avatarHtml = renderAvatarState('empty', {

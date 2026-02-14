@@ -106,16 +106,16 @@
         <!-- НАВІГАЦІЯ СЕКЦІЙ -->
         <nav class="section-navigator" id="section-navigator">
             <a href="#section-cabinet" class="nav-icon" aria-label="Кабінет">
-                <span class="material-symbols-outlined">person</span>
+                <span class="material-symbols-outlined">dashboard</span>
                 <span class="nav-icon-label">Кабінет</span>
             </a>
             <a href="#section-tasks" class="nav-icon" aria-label="Задачі">
                 <span class="material-symbols-outlined">task_alt</span>
                 <span class="nav-icon-label">Задачі</span>
             </a>
-            <a href="#section-info" class="nav-icon" aria-label="Інформація">
-                <span class="material-symbols-outlined">lightbulb</span>
-                <span class="nav-icon-label">Інфо</span>
+            <a href="#section-links" class="nav-icon" aria-label="Посилання">
+                <span class="material-symbols-outlined">link</span>
+                <span class="nav-icon-label">Посилання</span>
             </a>
             <a href="#section-admin" class="nav-icon u-hidden" id="nav-admin" aria-label="Адміністрування">
                 <span class="material-symbols-outlined">admin_panel_settings</span>
@@ -165,6 +165,25 @@
                 </div>
 
                 <div class="tab-controls">
+                    <div class="filter-pills-container" id="type-filter-pills">
+                        <button class="filter-pill active" data-type-filter="all">Все</button>
+                        <button class="filter-pill" data-type-filter="task">
+                            <span class="material-symbols-outlined">task_alt</span>
+                            Задачі
+                        </button>
+                        <button class="filter-pill" data-type-filter="info">
+                            <span class="material-symbols-outlined">lightbulb</span>
+                            Інфо
+                        </button>
+                        <button class="filter-pill" data-type-filter="script">
+                            <span class="material-symbols-outlined">code</span>
+                            Скрипти
+                        </button>
+                        <button class="filter-pill" data-type-filter="reference">
+                            <span class="material-symbols-outlined">link</span>
+                            Референси
+                        </button>
+                    </div>
                     <button id="btn-add-task-header" class="btn-icon" aria-label="Додати задачу">
                         <span class="material-symbols-outlined">add</span>
                     </button>
@@ -184,34 +203,25 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: ІНФОРМАЦІЯ -->
+        <!-- СЕКЦІЯ: ПОСИЛАННЯ                                                  -->
+        <!-- Посилання на всі Google Sheets та інструменти.                     -->
+        <!-- Aside: aside-cabinet-links.html (пошук + категорії)                -->
+        <!-- Рендер: tasks-links.js (плагін)                                    -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-info" data-panel-template="aside-tasks">
+        <section id="section-links" data-panel-template="aside-cabinet-links">
 
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2 class="section-upper">Інформація</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
+                        <h2 class="section-upper">Посилання</h2>
                     </div>
-                    <span class="small" id="tab-stats-info">Збережені записи</span>
-                </div>
-                <div class="tab-controls">
-                    <button id="btn-add-info" class="btn-icon" aria-label="Додати запис">
-                        <span class="material-symbols-outlined">add</span>
-                    </button>
-                    <button id="refresh-info" class="btn-icon btn-reload text-disabled" aria-label="Перезавантажити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
+                    <span class="small">Таблиці, інструменти та ресурси</span>
                 </div>
             </div>
 
-            <div class="section-content section-content-full-height">
-                <!-- Cards Container для інфо -->
-                <div id="tasks-container-info" class="tasks-container">
-                    <!-- Заповнюється JavaScript -->
+            <div class="section-content">
+                <div id="links-container">
+                    <!-- Заповнюється tasks-links.js -->
                 </div>
             </div>
 
@@ -220,7 +230,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: АДМІНІСТРУВАННЯ (тільки для admin) -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-admin" data-panel-template="aside-tasks" class="u-hidden">
+        <section id="section-admin" data-panel-template="aside-admin" class="u-hidden">
 
             <div class="section-header">
                 <div class="section-name-block">
