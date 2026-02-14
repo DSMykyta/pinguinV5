@@ -13,15 +13,6 @@
     gap: 12px;
     padding: 6px;
     border-radius: var(--radius-full);
-
-    background-color: rgba(250, 250, 250, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: var(--shadow-1);
-}
-
-[data-theme="dark"] .section-navigator {
-    background-color: rgba(18, 18, 18, 0.8);
 }
 
 .nav-icon {
