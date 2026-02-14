@@ -1156,8 +1156,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
                     : `<span class="leaf-placeholder"></span>`;
                 const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
                 const classes = [
-                    hasChildren ? 'has-children' : '',
-                    level < 1 ? 'is-open' : ''
+                    hasChildren ? 'has-children' : ''
                 ].filter(Boolean).join(' ');
 
                 return `
