@@ -50,7 +50,6 @@ body {
     height: 100vh;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
     margin-left: var(--panel-width-collapsed);
     padding-right: var(--panel-width-expanded);
     transition: padding-right var(--transition-speed) ease-in-out;
