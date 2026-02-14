@@ -76,7 +76,7 @@ async function checkAuthAndLoadData() {
 }
 
 function initKeywordsPagination() {
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (!footer) {
         console.warn('⚠️ Footer не знайдено');
         return;

@@ -614,7 +614,7 @@ export async function renderCheckResultsRowsOnly(sheetName, bannedWord) {
     }
 
     // Оновити footer pagination UI
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (footer && footer._paginationAPI) {
         footer._paginationAPI.update({
             currentPage: bannedWordsState.tabPaginations[tabId]?.currentPage || 1,
@@ -677,7 +677,7 @@ export async function renderCheckResults(sheetName, bannedWord) {
     }
 
     // Оновити footer pagination UI
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (footer && footer._paginationAPI) {
         footer._paginationAPI.update({
             currentPage: bannedWordsState.tabPaginations[tabId]?.currentPage || 1,

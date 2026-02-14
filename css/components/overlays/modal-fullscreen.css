@@ -232,9 +232,8 @@
     margin: 0;
 }
 
-.modal-fullscreen-content section .section-footer {
-    flex: 0 0 auto;
-    padding-top: 8px;
+.modal-fullscreen-content section .footer {
+    padding: 8px 0;
 }
 
 /* ============================================

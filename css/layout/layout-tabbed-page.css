@@ -11,7 +11,7 @@
  *     <div class="section-header">...</div>
  *     <div class="pseudo-table-container">...</div>
  *   </div>
- *   <footer class="fixed-footer">...</footer>
+ *   <footer class="footer">...</footer>
  * </main>
  */
 
@@ -62,13 +62,3 @@
     display: contents;
 }
 
-/* FOOTER - фіксований знизу */
-.tabbed-page .fixed-footer {
-    flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
-    gap: 16px;
-    background: var(--color-surface);
-}

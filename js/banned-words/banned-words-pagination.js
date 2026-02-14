@@ -19,7 +19,7 @@ import { initPagination } from '../common/ui-pagination.js';
  * Створює єдину пагінацію яка працює з різними табами
  */
 export function initPaginationForBannedWords() {
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (!footer) return;
 
     // Зареєструвати tab-manage в tabPaginations

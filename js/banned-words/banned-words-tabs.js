@@ -311,7 +311,7 @@ export function initTabHandlers() {
             // Відновити пагінацію для цього табу
             const tabPagination = bannedWordsState.tabPaginations[tabId];
             if (tabPagination) {
-                const footer = document.querySelector('.fixed-footer');
+                const footer = document.querySelector('.footer');
                 if (footer && footer._paginationAPI) {
                     footer._paginationAPI.update({
                         currentPage: tabPagination.currentPage,

@@ -155,7 +155,7 @@ async function checkAuthAndLoadData() {
  * Ініціалізувати пагінацію
  */
 function initBrandsPagination() {
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (!footer) {
         console.warn('⚠️ Footer не знайдено');
         return;

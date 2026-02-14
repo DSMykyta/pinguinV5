@@ -241,7 +241,7 @@ export async function renderBannedWordsTableRowsOnly() {
     const { all, filtered, paginated } = getManageFilteredPaginatedData();
 
     // Оновити footer pagination UI
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (footer && footer._paginationAPI) {
         footer._paginationAPI.update({
             currentPage: bannedWordsState.tabPaginations['tab-manage']?.currentPage || 1,
@@ -273,7 +273,7 @@ export async function renderBannedWordsTable() {
     updateCounters(paginated.length, filtered.length);
 
     // Оновити footer pagination UI
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
     if (footer && footer._paginationAPI) {
         footer._paginationAPI.update({
             currentPage: bannedWordsState.tabPaginations['tab-manage']?.currentPage || 1,

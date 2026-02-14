@@ -16,10 +16,10 @@ import { initPagination } from '../common/ui-pagination.js';
  * Ініціалізувати пагінацію для прайсу
  */
 export function initPaginationForPrice() {
-    const footer = document.querySelector('.fixed-footer');
+    const footer = document.querySelector('.footer');
 
     if (!footer) {
-        console.warn('⚠️ fixed-footer не знайдено');
+        console.warn('⚠️ footer не знайдено');
         return;
     }
 
