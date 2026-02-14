@@ -987,6 +987,118 @@ function findCatMapping(mpCat) {
 }
 
 /**
+ * Синтезувати відсутніх батьків з path-полів.
+ * Якщо дані маркетплейсу містять тільки листові категорії (parentId вказує на
+ * неіснуючий запис), відновлює проміжні рівні ієрархії з полів parentsPathUa/parentsPath.
+ */
+function synthesizeMissingParents(data, catMapping, dataSet, byJsonId) {
+    if (!data.length) return;
+
+    // Порахувати скільки елементів мають parentId, що не резолвиться
+    let orphanCount = 0;
+    let totalWithParent = 0;
+    data.forEach(item => {
+        const rawParent = resolveMpField(item, 'parent_id', catMapping)
+            ?? item.parentId ?? item.parent_id ?? '';
+        const parentId = rawParent === 0 || rawParent === '0' || rawParent === null ? '' : String(rawParent);
+        if (parentId) {
+            totalWithParent++;
+            if (!dataSet.has(parentId)) orphanCount++;
+        }
+    });
+
+    // Якщо менше 30% сиріт — батьки є в даних, синтез не потрібен
+    if (!totalWithParent || orphanCount / totalWithParent < 0.3) return;
+
+    // Знайти поле з шляхом (евристика — перевіряємо перші кілька елементів)
+    let pathField = null;
+    const pathCandidates = ['parentsPathUa', 'parentsPath', 'path', 'breadcrumb', 'categoryPath'];
+    for (const item of data.slice(0, 5)) {
+        for (const field of pathCandidates) {
+            if (item[field] && typeof item[field] === 'string' && item[field].includes('/')) {
+                pathField = field;
+                break;
+            }
+        }
+        if (pathField) break;
+    }
+    if (!pathField) return;
+
+    // Крок 1: зібрати маппінг fullPath → realId для відомих елементів
+    const pathToId = new Map();
+
+    data.forEach(item => {
+        const path = item[pathField];
+        if (!path) return;
+        const segments = path.split(/\s*\/\s*/);
+        if (segments.length < 2) return;
+
+        // Зареєструвати сам елемент
+        const itemId = String(item._jsonId || item.external_id || '');
+        if (itemId) {
+            const itemPath = segments.join(' / ');
+            if (!pathToId.has(itemPath)) pathToId.set(itemPath, itemId);
+        }
+
+        // Зареєструвати прямого батька (parentId → передостанній сегмент)
+        const rawParent = resolveMpField(item, 'parent_id', catMapping)
+            ?? item.parentId ?? item.parent_id ?? '';
+        const parentId = rawParent === 0 || rawParent === '0' || rawParent === null ? '' : String(rawParent);
+        if (parentId && segments.length >= 2) {
+            const parentPath = segments.slice(0, -1).join(' / ');
+            if (!pathToId.has(parentPath)) {
+                pathToId.set(parentPath, parentId);
+            }
+        }
+    });
+
+    // Крок 2: створити синтетичні записи для кожного відсутнього рівня
+    const synthetics = new Map();
+
+    data.forEach(item => {
+        const path = item[pathField];
+        if (!path) return;
+        const segments = path.split(/\s*\/\s*/);
+        if (segments.length < 2) return;
+
+        for (let i = 0; i < segments.length - 1; i++) {
+            const currentPath = segments.slice(0, i + 1).join(' / ');
+            const parentPath = i > 0 ? segments.slice(0, i).join(' / ') : null;
+
+            let currentId = pathToId.get(currentPath);
+            if (!currentId) {
+                currentId = `_path:${currentPath}`;
+                pathToId.set(currentPath, currentId);
+            }
+
+            // Пропустити якщо вже є в реальних даних або вже синтезований
+            if (dataSet.has(String(currentId)) || synthetics.has(String(currentId))) continue;
+
+            let synthParentId = '';
+            if (parentPath) {
+                synthParentId = pathToId.get(parentPath) || `_path:${parentPath}`;
+                if (!pathToId.has(parentPath)) pathToId.set(parentPath, synthParentId);
+            }
+
+            synthetics.set(String(currentId), {
+                _jsonId: String(currentId),
+                _synthetic: true,
+                parentId: synthParentId,
+                nameUa: segments[i],
+                name: segments[i],
+            });
+        }
+    });
+
+    // Крок 3: додати синтетичні елементи до структур даних
+    synthetics.forEach((item, id) => {
+        dataSet.add(id);
+        byJsonId.set(id, item);
+        data.push(item);
+    });
+}
+
+/**
  * Рендерити дерево MP категорій
  */
 function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) {
@@ -1007,6 +1119,9 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
         if (d._jsonId) dataSet.add(String(d._jsonId));
         if (d.external_id) dataSet.add(String(d.external_id));
     });
+
+    // Синтезувати відсутніх батьків з path-полів (якщо дані містять лише листові категорії)
+    synthesizeMissingParents(data, catMapping, dataSet, byJsonId);
 
     data.forEach(item => {
         const rawParent = resolveMpField(item, 'parent_id', catMapping)
@@ -1031,7 +1146,30 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             const jsonId = String(item._jsonId || item.external_id || '');
             const hasChildren = byParent.has(jsonId) && byParent.get(jsonId).length > 0;
             const isOpen = false;
+            const isSynthetic = item._synthetic;
             const name = extractMpName(item, catMapping) || item.external_id || '?';
+
+            // Синтетичні батьки — тільки назва і toggle, без маппінгу/кнопок
+            if (isSynthetic) {
+                const toggleHtml = hasChildren
+                    ? `<button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>`
+                    : `<span class="leaf-placeholder"></span>`;
+                const childrenHtml = hasChildren ? buildTree(jsonId, level + 1) : '';
+                const classes = [
+                    hasChildren ? 'has-children' : '',
+                    level < 1 ? 'is-open' : ''
+                ].filter(Boolean).join(' ');
+
+                return `
+                    <li data-id="${escapeHtml(jsonId)}" class="${classes}">
+                        <div class="tree-item-content">
+                            ${toggleHtml}
+                            <span class="tree-item-name synthetic-parent">${escapeHtml(name)}</span>
+                        </div>
+                        ${childrenHtml}
+                    </li>
+                `;
+            }
 
             // Знайти поточний маппінг
             const mapping = findCatMapping(item);
