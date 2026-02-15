@@ -113,8 +113,8 @@
     color-scheme: dark;
 
     /* 1. ФОНИ (Інверсія) */
-    --color-surface: #121212;        /* Майже чорний, краще ніж #000 */
-    --color-background: #000000;     /* Глибокий чорний для фону сторінки */
+    --color-surface: #121212;
+    --color-background: #121212;     /* Той самий що surface — панелі не виділяються */
     --color-surface-c-low: #1e1e1e;  /* Трохи світліший за surface */
     --color-surface-c: #2c2c2c;
     --color-surface-c-high: #3d3d3d;
