@@ -1,7 +1,7 @@
 section {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     padding: 8px 24px;
     overflow: scroll;
     padding-bottom: 72px;
@@ -43,7 +43,7 @@ section {
 
 /* Секція займає весь екран і використовує Flexbox для розміщення заголовка і контенту */
 .content-main section[data-panel-template="aside-glossary"] {
-    height: 100vh;
+    height: 100dvh;
     scroll-snap-align: start; /* Примагнічування */
 
     display: flex;
