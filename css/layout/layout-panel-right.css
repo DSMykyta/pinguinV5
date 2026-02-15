@@ -2,7 +2,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    height: 100vh;
+    height: 100dvh;
     background-color: var(--color-background);
     width: var(--panel-width-expanded);
     flex-shrink: 0;

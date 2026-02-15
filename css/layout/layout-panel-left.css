@@ -3,7 +3,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100dvh;
     background-color: var(--color-surface);
     /*background-color: var(--color-surface);*/
     z-index: 200;
