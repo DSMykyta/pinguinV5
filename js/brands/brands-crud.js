@@ -660,16 +660,19 @@ function initLogoHandlers() {
     urlBtn?.addEventListener('click', () => {
         const url = urlField.value.trim();
         if (url) {
-            handleLogoUrlUpload(url);
+            uploadLogoWithConfirm(() => handleLogoUrlUpload(url));
         } else {
-            fileInput?.click();
+            uploadLogoWithConfirm(() => fileInput?.click());
         }
     });
 
-    // Вибір файлу
+    // Вибір файлу (з підтвердженням заміни)
     fileInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) handleLogoFileUpload(file);
+        if (file) {
+            // Підтвердження вже було перед click(), тому завантажуємо одразу
+            handleLogoFileUpload(file);
+        }
         fileInput.value = '';
     });
 
@@ -689,7 +692,7 @@ function initLogoHandlers() {
             e.preventDefault();
             inputsLine.classList.remove('drag-over');
             const file = e.dataTransfer.files[0];
-            if (file) handleLogoFileUpload(file);
+            if (file) uploadLogoWithConfirm(() => handleLogoFileUpload(file));
         });
     }
 
@@ -788,36 +791,54 @@ async function handleLogoUrlUpload(url) {
 }
 
 /**
- * Видалити логотип (очистити preview, показати dropzone)
+ * Видалити логотип (очистити preview)
  */
 function handleRemoveLogo() {
     const hiddenInput = document.getElementById('brand-logo-url');
     if (hiddenInput) hiddenInput.value = '';
 
     const preview = document.getElementById('brand-logo-preview');
-    const dropzone = document.getElementById('brand-logo-dropzone');
-
     if (preview) preview.classList.add('u-hidden');
-    if (dropzone) dropzone.classList.remove('u-hidden');
 }
 
 /**
- * Показати preview логотипу, сховати dropzone
+ * Перевірити чи є вже логотип
+ * @returns {boolean}
+ */
+function hasExistingLogo() {
+    return !!document.getElementById('brand-logo-url')?.value.trim();
+}
+
+/**
+ * Завантажити логотип з підтвердженням заміни
+ * @param {Function} uploadFn - Функція завантаження
+ */
+async function uploadLogoWithConfirm(uploadFn) {
+    if (hasExistingLogo()) {
+        const confirmed = await showConfirmModal(
+            'Замінити логотип?',
+            'Поточний логотип буде замінено новим.'
+        );
+        if (!confirmed) return;
+    }
+    await uploadFn();
+}
+
+/**
+ * Показати preview логотипу (інпут залишається видимим)
  * @param {string} thumbnailUrl - Публічний URL зображення
  */
 function setLogoPreview(thumbnailUrl) {
     const preview = document.getElementById('brand-logo-preview');
     const previewImg = document.getElementById('brand-logo-preview-img');
-    const dropzone = document.getElementById('brand-logo-dropzone');
     const hiddenInput = document.getElementById('brand-logo-url');
 
     // Оновити hidden input (зберігається в Google Sheets)
     if (hiddenInput) hiddenInput.value = thumbnailUrl;
 
-    // Показати preview, сховати dropzone
+    // Показати preview (інпут НЕ ховається — для заміни)
     if (previewImg) previewImg.src = thumbnailUrl;
     if (preview) preview.classList.remove('u-hidden');
-    if (dropzone) dropzone.classList.add('u-hidden');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
