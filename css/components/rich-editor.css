@@ -205,3 +205,17 @@
 .rich-editor-code:focus {
     outline: none;
 }
+
+/* ============================================================================
+   ФУТЕР (статистика + кнопки очищення)
+   ============================================================================ */
+
+.rich-editor-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px;
+    border-top: 1px solid var(--color-outline);
+    min-height: 36px;
+    background: var(--color-surface);
+}

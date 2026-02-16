@@ -40,7 +40,7 @@ export function createEditorTemplate(id, config) {
             ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : ''}
 
             <!-- Область редактора -->
-            <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
+            <div style="flex: 1; display: flex; flex-direction: column;">
 
                 <!-- Режим тексту: WYSIWYG редактор -->
                 <div
@@ -61,16 +61,20 @@ export function createEditorTemplate(id, config) {
                 ></textarea>
                 ` : ''}
 
+            </div>
+
+            ${(showStats || showCleanup) ? `
+            <!-- Футер: статистика + кнопки очищення -->
+            <div class="rich-editor-footer">
                 ${showStats ? `
-                <div class="text-stats-container" id="${id}-stats" style="position: absolute; bottom: 4px; left: 12px; z-index: 1;">
+                <div class="text-stats-container" id="${id}-stats">
                     <span class="stat-item">Символів: <strong id="${id}-char-count">0</strong></span>
                     <span class="stat-item">Слів: <strong id="${id}-word-count">0</strong></span>
                     <span class="stat-item">Час читання: <strong id="${id}-reading-time">0</strong> хв</span>
                 </div>
-                ` : ''}
-
+                ` : '<div></div>'}
                 ${showCleanup ? `
-                <div id="${id}-cleanup-toggles" style="position: absolute; bottom: 4px; right: 12px; display: flex; gap: 4px; z-index: 1;">
+                <div id="${id}-cleanup-toggles" style="display: flex; gap: 4px;">
                     <button type="button" class="btn-icon" id="${id}-toggle-links" title="Очищати посилання" data-cleanup-toggle="allowLinks">
                         <span class="material-symbols-outlined">link_off</span>
                     </button>
@@ -82,8 +86,8 @@ export function createEditorTemplate(id, config) {
                     </button>
                 </div>
                 ` : ''}
-
             </div>
+            ` : ''}
         </div>
     `;
 }
