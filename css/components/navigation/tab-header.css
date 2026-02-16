@@ -65,3 +65,24 @@
     gap: 8px;
     align-items: center;
 }
+
+/* Пошук в tab-controls (голий input-box без обгортки) */
+.tab-controls .input-box {
+    gap: 4px;
+}
+
+.tab-controls .input-box input {
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--color-on-surface);
+    padding: 0;
+    min-width: 120px;
+}
+
+.tab-controls .input-box .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--color-outline);
+    flex-shrink: 0;
+}

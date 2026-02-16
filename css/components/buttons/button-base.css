@@ -43,6 +43,7 @@ button {
 
     /* Typography */
     font-family: 'Geologica', sans-serif;
+    white-space: nowrap;
 
     /* Interaction */
     cursor: pointer;
