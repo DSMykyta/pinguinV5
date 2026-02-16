@@ -121,3 +121,28 @@
 .u-mt-8 {
     margin-top: 8px;
 }
+
+/* ============================================ */
+/* SEPARATORS                                  */
+/* ============================================ */
+
+/**
+ * Вертикальний розділювач (для flex-row контейнерів)
+ * Розтягується на повну висоту батьківського елемента
+ */
+.separator-v {
+    width: 1px;
+    align-self: stretch;
+    background-color: var(--color-outline-v);
+    flex-shrink: 0;
+}
+
+/**
+ * Горизонтальний розділювач (для flex-column або block контейнерів)
+ */
+.separator-h {
+    height: 1px;
+    width: 100%;
+    background-color: var(--color-outline-v);
+    flex-shrink: 0;
+}

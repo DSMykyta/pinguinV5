@@ -27,11 +27,10 @@ export const ROW_CLASSES = {
 export const SELECTORS = {
     ROWS_CONTAINER: '#rows-container',
     INPUTS_BLOC: '.inputs-bloc',
-    INPUT_LEFT: '.input-left',
-    INPUT_RIGHT: '.input-right',
-    INPUT_RIGHT_TOOL: '.input-right-tool',
+    INPUT_LEFT: '.input-box.large input, .input-box.large textarea',
+    INPUT_RIGHT: '.input-box.small input, .input-box.small textarea',
+    INPUT_TAG: '.input-tag',
     RELOAD_BTN: '#reload-section-tablet',
-    // ... інші селектори можна додати тут
 };
 
 // Конфігурація для бібліотеки Sortable.js

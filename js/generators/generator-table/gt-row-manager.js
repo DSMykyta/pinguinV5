@@ -74,7 +74,7 @@ export async function initializeFirstRow() {
     const firstRow = await createAndAppendRow();
     firstRow.classList.remove(ROW_CLASSES.TD);
     firstRow.classList.add(ROW_CLASSES.TH_STRONG);
-    firstRow.querySelector('.input-left').value = 'Пищевая ценность';
+    firstRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Пищевая ценность';
     autoSaveSession.flush?.(); // Примусове негайне збереження
 }
 

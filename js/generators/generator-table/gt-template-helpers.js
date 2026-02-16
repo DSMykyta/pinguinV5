@@ -24,7 +24,7 @@ export function addSampleList(items) {
     items.forEach(item => {
         createAndAppendRow().then(row => {
             row.classList.add('added');
-            row.querySelector('.input-left').value = item;
+            row.querySelector('.input-box.large input, .input-box.large textarea').value = item;
         });
     });
 }
@@ -40,7 +40,7 @@ export async function addSampleTemplate(type) {
         const headerRow = await createAndAppendRow();
         headerRow.classList.remove('td');
         headerRow.classList.add('th-strong', 'single');
-        headerRow.querySelector('.input-left').value = 'Ингредиенты';
+        headerRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Ингредиенты';
     }
 
     const fieldRow = await createAndAppendRow();
@@ -52,6 +52,6 @@ export async function addSampleTemplate(type) {
         fieldRow.classList.add('bold');
     }
     if (type === 'composition') {
-        fieldRow.querySelector('.input-left').value = 'Состав может незначительно отличаться в зависимости от вкуса';
+        fieldRow.querySelector('.input-box.large input, .input-box.large textarea').value = 'Состав может незначительно отличаться в зависимости от вкуса';
     }
 }

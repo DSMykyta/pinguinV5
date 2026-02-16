@@ -123,11 +123,10 @@ function handleOptionClick(row, classToApply) {
 }
 
 export function handleInputTypeSwitch(row, type) {
-    ['.input-left', '.input-right'].forEach(selector => {
-        const oldEl = row.querySelector(selector);
-        if(!oldEl) return;
+    row.querySelectorAll('.input-box').forEach(box => {
+        const oldEl = box.querySelector('input, textarea');
+        if (!oldEl) return;
         const newEl = document.createElement(type === 'field' ? 'textarea' : 'input');
-        newEl.className = oldEl.className;
         newEl.placeholder = oldEl.placeholder;
         newEl.value = oldEl.value;
         if (type === 'row') newEl.autocomplete = 'off';

@@ -53,7 +53,7 @@
 @import url('components/forms/input.css');
 @import url('components/forms/search.css');
 @import url('components/forms/form-group.css');
-@import url('components/forms/compound-input.css');
+@import url('components/forms/input-box.css');
 @import url('components/forms/custom-select.css');
 @import url('components/forms/toggle.css');
 @import url('components/forms/switch.css');
@@ -71,7 +71,7 @@
 
 /* === COMPONENTS - TABLES === */
 @import url('components/tables/pseudo-table.css');
-@import url('components/tables/table-row-inputs.css');
+/* table-row-inputs.css — перенесено в forms/input-box.css */
 @import url('components/permissions-matrix.css');
 
 /* === COMPONENTS - OVERLAYS === */

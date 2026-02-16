@@ -93,8 +93,8 @@ export async function processAndFillInputs(text) {
             );
 
             if (firstHeader) {
-                const leftInput = firstHeader.querySelector('.input-left');
-                const rightInput = firstHeader.querySelector('.input-right');
+                const leftInput = firstHeader.querySelector('.input-box.large input, .input-box.large textarea');
+                const rightInput = firstHeader.querySelector('.input-box.small input, .input-box.small textarea');
                 const isEmpty = !leftInput.value.trim();
                 const isSame = isSameHeader(leftInput.value, entry.left);
 
@@ -117,8 +117,8 @@ export async function processAndFillInputs(text) {
 
         // Створюємо новий рядок
         const newRow = await createAndAppendRow();
-        newRow.querySelector('.input-left').value = entry.left;
-        newRow.querySelector('.input-right').value = entry.right;
+        newRow.querySelector('.input-box.large input, .input-box.large textarea').value = entry.left;
+        newRow.querySelector('.input-box.small input, .input-box.small textarea').value = entry.right;
 
         // Заголовок
         if (entry.isHeader) {

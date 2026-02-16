@@ -423,23 +423,27 @@ function addAltNameInput(value = '', isEmpty = false) {
     if (!container) return;
 
     const row = document.createElement('div');
-    row.className = 'compound-input-row';
+    row.className = 'inputs-bloc';
 
     if (isEmpty) {
         row.innerHTML = `
-            <div class="compound-input">
-                <input type="text" value="" placeholder="Альтернативна назва">
+            <div class="inputs-line">
+                <div class="input-box">
+                    <input type="text" value="" placeholder="Альтернативна назва">
+                </div>
             </div>
         `;
         row.dataset.empty = 'true';
     } else {
         row.innerHTML = `
-            <div class="compound-input">
-                <input type="text" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
-                <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+            <div class="inputs-line">
+                <div class="input-box">
+                    <input type="text" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
+                </div>
             </div>
+            <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         `;
         row.querySelector('.ci-remove').onclick = () => row.remove();
     }
@@ -450,14 +454,13 @@ function addAltNameInput(value = '', isEmpty = false) {
         const val = input.value.trim();
         if (val && row.dataset.empty === 'true') {
             delete row.dataset.empty;
-            const ci = row.querySelector('.compound-input');
             const deleteBtn = document.createElement('button');
             deleteBtn.type = 'button';
             deleteBtn.className = 'btn-icon ci-remove';
             deleteBtn.title = 'Видалити';
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
             deleteBtn.onclick = () => row.remove();
-            ci.appendChild(deleteBtn);
+            row.appendChild(deleteBtn);
 
             ensureEmptyAltNameInput();
         }
@@ -474,7 +477,7 @@ function ensureEmptyAltNameInput() {
     if (!container) return;
 
     // Перевірити чи є порожній
-    const emptyRow = container.querySelector('.compound-input-row[data-empty="true"]');
+    const emptyRow = container.querySelector('.inputs-bloc[data-empty="true"]');
     if (!emptyRow) {
         addAltNameInput('', true);
     }
@@ -488,7 +491,7 @@ function getAltNames() {
     const container = document.getElementById('brand-names-alt-container');
     if (!container) return [];
 
-    const inputs = container.querySelectorAll('.compound-input input');
+    const inputs = container.querySelectorAll('.inputs-bloc input');
     return Array.from(inputs)
         .map(input => input.value.trim())
         .filter(v => v);
@@ -529,11 +532,16 @@ function addLinkRow(link = { name: '', url: '' }) {
     if (emptyState) emptyState.classList.add('u-hidden');
 
     const row = document.createElement('div');
-    row.className = 'compound-input-row';
+    row.className = 'inputs-bloc';
     row.innerHTML = `
-        <div class="compound-input">
-            <input type="text" class="input-short" value="${escapeHtml(link.name)}" placeholder="ua, de...">
-            <input type="url" value="${escapeHtml(link.url)}" placeholder="https://...">
+        <div class="inputs-line">
+            <div class="input-box">
+                <input type="text" value="${escapeHtml(link.name)}" placeholder="ua, de...">
+            </div>
+            <div class="separator-v"></div>
+            <div class="input-box large">
+                <input type="url" value="${escapeHtml(link.url)}" placeholder="https://...">
+            </div>
         </div>
         <button type="button" class="btn-icon ci-action" data-tooltip="Відкрити">
             <span class="material-symbols-outlined">open_in_new</span>
@@ -580,7 +588,7 @@ function getLinks() {
     const container = document.getElementById('brand-links-container');
     if (!container) return [];
 
-    const rows = container.querySelectorAll('.compound-input-row');
+    const rows = container.querySelectorAll('.inputs-bloc');
     return Array.from(rows)
         .map(row => ({
             name: row.querySelector('input[type="text"]')?.value.trim() || '',
@@ -614,7 +622,7 @@ function updateLinksEmptyState() {
     const emptyState = document.getElementById('brand-links-empty');
     if (!container || !emptyState) return;
 
-    const hasLinks = container.querySelectorAll('.compound-input-row').length > 0;
+    const hasLinks = container.querySelectorAll('.inputs-bloc').length > 0;
     if (!hasLinks && !emptyState.innerHTML.trim()) {
         emptyState.innerHTML = renderAvatarState('empty', { message: 'Посилання відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
     }

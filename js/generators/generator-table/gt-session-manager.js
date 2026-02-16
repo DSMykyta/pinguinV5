@@ -48,8 +48,8 @@ function saveSession() {
     const rowsData = [];
     dom.rowsContainer.querySelectorAll('.inputs-bloc').forEach(row => {
         rowsData.push({
-            left: row.querySelector('.input-left')?.value || '',
-            right: row.querySelector('.input-right')?.value || '',
+            left: row.querySelector('.input-box.large input, .input-box.large textarea')?.value || '',
+            right: row.querySelector('.input-box.small input, .input-box.small textarea')?.value || '',
             classes: Array.from(row.classList),
         });
     });
@@ -68,8 +68,8 @@ export async function loadSession() {
         dom.rowsContainer.innerHTML = '';
         for (const data of rowsData) {
             const newRow = await createAndAppendRow();
-            newRow.querySelector('.input-left').value = data.left;
-            newRow.querySelector('.input-right').value = data.right;
+            newRow.querySelector('.input-box.large input, .input-box.large textarea').value = data.left;
+            newRow.querySelector('.input-box.small input, .input-box.small textarea').value = data.right;
             newRow.className = '';
             data.classes.forEach(cls => newRow.classList.add(cls));
         }
