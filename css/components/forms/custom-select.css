@@ -12,7 +12,7 @@
     justify-content: space-between;
     padding: 8px 16px;
     border: 1px solid var(--color-outline);
-    border-radius: var(--radius-xs, 4px);
+    border-radius: var(--radius-s, 8px);
     cursor: pointer;
     transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
     min-height: 40px;
