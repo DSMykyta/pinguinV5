@@ -66,13 +66,73 @@
                     </div>
 
                     <div class="section-content">
-                        <!-- Тип та Сутність -->
-                        <div class="form-section-title">
-                            <span class="material-symbols-outlined">category</span>
-                            <span>Класифікація</span>
-                        </div>
+                        <div class="form-grid form-grid-3">
 
-                        <div class="form-grid form-grid-2">
+                            <!-- Назви (col 1) -->
+                            <div class="form-group">
+                                <label>
+                                    Назви
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="keyword-name-uk" placeholder="Наприклад: Протеїн" required lang="uk">
+                                                <span class="input-tag visible">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="keyword-name-ru" placeholder="Например: Протеин" lang="ru">
+                                                <span class="input-tag visible">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="keyword-name-en" placeholder="Example: Protein" lang="en">
+                                                <span class="input-tag visible">EN</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="keyword-name-lat" placeholder="Exemplum: Proteinum" lang="la">
+                                                <span class="input-tag visible">LAT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Альтернативні назви (col 2-3) -->
+                            <div class="form-group" style="grid-column: span 2">
+                                <label for="keyword-name-alt">Альтернативні назви</label>
+                                <div class="content-bloc-container" style="flex: 1">
+                                    <div class="content-bloc" style="flex: 1">
+                                        <div class="content-line" style="height: 100%">
+                                            <div class="input-box" style="align-items: flex-start">
+                                                <textarea id="keyword-name-alt" placeholder="Введіть альтернативні назви через кому" style="height: 100%; resize: none"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Батьківський елемент (col 1) -->
+                            <div class="form-group">
+                                <label for="keyword-parent-local-id">Батьківський елемент</label>
+                                <select id="keyword-parent-local-id" data-custom-select placeholder="Оберіть...">
+                                    <option value="">-- Не обрано --</option>
+                                </select>
+                            </div>
+
+                            <!-- Тип параметра (col 2) -->
                             <div class="form-group">
                                 <label for="keyword-param-type-select">Тип параметра</label>
                                 <select id="keyword-param-type-select" data-custom-select placeholder="Оберіть тип...">
@@ -85,69 +145,15 @@
                                 </select>
                             </div>
 
+                            <!-- Сутність (col 3) -->
                             <div class="form-group">
                                 <label for="keyword-entity-id">Сутність</label>
                                 <select id="keyword-entity-id" data-custom-select placeholder="Оберіть сутність...">
                                     <option value="">-- Спочатку оберіть тип --</option>
-                                    <!-- Динамічно заповнюється через JS залежно від типу -->
                                 </select>
                                 <p class="form-hint">Зв'язок з Mapper</p>
                             </div>
-                        </div>
 
-                        <!-- Назви -->
-                        <div class="form-section-title u-mt-24">
-                            <span class="material-symbols-outlined">translate</span>
-                            <span>Назви</span>
-                        </div>
-
-                        <div class="form-grid form-grid-2">
-                            <div class="form-group">
-                                <label for="keyword-name-uk">
-                                    Назва (UA)
-                                    <span class="required">*</span>
-                                </label>
-                                <input type="text" id="keyword-name-uk" class="input-main" placeholder="Наприклад: Протеїн" required lang="uk">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="keyword-name-ru">Назва (RU)</label>
-                                <input type="text" id="keyword-name-ru" class="input-main" placeholder="Например: Протеин" lang="ru">
-                            </div>
-                        </div>
-
-                        <div class="form-grid form-grid-2">
-                            <div class="form-group">
-                                <label for="keyword-name-en">Назва (EN)</label>
-                                <input type="text" id="keyword-name-en" class="input-main" placeholder="Example: Protein" lang="en">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="keyword-name-lat">Назва (LAT)</label>
-                                <input type="text" id="keyword-name-lat" class="input-main" placeholder="Exemplum: Proteinum" lang="la">
-                            </div>
-                        </div>
-
-                        <!-- Альтернативні назви -->
-                        <div class="form-group u-mt-16">
-                            <label for="keyword-name-alt">Альтернативні назви</label>
-                            <textarea id="keyword-name-alt" class="input-main" rows="3" placeholder="Введіть альтернативні назви через кому"></textarea>
-                            <p class="form-hint">Додаткові варіанти написання</p>
-                        </div>
-
-                        <!-- Прив'язки -->
-                        <div class="form-section-title u-mt-24">
-                            <span class="material-symbols-outlined">account_tree</span>
-                            <span>Прив'язки</span>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="keyword-parent-local-id">Батьківський елемент</label>
-                            <select id="keyword-parent-local-id" data-custom-select placeholder="Оберіть...">
-                                <option value="">-- Не обрано --</option>
-                                <!-- Динамічно заповнюється через JS -->
-                            </select>
-                            <p class="form-hint">До якого елемента прив'язати</p>
                         </div>
                     </div>
                 </section>
