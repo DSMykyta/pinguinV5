@@ -354,7 +354,8 @@ function initGlossaryEditor() {
         showFindReplace: false, // БЕЗ Find & Replace
         initialValue: '',
         placeholder: 'Введіть опис терміну для глосарію...',
-        minHeight: 300
+        minHeight: 300,
+        allowLinks: true,       // Посилання дозволені
     });
 }
 

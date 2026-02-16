@@ -6,12 +6,12 @@
  * Можна видалити — редактор працюватиме без форматування.
  */
 
-import { sanitizeEditor } from './editor-utils.js';
+import { sanitizeStructure } from './editor-utils.js';
 import { debounce } from '../../utils/common-utils.js';
 
 export function init(state) {
-    // Debounced sanitization для очищення структури після змін
-    const debouncedSanitize = debounce(() => sanitizeEditor(state), 500);
+    // Debounced структурна очистка (тільки div→p, wrap text, fix nesting)
+    const debouncedSanitize = debounce(() => sanitizeStructure(state), 500);
     const { dom } = state;
 
     // Клік на кнопки тулбара
@@ -39,8 +39,8 @@ export function init(state) {
                 break;
             case 'list':
                 execCommand('insertUnorderedList');
-                // Санітизуємо після зміни списку для коректної структури
-                setTimeout(() => sanitizeEditor(state), 10);
+                // Структурна очистка після зміни списку
+                setTimeout(() => sanitizeStructure(state), 10);
                 break;
         }
     });
@@ -114,7 +114,7 @@ export function init(state) {
                         selection.removeAllRanges();
                         selection.addRange(newRange);
 
-                        setTimeout(() => sanitizeEditor(state), 10);
+                        setTimeout(() => sanitizeStructure(state), 10);
                         return;
                     }
                 }

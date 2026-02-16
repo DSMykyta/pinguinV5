@@ -191,7 +191,8 @@ function initTextEditor() {
         showFindReplace: false, // БЕЗ Find & Replace
         initialValue: '',
         placeholder: 'Введіть опис бренду...',
-        minHeight: 300
+        minHeight: 300,
+        allowLinks: true,       // Посилання дозволені
     });
 }
 

@@ -13,7 +13,7 @@ export function init(state) {
     const { dom } = state;
     if (!dom.editor) return;
 
-    // Copy handler
+    // Copy handler — очистка по конфігу тоглів
     dom.editor.addEventListener('copy', (e) => {
         const selection = window.getSelection();
         if (!selection.rangeCount) return;
@@ -29,8 +29,12 @@ export function init(state) {
             el.parentNode.replaceChild(text, el);
         });
 
-        // Санітизуємо HTML при копіюванні
-        const htmlCode = sanitizeHtml(temp.innerHTML);
+        // Санітизуємо HTML при копіюванні (по конфігу)
+        const htmlCode = sanitizeHtml(temp.innerHTML, {
+            allowLinks: state.allowLinks,
+            allowImages: state.allowImages,
+            allowStyles: state.allowStyles,
+        });
 
         e.preventDefault();
         e.clipboardData.setData('text/plain', htmlCode);
@@ -52,7 +56,11 @@ export function init(state) {
         const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
 
         if (looksLikeHtml) {
-            const sanitized = sanitizeHtml(text);
+            const sanitized = sanitizeHtml(text, {
+                allowLinks: state.allowLinks,
+                allowImages: state.allowImages,
+                allowStyles: state.allowStyles,
+            });
             document.execCommand('insertHTML', false, sanitized);
         } else {
             text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');

@@ -24,6 +24,11 @@ export function createEditorState(id, container, config) {
         lastSavedContent: '',
         isSanitizing: false, // Флаг для блокування undo під час sanitization
 
+        // Тогли очистки (що дозволено лишати)
+        allowLinks: config.allowLinks ?? false,
+        allowImages: config.allowImages ?? false,
+        allowStyles: config.allowStyles ?? false,
+
         // DOM
         dom: {
             container,

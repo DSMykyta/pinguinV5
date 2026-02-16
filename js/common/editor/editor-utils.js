@@ -5,6 +5,11 @@
  *
  * Не є плагіном, але використовується іншими плагінами.
  * Якщо видалити — плагіни paste, undo можуть не працювати.
+ *
+ * РІВНІ ОЧИСТКИ:
+ * - sanitizeStructure(state)  — мінімум, тільки структура (на input)
+ * - sanitizeHtml(html, opts)  — повна очистка рядка (copy/save/paste)
+ * - sanitizeEditor(state)     — повна очистка DOM (після paste)
  */
 
 // Re-export escapeHtml from central text-utils
@@ -72,32 +77,39 @@ export function restoreCaretPosition(element, position) {
 
 
 /**
- * Очищення HTML рядка
+ * Очищення HTML рядка (для copy/save/paste)
+ * @param {string} html
+ * @param {Object} options - { allowLinks, allowImages, allowStyles }
  */
-export function sanitizeHtml(html) {
+export function sanitizeHtml(html, options = {}) {
+    const { allowLinks = false, allowImages = false, allowStyles = false } = options;
+
     const temp = document.createElement('div');
     temp.innerHTML = html;
 
-    // Видаляємо небезпечні та непотрібні теги повністю
-    temp.querySelectorAll('script, style, iframe, object, embed, img, meta, link').forEach(el => {
+    // Видаляємо небезпечні теги
+    const dangerousSelector = allowImages
+        ? 'script, style, iframe, object, embed, meta, link'
+        : 'script, style, iframe, object, embed, img, meta, link';
+    temp.querySelectorAll(dangerousSelector).forEach(el => {
         el.remove();
     });
 
-    // Конвертуємо посилання <a> - залишаємо тільки текст
-    temp.querySelectorAll('a').forEach(a => {
-        const text = document.createTextNode(a.textContent);
-        a.parentNode.replaceChild(text, a);
-    });
+    // Посилання
+    if (!allowLinks) {
+        temp.querySelectorAll('a').forEach(a => {
+            const text = document.createTextNode(a.textContent);
+            a.parentNode.replaceChild(text, a);
+        });
+    }
 
     // Конвертуємо PRE в P (тільки якщо не всередині іншого блочного елемента)
     temp.querySelectorAll('pre').forEach(pre => {
-        // Перевіряємо, чи PRE не вкладений в P
         if (!pre.closest('p')) {
             const p = document.createElement('p');
             p.innerHTML = pre.innerHTML;
             pre.parentNode.replaceChild(p, pre);
         } else {
-            // Якщо вкладений - просто витягуємо вміст
             const fragment = document.createDocumentFragment();
             while (pre.firstChild) {
                 fragment.appendChild(pre.firstChild);
@@ -107,10 +119,8 @@ export function sanitizeHtml(html) {
     });
 
     // Конвертуємо DIV в P (з урахуванням вкладеності)
-    // Обробляємо від внутрішніх до зовнішніх, щоб уникнути вкладених P
     let divs = Array.from(temp.querySelectorAll('div'));
     while (divs.length > 0) {
-        // Знаходимо DIV без вкладених DIV
         const leafDiv = divs.find(div => !div.querySelector('div'));
         if (!leafDiv) break;
 
@@ -119,7 +129,6 @@ export function sanitizeHtml(html) {
             p.innerHTML = leafDiv.innerHTML;
             leafDiv.parentNode.replaceChild(p, leafDiv);
         } else {
-            // Якщо вкладений в P - просто витягуємо вміст
             const fragment = document.createDocumentFragment();
             while (leafDiv.firstChild) {
                 fragment.appendChild(leafDiv.firstChild);
@@ -127,7 +136,6 @@ export function sanitizeHtml(html) {
             leafDiv.parentNode.replaceChild(fragment, leafDiv);
         }
 
-        // Оновлюємо список
         divs = Array.from(temp.querySelectorAll('div'));
     }
 
@@ -156,20 +164,33 @@ export function sanitizeHtml(html) {
     // Виносимо UL/OL з P (невалідна структура <p><ul>)
     temp.querySelectorAll('p > ul, p > ol').forEach(list => {
         const p = list.parentNode;
-        // Вставляємо список після P
         p.parentNode.insertBefore(list, p.nextSibling);
-        // Якщо P порожній - видаляємо
         if (!p.textContent.trim()) {
             p.remove();
         }
     });
 
-    // Видаляємо всі атрибути з дозволених тегів
+    // Видаляємо атрибути (з урахуванням дозволених)
     temp.querySelectorAll('*').forEach(el => {
         const isHighlight = el.classList?.contains('highlight-error');
+        const keep = {};
+
+        if (allowLinks && el.tagName === 'A' && el.hasAttribute('href')) {
+            keep.href = el.getAttribute('href');
+        }
+        if (allowImages && el.tagName === 'IMG') {
+            if (el.hasAttribute('src')) keep.src = el.getAttribute('src');
+            if (el.hasAttribute('alt')) keep.alt = el.getAttribute('alt');
+        }
+        if (allowStyles && el.hasAttribute('style')) {
+            keep.style = el.getAttribute('style');
+        }
+
         while (el.attributes && el.attributes.length > 0) {
             el.removeAttribute(el.attributes[0].name);
         }
+        Object.entries(keep).forEach(([k, v]) => el.setAttribute(k, v));
+
         if (isHighlight) {
             el.className = 'highlight-error';
         }
@@ -188,8 +209,6 @@ export function sanitizeHtml(html) {
     let result = temp.innerHTML;
 
     // Замінюємо тільки &nbsp; на звичайний пробіл
-    // НЕ декодуємо &lt; &gt; &amp; - це вже зроблено браузером при парсингу
-    // Подвійне декодування може призвести до невалідного HTML
     result = result.replace(/&nbsp;/g, ' ');
 
     // Видаляємо маркери списків
@@ -204,34 +223,29 @@ export function sanitizeHtml(html) {
     return result;
 }
 
+
 /**
- * Очищення DOM редактора напряму
+ * Структурна очистка DOM (для input — мінімальна)
+ * НЕ видаляє контент, НЕ видаляє порожні теги, тільки фіксить структуру
  */
-export function sanitizeEditor(state) {
+export function sanitizeStructure(state) {
     const editor = state.dom.editor;
     if (!editor || state.currentMode !== 'text') return;
 
-    // Блокуємо збереження undo під час sanitization
     state.isSanitizing = true;
-
-    // Зберігаємо позицію курсора
     const caretPos = saveCaretPosition(editor);
-
     let changed = false;
 
-    // Огортаємо "голі" текстові ноди та inline-елементи в <p>
-    // Блочні елементи, які не потребують обгортки
     const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
 
+    // Огортаємо "голі" текстові ноди та inline-елементи в <p>
     Array.from(editor.childNodes).forEach(node => {
         if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-            // Голий текстовий нод
             const p = document.createElement('p');
             p.textContent = node.textContent;
             node.parentNode.replaceChild(p, node);
             changed = true;
         } else if (node.nodeType === Node.ELEMENT_NODE && !blockTags.includes(node.tagName)) {
-            // Inline-елемент без блочного контейнера (strong, em, тощо)
             const p = document.createElement('p');
             node.parentNode.insertBefore(p, node);
             p.appendChild(node);
@@ -239,38 +253,7 @@ export function sanitizeEditor(state) {
         }
     });
 
-    // Видаляємо небезпечні та непотрібні теги повністю
-    editor.querySelectorAll('script, style, iframe, object, embed, img, meta, link').forEach(el => {
-        el.remove();
-        changed = true;
-    });
-
-    // Конвертуємо посилання <a> - залишаємо тільки текст
-    editor.querySelectorAll('a').forEach(a => {
-        const text = document.createTextNode(a.textContent);
-        a.parentNode.replaceChild(text, a);
-        changed = true;
-    });
-
-    // Конвертуємо PRE в P (з урахуванням вкладеності)
-    editor.querySelectorAll('pre').forEach(pre => {
-        if (!pre.closest('p')) {
-            const p = document.createElement('p');
-            p.innerHTML = pre.innerHTML;
-            pre.parentNode.replaceChild(p, pre);
-        } else {
-            // Якщо вкладений в P - просто витягуємо вміст
-            const fragment = document.createDocumentFragment();
-            while (pre.firstChild) {
-                fragment.appendChild(pre.firstChild);
-            }
-            pre.parentNode.replaceChild(fragment, pre);
-        }
-        changed = true;
-    });
-
-    // Конвертуємо DIV в P (з урахуванням вкладеності)
-    // Обробляємо від внутрішніх до зовнішніх, щоб уникнути вкладених P
+    // div → p (браузерний артефакт)
     let editorDivs = Array.from(editor.querySelectorAll('div'));
     while (editorDivs.length > 0) {
         const leafDiv = editorDivs.find(div => !div.querySelector('div'));
@@ -288,7 +271,116 @@ export function sanitizeEditor(state) {
             leafDiv.parentNode.replaceChild(fragment, leafDiv);
         }
         changed = true;
+        editorDivs = Array.from(editor.querySelectorAll('div'));
+    }
 
+    // Фікс вкладеності блочних елементів
+    editor.querySelectorAll('p p, p h1, p h2, p h3, h1 p, h2 p, h3 p').forEach(nested => {
+        const parent = nested.parentNode;
+        if (parent && parent !== editor) {
+            parent.parentNode.insertBefore(nested, parent.nextSibling);
+            changed = true;
+        }
+    });
+
+    // Виносимо UL/OL з P
+    editor.querySelectorAll('p > ul, p > ol').forEach(list => {
+        const p = list.parentNode;
+        p.parentNode.insertBefore(list, p.nextSibling);
+        if (!p.textContent.trim()) p.remove();
+        changed = true;
+    });
+
+    if (changed) {
+        editor.normalize();
+        restoreCaretPosition(editor, caretPos);
+    }
+
+    state.isSanitizing = false;
+}
+
+
+/**
+ * Повна очистка DOM редактора (для paste)
+ * Використовує state.allowLinks / allowImages / allowStyles
+ */
+export function sanitizeEditor(state) {
+    const editor = state.dom.editor;
+    if (!editor || state.currentMode !== 'text') return;
+
+    state.isSanitizing = true;
+    const caretPos = saveCaretPosition(editor);
+    let changed = false;
+
+    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
+
+    // Огортаємо "голі" текстові ноди та inline-елементи в <p>
+    Array.from(editor.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+            const p = document.createElement('p');
+            p.textContent = node.textContent;
+            node.parentNode.replaceChild(p, node);
+            changed = true;
+        } else if (node.nodeType === Node.ELEMENT_NODE && !blockTags.includes(node.tagName)) {
+            const p = document.createElement('p');
+            node.parentNode.insertBefore(p, node);
+            p.appendChild(node);
+            changed = true;
+        }
+    });
+
+    // Видаляємо небезпечні теги
+    const dangerousSelector = state.allowImages
+        ? 'script, style, iframe, object, embed, meta, link'
+        : 'script, style, iframe, object, embed, img, meta, link';
+    editor.querySelectorAll(dangerousSelector).forEach(el => {
+        el.remove();
+        changed = true;
+    });
+
+    // Посилання
+    if (!state.allowLinks) {
+        editor.querySelectorAll('a').forEach(a => {
+            const text = document.createTextNode(a.textContent);
+            a.parentNode.replaceChild(text, a);
+            changed = true;
+        });
+    }
+
+    // Конвертуємо PRE в P
+    editor.querySelectorAll('pre').forEach(pre => {
+        if (!pre.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = pre.innerHTML;
+            pre.parentNode.replaceChild(p, pre);
+        } else {
+            const fragment = document.createDocumentFragment();
+            while (pre.firstChild) {
+                fragment.appendChild(pre.firstChild);
+            }
+            pre.parentNode.replaceChild(fragment, pre);
+        }
+        changed = true;
+    });
+
+    // Конвертуємо DIV в P
+    let editorDivs = Array.from(editor.querySelectorAll('div'));
+    while (editorDivs.length > 0) {
+        const leafDiv = editorDivs.find(div => !div.querySelector('div'));
+        if (!leafDiv) break;
+
+        if (!leafDiv.closest('p')) {
+            const p = document.createElement('p');
+            p.innerHTML = leafDiv.innerHTML;
+            leafDiv.parentNode.replaceChild(p, leafDiv);
+        } else {
+            const fragment = document.createDocumentFragment();
+            while (leafDiv.firstChild) {
+                fragment.appendChild(leafDiv.firstChild);
+            }
+            leafDiv.parentNode.replaceChild(fragment, leafDiv);
+        }
+        changed = true;
         editorDivs = Array.from(editor.querySelectorAll('div'));
     }
 
@@ -308,7 +400,7 @@ export function sanitizeEditor(state) {
         changed = true;
     });
 
-    // Видаляємо ВСІ SPAN (включаючи highlights - будуть відновлені)
+    // Видаляємо ВСІ SPAN (включаючи highlights — будуть відновлені)
     editor.querySelectorAll('span').forEach(span => {
         const fragment = document.createDocumentFragment();
         while (span.firstChild) {
@@ -328,29 +420,40 @@ export function sanitizeEditor(state) {
         changed = true;
     });
 
-    // Видаляємо всі атрибути з дозволених тегів
-    editor.querySelectorAll('p, strong, em, h1, h2, h3, ul, li').forEach(el => {
+    // Видаляємо атрибути (з урахуванням дозволених)
+    const attrSelector = 'p, strong, em, h1, h2, h3, ul, li'
+        + (state.allowLinks ? ', a' : '')
+        + (state.allowImages ? ', img' : '');
+    editor.querySelectorAll(attrSelector).forEach(el => {
+        const keep = {};
+        if (state.allowLinks && el.tagName === 'A' && el.hasAttribute('href')) {
+            keep.href = el.getAttribute('href');
+        }
+        if (state.allowImages && el.tagName === 'IMG') {
+            if (el.hasAttribute('src')) keep.src = el.getAttribute('src');
+            if (el.hasAttribute('alt')) keep.alt = el.getAttribute('alt');
+        }
+        if (state.allowStyles && el.hasAttribute('style')) {
+            keep.style = el.getAttribute('style');
+        }
         while (el.attributes.length > 0) {
             el.removeAttribute(el.attributes[0].name);
         }
+        Object.entries(keep).forEach(([k, v]) => el.setAttribute(k, v));
     });
 
-    // Виносимо UL/OL з P (невалідна структура <p><ul>)
+    // Виносимо UL/OL з P
     editor.querySelectorAll('p > ul, p > ol').forEach(list => {
         const p = list.parentNode;
-        // Вставляємо список після P
         p.parentNode.insertBefore(list, p.nextSibling);
-        // Якщо P порожній - видаляємо
         if (!p.textContent.trim()) {
             p.remove();
         }
         changed = true;
     });
 
-    // Виправляємо вкладені P теги (невалідний HTML: <p><p>text</p></p>)
-    // Вкладені P автоматично "виштовхуються" браузером, але можуть залишитись артефакти
+    // Виправляємо вкладені блочні елементи
     editor.querySelectorAll('p p, p h1, p h2, p h3, h1 p, h2 p, h3 p').forEach(nested => {
-        // Переміщуємо вкладений блоковий елемент з батька
         const parent = nested.parentNode;
         if (parent && parent !== editor) {
             parent.parentNode.insertBefore(nested, parent.nextSibling);
@@ -371,6 +474,5 @@ export function sanitizeEditor(state) {
         restoreCaretPosition(editor, caretPos);
     }
 
-    // Знімаємо блокування undo
     state.isSanitizing = false;
 }

@@ -74,22 +74,40 @@ export function createEditorTemplate(id, config) {
             </div>
             ` : ''}
 
-            <!-- Режим тексту: WYSIWYG редактор -->
-            <div
-                id="${id}-editor"
-                class="rich-editor-content"
-                contenteditable="true"
-                data-placeholder="${placeholder}"
-                style="min-height: ${minHeight}px;"
-            ></div>
+            <!-- Область редактора (обгортка для абсолютних кнопок) -->
+            <div style="position: relative; flex: 1; display: flex; flex-direction: column;">
 
-            <!-- Режим коду -->
-            <textarea
-                id="${id}-code-editor"
-                class="input-main rich-editor-code"
-                style="display: none; min-height: ${minHeight}px;"
-                placeholder="HTML код..."
-            ></textarea>
+                <!-- Режим тексту: WYSIWYG редактор -->
+                <div
+                    id="${id}-editor"
+                    class="rich-editor-content"
+                    contenteditable="true"
+                    data-placeholder="${placeholder}"
+                    style="min-height: ${minHeight}px;"
+                ></div>
+
+                <!-- Режим коду -->
+                <textarea
+                    id="${id}-code-editor"
+                    class="input-main rich-editor-code"
+                    style="display: none; min-height: ${minHeight}px;"
+                    placeholder="HTML код..."
+                ></textarea>
+
+                <!-- Тогли очистки (видимі тільки в режимі тексту) -->
+                <div id="${id}-cleanup-toggles" style="position: absolute; bottom: 4px; right: 12px; display: flex; gap: 4px; z-index: 1;">
+                    <button type="button" class="btn-icon" id="${id}-toggle-links" title="Дозволити посилання" data-cleanup-toggle="allowLinks">
+                        <span class="material-symbols-outlined">link</span>
+                    </button>
+                    <button type="button" class="btn-icon" id="${id}-toggle-styles" title="Дозволити стилі" data-cleanup-toggle="allowStyles">
+                        <span class="material-symbols-outlined">palette</span>
+                    </button>
+                    <button type="button" class="btn-icon" id="${id}-toggle-images" title="Дозволити зображення" data-cleanup-toggle="allowImages">
+                        <span class="material-symbols-outlined">image</span>
+                    </button>
+                </div>
+
+            </div>
 
             ${showStats ? `
             <div class="text-stats-container" id="${id}-stats">
