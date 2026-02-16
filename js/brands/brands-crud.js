@@ -273,7 +273,7 @@ function populateBrandLines(brandId) {
                 render: (value, row) => escapeHtml(value || row.line_id || '-')
             },
             {
-                id: '_unlink', label: '', sortable: false, searchable: false, checked: true,
+                id: '_unlink', label: ' ', sortable: false, searchable: false, checked: true,
                 className: 'cell-xs',
                 render: (value, row) => `
                     <button class="btn-icon" data-row-id="${escapeHtml(row.line_id)}" data-action="unlink" data-tooltip="Відв'язати від бренду">
