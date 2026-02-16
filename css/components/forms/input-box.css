@@ -1,34 +1,39 @@
 /**
- * COMPONENT: Input Box System
+ * COMPONENT: Content Line System
  *
  * ПРИЗНАЧЕННЯ:
- * Уніфікована система для інпутних блоків.
- * Замінює: table-row-inputs.css + compound-input.css
+ * Уніфікована система контейнерів-блоків для будь-якого контенту:
+ * інпути, кнопки, текст, іконки, лейбли, каунтери.
+ * Замінює: table-row-inputs.css + compound-input.css + panel-box.css + search.css + form-group-result
  *
  * СТРУКТУРА:
- * ┌───────────────────────────────────────────────────────────┐
- * │ .inputs-bloc-container                                    │
- * │  ┌─────────────────────────────────────────────────────┐  │
- * │  │ .inputs-bloc                                        │  │
- * │  │  [move-btn]                                         │  │
- * │  │  ┌───────────────────────────────────────────────┐  │  │
- * │  │  │ .inputs-line                                  │  │  │
- * │  │  │  ┌────────────────┐   ┌────────────────────┐  │  │  │
+ * ┌────────────────────────────────────────────────────────────┐
+ * │ .content-bloc-container                                    │
+ * │  ┌──────────────────────────────────────────────────────┐  │
+ * │  │ .content-bloc                                        │  │
+ * │  │  [move-btn]                                          │  │
+ * │  │  ┌────────────────────────────────────────────────┐  │  │
+ * │  │  │ .content-line                                  │  │  │
+ * │  │  │  ┌────────────────┐   ┌─────────────────────┐  │  │  │
  * │  │  │  │ .input-box     │ | │ .input-box          │  │  │  │
  * │  │  │  │  [input]       │ . │  [input] [input-tag]│  │  │  │
  * │  │  │  │  .large        │ s │  .small             │  │  │  │
- * │  │  │  └────────────────┘ v └────────────────────┘  │  │  │
- * │  │  └───────────────────────────────────────────────┘  │  │
- * │  │  [btn-icon] [btn-icon]                              │  │
- * │  └─────────────────────────────────────────────────────┘  │
- * └───────────────────────────────────────────────────────────┘
+ * │  │  │  └────────────────┘ v └─────────────────────┘  │  │  │
+ * │  │  └────────────────────────────────────────────────┘  │  │
+ * │  │  [btn-icon] [btn-icon]                               │  │
+ * │  └──────────────────────────────────────────────────────┘  │
+ * └────────────────────────────────────────────────────────────┘
+ *
+ * ВАРІАНТИ CONTENT-LINE:
+ * - (без класу) — бордер, для таблиць і форм
+ * - .panel      — сірий фон, без бордера, більша висота (панелі, пошук, результати)
  *
  * РОЗМІРИ INPUT-BOX:
  * - (без класу) — flex: 1 (мінімальний / 100% якщо один)
  * - .small      — flex: 2 (середній)
  * - .large      — flex: 4 (максимальний)
  *
- * КЛАСИ ВІЗУАЛІЗАЦІЇ (додаються JS на .inputs-bloc):
+ * КЛАСИ ВІЗУАЛІЗАЦІЇ (додаються JS на .content-bloc):
  * - .td        — звичайний рядок таблиці
  * - .th        — заголовок (світло-сірий фон)
  * - .th-strong — сильний заголовок (сірий фон, жирний)
@@ -50,26 +55,26 @@
 /* КОНТЕЙНЕР ДЛЯ РЯДКІВ                        */
 /* ============================================ */
 
-.inputs-bloc-container {
+.content-bloc-container {
     display: flex;
     flex-direction: column;
     gap: 0;
 }
 
 /* Варіант з відступами між рядками (для форм) */
-.inputs-bloc-container.spaced {
+.content-bloc-container.spaced {
     gap: 8px;
 }
 
 /* Пусте повідомлення */
-.inputs-bloc-container .empty-state-container {
+.content-bloc-container .empty-state-container {
     padding: 24px;
     text-align: center;
     color: var(--color-on-surface-v);
-    font-size: 14px;
+    font-size: 12px;
 }
 
-.inputs-bloc-empty {
+.content-bloc-empty {
     padding: 16px;
     text-align: center;
     color: var(--color-on-surface-v);
@@ -82,22 +87,22 @@
 /* РЯДОК                                       */
 /* ============================================ */
 
-.inputs-bloc {
+.content-bloc {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.inputs-bloc .material-symbols-outlined {
+.content-bloc .material-symbols-outlined {
     font-size: 20px;
 }
 
 
 /* ============================================ */
-/* INPUTS-LINE (обрамлений контейнер)          */
+/* CONTENT-LINE (обрамлений контейнер)         */
 /* ============================================ */
 
-.inputs-line {
+.content-line {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -107,54 +112,85 @@
     transition: border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Hover/focus тільки для .spaced контейнерів (форми, бренди), не для .result */
-.inputs-bloc-container.spaced .inputs-line:not(.result):hover {
+/* Hover/focus тільки для .spaced контейнерів (форми, бренди), не для .panel */
+.content-bloc-container.spaced .content-line:not(.panel):hover {
     border-color: var(--color-on-surface-v);
 }
 
-.inputs-bloc-container.spaced .inputs-line:not(.result):focus-within {
+.content-bloc-container.spaced .content-line:not(.panel):focus-within {
     outline: 1px solid var(--color-main);
     outline-offset: -2px;
     border-color: transparent;
 }
 
 /* Drag-and-drop стан */
-.inputs-line.drag-over {
+.content-line.drag-over {
     border-color: var(--color-main);
     background-color: var(--color-main-c);
 }
 
-/* Result варіант (readonly, сірий фон, без бордерів) */
-.inputs-line.result {
+
+/* ============================================ */
+/* PANEL ВАРІАНТ (сірий фон, без бордера)      */
+/* ============================================ */
+
+.content-line.panel {
     background: var(--color-surface-c-low);
     border: none;
     border-radius: 8px;
-    cursor: pointer;
+    min-height: 48px;
+    padding: 0 12px;
+    gap: 12px;
+    overflow: hidden;
     transition: background-color 0.2s;
 }
 
-.inputs-line.result:hover {
+.content-line.panel:hover {
     background: var(--color-surface-c);
 }
 
-.inputs-line.result.copied {
+/* Скопійовано — акцентний фон */
+.content-line.panel.copied {
     background: var(--color-main-t-2);
 }
 
-/* Мітка всередині result (Title:, Keywords: тощо) */
-.inputs-line .result-label {
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-    padding-left: 12px;
-    font-size: 14px;
+/* Іконка всередині .panel */
+.content-line.panel > .material-symbols-outlined {
+    font-size: 20px;
+    color: var(--color-main);
+    flex-shrink: 0;
 }
 
-/* Лічильник символів всередині result */
-.inputs-line .result-counter {
+/* Текст всередині .panel */
+.content-line.panel .panel-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Мітка (Title:, Keywords: тощо) */
+.content-line.panel .panel-label {
     color: var(--color-on-surface-v);
     white-space: nowrap;
-    padding-right: 12px;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Лічильник символів */
+.content-line.panel .panel-counter {
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
     font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* Input всередині .panel — без бордера, прозорий, на всю ширину */
+.content-line.panel > input,
+.content-line.panel > .input-box input {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 
@@ -181,9 +217,10 @@
 /* ПОЛЯ ВВЕДЕННЯ                               */
 /* ============================================ */
 
-.inputs-bloc input,
-.inputs-bloc textarea,
-.inputs-bloc select {
+.content-bloc input,
+.content-bloc textarea,
+.content-bloc select,
+.content-line.panel input {
     font-size: 14px;
     border: none;
     padding: 0 12px;
@@ -194,14 +231,21 @@
     color: var(--color-on-surface);
 }
 
-.inputs-bloc input,
-.inputs-bloc select {
+.content-bloc input,
+.content-bloc select,
+.content-line.panel input,
+.content-line.panel select {
     height: 40px;
 }
 
-.inputs-bloc textarea {
+.content-bloc textarea {
     padding: 10px 12px 0 12px;
     min-height: 40px;
+}
+
+/* Input всередині .panel без зайвого padding (бо .panel вже має padding) */
+.content-line.panel > input {
+    padding: 0;
 }
 
 
@@ -238,36 +282,36 @@
 /* ============================================ */
 
 /* Злиття borders між послідовними рядками (не через розділювач) */
-.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2) .inputs-line {
+.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2) .content-line {
     border-top: none;
 }
 
 /* Відновити border-top і повне заокруглення в spaced контейнерах */
-.inputs-bloc-container.spaced > .inputs-bloc + .inputs-bloc .inputs-line {
+.content-bloc-container.spaced > .content-bloc + .content-bloc .content-line {
     border-top: 1px solid var(--color-outline);
 }
 
-.inputs-bloc-container.spaced > .inputs-bloc .inputs-line {
+.content-bloc-container.spaced > .content-bloc .content-line {
     border-radius: 8px;
 }
 
 /* Звичайний рядок */
-.td .inputs-line {
+.td .content-line {
     background-color: transparent;
 }
 
 /* Заголовок (світлий) */
-.th .inputs-line {
+.th .content-line {
     background-color: var(--color-surface-c-low);
 }
 
 /* Заголовок (темніший, жирний) */
-.th-strong .inputs-line {
+.th-strong .content-line {
     background-color: var(--color-surface-c);
 }
 
 /* H2 — без рамки */
-.h2 .inputs-line {
+.h2 .content-line {
     border: none;
     padding: 8px 0;
 }
@@ -277,25 +321,25 @@
 /* СТИЛІ ТЕКСТУ                                */
 /* ============================================ */
 
-.inputs-bloc.italic input,
-.inputs-bloc.italic textarea {
+.content-bloc.italic input,
+.content-bloc.italic textarea {
     font-style: italic;
 }
 
-.inputs-bloc.bold input,
-.inputs-bloc.bold textarea,
-.inputs-bloc.th-strong input,
-.inputs-bloc.th-strong textarea {
+.content-bloc.bold input,
+.content-bloc.bold textarea,
+.content-bloc.th-strong input,
+.content-bloc.th-strong textarea {
     font-weight: 700;
 }
 
-.inputs-bloc.added input,
-.inputs-bloc.added textarea {
+.content-bloc.added input,
+.content-bloc.added textarea {
     color: var(--color-accent);
 }
 
 /* Великий заголовок H2 */
-.inputs-bloc.h2 .input-box input {
+.content-bloc.h2 .input-box input {
     font-size: 18px;
     font-weight: 600;
 }
@@ -305,14 +349,14 @@
 /* ПРИХОВУВАННЯ МАЛИХ INPUT-BOX                */
 /* ============================================ */
 
-/* Розділювач всередині inputs-line — трохи коротший за повну висоту */
-.inputs-line > .separator-v {
+/* Розділювач всередині content-line — трохи коротший за повну висоту */
+.content-line > .separator-v {
     align-self: stretch;
     margin: 8px 0;
 }
 
 :is(.h2, .single, .colspan2) .input-box.small,
-:is(.h2, .single, .colspan2) > .inputs-line > .separator-v {
+:is(.h2, .single, .colspan2) > .content-line > .separator-v {
     display: none;
 }
 
@@ -321,7 +365,7 @@
 /* РОЗДІЛЮВАЧ ТАБЛИЦЬ                          */
 /* ============================================ */
 
-.new-table .inputs-line {
+.new-table .content-line {
     visibility: hidden;
 }
 
@@ -331,23 +375,28 @@
 /* ============================================ */
 
 /* За замовчуванням — повне заокруглення (працює для одиночних блоків) */
-.inputs-bloc .inputs-line {
+.content-bloc .content-line {
     border-radius: 8px;
 }
 
 /* Є наступний рядок → прибрати нижнє заокруглення */
-.inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc:not(.new-table):not(.h2)) .inputs-line {
+.content-bloc:not(.new-table):not(.h2):has(+ .content-bloc:not(.new-table):not(.h2)) .content-line {
     border-radius: 8px 8px 0 0;
 }
 
 /* Є попередній рядок → прибрати верхнє заокруглення */
-.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2) .inputs-line {
+.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2) .content-line {
     border-radius: 0 0 8px 8px;
 }
 
 /* Є і попередній, і наступний → без заокруглення */
-.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc:not(.new-table):not(.h2)) .inputs-line {
+.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2):has(+ .content-bloc:not(.new-table):not(.h2)) .content-line {
     border-radius: 0;
+}
+
+/* .panel завжди має повне заокруглення */
+.content-line.panel {
+    border-radius: 8px;
 }
 
 
@@ -356,7 +405,7 @@
 /* ============================================ */
 
 /* Назва елемента */
-.inputs-bloc .item-name {
+.content-bloc .item-name {
     font-size: 14px;
     padding: 0 12px;
     height: 40px;
@@ -366,7 +415,7 @@
 }
 
 /* ID елемента */
-.inputs-bloc .item-id {
+.content-bloc .item-id {
     font-size: 12px;
     padding: 0 12px;
     height: 40px;
@@ -374,4 +423,13 @@
     align-items: center;
     color: var(--color-on-surface-v);
     font-family: var(--font-mono);
+}
+
+
+/* ============================================ */
+/* PANEL-CONTENT-FIX (фіксований контент)      */
+/* ============================================ */
+
+.panel-content-fix {
+    flex-shrink: 0;
 }

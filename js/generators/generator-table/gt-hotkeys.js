@@ -52,7 +52,7 @@ function handleKeydown(e) {
     // Ctrl+Delete
     if (isFocusedInContainer && e.ctrlKey && e.key === 'Delete') {
         e.preventDefault();
-        const activeRow = document.activeElement.closest('.inputs-bloc');
+        const activeRow = document.activeElement.closest('.content-bloc');
         if (activeRow) {
             deleteRow(activeRow);
         }

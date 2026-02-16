@@ -2,8 +2,8 @@
 
     <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
     <div class="panel-content-fix">
-        <div class="panel-box">
-            <span class="material-symbols-outlined panel-box-icon">search</span>
+        <div class="content-line panel">
+            <span class="material-symbols-outlined">search</span>
             <input type="text" id="search-banned-words" placeholder="Пошук заборонених слів...">
             <button id="clear-search-banned-words" class="btn-icon u-hidden" aria-label="Очистити пошук">
                 <span class="material-symbols-outlined">close</span>
@@ -40,9 +40,9 @@
         </button>
 
         <!-- LOADER ПРИ ПЕРЕВІРЦІ -->
-        <div id="check-loader" class="panel-box u-hidden" style="margin-top: 12px; flex-direction: column; gap: 8px;">
+        <div id="check-loader" class="content-line panel u-hidden" style="margin-top: 12px; flex-direction: column; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <span class="material-symbols-outlined panel-box-icon rotating">progress_activity</span>
+                <span class="material-symbols-outlined rotating">progress_activity</span>
                 <div class="panel-item-text">
                     <div style="font-size: 13px; color: var(--on-surface-variant);">
                         Завантаження даних...

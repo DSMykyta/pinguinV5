@@ -133,7 +133,7 @@
 .separator-v {
     width: 1px;
     align-self: stretch;
-    background-color: var(--color-outline-v);
+    background-color: var(--color-surface-c);
     flex-shrink: 0;
 }
 
@@ -143,6 +143,6 @@
 .separator-h {
     height: 1px;
     width: 100%;
-    background-color: var(--color-outline-v);
+    background-color: var(--color-surface-c);
     flex-shrink: 0;
 }

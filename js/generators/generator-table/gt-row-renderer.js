@@ -25,8 +25,8 @@ export async function renderNewRow() {
     const html = template.replace(/{{rowId}}/g, rowId);
 
     const newRow = document.createElement('div');
-    newRow.className = `inputs-bloc ${ROW_CLASSES.TD}`;
-    newRow.id = `inputs-bloc-${rowId}`;
+    newRow.className = `content-bloc ${ROW_CLASSES.TD}`;
+    newRow.id = `content-bloc-${rowId}`;
     newRow.innerHTML = html;
 
     attachRowEvents(newRow);

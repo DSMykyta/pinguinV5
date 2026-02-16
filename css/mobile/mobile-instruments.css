@@ -367,7 +367,7 @@
     }
 
     /* Each row as compact card */
-    .inputs-bloc {
+    .content-bloc {
         flex-wrap: nowrap !important;
         padding: 4px !important;
         gap: 4px !important;
@@ -375,7 +375,7 @@
     }
 
     /* Move button (drag handle) */
-    .inputs-bloc .move-btn {
+    .content-bloc .move-btn {
         width: 28px !important;
         min-width: 28px !important;
         height: 28px !important;
@@ -386,12 +386,12 @@
         flex-shrink: 0 !important;
     }
 
-    .inputs-bloc .move-btn .material-symbols-outlined {
+    .content-bloc .move-btn .material-symbols-outlined {
         font-size: 18px !important;
     }
 
     /* Inputs line - keep horizontal but compact */
-    .inputs-bloc .inputs-line {
+    .content-bloc .content-line {
         flex-direction: row !important;
         flex: 1 !important;
         min-width: 0 !important;
@@ -399,20 +399,20 @@
     }
 
     /* Left and right inputs - proportional */
-    .inputs-bloc .left {
+    .content-bloc .left {
         flex: 2 !important;
         min-width: 0 !important;
     }
 
-    .inputs-bloc .right {
+    .content-bloc .right {
         flex: 1 !important;
         min-width: 60px !important;
         border-left: 1px solid var(--color-outline) !important;
     }
 
     /* Input fields - auto height based on content */
-    .inputs-bloc input,
-    .inputs-bloc textarea {
+    .content-bloc input,
+    .content-bloc textarea {
         min-height: 36px !important;
         height: auto !important;
         padding: 8px 6px !important;
@@ -420,13 +420,13 @@
         line-height: 1.4 !important;
     }
 
-    .inputs-bloc textarea {
+    .content-bloc textarea {
         resize: none !important;
         overflow: hidden !important;
     }
 
     /* Action buttons - smaller */
-    .inputs-bloc > .btn-icon {
+    .content-bloc > .btn-icon {
         width: 28px !important;
         min-width: 28px !important;
         height: 28px !important;
@@ -434,46 +434,46 @@
         flex-shrink: 0 !important;
     }
 
-    .inputs-bloc > .btn-icon .material-symbols-outlined {
+    .content-bloc > .btn-icon .material-symbols-outlined {
         font-size: 18px !important;
     }
 
     /* Hide delete button by default, show on long press or via sheet */
-    .inputs-bloc [data-action="delete-row"] {
+    .content-bloc [data-action="delete-row"] {
         display: none !important;
     }
 
     /* Options button always visible */
-    .inputs-bloc [data-dropdown-trigger] {
+    .content-bloc [data-dropdown-trigger] {
         display: flex !important;
     }
 
     /* When row is single or colspan2, hide right */
-    .inputs-bloc.single .right,
-    .inputs-bloc.colspan2 .right,
-    .inputs-bloc.h2 .right {
+    .content-bloc.single .right,
+    .content-bloc.colspan2 .right,
+    .content-bloc.h2 .right {
         display: none !important;
     }
 
-    .inputs-bloc.single .left,
-    .inputs-bloc.colspan2 .left {
+    .content-bloc.single .left,
+    .content-bloc.colspan2 .left {
         flex: 1 !important;
     }
 
     /* H2 heading style */
-    .inputs-bloc.h2 .inputs-line {
+    .content-bloc.h2 .content-line {
         border: none !important;
         background: transparent !important;
     }
 
-    .inputs-bloc.h2 .input-left {
+    .content-bloc.h2 .input-left {
         font-size: 16px !important;
         font-weight: 600 !important;
         padding: 8px !important;
     }
 
     /* New table separator */
-    .inputs-bloc.new-table {
+    .content-bloc.new-table {
         height: 24px !important;
         margin: 8px 0 !important;
     }
@@ -658,7 +658,7 @@
 
 @media (max-width: 768px) {
     /* Hide default dropdowns on mobile */
-    .inputs-bloc .dropdown-menu {
+    .content-bloc .dropdown-menu {
         display: none !important;
     }
 
@@ -742,23 +742,23 @@
 /* ============================================ */
 
 @media (max-width: 768px) {
-    #section-seo .inputs-bloc-container {
+    #section-seo .content-bloc-container {
         gap: 12px !important;
     }
 
-    #section-seo .inputs-line.result {
+    #section-seo .content-line.panel {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 4px !important;
         min-height: auto !important;
     }
 
-    #section-seo .result-label {
+    #section-seo .panel-label {
         font-size: 12px !important;
         padding: 8px 12px 0 12px !important;
     }
 
-    #section-seo .result-counter {
+    #section-seo .panel-counter {
         align-self: flex-end !important;
         padding: 0 12px 8px 12px !important;
     }
@@ -799,13 +799,13 @@
         flex-shrink: 0 !important;
     }
 
-    /* Panel box for URL input */
-    .panel-box {
+    /* Content-line panel for URL input */
+    .content-line.panel {
         flex-wrap: wrap !important;
         gap: 8px !important;
     }
 
-    .panel-box input {
+    .content-line.panel input {
         flex: 1 !important;
         min-width: 150px !important;
     }
@@ -893,14 +893,14 @@
         margin-bottom: 12px !important;
     }
 
-    .mobile-aside__content .panel-box {
+    .mobile-aside__content .content-line.panel {
         flex: 1 !important;
         padding: 10px 12px !important;
         border-radius: var(--radius-s) !important;
         cursor: pointer !important;
     }
 
-    .mobile-aside__content .panel-box-icon {
+    .mobile-aside__content .content-line.panel > .material-symbols-outlined {
         font-size: 18px !important;
     }
 
@@ -1014,8 +1014,8 @@
     }
 
     /* Inputs focus state */
-    .inputs-bloc input:focus,
-    .inputs-bloc textarea:focus {
+    .content-bloc input:focus,
+    .content-bloc textarea:focus {
         outline: 2px solid var(--color-main) !important;
         outline-offset: -2px !important;
     }

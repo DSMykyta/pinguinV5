@@ -423,11 +423,11 @@ function addAltNameInput(value = '', isEmpty = false) {
     if (!container) return;
 
     const row = document.createElement('div');
-    row.className = 'inputs-bloc';
+    row.className = 'content-bloc';
 
     if (isEmpty) {
         row.innerHTML = `
-            <div class="inputs-line">
+            <div class="content-line">
                 <div class="input-box">
                     <input type="text" value="" placeholder="Альтернативна назва">
                 </div>
@@ -436,7 +436,7 @@ function addAltNameInput(value = '', isEmpty = false) {
         row.dataset.empty = 'true';
     } else {
         row.innerHTML = `
-            <div class="inputs-line">
+            <div class="content-line">
                 <div class="input-box">
                     <input type="text" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
                 </div>
@@ -460,7 +460,7 @@ function addAltNameInput(value = '', isEmpty = false) {
             deleteBtn.title = 'Видалити';
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
             deleteBtn.onclick = () => row.remove();
-            row.querySelector('.inputs-line').appendChild(deleteBtn);
+            row.querySelector('.content-line').appendChild(deleteBtn);
 
             ensureEmptyAltNameInput();
         }
@@ -477,7 +477,7 @@ function ensureEmptyAltNameInput() {
     if (!container) return;
 
     // Перевірити чи є порожній
-    const emptyRow = container.querySelector('.inputs-bloc[data-empty="true"]');
+    const emptyRow = container.querySelector('.content-bloc[data-empty="true"]');
     if (!emptyRow) {
         addAltNameInput('', true);
     }
@@ -491,7 +491,7 @@ function getAltNames() {
     const container = document.getElementById('brand-names-alt-container');
     if (!container) return [];
 
-    const inputs = container.querySelectorAll('.inputs-bloc input');
+    const inputs = container.querySelectorAll('.content-bloc input');
     return Array.from(inputs)
         .map(input => input.value.trim())
         .filter(v => v);
@@ -532,9 +532,9 @@ function addLinkRow(link = { name: '', url: '' }) {
     if (emptyState) emptyState.classList.add('u-hidden');
 
     const row = document.createElement('div');
-    row.className = 'inputs-bloc';
+    row.className = 'content-bloc';
     row.innerHTML = `
-        <div class="inputs-line">
+        <div class="content-line">
             <div class="input-box">
                 <input type="text" value="${escapeHtml(link.name)}" placeholder="ua, de...">
             </div>
@@ -588,7 +588,7 @@ function getLinks() {
     const container = document.getElementById('brand-links-container');
     if (!container) return [];
 
-    const rows = container.querySelectorAll('.inputs-bloc');
+    const rows = container.querySelectorAll('.content-bloc');
     return Array.from(rows)
         .map(row => ({
             name: row.querySelector('input[type="text"]')?.value.trim() || '',
@@ -622,7 +622,7 @@ function updateLinksEmptyState() {
     const emptyState = document.getElementById('brand-links-empty');
     if (!container || !emptyState) return;
 
-    const hasLinks = container.querySelectorAll('.inputs-bloc').length > 0;
+    const hasLinks = container.querySelectorAll('.content-bloc').length > 0;
     if (!hasLinks && !emptyState.innerHTML.trim()) {
         emptyState.innerHTML = renderAvatarState('empty', { message: 'Посилання відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
     }
@@ -676,8 +676,8 @@ function initLogoHandlers() {
         fileInput.value = '';
     });
 
-    // Drag-and-drop на inputs-line
-    const inputsLine = dropzone.querySelector('.inputs-line');
+    // Drag-and-drop на content-line
+    const inputsLine = dropzone.querySelector('.content-line');
     if (inputsLine) {
         inputsLine.addEventListener('dragover', (e) => {
             e.preventDefault();

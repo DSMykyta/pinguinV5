@@ -305,32 +305,32 @@ function renderStats() {
 
     return `
         <div class="grid2" style="margin-top: 16px;">
-            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
+            <div class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
                  data-cabinet-navigate="section-tasks">
-                <span class="material-symbols-outlined panel-box-icon">task_alt</span>
+                <span class="material-symbols-outlined">task_alt</span>
                 <strong style="font-size: 24px;">${stats.active}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">активних задач</span>
                 ${stats.urgent > 0 ? `<span class="chip chip-error" style="font-size: 11px;">${stats.urgent} термінових</span>` : ''}
             </div>
 
-            <a href="price.html" class="panel-box" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
-                <span class="material-symbols-outlined panel-box-icon">inventory_2</span>
+            <a href="price.html" class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
+                <span class="material-symbols-outlined">inventory_2</span>
                 <strong style="font-size: 24px;">${price.loaded ? price.totalReserved : '...'}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">зарезервовано</span>
                 ${price.loaded && price.noArticle > 0 ? `<span class="chip chip-error" style="font-size: 11px;">${price.noArticle} без артикулу</span>` : ''}
                 ${price.loaded && price.canPost > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${price.canPost} можна викласти</span>` : ''}
             </a>
 
-            <a href="brands.html" class="panel-box" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
-                <span class="material-symbols-outlined panel-box-icon">shopping_bag</span>
+            <a href="brands.html" class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
+                <span class="material-symbols-outlined">shopping_bag</span>
                 <strong style="font-size: 24px;">${brands.loaded ? brands.total : '...'}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">брендів</span>
                 ${brands.loaded && brands.active > 0 ? `<span class="chip chip-success" style="font-size: 11px;">${brands.active} активних</span>` : ''}
             </a>
 
-            <div class="panel-box" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
+            <div class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
                  data-cabinet-navigate="section-tasks" data-cabinet-type-filter="info">
-                <span class="material-symbols-outlined panel-box-icon">lightbulb</span>
+                <span class="material-symbols-outlined">lightbulb</span>
                 <strong style="font-size: 24px;">${stats.info}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">записів інфо</span>
             </div>

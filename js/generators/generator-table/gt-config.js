@@ -26,7 +26,7 @@ export const ROW_CLASSES = {
 // CSS-селектори для швидкого доступу до елементів
 export const SELECTORS = {
     ROWS_CONTAINER: '#rows-container',
-    INPUTS_BLOC: '.inputs-bloc',
+    INPUTS_BLOC: '.content-bloc',
     INPUT_LEFT: '.input-box.large input, .input-box.large textarea',
     INPUT_RIGHT: '.input-box.small input, .input-box.small textarea',
     INPUT_TAG: '.input-tag',

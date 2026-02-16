@@ -51,7 +51,7 @@
 
 /* === COMPONENTS - FORMS === */
 @import url('components/forms/input.css');
-@import url('components/forms/search.css');
+/* search.css — перенесено в forms/input-box.css (.content-line.panel) */
 @import url('components/forms/form-group.css');
 @import url('components/forms/input-box.css');
 @import url('components/forms/custom-select.css');
@@ -62,7 +62,7 @@
 
 /* === COMPONENTS - NAVIGATION === */
 @import url('components/navigation/panel-item.css');
-@import url('components/navigation/panel-box.css');
+/* panel-box.css — перенесено в forms/input-box.css (.content-line.panel) */
 @import url('components/navigation/panel-title.css');
 @import url('components/navigation/pagination-fab.css');
 @import url('components/navigation/tabs.css');

@@ -46,7 +46,7 @@ function saveSession() {
     if (!dom.rowsContainer) return;
 
     const rowsData = [];
-    dom.rowsContainer.querySelectorAll('.inputs-bloc').forEach(row => {
+    dom.rowsContainer.querySelectorAll('.content-bloc').forEach(row => {
         rowsData.push({
             left: row.querySelector('.input-box.large input, .input-box.large textarea')?.value || '',
             right: row.querySelector('.input-box.small input, .input-box.small textarea')?.value || '',

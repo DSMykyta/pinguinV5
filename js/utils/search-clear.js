@@ -21,7 +21,7 @@
  * });
  *
  * ВИМОГИ ДО HTML:
- * <div class="panel-box">
+ * <div class="content-line panel">
  *   <input type="text" id="your-input-id" class="input-main">
  *   <button class="btn-icon clear-search-btn u-hidden">
  *     <span class="material-symbols-outlined">close</span>
@@ -46,14 +46,14 @@ export function initSearchClear(inputIds, onClearCallback = null) {
             return;
         }
 
-        // Знаходимо кнопку очищення (сусідній елемент в .panel-box)
-        const panelBox = inputElement.closest('.panel-box');
-        if (!panelBox) {
-            console.warn(`[search-clear] Батьківський .panel-box не знайдено для поля "${inputId}"`);
+        // Знаходимо кнопку очищення (сусідній елемент в .content-line)
+        const contentLine = inputElement.closest('.content-line');
+        if (!contentLine) {
+            console.warn(`[search-clear] Батьківський .content-line не знайдено для поля "${inputId}"`);
             return;
         }
 
-        const clearBtn = panelBox.querySelector('.clear-search-btn');
+        const clearBtn = contentLine.querySelector('.clear-search-btn');
         if (!clearBtn) {
             console.warn(`[search-clear] Кнопка .clear-search-btn не знайдена для поля "${inputId}"`);
             return;
@@ -111,10 +111,10 @@ export function destroySearchClear(inputIds) {
         const inputElement = document.getElementById(inputId);
         if (!inputElement) return;
 
-        const panelBox = inputElement.closest('.panel-box');
-        if (!panelBox) return;
+        const contentLine = inputElement.closest('.content-line');
+        if (!contentLine) return;
 
-        const clearBtn = panelBox.querySelector('.clear-search-btn');
+        const clearBtn = contentLine.querySelector('.clear-search-btn');
         if (!clearBtn) return;
 
         // Видаляємо слухачі якщо є збережені посилання

@@ -38,7 +38,7 @@
 }
 
 
-.panel-box.dropdown-wrapper.is-open .dropdown-menu {
+.content-line.panel.dropdown-wrapper.is-open .dropdown-menu {
     display: block; /* Забезпечення видимості в боксі */
 }
 

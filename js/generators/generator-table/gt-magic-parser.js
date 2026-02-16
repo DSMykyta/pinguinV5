@@ -87,7 +87,7 @@ export async function processAndFillInputs(text) {
 
         // Заголовок - перевіряємо чи існує
         if (entry.isHeader) {
-            const existingRows = dom.rowsContainer.querySelectorAll('.inputs-bloc');
+            const existingRows = dom.rowsContainer.querySelectorAll('.content-bloc');
             const firstHeader = Array.from(existingRows).find(row =>
                 row.classList.contains(ROW_CLASSES.TH_STRONG)
             );

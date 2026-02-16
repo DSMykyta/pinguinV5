@@ -55,9 +55,9 @@
 .panel-right.is-collapsed .panel-item .panel-item-text,
 .panel-right.is-collapsed .panel-item .btn-icon,
 .panel-right.is-collapsed .panel-item div,
-.panel-right.is-collapsed .panel-box .panel-item-text,
-.panel-right.is-collapsed .panel-box .panel-item-action-wrapper,
-.panel-right.is-collapsed .panel-box input,
+.panel-right.is-collapsed .content-line.panel .panel-text,
+.panel-right.is-collapsed .content-line.panel .panel-item-action-wrapper,
+.panel-right.is-collapsed .content-line.panel input,
 .panel-right.is-collapsed #triger-buttons-container,
 .panel-right.is-collapsed .right-hidden {
     display: none;

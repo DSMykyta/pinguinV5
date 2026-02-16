@@ -706,11 +706,11 @@
         document.addEventListener('click', (e) => {
             if (!state.isMobile) return;
 
-            const trigger = e.target.closest('.inputs-bloc [data-dropdown-trigger]');
+            const trigger = e.target.closest('.content-bloc [data-dropdown-trigger]');
             if (trigger) {
                 e.preventDefault();
                 e.stopPropagation();
-                const row = trigger.closest('.inputs-bloc');
+                const row = trigger.closest('.content-bloc');
                 if (row) {
                     openRowOptionsSheet(row);
                 }
@@ -733,14 +733,14 @@
         document.addEventListener('input', (e) => {
             if (!state.isMobile) return;
 
-            const textarea = e.target.closest('.inputs-bloc textarea');
+            const textarea = e.target.closest('.content-bloc textarea');
             if (textarea) {
                 autoResizeTextarea(textarea);
             }
         });
 
         // Initial textarea resize
-        document.querySelectorAll('.inputs-bloc textarea').forEach(autoResizeTextarea);
+        document.querySelectorAll('.content-bloc textarea').forEach(autoResizeTextarea);
     }
 
     // ============================================

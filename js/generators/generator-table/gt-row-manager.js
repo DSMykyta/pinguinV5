@@ -36,7 +36,7 @@ export async function createAndAppendRow() {
  * @param {HTMLElement} row - Рядок для видалення.
  */
 export function deleteRow(row) {
-    if (dom.rowsContainer.querySelectorAll('.inputs-bloc').length > 1) {
+    if (dom.rowsContainer.querySelectorAll('.content-bloc').length > 1) {
         row.remove();
         autoSaveSession();
     } else {
