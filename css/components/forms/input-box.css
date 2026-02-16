@@ -284,73 +284,27 @@
 
 
 /* ============================================ */
-/* BORDER RADIUS — БАЗОВІ ПРАВИЛА              */
+/* BORDER RADIUS                               */
 /* ============================================ */
 
-/* За замовчуванням всі рядки без заокруглення */
+/* За замовчуванням — повне заокруглення (працює для одиночних блоків) */
 .inputs-bloc .inputs-line {
+    border-radius: 8px;
+}
+
+/* Є наступний рядок → прибрати нижнє заокруглення */
+.inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc:not(.new-table):not(.h2)) .inputs-line {
+    border-radius: 8px 8px 0 0;
+}
+
+/* Є попередній рядок → прибрати верхнє заокруглення */
+.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2) .inputs-line {
+    border-radius: 0 0 8px 8px;
+}
+
+/* Є і попередній, і наступний → без заокруглення */
+.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc:not(.new-table):not(.h2)) .inputs-line {
     border-radius: 0;
-}
-
-
-/* ============================================ */
-/* BORDER RADIUS — ПОЧАТОК І КІНЕЦЬ ГРУП       */
-/* ============================================ */
-
-/* ПОЧАТОК ГРУПИ (верх заокруглений) */
-
-/* Перший рядок контейнера */
-.inputs-bloc:first-child:not(.new-table):not(.h2) .inputs-line {
-    border-radius: 8px 8px 0 0;
-}
-
-/* Рядок після розділювача */
-.inputs-bloc.new-table + .inputs-bloc:not(.new-table):not(.h2) .inputs-line,
-.inputs-bloc.h2 + .inputs-bloc:not(.new-table):not(.h2) .inputs-line {
-    border-radius: 8px 8px 0 0;
-}
-
-/* КІНЕЦЬ ГРУПИ (низ заокруглений) */
-
-/* Останній рядок контейнера */
-.inputs-bloc:last-child:not(.new-table):not(.h2) .inputs-line {
-    border-radius: 0 0 8px 8px;
-}
-
-/* Рядок перед розділювачем */
-.inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.new-table) .inputs-line,
-.inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.h2) .inputs-line {
-    border-radius: 0 0 8px 8px;
-}
-
-
-/* ============================================ */
-/* BORDER RADIUS — ЄДИНИЙ РЯДОК                */
-/* ============================================ */
-
-/* Єдиний рядок в контейнері */
-.inputs-bloc:only-child:not(.new-table):not(.h2) .inputs-line {
-    border-radius: 8px;
-}
-
-/* Єдиний рядок між двома розділювачами */
-.inputs-bloc.new-table + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.new-table) .inputs-line,
-.inputs-bloc.new-table + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.h2) .inputs-line,
-.inputs-bloc.h2 + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.new-table) .inputs-line,
-.inputs-bloc.h2 + .inputs-bloc:not(.new-table):not(.h2):has(+ .inputs-bloc.h2) .inputs-line {
-    border-radius: 8px;
-}
-
-/* Після розділювача і є останнім */
-.inputs-bloc.new-table + .inputs-bloc:last-child:not(.new-table):not(.h2) .inputs-line,
-.inputs-bloc.h2 + .inputs-bloc:last-child:not(.new-table):not(.h2) .inputs-line {
-    border-radius: 8px;
-}
-
-/* Першим і перед розділювачем */
-.inputs-bloc:first-child:not(.new-table):not(.h2):has(+ .inputs-bloc.new-table) .inputs-line,
-.inputs-bloc:first-child:not(.new-table):not(.h2):has(+ .inputs-bloc.h2) .inputs-line {
-    border-radius: 8px;
 }
 
 
