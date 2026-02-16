@@ -515,7 +515,7 @@ function populateRelatedOptions(characteristicId) {
         ],
         data: loadData(),
         columnsListId: 'char-options-columns-list',
-        searchColumnsId: 'char-options-search-columns',
+
         searchInputId: 'char-options-search',
         statsId: 'char-options-stats',
         paginationId: 'char-options-pagination',

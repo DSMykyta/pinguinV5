@@ -66,7 +66,7 @@ function initManagedBannedWordsTable() {
 
         // DOM IDs
         columnsListId: 'table-columns-list',
-        searchColumnsId: 'search-columns-list',
+
         searchInputId: 'search-banned-words',
         statsId: 'tab-stats-manage',
         paginationId: null, // спільна пагінація — керується ззовні

@@ -358,7 +358,6 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
         columns: columns,
         data: data,
         columnsListId: null,
-        searchColumnsId: null,
         searchInputId: null, // Пошук через shared input (banned-words-aside.js)
         statsId: `check-tab-stats-${tabId}`,
         paginationId: null, // Спільна пагінація

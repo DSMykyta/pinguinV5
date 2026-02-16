@@ -475,7 +475,7 @@ function populateRelatedChildOptions(optionId) {
         ],
         data: initialData,
         columnsListId: 'option-chars-columns-list',
-        searchColumnsId: 'option-chars-search-columns',
+
         searchInputId: 'option-chars-search',
         statsId: 'option-chars-stats',
         paginationId: 'option-children-pagination',

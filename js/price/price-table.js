@@ -111,7 +111,7 @@ function initPriceTable() {
 
         // DOM IDs
         columnsListId: 'table-columns-list-price',
-        searchColumnsId: 'search-columns-list-price',
+
         searchInputId: 'search-price',
         statsId: 'tab-stats-price',
         paginationId: null, // спільна пагінація — керується ззовні

@@ -519,7 +519,7 @@ function populateRelatedCharacteristics(categoryId) {
         ],
         data: loadData(),
         columnsListId: 'category-chars-columns-list',
-        searchColumnsId: 'category-chars-search-columns',
+
         searchInputId: 'category-chars-search',
         statsId: 'category-chars-stats',
         paginationId: 'category-chars-pagination',

@@ -70,7 +70,7 @@ function initBrandsTable() {
 
         // DOM IDs
         columnsListId: 'table-columns-list-brands',
-        searchColumnsId: 'search-columns-list-brands',
+
         searchInputId: 'search-brands',
         statsId: 'tab-stats-brands',
         paginationId: null, // спільна пагінація — керується ззовні

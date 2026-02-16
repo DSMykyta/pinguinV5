@@ -7,7 +7,7 @@
  * ║  Єдина функція яка з'єднує:                                             ║
  * ║  1. Таблицю (Table LEGO)                                                ║
  * ║  2. Dropdown видимості колонок                                          ║
- * ║  3. Пошук + dropdown колонок пошуку (тільки видимі)                     ║
+ * ║  3. Пошук по всіх видимих searchable колонках                           ║
  * ║  4. Stats ("Показано X з Y")                                            ║
  * ║  5. Пагінація (опціонально)                                             ║
  * ║  6. Filters plugin (column filters + text search)                       ║
@@ -28,7 +28,6 @@ import { initPagination } from '../ui-pagination.js';
  * @param {Array} config.columns
  * @param {Array} config.data
  * @param {string} [config.columnsListId]
- * @param {string} [config.searchColumnsId]
  * @param {string} [config.searchInputId]
  * @param {string} [config.statsId]
  * @param {string} [config.paginationId]
@@ -45,7 +44,6 @@ export function createManagedTable(config) {
         columns,
         data = [],
         columnsListId,
-        searchColumnsId,
         searchInputId,
         statsId,
         paginationId,
@@ -64,19 +62,14 @@ export function createManagedTable(config) {
     let currentPage = 1;
     let currentPageSize = pageSize || 999999;
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
-    let searchColumnIds = columns
-        .filter(c => c.searchable && c.checked !== false)
-        .map(c => c.id);
 
-    let searchColsSelector = null;
     let paginationAPI = null;
     let isActive = true;
     let searchHandler = null;
     let debounceTimer = null;
 
-    // ── Shared search config IDs (saved for activate/deactivate) ──
+    // ── Shared search config ID (saved for activate/deactivate) ──
     const _searchInputId = searchInputId;
-    const _searchColumnsId = searchColumnsId;
 
     // ── DOM refs ──
     const statsEl = statsId ? document.getElementById(statsId) : null;
@@ -89,6 +82,13 @@ export function createManagedTable(config) {
     // ── Helper: get transformed data ──
     function getWorkingData() {
         return dataTransform ? dataTransform([...allData]) : [...allData];
+    }
+
+    // ── Helper: get searchable column IDs (searchable + visible) ──
+    function getSearchColumnIds() {
+        return columns
+            .filter(c => c.searchable && visibleColumnIds.includes(c.id))
+            .map(c => c.id);
     }
 
     // ── 1. Create table ──
@@ -141,46 +141,12 @@ export function createManagedTable(config) {
             onChange: (selectedIds) => {
                 visibleColumnIds = selectedIds;
                 tableAPI.setVisibleColumns?.([...selectedIds, ...alwaysVisibleIds]);
-                rebuildSearchColumnsSelector();
                 renderPage();
             }
         });
     }
 
-    // ── 3. Search columns selector ──
-    function rebuildSearchColumnsSelector() {
-        if (!_searchColumnsId) return;
-
-        const searchableVisible = columns
-            .filter(c => c.searchable && visibleColumnIds.includes(c.id))
-            .map(c => ({
-                id: c.id,
-                label: c.label,
-                checked: searchColumnIds.includes(c.id)
-            }));
-
-        if (searchColsSelector) {
-            searchColsSelector.destroy();
-        }
-
-        searchColsSelector = createColumnSelector(_searchColumnsId, searchableVisible, {
-            checkboxPrefix: `${checkboxPrefix}-search`,
-            onChange: (selectedIds) => {
-                searchColumnIds = selectedIds;
-                applyFilters();
-            }
-        });
-
-        // Remove columns that are no longer visible from active search
-        searchColumnIds = searchColumnIds.filter(id => visibleColumnIds.includes(id));
-    }
-
-    // Initial build (only if active)
-    if (_searchColumnsId) {
-        rebuildSearchColumnsSelector();
-    }
-
-    // ── 4. Combined filtering (column filters + text search) ──
+    // ── 3. Combined filtering (column filters + text search) ──
     function applyFilters() {
         let data = getWorkingData();
 
@@ -194,10 +160,11 @@ export function createManagedTable(config) {
             data = applyColumnFilters(data, columnFilters, filterColumnsConfig);
         }
 
-        // 2. Text search (підтримка масивів — names_alt, trigers)
+        // 2. Text search (по всіх видимих searchable колонках, підтримка масивів)
         if (searchQuery) {
+            const searchCols = getSearchColumnIds();
             data = data.filter(row =>
-                searchColumnIds.some(colId => {
+                searchCols.some(colId => {
                     const val = row[colId];
                     if (Array.isArray(val)) {
                         return val.some(v => String(v).toLowerCase().includes(searchQuery));
@@ -257,7 +224,7 @@ export function createManagedTable(config) {
     // Initial bind
     bindSearchInput();
 
-    // ── 5. Pagination ──
+    // ── 4. Pagination ──
     if (paginationEl && pageSize) {
         paginationAPI = initPagination(paginationEl, {
             currentPage,
@@ -271,10 +238,10 @@ export function createManagedTable(config) {
         });
     }
 
-    // ── 6. Render ──
+    // ── 5. Render ──
     function renderPage() {
         let pageData;
-        if (paginationAPI && currentPageSize < 100000) {
+        if (currentPageSize < 100000) {
             const start = (currentPage - 1) * currentPageSize;
             pageData = filteredData.slice(start, start + currentPageSize);
         } else {
@@ -304,10 +271,8 @@ export function createManagedTable(config) {
 
     // ── Public API ──
     return {
-        /** Оригінальний Table LEGO API */
         tableAPI,
 
-        /** Рендер з поточними фільтрованими даними */
         render(customData) {
             if (customData) {
                 filteredData = customData;
@@ -315,7 +280,6 @@ export function createManagedTable(config) {
             renderPage();
         },
 
-        /** Повна заміна даних (скидає пошук + фільтри) */
         setData(newData) {
             allData = [...newData];
             searchQuery = '';
@@ -324,34 +288,32 @@ export function createManagedTable(config) {
             applyFilters();
         },
 
-        /** Оновити дані (зберігає пошук + фільтри) */
         updateData(newData) {
             allData = [...newData];
             applyFilters();
         },
 
-        /** Поточні відфільтровані дані */
         getFilteredData() {
             return filteredData;
         },
 
-        /** Кількість відфільтрованих */
         getFilteredCount() {
             return filteredData.length;
         },
 
-        /** Всі дані */
         getAllData() {
             return allData;
         },
 
-        /** Повторно застосувати пошук + фільтри */
         refilter() {
             applyFilters();
         },
 
-        /** Встановити пошуковий запит програмно */
         setSearchQuery(query) {
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+                debounceTimer = null;
+            }
             searchQuery = (query || '').toLowerCase().trim();
             if (searchInput && isActive) {
                 searchInput.value = query || '';
@@ -359,37 +321,27 @@ export function createManagedTable(config) {
             applyFilters();
         },
 
-        /** Зовнішнє керування пагінацією (для спільного footer) */
         setPage(page, size) {
             currentPage = page;
             if (size !== undefined) currentPageSize = size;
             renderPage();
         },
 
-        /** Підключити спільний пошук та search columns selector */
         activate() {
             if (isActive) return;
             isActive = true;
             bindSearchInput();
-            rebuildSearchColumnsSelector();
             applyFilters();
         },
 
-        /** Відключити від спільного пошуку */
         deactivate() {
             if (!isActive) return;
             isActive = false;
             unbindSearchInput();
-            if (searchColsSelector) {
-                searchColsSelector.destroy();
-                searchColsSelector = null;
-            }
         },
 
-        /** Cleanup */
         destroy() {
             unbindSearchInput();
-            if (searchColsSelector) searchColsSelector.destroy();
             tableAPI.destroy?.();
         }
     };

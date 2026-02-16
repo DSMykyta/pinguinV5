@@ -2,34 +2,12 @@
 
     <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
     <div class="panel-content-fix">
-        <div class="panel-box dropdown-wrapper">
+        <div class="panel-box">
             <span class="material-symbols-outlined panel-box-icon">search</span>
             <input type="text" id="products-search-input" placeholder="Пошук товарів...">
             <button id="clear-search-products" class="btn-icon u-hidden" aria-label="Очистити пошук">
                 <span class="material-symbols-outlined">close</span>
             </button>
-            <button class="btn-icon" data-dropdown-trigger aria-label="Фільтри пошуку">
-                <span class="material-symbols-outlined">filter_list</span>
-            </button>
-
-            <!-- Dropdown з чекбоксами колонок для пошуку -->
-            <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-header">Колонки для пошуку</div>
-                <div id="search-columns-list-products" class="dropdown-body">
-                    <label class="dropdown-item">
-                        <input type="checkbox" data-search-col="id" checked> ID
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" data-search-col="name" checked> Назва
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" data-search-col="sku" checked> Артикул
-                    </label>
-                    <label class="dropdown-item">
-                        <input type="checkbox" data-search-col="category"> Категорія
-                    </label>
-                </div>
-            </div>
         </div>
     </div>
 

@@ -73,9 +73,8 @@ function initLinesTable() {
         })),
         data: enrichLinesData(getBrandLines()),
 
-        // DOM IDs — спільний search input з brands, search columns перемикається через activate/deactivate
+        // DOM IDs — спільний search input з brands
         columnsListId: 'table-columns-list-lines',
-        searchColumnsId: 'search-columns-list-brands',
         searchInputId: 'search-brands',
         statsId: 'tab-stats-lines',
         paginationId: null,

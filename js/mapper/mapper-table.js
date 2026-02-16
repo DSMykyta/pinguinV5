@@ -630,7 +630,7 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
         columns: columns,
         data: rawData,
         columnsListId: `table-columns-list-mapper-${tabName}`,
-        searchColumnsId: isActive ? 'search-mapper-search-columns' : null,
+
         searchInputId: isActive ? 'search-mapper' : null,
         statsId: `tab-stats-mapper-${tabName}`,
         paginationId: null, // Спільна пагінація

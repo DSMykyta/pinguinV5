@@ -284,7 +284,7 @@ function populateBrandLines(brandId) {
         ],
         data: allData,
         columnsListId: 'brand-lines-columns-list',
-        searchColumnsId: 'brand-lines-search-columns',
+
         searchInputId: 'brand-lines-search',
         statsId: 'brand-lines-stats',
         checkboxPrefix: 'brand-lines',

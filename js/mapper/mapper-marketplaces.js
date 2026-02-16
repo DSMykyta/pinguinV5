@@ -588,7 +588,7 @@ async function populateMpReferences(slug, marketplaceId) {
         ],
         data: allData,
         columnsListId: 'mp-data-ref-columns-list',
-        searchColumnsId: 'mp-data-ref-search-columns',
+
         searchInputId: 'mp-data-ref-search',
         statsId: 'mp-data-ref-stats',
         paginationId: 'mp-data-ref-pagination',
@@ -655,15 +655,7 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
         updateStats(allData.length, allData.length);
     };
 
-    // Search columns selector for categories
     const catSearchColumns = ['name', 'external_id'];
-    createColumnSelector('mp-data-cat-search-columns', [
-        { id: 'name', label: 'Назва', checked: true },
-        { id: 'external_id', label: 'ID', checked: true }
-    ], {
-        checkboxPrefix: 'mp-cat-search',
-        onChange: (selectedIds) => { catSearchColumns.length = 0; catSearchColumns.push(...selectedIds); }
-    });
 
     // DOM-based пошук з авторозгортанням батьків
     const applySearch = (query) => {
@@ -774,7 +766,7 @@ function populateMpCharacteristics(allData, charMapping) {
         ],
         data: allProcessed,
         columnsListId: 'mp-data-char-columns-list',
-        searchColumnsId: 'mp-data-char-search-columns',
+
         searchInputId: 'mp-data-char-search',
         statsId: 'mp-data-char-stats',
         paginationId: 'mp-data-char-pagination',
@@ -836,7 +828,7 @@ function populateMpOptions(allData, optMapping) {
         ],
         data: allProcessed,
         columnsListId: 'mp-data-opt-columns-list',
-        searchColumnsId: 'mp-data-opt-search-columns',
+
         searchInputId: 'mp-data-opt-search',
         statsId: 'mp-data-opt-stats',
         paginationId: 'mp-data-opt-pagination',

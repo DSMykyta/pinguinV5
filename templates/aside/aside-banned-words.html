@@ -2,23 +2,12 @@
 
     <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
     <div class="panel-content-fix">
-        <div class="panel-box dropdown-wrapper">
+        <div class="panel-box">
             <span class="material-symbols-outlined panel-box-icon">search</span>
             <input type="text" id="search-banned-words" placeholder="Пошук заборонених слів...">
             <button id="clear-search-banned-words" class="btn-icon u-hidden" aria-label="Очистити пошук">
                 <span class="material-symbols-outlined">close</span>
             </button>
-            <button class="btn-icon right-hidden" data-dropdown-trigger aria-label="Фільтри пошуку">
-                <span class="material-symbols-outlined ">filter_list</span>
-            </button>
-
-            <!-- Dropdown з чекбоксами колонок -->
-            <div class="dropdown-menu dropdown-menu-right">
-                <div class="dropdown-header">Колонки для пошуку</div>
-                <div id="search-columns-list" class="dropdown-body">
-                    <!-- Чекбокси додаються динамічно -->
-                </div>
-            </div>
         </div>
     </div>
 
