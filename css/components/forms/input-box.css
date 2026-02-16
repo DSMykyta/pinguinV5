@@ -106,11 +106,12 @@
     transition: border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-.inputs-line:hover {
+/* Hover/focus тільки для .spaced контейнерів (форми, бренди) */
+.inputs-bloc-container.spaced .inputs-line:hover {
     border-color: var(--color-on-surface-v);
 }
 
-.inputs-line:focus-within {
+.inputs-bloc-container.spaced .inputs-line:focus-within {
     outline: 1px solid var(--color-main);
     outline-offset: -2px;
     border-color: transparent;
@@ -145,7 +146,7 @@
 .inputs-bloc select {
     font-size: 14px;
     border: none;
-    padding: 0 4px;
+    padding: 0 12px;
     background-color: transparent;
     width: 100%;
     resize: vertical;
@@ -159,7 +160,7 @@
 }
 
 .inputs-bloc textarea {
-    padding: 10px 8px 0 4px;
+    padding: 10px 12px 0 12px;
     min-height: 40px;
 }
 
@@ -260,6 +261,12 @@
 /* ПРИХОВУВАННЯ МАЛИХ INPUT-BOX                */
 /* ============================================ */
 
+/* Розділювач всередині inputs-line — трохи коротший за повну висоту */
+.inputs-line > .separator-v {
+    align-self: center;
+    height: 60%;
+}
+
 :is(.h2, .single, .colspan2) .input-box.small,
 :is(.h2, .single, .colspan2) > .inputs-line > .separator-v {
     display: none;
@@ -353,7 +360,7 @@
 /* Назва елемента */
 .inputs-bloc .item-name {
     font-size: 14px;
-    padding: 0 4px;
+    padding: 0 12px;
     height: 40px;
     display: flex;
     align-items: center;
@@ -363,7 +370,7 @@
 /* ID елемента */
 .inputs-bloc .item-id {
     font-size: 12px;
-    padding: 0 4px;
+    padding: 0 12px;
     height: 40px;
     display: flex;
     align-items: center;

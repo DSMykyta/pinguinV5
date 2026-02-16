@@ -49,9 +49,9 @@ export function calculatePercentages() {
     }
 
     if (servingWeight === 0) {
-        dom.rowsContainer.querySelectorAll(SELECTORS.INPUT_RIGHT_TOOL).forEach(span => {
+        dom.rowsContainer.querySelectorAll(SELECTORS.INPUT_TAG).forEach(span => {
             span.textContent = '';
-            span.classList.remove('tooltip-sm');
+            span.classList.remove('visible');
         });
         return;
     }
@@ -63,9 +63,9 @@ export function calculatePercentages() {
         if (row) {
             const value = parseFloat(row.querySelector(SELECTORS.INPUT_RIGHT).value.replace(',', '.')) || 0;
             const percentage = value > 0 ? `${Math.round((value / servingWeight) * 100)}%` : '';
-            const toolSpan = row.querySelector(SELECTORS.INPUT_RIGHT_TOOL);
+            const toolSpan = row.querySelector(SELECTORS.INPUT_TAG);
             toolSpan.textContent = percentage;
-            toolSpan.classList.toggle('tooltip-sm', !!percentage);
+            toolSpan.classList.toggle('visible', !!percentage);
         }
     });
 }
@@ -97,7 +97,7 @@ export function markEssentialAminoAcids() {
 
     rows.forEach(row => {
         const leftValue = row.querySelector(SELECTORS.INPUT_LEFT)?.value.toLowerCase() || '';
-        const toolSpan = row.querySelector(SELECTORS.INPUT_RIGHT_TOOL);
+        const toolSpan = row.querySelector(SELECTORS.INPUT_TAG);
 
         if (!toolSpan) return;
 
@@ -105,12 +105,12 @@ export function markEssentialAminoAcids() {
 
         if (isEssential) {
             toolSpan.textContent = 'EAA';
-            toolSpan.classList.add('tooltip-sm', 'essential-amino');
+            toolSpan.classList.add('visible', 'essential-amino');
         } else {
             toolSpan.classList.remove('essential-amino');
             if (toolSpan.textContent === 'EAA') {
                 toolSpan.textContent = '';
-                toolSpan.classList.remove('tooltip-sm');
+                toolSpan.classList.remove('visible');
             }
         }
     });
