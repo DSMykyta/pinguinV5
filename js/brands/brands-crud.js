@@ -440,10 +440,10 @@ function addAltNameInput(value = '', isEmpty = false) {
                 <div class="input-box">
                     <input type="text" value="${escapeHtml(value)}" placeholder="Альтернативна назва">
                 </div>
+                <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
-            <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
-                <span class="material-symbols-outlined">close</span>
-            </button>
         `;
         row.querySelector('.ci-remove').onclick = () => row.remove();
     }
@@ -460,7 +460,7 @@ function addAltNameInput(value = '', isEmpty = false) {
             deleteBtn.title = 'Видалити';
             deleteBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
             deleteBtn.onclick = () => row.remove();
-            row.appendChild(deleteBtn);
+            row.querySelector('.inputs-line').appendChild(deleteBtn);
 
             ensureEmptyAltNameInput();
         }

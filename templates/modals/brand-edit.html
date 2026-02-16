@@ -116,7 +116,7 @@
                             <!-- Альтернативні назви -->
                             <div class="form-group">
                                 <label>Альтернативні назви</label>
-                                <div id="brand-names-alt-container" class="inputs-bloc-container spaced">
+                                <div id="brand-names-alt-container" class="inputs-bloc-container">
                                     <!-- Динамічні інпути додаються через JS -->
                                 </div>
                             </div>
@@ -126,10 +126,12 @@
                                 <label>Логотип</label>
 
                                 <!-- URL input: альтернатива drag-and-drop -->
-                                <div class="brand-logo-url-input">
-                                    <div class="compound-input">
-                                        <input type="url" id="brand-logo-url-field"
-                                            placeholder="Або вставте URL зображення...">
+                                <div class="brand-logo-url-input inputs-bloc">
+                                    <div class="inputs-line">
+                                        <div class="input-box">
+                                            <input type="url" id="brand-logo-url-field"
+                                                placeholder="Або вставте URL зображення...">
+                                        </div>
                                         <button type="button" class="btn-icon ci-action" id="btn-upload-from-url"
                                             data-tooltip="Завантажити з URL">
                                             <span class="material-symbols-outlined">download</span>

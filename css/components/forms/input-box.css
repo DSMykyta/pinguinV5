@@ -202,8 +202,8 @@
     margin-top: -1px;
 }
 
-/* Для flexbox контейнерів — прибираємо верхній border */
-.inputs-bloc-container > .inputs-bloc.td + .inputs-bloc.td .inputs-line {
+/* Злиття borders в контейнерах без відступів */
+.inputs-bloc-container:not(.spaced) > .inputs-bloc + .inputs-bloc .inputs-line {
     border-top: none;
 }
 
