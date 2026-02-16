@@ -112,6 +112,11 @@
     transition: border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
+/* Коли є textarea — розтягуємо сусідів по висоті */
+.content-line:has(textarea) {
+    align-items: stretch;
+}
+
 /* Hover/focus тільки для .spaced контейнерів (форми, бренди), не для .panel */
 .content-bloc-container.spaced .content-line:not(.panel):hover {
     border-color: var(--color-on-surface-v);
