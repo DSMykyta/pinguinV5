@@ -2,12 +2,11 @@
  * COMPONENT: Button Variants
  *
  * ПРИЗНАЧЕННЯ:
- * Додаткові варіанти кнопок (delete, reload, move).
+ * Додаткові варіанти кнопок (delete, reload).
  *
  * ВИКОРИСТАННЯ:
  * <button class="btn-delete">Видалити</button>
  * <button class="btn-reload">Оновити</button>
- * <button class="move-btn"><span class="material-symbols-outlined">drag_handle</span></button>
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-error, --color-main, --color-on-surface-v)
@@ -45,33 +44,6 @@
 }
 
 .btn-reload .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* Кнопка переміщення (drag handle) */
-.move-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    border-radius: 4px;
-    cursor: grab;
-    color: var(--color-outline);
-    transition: all 0.2s;
-}
-
-.move-btn:hover {
-    color: var(--color-on-surface);
-}
-
-.move-btn:active {
-    cursor: grabbing;
-}
-
-.move-btn .material-symbols-outlined {
     font-size: 20px;
 }
 

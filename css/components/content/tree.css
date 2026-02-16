@@ -109,10 +109,6 @@
     flex-shrink: 0;
 }
 
-/* Override move-btn cursor when used as tree toggle */
-.toggle-btn.move-btn {
-    cursor: pointer;
-}
 
 .toggle-btn .material-symbols-outlined {
     font-size: 20px;

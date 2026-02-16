@@ -35,7 +35,7 @@ export const SELECTORS = {
 
 // Конфігурація для бібліотеки Sortable.js
 export const SORTABLE_CONFIG = {
-    handle: '.move-btn',
+    handle: '.btn-icon.drag',
     animation: 150
 };
 

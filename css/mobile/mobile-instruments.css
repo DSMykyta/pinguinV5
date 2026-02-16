@@ -374,19 +374,16 @@
         align-items: flex-start !important;
     }
 
-    /* Move button (drag handle) */
-    .content-bloc .move-btn {
+    /* Drag handle (btn-icon ghost) */
+    .content-bloc .btn-icon.ghost {
         width: 28px !important;
         min-width: 28px !important;
         height: 28px !important;
         margin-top: 4px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
         flex-shrink: 0 !important;
     }
 
-    .content-bloc .move-btn .material-symbols-outlined {
+    .content-bloc .btn-icon.ghost .material-symbols-outlined {
         font-size: 18px !important;
     }
 

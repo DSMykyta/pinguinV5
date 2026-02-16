@@ -14,16 +14,18 @@
  *   <span class="material-symbols-outlined">close</span>
  * </button>
  *
- * <a href="#" class="btn-icon" aria-label="Редагувати">
- *   <span class="material-symbols-outlined">edit</span>
- * </a>
+ * <button class="btn-icon ghost" aria-label="Перемістити">
+ *   <span class="material-symbols-outlined">drag_handle</span>
+ * </button>
  *
  * КЛАСИ:
- * - .btn-icon - базовий клас (32x32px, круглий)
+ * - .btn-icon - базовий клас (32x32px, круглий, hover з фоном)
  * - .btn-icon:hover - стан наведення (фон, тінь)
  * - .btn-icon.active / .is-active - активний стан
  *
  * МОДИФІКАТОРИ:
+ * - .ghost - без фону при hover, тільки зміна кольору
+ * - .drag - cursor: grab/grabbing для drag-handle кнопок
  * - .on-hover - показується тільки при наведенні на батьківський елемент
  *
  * ЗАЛЕЖНОСТІ:
@@ -35,6 +37,8 @@
  * - Panel header (згортання панелі)
  * - Table actions (редагувати, видалити)
  * - Навігація (back, forward)
+ * - Drag handles (ghost + drag)
+ * - Tree toggles (ghost)
  */
 
 .btn-icon {
@@ -68,6 +72,27 @@
 
 .btn-icon .material-symbols-outlined {
     font-size: 16px;
+}
+
+/* Модифікатор: ghost — без фону, тільки зміна кольору */
+.btn-icon.ghost {
+    color: var(--color-outline);
+}
+
+.btn-icon.ghost:hover {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--color-on-surface);
+    box-shadow: none;
+}
+
+/* Модифікатор: drag — cursor grab для перетягування */
+.btn-icon.drag {
+    cursor: grab;
+}
+
+.btn-icon.drag:active {
+    cursor: grabbing;
 }
 
 /* Модифікатор: показується при наведенні на батька */

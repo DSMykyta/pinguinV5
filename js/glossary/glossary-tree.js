@@ -23,7 +23,7 @@ function buildTreeHtml(parentId, level = 0) {
         html += `
             <li data-id="${item.id}" class="${hasChildren ? 'has-children' : ''} ${isInitiallyOpen ? 'is-open' : ''}">
                 <div class="tree-item-content">
-                    ${hasChildren ? '<button class="move-btn toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>' : '<span class="leaf-placeholder"></span>'}
+                    ${hasChildren ? '<button class="btn-icon ghost toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>' : '<span class="leaf-placeholder"></span>'}
                     <a href="#${item.id}" class="tree-item-link">${item.name}</a>
                 </div>
                 ${hasChildren ? buildTreeHtml(item.id, level + 1) : ''}
