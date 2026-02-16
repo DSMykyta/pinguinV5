@@ -118,6 +118,12 @@
     border-color: transparent;
 }
 
+/* Drag-and-drop стан */
+.inputs-line.drag-over {
+    border-color: var(--color-main);
+    background-color: var(--color-main-c);
+}
+
 
 /* ============================================ */
 /* INPUT-BOX (прозорий, тримає input + stuff)  */

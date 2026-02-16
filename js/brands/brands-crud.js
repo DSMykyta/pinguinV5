@@ -642,11 +642,29 @@ function initLogoHandlers() {
     const urlField = document.getElementById('brand-logo-url-field');
     const urlBtn = document.getElementById('btn-upload-from-url');
     const removeBtn = document.getElementById('btn-remove-brand-logo');
+    const btnIcon = urlBtn?.querySelector('.material-symbols-outlined');
 
-    if (!dropzone) return;
+    if (!dropzone || !urlField) return;
 
-    // Клік на drop zone → відкрити file input
-    dropzone.addEventListener('click', () => fileInput?.click());
+    // Зміна іконки кнопки залежно від вмісту поля
+    function updateButtonIcon() {
+        if (!btnIcon) return;
+        const hasUrl = urlField.value.trim().length > 0;
+        btnIcon.textContent = hasUrl ? 'download' : 'upload';
+        urlBtn.dataset.tooltip = hasUrl ? 'Завантажити з URL' : 'Вибрати файл';
+    }
+
+    urlField.addEventListener('input', updateButtonIcon);
+
+    // Розумна кнопка: є URL → завантажити, пусто → file picker
+    urlBtn?.addEventListener('click', () => {
+        const url = urlField.value.trim();
+        if (url) {
+            handleLogoUrlUpload(url);
+        } else {
+            fileInput?.click();
+        }
+    });
 
     // Вибір файлу
     fileInput?.addEventListener('change', (e) => {
@@ -655,32 +673,28 @@ function initLogoHandlers() {
         fileInput.value = '';
     });
 
-    // Drag-and-drop
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('drag-over');
-    });
+    // Drag-and-drop на inputs-line
+    const inputsLine = dropzone.querySelector('.inputs-line');
+    if (inputsLine) {
+        inputsLine.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            inputsLine.classList.add('drag-over');
+        });
 
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('drag-over');
-    });
+        inputsLine.addEventListener('dragleave', () => {
+            inputsLine.classList.remove('drag-over');
+        });
 
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file) handleLogoFileUpload(file);
-    });
-
-    // Завантаження з URL
-    urlBtn?.addEventListener('click', () => {
-        const url = urlField?.value.trim();
-        if (url) handleLogoUrlUpload(url);
-        else showToast('Введіть URL зображення', 'warning');
-    });
+        inputsLine.addEventListener('drop', (e) => {
+            e.preventDefault();
+            inputsLine.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) handleLogoFileUpload(file);
+        });
+    }
 
     // Enter в URL полі
-    urlField?.addEventListener('keydown', (e) => {
+    urlField.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             urlBtn?.click();
