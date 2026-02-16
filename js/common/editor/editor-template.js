@@ -36,11 +36,11 @@ export function createEditorTemplate(id, config) {
     const showEditing = editing !== false;
 
     return `
-        <div class="editor-component rich-editor-container" data-editor-id="${id}">
+        <div class="editor-component rich-editor-container" data-editor-id="${id}" style="--editor-min-height: ${minHeight}px;">
             ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : ''}
 
             <!-- Область редактора -->
-            <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+            <div class="rich-editor-body">
 
                 <!-- Режим тексту: WYSIWYG редактор -->
                 <div
@@ -48,15 +48,13 @@ export function createEditorTemplate(id, config) {
                     class="rich-editor-content"
                     contenteditable="true"
                     data-placeholder="${placeholder}"
-                    style="min-height: ${minHeight}px;"
                 ></div>
 
                 ${showCode ? `
                 <!-- Режим коду -->
                 <textarea
                     id="${id}-code-editor"
-                    class="input-main rich-editor-code"
-                    style="display: none; min-height: ${minHeight}px;"
+                    class="input-main rich-editor-code u-hidden"
                     placeholder="HTML код..."
                 ></textarea>
                 ` : ''}

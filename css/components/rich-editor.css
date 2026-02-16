@@ -39,12 +39,23 @@
 }
 
 /* ============================================================================
+   ОБГОРТКА (editor + code textarea)
+   ============================================================================ */
+
+.rich-editor-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* ============================================================================
    ОБЛАСТЬ РЕДАКТОРА (contentEditable)
    ============================================================================ */
 
 .rich-editor-content {
     flex: 1;
-    min-height: 0;
+    min-height: var(--editor-min-height, 200px);
     padding: 16px;
     overflow-y: auto;
     outline: none;
@@ -188,7 +199,7 @@
 
 .rich-editor-code {
     flex: 1;
-    min-height: 200px;
+    min-height: var(--editor-min-height, 200px);
     padding: 16px;
     background-color: var(--color-surface-c-low);
     font-family: 'Roboto Mono', 'Consolas', monospace;
@@ -214,7 +225,5 @@
     justify-content: space-between;
     align-items: center;
     padding: 4px 12px;
-    border-top: 1px solid var(--color-outline);
     min-height: 36px;
-    background: var(--color-surface);
 }

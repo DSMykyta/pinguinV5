@@ -58,8 +58,8 @@ function switchToTextMode(state) {
     if (!dom.codeEditor) return;
 
     dom.editor.innerHTML = dom.codeEditor.value;
-    dom.editor.style.display = '';
-    dom.codeEditor.style.display = 'none';
+    dom.editor.classList.remove('u-hidden');
+    dom.codeEditor.classList.add('u-hidden');
 
     enableToolbarButtons(dom.toolbar, true);
     state.currentMode = 'text';
@@ -79,8 +79,8 @@ function switchToCodeMode(state) {
     clearHighlights(dom.editor);
 
     dom.codeEditor.value = formatHtml(state.getCleanHtml());
-    dom.editor.style.display = 'none';
-    dom.codeEditor.style.display = '';
+    dom.editor.classList.add('u-hidden');
+    dom.codeEditor.classList.remove('u-hidden');
 
     enableToolbarButtons(dom.toolbar, false);
     state.currentMode = 'code';
