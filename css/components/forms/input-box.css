@@ -263,8 +263,8 @@
 
 /* Розділювач всередині inputs-line — трохи коротший за повну висоту */
 .inputs-line > .separator-v {
-    align-self: center;
-    height: 60%;
+    align-self: stretch;
+    margin: 8px 0;
 }
 
 :is(.h2, .single, .colspan2) .input-box.small,
