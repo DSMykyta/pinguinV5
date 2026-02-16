@@ -124,6 +124,22 @@
     background-color: var(--color-main-c);
 }
 
+/* Result варіант (readonly, сірий фон) */
+.inputs-line.result {
+    background: var(--color-surface-c-low);
+    border-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s, border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.inputs-line.result:hover {
+    background: var(--color-surface-c);
+}
+
+.inputs-line.result.copied {
+    background: var(--color-main-t-2);
+}
+
 
 /* ============================================ */
 /* INPUT-BOX (прозорий, тримає input + stuff)  */
