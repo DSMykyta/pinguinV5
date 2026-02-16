@@ -275,6 +275,17 @@
     display: flex;
 }
 
+/* В textarea — тег фіксовано у верхньому правому куті */
+.input-box:has(textarea) {
+    position: relative;
+}
+
+.input-box:has(textarea) .input-tag {
+    position: absolute;
+    top: 12px;
+    right: 4px;
+}
+
 /* Незамінна амінокислота */
 .input-tag.essential-amino {
     background-color: var(--color-warning-c);
