@@ -71,14 +71,14 @@ export function createEditorTemplate(id, config) {
 
                 ${showCleanup ? `
                 <div id="${id}-cleanup-toggles" style="position: absolute; bottom: 4px; right: 12px; display: flex; gap: 4px; z-index: 1;">
-                    <button type="button" class="btn-icon" id="${id}-toggle-links" title="Дозволити посилання" data-cleanup-toggle="allowLinks">
-                        <span class="material-symbols-outlined">link</span>
+                    <button type="button" class="btn-icon" id="${id}-toggle-links" title="Очищати посилання" data-cleanup-toggle="allowLinks">
+                        <span class="material-symbols-outlined">link_off</span>
                     </button>
-                    <button type="button" class="btn-icon" id="${id}-toggle-styles" title="Дозволити стилі" data-cleanup-toggle="allowStyles">
-                        <span class="material-symbols-outlined">palette</span>
+                    <button type="button" class="btn-icon" id="${id}-toggle-styles" title="Очищати стилі" data-cleanup-toggle="allowStyles">
+                        <span class="material-symbols-outlined">format_color_reset</span>
                     </button>
-                    <button type="button" class="btn-icon" id="${id}-toggle-images" title="Дозволити зображення" data-cleanup-toggle="allowImages">
-                        <span class="material-symbols-outlined">image</span>
+                    <button type="button" class="btn-icon" id="${id}-toggle-images" title="Очищати зображення" data-cleanup-toggle="allowImages">
+                        <span class="material-symbols-outlined">hide_image</span>
                     </button>
                 </div>
                 ` : ''}
