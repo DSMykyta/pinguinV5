@@ -40,7 +40,7 @@ export function createEditorTemplate(id, config) {
             ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : ''}
 
             <!-- Область редактора -->
-            <div style="flex: 1; display: flex; flex-direction: column;">
+            <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
 
                 <!-- Режим тексту: WYSIWYG редактор -->
                 <div
