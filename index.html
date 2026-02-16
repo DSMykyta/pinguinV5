@@ -268,41 +268,60 @@
 
             <div class="section-content">
 
-                <div class="form-group-column">
+                <div class="inputs-bloc-container spaced">
 
-                    <div class="form-group-row">
-                        <div class="form-group form-group-result">
-                            <input type="text" id="brand-name" placeholder="Назва бренду">
-                            <div id="country-name" class="country-display"></div>
+                    <!-- Джерела: 3 інпути в одному рядку -->
+                    <div class="inputs-bloc">
+                        <div class="inputs-line result">
+                            <div class="input-box">
+                                <input type="text" id="brand-name" placeholder="Назва бренду">
+                                <div id="country-name" class="country-display"></div>
+                            </div>
+                            <div class="separator-v"></div>
+                            <div class="input-box">
+                                <input type="text" id="product-name" placeholder="Назва товару">
+                            </div>
+                            <div class="separator-v"></div>
+                            <div class="input-box">
+                                <input type="text" id="product-packaging"
+                                    placeholder="Фасування (напр. 90 капс)">
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="form-group form-group-result">
-                            <input type="text" id="product-name" placeholder="Назва товару">
+                    <!-- Title -->
+                    <div class="inputs-bloc" title="Клікнути, щоб скопіювати">
+                        <div class="inputs-line result">
+                            <span class="result-label">Title:</span>
+                            <div class="input-box">
+                                <input type="text" id="seo-title" readonly>
+                            </div>
+                            <span id="seo-title-counter" class="result-counter">0/65</span>
                         </div>
+                    </div>
 
-                        <div class="form-group form-group-result">
-                            <input type="text" id="product-packaging"
-                                placeholder="Фасування (напр. 90 капс)">
+                    <!-- Keywords -->
+                    <div class="inputs-bloc" title="Клікнути, щоб скопіювати">
+                        <div class="inputs-line result">
+                            <span class="result-label">Keywords:</span>
+                            <div class="input-box">
+                                <input type="text" id="seo-keywords" readonly>
+                            </div>
+                            <span id="seo-keywords-counter" class="result-counter">0/250</span>
                         </div>
                     </div>
 
-                    <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
-                        <span class="form-group-label">Title:</span>
-                        <input type="text" id="seo-title" readonly>
-                        <span id="seo-title-counter" class="form-group-counter">0/65</span>
+                    <!-- Description -->
+                    <div class="inputs-bloc" title="Клікнути, щоб скопіювати">
+                        <div class="inputs-line result">
+                            <span class="result-label">Description:</span>
+                            <div class="input-box">
+                                <input type="text" id="seo-description" readonly>
+                            </div>
+                            <span id="seo-description-counter" class="result-counter">0/200</span>
+                        </div>
                     </div>
 
-                    <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
-                        <span class="form-group-label">Keywords:</span>
-                        <input type="text" id="seo-keywords" readonly>
-                        <span id="seo-keywords-counter" class="form-group-counter">0/250</span>
-                    </div>
-
-                    <div class="form-group form-group-result" title="Клікнути, щоб скопіювати">
-                        <span class="form-group-label">Description:</span>
-                        <input type="text" id="seo-description" readonly>
-                        <span id="seo-description-counter" class="form-group-counter">0/200</span>
-                    </div>
                 </div>
 
                 <div class="seo-triggers-output">

@@ -742,26 +742,25 @@
 /* ============================================ */
 
 @media (max-width: 768px) {
-    #section-seo .form-group-column {
+    #section-seo .inputs-bloc-container {
         gap: 12px !important;
     }
 
-    #section-seo .form-group-result {
+    #section-seo .inputs-line.result {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 4px !important;
+        min-height: auto !important;
     }
 
-    #section-seo .form-group-label {
-        position: static !important;
+    #section-seo .result-label {
         font-size: 12px !important;
-        margin-bottom: 4px !important;
+        padding: 8px 12px 0 12px !important;
     }
 
-    #section-seo .form-group-counter {
-        position: static !important;
+    #section-seo .result-counter {
         align-self: flex-end !important;
-        margin-top: 4px !important;
+        padding: 0 12px 8px 12px !important;
     }
 
     .country-display {

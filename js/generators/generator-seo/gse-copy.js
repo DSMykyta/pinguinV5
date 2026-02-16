@@ -25,15 +25,15 @@ async function copyFieldToClipboard(inputElement, fieldName) {
         inputElement.select();
         inputElement.setSelectionRange(0, 99999); // Для мобільних
 
-        // Знаходимо батьківський .form-group-result
-        const formGroup = inputElement.closest('.form-group-result');
-        if (formGroup) {
+        // Знаходимо батьківський .inputs-line.result
+        const resultLine = inputElement.closest('.inputs-line.result');
+        if (resultLine) {
             // Додаємо активний клас
-            formGroup.classList.add('form-group-result-copied');
+            resultLine.classList.add('copied');
 
             // Прибираємо клас через 300ms
             setTimeout(() => {
-                formGroup.classList.remove('form-group-result-copied');
+                resultLine.classList.remove('copied');
             }, 300);
         }
 
@@ -66,10 +66,10 @@ function initCopyListeners() {
             copyFieldToClipboard(input, name);
         });
 
-        // Також слухач на клік по всьому .form-group-result
-        const formGroup = input.closest('.form-group-result');
-        if (formGroup) {
-            formGroup.addEventListener('click', (e) => {
+        // Також слухач на клік по всьому .inputs-line.result
+        const resultLine = input.closest('.inputs-line.result');
+        if (resultLine) {
+            resultLine.addEventListener('click', (e) => {
                 // Якщо клік не по input - копіюємо все одно
                 if (e.target !== input) {
                     copyFieldToClipboard(input, name);
