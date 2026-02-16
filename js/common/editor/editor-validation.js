@@ -1,7 +1,7 @@
 // js/common/editor/editor-validation.js
 
 /**
- * 🔌 ПЛАГІН — Валідація заборонених слів
+ * PLUGIN — Валідація заборонених слів + HTML патерни
  *
  * Можна видалити — редактор працюватиме без валідації.
  * Активується тільки якщо config.validation = true
@@ -9,25 +9,48 @@
 
 import { debounce } from '../../utils/common-utils.js';
 
+// ============================================================================
+// HTML ПАТЕРНИ (попередження — жовті чіпи)
+// ============================================================================
+
+const HTML_PATTERNS = [
+    {
+        id: 'li-lowercase',
+        regex: /<li>\s*([а-яїієґёa-z])/g,
+        name: '‹li› з маленької букви',
+        description: 'Текст після тегу ‹li› має починатися з великої літери.',
+        hint: 'Змініть першу літеру після ‹li› на велику.'
+    },
+    {
+        id: 'text-without-tag',
+        regex: /<\/[a-z0-9]+>\s*([А-ЯЇІЄҐЁа-яїієґёA-Za-z])/g,
+        name: 'Текст без тегу',
+        description: 'Після закриваючого тегу текст має бути обгорнутий у відповідний тег (‹p›, ‹h3› тощо).',
+        hint: 'Додайте відкриваючий тег перед текстом, наприклад ‹p›.'
+    }
+];
+
 export function init(state) {
     // Пропустити якщо валідація вимкнена
     if (!state.config.validation) return;
 
     let validationRegex = null;
-    let bannedWordsData = [];
+    let bannedWordsData = []; // Повні об'єкти з bannedWordsState
 
     // Завантажити заборонені слова
-    loadBannedWords();
+    loadBannedWordsData();
 
-    async function loadBannedWords() {
+    async function loadBannedWordsData() {
         try {
-            const module = await import('../../banned-words/banned-words-data.js');
-            await module.loadBannedWords();
-            bannedWordsData = module.getBannedWords();
+            const { bannedWordsState } = await import('../../banned-words/banned-words-init.js');
+            const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+            await loadBannedWords();
+
+            bannedWordsData = bannedWordsState.bannedWords || [];
             buildRegex();
             validate();
         } catch (e) {
-            console.warn('[Editor Validation] Banned words module not available');
+            console.warn('[Editor Validation] Banned words module not available:', e.message);
         }
     }
 
@@ -37,20 +60,109 @@ export function init(state) {
             return;
         }
 
-        const words = bannedWordsData.map(item => item.word).filter(w => w);
-        if (words.length === 0) {
+        // Збираємо всі слова з name_uk_array + name_ru_array
+        const allWords = [];
+        bannedWordsData.forEach(item => {
+            if (item.name_uk_array) allWords.push(...item.name_uk_array);
+            if (item.name_ru_array) allWords.push(...item.name_ru_array);
+        });
+
+        const uniqueWords = [...new Set(allWords)].filter(Boolean);
+        if (uniqueWords.length === 0) {
             validationRegex = null;
             return;
         }
 
-        const escapedWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        validationRegex = new RegExp(`\\b(${escapedWords.join('|')})\\b`, 'gi');
+        // Сортуємо за довжиною (довші спершу) для правильного matching
+        const escapedWords = uniqueWords
+            .sort((a, b) => b.length - a.length)
+            .map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+
+        try {
+            // Unicode word boundaries для кирилиці
+            validationRegex = new RegExp(`(?<!\\p{L})(${escapedWords.join('|')})(?!\\p{L})`, 'giu');
+        } catch (error) {
+            console.error('[Editor Validation] Помилка RegExp:', error);
+            validationRegex = null;
+        }
+    }
+
+    // ================================================================
+    // ПОШУК ІНФОРМАЦІЇ (для tooltip плагіна)
+    // ================================================================
+
+    function findBannedWordInfo(word) {
+        if (!bannedWordsData || bannedWordsData.length === 0) return null;
+        const lowerWord = word.toLowerCase();
+
+        for (const row of bannedWordsData) {
+            const ukWords = row.name_uk_array || [];
+            const ruWords = row.name_ru_array || [];
+
+            if (ukWords.includes(lowerWord) || ruWords.includes(lowerWord)) {
+                return {
+                    group_name_ua: row.group_name_ua || '',
+                    banned_explaine: row.banned_explaine || '',
+                    banned_hint: row.banned_hint || ''
+                };
+            }
+        }
+        return null;
+    }
+
+    function findHtmlPatternInfo(patternId) {
+        const pattern = HTML_PATTERNS.find(p => p.id === patternId);
+        if (!pattern) return null;
+
+        return {
+            group_name_ua: pattern.name,
+            banned_explaine: pattern.description,
+            banned_hint: pattern.hint
+        };
+    }
+
+    // Виставляємо на state для tooltip плагіна
+    state.findBannedWordInfo = findBannedWordInfo;
+    state.findHtmlPatternInfo = findHtmlPatternInfo;
+
+    // ================================================================
+    // HTML ПАТЕРНИ
+    // ================================================================
+
+    function checkHtmlPatterns(html) {
+        const results = { totalCount: 0, patternCounts: new Map() };
+        if (!html || !html.trim()) return results;
+
+        for (const pattern of HTML_PATTERNS) {
+            pattern.regex.lastIndex = 0;
+            const matches = html.match(pattern.regex);
+            if (matches && matches.length > 0) {
+                results.patternCounts.set(pattern.id, {
+                    count: matches.length,
+                    pattern: pattern
+                });
+                results.totalCount += matches.length;
+            }
+        }
+        return results;
+    }
+
+    // ================================================================
+    // ВАЛІДАЦІЯ
+    // ================================================================
+
+    function getHtmlContent() {
+        if (state.currentMode === 'text') {
+            return state.getCleanHtml();
+        }
+        return state.dom.codeEditor?.value || '';
     }
 
     function validate() {
         const text = state.getPlainText();
+        const html = getHtmlContent();
         const wordCounts = new Map();
-        let count = 0;
+        let bannedCount = 0;
 
         if (validationRegex && text) {
             validationRegex.lastIndex = 0;
@@ -59,37 +171,75 @@ export function init(state) {
                 if (match[1]) {
                     const word = match[1].toLowerCase();
                     wordCounts.set(word, (wordCounts.get(word) || 0) + 1);
-                    count++;
+                    bannedCount++;
                 }
             }
         }
 
-        displayResults(wordCounts, count);
+        const htmlResults = checkHtmlPatterns(html);
+        displayResults(wordCounts, bannedCount, htmlResults);
 
         if (state.currentMode === 'text') {
             applyHighlights();
         }
     }
 
-    function displayResults(wordCounts, count) {
+    // ================================================================
+    // ВІДОБРАЖЕННЯ РЕЗУЛЬТАТІВ
+    // ================================================================
+
+    function displayResults(wordCounts, bannedCount, htmlResults) {
         const container = state.dom.validationResults;
         if (!container) return;
 
-        if (count > 0) {
-            const chips = [];
-            const sorted = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        const totalCount = bannedCount + htmlResults.totalCount;
 
+        if (totalCount > 0) {
+            const chips = [];
+
+            // HTML патерни (жовті чіпи)
+            for (const [patternId, data] of htmlResults.patternCounts.entries()) {
+                chips.push(`<span class="chip chip-warning" data-html-pattern="${patternId}">${data.pattern.name} (${data.count})</span>`);
+            }
+
+            // Заборонені слова (червоні чіпи з навігацією)
+            const sorted = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [word, cnt] of sorted) {
-                chips.push(`<span class="chip chip-error" data-word="${word}">${word} (${cnt})</span>`);
+                chips.push(`<span class="chip chip-error chip-nav" data-banned-word="${word}">${word} (${cnt})</span>`);
             }
 
             container.innerHTML = chips.join(' ');
             container.classList.add('has-errors');
+
+            // Scroll fade
+            setTimeout(() => updateValidationScrollFade(container), 0);
         } else {
             container.innerHTML = '';
             container.classList.remove('has-errors');
+            updateValidationScrollFade(container);
         }
     }
+
+    function updateValidationScrollFade(container) {
+        if (!container) return;
+        const wrapper = container.parentElement;
+        if (!wrapper || !wrapper.classList.contains('validation-results-wrapper')) return;
+
+        const hasScrollLeft = container.scrollLeft > 0;
+        const hasScrollRight = container.scrollLeft < (container.scrollWidth - container.clientWidth - 1);
+
+        wrapper.classList.toggle('has-scroll-left', hasScrollLeft);
+        wrapper.classList.toggle('has-scroll-right', hasScrollRight);
+    }
+
+    // Scroll fade на scroll
+    state.dom.validationResults?.addEventListener('scroll', () => {
+        updateValidationScrollFade(state.dom.validationResults);
+    });
+
+    // ================================================================
+    // ПІДСВІЧУВАННЯ В РЕДАКТОРІ
+    // ================================================================
 
     function applyHighlights() {
         if (!state.dom.editor || !validationRegex) return;
@@ -98,15 +248,15 @@ export function init(state) {
 
         const walker = document.createTreeWalker(state.dom.editor, NodeFilter.SHOW_TEXT);
         const textNodes = [];
-
         while (walker.nextNode()) {
             textNodes.push(walker.currentNode);
         }
 
         textNodes.forEach(textNode => {
             const text = textNode.textContent;
-            validationRegex.lastIndex = 0;
+            if (!text || !text.trim()) return;
 
+            validationRegex.lastIndex = 0;
             const matches = [];
             let match;
             while ((match = validationRegex.exec(text)) !== null) {
@@ -126,12 +276,10 @@ export function init(state) {
                 if (m.start > lastIndex) {
                     fragment.appendChild(document.createTextNode(text.substring(lastIndex, m.start)));
                 }
-
                 const span = document.createElement('span');
                 span.className = 'highlight-error';
                 span.textContent = m.word;
                 fragment.appendChild(span);
-
                 lastIndex = m.end;
             });
 
@@ -154,7 +302,10 @@ export function init(state) {
         state.dom.editor?.normalize();
     }
 
-    // Реєструємо валідацію на хук
+    // ================================================================
+    // ХУКИ
+    // ================================================================
+
     const debouncedValidate = debounce(validate, 500);
     state.registerHook('onValidate', debouncedValidate);
     state.registerHook('onInput', debouncedValidate);

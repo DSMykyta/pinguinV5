@@ -42,6 +42,20 @@ export function init(state) {
         showMessage('Скопійовано HTML код');
     });
 
+    // Ctrl+Shift+C — копіювати тільки текст без HTML розмітки
+    state.registerHook('onKeydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+            const selection = window.getSelection();
+            const plainText = selection.toString();
+            if (plainText) {
+                e.preventDefault();
+                navigator.clipboard.writeText(plainText).then(() => {
+                    showMessage('Скопійовано текст (без HTML)');
+                });
+            }
+        }
+    });
+
     // Paste handler
     dom.editor.addEventListener('paste', (e) => {
         e.preventDefault();

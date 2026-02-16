@@ -11,13 +11,55 @@
  * ║  - які функції увімкнені                                                 ║
  * ║                                                                          ║
  * ║  ПАРАМЕТРИ:                                                              ║
+ * ║  ├── idPrefix   — Кастомний ID префікс (за замовч. auto: editor-1, -2...)║
  * ║  ├── toolbar    — Верхня панель (false = ні панелі, ні cleanup тоглів)   ║
  * ║  ├── code       — Перемикач Текст/Код                                    ║
- * ║  ├── editing    — Кнопки форматування (bold, italic, h1-h3, list, case) ║
+ * ║  ├── editing    — Кнопки форматування (bold, italic, h1-h3, list, case)  ║
  * ║  ├── validation — Перевірка заборонених слів + підсвічування             ║
- * ║  ├── stats      — Панелька символів/слів/час читання (внизу зліва)      ║
+ * ║  ├── stats      — Панелька символів/слів/час читання (внизу зліва)       ║
  * ║  ├── findReplace — Пошук і заміна                                        ║
- * ║  └── cleanup    — Тогли очистки { links, styles, images }               ║
+ * ║  └── cleanup    — Тогли очистки { links, styles, images }                ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ *
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║              ЯК ДОДАТИ НОВИЙ РЕДАКТОР                                    ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  1. Додати конфіг нижче в EDITOR_CONFIGS:                                ║
+ * ║                                                                          ║
+ * ║     'my-editor': {                                                       ║
+ * ║         toolbar: true,                                                   ║
+ * ║         code: true,                                                      ║
+ * ║         editing: true,                                                   ║
+ * ║         validation: false,                                               ║
+ * ║         stats: false,                                                    ║
+ * ║         findReplace: false,                                              ║
+ * ║         cleanup: { links: false, styles: false, images: false },         ║
+ * ║         placeholder: 'Введіть текст...',                                 ║
+ * ║         minHeight: 200,                                                  ║
+ * ║     },                                                                   ║
+ * ║                                                                          ║
+ * ║  2. В HTML додати контейнер:                                             ║
+ * ║                                                                          ║
+ * ║     <div id="my-editor-container"></div>                                 ║
+ * ║                                                                          ║
+ * ║  3. В JS створити редактор:                                              ║
+ * ║                                                                          ║
+ * ║     import { createHighlightEditor } from '../common/editor/editor-main';║
+ * ║     import { getEditorOptions } from '../common/editor/editor-configs';  ║
+ * ║                                                                          ║
+ * ║     const container = document.getElementById('my-editor-container');    ║
+ * ║     const editor = createHighlightEditor(container,                      ║
+ * ║         getEditorOptions('my-editor')                                    ║
+ * ║     );                                                                   ║
+ * ║                                                                          ║
+ * ║  4. Для передачі додаткових опцій (initialValue, onChange):              ║
+ * ║                                                                          ║
+ * ║     getEditorOptions('my-editor', {                                      ║
+ * ║         initialValue: '<p>Текст</p>',                                    ║
+ * ║         onChange: (html) => console.log(html),                           ║
+ * ║     })                                                                   ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -31,6 +73,7 @@ export const EDITOR_CONFIGS = {
     //              форматування, копіювання чистого HTML
     // ─────────────────────────────────────────────────────────────────────
     'ghl': {
+        idPrefix: 'ghl',
         toolbar: true,
         code: true,
         editing: true,
@@ -108,6 +151,7 @@ export function getEditorOptions(name, overrides = {}) {
     }
 
     return {
+        ...(config.idPrefix ? { idPrefix: config.idPrefix } : {}),
         toolbar: config.toolbar,
         code: config.code,
         editing: config.editing,

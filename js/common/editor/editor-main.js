@@ -19,7 +19,10 @@
  * ║  ├── editor-find.js       — Find & Replace                               ║
  * ║  ├── editor-stats.js      — Статистика                                   ║
  * ║  ├── editor-paste.js      — Обробка вставки                              ║
- * ║  └── editor-cleanup.js   — Тогли очистки (links/images/styles)           ║
+ * ║  ├── editor-cleanup.js   — Тогли очистки (links/images/styles)           ║
+ * ║  ├── editor-enter.js     — Обробка Enter/Shift+Enter                    ║
+ * ║  ├── editor-chip-navigation.js — Навігація по чіпах валідації            ║
+ * ║  └── editor-tooltip.js   — Підказки для заборонених слів                ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -36,11 +39,14 @@ const PLUGINS = [
     './editor-formatting.js',
     './editor-case.js',
     './editor-undo.js',
+    './editor-enter.js',
     './editor-validation.js',
     './editor-find.js',
     './editor-stats.js',
     './editor-paste.js',
     './editor-cleanup.js',
+    './editor-chip-navigation.js',
+    './editor-tooltip.js',
 ];
 
 /**
@@ -52,7 +58,7 @@ export function createHighlightEditor(container, options = {}) {
         return null;
     }
 
-    const id = `editor-${++instanceCounter}`;
+    const id = options.idPrefix || `editor-${++instanceCounter}`;
 
     const config = {
         toolbar: true,

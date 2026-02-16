@@ -192,61 +192,7 @@
             </div>
 
             <div class="section-content section-content-full-height">
-                <div class="toolbar-wrapper toolbar-wrapper-spaced">
-                    <div id="ghl-format-toolbar" class="format-toolbar">
-                        <button id="ghl-format-bold" class="btn-icon" title="Жирний (Ctrl+B)" aria-label="Жирний">
-                            <span class="material-symbols-outlined">format_bold</span>
-                        </button>
-                        <button id="ghl-format-italic" class="btn-icon" title="Курсив (Ctrl+I)" aria-label="Курсив">
-                            <span class="material-symbols-outlined">format_italic</span>
-                        </button>
-                        <button id="ghl-format-h1" class="btn-icon" title="Заголовок H1" aria-label="Заголовок H1">
-                            <span class="material-symbols-outlined">format_h1</span>
-                        </button>
-                        <button id="ghl-format-h2" class="btn-icon" title="Заголовок H2" aria-label="Заголовок H2">
-                            <span class="material-symbols-outlined">format_h2</span>
-                        </button>
-                        <button id="ghl-format-h3" class="btn-icon" title="Заголовок H3" aria-label="Заголовок H3">
-                            <span class="material-symbols-outlined">format_h3</span>
-                        </button>
-                        <button id="ghl-format-list" class="btn-icon" title="Список" aria-label="Список">
-                            <span class="material-symbols-outlined">format_list_bulleted</span>
-                        </button>
-                        <button id="ghl-format-lowercase" class="btn-icon" title="всі маленькі"
-                            aria-label="Нижній регістр">
-                            <span class="material-symbols-outlined">lowercase</span>
-                        </button>
-                        <button id="ghl-format-uppercase" class="btn-icon" title="ВСІ ВЕЛИКІ"
-                            aria-label="Верхній регістр">
-                            <span class="material-symbols-outlined">uppercase</span>
-                        </button>
-                        <button id="ghl-format-titlecase" class="btn-icon" title="Кожне Слово З Великої"
-                            aria-label="Кожне слово з великої">
-                            <span class="material-symbols-outlined">match_case</span>
-                        </button>
-                        <div class="toolbar-separator"></div>
-                        <div class="switch">
-                            <input type="radio" id="ghl-mode-text" name="ghl-mode" value="text" checked>
-                            <label for="ghl-mode-text" class="switch-label">Текст</label>
-                            <input type="radio" id="ghl-mode-code" name="ghl-mode" value="code">
-                            <label for="ghl-mode-code" class="switch-label">Код</label>
-                        </div>
-                    </div>
-                    <div class="validation-results-wrapper">
-                        <div id="ghl-validation-results" class="chip-list"></div>
-                    </div>
-                </div>
-                <!-- Режим тексту: WYSIWYG редактор -->
-                <div id="ghl-editor" class="rich-editor-content" contenteditable="true"
-                    data-placeholder="Вставте сюди текст для перевірки..."></div>
-                <!-- Режим коду -->
-                <textarea id="ghl-code-editor" class="input-main rich-editor-code" style="display: none;"
-                    placeholder="HTML код..."></textarea>
-            </div>
-            <div id="ghl-text-stats" class="text-stats-container">
-                <span class="stat-item">Символів: <strong id="ghl-char-count">0</strong></span>
-                <span class="stat-item">Слів: <strong id="ghl-word-count">0</strong></span>
-                <span class="stat-item">Час читання: <strong id="ghl-reading-time">0</strong> хв</span>
+                <div id="ghl-editor-container"></div>
             </div>
         </section>
 
