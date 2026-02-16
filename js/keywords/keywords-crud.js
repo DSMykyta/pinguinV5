@@ -13,6 +13,7 @@ import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
+import { getEditorOptions } from '../common/editor/editor-configs.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -348,15 +349,7 @@ function initGlossaryEditor() {
         glossaryEditor = null;
     }
 
-    glossaryEditor = createHighlightEditor(container, {
-        validation: false,      // БЕЗ перевірки заборонених слів
-        showStats: false,       // БЕЗ статистики
-        showFindReplace: false, // БЕЗ Find & Replace
-        initialValue: '',
-        placeholder: 'Введіть опис терміну для глосарію...',
-        minHeight: 300,
-        allowLinks: true,       // Посилання дозволені
-    });
+    glossaryEditor = createHighlightEditor(container, getEditorOptions('keyword-glossary'));
 }
 
 /**

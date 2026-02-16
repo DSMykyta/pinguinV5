@@ -55,6 +55,9 @@ export function createHighlightEditor(container, options = {}) {
     const id = `editor-${++instanceCounter}`;
 
     const config = {
+        toolbar: true,
+        code: true,
+        editing: true,
         validation: false,
         showStats: false,
         showFindReplace: false,
@@ -105,7 +108,7 @@ export function createHighlightEditor(container, options = {}) {
         focus: () => state.focus(),
         clear: () => {
             state.dom.editor.innerHTML = '';
-            state.dom.codeEditor.value = '';
+            if (state.dom.codeEditor) state.dom.codeEditor.value = '';
             state.lastSavedContent = '';
             state.runHook('onValidate');
         },

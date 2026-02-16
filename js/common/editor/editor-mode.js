@@ -10,8 +10,9 @@
 export function initEditorMode(state) {
     const { dom } = state;
 
-    // Перезаписати setMode
+    // Перезаписати setMode (code може бути вимкнений)
     state.setMode = (mode) => {
+        if (!dom.codeEditor) return; // code: false — перемикання вимкнено
         if (mode === 'text') switchToTextMode(state);
         else if (mode === 'code') switchToCodeMode(state);
     };
@@ -54,6 +55,7 @@ function switchToTextMode(state) {
     if (state.currentMode === 'text') return;
 
     const { dom } = state;
+    if (!dom.codeEditor) return;
 
     dom.editor.innerHTML = dom.codeEditor.value;
     dom.editor.style.display = '';
@@ -71,6 +73,7 @@ function switchToCodeMode(state) {
     if (state.currentMode === 'code') return;
 
     const { dom } = state;
+    if (!dom.codeEditor) return;
 
     // Очистити підсвічування перед переключенням
     clearHighlights(dom.editor);

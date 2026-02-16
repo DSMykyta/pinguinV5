@@ -24,6 +24,7 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
+import { getEditorOptions } from '../common/editor/editor-configs.js';
 import { createManagedTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -185,15 +186,7 @@ function initTextEditor() {
         textEditor = null;
     }
 
-    textEditor = createHighlightEditor(container, {
-        validation: false,      // БЕЗ перевірки заборонених слів
-        showStats: false,       // БЕЗ статистики
-        showFindReplace: false, // БЕЗ Find & Replace
-        initialValue: '',
-        placeholder: 'Введіть опис бренду...',
-        minHeight: 300,
-        allowLinks: true,       // Посилання дозволені
-    });
+    textEditor = createHighlightEditor(container, getEditorOptions('brand-description'));
 }
 
 /**
