@@ -107,12 +107,12 @@
     transition: border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Hover/focus тільки для .spaced контейнерів (форми, бренди) */
-.inputs-bloc-container.spaced .inputs-line:hover {
+/* Hover/focus тільки для .spaced контейнерів (форми, бренди), не для .result */
+.inputs-bloc-container.spaced .inputs-line:not(.result):hover {
     border-color: var(--color-on-surface-v);
 }
 
-.inputs-bloc-container.spaced .inputs-line:focus-within {
+.inputs-bloc-container.spaced .inputs-line:not(.result):focus-within {
     outline: 1px solid var(--color-main);
     outline-offset: -2px;
     border-color: transparent;
@@ -124,12 +124,13 @@
     background-color: var(--color-main-c);
 }
 
-/* Result варіант (readonly, сірий фон) */
+/* Result варіант (readonly, сірий фон, без бордерів) */
 .inputs-line.result {
     background: var(--color-surface-c-low);
-    border-color: transparent;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s, border-radius 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: background-color 0.2s;
 }
 
 .inputs-line.result:hover {
