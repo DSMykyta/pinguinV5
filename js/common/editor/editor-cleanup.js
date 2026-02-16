@@ -41,5 +41,5 @@ export function init(state) {
 }
 
 function updateButtonVisual(btn, isActive) {
-    btn.style.opacity = isActive ? '1' : '0.3';
+    btn.classList.toggle('active', isActive);
 }

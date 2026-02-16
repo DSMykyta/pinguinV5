@@ -44,11 +44,23 @@ export function initDropdowns() {
         let closeTimeout;
         wrapper.addEventListener('mouseleave', () => {
             closeTimeout = setTimeout(() => {
+                // Не закривати якщо інпут всередині має фокус
+                const focused = wrapper.querySelector(':focus');
+                if (focused && (focused.tagName === 'INPUT' || focused.tagName === 'TEXTAREA')) return;
                 wrapper.classList.remove('is-open');
             }, 300);
         });
         wrapper.addEventListener('mouseenter', () => {
             clearTimeout(closeTimeout);
+        });
+
+        // Закрити коли фокус повністю покинув dropdown
+        wrapper.addEventListener('focusout', (e) => {
+            setTimeout(() => {
+                if (!wrapper.contains(document.activeElement)) {
+                    wrapper.classList.remove('is-open');
+                }
+            }, 100);
         });
     });
 }

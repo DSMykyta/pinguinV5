@@ -3,6 +3,13 @@
 /**
  * HTML шаблон для редактора
  * Рендерить секції умовно на основі конфігу
+ *
+ * Використовує стандартні компоненти:
+ * - .toolbar-wrapper (toolbar.css)
+ * - .format-toolbar (toolbar.css)
+ * - .toolbar-separator (toolbar.css)
+ * - .btn-icon (button-icon.css)
+ * - .dropdown-wrapper (dropdown.css)
  */
 
 /**
@@ -23,7 +30,6 @@ export function createEditorTemplate(id, config) {
         showFindReplace,
     } = config;
 
-    // Якщо toolbar = false → cleanup тоглів теж немає
     const showCleanup = toolbar !== false;
     const showToolbar = toolbar !== false;
     const showCode = code !== false;
@@ -88,9 +94,10 @@ export function createEditorTemplate(id, config) {
 function renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) {
     return `
             <!-- Toolbar -->
-            <div class="rich-editor-toolbar toolbar-wrapper-spaced">
+            <div class="toolbar-wrapper">
                 <div class="format-toolbar" id="${id}-toolbar">
                     ${showEditing ? renderFormattingButtons() : ''}
+                    ${showFindReplace ? renderFindReplaceDropdown(id) : ''}
                     ${showEditing && showCode ? '<div class="toolbar-separator"></div>' : ''}
                     ${showCode ? renderModeSwitch(id) : ''}
                 </div>
@@ -99,15 +106,7 @@ function renderToolbar(id, { showEditing, showCode, validation, showFindReplace 
                     <div id="${id}-validation-results" class="chip-list"></div>
                 </div>
                 ` : ''}
-            </div>
-
-            ${showFindReplace ? `
-            <div class="editor-find-replace">
-                <input type="text" id="${id}-find-input" class="input-main input-small" placeholder="Що знайти...">
-                <input type="text" id="${id}-replace-input" class="input-main input-small" placeholder="На що замінити...">
-                <button type="button" class="btn-small" id="${id}-replace-all-btn">Замінити все</button>
-            </div>
-            ` : ''}`;
+            </div>`;
 }
 
 /**
@@ -142,6 +141,27 @@ function renderFormattingButtons() {
                     <button type="button" class="btn-icon" data-action="titlecase" title="Кожне Слово З Великої" aria-label="Кожне слово з великої">
                         <span class="material-symbols-outlined">match_case</span>
                     </button>`;
+}
+
+/**
+ * Find & Replace — dropdown з кнопки тулбара
+ */
+function renderFindReplaceDropdown(id) {
+    return `
+                    <div class="dropdown-wrapper">
+                        <button type="button" class="btn-icon" data-dropdown-trigger title="Знайти та замінити" aria-label="Знайти та замінити">
+                            <span class="material-symbols-outlined">find_replace</span>
+                        </button>
+                        <div class="dropdown-menu" style="min-width: 300px; padding: 12px;">
+                            <div class="form-group">
+                                <input type="text" id="${id}-find-input" class="input-main" placeholder="Що знайти...">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="${id}-replace-input" class="input-main" placeholder="На що замінити...">
+                            </div>
+                            <button type="button" class="btn-small" id="${id}-replace-all-btn" style="width: 100%;">Замінити все</button>
+                        </div>
+                    </div>`;
 }
 
 /**
