@@ -204,8 +204,8 @@
 /* ВІЗУАЛІЗАЦІЯ РЯДКІВ                         */
 /* ============================================ */
 
-/* Злиття borders між послідовними рядками */
-.inputs-bloc + .inputs-bloc .inputs-line {
+/* Злиття borders між послідовними рядками (не через розділювач) */
+.inputs-bloc:not(.new-table):not(.h2) + .inputs-bloc:not(.new-table):not(.h2) .inputs-line {
     border-top: none;
 }
 
