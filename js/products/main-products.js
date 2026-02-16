@@ -3,6 +3,7 @@
  * Сторінка управління товарами з локальним збереженням
  */
 
+import { initTheme } from '../common/ui-theme.js';
 import { initCustomSelects } from '../common/ui-select.js';
 import { showToast } from '../common/ui-toast.js';
 import { renderTable as renderTableLego, renderBadge, col, setupTableColumnsSelector } from '../common/table/table-main.js';
@@ -95,6 +96,7 @@ let sheetsData = {
  * Ініціалізація сторінки
  */
 async function initProductsPage() {
+    initTheme();
 
     // Завантажуємо aside панель
     await loadAsidePanel();

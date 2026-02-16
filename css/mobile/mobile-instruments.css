@@ -30,7 +30,7 @@
         --mobile-header-height: 56px;
         --mobile-bottom-nav-height: 56px;
         --mobile-aside-collapsed-height: 48px;
-        --mobile-aside-expanded-height: 40vh;
+        --mobile-aside-expanded-height: 40dvh;
         --mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
         --mobile-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -71,7 +71,7 @@
         padding-right: 0 !important;
         padding-top: var(--mobile-header-height) !important;
         padding-bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-area-bottom)) !important;
-        height: 100vh !important;
+        height: 100dvh !important;
         width: 100% !important;
         overflow: hidden !important;
     }
@@ -333,7 +333,7 @@
         flex: 0 0 100% !important;
         width: 100% !important;
         min-width: 100% !important;
-        height: calc(100vh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) - var(--mobile-aside-collapsed-height) - var(--mobile-safe-area-bottom)) !important;
+        height: calc(100dvh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) - var(--mobile-aside-collapsed-height) - var(--mobile-safe-area-bottom)) !important;
         scroll-snap-align: start !important;
         scroll-snap-stop: always !important;
         overflow-y: auto !important;
@@ -523,7 +523,7 @@
         position: relative !important;
         background: var(--color-surface) !important;
         border-radius: 16px 16px 0 0 !important;
-        max-height: 70vh !important;
+        max-height: 70dvh !important;
         display: flex !important;
         flex-direction: column !important;
         animation: mobile-sheet-slide-up 0.3s ease-out !important;
@@ -785,7 +785,7 @@
 
     .canvas-area {
         min-height: 200px !important;
-        max-height: 50vh !important;
+        max-height: 50dvh !important;
     }
 
     .thumbnails-area {
@@ -836,7 +836,7 @@
     .image-tool-iframe {
         width: 100% !important;
         min-height: 400px !important;
-        height: calc(100vh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) - var(--mobile-aside-collapsed-height) - 80px) !important;
+        height: calc(100dvh - var(--mobile-header-height) - var(--mobile-bottom-nav-height) - var(--mobile-aside-collapsed-height) - 80px) !important;
     }
 }
 

@@ -42,7 +42,7 @@ body.is-modal-open {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     background-color: var(--color-modal-overlay);
     display: flex;
     justify-content: center;
@@ -74,7 +74,7 @@ body.is-modal-open {
     border-radius: var(--radius-l);
     box-shadow: var(--shadow-2);
     width: 70vw;
-    max-height: 90vh;
+    max-height: 90dvh;
     display: flex;
     flex-direction: column;
     transform: scale(0.95);
@@ -91,7 +91,7 @@ body.is-modal-open {
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-height: 90vh;
+    max-height: 90dvh;
 }
 
 /* ============================================

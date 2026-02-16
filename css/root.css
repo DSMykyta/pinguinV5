@@ -1,5 +1,7 @@
 /* /css/root.css */
 :root {
+    color-scheme: light;
+
     /* --- КОЛЬОРИ (Свіжа мінімалістична палітра) --- */
     --color-main: rgb(9, 63, 69);
     --color-on-main: rgb(255, 255, 255);
@@ -108,44 +110,58 @@
 
 /* --- DARK MODE OVERRIDES --- */
 [data-theme="dark"] {
+    color-scheme: dark;
+
     /* 1. ФОНИ (Інверсія) */
-    --color-surface: #121212;        /* Майже чорний, краще ніж #000 */
-    --color-background: #000000;     /* Глибокий чорний для фону сторінки */
+    --color-surface: #121212;
+    --color-background: #121212;     /* Той самий що surface — панелі не виділяються */
     --color-surface-c-low: #1e1e1e;  /* Трохи світліший за surface */
     --color-surface-c: #2c2c2c;
     --color-surface-c-high: #3d3d3d;
-    
+
     --color-outline: #404040;        /* Темніші лінії */
     --color-outline-v: #525252;
 
     /* 2. ТЕКСТ (Інверсія) */
     --text-primary: #e5e5e5;         /* Майже білий */
     --text-secondary: #a3a3a3;       /* Світло-сірий */
+    --text-disabled: rgba(255, 255, 255, 0.38);
     --text-hint: rgba(255, 255, 255, 0.5);
-    
+
     /* Колір тексту на поверхнях теж змінюється */
     --color-on-surface: #e5e5e5;
     --color-on-surface-v: #a3a3a3;
 
-    /* 3. ОСНОВНИЙ КОЛІР (Головний нюанс!) */
-    /* Твій оригінальний rgb(9, 63, 69) занадто темний для темної теми.
-       Він буде невидимим. Ми робимо його світлішим (Teal 200/300). */
-    --color-main: rgb(76, 166, 175); 
-    --color-on-main: rgb(0, 30, 35); /* Текст на кнопці стає темним */
+    /* 3. ОСНОВНИЙ КОЛІР */
+    --color-main: rgb(76, 166, 175);
+    --color-on-main: rgb(0, 30, 35);
 
-    /* Плашки тепер використовують світлий колір з прозорістю */
-    --color-main-c: rgba(76, 166, 175, 0.15); 
-    --color-on-main-c: rgb(130, 220, 230); /* Текст на плашках світлішає */
+    --color-main-c: rgba(76, 166, 175, 0.15);
+    --color-on-main-c: rgb(130, 220, 230);
+
+    --color-main-t-1: rgba(76, 166, 175, 0.1);
+    --color-main-t-2: rgba(76, 166, 175, 0.2);
 
     /* 4. ВТОРИННІ КОЛЬОРИ */
-    /* Coral теж робимо трохи пастельнішим або лишаємо яскравим */
-    --color-tertiary: rgb(255, 145, 120); 
+    --color-secondary: rgb(100, 170, 176);
+    --color-on-secondary: rgb(0, 30, 35);
+    --color-secondary-c: rgba(100, 170, 176, 0.15);
+    --color-on-secondary-c: rgb(150, 210, 216);
+
+    --color-tertiary: rgb(255, 145, 120);
+    --color-on-tertiary: rgb(50, 20, 10);
     --color-tertiary-c: rgba(255, 145, 120, 0.15);
     --color-on-tertiary-c: rgb(255, 210, 200);
 
-    /* 5. ТІНІ */
-    /* Тіні на чорному не видно. В темній темі тіні часто роблять
-       ще темнішими або замінюють на світлі бордери/підсвічування */
+    /* 5. СТАТУСНІ КОЛЬОРИ (контейнери) */
+    --color-error-c: rgba(239, 68, 68, 0.15);
+    --color-warning-c: rgba(245, 158, 11, 0.15);
+    --color-success-c: rgba(16, 185, 129, 0.15);
+    --color-info-c: rgba(59, 130, 246, 0.15);
+
+    /* 6. ТІНІ */
     --shadow-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.6);
+    --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.6), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
+    --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.6), 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
     --color-modal-overlay: rgba(0, 0, 0, 0.8);
 }

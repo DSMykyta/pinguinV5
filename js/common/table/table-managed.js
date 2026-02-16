@@ -63,7 +63,6 @@ export function createManagedTable(config) {
     let columnFilters = {};
     let currentPage = 1;
     let currentPageSize = pageSize || 999999;
-    let active = true;
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
     let searchColumnIds = columns
         .filter(c => c.searchable && c.checked !== false)
@@ -71,10 +70,17 @@ export function createManagedTable(config) {
 
     let searchColsSelector = null;
     let paginationAPI = null;
+    let isActive = true;
+    let searchHandler = null;
+    let debounceTimer = null;
+
+    // ── Shared search config IDs (saved for activate/deactivate) ──
+    const _searchInputId = searchInputId;
+    const _searchColumnsId = searchColumnsId;
 
     // ── DOM refs ──
     const statsEl = statsId ? document.getElementById(statsId) : null;
-    const searchInput = searchInputId ? document.getElementById(searchInputId) : null;
+    let searchInput = _searchInputId ? document.getElementById(_searchInputId) : null;
     const paginationEl = paginationId ? document.getElementById(paginationId) : null;
 
     // ── Filter columns config (from plugins.filters) ──
@@ -102,10 +108,11 @@ export function createManagedTable(config) {
             ...tableConfig.plugins,
             sorting: tableConfig.plugins?.sorting ? {
                 ...tableConfig.plugins.sorting,
-                dataSource: () => getWorkingData(),
+                dataSource: () => filteredData,
                 onSort: (sortedData) => {
-                    allData = sortedData;
-                    applyFilters();
+                    filteredData = sortedData;
+                    currentPage = 1;
+                    renderPage();
                 }
             } : undefined,
             filters: tableConfig.plugins?.filters ? {
@@ -142,7 +149,7 @@ export function createManagedTable(config) {
 
     // ── 3. Search columns selector ──
     function rebuildSearchColumnsSelector() {
-        if (!searchColumnsId) return;
+        if (!_searchColumnsId) return;
 
         const searchableVisible = columns
             .filter(c => c.searchable && visibleColumnIds.includes(c.id))
@@ -156,7 +163,7 @@ export function createManagedTable(config) {
             searchColsSelector.destroy();
         }
 
-        searchColsSelector = createColumnSelector(searchColumnsId, searchableVisible, {
+        searchColsSelector = createColumnSelector(_searchColumnsId, searchableVisible, {
             checkboxPrefix: `${checkboxPrefix}-search`,
             onChange: (selectedIds) => {
                 searchColumnIds = selectedIds;
@@ -168,8 +175,10 @@ export function createManagedTable(config) {
         searchColumnIds = searchColumnIds.filter(id => visibleColumnIds.includes(id));
     }
 
-    // Initial build
-    rebuildSearchColumnsSelector();
+    // Initial build (only if active)
+    if (_searchColumnsId) {
+        rebuildSearchColumnsSelector();
+    }
 
     // ── 4. Combined filtering (column filters + text search) ──
     function applyFilters() {
@@ -203,16 +212,50 @@ export function createManagedTable(config) {
         renderPage();
     }
 
-    // ── Search input handling ──
-    function onSearchInput(e) {
-        if (!active) return;
-        searchQuery = e.target.value.toLowerCase().trim();
-        applyFilters();
+    // ── Search input binding with debounce ──
+    function createSearchHandler() {
+        return (e) => {
+            const value = e.target.value.toLowerCase().trim();
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchQuery = value;
+                applyFilters();
+            }, 200);
+        };
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', onSearchInput);
+    function bindSearchInput() {
+        if (!_searchInputId) return;
+        searchInput = document.getElementById(_searchInputId);
+        if (!searchInput) return;
+
+        // Remove old handler if exists
+        unbindSearchInput();
+
+        searchHandler = createSearchHandler();
+        searchInput.addEventListener('input', searchHandler);
+
+        // Restore current search query to input
+        if (searchQuery) {
+            searchInput.value = searchQuery;
+        } else {
+            searchInput.value = '';
+        }
     }
+
+    function unbindSearchInput() {
+        if (searchInput && searchHandler) {
+            searchInput.removeEventListener('input', searchHandler);
+        }
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+        }
+        searchHandler = null;
+    }
+
+    // Initial bind
+    bindSearchInput();
 
     // ── 5. Pagination ──
     if (paginationEl && pageSize) {
@@ -231,7 +274,7 @@ export function createManagedTable(config) {
     // ── 6. Render ──
     function renderPage() {
         let pageData;
-        if (currentPageSize < 100000) {
+        if (paginationAPI && currentPageSize < 100000) {
             const start = (currentPage - 1) * currentPageSize;
             pageData = filteredData.slice(start, start + currentPageSize);
         } else {
@@ -310,7 +353,7 @@ export function createManagedTable(config) {
         /** Встановити пошуковий запит програмно */
         setSearchQuery(query) {
             searchQuery = (query || '').toLowerCase().trim();
-            if (searchInput && active) {
+            if (searchInput && isActive) {
                 searchInput.value = query || '';
             }
             applyFilters();
@@ -323,19 +366,20 @@ export function createManagedTable(config) {
             renderPage();
         },
 
-        /** Активувати (для табів зі спільним search input) */
+        /** Підключити спільний пошук та search columns selector */
         activate() {
-            active = true;
-            if (searchInput) {
-                searchInput.value = searchQuery || '';
-            }
+            if (isActive) return;
+            isActive = true;
+            bindSearchInput();
             rebuildSearchColumnsSelector();
-            renderPage();
+            applyFilters();
         },
 
-        /** Деактивувати */
+        /** Відключити від спільного пошуку */
         deactivate() {
-            active = false;
+            if (!isActive) return;
+            isActive = false;
+            unbindSearchInput();
             if (searchColsSelector) {
                 searchColsSelector.destroy();
                 searchColsSelector = null;
@@ -344,9 +388,7 @@ export function createManagedTable(config) {
 
         /** Cleanup */
         destroy() {
-            if (searchInput) {
-                searchInput.removeEventListener('input', onSearchInput);
-            }
+            unbindSearchInput();
             if (searchColsSelector) searchColsSelector.destroy();
             tableAPI.destroy?.();
         }

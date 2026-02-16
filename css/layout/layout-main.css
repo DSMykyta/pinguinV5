@@ -11,13 +11,13 @@ body {
     background-color: var(--color-surface);
     color: var(--color-on-surface);
     display: flex;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
 .content-main {
     flex-grow: 1;
-    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
     scroll-snap-type: y mandatory;

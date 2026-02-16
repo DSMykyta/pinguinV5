@@ -17,7 +17,7 @@
  * </body>
  *
  * КЛАСИ:
- * - body - контейнер додатку (flex, height: 100vh)
+ * - body - контейнер додатку (flex, height: 100dvh)
  * - .content-main - центральний контент (flex-grow: 1, scrollable)
  * - body.right-panel-collapsed - модифікатор для згорнутої правої панелі
  *
@@ -41,13 +41,13 @@ body {
     background-color: var(--color-surface);
     color: var(--color-on-surface);
     display: flex;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
 .content-main {
     flex-grow: 1;
-    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     margin-left: var(--panel-width-collapsed);

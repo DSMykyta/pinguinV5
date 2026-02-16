@@ -12,9 +12,11 @@ import { initCustomAuth } from './auth/custom-auth.js';
 import { initChipTooltips } from './common/chip-tooltip.js';
 import { initTooltips } from './common/ui-tooltip.js';
 import { initInfoButtons } from './common/ui-info-modal.js';
+import { initTheme } from './common/ui-theme.js';
 
 
 export function initCore() {
+    initTheme();
     initPanelLeft();
     initPanelRight();
     initDropdowns();
