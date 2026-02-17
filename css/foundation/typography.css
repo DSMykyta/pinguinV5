@@ -17,7 +17,7 @@
  * ├──────────────────────────────────────────┤
  * │  body                Базові налаштування │
  * ├──────────────────────────────────────────┤
- * │  h1–h4              Заголовки (Playfair)  │
+ * │  h1–h4              Заголовки (NyghtSerif)│
  * ├──────────────────────────────────────────┤
  * │  .body-l, .body-m   Текстові блоки       │
  * ├──────────────────────────────────────────┤
@@ -185,12 +185,11 @@ body {
 }
 
 /* ============================================ */
-/* 3. ЗАГОЛОВКИ (Playfair Display Italic)       */
+/* 3. ЗАГОЛОВКИ (NyghtSerif)                   */
 /* ============================================ */
 
 h1, .h1 {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
+    font-family: 'NyghtSerif', serif;
     font-size: 32px;
     font-weight: 700;
     line-height: 1.2;
@@ -199,8 +198,7 @@ h1, .h1 {
 }
 
 h2, .h2 {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
+    font-family: 'NyghtSerif', serif;
     font-size: 24px;
     font-weight: 600;
     line-height: 1.3;
@@ -209,8 +207,7 @@ h2, .h2 {
 }
 
 h3, .h3 {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
+    font-family: 'NyghtSerif', serif;
     font-size: 20px;
     font-weight: 600;
     line-height: 1.4;
@@ -264,12 +261,11 @@ h4, .h4 {
 }
 
 /* ============================================ */
-/* 6. СПЕЦІАЛЬНИЙ UPPERCASE (Playfair Display)  */
+/* 6. СПЕЦІАЛЬНИЙ UPPERCASE (NyghtSerif)       */
 /* ============================================ */
 
 .section-upper {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
+    font-family: 'NyghtSerif', serif;
     font-size: 32px;
     font-weight: 400;
     text-transform: uppercase;
