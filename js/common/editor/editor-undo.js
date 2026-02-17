@@ -19,7 +19,8 @@ export function init(state) {
         // Не зберігаємо під час sanitization
         if (state.currentMode !== 'text' || !state.dom.editor || state.isSanitizing) return;
 
-        const content = state.dom.editor.innerHTML;
+        // getCleanHtml() — без highlight-span'ів від валідації
+        const content = state.getCleanHtml();
         if (content === state.lastSavedContent) return;
 
         undoStack.push({
@@ -61,7 +62,7 @@ export function init(state) {
 
         const current = undoStack.pop();
         redoStack.push({
-            content: state.dom.editor.innerHTML,
+            content: state.getCleanHtml(),
             caret: saveCaretPosition(state.dom.editor)
         });
 
@@ -80,7 +81,7 @@ export function init(state) {
 
         const current = redoStack.pop();
         undoStack.push({
-            content: state.dom.editor.innerHTML,
+            content: state.getCleanHtml(),
             caret: saveCaretPosition(state.dom.editor)
         });
 
