@@ -126,8 +126,6 @@
 
     .mobile-header__title {
         flex: 1 !important;
-        font-size: var(--typ-title-lg-size) !important;
-        font-weight: var(--typ-title-md-weight) !important;
         color: var(--color-on-surface) !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -221,7 +219,6 @@
     }
 
     .mobile-bottom-nav__item-label {
-        font-size: 10px !important;
         margin-top: 2px !important;
         white-space: nowrap !important;
     }
@@ -290,8 +287,6 @@
 
     .mobile-aside__title {
         flex: 1 !important;
-        font-size: var(--typ-body-md-size) !important;
-        font-weight: var(--typ-title-sm-weight) !important;
         color: var(--color-on-surface) !important;
     }
 
@@ -413,8 +408,6 @@
         min-height: 36px !important;
         height: auto !important;
         padding: 8px 6px !important;
-        font-size: var(--typ-body-md-size) !important;
-        line-height: var(--typ-body-md-line-height) !important;
     }
 
     .content-bloc textarea {
@@ -464,8 +457,6 @@
     }
 
     .content-bloc.h2 .input-left {
-        font-size: var(--typ-body-lg-size) !important;
-        font-weight: var(--typ-title-lg-weight) !important;
         padding: 8px !important;
     }
 
@@ -477,7 +468,6 @@
 
     /* Input right tool (EAA indicator) */
     .input-right-tool {
-        font-size: 9px !important;
         padding: 2px 4px !important;
     }
 }
@@ -557,8 +547,6 @@
 
     .mobile-select-sheet__title {
         flex: 1 !important;
-        font-size: var(--typ-title-md-size) !important;
-        font-weight: var(--typ-title-md-weight) !important;
         color: var(--color-on-surface) !important;
     }
 
@@ -628,7 +616,6 @@
 
     .mobile-select-sheet__item-text {
         flex: 1 !important;
-        font-size: var(--typ-body-md-size) !important;
         color: var(--color-on-surface) !important;
     }
 
@@ -641,11 +628,8 @@
 
     .mobile-select-sheet__group-title {
         padding: 12px 16px 8px !important;
-        font-size: var(--typ-label-md-size) !important;
-        font-weight: var(--typ-label-md-weight) !important;
         color: var(--color-on-surface-v) !important;
         text-transform: uppercase !important;
-        letter-spacing: var(--tracking-wider) !important;
     }
 }
 
@@ -679,7 +663,6 @@
 
     /* Input fields */
     .input-main {
-        font-size: var(--typ-body-lg-size) !important; /* Prevents zoom on iOS */
         padding: 12px !important;
         min-height: 44px !important;
     }
@@ -720,7 +703,6 @@
 @media (max-width: 768px) {
     .rich-editor-content,
     #ghl-editor {
-        font-size: var(--typ-body-lg-size) !important;
         padding: 16px !important;
         min-height: 200px !important;
     }
@@ -730,7 +712,6 @@
         justify-content: center !important;
         gap: 8px 16px !important;
         padding: 8px !important;
-        font-size: var(--typ-body-sm-size) !important;
     }
 }
 
@@ -751,7 +732,6 @@
     }
 
     #section-seo .panel-label {
-        font-size: var(--typ-body-sm-size) !important;
         padding: 8px 12px 0 12px !important;
     }
 
@@ -902,7 +882,6 @@
     }
 
     .mobile-aside__content .result-status {
-        font-size: var(--typ-body-sm-size) !important;
     }
 
     /* Panel items as chips */
@@ -913,7 +892,6 @@
         border-radius: var(--radius-full) !important;
         background: var(--color-surface-c-low) !important;
         border: 1px solid var(--color-outline) !important;
-        font-size: var(--typ-label-lg-size) !important;
         white-space: nowrap !important;
     }
 
@@ -927,7 +905,6 @@
     }
 
     .mobile-aside__content .panel-item-text {
-        font-size: var(--typ-label-lg-size) !important;
     }
 
     /* Grid items */

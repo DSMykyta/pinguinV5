@@ -59,7 +59,6 @@
 
 .modal-confirm-details .cascade-item strong {
     color: var(--color-on-surface);
-    font-weight: var(--typ-title-md-weight);
 }
 
 .modal-confirm-actions {
@@ -149,7 +148,6 @@
     min-height: 300px;
     max-height: 500px;
     overflow-y: auto;
-    line-height: 1.6;
     color: var(--color-on-surface);
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -224,12 +222,10 @@
 
 .modal-section-title {
     margin: 0;
-    line-height: 24px;
 }
 
 .modal-section-subtitle {
     margin: 0;
-    line-height: 18px;
     color: var(--color-on-surface-v);
 }
 
@@ -257,7 +253,6 @@
 }
 
 .modal-stat-value {
-    font-weight: var(--typ-title-lg-weight);
 }
 
 /* ============================================
@@ -330,7 +325,6 @@
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--color-outline-v);
-    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -465,7 +459,6 @@
 
 .article-content h3 {
     margin: 20px 0 8px 0;
-    font-size: var(--typ-title-md-size);
     color: var(--color-on-surface);
 }
 
@@ -490,7 +483,6 @@
 
 .article-content li strong {
     color: var(--color-on-surface);
-    font-weight: var(--typ-title-md-weight);
 }
 
 .article-content code {

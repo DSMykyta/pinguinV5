@@ -8,9 +8,6 @@
 /* === БАЗОВІ СТИЛІ СТОРІНКИ === */
 .statistics-page {
     font-family: var(--font-body);
-    font-size: var(--typ-body-md-size);
-    font-weight: var(--typ-body-md-weight);
-    line-height: var(--typ-body-md-line-height);
     color: var(--color-on-surface);
     background-color: var(--color-background);
     padding: var(--space-l);
@@ -36,8 +33,6 @@
 
 /* === ЗАГОЛОВКИ ТАБЛИЦІ === */
 .statistics-table th {
-    font-size: var(--typ-body-md-size);
-    font-weight: var(--typ-title-lg-weight);
     text-align: left;
     color: var(--color-on-surface);
     background-color: var(--color-main);
@@ -68,8 +63,6 @@
 
 /* === ЗАГОЛОВОК СЕКЦІЇ В КОМІРЦІ === */
 .statistics-section-header {
-    font-weight: var(--typ-title-lg-weight);
-    font-size: var(--typ-body-md-size);
     color: var(--color-on-surface);
     border-bottom: 1px solid var(--color-outline);
     padding-bottom: var(--space-s);
@@ -78,7 +71,6 @@
 
 /* === ТЕКСТ КІЛЬКОСТІ === */
 .statistics-count {
-    font-size: var(--typ-label-lg-size);
     color: var(--color-on-surface-v);
     margin: 8px 0;
 }
@@ -100,8 +92,6 @@
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
-    font-size: var(--typ-body-sm-size);
-    font-weight: var(--typ-label-md-weight);
     color: var(--color-on-error-c);
     background-color: rgba(239, 68, 68, 0.15);
     border-radius: var(--radius-full);
@@ -139,15 +129,12 @@
 }
 
 .statistics-keywords {
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
-    line-height: 1.6;
     word-break: break-word;
 }
 
 /* === МЕТАІНФОРМАЦІЯ (час, пам'ять) === */
 .statistics-meta {
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
     padding: var(--space-s) 0;
     border-top: 1px solid var(--color-outline);
@@ -180,8 +167,6 @@
     align-items: center;
     gap: 4px;
     padding: 4px 12px;
-    font-size: var(--typ-label-lg-size);
-    font-weight: var(--typ-label-lg-weight);
     border-radius: var(--radius-s);
     white-space: nowrap;
 }
@@ -219,8 +204,6 @@
     padding: var(--space-m);
     background-color: var(--color-main);
     color: var(--color-on-main);
-    font-weight: var(--typ-title-lg-weight);
-    font-size: var(--typ-body-md-size);
 }
 
 .statistics-card__body {

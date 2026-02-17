@@ -245,7 +245,6 @@
     max-height: unset;
     padding: 4px 8px;
     width: 100%;
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
     gap: 4px;
 }

@@ -134,7 +134,7 @@ function renderStep1() {
 
     container.innerHTML = `
         <div class="wizard-step wizard-step-1">
-            <h3 class="wizard-step-title h4">Крок 1: Оберіть маркетплейс</h3>
+            <h3 class="wizard-step-title title-l">Крок 1: Оберіть маркетплейс</h3>
             <p class="wizard-step-desc body-m">Виберіть маркетплейс, довідник якого хочете імпортувати як власний</p>
 
             <div class="mp-select-grid">
@@ -188,7 +188,7 @@ function renderStep2() {
 
     container.innerHTML = `
         <div class="wizard-step wizard-step-2">
-            <h3 class="wizard-step-title h4">Крок 2: Оберіть що імпортувати</h3>
+            <h3 class="wizard-step-title title-l">Крок 2: Оберіть що імпортувати</h3>
             <p class="wizard-step-desc body-m">
                 Розгорніть категорії щоб побачити характеристики.
                 <strong>Опції імпортуються автоматично разом з характеристиками.</strong>
@@ -614,7 +614,7 @@ function renderStep3() {
 
     container.innerHTML = `
         <div class="wizard-step wizard-step-3">
-            <h3 class="wizard-step-title h4">Крок 3: Підтвердження</h3>
+            <h3 class="wizard-step-title title-l">Крок 3: Підтвердження</h3>
             <p class="wizard-step-desc body-m">Перевірте що буде імпортовано як власний довідник</p>
 
             <div class="preview-box">
@@ -667,7 +667,7 @@ async function executeImport() {
 
     container.innerHTML = `
         <div class="wizard-step wizard-step-4">
-            <h3 class="wizard-step-title h4">Імпорт...</h3>
+            <h3 class="wizard-step-title title-l">Імпорт...</h3>
             <div class="import-progress">
                 <div class="progress-bar">
                     <div class="progress-fill" id="import-progress-fill"></div>
@@ -689,7 +689,7 @@ async function executeImport() {
                 <div class="success-icon">
                     <span class="material-symbols-outlined">check_circle</span>
                 </div>
-                <h3 class="wizard-step-title h4">Імпорт завершено!</h3>
+                <h3 class="wizard-step-title title-l">Імпорт завершено!</h3>
                 <p class="wizard-step-desc body-m">Дані успішно імпортовано у власний довідник</p>
             </div>
         `;
@@ -716,7 +716,7 @@ async function executeImport() {
                 <div class="error-icon">
                     <span class="material-symbols-outlined">error</span>
                 </div>
-                <h3 class="wizard-step-title h4">Помилка імпорту</h3>
+                <h3 class="wizard-step-title title-l">Помилка імпорту</h3>
                 <p class="wizard-step-desc body-m">${escapeHtml(error.message || 'Невідома помилка')}</p>
             </div>
         `;

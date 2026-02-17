@@ -48,7 +48,6 @@
    ============================================ */
 
 .tree {
-    font-size: var(--typ-body-md-size);
     overflow-y: auto;
 }
 
@@ -148,7 +147,6 @@
 }
 
 .tree-level-0 > li > .tree-item-content .tree-item-link {
-    font-weight: var(--typ-title-md-weight);
 }
 
 /* ============================================
@@ -157,7 +155,6 @@
 
 .tree-item-name {
     flex: 1;
-    font-size: var(--typ-label-lg-size);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -174,7 +171,6 @@
     padding: 4px 8px;
     width: 200px;
     flex-shrink: 0;
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
     gap: 4px;
 }

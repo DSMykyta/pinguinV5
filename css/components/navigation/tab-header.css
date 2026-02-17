@@ -75,7 +75,6 @@
     border: none;
     background: transparent;
     font-family: inherit;
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface);
     padding: 0;
     min-width: 120px;

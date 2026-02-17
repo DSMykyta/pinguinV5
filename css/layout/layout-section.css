@@ -78,7 +78,6 @@ section {
 /* === 4. ОФОРМЛЕННЯ ТЕКСТУ === */
 
 .article-text {
-    line-height: 1.7;
     color: var(--color-on-surface);
     padding: 24px 16px;
     flex: 1 1 auto; /* Займає весь доступний простір */
@@ -104,7 +103,6 @@ section {
     background-color: var(--color-surface-c-low);
     border: 1px solid var(--color-outline-v);
     border-radius: 4px;
-    font-size: 0.9em;
 }
 
 /* === 5. KEYWORDS BLOCK === */

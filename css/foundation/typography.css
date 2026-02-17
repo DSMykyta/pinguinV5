@@ -1,31 +1,23 @@
 /**
- * TYPOGRAPHY
+ * TYPOGRAPHY — M3 Type Scale
  *
- * ПРИЗНАЧЕННЯ:
- * Типографіка проєкту — всі шрифти підключені локально (офлайн).
- *
- * ШРИФТИ:
- * - Geologica (Variable)        — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
- * - NyghtSerif (Static)         — заголовки секцій і шапок (h1–h4, .section-upper)
- * - Roboto Mono (Variable)      — код (rich-editor code mode, layout-section)
+ * ШРИФТИ (локально):
+ * - Geologica (Variable)        — body, title, label
+ * - NyghtSerif (Static)         — display, headline
+ * - Roboto Mono (Variable)      — моноширинний
  * - DM Sans (Variable)          — додатковий sans-serif
  * - Playfair Display (Variable) — додатковий serif
  *
- * СТРУКТУРА:
- * ┌──────────────────────────────────────────┐
- * │  @font-face          Підключення шрифтів │
- * ├──────────────────────────────────────────┤
- * │  body                Базові налаштування │
- * ├──────────────────────────────────────────┤
- * │  h1–h4              Заголовки (NyghtSerif)│
- * ├──────────────────────────────────────────┤
- * │  .body-l, .body-m   Текстові блоки       │
- * ├──────────────────────────────────────────┤
- * │  .caption, .small,  Допоміжний текст     │
- * │  .tiny                                   │
- * ├──────────────────────────────────────────┤
- * │  .section-upper     Uppercase акцент     │
- * └──────────────────────────────────────────┘
+ * 15 КЛАСІВ (5 ролей × 3 розміри):
+ * ┌─────────────┬────────┬────────┬────────┐
+ * │             │   -l   │   -m   │   -s   │
+ * ├─────────────┼────────┼────────┼────────┤
+ * │ display-    │  32px  │  28px  │  24px  │  NyghtSerif
+ * │ headline-   │  32px  │  24px  │  20px  │  NyghtSerif
+ * │ title-      │  18px  │  16px  │  14px  │  Geologica
+ * │ body-       │  16px  │  14px  │  12px  │  Geologica (base)
+ * │ label-      │  13px  │  12px  │  11px  │  Geologica
+ * └─────────────┴────────┴────────┴────────┘
  */
 
 /* ============================================ */
@@ -178,222 +170,143 @@
 /* ============================================ */
 
 body {
-    font-family: var(--font-body);
-    font-size: var(--typ-body-sm-size);
-    font-weight: var(--typ-body-sm-weight);
-    line-height: var(--typ-body-sm-line-height);
+    font-family: 'Geologica', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--text-primary);
 }
 
 /* ============================================ */
-/* 3. ЗАГОЛОВКИ — Headline токени (NyghtSerif)  */
+/* 3. DISPLAY (NyghtSerif, декоративні)        */
 /* ============================================ */
 
-h1, .h1 {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-lg-size);
-    font-weight: var(--typ-headline-lg-weight);
-    line-height: var(--typ-headline-lg-line-height);
-    color: var(--text-primary);
-    margin: 0;
+.display-l {
+    font-family: 'NyghtSerif', serif;
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
 }
 
-h2, .h2 {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-md-size);
-    font-weight: var(--typ-headline-md-weight);
-    line-height: var(--typ-headline-md-line-height);
-    color: var(--text-primary);
-    margin: 0;
+.display-m {
+    font-family: 'NyghtSerif', serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.2;
 }
 
-h3, .h3 {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-sm-size);
-    font-weight: var(--typ-headline-sm-weight);
-    line-height: var(--typ-headline-sm-line-height);
-    color: var(--text-primary);
-    margin: 0;
-}
-
-h4, .h4 {
-    font-size: var(--typ-title-lg-size);
-    font-weight: var(--typ-title-lg-weight);
-    line-height: var(--typ-title-lg-line-height);
-    color: var(--text-primary);
-    margin: 0;
+.display-s {
+    font-family: 'NyghtSerif', serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.3;
 }
 
 /* ============================================ */
-/* 4. ТЕКСТОВІ БЛОКИ — Body/Title токени        */
+/* 4. HEADLINE (NyghtSerif, заголовки)         */
+/* ============================================ */
+
+h1, .headline-l {
+    font-family: 'NyghtSerif', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+h2, .headline-m {
+    font-family: 'NyghtSerif', serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+h3, .headline-s {
+    font-family: 'NyghtSerif', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* ============================================ */
+/* 5. TITLE (Geologica, підзаголовки)          */
+/* ============================================ */
+
+h4, .title-l {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.title-m {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.title-s {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* ============================================ */
+/* 6. BODY (Geologica, основний текст)         */
 /* ============================================ */
 
 .body-l {
-    font-size: var(--typ-title-md-size);
-    font-weight: var(--typ-title-md-weight);
-    line-height: var(--typ-title-md-line-height);
-    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
 }
 
 .body-m {
-    font-size: var(--typ-body-md-size);
-    font-weight: var(--typ-body-md-weight);
-    line-height: var(--typ-body-md-line-height);
-    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.body-s {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
 }
 
 /* ============================================ */
-/* 5. ДОПОМІЖНИЙ ТЕКСТ — Label/Body-sm токени   */
+/* 7. LABEL (Geologica, мета-текст)            */
 /* ============================================ */
 
-.caption {
-    font-size: var(--typ-label-lg-size);
-    font-weight: var(--typ-label-lg-weight);
-    line-height: var(--typ-label-lg-line-height);
-    color: var(--text-secondary);
+.label-l {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
-.small {
-    font-size: var(--typ-body-sm-size);
-    font-weight: var(--typ-body-sm-weight);
-    line-height: var(--typ-body-sm-line-height);
-    color: var(--text-secondary);
+.label-m {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
-.tiny {
-    font-size: var(--typ-label-sm-size);
-    font-weight: var(--typ-label-sm-weight);
-    line-height: var(--typ-label-sm-line-height);
-    color: var(--text-hint);
+.label-s {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.3;
 }
 
 /* ============================================ */
-/* 6. DISPLAY — декоративні заголовки           */
+/* 8. МОДИФІКАТОРИ                             */
 /* ============================================ */
 
 .section-upper {
-    font-family: var(--font-display);
-    font-size: var(--typ-display-lg-size);
-    font-weight: var(--typ-display-lg-weight);
-    line-height: var(--typ-display-lg-line-height);
-    letter-spacing: var(--typ-display-lg-tracking);
     text-transform: uppercase;
     color: var(--color-main);
-}
-
-/* ============================================ */
-/* 7. M3 UTILITY-КЛАСИ (повне покриття)        */
-/* ============================================ */
-
-/* --- Display --- */
-.display-lg {
-    font-family: var(--font-display);
-    font-size: var(--typ-display-lg-size);
-    font-weight: var(--typ-display-lg-weight);
-    line-height: var(--typ-display-lg-line-height);
-    letter-spacing: var(--typ-display-lg-tracking);
-}
-
-.display-md {
-    font-family: var(--font-display);
-    font-size: var(--typ-display-md-size);
-    font-weight: var(--typ-display-md-weight);
-    line-height: var(--typ-display-md-line-height);
-}
-
-.display-sm {
-    font-family: var(--font-display);
-    font-size: var(--typ-display-sm-size);
-    font-weight: var(--typ-display-sm-weight);
-    line-height: var(--typ-display-sm-line-height);
-}
-
-/* --- Headline --- */
-.headline-lg {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-lg-size);
-    font-weight: var(--typ-headline-lg-weight);
-    line-height: var(--typ-headline-lg-line-height);
-}
-
-.headline-md {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-md-size);
-    font-weight: var(--typ-headline-md-weight);
-    line-height: var(--typ-headline-md-line-height);
-}
-
-.headline-sm {
-    font-family: var(--font-display);
-    font-size: var(--typ-headline-sm-size);
-    font-weight: var(--typ-headline-sm-weight);
-    line-height: var(--typ-headline-sm-line-height);
-}
-
-/* --- Title --- */
-.title-lg {
-    font-size: var(--typ-title-lg-size);
-    font-weight: var(--typ-title-lg-weight);
-    line-height: var(--typ-title-lg-line-height);
-}
-
-.title-md {
-    font-size: var(--typ-title-md-size);
-    font-weight: var(--typ-title-md-weight);
-    line-height: var(--typ-title-md-line-height);
-}
-
-.title-sm {
-    font-size: var(--typ-title-sm-size);
-    font-weight: var(--typ-title-sm-weight);
-    line-height: var(--typ-title-sm-line-height);
-}
-
-/* --- Body --- */
-.body-lg {
-    font-size: var(--typ-body-lg-size);
-    font-weight: var(--typ-body-lg-weight);
-    line-height: var(--typ-body-lg-line-height);
-}
-
-.body-md {
-    font-size: var(--typ-body-md-size);
-    font-weight: var(--typ-body-md-weight);
-    line-height: var(--typ-body-md-line-height);
-}
-
-.body-sm {
-    font-size: var(--typ-body-sm-size);
-    font-weight: var(--typ-body-sm-weight);
-    line-height: var(--typ-body-sm-line-height);
-}
-
-/* --- Label --- */
-.label-lg {
-    font-size: var(--typ-label-lg-size);
-    font-weight: var(--typ-label-lg-weight);
-    line-height: var(--typ-label-lg-line-height);
-}
-
-.label-md {
-    font-size: var(--typ-label-md-size);
-    font-weight: var(--typ-label-md-weight);
-    line-height: var(--typ-label-md-line-height);
-}
-
-.label-sm {
-    font-size: var(--typ-label-sm-size);
-    font-weight: var(--typ-label-sm-weight);
-    line-height: var(--typ-label-sm-line-height);
-}
-
-/* ============================================ */
-/* 8. МОНОШИРИННИЙ ШРИФТ (Roboto Mono)        */
-/* ============================================ */
-
-.input-left,
-.input-right {
-    font-family: var(--font-mono);
 }

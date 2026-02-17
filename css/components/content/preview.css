@@ -5,8 +5,6 @@
     border-radius: var(--radius-m);
     padding: var(--space-l);
     min-height: 200px;
-    font-size: var(--typ-body-md-size);
-    line-height: 1.6;
 }
 
 /* ========== ТАБЛИЧНІ ВІЗУАЛІЗАЦІЇ (Table Generator) ========== */
@@ -26,7 +24,6 @@
 
 .preview-table th {
     background-color: var(--color-surface-c-low);
-    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -35,7 +32,6 @@
 }
 
 .preview-table strong {
-    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -49,7 +45,6 @@
 .preview-text {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     color: var(--text-primary);
-    line-height: 1.7;
 }
 
 .preview-text h1,
@@ -58,8 +53,6 @@
     color: var(--text-primary);
     margin-top: 1.5em;
     margin-bottom: 0.75em;
-    font-weight: var(--typ-title-lg-weight);
-    line-height: 1.3;
 }
 
 .preview-text h1:first-child,
@@ -69,22 +62,18 @@
 }
 
 .preview-text h1 {
-    font-size: 2em;
     border-bottom: 2px solid var(--color-outline-v);
     padding-bottom: 0.3em;
 }
 
 .preview-text h2 {
-    font-size: 1.6em;
 }
 
 .preview-text h3 {
-    font-size: 1.3em;
 }
 
 .preview-text p {
     margin-bottom: 1.2em;
-    line-height: 1.7;
 }
 
 .preview-text p:last-child {
@@ -95,7 +84,6 @@
 .preview-text ol {
     margin-left: 2em;
     margin-bottom: 1.2em;
-    line-height: 1.7;
 }
 
 .preview-text li {
@@ -108,7 +96,6 @@
 
 .preview-text strong,
 .preview-text b {
-    font-weight: var(--typ-title-lg-weight);
     color: var(--text-primary);
 }
 

@@ -87,8 +87,6 @@
 }
 
 .modal-fullscreen-title h1 {
-    font-size: var(--typ-title-lg-size);
-    font-weight: var(--typ-title-lg-weight);
     margin: 0;
     color: var(--color-on-surface);
 }
@@ -148,8 +146,6 @@
     border-radius: var(--radius-m);
     color: var(--color-on-surface-v);
     text-decoration: none;
-    font-size: var(--typ-label-lg-size);
-    font-weight: var(--typ-title-md-weight);
     transition: all 150ms ease;
     cursor: pointer;
 }
@@ -270,7 +266,6 @@
     border-radius: var(--radius-s, 8px);
     background-color: var(--color-surface);
     color: var(--color-on-surface);
-    font-size: var(--typ-body-md-size);
     min-height: 40px;
     width: 100%;
     cursor: pointer;

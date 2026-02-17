@@ -68,7 +68,6 @@
 
 .sidebar-navigator .tree-node-count {
     margin-left: auto;
-    font-weight: var(--typ-title-lg-weight);
 }
 
 .sidebar-nav-item.active .tree-node-count {

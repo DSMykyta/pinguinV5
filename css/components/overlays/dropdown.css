@@ -55,7 +55,6 @@
     cursor: pointer;
     text-align: left;
     border-radius: 4px;
-    font-size: var(--typ-body-md-size);
     color: var(--color-on-surface);
     white-space: nowrap;
     overflow: hidden;
@@ -87,11 +86,8 @@
 /* Заголовок dropdown меню */
 .dropdown-header {
     padding: 8px 12px;
-    font-size: var(--typ-label-md-size);
-    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface-variant);
     text-transform: uppercase;
-    letter-spacing: var(--tracking-wider);
 }
 
 /* Тіло dropdown меню */
@@ -208,7 +204,6 @@
 
 /* Опція "Всі" */
 .filter-select-all {
-    font-weight: var(--typ-title-md-weight);
 }
 
 /* ============================================ */
@@ -223,7 +218,6 @@
 /* Лічильник елементів */
 .filter-count {
     margin-left: auto;
-    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
     background: var(--color-surface-c);
     padding: 2px 6px;
