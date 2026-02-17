@@ -1,0 +1,40 @@
+/**
+ * COMPONENT: Ghost Button
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Прозора кнопка-привид для допоміжних дій. Без фону в стані спокою,
+ * при hover — тонований фон кольором main.
+ *
+ * ВИКОРИСТАННЯ:
+ * Додайте клас .btn-ghost до елемента <button>. Для вторинних дій у панелях,
+ * batch-операцій, toolbar, де кнопка не має привертати увагу.
+ *
+ * HTML ПРИКЛАД:
+ * <button class="btn-ghost">
+ *   <span class="material-symbols-outlined">download</span>
+ *   Експорт
+ * </button>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - button-base.css (базові стилі для <button>)
+ * - root.css (--color-on-surface, --color-main-c, --color-main, --color-main-t-2)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - Batch actions bar (допоміжні дії, скасувати вибір)
+ * - Toolbar (неакцентовані дії)
+ * - Панелі з множинними діями
+ */
+
+.btn-ghost {
+    background: transparent;
+    color: var(--color-on-surface);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--color-main-c);
+    color: var(--color-main);
+}
+
+.btn-ghost:active:not(:disabled) {
+    background: var(--color-main-t-2);
+}

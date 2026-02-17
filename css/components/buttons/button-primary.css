@@ -18,7 +18,7 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - button-base.css (базові стилі для <button>)
- * - root.css (--color-main, --color-on-main, --color-secondary)
+ * - root.css (--color-main, --color-on-main)
  *
  * ЗАСТОСУВАННЯ:
  * - Додавання нових записів (entities, banned-words)
@@ -32,9 +32,8 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: var(--color-tertiary);
+    filter: brightness(0.85);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    color: var(--color-on-tertiary);
 }
 
 .btn-primary:disabled {

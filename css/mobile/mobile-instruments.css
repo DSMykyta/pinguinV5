@@ -822,7 +822,7 @@
 
 @media (max-width: 768px) {
     /* Hide reload buttons (use pull-to-refresh instead) */
-    .btn-reload {
+    .btn-icon.reload {
         display: none !important;
     }
 

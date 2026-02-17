@@ -227,7 +227,7 @@ function initBrandLinesHandler() {
             if (!currentBrandId) return;
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
             refreshBtn.disabled = true;
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
 
             try {
                 const { loadBrandLines } = await import('./lines-data.js');
@@ -236,7 +236,7 @@ function initBrandLinesHandler() {
             } finally {
                 setTimeout(() => {
                     refreshBtn.disabled = false;
-                    icon?.classList.remove('is-spinning');
+                    icon?.classList.remove('spinning');
                 }, 500);
             }
         };

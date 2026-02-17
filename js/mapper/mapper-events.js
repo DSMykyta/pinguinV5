@@ -73,7 +73,7 @@ function initRefreshButtons() {
         if (btn) {
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
-                btn.querySelector('.material-symbols-outlined').classList.add('is-spinning');
+                btn.querySelector('.material-symbols-outlined').classList.add('spinning');
 
                 try {
                     await Promise.all([
@@ -90,7 +90,7 @@ function initRefreshButtons() {
                     console.error(`❌ Помилка оновлення табу ${tab}:`, error);
                 } finally {
                     btn.disabled = false;
-                    btn.querySelector('.material-symbols-outlined').classList.remove('is-spinning');
+                    btn.querySelector('.material-symbols-outlined').classList.remove('spinning');
                 }
             });
         }

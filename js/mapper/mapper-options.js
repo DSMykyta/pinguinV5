@@ -499,11 +499,11 @@ function populateRelatedChildOptions(optionId) {
     if (refreshBtn) {
         refreshBtn.onclick = () => {
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             const newData = loadData();
             updateVisibility(newData);
             managed.setData(newData);
-            setTimeout(() => icon?.classList.remove('is-spinning'), 300);
+            setTimeout(() => icon?.classList.remove('spinning'), 300);
         };
     }
 }
@@ -777,7 +777,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
         }
 
         applyBtn.disabled = true;
-        applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span><span>Обробка...</span>';
+        applyBtn.innerHTML = '<span class="material-symbols-outlined spinning">sync</span><span>Обробка...</span>';
 
         try {
             const result = await batchCreateOptionMapping(selectedMpIds, ownOptionId);

@@ -722,7 +722,7 @@
         if (reloadBtn) {
             reloadBtn.addEventListener('click', () => {
                 const section = CONFIG.sections[state.currentSectionIndex];
-                const sectionReloadBtn = document.querySelector(`#${section.id} .btn-reload`);
+                const sectionReloadBtn = document.querySelector(`#${section.id} .btn-icon.reload`);
                 if (sectionReloadBtn) {
                     sectionReloadBtn.click();
                 }

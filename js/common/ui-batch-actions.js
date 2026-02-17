@@ -45,9 +45,9 @@ export function createBatchActionsBar(config) {
 
     // Створити HTML кнопок
     const actionsHTML = actions.map(action => {
-        const primaryClass = action.primary ? ' primary' : '';
+        const btnClass = action.primary ? 'btn-primary' : 'btn-ghost';
         return `
-            <button class="batch-btn${primaryClass}" data-action="${action.id || action.label}">
+            <button class="${btnClass}" data-action="${action.id || action.label}">
                 <span class="material-symbols-outlined">${action.icon}</span>
                 ${action.label}
             </button>
@@ -56,7 +56,7 @@ export function createBatchActionsBar(config) {
 
     // Скасувати вибір завжди останньою кнопкою
     const deselectAllHTML = `
-        <button class="batch-btn" data-action="deselect-all">
+        <button class="btn-ghost" data-action="deselect-all">
             <span class="material-symbols-outlined">close</span>
             Скасувати вибір
         </button>

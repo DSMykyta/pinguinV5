@@ -305,7 +305,7 @@ export function initManageTabEvents() {
             refreshTabButton.disabled = true;
             const icon = refreshTabButton.querySelector('.material-symbols-outlined');
             if (icon) {
-                icon.classList.add('is-spinning');
+                icon.classList.add('spinning');
             }
 
             try {
@@ -324,7 +324,7 @@ export function initManageTabEvents() {
             } finally {
                 refreshTabButton.disabled = false;
                 if (icon) {
-                    icon.classList.remove('is-spinning');
+                    icon.classList.remove('spinning');
                 }
             }
         });

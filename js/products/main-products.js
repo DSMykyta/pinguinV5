@@ -197,7 +197,7 @@ function renderProductsTable(products) {
             const isChecked = selectedProducts.has(row.id);
             return `
                 <input type="checkbox" class="row-checkbox" data-product-id="${row.id}" aria-label="Вибрати" ${isChecked ? 'checked' : ''}>
-                ${actionButton({ action: 'edit', rowId: row.id, context: 'products', extraClass: 'btn-icon-sm' })}
+                ${actionButton({ action: 'edit', rowId: row.id, context: 'products' })}
             `;
         },
         rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-products" aria-label="Вибрати всі">',
@@ -341,15 +341,15 @@ function createBatchActionsBar() {
             <span class="selection-label">вибрано</span>
         </div>
         <div class="batch-actions">
-            <button class="batch-btn" id="batch-export">
+            <button class="btn-ghost" id="batch-export">
                 <span class="material-symbols-outlined">download</span>
                 Експорт
             </button>
-            <button class="batch-btn" id="batch-hide">
+            <button class="btn-ghost" id="batch-hide">
                 <span class="material-symbols-outlined">visibility_off</span>
                 Приховати
             </button>
-            <button class="batch-btn primary" id="batch-activate">
+            <button class="btn-primary" id="batch-activate">
                 <span class="material-symbols-outlined">check_circle</span>
                 Активувати
             </button>
@@ -1950,7 +1950,7 @@ function initWizardVariants() {
                         <span class="variant-item-sku">${variantSku}</span>
                     </div>
                     <input type="number" class="variant-item-price-input" placeholder="₴ Ціна" style="width: 100px;">
-                    <button class="btn-icon btn-icon-sm btn-delete-variant" data-variant-id="${variantId}" title="Видалити">
+                    <button class="btn-icon btn-delete-variant" data-variant-id="${variantId}" title="Видалити">
                         <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>

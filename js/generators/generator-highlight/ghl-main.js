@@ -22,12 +22,12 @@ registerPanelInitializer('aside-highlight', async () => {
         const icon = reloadBtn.querySelector('span');
         reloadBtn.disabled = true;
         reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('is-spinning');
+        icon?.classList.add('spinning');
         editor.clear();
         setTimeout(() => {
             reloadBtn.disabled = false;
             reloadBtn.style.color = '';
-            icon?.classList.remove('is-spinning');
+            icon?.classList.remove('spinning');
         }, 300);
     });
 });

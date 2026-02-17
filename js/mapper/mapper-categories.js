@@ -576,9 +576,9 @@ function populateRelatedCharacteristics(categoryId) {
     if (refreshBtn) {
         refreshBtn.onclick = () => {
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             managed.setData(loadData());
-            setTimeout(() => icon?.classList.remove('is-spinning'), 300);
+            setTimeout(() => icon?.classList.remove('spinning'), 300);
         };
     }
 
@@ -663,7 +663,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
 
         try {
             confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">progress_activity</span><span>Маппінг...</span>';
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined spinning">progress_activity</span><span>Маппінг...</span>';
 
             await batchCreateCategoryMapping(selectedMpCatIds, ownCatId);
 

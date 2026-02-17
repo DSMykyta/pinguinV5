@@ -46,12 +46,12 @@ export function initImageToolLogic() {
             if (activePanel && activePanel.id === 'aside-image-tool') {
                 const icon = dom.reloadBtn.querySelector('.material-symbols-outlined');
                 dom.reloadBtn.disabled = true;
-                icon?.classList.add('is-spinning');
+                icon?.classList.add('spinning');
                 resetState();
                 showToast('Інструмент очищено', 'info');
                 setTimeout(() => {
                     dom.reloadBtn.disabled = false;
-                    icon?.classList.remove('is-spinning');
+                    icon?.classList.remove('spinning');
                 }, 500);
                 closeModal();
             }

@@ -184,13 +184,13 @@ export async function showEditMarketplaceModal(id) {
     if (refreshCatsBtn) {
         refreshCatsBtn.onclick = async () => {
             const icon = refreshCatsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             try {
                 await loadMpCategories();
                 const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
                 if (catCount) catCount.textContent = freshCats.length;
                 populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
-            } finally { icon?.classList.remove('is-spinning'); }
+            } finally { icon?.classList.remove('spinning'); }
         };
     }
 
@@ -198,13 +198,13 @@ export async function showEditMarketplaceModal(id) {
     if (refreshCharsBtn) {
         refreshCharsBtn.onclick = async () => {
             const icon = refreshCharsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             try {
                 await loadMpCharacteristics();
                 const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
                 if (charCount) charCount.textContent = freshChars.length;
                 populateMpCharacteristics(freshChars, columnMapping.characteristics);
-            } finally { icon?.classList.remove('is-spinning'); }
+            } finally { icon?.classList.remove('spinning'); }
         };
     }
 
@@ -212,13 +212,13 @@ export async function showEditMarketplaceModal(id) {
     if (refreshOptsBtn) {
         refreshOptsBtn.onclick = async () => {
             const icon = refreshOptsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             try {
                 await loadMpOptions();
                 const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
                 if (optCount) optCount.textContent = freshOpts.length;
                 populateMpOptions(freshOpts, columnMapping.options);
-            } finally { icon?.classList.remove('is-spinning'); }
+            } finally { icon?.classList.remove('spinning'); }
         };
     }
 
@@ -226,10 +226,10 @@ export async function showEditMarketplaceModal(id) {
     if (refreshRefsBtn) {
         refreshRefsBtn.onclick = async () => {
             const icon = refreshRefsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('is-spinning');
+            icon?.classList.add('spinning');
             try {
                 await populateMpReferences(marketplace.slug, id);
-            } finally { icon?.classList.remove('is-spinning'); }
+            } finally { icon?.classList.remove('spinning'); }
         };
     }
 }

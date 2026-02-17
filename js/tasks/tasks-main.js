@@ -185,7 +185,7 @@ function initRefreshButton() {
 
     refreshBtn.addEventListener('click', async () => {
         const icon = refreshBtn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('is-spinning');
+        if (icon) icon.classList.add('spinning');
         refreshBtn.disabled = true;
 
         try {
@@ -197,7 +197,7 @@ function initRefreshButton() {
         } catch (error) {
             console.error('❌ Помилка оновлення:', error);
         } finally {
-            if (icon) icon.classList.remove('is-spinning');
+            if (icon) icon.classList.remove('spinning');
             refreshBtn.disabled = false;
         }
     });

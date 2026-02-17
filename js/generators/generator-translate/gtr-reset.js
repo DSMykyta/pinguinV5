@@ -20,7 +20,7 @@ export function initTranslateReset() {
         // === Анімація СТАРТ: Додаємо клас ===
         reloadBtn.disabled = true;
         reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('is-spinning'); // Додаємо клас для обертання
+        icon?.classList.add('spinning'); // Додаємо клас для обертання
         // ===================================
 
         try {
@@ -38,7 +38,7 @@ export function initTranslateReset() {
             const stopAnimation = () => {
                 reloadBtn.disabled = false;
                 reloadBtn.style.color = 'var(--text-disabled)';
-                icon?.classList.remove('is-spinning'); // Прибираємо клас обертання
+                icon?.classList.remove('spinning'); // Прибираємо клас обертання
                  // Переконуємось, що transform скинуто (про всяк випадок)
                 if(icon) {
                     icon.style.transform = 'none';
@@ -66,7 +66,7 @@ export function initTranslateReset() {
              // Зупиняємо анімацію
              reloadBtn.disabled = false;
              reloadBtn.style.color = 'var(--text-disabled)';
-             icon?.classList.remove('is-spinning');
+             icon?.classList.remove('spinning');
              if(icon) icon.style.transform = 'none';
         }
     });

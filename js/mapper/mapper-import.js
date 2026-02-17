@@ -1107,7 +1107,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
         }
 
         applyBtn.disabled = true;
-        applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
+        applyBtn.innerHTML = '<span class="material-symbols-outlined spinning">sync</span> Обробка...';
 
         try {
             const result = await batchCreateCharacteristicMapping(selectedMpIds, ownCharId);
@@ -1217,7 +1217,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
         }
 
         applyBtn.disabled = true;
-        applyBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span> Обробка...';
+        applyBtn.innerHTML = '<span class="material-symbols-outlined spinning">sync</span> Обробка...';
 
         try {
             const result = await batchCreateOptionMapping(mpIds, ownOptionId);
@@ -1681,7 +1681,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
 
         try {
             confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">progress_activity</span><span>Маппінг...</span>';
+            confirmBtn.innerHTML = '<span class="material-symbols-outlined spinning">progress_activity</span><span>Маппінг...</span>';
 
             await batchCreateCategoryMapping(selectedMpCatIds, ownCatId);
 

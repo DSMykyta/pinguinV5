@@ -33,7 +33,7 @@ async function handleReset() {
     if (reloadBtn) {
         reloadBtn.disabled = true;
         reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('is-spinning');
+        icon?.classList.add('spinning');
     }
     // ---------------------
 
@@ -58,7 +58,7 @@ async function handleReset() {
         if (reloadBtn) {
             reloadBtn.disabled = false;
             reloadBtn.style.color = 'var(--text-disabled)';
-            icon?.classList.remove('is-spinning');
+            icon?.classList.remove('spinning');
             if (icon) icon.style.transform = 'none';
         }
         // ---------------------

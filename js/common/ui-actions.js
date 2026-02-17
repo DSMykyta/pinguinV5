@@ -306,7 +306,7 @@ function setButtonLoading(button, isLoading, originalContent = null, wasDisabled
     if (isLoading) {
         button.disabled = true;
         button.dataset.originalContent = button.innerHTML;
-        button.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span>';
+        button.innerHTML = '<span class="material-symbols-outlined spinning">sync</span>';
     } else {
         button.disabled = wasDisabled;
         if (originalContent) {

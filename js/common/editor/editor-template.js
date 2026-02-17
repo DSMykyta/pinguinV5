@@ -161,7 +161,7 @@ function renderFindReplaceDropdown(id) {
                             <div class="form-group">
                                 <input type="text" id="${id}-replace-input" class="input-main" placeholder="На що замінити...">
                             </div>
-                            <button type="button" class="btn-small" id="${id}-replace-all-btn" style="width: 100%;">Замінити все</button>
+                            <button type="button" class="btn-secondary" id="${id}-replace-all-btn" style="width: 100%;">Замінити все</button>
                         </div>
                     </div>`;
 }

@@ -23,13 +23,15 @@
  * - .btn-icon:hover - стан наведення (фон, тінь)
  * - .btn-icon.active / .is-active - активний стан
  *
- * МОДИФІКАТОРИ:
+ * ЧАРМИ (charms):
  * - .ghost - без фону при hover, тільки зміна кольору
+ * - .reload - приглушений колір, нейтральний hover (surface-c-high)
  * - .drag - cursor: grab/grabbing для drag-handle кнопок
- * - .on-hover - показується тільки при наведенні на батьківський елемент
+ * - .reveal - прихована, з'являється при hover на батьківський елемент
+ * - .danger - hover червоним (error-c фон, error колір)
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main-t-2, --color-main, --transition-speed)
+ * - root.css (--color-main-t-2, --color-main, --color-on-surface-v, --color-surface-c-high, --transition-speed)
  * - Material Symbols (для іконок)
  *
  * ЗАСТОСУВАННЯ:
@@ -39,6 +41,8 @@
  * - Навігація (back, forward)
  * - Drag handles (ghost + drag)
  * - Tree toggles (ghost)
+ * - Section reload (reload)
+ * - Row hidden actions (reveal)
  */
 
 .btn-icon {
@@ -74,7 +78,7 @@
     font-size: 16px;
 }
 
-/* Модифікатор: ghost — без фону, тільки зміна кольору */
+/* Чарм: ghost — без фону, тільки зміна кольору */
 .btn-icon.ghost {
     color: var(--color-outline);
 }
@@ -86,7 +90,7 @@
     box-shadow: none;
 }
 
-/* Модифікатор: drag — cursor grab для перетягування */
+/* Чарм: drag — cursor grab для перетягування */
 .btn-icon.drag {
     cursor: grab;
 }
@@ -95,19 +99,40 @@
     cursor: grabbing;
 }
 
-/* Модифікатор: показується при наведенні на батька */
-.btn-icon.on-hover {
+/* Чарм: reveal — прихована, з'являється при hover батька */
+.btn-icon.reveal {
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-speed), visibility var(--transition-speed);
 }
 
-*:hover > .btn-icon.on-hover {
+*:hover > .btn-icon.reveal {
     opacity: 1;
     visibility: visible;
 }
 
-/* Модифікатор: кнопка очищення пошуку */
+/* Чарм: reload — перезавантаження секції */
+.btn-icon.reload {
+    color: var(--color-on-surface-v);
+}
+
+.btn-icon.reload:hover {
+    background: var(--color-surface-c-high);
+}
+
+.btn-icon.reload .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Чарм: danger — hover червоним для деструктивних дій */
+.btn-icon.danger:hover {
+    background-color: var(--color-error-c);
+    color: var(--color-error);
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* Чарм: кнопка очищення пошуку */
 .clear-search-btn {
     margin-left: auto;
     flex-shrink: 0;

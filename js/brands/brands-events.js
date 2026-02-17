@@ -37,7 +37,7 @@ function initRefreshButton() {
     refreshBtn.addEventListener('click', async () => {
         const icon = refreshBtn.querySelector('.material-symbols-outlined');
         refreshBtn.disabled = true;
-        icon?.classList.add('is-spinning');
+        icon?.classList.add('spinning');
 
         try {
             await loadBrands();
@@ -49,7 +49,7 @@ function initRefreshButton() {
         } finally {
             setTimeout(() => {
                 refreshBtn.disabled = false;
-                icon?.classList.remove('is-spinning');
+                icon?.classList.remove('spinning');
             }, 500);
         }
     });
@@ -65,7 +65,7 @@ function initLinesRefreshButton() {
     refreshBtn.addEventListener('click', async () => {
         const icon = refreshBtn.querySelector('.material-symbols-outlined');
         refreshBtn.disabled = true;
-        icon?.classList.add('is-spinning');
+        icon?.classList.add('spinning');
 
         try {
             const { loadBrandLines } = await import('./lines-data.js');
@@ -78,7 +78,7 @@ function initLinesRefreshButton() {
         } finally {
             setTimeout(() => {
                 refreshBtn.disabled = false;
-                icon?.classList.remove('is-spinning');
+                icon?.classList.remove('spinning');
             }, 500);
         }
     });

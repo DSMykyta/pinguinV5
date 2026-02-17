@@ -15,7 +15,7 @@ export function initKeywordsEvents() {
     if (refreshBtn) {
         refreshBtn.addEventListener('click', async () => {
             const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            if (icon) icon.classList.add('is-spinning');
+            if (icon) icon.classList.add('spinning');
 
             try {
                 await loadKeywords();
@@ -23,7 +23,7 @@ export function initKeywordsEvents() {
             } catch (error) {
                 console.error('❌ Помилка оновлення:', error);
             } finally {
-                if (icon) icon.classList.remove('is-spinning');
+                if (icon) icon.classList.remove('spinning');
             }
         });
     }

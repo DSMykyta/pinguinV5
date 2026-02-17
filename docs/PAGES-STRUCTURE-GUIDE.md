@@ -138,7 +138,7 @@
                 </div>
                 <h3>Налаштування таблиць</h3>
             </div>
-            <button id="reload-section-table" class="btn-icon btn-reload" aria-label="Перезавантажити">
+            <button id="reload-section-table" class="btn-icon reload" aria-label="Перезавантажити">
                 <span class="material-symbols-outlined">refresh</span>
             </button>
         </div>

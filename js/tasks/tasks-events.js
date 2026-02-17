@@ -38,7 +38,7 @@ function initRefreshButtons() {
         btn.addEventListener('click', async () => {
             // Додаємо анімацію
             const icon = btn.querySelector('.material-symbols-outlined');
-            if (icon) icon.classList.add('is-spinning');
+            if (icon) icon.classList.add('spinning');
             btn.disabled = true;
 
             try {
@@ -48,7 +48,7 @@ function initRefreshButtons() {
             } catch (error) {
                 showToast('Помилка оновлення', 'error');
             } finally {
-                if (icon) icon.classList.remove('is-spinning');
+                if (icon) icon.classList.remove('spinning');
                 btn.disabled = false;
             }
         });

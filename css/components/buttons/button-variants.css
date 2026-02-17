@@ -2,14 +2,13 @@
  * COMPONENT: Button Variants
  *
  * ПРИЗНАЧЕННЯ:
- * Додаткові варіанти кнопок (delete, reload).
+ * Додаткові варіанти кнопок (delete).
  *
  * ВИКОРИСТАННЯ:
  * <button class="btn-delete">Видалити</button>
- * <button class="btn-reload">Оновити</button>
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-error, --color-main, --color-on-surface-v)
+ * - root.css (--color-error, --color-on-error, --color-error-c)
  */
 
 /* Кнопка видалення */
@@ -21,42 +20,4 @@
 .btn-delete:hover {
     background: var(--color-error);
     color: var(--color-on-error);
-}
-
-/* Кнопка перезавантаження */
-.btn-reload {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--color-on-surface-v);
-    transition: all 0.2s;
-}
-
-.btn-reload:hover {
-    background: var(--color-surface-c-high);
-    color: var(--color-main);
-}
-
-.btn-reload .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* Маленькі кнопки */
-.btn-small {
-    padding: 4px 12px;
-}
-
-.btn-icon-small {
-    width: 28px;
-    height: 28px;
-}
-
-.btn-icon-small .material-symbols-outlined {
-    font-size: 18px;
 }

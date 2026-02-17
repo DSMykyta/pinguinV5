@@ -320,7 +320,7 @@ async function handleSave(modal, taskId) {
     const saveBtn = modal.querySelector('#btn-save-task');
     if (saveBtn) {
         saveBtn.disabled = true;
-        saveBtn.innerHTML = '<span class="material-symbols-outlined is-spinning">sync</span><span>Збереження...</span>';
+        saveBtn.innerHTML = '<span class="material-symbols-outlined spinning">sync</span><span>Збереження...</span>';
     }
 
     try {

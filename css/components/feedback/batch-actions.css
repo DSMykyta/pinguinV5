@@ -48,47 +48,6 @@
     gap: 8px;
 }
 
-.batch-actions-bar .batch-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: var(--color-on-surface);
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.batch-actions-bar .batch-btn:hover {
-    background: var(--color-main-c);
-    color: var(--color-main);
-}
-
-.batch-actions-bar .batch-btn:active {
-    background: var(--color-main-t-2);
-}
-
-/* Primary button - темна, темніша при hover */
-.batch-actions-bar .batch-btn.primary {
-    background: var(--color-main);
-    color: var(--color-surface);
-}
-
-.batch-actions-bar .batch-btn.primary:hover {
-    background: var(--color-main);
-    filter: brightness(0.85);
-}
-
-.batch-actions-bar .batch-btn.primary:active {
-    filter: brightness(0.75);
-}
-
-.batch-actions-bar .batch-btn .material-symbols-outlined {
-    font-size: 18px;
-}
-
 /* Checkbox + actions in table cell */
 .cell-actions {
     display: flex;

@@ -42,7 +42,7 @@ export function performTableReset() {
     // --- Анімація СТАРТ ---
     if (dom.reloadBtn) dom.reloadBtn.disabled = true;
     if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--color-primary)';
-    icon?.classList.add('is-spinning');
+    icon?.classList.add('spinning');
 
     // Виконуємо очищення
     dom.rowsContainer.innerHTML = '';
@@ -56,7 +56,7 @@ export function performTableReset() {
     // --- Анімація СТОП ---
     if (dom.reloadBtn) dom.reloadBtn.disabled = false;
     if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--text-disabled)';
-    icon?.classList.remove('is-spinning');
+    icon?.classList.remove('spinning');
     if (icon) icon.style.transform = 'none';
 }
 

@@ -234,7 +234,7 @@ function initRefreshButton() {
 
     refreshBtn.addEventListener('click', async () => {
         const icon = refreshBtn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('is-spinning');
+        if (icon) icon.classList.add('spinning');
 
         try {
             const { loadPriceData } = await import('./price-data.js');
@@ -243,7 +243,7 @@ function initRefreshButton() {
         } catch (error) {
             console.error('Помилка оновлення:', error);
         } finally {
-            if (icon) icon.classList.remove('is-spinning');
+            if (icon) icon.classList.remove('spinning');
         }
     });
 }
