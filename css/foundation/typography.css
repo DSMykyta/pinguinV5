@@ -5,9 +5,11 @@
  * Типографіка проєкту — всі шрифти підключені локально (офлайн).
  *
  * ШРИФТИ:
- * - Geologica (Variable)    — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
- * - NyghtSerif (Static)   — заголовки секцій і шапок (h1–h4, .section-upper)
- * - Roboto Mono (Variable) — код (rich-editor code mode, layout-section)
+ * - Geologica (Variable)        — основний текст (body, .body-l, .body-m, .caption, .small, .tiny)
+ * - NyghtSerif (Static)         — заголовки секцій і шапок (h1–h4, .section-upper)
+ * - Roboto Mono (Variable)      — код (rich-editor code mode, layout-section)
+ * - DM Sans (Variable)          — додатковий sans-serif
+ * - Playfair Display (Variable) — додатковий serif
  *
  * СТРУКТУРА:
  * ┌──────────────────────────────────────────┐
@@ -33,7 +35,7 @@
 /* --- Geologica (Variable Font) --- */
 @font-face {
     font-family: 'Geologica';
-    src: url('../../fonts/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf') format('truetype');
+    src: url('../../fonts/Geologica/Geologica-VariableFont_CRSV,SHRP,slnt,wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -123,7 +125,7 @@
 /* --- Roboto Mono (Variable Font) --- */
 @font-face {
     font-family: 'Roboto Mono';
-    src: url('../../fonts/RobotoMono-VariableFont_wght.ttf') format('truetype');
+    src: url('../../fonts/RobotoMono/RobotoMono-VariableFont_wght.ttf') format('truetype');
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
@@ -131,8 +133,42 @@
 
 @font-face {
     font-family: 'Roboto Mono';
-    src: url('../../fonts/RobotoMono-Italic-VariableFont_wght.ttf') format('truetype');
+    src: url('../../fonts/RobotoMono/RobotoMono-Italic-VariableFont_wght.ttf') format('truetype');
     font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* --- DM Sans (Variable Font) --- */
+@font-face {
+    font-family: 'DM Sans';
+    src: url('../../fonts/DMSans/DMSans-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'DM Sans';
+    src: url('../../fonts/DMSans/DMSans-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* --- Playfair Display (Variable Font) --- */
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../../fonts/PlayfairDisplay/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../../fonts/PlayfairDisplay/PlayfairDisplay-Italic-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 900;
     font-style: italic;
     font-display: swap;
 }
