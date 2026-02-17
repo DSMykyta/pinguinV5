@@ -424,15 +424,16 @@
 <!-- ================================================================= -->
 <section class="m3-section" id="tokens">
     <h2 class="m3-section-title">Design Tokens</h2>
-    <p class="m3-section-desc">Дизайн-токени визначені в root.css. Підтримують light/dark mode через [data-theme="dark"].</p>
+    <p class="m3-section-desc">Централізовані змінні дизайн-системи. Визначені в <code>root.css</code>, підтримують light / dark через <code>[data-theme="dark"]</code>. Токени керують кольорами, відступами, радіусами та тінями всього інтерфейсу.</p>
 
     <!-- Main Colors -->
     <div class="m3-block">
         <div class="m3-block-header">
             <h3>Primary / Secondary / Tertiary</h3>
+            <p>Основна кольорова тріада бренду. Primary — акцентні кнопки, активні стани, навігація. Secondary — допоміжні елементи, hover. Tertiary — CTA-акценти. Кожен має пару: solid + on (текст поверху) + container (напівпрозорий фон).</p>
             <div class="m3-tags">
-                <span class="m3-tag m3-tag-src">root.css</span>
-                <span class="m3-tag m3-tag-use">Всюди</span>
+                <span class="m3-tag m3-tag-src">root.css :root</span>
+                <span class="m3-tag m3-tag-use">btn-primary, chips, nav-icon, panel-item, links</span>
             </div>
         </div>
         <div class="m3-preview" style="padding:16px 24px">
@@ -454,7 +455,11 @@
     <div class="m3-block">
         <div class="m3-block-header">
             <h3>Status Colors</h3>
-            <div class="m3-tags"><span class="m3-tag m3-tag-src">root.css</span><span class="m3-tag m3-tag-use">Chips, validation, toast</span></div>
+            <p>Семантичні кольори зворотного зв'язку. Кожен має пару: solid (іконки, текст) + container (фон chips). Error — валідація, видалення. Warning — попередження. Success — підтвердження. Info — підказки, нейтральні стани.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">root.css :root</span>
+                <span class="m3-tag m3-tag-use">chips, toast, validation, badges, severity, tooltips</span>
+            </div>
         </div>
         <div class="m3-preview" style="padding:16px 24px">
             <div class="m3-colors" style="width:100%">
@@ -472,7 +477,14 @@
 
     <!-- Surface Colors -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>Surfaces</h3></div>
+        <div class="m3-block-header">
+            <h3>Surfaces</h3>
+            <p>Шари поверхонь для створення глибини. Surface — базовий фон. Container low / mid / high — зростаючий контраст для вкладених елементів. On-surface — основний текст. On-surface-v — вторинний текст. Outline — розділювачі.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">root.css :root + [data-theme="dark"]</span>
+                <span class="m3-tag m3-tag-use">body, panels, modals, cards, inputs, borders</span>
+            </div>
+        </div>
         <div class="m3-preview" style="padding:16px 24px">
             <div class="m3-colors" style="width:100%">
                 <div class="m3-color"><div class="m3-color-swatch" style="background:var(--color-surface); border-bottom:1px solid var(--color-outline)"></div><div class="m3-color-info"><strong>--color-surface</strong>#fafafa</div></div>
@@ -486,22 +498,104 @@
         </div>
     </div>
 
-    <!-- Spacing / Radius / Shadows -->
+    <!-- Spacing -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>Spacing / Radius / Shadows</h3></div>
-        <div class="m3-preview m3-preview-col" style="gap:12px">
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--space-s: 12px</span><div style="width:12px;height:12px;background:var(--color-main);border-radius:2px"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--space-m: 16px</span><div style="width:16px;height:16px;background:var(--color-main);border-radius:2px"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--space-l: 24px</span><div style="width:24px;height:24px;background:var(--color-main);border-radius:2px"></div></div>
-            <div class="m3-divider"></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--radius-s: 8px</span><div style="width:48px;height:48px;background:var(--color-surface-c);border-radius:var(--radius-s)"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--radius-m: 12px</span><div style="width:48px;height:48px;background:var(--color-surface-c);border-radius:var(--radius-m)"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--radius-l: 16px</span><div style="width:48px;height:48px;background:var(--color-surface-c);border-radius:var(--radius-l)"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--radius-full: 999px</span><div style="width:48px;height:48px;background:var(--color-surface-c);border-radius:var(--radius-full)"></div></div>
-            <div class="m3-divider"></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--shadow-1</span><div style="width:80px;height:48px;background:var(--color-surface);border-radius:8px;box-shadow:var(--shadow-1)"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--shadow-2</span><div style="width:80px;height:48px;background:var(--color-surface);border-radius:8px;box-shadow:var(--shadow-2)"></div></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:140px">--shadow-3</span><div style="width:80px;height:48px;background:var(--color-surface);border-radius:8px;box-shadow:var(--shadow-3)"></div></div>
+        <div class="m3-block-header">
+            <h3>Spacing</h3>
+            <p>Три рівні відступів для візуальної ритміки. Використовуються як padding, gap та margin у всіх компонентах.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">root.css :root</span>
+                <span class="m3-tag m3-tag-use">layout, modals, forms, panels, cards</span>
+            </div>
+        </div>
+        <table class="m3-spec">
+            <tr><th>Токен</th><th>Значення</th><th style="width:35%">Візуалізація</th><th>Де використовується</th></tr>
+            <tr>
+                <td><code>--space-s</code></td>
+                <td class="label-l">12px</td>
+                <td><div style="display:inline-flex;align-items:center;gap:8px"><div style="width:12px;height:12px;background:var(--color-main);border-radius:2px"></div><div style="width:60px;height:12px;background:var(--color-main-c);border-radius:2px"></div></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">chip padding, input padding, gap всередині рядків</span></td>
+            </tr>
+            <tr>
+                <td><code>--space-m</code></td>
+                <td class="label-l">16px</td>
+                <td><div style="display:inline-flex;align-items:center;gap:8px"><div style="width:16px;height:16px;background:var(--color-main);border-radius:2px"></div><div style="width:80px;height:16px;background:var(--color-main-c);border-radius:2px"></div></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">gap між елементами, sidebar padding, секції форм</span></td>
+            </tr>
+            <tr>
+                <td><code>--space-l</code></td>
+                <td class="label-l">24px</td>
+                <td><div style="display:inline-flex;align-items:center;gap:8px"><div style="width:24px;height:24px;background:var(--color-main);border-radius:2px"></div><div style="width:120px;height:24px;background:var(--color-main-c);border-radius:2px"></div></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">modal padding, panel padding, секційні відступи</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Border Radius -->
+    <div class="m3-block">
+        <div class="m3-block-header">
+            <h3>Border Radius</h3>
+            <p>Чотири рівні заокруглення. Від м'яких кутів до повних кіл — визначають форму компонентів та візуальну ієрархію.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">root.css :root</span>
+                <span class="m3-tag m3-tag-use">inputs, buttons, cards, modals, chips, avatars</span>
+            </div>
+        </div>
+        <table class="m3-spec">
+            <tr><th>Токен</th><th>Значення</th><th style="width:25%">Форма</th><th>Компоненти</th></tr>
+            <tr>
+                <td><code>--radius-s</code></td>
+                <td class="label-l">8px</td>
+                <td><div style="width:64px;height:44px;background:var(--color-surface-c);border-radius:var(--radius-s);border:1px solid var(--color-outline);display:inline-block"></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">inputs, chips, tags, badges, code blocks</span></td>
+            </tr>
+            <tr>
+                <td><code>--radius-m</code></td>
+                <td class="label-l">12px</td>
+                <td><div style="width:64px;height:44px;background:var(--color-surface-c);border-radius:var(--radius-m);border:1px solid var(--color-outline);display:inline-block"></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">dropdowns, cards, content-bloc, select panels</span></td>
+            </tr>
+            <tr>
+                <td><code>--radius-l</code></td>
+                <td class="label-l">16px</td>
+                <td><div style="width:64px;height:44px;background:var(--color-surface-c);border-radius:var(--radius-l);border:1px solid var(--color-outline);display:inline-block"></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">modals, panels, toast, великі контейнери</span></td>
+            </tr>
+            <tr>
+                <td><code>--radius-full</code></td>
+                <td class="label-l">999px</td>
+                <td><div style="width:44px;height:44px;background:var(--color-surface-c);border-radius:var(--radius-full);border:1px solid var(--color-outline);display:inline-block"></div></td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">pills, nav-items, avatars, FAB, btn-primary</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Shadows / Elevation -->
+    <div class="m3-block">
+        <div class="m3-block-header">
+            <h3>Elevation (Shadows)</h3>
+            <p>Три рівні підняття для глибини інтерфейсу. Двошарова тінь для реалістичності. В dark mode тіні підсилені для кращого контрасту на темних поверхнях.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">root.css :root + [data-theme="dark"]</span>
+                <span class="m3-tag m3-tag-use">cards, dropdowns, modals, FAB, tooltips</span>
+            </div>
+        </div>
+        <div class="m3-preview" style="gap:32px;padding:40px 24px;justify-content:center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+                <div style="width:140px;height:88px;background:var(--color-surface);border-radius:12px;box-shadow:var(--shadow-1)"></div>
+                <span class="m3-label">--shadow-1</span>
+                <span class="label-s" style="color:var(--color-on-surface-v);text-align:center">cards, dropdown,<br>content-bloc</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+                <div style="width:140px;height:88px;background:var(--color-surface);border-radius:12px;box-shadow:var(--shadow-2)"></div>
+                <span class="m3-label">--shadow-2</span>
+                <span class="label-s" style="color:var(--color-on-surface-v);text-align:center">modals, навігація,<br>виділені елементи</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+                <div style="width:140px;height:88px;background:var(--color-surface);border-radius:12px;box-shadow:var(--shadow-3)"></div>
+                <span class="m3-label">--shadow-3</span>
+                <span class="label-s" style="color:var(--color-on-surface-v);text-align:center">FAB, критичні<br>оверлеї, tooltip</span>
+            </div>
         </div>
     </div>
 </section>
@@ -512,64 +606,156 @@
 <!-- ================================================================= -->
 <section class="m3-section" id="typography">
     <h2 class="m3-section-title">Typography</h2>
-    <p class="m3-section-desc">Шрифтова система: Geologica (body), NyghtSerif (headings), Roboto Mono (code).</p>
+    <p class="m3-section-desc">M3 Type Scale — 15 класів (5 ролей × 3 розміри). Три шрифтові сімейства підключені локально. Система визначена в <code>typography.css</code>, змінні шрифтів — в <code>root.css</code>.</p>
 
+    <!-- Font Stack -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>Font Stack</h3><div class="m3-tags"><span class="m3-tag m3-tag-src">typography.css</span></div></div>
-        <div class="m3-preview m3-preview-col" style="gap:16px">
+        <div class="m3-block-header">
+            <h3>Font Stack</h3>
+            <p>Три шрифтові сімейства. Geologica — основний body-шрифт для UI та тексту. NyghtSerif — акцентний serif для display та заголовків. Roboto Mono — код та технічні значення.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">typography.css @font-face</span>
+                <span class="m3-tag m3-tag-src">root.css --font-*</span>
+                <span class="m3-tag m3-tag-use">весь проєкт</span>
+            </div>
+        </div>
+        <div class="m3-preview m3-preview-col" style="gap:20px">
             <div>
-                <span class="m3-label">Geologica (Variable) — body</span>
-                <p style="font-family:'Geologica',sans-serif;font-size:16px;margin:4px 0">Абвгдеєжзиіїйклмнопрстуфхцчшщьюя 0123456789</p>
-                <p style="font-family:'Geologica',sans-serif;font-weight:300;font-size:13px;margin:4px 0;color:var(--color-on-surface-v)">Light 300 &nbsp;|&nbsp; <span style="font-weight:400">Regular 400</span> &nbsp;|&nbsp; <span style="font-weight:500">Medium 500</span> &nbsp;|&nbsp; <span style="font-weight:600">SemiBold 600</span> &nbsp;|&nbsp; <span style="font-weight:700">Bold 700</span></p>
+                <span class="m3-label">Geologica (Variable, 100–900) — --font-body</span>
+                <p class="body-l" style="margin:4px 0">Абвгдеєжзиіїйклмнопрстуфхцчшщьюя 0123456789</p>
+                <p style="font-family:'Geologica',sans-serif;font-size:13px;margin:4px 0;color:var(--color-on-surface-v)"><span style="font-weight:300">Light 300</span> · <span style="font-weight:400">Regular 400</span> · <span style="font-weight:500">Medium 500</span> · <span style="font-weight:600">SemiBold 600</span> · <span style="font-weight:700">Bold 700</span></p>
             </div>
             <div class="m3-divider"></div>
             <div>
-                <span class="m3-label">NyghtSerif (Static) — h1-h3, .section-upper</span>
-                <p style="font-family:'NyghtSerif',serif;font-size:24px;margin:4px 0">Абвгдеєжзиіїйклмнопрстуфхцчшщьюя</p>
+                <span class="m3-label">NyghtSerif (Static, 300–900) — --font-display</span>
+                <p class="display-m" style="margin:4px 0">Абвгдеєжзиіїйклмнопрстуфхцчшщьюя</p>
+                <p style="font-family:'NyghtSerif',serif;font-size:13px;margin:4px 0;color:var(--color-on-surface-v)"><span style="font-weight:300">Light 300</span> · <span style="font-weight:400">Regular 400</span> · <span style="font-weight:500">Medium 500</span> · <span style="font-weight:700">Bold 700</span> · <span style="font-weight:900">Dark 900</span></p>
             </div>
             <div class="m3-divider"></div>
             <div>
-                <span class="m3-label">Roboto Mono (Variable) — code</span>
-                <p style="font-family:'Roboto Mono',monospace;font-size:14px;margin:4px 0">const x = 42; // monospace</p>
-            </div>
-            <div class="m3-divider"></div>
-            <div>
-                <span class="m3-label">DM Sans — <strong style="color:var(--color-warning)">не використовується</strong></span>
-                <p style="font-family:'DM Sans',sans-serif;font-size:16px;margin:4px 0">DM Sans — The quick brown fox</p>
-            </div>
-            <div class="m3-divider"></div>
-            <div>
-                <span class="m3-label">Playfair Display — <strong style="color:var(--color-warning)">не використовується</strong></span>
-                <p style="font-family:'Playfair Display',serif;font-size:20px;margin:4px 0">Playfair Display — Elegant serif</p>
+                <span class="m3-label">Roboto Mono (Variable, 100–900) — --font-mono</span>
+                <p style="font-family:'Roboto Mono',monospace;font-size:14px;margin:4px 0">const data = await fetch('/api'); // monospace</p>
             </div>
         </div>
     </div>
 
+    <!-- M3 Type Scale -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>Headings</h3></div>
+        <div class="m3-block-header">
+            <h3>M3 Type Scale</h3>
+            <p>15 класів утворюють повну шкалу. Display та Headline — NyghtSerif (декоративні та структурні). Title, Body, Label — Geologica (функціональні). HTML-елементи h1–h3 автоматично отримують headline стилі, h4 — title-l.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">typography.css</span>
+                <span class="m3-tag m3-tag-use">всі сторінки та шаблони</span>
+            </div>
+        </div>
+        <table class="m3-spec">
+            <tr><th>Роль</th><th style="width:22%">Large (-l)</th><th style="width:22%">Medium (-m)</th><th style="width:22%">Small (-s)</th><th>Шрифт</th></tr>
+            <tr>
+                <td><strong>display-</strong></td>
+                <td>32px / 400 / 1.2<br><span class="label-s" style="color:var(--color-on-surface-v)">tracking 0.04em</span></td>
+                <td>28px / 400 / 1.2</td>
+                <td>24px / 400 / 1.3</td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">NyghtSerif</span></td>
+            </tr>
+            <tr>
+                <td><strong>headline-</strong><br><span class="label-s" style="color:var(--color-on-surface-v)">= h1, h2, h3</span></td>
+                <td>32px / 700 / 1.2</td>
+                <td>24px / 600 / 1.3</td>
+                <td>20px / 600 / 1.4</td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">NyghtSerif</span></td>
+            </tr>
+            <tr>
+                <td><strong>title-</strong><br><span class="label-s" style="color:var(--color-on-surface-v)">= h4</span></td>
+                <td>18px / 600 / 1.4</td>
+                <td>16px / 500 / 1.5</td>
+                <td>14px / 500 / 1.5</td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">Geologica</span></td>
+            </tr>
+            <tr>
+                <td><strong>body-</strong><br><span class="label-s" style="color:var(--color-on-surface-v)">base 12px</span></td>
+                <td>16px / 400 / 1.5</td>
+                <td>14px / 400 / 1.5</td>
+                <td>12px / 400 / 1.4</td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">Geologica</span></td>
+            </tr>
+            <tr>
+                <td><strong>label-</strong></td>
+                <td>13px / 500 / 1.4</td>
+                <td>12px / 500 / 1.4</td>
+                <td>11px / 500 / 1.3</td>
+                <td><span class="label-s" style="color:var(--color-on-surface-v)">Geologica</span></td>
+            </tr>
+        </table>
+        <div class="m3-code">формат: розмір / вага / line-height</div>
+    </div>
+
+    <!-- Display & Headline (NyghtSerif) -->
+    <div class="m3-block">
+        <div class="m3-block-header">
+            <h3>Display & Headline</h3>
+            <p>Декоративна (display) та структурна (headline) типографіка на NyghtSerif. Display — hero-блоки, акцентні написи. Headline — заголовки секцій та сторінок (h1–h3).</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">typography.css</span>
+                <span class="m3-tag m3-tag-use">section-header, hero, h1–h3, modal-title</span>
+            </div>
+        </div>
         <div class="m3-preview m3-preview-col" style="gap:12px">
-            <div><span class="m3-label">h1 — NyghtSerif, 32px, 700</span><h1 style="margin:4px 0">Heading 1</h1></div>
-            <div><span class="m3-label">h2 — NyghtSerif, 24px, 600</span><h2 style="margin:4px 0;border:none;padding:0">Heading 2</h2></div>
-            <div><span class="m3-label">h3 — NyghtSerif, 20px, 600</span><h3 style="margin:4px 0">Heading 3</h3></div>
-            <div><span class="m3-label">h4 — Geologica, 18px, 600</span><h4 style="margin:4px 0">Heading 4</h4></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.display-l</span><span class="display-l">Каталог інструментів</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.display-m</span><span class="display-m">Каталог інструментів</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.display-s</span><span class="display-s">Каталог інструментів</span></div>
+            <div class="m3-divider"></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.headline-l</span><span class="headline-l">Заголовок сторінки</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.headline-m</span><span class="headline-m">Заголовок секції</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:120px">.headline-s</span><span class="headline-s">Підзаголовок</span></div>
         </div>
     </div>
 
+    <!-- Title, Body, Label (Geologica) -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>Text Scale</h3></div>
+        <div class="m3-block-header">
+            <h3>Title, Body, Label</h3>
+            <p>Функціональна типографіка на Geologica. Title — підзаголовки та акценти в UI (h4 = title-l). Body — основний контент (base 12px). Label — мета-інформація, підписи, теги.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">typography.css</span>
+                <span class="m3-tag m3-tag-use">forms, tables, panels, modal body, aside, chips</span>
+            </div>
+        </div>
         <div class="m3-preview m3-preview-col" style="gap:8px">
-            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-l</span><span class="body-l">Body Large — 16px, 500</span></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-m</span><span class="body-m">Body Medium — 14px, 400</span></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:100px">.label-l</span><span class="label-l">Label Large — 13px, 500</span></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-s</span><span class="body-s">Body Small — 12px, 400</span></div>
-            <div class="m3-row"><span class="m3-label" style="min-width:100px">.label-s</span><span class="label-s">Label Small — 11px, 400</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.title-l</span><span class="title-l">Title Large — підзаголовки</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.title-m</span><span class="title-m">Title Medium — акценти в UI</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.title-s</span><span class="title-s">Title Small — компактні заголовки</span></div>
+            <div class="m3-divider"></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-l</span><span class="body-l">Body Large — описи, параграфи</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-m</span><span class="body-m">Body Medium — основний текст інтерфейсу</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.body-s</span><span class="body-s">Body Small — компактний текст, підписи</span></div>
+            <div class="m3-divider"></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.label-l</span><span class="label-l">Label Large — основні мітки</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.label-m</span><span class="label-m">Label Medium — теги, badge</span></div>
+            <div class="m3-row"><span class="m3-label" style="min-width:100px">.label-s</span><span class="label-s">Label Small — мета, counters</span></div>
         </div>
     </div>
 
+    <!-- HTML Elements & Modifiers -->
     <div class="m3-block">
-        <div class="m3-block-header"><h3>.section-upper</h3><div class="m3-tags"><span class="m3-tag m3-tag-use">h2 в .section-header</span></div></div>
+        <div class="m3-block-header">
+            <h3>HTML-елементи та модифікатори</h3>
+            <p>Елементи h1–h4 стилізуються автоматично — додатковий клас не потрібний. Модифікатор <code>.section-upper</code> додає uppercase + акцентний колір <code>--color-main</code>.</p>
+            <div class="m3-tags">
+                <span class="m3-tag m3-tag-src">typography.css</span>
+                <span class="m3-tag m3-tag-use">section-header, modal-title, hero</span>
+            </div>
+        </div>
+        <div class="m3-preview m3-preview-col" style="gap:12px">
+            <div><span class="m3-label">h1 = .headline-l — NyghtSerif, 32px, 700</span><h1 style="margin:4px 0">Heading 1</h1></div>
+            <div><span class="m3-label">h2 = .headline-m — NyghtSerif, 24px, 600</span><h2 style="margin:4px 0;border:none;padding:0">Heading 2</h2></div>
+            <div><span class="m3-label">h3 = .headline-s — NyghtSerif, 20px, 600</span><h3 style="margin:4px 0">Heading 3</h3></div>
+            <div><span class="m3-label">h4 = .title-l — Geologica, 18px, 600</span><h4 style="margin:4px 0">Heading 4</h4></div>
+        </div>
+        <div class="m3-sub">.section-upper</div>
         <div class="m3-preview"><h2 class="display-l section-upper" style="border:none;padding:0;margin:0">Інструменти</h2></div>
-        <div class="m3-code">&lt;h2 class="display-l section-upper"&gt;Інструменти&lt;/h2&gt;</div>
+        <div class="m3-code">&lt;h2 class="display-l section-upper"&gt;Інструменти&lt;/h2&gt;
+/* text-transform: uppercase; color: var(--color-main); */</div>
     </div>
 </section>
 
