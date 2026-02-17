@@ -1229,46 +1229,12 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.group</h3>
-                        <p>Flex-ряд для групи елементів (gap: 8px). Будь-який мікс: btn-icon, btn-secondary, dropdown.</p>
-                        <div class="m3-tags">
-                            <span class="m3-tag m3-tag-src">helpers.css</span>
-                            <span class="m3-tag m3-tag-use">tab header, modal header, toolbar</span>
-                        </div>
-                    </div>
-                    <div class="m3-preview m3-preview-col" style="gap:12px">
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;min-width:340px">
-                            <span style="font-weight:500;font-size:14px">Бренди</span>
-                            <div class="group">
-                                <button class="btn-icon reload" aria-label="Оновити"><span class="material-symbols-outlined">refresh</span></button>
-                                <button class="btn-secondary">Додати</button>
-                                <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
-                            </div>
-                        </div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;min-width:340px">
-                            <span style="font-weight:500;font-size:14px">Редагувати бренд</span>
-                            <div class="group">
-                                <button class="btn-icon danger" aria-label="Видалити"><span class="material-symbols-outlined">delete</span></button>
-                                <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="m3-code">&lt;div class="group"&gt;
-  &lt;button class="btn-icon reload" aria-label="Оновити"&gt;
-    &lt;span class="material-symbols-outlined"&gt;refresh&lt;/span&gt;
-  &lt;/button&gt;
-  &lt;button class="btn-secondary"&gt;Додати&lt;/button&gt;
-  &lt;button class="btn-icon" aria-label="Закрити"&gt;
-    &lt;span class="material-symbols-outlined"&gt;close&lt;/span&gt;
-  &lt;/button&gt;
-&lt;/div&gt;</div>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
                         <h3>.fab — Floating Action Button</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">fab.css</span><span
-                                class="m3-tag m3-tag-warn">Мінімальне використання</span></div>
+                        <p>Акцентована кнопка для головної дії на сторінці. Elevation + hover анімація translateY.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">fab.css</span>
+                            <span class="m3-tag m3-tag-use">tab controls, primary create action</span>
+                        </div>
                     </div>
                     <div class="m3-preview">
                         <button class="fab"><span class="material-symbols-outlined">add</span></button>
@@ -2280,12 +2246,49 @@ icon.classList.remove('spinning');</div>
                             !important</div>
                         <div class="m3-row"><span class="m3-label" style="min-width:120px">.text-disabled</span><span
                                 class="text-disabled">Disabled text</span></div>
-                        <div class="m3-row"><span class="m3-label" style="min-width:120px">.group</span>flex row, gap 8px</div>
+                        <div class="m3-row"><span class="m3-label" style="min-width:120px">.group</span>flex row, gap 8px — див. блок нижче</div>
                         <div class="m3-row"><span class="m3-label" style="min-width:120px">.u-flex-col-8</span>flex
                             column, gap 8px</div>
                         <div class="m3-row"><span class="m3-label" style="min-width:120px">.separator-v</span><span
                                 class="separator-v" style="height:24px"></span></div>
                     </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.group</h3>
+                        <p>Flex-ряд для групи елементів (gap: 8px). Будь-який мікс: btn-icon, btn-secondary, dropdown.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">helpers.css</span>
+                            <span class="m3-tag m3-tag-use">tab header, modal header, toolbar</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap:12px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--color-surface-c);border-radius:8px;min-width:340px">
+                            <span style="font-weight:500;font-size:14px">Бренди</span>
+                            <div class="group">
+                                <button class="btn-icon reload" aria-label="Оновити"><span class="material-symbols-outlined">refresh</span></button>
+                                <button class="btn-secondary">Додати</button>
+                                <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--color-surface-c);border-radius:8px;min-width:340px">
+                            <span style="font-weight:500;font-size:14px">Редагувати бренд</span>
+                            <div class="group">
+                                <button class="btn-icon danger" aria-label="Видалити"><span class="material-symbols-outlined">delete</span></button>
+                                <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;div class="group"&gt;
+  &lt;button class="btn-icon reload" aria-label="Оновити"&gt;
+    &lt;span class="material-symbols-outlined"&gt;refresh&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;button class="btn-secondary"&gt;Додати&lt;/button&gt;
+  &lt;button class="btn-icon" aria-label="Закрити"&gt;
+    &lt;span class="material-symbols-outlined"&gt;close&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</div>
                 </div>
 
                 <div class="m3-block">
