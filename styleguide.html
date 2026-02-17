@@ -1230,8 +1230,11 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>.group</h3>
-                        <p>Універсальна група елементів в ряд (flex, gap: 8px). Замінює tab-controls, modal-header-actions, modal-fullscreen-header-right, btn-group.</p>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">helpers.css</span></div>
+                        <p>Flex-ряд для групи елементів (gap: 8px). Будь-який мікс: btn-icon, btn-secondary, dropdown.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">helpers.css</span>
+                            <span class="m3-tag m3-tag-use">tab header, modal header, toolbar</span>
+                        </div>
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:12px">
                         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--color-surface-c);border-radius:8px;min-width:340px">
@@ -1250,6 +1253,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="m3-code">&lt;div class="group"&gt;
+  &lt;button class="btn-icon reload" aria-label="Оновити"&gt;
+    &lt;span class="material-symbols-outlined"&gt;refresh&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;button class="btn-secondary"&gt;Додати&lt;/button&gt;
+  &lt;button class="btn-icon" aria-label="Закрити"&gt;
+    &lt;span class="material-symbols-outlined"&gt;close&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</div>
                 </div>
 
                 <div class="m3-block">
