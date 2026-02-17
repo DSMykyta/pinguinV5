@@ -52,7 +52,7 @@
     background: var(--color-error-c);
     color: var(--color-error);
     border-radius: 8px;
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     margin-top: 8px;
 }
 
@@ -77,7 +77,7 @@
 }
 
 .loading-state p {
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     margin: 0;
 }
 
@@ -102,12 +102,12 @@
 }
 
 .empty-state p {
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     margin: 4px 0;
 }
 
 .empty-state .hint {
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     opacity: 0.7;
 }
 

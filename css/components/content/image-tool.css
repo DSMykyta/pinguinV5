@@ -133,15 +133,15 @@
 
 .thumbnail-item-info {
     flex-grow: 1;
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .thumbnail-item-info strong {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--typ-body-md-size);
+    font-weight: var(--typ-title-md-weight);
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;

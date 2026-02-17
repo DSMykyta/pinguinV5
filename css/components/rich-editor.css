@@ -60,7 +60,7 @@
     overflow-y: auto;
     outline: none;
     font-family: inherit;
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     line-height: 1.6;
     color: var(--color-on-surface);
     background: var(--color-surface);
@@ -202,8 +202,8 @@
     min-height: var(--editor-min-height, 200px);
     padding: 16px;
     background-color: var(--color-surface-c-low);
-    font-family: 'Roboto Mono', 'Consolas', monospace;
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: var(--typ-label-lg-size);
     line-height: 1.8;
     white-space: pre-wrap;
     resize: vertical;

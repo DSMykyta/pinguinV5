@@ -179,7 +179,7 @@
 .content-line.panel .panel-label {
     color: var(--color-on-surface-v);
     white-space: nowrap;
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     flex-shrink: 0;
 }
 
@@ -187,7 +187,7 @@
 .content-line.panel .panel-counter {
     color: var(--color-on-surface-v);
     white-space: nowrap;
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     flex-shrink: 0;
 }
 
@@ -226,7 +226,7 @@
 .content-bloc textarea,
 .content-bloc select,
 .content-line.panel input {
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     border: none;
     padding: 0 12px;
     background-color: transparent;
@@ -346,7 +346,7 @@
 .content-bloc.bold textarea,
 .content-bloc.th-strong input,
 .content-bloc.th-strong textarea {
-    font-weight: 700;
+    font-weight: var(--typ-headline-lg-weight);
 }
 
 .content-bloc.added input,
@@ -356,8 +356,8 @@
 
 /* Великий заголовок H2 */
 .content-bloc.h2 .input-box input {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: var(--typ-title-lg-size);
+    font-weight: var(--typ-title-lg-weight);
 }
 
 
@@ -422,7 +422,7 @@
 
 /* Назва елемента */
 .content-bloc .item-name {
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     padding: 0 12px;
     height: 40px;
     display: flex;
@@ -432,7 +432,7 @@
 
 /* ID елемента */
 .content-bloc .item-id {
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     padding: 0 12px;
     height: 40px;
     display: flex;

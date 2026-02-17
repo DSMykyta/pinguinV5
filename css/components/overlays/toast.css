@@ -30,7 +30,7 @@
     min-width: 288px;
     max-width: 600px;
     /* M3: Типографіка - Body Medium */
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
 }
 
 .toast-visible {
@@ -68,8 +68,8 @@
     border: none;
     background: none;
     color: var(--md-sys-color-inverse-primary, #D0BCFF);
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--typ-body-md-size);
+    font-weight: var(--typ-title-md-weight);
     cursor: pointer;
     white-space: nowrap;
     letter-spacing: 0.1px;

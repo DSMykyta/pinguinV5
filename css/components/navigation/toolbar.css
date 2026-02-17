@@ -134,7 +134,7 @@
     gap: 8px;
     padding: 8px 16px;
     border-radius: 20px;
-    font-family: 'Geologica', sans-serif;
+    font-family: var(--font-body);
     cursor: pointer;
     transition: all 0.2s ease;
 }

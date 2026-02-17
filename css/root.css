@@ -91,7 +91,85 @@
     --text-color: var(--color-main);
 
     /* --- ШРИФТИ --- */
+    --font-body: 'Geologica', sans-serif;
+    --font-display: 'NyghtSerif', serif;
     --font-mono: 'Roboto Mono', monospace;
+
+    /* --- ТИПОГРАФІКА (M3 Type Scale) --- */
+
+    /* Display — декоративні герой-заголовки (NyghtSerif) */
+    --typ-display-lg-size: 32px;
+    --typ-display-lg-weight: 400;
+    --typ-display-lg-line-height: 1.2;
+    --typ-display-lg-tracking: 0.04em;
+
+    --typ-display-md-size: 28px;
+    --typ-display-md-weight: 400;
+    --typ-display-md-line-height: 1.2;
+    --typ-display-md-tracking: 0;
+
+    --typ-display-sm-size: 24px;
+    --typ-display-sm-weight: 400;
+    --typ-display-sm-line-height: 1.3;
+    --typ-display-sm-tracking: 0;
+
+    /* Headline — заголовки секцій (NyghtSerif) */
+    --typ-headline-lg-size: 32px;
+    --typ-headline-lg-weight: 700;
+    --typ-headline-lg-line-height: 1.2;
+
+    --typ-headline-md-size: 24px;
+    --typ-headline-md-weight: 600;
+    --typ-headline-md-line-height: 1.3;
+
+    --typ-headline-sm-size: 20px;
+    --typ-headline-sm-weight: 600;
+    --typ-headline-sm-line-height: 1.4;
+
+    /* Title — підзаголовки, акценти (Geologica) */
+    --typ-title-lg-size: 18px;
+    --typ-title-lg-weight: 600;
+    --typ-title-lg-line-height: 1.4;
+
+    --typ-title-md-size: 16px;
+    --typ-title-md-weight: 500;
+    --typ-title-md-line-height: 1.5;
+
+    --typ-title-sm-size: 14px;
+    --typ-title-sm-weight: 500;
+    --typ-title-sm-line-height: 1.5;
+
+    /* Body — основний текст (Geologica) */
+    --typ-body-lg-size: 16px;
+    --typ-body-lg-weight: 400;
+    --typ-body-lg-line-height: 1.5;
+
+    --typ-body-md-size: 14px;
+    --typ-body-md-weight: 400;
+    --typ-body-md-line-height: 1.5;
+
+    --typ-body-sm-size: 12px;
+    --typ-body-sm-weight: 400;
+    --typ-body-sm-line-height: 1.4;
+
+    /* Label — підписи, кнопки, мета-текст (Geologica) */
+    --typ-label-lg-size: 13px;
+    --typ-label-lg-weight: 500;
+    --typ-label-lg-line-height: 1.4;
+
+    --typ-label-md-size: 12px;
+    --typ-label-md-weight: 500;
+    --typ-label-md-line-height: 1.4;
+
+    --typ-label-sm-size: 11px;
+    --typ-label-sm-weight: 500;
+    --typ-label-sm-line-height: 1.3;
+
+    /* Letter-spacing (tracking) */
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.04em;
+    --tracking-wider: 0.5px;
 
     /* --- УНІФІКОВАНІ ЗМІННІ ПАНЕЛЕЙ --- */
     --panel-width-collapsed: 72px;

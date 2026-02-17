@@ -99,7 +99,7 @@ section {
 .article-text li { margin-bottom: 0.3em; }
 
 .article-text code {
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--font-mono);
     padding: 2px 6px;
     background-color: var(--color-surface-c-low);
     border: 1px solid var(--color-outline-v);

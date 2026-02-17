@@ -80,7 +80,7 @@
     background: var(--color-error-container);
     color: var(--color-on-error-container);
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     text-align: center;
 }
 

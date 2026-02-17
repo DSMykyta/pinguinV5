@@ -5,7 +5,7 @@
     border-radius: var(--radius-m);
     padding: var(--space-l);
     min-height: 200px;
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     line-height: 1.6;
 }
 
@@ -26,7 +26,7 @@
 
 .preview-table th {
     background-color: var(--color-surface-c-low);
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -35,7 +35,7 @@
 }
 
 .preview-table strong {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -58,7 +58,7 @@
     color: var(--text-primary);
     margin-top: 1.5em;
     margin-bottom: 0.75em;
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     line-height: 1.3;
 }
 
@@ -108,7 +108,7 @@
 
 .preview-text strong,
 .preview-text b {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     color: var(--text-primary);
 }
 

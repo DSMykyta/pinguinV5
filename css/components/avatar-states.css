@@ -43,8 +43,8 @@
  * Використовується для основного тексту від аватара
  */
 .avatar-state-title {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: var(--typ-headline-md-size);
+    font-weight: var(--typ-headline-md-weight);
     color: var(--color-on-surface);
     text-align: center;
     margin: 0;
@@ -56,7 +56,7 @@
  * Використовується для додаткових пояснень, інструкцій
  */
 .avatar-state-message {
-    font-size: 16px;
+    font-size: var(--typ-body-lg-size);
     color: var(--color-on-surface-v);
     text-align: center;
     margin: 0;
@@ -65,7 +65,7 @@
 
 .avatar-state-message strong {
     color: var(--color-on-surface);
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
 }
 
 /* ============================================================================
@@ -128,15 +128,15 @@
 
 /* Застарілі класи (для зворотної сумісності) - використовуйте нові класи вище */
 .no-results-title {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: var(--typ-headline-md-size);
+    font-weight: var(--typ-headline-md-weight);
     color: var(--color-on-surface);
     text-align: center;
     margin: 0;
 }
 
 .no-results-text {
-    font-size: 16px;
+    font-size: var(--typ-body-lg-size);
     color: var(--color-on-surface-v);
     text-align: center;
     margin: 0;
@@ -145,7 +145,7 @@
 
 .no-results-text strong {
     color: var(--color-on-surface);
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
 }
 
 /* ============================================================================
@@ -167,8 +167,8 @@
 }
 
 .modal-confirm-avatar-message {
-    font-size: 18px;
-    font-weight: 500;
+    font-size: var(--typ-title-lg-size);
+    font-weight: var(--typ-title-md-weight);
     color: var(--color-on-surface);
     text-align: center;
     margin: 0;

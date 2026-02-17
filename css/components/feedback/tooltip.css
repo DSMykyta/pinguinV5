@@ -24,9 +24,9 @@
     background-color: var(--color-on-surface);  /* Чорна плашка */
     color: var(--color-surface);                /* Білий текст */
     border-radius: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.4;
+    font-size: var(--typ-body-sm-size);
+    font-weight: var(--typ-body-sm-weight);
+    line-height: var(--typ-body-sm-line-height);
     white-space: pre-line;                       /* Зберігати \n як перенесення рядків */
     word-wrap: break-word;
     z-index: 10000;
@@ -51,7 +51,7 @@
     color: var(--color-surface);
     padding: 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     max-width: 320px;
     box-shadow: var(--shadow-1);
     pointer-events: none;
@@ -65,7 +65,7 @@
 
 /* Назва групи - червоний */
 .banned-word-tooltip .tooltip-title {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     margin-bottom: 8px;
     color: var(--color-error);
 }
@@ -82,7 +82,7 @@
 }
 
 .banned-word-tooltip .tooltip-hint strong {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
 }
 
 /* ============================================================================
@@ -96,7 +96,7 @@
     color: var(--color-surface);
     padding: 12px 16px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     min-width: 240px;
     max-width: 320px;
     box-shadow: var(--shadow-1);
@@ -112,10 +112,10 @@
 }
 
 .shortcuts-tooltip .tooltip-title {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     margin-bottom: 12px;
     color: var(--color-primary);
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
 }
 
 .shortcuts-list {
@@ -128,7 +128,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     color: rgba(255, 255, 255, 0.6);
 }
 
@@ -147,8 +147,8 @@
     background: rgba(255, 255, 255, 0.15);
     color: var(--color-surface);
     border-radius: 4px;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: var(--typ-label-sm-size);
+    font-weight: var(--typ-label-sm-weight);
     font-family: inherit;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }

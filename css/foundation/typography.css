@@ -178,106 +178,222 @@
 /* ============================================ */
 
 body {
-    font-family: 'Geologica', sans-serif;
+    font-family: var(--font-body);
+    font-size: var(--typ-body-sm-size);
+    font-weight: var(--typ-body-sm-weight);
+    line-height: var(--typ-body-sm-line-height);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--text-primary);
 }
 
 /* ============================================ */
-/* 3. ЗАГОЛОВКИ (NyghtSerif)                   */
+/* 3. ЗАГОЛОВКИ — Headline токени (NyghtSerif)  */
 /* ============================================ */
 
 h1, .h1 {
-    font-family: 'NyghtSerif', serif;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 1.2;
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-lg-size);
+    font-weight: var(--typ-headline-lg-weight);
+    line-height: var(--typ-headline-lg-line-height);
     color: var(--text-primary);
     margin: 0;
 }
 
 h2, .h2 {
-    font-family: 'NyghtSerif', serif;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.3;
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-md-size);
+    font-weight: var(--typ-headline-md-weight);
+    line-height: var(--typ-headline-md-line-height);
     color: var(--text-primary);
     margin: 0;
 }
 
 h3, .h3 {
-    font-family: 'NyghtSerif', serif;
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.4;
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-sm-size);
+    font-weight: var(--typ-headline-sm-weight);
+    line-height: var(--typ-headline-sm-line-height);
     color: var(--text-primary);
     margin: 0;
 }
 
 h4, .h4 {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: var(--typ-title-lg-size);
+    font-weight: var(--typ-title-lg-weight);
+    line-height: var(--typ-title-lg-line-height);
     color: var(--text-primary);
     margin: 0;
 }
 
 /* ============================================ */
-/* 4. ТЕКСТОВІ БЛОКИ (Geologica)                */
+/* 4. ТЕКСТОВІ БЛОКИ — Body/Title токени        */
 /* ============================================ */
 
 .body-l {
-    font-size: 16px;
-    font-weight: 500;
+    font-size: var(--typ-title-md-size);
+    font-weight: var(--typ-title-md-weight);
+    line-height: var(--typ-title-md-line-height);
     color: var(--text-primary);
 }
 
 .body-m {
-    font-size: 14px;
-    font-weight: 400;
+    font-size: var(--typ-body-md-size);
+    font-weight: var(--typ-body-md-weight);
+    line-height: var(--typ-body-md-line-height);
     color: var(--text-primary);
 }
 
 /* ============================================ */
-/* 5. ДОПОМІЖНИЙ ТЕКСТ                         */
+/* 5. ДОПОМІЖНИЙ ТЕКСТ — Label/Body-sm токени   */
 /* ============================================ */
 
 .caption {
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--typ-label-lg-size);
+    font-weight: var(--typ-label-lg-weight);
+    line-height: var(--typ-label-lg-line-height);
     color: var(--text-secondary);
 }
 
 .small {
-    font-size: 12px;
-    font-weight: 400;
+    font-size: var(--typ-body-sm-size);
+    font-weight: var(--typ-body-sm-weight);
+    line-height: var(--typ-body-sm-line-height);
     color: var(--text-secondary);
 }
 
 .tiny {
-    font-size: 11px;
-    font-weight: 400;
+    font-size: var(--typ-label-sm-size);
+    font-weight: var(--typ-label-sm-weight);
+    line-height: var(--typ-label-sm-line-height);
     color: var(--text-hint);
 }
 
 /* ============================================ */
-/* 6. СПЕЦІАЛЬНИЙ UPPERCASE (NyghtSerif)       */
+/* 6. DISPLAY — декоративні заголовки           */
 /* ============================================ */
 
 .section-upper {
-    font-family: 'NyghtSerif', serif;
-    font-size: 32px;
-    font-weight: 400;
+    font-family: var(--font-display);
+    font-size: var(--typ-display-lg-size);
+    font-weight: var(--typ-display-lg-weight);
+    line-height: var(--typ-display-lg-line-height);
+    letter-spacing: var(--typ-display-lg-tracking);
     text-transform: uppercase;
     color: var(--color-main);
-    letter-spacing: 0.04em;
 }
 
 /* ============================================ */
-/* 7. МОНОШИРИННИЙ ШРИФТ (Roboto Mono)        */
+/* 7. M3 UTILITY-КЛАСИ (повне покриття)        */
+/* ============================================ */
+
+/* --- Display --- */
+.display-lg {
+    font-family: var(--font-display);
+    font-size: var(--typ-display-lg-size);
+    font-weight: var(--typ-display-lg-weight);
+    line-height: var(--typ-display-lg-line-height);
+    letter-spacing: var(--typ-display-lg-tracking);
+}
+
+.display-md {
+    font-family: var(--font-display);
+    font-size: var(--typ-display-md-size);
+    font-weight: var(--typ-display-md-weight);
+    line-height: var(--typ-display-md-line-height);
+}
+
+.display-sm {
+    font-family: var(--font-display);
+    font-size: var(--typ-display-sm-size);
+    font-weight: var(--typ-display-sm-weight);
+    line-height: var(--typ-display-sm-line-height);
+}
+
+/* --- Headline --- */
+.headline-lg {
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-lg-size);
+    font-weight: var(--typ-headline-lg-weight);
+    line-height: var(--typ-headline-lg-line-height);
+}
+
+.headline-md {
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-md-size);
+    font-weight: var(--typ-headline-md-weight);
+    line-height: var(--typ-headline-md-line-height);
+}
+
+.headline-sm {
+    font-family: var(--font-display);
+    font-size: var(--typ-headline-sm-size);
+    font-weight: var(--typ-headline-sm-weight);
+    line-height: var(--typ-headline-sm-line-height);
+}
+
+/* --- Title --- */
+.title-lg {
+    font-size: var(--typ-title-lg-size);
+    font-weight: var(--typ-title-lg-weight);
+    line-height: var(--typ-title-lg-line-height);
+}
+
+.title-md {
+    font-size: var(--typ-title-md-size);
+    font-weight: var(--typ-title-md-weight);
+    line-height: var(--typ-title-md-line-height);
+}
+
+.title-sm {
+    font-size: var(--typ-title-sm-size);
+    font-weight: var(--typ-title-sm-weight);
+    line-height: var(--typ-title-sm-line-height);
+}
+
+/* --- Body --- */
+.body-lg {
+    font-size: var(--typ-body-lg-size);
+    font-weight: var(--typ-body-lg-weight);
+    line-height: var(--typ-body-lg-line-height);
+}
+
+.body-md {
+    font-size: var(--typ-body-md-size);
+    font-weight: var(--typ-body-md-weight);
+    line-height: var(--typ-body-md-line-height);
+}
+
+.body-sm {
+    font-size: var(--typ-body-sm-size);
+    font-weight: var(--typ-body-sm-weight);
+    line-height: var(--typ-body-sm-line-height);
+}
+
+/* --- Label --- */
+.label-lg {
+    font-size: var(--typ-label-lg-size);
+    font-weight: var(--typ-label-lg-weight);
+    line-height: var(--typ-label-lg-line-height);
+}
+
+.label-md {
+    font-size: var(--typ-label-md-size);
+    font-weight: var(--typ-label-md-weight);
+    line-height: var(--typ-label-md-line-height);
+}
+
+.label-sm {
+    font-size: var(--typ-label-sm-size);
+    font-weight: var(--typ-label-sm-weight);
+    line-height: var(--typ-label-sm-line-height);
+}
+
+/* ============================================ */
+/* 8. МОНОШИРИННИЙ ШРИФТ (Roboto Mono)        */
 /* ============================================ */
 
 .input-left,
 .input-right {
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--font-mono);
 }

@@ -37,7 +37,7 @@
 }
 
 .loading-message {
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
     color: var(--color-on-surface-variant);
     margin: 0;
     animation: pulse 2s ease-in-out infinite;

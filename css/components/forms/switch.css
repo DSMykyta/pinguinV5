@@ -28,7 +28,7 @@
     gap: 2px;
     padding: 2px;
     border-radius: var(--radius-xs, 4px);
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
 }
 
 .switch input[type="radio"] {
@@ -71,7 +71,7 @@
 
 /* Modifier: compact */
 .switch-sm {
-    font-size: 11px;
+    font-size: var(--typ-label-sm-size);
 }
 
 .switch-sm .switch-label {

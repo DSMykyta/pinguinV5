@@ -36,13 +36,13 @@
 }
 
 .batch-actions-bar .selection-count {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--typ-body-md-size);
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
 .batch-actions-bar .selection-label {
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     color: var(--color-on-surface-v);
 }
 
@@ -60,8 +60,8 @@
     border: none;
     background: transparent;
     color: var(--color-on-surface);
-    font-size: 13px;
-    font-weight: 500;
+    font-size: var(--typ-label-lg-size);
+    font-weight: var(--typ-label-lg-weight);
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
