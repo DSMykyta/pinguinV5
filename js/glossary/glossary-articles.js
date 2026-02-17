@@ -80,7 +80,7 @@ function createArticleHtml(item) {
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
-                        <h2>${item.name}</h2>
+                        <h2 class="display-l section-upper">${item.name}</h2>
                         ${actionButton({ action: 'edit', rowId: item.id, context: 'glossary' })}
                     </div>
                     <h3>${item.id}</h3>
