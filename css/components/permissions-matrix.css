@@ -21,7 +21,7 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 14px;
+    font-size: var(--typ-body-md-size);
 }
 
 /* =========================================================================
@@ -38,7 +38,7 @@
 .matrix-table th {
     padding: 12px 16px;
     text-align: left;
-    font-weight: 500;
+    font-weight: var(--typ-title-md-weight);
     color: var(--text-primary);
     border-bottom: 2px solid var(--color-outline);
     white-space: nowrap;
@@ -70,16 +70,16 @@
 }
 
 .matrix-role-name {
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: var(--typ-title-lg-weight);
+    font-size: var(--typ-body-md-size);
     margin-bottom: 4px;
     color: var(--color-main);
 }
 
 .matrix-role-id {
-    font-size: 11px;
+    font-size: var(--typ-label-sm-size);
     color: var(--text-secondary);
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-mono);
 }
 
 /* =========================================================================
@@ -108,7 +108,7 @@
 
 .matrix-cell-category {
     background: var(--color-surface-c);
-    font-weight: 500;
+    font-weight: var(--typ-title-md-weight);
     position: sticky;
     left: 0;
     z-index: 5;
@@ -142,8 +142,8 @@
 
 .matrix-cell-label code {
     display: block;
-    font-size: 11px;
-    font-family: 'Courier New', monospace;
+    font-size: var(--typ-label-sm-size);
+    font-family: var(--font-mono);
     color: var(--text-secondary);
     margin-bottom: 4px;
     background: var(--color-surface-c-low);
@@ -154,16 +154,16 @@
 
 .matrix-label-text {
     display: block;
-    font-size: 13px;
+    font-size: var(--typ-label-lg-size);
     color: var(--text-primary);
 }
 
 .matrix-subgroup-label {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: var(--typ-label-sm-size);
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-main);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: var(--tracking-wider);
     margin-bottom: 6px;
     padding-left: 12px;
     border-left: 3px solid var(--color-main);
@@ -217,12 +217,12 @@
 
     .matrix-header-role {
         min-width: 80px;
-        font-size: 12px;
+        font-size: var(--typ-body-sm-size);
         padding: 12px 6px;
     }
 
     .matrix-role-name {
-        font-size: 12px;
+        font-size: var(--typ-body-sm-size);
     }
 
     .matrix-role-id {

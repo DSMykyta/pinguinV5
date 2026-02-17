@@ -30,7 +30,7 @@
     background-color: var(--color-surface-c-low);
     padding: 4px 10px;
     border-radius: var(--radius-full);
-    font-size: 12px;
+    font-size: var(--typ-body-sm-size);
     color: var(--color-on-surface-v);
     display: flex;
     gap: 16px;
@@ -39,6 +39,6 @@
 }
 
 .text-stats-container .stat-item strong {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }

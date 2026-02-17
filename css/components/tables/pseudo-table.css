@@ -42,8 +42,8 @@
     z-index: 10;
     display: flex;
     background-color: var(--color-surface-c-low);
-    font-weight: 500;
-    font-size: 14px;
+    font-weight: var(--typ-title-md-weight);
+    font-size: var(--typ-body-md-size);
     color: var(--color-on-surface);
     border-bottom: 1px solid var(--color-outline-v);
 }
@@ -51,7 +51,7 @@
 .pseudo-table-header .pseudo-table-cell {
     background: var(--color-surface);
     padding: 12px 16px;
-    font-weight: 500;
+    font-weight: var(--typ-title-md-weight);
     overflow: visible;
 }
 
@@ -267,8 +267,8 @@
 
 .entities-table th {
     background: var(--color-surface-c);
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: var(--typ-title-lg-weight);
+    font-size: var(--typ-label-lg-size);
     color: var(--color-on-surface-v);
 }
 
@@ -308,8 +308,8 @@
 /* Контейнер фрагменту тексту */
 .context-fragment {
     display: block; /* Змінено з flex на block для суцільного тексту */
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: var(--typ-label-lg-size);
+    line-height: var(--typ-body-md-line-height);
     color: var(--color-on-surface);
     white-space: normal; /* Дозволити перенесення тексту для контексту */
     word-break: break-word;
@@ -322,7 +322,7 @@
     border: 1px solid var(--color-error);
     padding: 2px 4px;
     border-radius: 4px;
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     white-space: nowrap;
     display: inline;
     cursor: pointer;
@@ -352,8 +352,8 @@
     align-items: center;
     justify-content: center;
     padding: 2px 6px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: var(--typ-label-sm-size);
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-secondary);
     background-color: var(--color-secondary);
     border-radius: 12px;

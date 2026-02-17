@@ -185,7 +185,7 @@
 
 .mapping-preview {
     color: var(--on-surface-variant);
-    font-family: monospace;
+    font-family: var(--font-mono);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

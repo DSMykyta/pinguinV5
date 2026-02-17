@@ -1400,7 +1400,7 @@
 
 .variant-sku {
     color: var(--color-on-surface-v);
-    font-family: monospace;
+    font-family: var(--font-mono);
 }
 
 .variant-meta {
@@ -1616,7 +1616,7 @@
 }
 
 .mp-item-id {
-    font-family: monospace;
+    font-family: var(--font-mono);
     color: var(--color-on-surface-v);
 }
 

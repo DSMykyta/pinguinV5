@@ -59,7 +59,7 @@
 
 .modal-confirm-details .cascade-item strong {
     color: var(--color-on-surface);
-    font-weight: 500;
+    font-weight: var(--typ-title-md-weight);
 }
 
 .modal-confirm-actions {
@@ -257,7 +257,7 @@
 }
 
 .modal-stat-value {
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
 }
 
 /* ============================================
@@ -330,7 +330,7 @@
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid var(--color-outline-v);
-    font-weight: 600;
+    font-weight: var(--typ-title-lg-weight);
     color: var(--color-on-surface);
 }
 
@@ -465,7 +465,7 @@
 
 .article-content h3 {
     margin: 20px 0 8px 0;
-    font-size: 16px;
+    font-size: var(--typ-title-md-size);
     color: var(--color-on-surface);
 }
 
@@ -490,7 +490,7 @@
 
 .article-content li strong {
     color: var(--color-on-surface);
-    font-weight: 500;
+    font-weight: var(--typ-title-md-weight);
 }
 
 .article-content code {

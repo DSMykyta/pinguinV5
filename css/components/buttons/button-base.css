@@ -42,7 +42,7 @@ button {
     border-radius: 8px;
 
     /* Typography */
-    font-family: 'Geologica', sans-serif;
+    font-family: var(--font-body);
     white-space: nowrap;
 
     /* Interaction */
