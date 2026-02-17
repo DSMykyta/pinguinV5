@@ -129,11 +129,6 @@ body.is-modal-open {
    MODAL HEADER ACTIONS
    ============================================ */
 
-.modal-header-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
 
 
 /* ============================================

@@ -74,10 +74,10 @@
 /* ============================================ */
 
 /**
- * Flex row з gap 8px та вирівнюванням по центру
- * Часто використовується для груп кнопок та контролів
+ * Універсальна група елементів в ряд (flex row, gap 8px)
+ * Замінює: .tab-controls, .modal-header-actions, .modal-fullscreen-header-right, .btn-group, .u-flex-row-8
  */
-.u-flex-row-8 {
+.group {
     display: flex;
     gap: 8px;
     align-items: center;

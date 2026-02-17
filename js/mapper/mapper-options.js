@@ -644,7 +644,7 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
                 </div>
                 <span class="smal">Прив'язані опції маркетплейсів</span>
             </div>
-            <div class="tab-controls">
+            <div class="group">
                 <button class="btn-outline btn-map-mp">
                     <span class="material-symbols-outlined">link</span>
                     <span>Замапити</span>
@@ -731,7 +731,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>
-                    <div class="modal-header-actions">
+                    <div class="group">
                         <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>

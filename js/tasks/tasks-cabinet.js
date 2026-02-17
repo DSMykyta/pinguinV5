@@ -269,7 +269,7 @@ function renderGreeting() {
     };
 
     return `
-        <div class="u-flex-row-8" style="gap: 24px; align-items: center;">
+        <div class="group" style="gap: 24px; align-items: center;">
             <img
                 src="${avatarPath}"
                 alt="${animal} ${normalizedEmotion}"

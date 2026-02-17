@@ -101,8 +101,8 @@ function createModal() {
             <!-- Header -->
             <div class="modal-header">
                 <h2 class="modal-title"><span id="edit-modal-title">Товар</span></h2>
-                <div class="modal-header-actions">
-                    <div class="btn-group">
+                <div class="group">
+                    <div class="group">
                         <!-- Reserve dropdown -->
                         <div class="dropdown-wrapper">
                             <button type="button" class="btn-icon" id="reserve-dropdown-trigger" data-dropdown-trigger

@@ -162,7 +162,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">${escapeHtml(title)}</h2>
-                    <div class="modal-header-actions">
+                    <div class="group">
                         <span class="chip chip-active">${escapeHtml(mpName)}</span>
                         <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
