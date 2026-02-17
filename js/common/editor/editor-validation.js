@@ -244,6 +244,11 @@ export function init(state) {
     function applyHighlights() {
         if (!state.dom.editor || !validationRegex) return;
 
+        // Зберігаємо позицію курсора перед зміною DOM
+        const editorFocused = state.dom.editor.contains(document.activeElement)
+            || document.activeElement === state.dom.editor;
+        const caretPos = editorFocused ? saveCaretOffset(state.dom.editor) : null;
+
         clearHighlights();
 
         const walker = document.createTreeWalker(state.dom.editor, NodeFilter.SHOW_TEXT);
@@ -289,6 +294,11 @@ export function init(state) {
 
             textNode.parentNode.replaceChild(fragment, textNode);
         });
+
+        // Відновлюємо позицію курсора після зміни DOM
+        if (caretPos !== null) {
+            restoreCaretOffset(state.dom.editor, caretPos);
+        }
     }
 
     function clearHighlights() {
@@ -300,6 +310,42 @@ export function init(state) {
             parent.removeChild(el);
         });
         state.dom.editor?.normalize();
+    }
+
+    // ================================================================
+    // ЗБЕРЕЖЕННЯ / ВІДНОВЛЕННЯ КУРСОРА
+    // ================================================================
+
+    function saveCaretOffset(editor) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return null;
+
+        const range = sel.getRangeAt(0);
+        const pre = range.cloneRange();
+        pre.selectNodeContents(editor);
+        pre.setEnd(range.startContainer, range.startOffset);
+        return pre.toString().length;
+    }
+
+    function restoreCaretOffset(editor, offset) {
+        const sel = window.getSelection();
+        const range = document.createRange();
+        const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+
+        let charCount = 0;
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const len = node.textContent.length;
+
+            if (charCount + len >= offset) {
+                range.setStart(node, Math.min(offset - charCount, len));
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return;
+            }
+            charCount += len;
+        }
     }
 
     // ================================================================
