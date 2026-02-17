@@ -135,22 +135,6 @@ body.is-modal-open {
     align-items: center;
 }
 
-.modal-header-actions .segment {
-    height: 32px;
-}
-
-.modal-header-actions .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* Legacy: налаштування для #modal-header-actions */
-#modal-header-actions .segment {
-    height: 32px;
-}
-
-#modal-header-actions .material-symbols-outlined {
-    font-size: 20px;
-}
 
 /* ============================================
    MODAL BODY

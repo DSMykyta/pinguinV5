@@ -1050,7 +1050,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної характеристики</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -1160,7 +1160,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -1392,7 +1392,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                 <div class="modal-header">
                     <h2 class="modal-title">Характеристика маркетплейсу</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -1523,7 +1523,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                 <div class="modal-header">
                     <h2 class="modal-title">Опція маркетплейсу</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -1627,7 +1627,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до категорії</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -1781,7 +1781,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                 <div class="modal-header">
                     <h2 class="modal-title">Категорія маркетплейсу</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>

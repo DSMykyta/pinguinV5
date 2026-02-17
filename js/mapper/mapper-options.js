@@ -732,7 +732,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>

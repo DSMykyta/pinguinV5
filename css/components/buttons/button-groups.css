@@ -1,102 +1,27 @@
-/* css/components/_button-groups.css */
-/* Connected Button Groups (Round and Square) - з pin-map-v1.txt */
+/**
+ * COMPONENT: Button Group
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Контейнер для групи btn-icon кнопок що стоять впритул (gap: 2px).
+ * Використовується в modal header для групи дій (save, close, dropdown).
+ *
+ * HTML ПРИКЛАД:
+ * <div class="btn-group">
+ *   <button class="btn-icon" aria-label="Зберегти">
+ *     <span class="material-symbols-outlined">save</span>
+ *   </button>
+ *   <button class="btn-icon modal-close-btn" aria-label="Закрити" data-modal-close>
+ *     <span class="material-symbols-outlined">close</span>
+ *   </button>
+ * </div>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - button-icon.css (для btn-icon всередині)
+ */
 
-.connected-button-group-square,
-.connected-button-group-round {
+.btn-group {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0px;
     gap: 2px;
-    position: relative;
-    height: 32px;
-}
-
-.button-group {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0px;
-    gap: 2px;
-    position: relative;
-    height: 32px;
-}
-
-/* Segment (Загальні стилі для всіх кнопок) */
-.segment {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 8px;
-    gap: 8px;
-    height: 32px;
-    background: var(--color-surface-c);
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.segment .state-layer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-/* Square variant - базове заокруглення 4px для всіх */
-.connected-button-group-square .segment {
-    border-radius: 4px;
-}
-
-/* Round variant - спеціальне заокруглення для першого і останнього */
-.connected-button-group-round .segment {
-    border-radius: 4px;
-}
-
-.connected-button-group-round .segment:first-child {
-    border-radius: 16px 4px 4px 16px;
-}
-
-.connected-button-group-round .segment:last-child {
-    border-radius: 4px 16px 16px 4px;
-}
-
-/* Активний стан та стан наведення */
-.segment.active,
-.segment:hover {
-    background: var(--color-main);
-}
-
-.segment.active .material-symbols-outlined,
-.segment:hover .material-symbols-outlined {
-    color: var(--color-on-main);
-}
-
-/* Розширення border-radius тільки для табів з кнопкою закриття */
-.segment.active,
-.segment:hover {
-    border-radius: 24px;
-}
-
-.segment:disabled {
-    opacity: 0.38;
-    cursor: not-allowed;
-}
-
-/* Іконки в сегментах */
-.segment .material-symbols-outlined {
-    font-size: 18px;
-}
-
-/* ============================================
-   CONFIRM MODAL BUTTONS (без іконок)
-   ============================================ */
-
-/* Приховування іконок для confirm-модалів */
-.modal-footer.modal-footer-confirm .segment .material-symbols-outlined {
-    display: none;
 }

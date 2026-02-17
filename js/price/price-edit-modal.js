@@ -102,10 +102,10 @@ function createModal() {
             <div class="modal-header">
                 <h2 class="modal-title"><span id="edit-modal-title">Товар</span></h2>
                 <div class="modal-header-actions">
-                    <div class="connected-button-group-square">
+                    <div class="btn-group">
                         <!-- Reserve dropdown -->
                         <div class="dropdown-wrapper">
-                            <button type="button" class="segment" id="reserve-dropdown-trigger" data-dropdown-trigger
+                            <button type="button" class="btn-icon" id="reserve-dropdown-trigger" data-dropdown-trigger
                                 aria-label="Змінити резерв">
                                 <span id="reserve-trigger-content">
                                     <span class="material-symbols-outlined">person</span>
@@ -122,14 +122,14 @@ function createModal() {
                         </div>
 
                         <!-- Save button -->
-                        <button id="edit-save-btn" class="segment" aria-label="Зберегти">
+                        <button id="edit-save-btn" class="btn-icon" aria-label="Зберегти">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">save</span>
                             </div>
                         </button>
 
                         <!-- Close button -->
-                        <button class="segment" data-modal-close aria-label="Закрити">
+                        <button class="btn-icon" data-modal-close aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>

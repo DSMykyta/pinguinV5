@@ -389,7 +389,7 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
                 <div class="modal-header">
                     <h2 class="modal-title">Додати характеристику</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>
@@ -618,7 +618,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до категорії</h2>
                     <div class="modal-header-actions">
-                        <button class="segment modal-close-btn" aria-label="Закрити">
+                        <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
                             </div>

@@ -435,6 +435,9 @@
             <a href="#feedback" class="m3-nav-item">
                 <span class="material-symbols-outlined">notifications</span>Feedback
             </a>
+            <a href="#charms" class="m3-nav-item">
+                <span class="material-symbols-outlined">diamond</span>Charms
+            </a>
         </div>
 
         <div class="m3-nav-group">
@@ -1226,23 +1229,19 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.connected-button-group / .segment</h3>
+                        <h3>.btn-group</h3>
+                        <p>Контейнер для групи btn-icon кнопок (gap: 2px). Використовується в modal header.</p>
                         <div class="m3-tags"><span class="m3-tag m3-tag-src">button-groups.css</span></div>
                     </div>
                     <div class="m3-preview">
-                        <div class="connected-button-group-round">
-                            <button class="segment"><span
-                                    class="material-symbols-outlined">format_align_left</span></button>
-                            <button class="segment active"><span
-                                    class="material-symbols-outlined">format_align_center</span></button>
-                            <button class="segment"><span
-                                    class="material-symbols-outlined">format_align_right</span></button>
+                        <div class="btn-group">
+                            <button class="btn-icon" aria-label="Зберегти"><span class="material-symbols-outlined">save</span></button>
+                            <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
                         </div>
                         <span style="width:16px"></span>
-                        <div class="connected-button-group-square">
-                            <button class="segment"><span class="material-symbols-outlined">grid_view</span></button>
-                            <button class="segment active"><span
-                                    class="material-symbols-outlined">view_list</span></button>
+                        <div class="btn-group">
+                            <button class="btn-icon danger" aria-label="Видалити"><span class="material-symbols-outlined">delete</span></button>
+                            <button class="btn-icon" aria-label="Закрити"><span class="material-symbols-outlined">close</span></button>
                         </div>
                     </div>
                 </div>
@@ -2169,6 +2168,7 @@ icon.classList.add('spinning');
 &lt;!-- JS знімає коли готово --&gt;
 icon.classList.remove('spinning');</div>
                 </div>
+
             </section>
 
 

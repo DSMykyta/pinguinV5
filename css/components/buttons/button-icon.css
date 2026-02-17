@@ -120,9 +120,6 @@
     background: var(--color-surface-c-high);
 }
 
-.btn-icon.reload .material-symbols-outlined {
-    font-size: 20px;
-}
 
 /* Чарм: danger — hover червоним для деструктивних дій */
 .btn-icon.danger:hover {

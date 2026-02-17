@@ -116,7 +116,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
 
         // Створити кнопку табу
         const tabButton = document.createElement('button');
-        tabButton.className = 'segment tab-button';
+        tabButton.className = 'btn-icon tab-button';
         tabButton.dataset.tabTarget = tabId;
         tabButton.innerHTML = buttonHTML;
 
@@ -192,7 +192,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
 
         // Якщо таб був активний - перемкнутись на перший доступний
         if (wasActive) {
-            const firstTab = tabsContainer.querySelector('.tab-button, .segment');
+            const firstTab = tabsContainer.querySelector('.tab-button');
             if (firstTab) {
                 setTimeout(() => {
                     firstTab.click();
@@ -219,7 +219,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
      * Отримати активний таб
      */
     function getActiveTab() {
-        const activeButton = tabsContainer.querySelector('.tab-button.active, .segment.active');
+        const activeButton = tabsContainer.querySelector('.tab-button.active');
         return activeButton ? activeButton.dataset.tabTarget : null;
     }
 
@@ -227,7 +227,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
      * Отримати всі таби
      */
     function getAllTabs() {
-        const buttons = tabsContainer.querySelectorAll('.tab-button, .segment');
+        const buttons = tabsContainer.querySelectorAll('.tab-button');
         return Array.from(buttons).map(btn => ({
             id: btn.dataset.tabTarget,
             isActive: btn.classList.contains('active'),
@@ -260,7 +260,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
     function initTabEventHandlers() {
         // Делегування подій для перемикання табів
         tabsContainer.addEventListener('click', (e) => {
-            const tabButton = e.target.closest('.tab-button, .segment');
+            const tabButton = e.target.closest('.tab-button');
             if (!tabButton) return;
 
             // Перевірити чи це не клік на кнопку закриття
@@ -274,7 +274,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
             e.preventDefault();
 
             // Зняти active з усіх табів
-            tabsContainer.querySelectorAll('.tab-button, .segment').forEach(btn => {
+            tabsContainer.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
             });
 
@@ -305,7 +305,7 @@ export function initDynamicTabs(tabsContainer, options = {}) {
             e.preventDefault();
             e.stopPropagation();
 
-            const tabButton = closeButton.closest('.tab-button, .segment');
+            const tabButton = closeButton.closest('.tab-button');
             if (!tabButton) return;
 
             const tabId = tabButton.dataset.tabTarget;
