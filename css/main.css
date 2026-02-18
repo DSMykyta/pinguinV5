@@ -44,7 +44,7 @@
 @import url('components/buttons/button-groups.css');
 @import url('components/buttons/button-variants.css');
 @import url('components/buttons/fab.css');
-@import url('components/forms/badge.css');
+@import url('components/feedback/badge.css');
 
 /* === COMPONENTS - AVATAR === */
 @import url('components/avatar.css');

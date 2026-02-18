@@ -1260,7 +1260,7 @@
             <!-- ================================================================= -->
             <section class="m3-section" id="forms">
                 <h2 class="m3-section-title">Forms</h2>
-                <p class="m3-section-desc">Елементи введення даних: інпути, селекти, чекбокси, свічі, badge.</p>
+                <p class="m3-section-desc">Елементи введення даних: інпути, селекти, чекбокси, свічі.</p>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
@@ -1519,21 +1519,25 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.badge / .severity-badge</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">badge.css</span></div>
+                        <h3>.drop-zone</h3>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">drop-zone.css</span><span
+                                class="m3-tag m3-tag-use">import CSV/XLSX</span></div>
                     </div>
                     <div class="m3-preview">
-                        <span class="badge">Default</span>
-                        <span class="badge badge-neutral">Error</span>
-                        <span class="badge badge-success">Success</span>
-                        <span style="width:16px"></span>
-                        <span class="severity-badge severity-low"><span
-                                class="material-symbols-outlined">check_circle</span></span>
-                        <span class="severity-badge severity-medium"><span
-                                class="material-symbols-outlined">warning</span></span>
-                        <span class="severity-badge severity-high"><span
-                                class="material-symbols-outlined">error</span></span>
+                        <div class="drop-zone drop-zone-compact">
+                            <div class="drop-zone-content"><span
+                                    class="material-symbols-outlined drop-zone-icon">upload_file</span>
+                                <div class="drop-zone-text-wrap">
+                                    <p class="drop-zone-text">Перетягніть файл сюди або клікніть</p>
+                                    <p class="drop-zone-hint">CSV, XLSX, XLS</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div class="m3-code">.drop-zone-compact — горизонтальний layout
+.is-loading — opacity 0.7, icon spin
+.is-success — border: var(--color-success)
+.is-error — border: var(--color-error)</div>
                 </div>
 
                 <div class="m3-block">
@@ -1570,27 +1574,6 @@
                     </div>
                 </div>
 
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.drop-zone</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">drop-zone.css</span><span
-                                class="m3-tag m3-tag-warn">Старі CSS-змінні (--primary, --outline-variant)</span></div>
-                    </div>
-                    <div class="m3-preview">
-                        <div class="drop-zone drop-zone-compact">
-                            <div class="drop-zone-content"><span
-                                    class="material-symbols-outlined drop-zone-icon">upload_file</span>
-                                <div class="drop-zone-text-wrap">
-                                    <p class="drop-zone-text">Перетягніть файл сюди або клікніть</p>
-                                    <p class="drop-zone-hint">CSV, XLSX, XLS</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="m3-code">.is-loading — opacity 0.7, icon spin
-                        .is-success — border: var(--success) ⚠️ стара змінна
-                        .is-error — border: var(--error) ⚠️ стара змінна</div>
-                </div>
             </section>
 
 
@@ -2088,6 +2071,26 @@
             <!-- ================================================================= -->
             <section class="m3-section" id="feedback">
                 <h2 class="m3-section-title">Feedback</h2>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.badge / .severity-badge</h3>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">feedback/badge.css</span><span
+                                class="m3-tag m3-tag-use">task-edit, banned-word-edit</span></div>
+                    </div>
+                    <div class="m3-preview">
+                        <span class="badge">Default</span>
+                        <span class="badge badge-neutral">Error</span>
+                        <span class="badge badge-success">Success</span>
+                        <span style="width:16px"></span>
+                        <span class="severity-badge severity-low"><span
+                                class="material-symbols-outlined">check_circle</span></span>
+                        <span class="severity-badge severity-medium"><span
+                                class="material-symbols-outlined">warning</span></span>
+                        <span class="severity-badge severity-high"><span
+                                class="material-symbols-outlined">error</span></span>
+                    </div>
+                </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
