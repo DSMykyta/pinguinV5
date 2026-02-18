@@ -404,35 +404,7 @@
     border-color: var(--color-outline);
 }
 
-.form-actions .checkbox-label input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--color-outline);
-    border-radius: 4px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.form-actions .checkbox-label input[type="checkbox"]:checked {
-    background: var(--color-main, var(--color-main));
-    border-color: var(--color-main, var(--color-main));
-}
-
-.form-actions .checkbox-label input[type="checkbox"]:checked::after {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 1px;
-    width: 6px;
-    height: 11px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
+/* Стилі checkbox — глобальні, у checkbox.css */
 
 .form-actions .checkbox-label:has(input:checked) {
     background: var(--color-main-c);

@@ -1264,18 +1264,60 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>input — Ghost vs .input-main</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">input.css</span></div>
+                        <h3>input (ghost)</h3>
+                        <p>За замовчуванням <code>&lt;input&gt;</code> без класу — ghost: прозорий, без бордерів, зливається з контейнером. Для пошуку, inline-редагування, content-line.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">input.css</span>
+                            <span class="m3-tag m3-tag-use">content-line, search-container, inline edit</span>
+                        </div>
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:12px">
-                        <div><span class="m3-label">Ghost (без класу)</span><input type="text"
-                                placeholder="Ghost input — пошук, inline..."></div>
-                        <div><span class="m3-label">.input-main</span><input type="text" class="input-main"
-                                placeholder="Input main — форми, модалі..."></div>
-                        <div><span class="m3-label">.input-main disabled</span><input type="text" class="input-main"
-                                placeholder="Disabled" disabled></div>
+                        <input type="text" placeholder="Ghost — прозорий, без бордерів">
+                        <input type="text" placeholder="Пошук товарів...">
+                        <input type="text" value="Inline значення — редагується на місці">
                     </div>
+                    <div class="m3-code">&lt;input type="text" placeholder="Ghost — прозорий, без бордерів"&gt;
+&lt;!-- Без класу = ghost. border: none, background: transparent --&gt;</div>
                 </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.input-main</h3>
+                        <p>Інпут з бордером, hover та focus-кільцем. Для форм, модалок, form-group — де поле має бути візуально виділене.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">input.css</span>
+                            <span class="m3-tag m3-tag-use">form-group, modal forms, aside panels</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap:12px">
+                        <input type="text" class="input-main" placeholder="Введіть назву товару...">
+                        <input type="text" class="input-main" value="Creatine Monohydrate 500g">
+                        <input type="text" class="input-main" placeholder="Disabled" disabled>
+                    </div>
+                    <div class="m3-code">&lt;input type="text" class="input-main" placeholder="Введіть назву..."&gt;
+&lt;input type="text" class="input-main" disabled&gt;
+
+&lt;!-- Стани: hover → border темніший, focus → outline 2px --color-main --&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.input-short</h3>
+                        <p>Чарм для input-main — вимикає flex-розтяжку. Інпут займає тільки потрібну ширину замість 100%.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">input.css</span>
+                            <span class="m3-tag m3-tag-use">inline forms, toolbar inputs</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview" style="gap:12px">
+                        <input type="number" class="input-main input-short" placeholder="0" style="width:80px">
+                        <input type="text" class="input-main input-short" placeholder="USD" style="width:80px">
+                        <input type="text" class="input-main" placeholder="Звичайний — на всю ширину">
+                    </div>
+                    <div class="m3-code">&lt;input type="number" class="input-main input-short" placeholder="0"&gt;
+&lt;!-- .input-short: flex: none, width: auto --&gt;</div>
+                </div>
+
 
                 <div class="m3-block">
                     <div class="m3-block-header">
@@ -1356,86 +1398,123 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>checkbox</h3>
-                        <p>24x24, square → circle on hover → checked circle.</p>
+                        <p>Глобальний стиль для <code>&lt;input type="checkbox"&gt;</code> без класів. 24×24, квадрат з border → круг на hover → filled круг з галочкою при checked.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">checkbox.css</span>
+                            <span class="m3-tag m3-tag-use">pseudo-table, form-group, content-bloc</span>
+                        </div>
                     </div>
-                    <div class="m3-preview">
-                        <input type="checkbox"> <input type="checkbox" checked> <input type="checkbox" disabled>
+                    <div class="m3-preview" style="gap:24px">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox"> Default</label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked> Checked</label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" disabled> Disabled</label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked disabled> Checked + disabled</label>
                     </div>
+                    <div class="m3-code">&lt;input type="checkbox"&gt;
+&lt;input type="checkbox" checked&gt;
+&lt;input type="checkbox" disabled&gt;
+
+&lt;!-- Морфінг: square 4px → circle 24px on hover → filled circle on checked --&gt;
+&lt;!-- Колір checked: --color-secondary --&gt;</div>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.custom-select-wrapper</h3>
-                        <p>JS-driven select (ui-select.js). Пошук, multi-select, chips, keyboard nav.</p>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">custom-select.css</span></div>
-                    </div>
-                    <div class="m3-sub">Single — closed / selected</div>
-                    <div class="m3-preview">
-                        <div class="custom-select-wrapper" style="width:250px">
-                            <div class="custom-select-trigger">
-                                <div class="custom-select-value-container"><span
-                                        class="custom-select-placeholder">Обрати...</span></div><svg
-                                    class="custom-select-arrow" viewBox="0 0 20 20">
-                                    <path
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="custom-select-wrapper" style="width:250px">
-                            <div class="custom-select-trigger">
-                                <div class="custom-select-value-container"><span>Косметика</span></div><svg
-                                    class="custom-select-arrow" viewBox="0 0 20 20">
-                                    <path
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
-                            </div>
+                        <h3>.custom-select — Single</h3>
+                        <p>JS-driven select (<code>ui-select.js</code>). Замінює нативний <code>&lt;select&gt;</code>. Автоматичний пошук при 5+ опцій, keyboard nav (стрілки + Enter), відкриття вгору якщо немає місця.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">custom-select.css</span>
+                            <span class="m3-tag m3-tag-use">form-group, aside filters, modal forms</span>
                         </div>
                     </div>
-                    <div class="m3-sub">Single — open (static)</div>
-                    <div class="m3-preview m3-preview-col">
-                        <div class="custom-select-wrapper is-open" style="width:260px;position:relative;z-index:5">
-                            <div class="custom-select-trigger"
-                                style="border-color:var(--color-main);box-shadow:0 0 0 1px var(--color-main)">
-                                <div class="custom-select-value-container"><span>Косметика</span></div><svg
-                                    class="custom-select-arrow" viewBox="0 0 20 20" style="transform:rotate(180deg)">
-                                    <path
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
-                            </div>
-                            <div class="custom-select-panel"
-                                style="opacity:1;pointer-events:auto;position:relative;top:4px;max-height:200px">
-                                <div class="custom-select-search-wrapper"><input type="text"
-                                        class="custom-select-search" placeholder="Пошук..."></div>
-                                <ul class="custom-select-options">
-                                    <li class="custom-select-option is-selected">Косметика</li>
-                                    <li class="custom-select-option">Харчування</li>
-                                    <li class="custom-select-option">Спорт</li>
-                                    <li class="custom-select-option">Медицина</li>
-                                </ul>
-                            </div>
+                    <div class="m3-sub">Placeholder / 4 опції (без пошуку) / 6+ опцій (з пошуком)</div>
+                    <div class="m3-preview" style="gap:16px">
+                        <select data-custom-select style="width:200px">
+                            <option value="">Обрати...</option>
+                            <option value="cosmetics">Косметика</option>
+                            <option value="food">Харчування</option>
+                            <option value="sport">Спорт</option>
+                        </select>
+                        <select data-custom-select style="width:200px">
+                            <option value="">Категорія...</option>
+                            <option value="cosmetics" selected>Косметика</option>
+                            <option value="food">Харчування</option>
+                            <option value="sport">Спорт</option>
+                            <option value="vitamins">Вітаміни</option>
+                            <option value="medicine">Медицина</option>
+                            <option value="aminos">Амінокислоти</option>
+                        </select>
+                    </div>
+                    <div class="m3-code">&lt;select data-custom-select&gt;
+  &lt;option value=""&gt;Обрати...&lt;/option&gt;
+  &lt;option value="cosmetics"&gt;Косметика&lt;/option&gt;
+  &lt;option value="food"&gt;Харчування&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;!-- Пошук автоматично при 5+ опцій --&gt;
+&lt;!-- Keyboard: ↑↓ навігація, Enter вибір, Esc закрити --&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.custom-select — Multi-select</h3>
+                        <p>Атрибут <code>multiple</code> — мультивибір з chips. Smart overflow: chips в 1 рядок, що не влазить → <code>+N</code>. Приховані chips у панелі зверху (3 рядки, scroll).</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">custom-select.css</span>
+                            <span class="m3-tag m3-tag-use">mapper filters, brand categories, product tags</span>
                         </div>
                     </div>
-                    <div class="m3-sub">Multi-select з chips</div>
-                    <div class="m3-preview">
-                        <div class="custom-select-wrapper" style="width:340px">
-                            <div class="custom-select-trigger">
-                                <div class="custom-select-value-container" style="max-height:none"><span
-                                        class="custom-select-chip"><span
-                                            class="custom-select-chip__label">Косметика</span><button
-                                            class="custom-select-chip__remove">&times;</button></span><span
-                                        class="custom-select-chip"><span
-                                            class="custom-select-chip__label">Харчування</span><button
-                                            class="custom-select-chip__remove">&times;</button></span><span
-                                        class="custom-select-chip"><span
-                                            class="custom-select-chip__label">Спорт</span><button
-                                            class="custom-select-chip__remove">&times;</button></span></div><svg
-                                    class="custom-select-arrow" viewBox="0 0 20 20">
-                                    <path
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                                </svg>
-                            </div>
-                        </div>
+                    <div class="m3-sub">Chips + overflow "+N" / data-select-all → "Обрати все"</div>
+                    <div class="m3-preview m3-preview-col" style="gap:16px">
+                        <select data-custom-select multiple style="width:100%">
+                            <option value="cosmetics" selected>Косметика</option>
+                            <option value="food" selected>Харчування</option>
+                            <option value="sport" selected>Спорт</option>
+                            <option value="vitamins" selected>Вітаміни</option>
+                            <option value="medicine" selected>Медицина</option>
+                            <option value="aminos" selected>Амінокислоти</option>
+                            <option value="protein" selected>Протеїн</option>
+                            <option value="creatine" selected>Креатин</option>
+                            <option value="omega">Омега-3</option>
+                            <option value="collagen">Колаген</option>
+                            <option value="prebio">Пребіотики</option>
+                            <option value="minerals">Мінерали</option>
+                            <option value="energy">Енергетики</option>
+                            <option value="weight">Контроль ваги</option>
+                            <option value="recovery">Відновлення</option>
+                        </select>
+                        <select data-custom-select multiple data-select-all style="width:100%">
+                            <option value="cosmetics">Косметика</option>
+                            <option value="food">Харчування</option>
+                            <option value="sport">Спорт</option>
+                            <option value="vitamins">Вітаміни</option>
+                            <option value="medicine">Медицина</option>
+                            <option value="aminos">Амінокислоти</option>
+                            <option value="protein">Протеїн</option>
+                            <option value="creatine">Креатин</option>
+                            <option value="omega">Омега-3</option>
+                            <option value="collagen">Колаген</option>
+                            <option value="prebio">Пребіотики</option>
+                            <option value="minerals">Мінерали</option>
+                            <option value="energy">Енергетики</option>
+                            <option value="weight">Контроль ваги</option>
+                            <option value="recovery">Відновлення</option>
+                        </select>
                     </div>
+                    <div class="m3-code">&lt;!-- Multi-select з chips --&gt;
+&lt;select data-custom-select multiple&gt;
+  &lt;option value="cosmetics" selected&gt;Косметика&lt;/option&gt;
+  &lt;option value="food" selected&gt;Харчування&lt;/option&gt;
+  &lt;option value="sport"&gt;Спорт&lt;/option&gt;
+&lt;/select&gt;
+
+&lt;!-- + "Обрати все" --&gt;
+&lt;select data-custom-select multiple data-select-all&gt;
+  ...
+&lt;/select&gt;
+
+&lt;!-- Smart overflow: [Chip][Chip][+N] → overflow panel --&gt;
+&lt;!-- Пошук авто при 5+ опцій --&gt;</div>
                 </div>
 
                 <div class="m3-block">
@@ -2668,6 +2747,10 @@ icon.classList.remove('spinning');</div>
                 });
             });
         });
+    </script>
+    <script type="module">
+        import { initCustomSelects } from './js/common/ui-select.js';
+        initCustomSelects();
     </script>
 
 </body>

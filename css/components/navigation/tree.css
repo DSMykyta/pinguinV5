@@ -140,12 +140,7 @@
     cursor: pointer;
 }
 
-.tree-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--color-main);
-    cursor: pointer;
-}
+/* Стилі checkbox — глобальні, у checkbox.css */
 
 /* ============================================ */
 /* ТЕКСТ ТА БЕЙДЖІ                              */

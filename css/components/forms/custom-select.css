@@ -32,7 +32,7 @@
 
 .custom-select-value-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
     align-items: center;
     overflow: hidden;
@@ -88,12 +88,16 @@
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Search Input */
+/* Search Input + Toggle All */
 .custom-select-search-wrapper {
     padding: 8px;
     border-bottom: 1px solid var(--color-outline-v);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
+
 
 .custom-select-search {
     width: 100%;
@@ -190,15 +194,29 @@
     opacity: 1;
 }
 
+/* Counter "+N" — показує кількість прихованих chips */
+.custom-select-chip.is-counter,
+.custom-select-chip.is-summary {
+    background-color: var(--color-surface-c);
+    color: var(--color-on-surface-v);
+    font-weight: 600;
+    padding: 2px 8px;
+    min-width: 32px;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: default;
+}
+
 /* Overflow Chips (в панелі) */
 .custom-select-overflow-chips {
-    padding: 8px;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--color-outline-v);
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    max-height: 100px;
+    gap: 6px;
+    max-height: 120px;
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .custom-select-overflow-chips:empty {
@@ -260,17 +278,4 @@
     background: var(--color-main-c);
 }
 
-/* Select All option */
-.custom-select-option-all {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--color-outline-v);
-}
-
-.custom-select-option-all .select-all-checkbox {
-    width: 18px;
-    height: 18px;
-    pointer-events: none;
-}
 

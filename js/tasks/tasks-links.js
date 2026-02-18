@@ -82,8 +82,7 @@ const TOOL_LINKS = [
     { name: 'Прайс', url: 'price.html', icon: 'receipt_long', description: 'Чекліст викладки' },
     { name: 'Mapper', url: 'mapper.html', icon: 'hub', description: 'Зіставлення атрибутів маркетплейсів' },
     { name: 'Глосарій', url: 'glossary.html', icon: 'import_contacts', description: 'Довідник статей' },
-    { name: 'Заборонені слова', url: 'banned-words.html', icon: 'block', description: 'Управління забороненими словами' },
-    { name: 'Товари', url: 'products.html', icon: 'inventory_2', description: 'Каталог товарів' }
+    { name: 'Заборонені слова', url: 'banned-words.html', icon: 'block', description: 'Управління забороненими словами' }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
