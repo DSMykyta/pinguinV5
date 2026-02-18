@@ -5,7 +5,7 @@
  * * ПРИЗНАЧЕННЯ:
  * Генерує фінальний HTML-код таблиці на основі поточного стану рядків у DOM.
  * Відповідає за правильну побудову тегів <table>, <tbody>, <tr>, <td>, <th>,
- * а також за обробку спеціальних випадків, як-от h2, colspan та курсив.
+ * а також за обробку спеціальних випадків, як-от h3, colspan та курсив.
  */
 
 import { getTableDOM } from './gt-dom.js';
@@ -27,19 +27,19 @@ export function generateHtmlTable() {
         const rightInput = row.querySelector(SELECTORS.INPUT_RIGHT).value;
 
         // Пропускаємо порожні рядки
-        if ((row.classList.contains(ROW_CLASSES.ADDED) && !rightInput.trim()) || 
+        if ((row.classList.contains(ROW_CLASSES.ADDED) && !rightInput.trim()) ||
             (!row.classList.contains(ROW_CLASSES.NEW_TABLE) && !leftInput.trim() && !rightInput.trim())) {
             return;
         }
 
-        // Обробка розділювачів та H2
-        if (row.classList.contains(ROW_CLASSES.NEW_TABLE) || row.classList.contains(ROW_CLASSES.H2)) {
+        // Обробка розділювачів та H3
+        if (row.classList.contains(ROW_CLASSES.NEW_TABLE) || row.classList.contains(ROW_CLASSES.H3)) {
             if (isTableOpen) {
                 tableHTML += '</tbody></table>';
                 isTableOpen = false;
             }
-            if (row.classList.contains(ROW_CLASSES.H2)) {
-                tableHTML += `<h2>${sanitizeText(leftInput)}</h2>`;
+            if (row.classList.contains(ROW_CLASSES.H3)) {
+                tableHTML += `<h3>${sanitizeText(leftInput)}</h3>`;
             }
             return;
         }
@@ -94,7 +94,7 @@ function generateTableRow(row, leftContent, rightContent, cellTag) {
     
     if (row.classList.contains(ROW_CLASSES.COLSPAN2)) {
         const content = isBold ? `<strong>${leftContent}</strong>` : leftContent;
-        return `<tr><${cellTag} colspan="2">${content}</${cellTag}></tr>`;
+        return `<tr><${cellTag}>${content}</${cellTag}></tr>`;
     }
 
     if (row.classList.contains(ROW_CLASSES.SINGLE)) {

@@ -175,7 +175,7 @@ function createModal() {
                     <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="form-group">
                             <label>Викладено</label>
-                            <div class="switch switch-bordered switch-fit">
+                            <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-status-off" name="edit-status" value="FALSE" checked>
                                 <label for="edit-status-off" class="switch-label">Ні</label>
                                 <input type="radio" id="edit-status-on" name="edit-status" value="TRUE">
@@ -184,7 +184,7 @@ function createModal() {
                         </div>
                         <div class="form-group">
                             <label>Перевірено</label>
-                            <div class="switch switch-bordered switch-fit">
+                            <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-check-off" name="edit-check" value="FALSE" checked>
                                 <label for="edit-check-off" class="switch-label">Ні</label>
                                 <input type="radio" id="edit-check-on" name="edit-check" value="TRUE">
@@ -193,7 +193,7 @@ function createModal() {
                         </div>
                         <div class="form-group">
                             <label>Оплачено</label>
-                            <div class="switch switch-bordered switch-fit">
+                            <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-payment-off" name="edit-payment" value="FALSE" checked>
                                 <label for="edit-payment-off" class="switch-label">Ні</label>
                                 <input type="radio" id="edit-payment-on" name="edit-payment" value="TRUE">

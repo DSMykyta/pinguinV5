@@ -2,10 +2,14 @@
  * COMPONENT: Switch
  *
  * ПРИЗНАЧЕННЯ:
- * Єдиний перемикач для всіх контекстів.
- * Base: full width, без бордеру, compact.
+ * Pill-shaped перемикач для всіх контекстів.
+ * Base: тихий (без solid fill), pill-shaped.
  *
  * ВИКОРИСТАННЯ:
+ * Використовується для вибору одного з кількох варіантів (radio-group).
+ * Мінімалістичний дизайн: неактивні опції тихі, активна — з фоном та тінню.
+ *
+ * HTML ПРИКЛАД:
  * <div class="switch">
  *   <input type="radio" id="a" name="grp" value="a" checked>
  *   <label for="a" class="switch-label">Опція 1</label>
@@ -13,21 +17,27 @@
  *   <label for="b" class="switch-label">Опція 2</label>
  * </div>
  *
- * МОДИФІКАТОРИ:
- * - .switch-bordered — з бордером
+ * КЛАСИ:
+ * - .switch — базовий контейнер (pill, --color-outline фон)
+ * - .switch-label — окрема опція
+ * - input:checked + .switch-label — активний стан (surface фон, тінь)
+ *
+ * ЧАРМИ (charms):
+ * - .switch-outline — квадратний з бордером (як інпути), тихий активний стан
  * - .switch-fit     — width: fit-content
- * - .switch-sm      — compact (менший шрифт/padding)
+ * - .switch-compact — compact (менша висота)
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main, --color-on-main, --color-on-surface-v)
+ * - root.css (--color-main, --color-on-main, --color-outline, --color-surface, --color-on-surface, --shadow-1)
  */
 
 .switch {
     display: flex;
     align-items: center;
     gap: 2px;
-    padding: 2px;
-    border-radius: var(--radius-xs, 4px);
+    padding: 3px;
+    background: var(--color-outline);
+    border-radius: 20px;
 }
 
 .switch input[type="radio"] {
@@ -39,39 +49,48 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 6px 14px;
+    border-radius: 17px;
     color: var(--color-on-surface-v);
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
     white-space: nowrap;
 }
 
 .switch-label:hover {
-    background: var(--color-surface-c-high);
     color: var(--color-on-surface);
 }
 
 .switch input[type="radio"]:checked + .switch-label {
-    background: var(--color-main);
-    color: var(--color-on-main);
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    box-shadow: var(--shadow-1);
 }
 
-/* Modifier: bordered */
-.switch-bordered {
+/* Чарм: outline — квадратний як інпути, тихий стан */
+.switch-outline {
+    background: transparent;
     border: 1px solid var(--color-outline);
-    padding: 4px;
+    border-radius: var(--radius-s);
+    min-height: 40px;
+    padding: 3px;
 }
 
-/* Modifier: fit-content */
+.switch-outline .switch-label {
+    border-radius: calc(var(--radius-s) - 2px);
+}
+
+/* Чарм: fit-content */
 .switch-fit {
     width: fit-content;
 }
 
-/* Modifier: compact */
-.switch-sm {
+/* Чарм: compact */
+.switch-compact {
+    padding: 2px;
 }
 
-.switch-sm .switch-label {
-    padding: 3px 8px;
+.switch-compact .switch-label {
+    padding: 4px 10px;
+    border-radius: 14px;
 }

@@ -1035,7 +1035,6 @@
     gap: 8px;
 }
 
-/* .form-hint - use global styles from form-group.css */
 
 /* ==========================================================================
    WIZARD MODAL (fullscreen)
@@ -1323,10 +1322,6 @@
 .status-dot.is-warning { background-color: var(--color-warning); }
 .status-dot.is-info    { background-color: var(--color-info); }
 .status-dot.is-neutral { background-color: var(--color-outline); }
-
-/* cell-status-small — видалено, використовувати cell-xs cell-center */
-
-/* Small button icon - defined earlier in this file */
 
 /* ==========================================================================
    VARIANTS COUNT BUTTON

@@ -23,9 +23,9 @@ const HTML_PATTERNS = [
     },
     {
         id: 'text-without-tag',
-        regex: /<\/[a-z0-9]+>\s*([А-ЯЇІЄҐЁа-яїієґёA-Za-z])/g,
+        regex: /<\/(?:p|h[1-6]|ul|ol|li|blockquote|div)>\s*([А-ЯЇІЄҐЁа-яїієґёA-Za-z])/g,
         name: 'Текст без тегу',
-        description: 'Після закриваючого тегу текст має бути обгорнутий у відповідний тег (‹p›, ‹h3› тощо).',
+        description: 'Після закриваючого блочного тегу текст має бути обгорнутий у відповідний тег (‹p›, ‹h3› тощо).',
         hint: 'Додайте відкриваючий тег перед текстом, наприклад ‹p›.'
     }
 ];
@@ -244,6 +244,19 @@ export function init(state) {
     function applyHighlights() {
         if (!state.dom.editor || !validationRegex) return;
 
+        // Не модифікуємо DOM якщо є активне виділення
+        const sel = window.getSelection();
+        if (sel.rangeCount && !sel.getRangeAt(0).collapsed) return;
+
+        // Перевіряємо чи є що робити — якщо нема highlights і нема matches, не чіпаємо DOM
+        const hasExisting = state.dom.editor.querySelector('.highlight-error, .highlight-warning');
+        const text = state.dom.editor.textContent || '';
+        validationRegex.lastIndex = 0;
+        const hasMatches = validationRegex.test(text);
+        validationRegex.lastIndex = 0;
+
+        if (!hasExisting && !hasMatches) return;
+
         // Зберігаємо позицію курсора перед зміною DOM
         const editorFocused = state.dom.editor.contains(document.activeElement)
             || document.activeElement === state.dom.editor;
@@ -258,13 +271,13 @@ export function init(state) {
         }
 
         textNodes.forEach(textNode => {
-            const text = textNode.textContent;
-            if (!text || !text.trim()) return;
+            const nodeText = textNode.textContent;
+            if (!nodeText || !nodeText.trim()) return;
 
             validationRegex.lastIndex = 0;
             const matches = [];
             let match;
-            while ((match = validationRegex.exec(text)) !== null) {
+            while ((match = validationRegex.exec(nodeText)) !== null) {
                 matches.push({
                     start: match.index,
                     end: match.index + match[0].length,
@@ -279,7 +292,7 @@ export function init(state) {
 
             matches.forEach(m => {
                 if (m.start > lastIndex) {
-                    fragment.appendChild(document.createTextNode(text.substring(lastIndex, m.start)));
+                    fragment.appendChild(document.createTextNode(nodeText.substring(lastIndex, m.start)));
                 }
                 const span = document.createElement('span');
                 span.className = 'highlight-error';
@@ -288,8 +301,8 @@ export function init(state) {
                 lastIndex = m.end;
             });
 
-            if (lastIndex < text.length) {
-                fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+            if (lastIndex < nodeText.length) {
+                fragment.appendChild(document.createTextNode(nodeText.substring(lastIndex)));
             }
 
             textNode.parentNode.replaceChild(fragment, textNode);

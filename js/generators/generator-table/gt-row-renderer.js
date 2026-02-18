@@ -38,7 +38,7 @@ function syncDropdownState(row, dropdown) {
 
     const boldButton = dropdown.querySelector('[data-class="bold"]');
     if (boldButton) {
-        const isImplicitlyBold = rowClasses.contains(ROW_CLASSES.TH_STRONG) || rowClasses.contains(ROW_CLASSES.H2);
+        const isImplicitlyBold = rowClasses.contains(ROW_CLASSES.TH_STRONG) || rowClasses.contains(ROW_CLASSES.H3);
         const isExplicitlyBold = rowClasses.contains(ROW_CLASSES.BOLD);
         boldButton.classList.toggle('active', isImplicitlyBold || isExplicitlyBold);
         boldButton.toggleAttribute('disabled', isImplicitlyBold);
@@ -114,9 +114,10 @@ function handleOptionClick(row, classToApply) {
     const isExclusive = ROW_CLASSES.EXCLUSIVE.includes(classToApply);
     
     if (isExclusive) {
+        const alreadyActive = row.classList.contains(classToApply);
         row.classList.remove(ROW_CLASSES.BOLD);
         ROW_CLASSES.EXCLUSIVE.forEach(cls => row.classList.remove(cls));
-        row.classList.add(classToApply);
+        row.classList.add(alreadyActive && classToApply !== ROW_CLASSES.TD ? ROW_CLASSES.TD : classToApply);
     } else {
         row.classList.toggle(classToApply);
     }

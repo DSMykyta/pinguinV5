@@ -39,7 +39,7 @@
  * - .th-strong — сильний заголовок (сірий фон, жирний)
  * - .bold      — жирний текст
  * - .italic    — курсив
- * - .h2        — великий заголовок (18px, ховає малі input-box)
+ * - .h3        — заголовок (ховає малі input-box, без рамки)
  * - .colspan2  — об'єднання колонок (ховає малі input-box)
  * - .single    — одна колонка (ховає малі input-box)
  * - .new-table — розділювач таблиць (невидимий)
@@ -293,7 +293,7 @@
 /* ============================================ */
 
 /* Злиття borders між послідовними рядками (не через розділювач) */
-.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2) .content-line {
+.content-bloc:not(.new-table):not(.h3) + .content-bloc:not(.new-table):not(.h3) .content-line {
     border-top: none;
 }
 
@@ -321,8 +321,8 @@
     background-color: var(--color-surface-c);
 }
 
-/* H2 — без рамки */
-.h2 .content-line {
+/* H3 — без рамки */
+.h3 .content-line {
     border: none;
     padding: 8px 0;
 }
@@ -332,9 +332,24 @@
 /* СТИЛІ ТЕКСТУ                                */
 /* ============================================ */
 
+.content-bloc.bold input,
+.content-bloc.bold textarea,
+.content-bloc.th-strong input,
+.content-bloc.th-strong textarea {
+    font-weight: 700;
+}
+
 .content-bloc.italic input,
 .content-bloc.italic textarea {
     font-style: italic;
+}
+
+.content-bloc.h3 .input-box input,
+.content-bloc.h3 .input-box textarea {
+    font-family: 'NyghtSerif', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
 .content-bloc.added input,
@@ -352,8 +367,8 @@
     margin: 8px 0;
 }
 
-:is(.h2, .single, .colspan2) .input-box.small,
-:is(.h2, .single, .colspan2) > .content-line > .separator-v {
+:is(.h3, .single, .colspan2) .input-box.small,
+:is(.h3, .single, .colspan2) > .content-line > .separator-v {
     display: none;
 }
 
@@ -377,17 +392,17 @@
 }
 
 /* Є наступний рядок → прибрати нижнє заокруглення */
-.content-bloc:not(.new-table):not(.h2):has(+ .content-bloc:not(.new-table):not(.h2)) .content-line {
+.content-bloc:not(.new-table):not(.h3):has(+ .content-bloc:not(.new-table):not(.h3)) .content-line {
     border-radius: 8px 8px 0 0;
 }
 
 /* Є попередній рядок → прибрати верхнє заокруглення */
-.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2) .content-line {
+.content-bloc:not(.new-table):not(.h3) + .content-bloc:not(.new-table):not(.h3) .content-line {
     border-radius: 0 0 8px 8px;
 }
 
 /* Є і попередній, і наступний → без заокруглення */
-.content-bloc:not(.new-table):not(.h2) + .content-bloc:not(.new-table):not(.h2):has(+ .content-bloc:not(.new-table):not(.h2)) .content-line {
+.content-bloc:not(.new-table):not(.h3) + .content-bloc:not(.new-table):not(.h3):has(+ .content-bloc:not(.new-table):not(.h3)) .content-line {
     border-radius: 0;
 }
 

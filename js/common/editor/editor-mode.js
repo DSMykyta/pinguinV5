@@ -43,7 +43,7 @@ export function initEditorMode(state) {
     });
 
     dom.editor?.addEventListener('mouseup', () => {
-        state.runHook('onInput');
+        state.runHook('onSelectionChange');
     });
 
     dom.codeEditor?.addEventListener('input', () => {
@@ -90,7 +90,7 @@ function switchToCodeMode(state) {
 }
 
 function enableToolbarButtons(toolbar, enabled) {
-    const buttons = toolbar?.querySelectorAll('.btn-icon[data-action]');
+    const buttons = toolbar?.querySelectorAll('.btn-icon[data-action], .btn-icon[data-dropdown-trigger]');
     buttons?.forEach(btn => {
         btn.disabled = !enabled;
         btn.classList.toggle('text-disabled', !enabled);

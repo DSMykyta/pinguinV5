@@ -1183,6 +1183,15 @@
                             <td>Drag-ручки, розкриття дерева</td>
                         </tr>
                         <tr>
+                            <td><strong>.touch</strong></td>
+                            <td><button class="btn-icon touch"><span
+                                        class="material-symbols-outlined">menu</span></button>
+                                <button class="btn-icon touch"><span
+                                        class="material-symbols-outlined">settings</span></button></td>
+                            <td>44×44, тач-ціль</td>
+                            <td>Тулбар, хедер, мобільний інтерфейс</td>
+                        </tr>
+                        <tr>
                             <td><strong>.reload</strong></td>
                             <td><button class="btn-icon reload"><span
                                         class="material-symbols-outlined">refresh</span></button>
@@ -1271,30 +1280,77 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>.switch</h3>
+                        <p>Pill-shaped перемикач. Чарми змінюють форму та розмір.</p>
                         <div class="m3-tags"><span class="m3-tag m3-tag-src">switch.css</span></div>
                     </div>
-                    <div class="m3-preview m3-preview-col" style="gap:12px">
-                        <div><span class="m3-label">Base</span>
-                            <div class="switch" style="width:260px"><input type="radio" id="sw1a" name="sw1" value="a"
-                                    checked><label for="sw1a" class="switch-label">Текст</label><input type="radio"
-                                    id="sw1b" name="sw1" value="b"><label for="sw1b" class="switch-label">Код</label>
-                            </div>
-                        </div>
-                        <div><span class="m3-label">.switch-bordered</span>
-                            <div class="switch switch-bordered" style="width:260px"><input type="radio" id="sw2a"
-                                    name="sw2" value="a" checked><label for="sw2a"
-                                    class="switch-label">HTML</label><input type="radio" id="sw2b" name="sw2"
-                                    value="b"><label for="sw2b" class="switch-label">BR</label><input type="radio"
-                                    id="sw2c" name="sw2" value="c"><label for="sw2c" class="switch-label">Clean</label>
-                            </div>
-                        </div>
-                        <div><span class="m3-label">.switch-fit .switch-sm</span>
-                            <div class="switch switch-bordered switch-fit switch-sm"><input type="radio" id="sw3a"
-                                    name="sw3" value="a" checked><label for="sw3a" class="switch-label">On</label><input
-                                    type="radio" id="sw3b" name="sw3" value="b"><label for="sw3b"
-                                    class="switch-label">Off</label></div>
-                        </div>
-                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Чарм</th>
+                            <th>Демо</th>
+                            <th>Ефект</th>
+                        </tr>
+                        <tr>
+                            <td><strong>(base)</strong></td>
+                            <td>
+                                <div class="switch" style="width:220px">
+                                    <input type="radio" id="sw1a" name="sw1" value="a" checked>
+                                    <label for="sw1a" class="switch-label">Текст</label>
+                                    <input type="radio" id="sw1b" name="sw1" value="b">
+                                    <label for="sw1b" class="switch-label">Код</label>
+                                </div>
+                            </td>
+                            <td>Pill з заливкою, активний: білий + тінь</td>
+                        </tr>
+                        <tr>
+                            <td><strong>.switch-outline</strong></td>
+                            <td>
+                                <div class="switch switch-outline" style="width:220px">
+                                    <input type="radio" id="sw2a" name="sw2" value="a" checked>
+                                    <label for="sw2a" class="switch-label">HTML</label>
+                                    <input type="radio" id="sw2b" name="sw2" value="b">
+                                    <label for="sw2b" class="switch-label">BR</label>
+                                    <input type="radio" id="sw2c" name="sw2" value="c">
+                                    <label for="sw2c" class="switch-label">Clean</label>
+                                </div>
+                            </td>
+                            <td>Прозорий фон, бордер, квадратні кути</td>
+                        </tr>
+                        <tr>
+                            <td><strong>.switch-fit</strong></td>
+                            <td>
+                                <div class="switch switch-outline switch-fit">
+                                    <input type="radio" id="sw4a" name="sw4" value="a" checked>
+                                    <label for="sw4a" class="switch-label">Активний</label>
+                                    <input type="radio" id="sw4b" name="sw4" value="b">
+                                    <label for="sw4b" class="switch-label">Неактивний</label>
+                                </div>
+                            </td>
+                            <td>Ширина по контенту, не розтягується</td>
+                        </tr>
+                        <tr>
+                            <td><strong>.switch-compact</strong></td>
+                            <td>
+                                <div class="switch switch-compact">
+                                    <input type="radio" id="sw3a" name="sw3" value="a" checked>
+                                    <label for="sw3a" class="switch-label">On</label>
+                                    <input type="radio" id="sw3b" name="sw3" value="b">
+                                    <label for="sw3b" class="switch-label">Off</label>
+                                </div>
+                            </td>
+                            <td>Менший padding, для тісних місць</td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">&lt;div class="switch"&gt;
+  &lt;input type="radio" id="a" name="grp" value="a" checked&gt;
+  &lt;label for="a" class="switch-label"&gt;Опція 1&lt;/label&gt;
+  &lt;input type="radio" id="b" name="grp" value="b"&gt;
+  &lt;label for="b" class="switch-label"&gt;Опція 2&lt;/label&gt;
+&lt;/div&gt;
+
+&lt;!-- Чарми --&gt;
+&lt;div class="switch switch-outline"&gt;...&lt;/div&gt;
+&lt;div class="switch switch-outline switch-fit"&gt;...&lt;/div&gt;
+&lt;div class="switch switch-compact"&gt;...&lt;/div&gt;</div>
                 </div>
 
                 <div class="m3-block">

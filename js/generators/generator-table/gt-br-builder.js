@@ -41,14 +41,14 @@ export function generateBrText() {
         const sanitizedLeft = sanitizeText(leftInput);
         let line;
 
-        if (row.classList.contains(ROW_CLASSES.H2) || row.classList.contains(ROW_CLASSES.COLSPAN2) || row.classList.contains(ROW_CLASSES.SINGLE)) {
+        if (row.classList.contains(ROW_CLASSES.H3) || row.classList.contains(ROW_CLASSES.COLSPAN2) || row.classList.contains(ROW_CLASSES.SINGLE)) {
             line = sanitizedLeft;
         } else {
             const sanitizedRight = sanitizeText(rightInput);
             line = `${sanitizedLeft} ${sanitizedRight}`.trim();
         }
 
-        if (row.classList.contains(ROW_CLASSES.H2) || row.classList.contains(ROW_CLASSES.BOLD) || row.classList.contains(ROW_CLASSES.TH_STRONG) || row.classList.contains(ROW_CLASSES.TH)) {
+        if (row.classList.contains(ROW_CLASSES.H3) || row.classList.contains(ROW_CLASSES.BOLD) || row.classList.contains(ROW_CLASSES.TH_STRONG) || row.classList.contains(ROW_CLASSES.TH)) {
             if(line) line = `<strong>${line}</strong>`;
         }
 

@@ -459,7 +459,7 @@
 <div class="form-group">
   <label for="name">Назва <span class="required">*</span></label>
   <input type="text" id="name" placeholder="Введіть назву">
-  <p class="form-hint">Максимум 65 символів</p>
+  <p class="body-s">Максимум 65 символів</p>
 </div>
 ```
 

@@ -7,8 +7,8 @@
  * Якщо видалити — плагіни paste, undo можуть не працювати.
  *
  * РІВНІ ОЧИСТКИ:
- * - sanitizeStructure(state)  — мінімум, тільки структура (на input)
- * - sanitizeHtml(html, opts)  — повна очистка рядка (copy/save/paste)
+ * - sanitizeStructure(state)  — мінімум, тільки структура (після list-операцій)
+ * - sanitizeHtml(html, opts)  — повна очистка рядка (copy/save/getValue)
  * - sanitizeEditor(state)     — повна очистка DOM (після paste)
  */
 
@@ -232,11 +232,26 @@ export function sanitizeStructure(state) {
     const editor = state.dom.editor;
     if (!editor || state.currentMode !== 'text') return;
 
+    // Не модифікуємо DOM якщо є активне виділення — інакше воно скинеться
+    const sel = window.getSelection();
+    if (sel.rangeCount && !sel.getRangeAt(0).collapsed) return;
+
     state.isSanitizing = true;
     const caretPos = saveCaretPosition(editor);
     let changed = false;
 
     const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
+
+    // Видаляємо браузерні span-артефакти (Chrome вставляє <span style="font-family: inherit;"> тощо)
+    // Зберігаємо highlight-error/warning від валідації
+    editor.querySelectorAll('span:not(.highlight-error):not(.highlight-warning)').forEach(span => {
+        const fragment = document.createDocumentFragment();
+        while (span.firstChild) {
+            fragment.appendChild(span.firstChild);
+        }
+        span.parentNode.replaceChild(fragment, span);
+        changed = true;
+    });
 
     // Огортаємо "голі" текстові ноди та inline-елементи в <p>
     Array.from(editor.childNodes).forEach(node => {
@@ -307,6 +322,10 @@ export function sanitizeStructure(state) {
 export function sanitizeEditor(state) {
     const editor = state.dom.editor;
     if (!editor || state.currentMode !== 'text') return;
+
+    // Не модифікуємо DOM якщо є активне виділення
+    const sel = window.getSelection();
+    if (sel.rangeCount && !sel.getRangeAt(0).collapsed) return;
 
     state.isSanitizing = true;
     const caretPos = saveCaretPosition(editor);

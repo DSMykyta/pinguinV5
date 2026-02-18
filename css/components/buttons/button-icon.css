@@ -25,6 +25,7 @@
  *
  * ЧАРМИ (charms):
  * - .ghost - без фону при hover, тільки зміна кольору
+ * - .touch - збільшена тач-ціль 44×44px
  * - .reload - приглушений колір, нейтральний hover (surface-c-high)
  * - .drag - cursor: grab/grabbing для drag-handle кнопок
  * - .reveal - прихована, з'являється при hover на батьківський елемент
@@ -109,6 +110,16 @@
 *:hover > .btn-icon.reveal {
     opacity: 1;
     visibility: visible;
+}
+
+/* Чарм: touch — збільшена тач-ціль 44×44 */
+.btn-icon.touch {
+    min-width: 44px;
+    height: 44px;
+}
+
+.btn-icon.touch .material-symbols-outlined {
+    font-size: 22px;
 }
 
 /* Чарм: reload — перезавантаження секції */

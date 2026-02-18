@@ -561,7 +561,7 @@
         <input type="checkbox" id="characteristic-is-global">
         <span>Глобальна характеристика</span>
     </label>
-    <p class="form-hint">Глобальні характеристики доступні для всіх категорій</p>
+    <p class="body-s">Глобальні характеристики доступні для всіх категорій</p>
 </div>
 ```
 

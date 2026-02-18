@@ -602,7 +602,7 @@
             { value: 'td', label: 'Звичайний' },
             { value: 'th', label: 'Заголовок' },
             { value: 'th-strong', label: 'Підзаголовок' },
-            { value: 'h2', label: 'H2 заголовок' },
+            { value: 'h3', label: 'H3 заголовок' },
             { type: 'separator' },
             { type: 'group', label: 'Форматування' },
             { value: 'bold', label: 'Жирний' },
@@ -621,7 +621,7 @@
 
         // Detect current state
         let currentValue = 'td';
-        const rowClasses = ['td', 'th', 'th-strong', 'h2'];
+        const rowClasses = ['td', 'th', 'th-strong', 'h3'];
         rowClasses.forEach(cls => {
             if (row.classList.contains(cls)) currentValue = cls;
         });
@@ -632,7 +632,7 @@
     }
 
     function handleRowOptionSelect(row, value) {
-        const exclusiveClasses = ['td', 'th', 'th-strong', 'h2', 'new-table'];
+        const exclusiveClasses = ['td', 'th', 'th-strong', 'h3', 'new-table'];
         const toggleClasses = ['bold', 'italic', 'colspan2', 'single'];
         const actions = ['insert-above', 'insert-below'];
 

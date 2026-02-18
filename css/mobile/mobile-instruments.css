@@ -441,7 +441,7 @@
     /* When row is single or colspan2, hide right */
     .content-bloc.single .right,
     .content-bloc.colspan2 .right,
-    .content-bloc.h2 .right {
+    .content-bloc.h3 .right {
         display: none !important;
     }
 
@@ -450,13 +450,13 @@
         flex: 1 !important;
     }
 
-    /* H2 heading style */
-    .content-bloc.h2 .content-line {
+    /* H3 heading style */
+    .content-bloc.h3 .content-line {
         border: none !important;
         background: transparent !important;
     }
 
-    .content-bloc.h2 .input-left {
+    .content-bloc.h3 .input-left {
         padding: 8px !important;
     }
 

@@ -7,11 +7,8 @@
  */
 
 import { sanitizeStructure } from './editor-utils.js';
-import { debounce } from '../../utils/common-utils.js';
 
 export function init(state) {
-    // Debounced структурна очистка (тільки div→p, wrap text, fix nesting)
-    const debouncedSanitize = debounce(() => sanitizeStructure(state), 500);
     const { dom } = state;
 
     // Клік на кнопки тулбара
@@ -124,9 +121,7 @@ export function init(state) {
 
     // Update toolbar state
     state.registerHook('onInput', () => updateToolbarState(state));
-
-    // Debounced sanitization після змін для виправлення структури
-    state.registerHook('onInput', debouncedSanitize);
+    state.registerHook('onSelectionChange', () => updateToolbarState(state));
 }
 
 function wrapSelection(state, tagName) {

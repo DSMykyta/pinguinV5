@@ -1,4 +1,9 @@
 <div class="panel-content-fix right-hidden">
+
+</div>
+
+<div class="panel-content-scroll right-hidden">
+
     <div class="form-group">
         <label for="gim-output-format">Вихідний формат</label>
         <select id="gim-output-format" data-custom-select>
@@ -8,36 +13,25 @@
             <option value="image/avif">AVIF</option>
         </select>
     </div>
-</div>
 
-<div class="panel-separator"></div>
-
-<div class="panel-content-scroll right-hidden">
-
-    <div class="panel-item-title">
-        <span>Режим трансформації</span>
-    </div>
-    <div class="switch switch-bordered" id="gim-mode-switch-container">
-        <input type="radio" id="gim-mode-resize" name="gim-mode-select" value="resize" checked>
-        <label for="gim-mode-resize" class="switch-label" style="flex: 1;">Зображення</label>
-        <input type="radio" id="gim-mode-canvas" name="gim-mode-select" value="canvas">
-        <label for="gim-mode-canvas" class="switch-label" style="flex: 1;">Полотно</label>
-    </div>
-
-    <div id="gim-mode-resize-content">
-        <div class="panel-separator"></div>
-        <div class="panel-item-title">
-            <span>Зміна розміру зображення</span>
-            <p class="form-hint">Пропорційно масштабує зображення. Розмір полотна підлаштовується.</p>
+    <div class="form-group">
+        <div class="switch switch-outline" id="gim-mode-switch-container">
+            <input type="radio" id="gim-mode-resize" name="gim-mode-select" value="resize" checked>
+            <label for="gim-mode-resize" class="switch-label" style="flex: 1;">Зображення</label>
+            <input type="radio" id="gim-mode-canvas" name="gim-mode-select" value="canvas">
+            <label for="gim-mode-canvas" class="switch-label" style="flex: 1;">Полотно</label>
         </div>
-        <div class="grid2" style="padding: 0 16px;">
+    </div>
+
+    <div id="gim-mode-resize-content" class="form-group">
+        <div class="grid2">
             <div class="form-group">
-                <label for="gim-resize-width">Ширина (px)</label>
-                <input type="number" id="gim-resize-width" class="input-main" placeholder="Авто">
+                <label for="gim-resize-width">Ширина</label>
+                <input type="number" id="gim-resize-width" class="input-main" placeholder="Поточна">
             </div>
             <div class="form-group">
-                <label for="gim-resize-height">Висота (px)</label>
-                <input type="number" id="gim-resize-height" class="input-main" placeholder="Авто">
+                <label for="gim-resize-height">Висота</label>
+                <input type="number" id="gim-resize-height" class="input-main" placeholder="Поточна">
             </div>
         </div>
         <button id="gim-apply-resize" class="panel-item">
@@ -45,19 +39,14 @@
         </button>
     </div>
 
-    <div id="gim-mode-canvas-content" class="u-hidden">
-        <div class="panel-separator"></div>
-        <div class="panel-item-title">
-            <span>Зміна розміру полотна</span>
-            <p class="form-hint">Зображення по центру, надлишок заповнюється білим фоном.</p>
-        </div>
-        <div class="grid2" style="padding: 0 16px;">
+    <div id="gim-mode-canvas-content" class="form-group u-hidden">
+        <div class="grid2">
             <div class="form-group">
-                <label for="gim-canvas-width">Нова Ширина</label>
+                <label for="gim-canvas-width">Ширина</label>
                 <input type="number" id="gim-canvas-width" class="input-main" placeholder="Поточна">
             </div>
             <div class="form-group">
-                <label for="gim-canvas-height">Нова Висота</label>
+                <label for="gim-canvas-height">Висота</label>
                 <input type="number" id="gim-canvas-height" class="input-main" placeholder="Поточна">
             </div>
         </div>

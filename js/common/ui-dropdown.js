@@ -57,7 +57,7 @@ export function initDropdowns() {
         // Закрити коли фокус повністю покинув dropdown
         wrapper.addEventListener('focusout', (e) => {
             setTimeout(() => {
-                if (!wrapper.contains(document.activeElement)) {
+                if (!wrapper.contains(document.activeElement) && !wrapper.matches(':hover')) {
                     wrapper.classList.remove('is-open');
                 }
             }, 100);

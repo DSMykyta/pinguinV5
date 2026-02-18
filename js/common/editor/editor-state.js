@@ -11,6 +11,7 @@ export function createEditorState(id, container, config) {
     // Хуки для плагінів
     const hooks = {
         onInput: [],
+        onSelectionChange: [],
         onValidate: [],
         onModeChange: [],
         onKeydown: [],

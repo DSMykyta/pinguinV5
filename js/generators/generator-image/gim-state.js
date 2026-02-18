@@ -67,6 +67,8 @@ export function resetCanvasState() {
     dom.resizeHeight.value = '';
     dom.canvasWidth.value = '';
     dom.canvasHeight.value = '';
+    dom.resizeWidth.placeholder = 'Поточна';
+    dom.resizeHeight.placeholder = 'Поточна';
     dom.canvasWidth.placeholder = 'Поточна';
     dom.canvasHeight.placeholder = 'Поточна';
     dom.saveBtn.disabled = true;

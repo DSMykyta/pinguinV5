@@ -171,10 +171,10 @@ function renderFindReplaceDropdown(id) {
  */
 function renderModeSwitch(id) {
     return `
-                    <div class="switch switch-sm">
+                    <div class="switch switch-fit">
                         <input type="radio" id="${id}-mode-text" name="${id}-mode" value="text" checked>
-                        <label for="${id}-mode-text" class="switch-label">Текст</label>
+                        <label for="${id}-mode-text" class="switch-label" title="Текст"><span class="material-symbols-outlined">edit_note</span></label>
                         <input type="radio" id="${id}-mode-code" name="${id}-mode" value="code">
-                        <label for="${id}-mode-code" class="switch-label">Код</label>
+                        <label for="${id}-mode-code" class="switch-label" title="Код"><span class="material-symbols-outlined">code</span></label>
                     </div>`;
 }

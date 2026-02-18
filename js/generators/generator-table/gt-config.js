@@ -10,11 +10,11 @@
 
 // CSS-класи, що застосовуються до рядків
 export const ROW_CLASSES = {
-    EXCLUSIVE: ['td', 'th-strong', 'th', 'new-table', 'h2'],
+    EXCLUSIVE: ['td', 'th-strong', 'th', 'new-table', 'h3'],
     TD: 'td',
     TH: 'th',
     TH_STRONG: 'th-strong',
-    H2: 'h2',
+    H3: 'h3',
     NEW_TABLE: 'new-table',
     BOLD: 'bold',
     ITALIC: 'italic',
