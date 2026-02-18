@@ -9,16 +9,11 @@
  *
  * HTML ПРИКЛАД:
  * <div class="form-group">
- *   <label for="field-id">Назва поля <span class="required">*</span></label>
+ *   <label class="label-l" for="field-id">Назва поля <span class="required">*</span></label>
  *   <input type="text" id="field-id" class="input-main" placeholder="Введіть значення">
- *   <p class="body-s">Підказка для користувача</p>
+ *   <label class="label-s">Підказка для користувача</label>
  * </div>
  *
- * <div class="form-group form-group-result">
- *   <span class="form-group-label">Title:</span>
- *   <input type="text" class="input-main" readonly>
- *   <span class="form-group-counter">0/65</span>
- * </div>
  *
  * <div class="form-group-column">
  *   <div class="form-group">...</div>
@@ -28,11 +23,8 @@
  * КЛАСИ:
  * - .form-group - контейнер групи форми
  * - .form-group-column - вертикальний стовпець груп
- * - .form-group-result - група з результатом (readonly поля)
- * - .form-group-label - мітка всередині групи результату
- * - .form-group-counter - лічильник символів
- * - .form-group-icon - іконка всередині групи
- * - body-s — типографія для підказок (колір через контекст .form-group)
+ * - .label-l — верхній label (13px, типографія)
+ * - .label-s — підказка під полем (11px, типографія)
  * - .required - зірочка для обов'язкових полів
  *
  * ЗАЛЕЖНОСТІ:
@@ -104,7 +96,7 @@
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 12px;
 }
 
@@ -112,6 +104,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 0 8px;
     min-width: 60px;
     color: var(--color-on-surface-v);
     white-space: nowrap;
@@ -140,44 +133,6 @@
     display: flex;
     flex-direction: row;
     gap: 8px;
-}
-
-/* Form group with result (readonly fields) */
-.form-group-result {
-    position: relative;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    width: 100%;
-    background: var(--color-surface-c-low);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.form-group-result:hover {
-    background: var(--color-surface-c);
-}
-
-.form-group-result-copied {
-    background: var(--color-main-t-2) !important;
-}
-
-.form-group-label {
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-}
-
-.form-group-counter {
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-    margin-left: auto;
-}
-
-.form-group-icon {
-    color: var(--color-on-surface-v);
-    font-size: 20px;
 }
 
 /* Select styling */
@@ -212,17 +167,6 @@
     border-color: var(--color-main);
 }
 
-/* Readonly display (styled like input but not editable) */
-.input-readonly {
-    padding: 8px 16px;
-    background: var(--color-surface-c-low);
-    border: 1px solid var(--color-outline-v);
-    border-radius: var(--radius-xs, 4px);
-    color: var(--color-on-surface);
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-}
 
 /* Checkbox label — обгортка для checkbox + текст */
 .checkbox-label {

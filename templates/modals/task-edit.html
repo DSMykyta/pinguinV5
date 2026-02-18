@@ -71,7 +71,7 @@
                     <div class="section-content">
                         <!-- Назва -->
                         <div class="form-group">
-                            <label for="task-title">
+                            <label class="label-l" for="task-title">
                                 Назва
                                 <span class="required">*</span>
                             </label>
@@ -81,16 +81,16 @@
 
                         <!-- Опис (Rich Editor) -->
                         <div class="form-group u-mt-16">
-                            <label>Опис</label>
+                            <label class="label-l">Опис</label>
                             <div id="task-description-editor" class="rich-editor-container"></div>
                         </div>
 
                         <!-- Теги -->
                         <div class="form-group u-mt-16">
-                            <label for="task-tags">Теги</label>
+                            <label class="label-l" for="task-tags">Теги</label>
                             <input type="text" id="task-tags" class="input-main"
                                 placeholder="тег1, тег2, тег3">
-                            <p class="body-s">Розділяйте теги комами</p>
+                            <label class="label-s">Розділяйте теги комами</label>
                         </div>
                     </div>
                 </section>
@@ -112,7 +112,7 @@
                         <!-- Тип та Пріоритет -->
                         <div class="form-grid form-grid-2">
                             <div class="form-group">
-                                <label for="task-type">Тип</label>
+                                <label class="label-l" for="task-type">Тип</label>
                                 <select id="task-type" data-custom-select>
                                     <option value="task">Задача</option>
                                     <option value="info">Інформація</option>
@@ -122,7 +122,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="task-priority">Пріоритет</label>
+                                <label class="label-l" for="task-priority">Пріоритет</label>
                                 <select id="task-priority" data-custom-select>
                                     <option value="low">Низький</option>
                                     <option value="medium" selected>Середній</option>
@@ -135,7 +135,7 @@
                         <!-- Статус та Дедлайн -->
                         <div class="form-grid form-grid-2 u-mt-16">
                             <div class="form-group">
-                                <label for="task-status">Статус</label>
+                                <label class="label-l" for="task-status">Статус</label>
                                 <select id="task-status" data-custom-select>
                                     <option value="todo" selected>До виконання</option>
                                     <option value="in_progress">В роботі</option>
@@ -144,18 +144,18 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="task-due-date">Дедлайн</label>
+                                <label class="label-l" for="task-due-date">Дедлайн</label>
                                 <input type="date" id="task-due-date" class="input-main">
                             </div>
                         </div>
 
                         <!-- Призначити (мультиселект) -->
                         <div class="form-group u-mt-16">
-                            <label for="task-assigned-to">Призначити</label>
+                            <label class="label-l" for="task-assigned-to">Призначити</label>
                             <select id="task-assigned-to" multiple data-custom-select data-select-all>
                                 <!-- Заповнюється динамічно -->
                             </select>
-                            <p class="body-s">Виберіть виконавців (можна кількох)</p>
+                            <label class="label-s">Виберіть виконавців (можна кількох)</label>
                         </div>
                     </div>
                 </section>
@@ -175,7 +175,7 @@
 
                     <div class="section-content">
                         <div class="form-group">
-                            <label for="task-code-snippet">Код</label>
+                            <label class="label-l" for="task-code-snippet">Код</label>
                             <textarea id="task-code-snippet" class="input-main input-code" rows="15"
                                 placeholder="// Ваш код тут..."></textarea>
                         </div>

@@ -24,7 +24,7 @@
             <fieldset class="form-fieldset">
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-mp-name">
+                        <label class="label-l" for="mapper-mp-name">
                             Назва
                             <span class="required">*</span>
                         </label>
@@ -32,24 +32,24 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="mapper-mp-slug">
+                        <label class="label-l" for="mapper-mp-slug">
                             Slug
                             <span class="required">*</span>
                         </label>
                         <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
-                        <small class="body-s">Унікальний код (латиницею, без пробілів)</small>
+                        <label class="label-s">Унікальний код (латиницею, без пробілів)</label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Статус</label>
+                    <label class="label-l">Статус</label>
                     <div class="switch switch-outline switch-fit" id="mapper-mp-active-switch">
                         <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
                         <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
                         <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
                         <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
                     </div>
-                    <small class="body-s">Неактивні маркетплейси не відображаються в списках вибору</small>
+                    <label class="label-s">Неактивні маркетплейси не відображаються в списках вибору</label>
                 </div>
             </fieldset>
 
@@ -61,52 +61,52 @@
                 </small>
 
                 <!-- Категорії -->
-                <div class="form-group"><label><strong>Категорії</strong></label></div>
+                <div class="form-group"><label class="label-l"><strong>Категорії</strong></label></div>
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-mp-cm-cat-name">Назва</label>
+                        <label class="label-l" for="mapper-mp-cm-cat-name">Назва</label>
                         <input type="text" id="mapper-mp-cm-cat-name" class="input-short"
                                placeholder="nameUa, name_ru, title">
                     </div>
                     <div class="form-group">
-                        <label for="mapper-mp-cm-cat-parent">Батьківська ID</label>
+                        <label class="label-l" for="mapper-mp-cm-cat-parent">Батьківська ID</label>
                         <input type="text" id="mapper-mp-cm-cat-parent" class="input-short"
                                placeholder="parentId, parent_id">
                     </div>
                 </div>
 
                 <!-- Характеристики -->
-                <div class="form-group"><label><strong>Характеристики</strong></label></div>
+                <div class="form-group"><label class="label-l"><strong>Характеристики</strong></label></div>
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-mp-cm-char-name">Назва</label>
+                        <label class="label-l" for="mapper-mp-cm-char-name">Назва</label>
                         <input type="text" id="mapper-mp-cm-char-name" class="input-short"
                                placeholder="title, name">
                     </div>
                     <div class="form-group">
-                        <label for="mapper-mp-cm-char-type">Тип</label>
+                        <label class="label-l" for="mapper-mp-cm-char-type">Тип</label>
                         <input type="text" id="mapper-mp-cm-char-type" class="input-short"
                                placeholder="type, param_type">
                     </div>
                 </div>
 
                 <!-- Опції -->
-                <div class="form-group"><label><strong>Опції</strong></label></div>
+                <div class="form-group"><label class="label-l"><strong>Опції</strong></label></div>
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-mp-cm-opt-name">Назва</label>
+                        <label class="label-l" for="mapper-mp-cm-opt-name">Назва</label>
                         <input type="text" id="mapper-mp-cm-opt-name" class="input-short"
                                placeholder="label, name_uk">
                     </div>
                     <div class="form-group">
-                        <label for="mapper-mp-cm-opt-char-id">ID характеристики</label>
+                        <label class="label-l" for="mapper-mp-cm-opt-char-id">ID характеристики</label>
                         <input type="text" id="mapper-mp-cm-opt-char-id" class="input-short"
                                placeholder="characteristicId, char_id">
                     </div>
                 </div>
                 <div class="grid2">
                     <div class="form-group">
-                        <label for="mapper-mp-cm-opt-char-name">Назва характеристики</label>
+                        <label class="label-l" for="mapper-mp-cm-opt-char-name">Назва характеристики</label>
                         <input type="text" id="mapper-mp-cm-opt-char-name" class="input-short"
                                placeholder="characteristicTitle">
                     </div>
