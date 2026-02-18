@@ -147,7 +147,7 @@ class CustomSelect {
 
         // Search + Select All row
         const hasSearch = Array.from(this.originalSelect.options).length > 5;
-        if (hasSearch || (this.isMultiSelect && this.hasSelectAll)) {
+        if (hasSearch) {
             const searchWrapper = this._createElement('div', { class: 'custom-select-search-wrapper' });
 
             if (hasSearch) {
