@@ -136,7 +136,7 @@ async function initializeUIWithoutData() {
         container.innerHTML = renderAvatarState('authLogin', {
             message: 'Авторизуйтесь для завантаження даних',
             size: 'medium',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true

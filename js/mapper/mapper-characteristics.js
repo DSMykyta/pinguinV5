@@ -456,7 +456,7 @@ function clearRelatedOptions() {
     if (!container) return;
 
     relatedOptionsTableAPI = null;
-    container.innerHTML = renderAvatarState('empty', { message: "Опції з'являться після збереження", size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
+    container.innerHTML = renderAvatarState('empty', { message: "Опції з'являться після збереження", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
     if (statsEl) statsEl.textContent = 'Показано 0 з 0';
     if (searchInput) searchInput.value = '';
 }
@@ -773,7 +773,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
         </div>
         <div class="section-content">
             <div class="mp-items-list">
-                ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
+                ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>
     `;

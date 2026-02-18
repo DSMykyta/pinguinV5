@@ -483,7 +483,7 @@ async function populateMpReferences(slug, marketplaceId) {
 
     container.innerHTML = renderAvatarState('loading', {
         message: 'Завантаження...', size: 'small',
-        containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+        containerClass: 'empty-state', avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message', showMessage: true
     });
 
@@ -494,7 +494,7 @@ async function populateMpReferences(slug, marketplaceId) {
         console.error('Failed to load reference files:', err);
         container.innerHTML = renderAvatarState('error', {
             message: 'Помилка завантаження файлів', size: 'small',
-            containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+            containerClass: 'empty-state', avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message', showMessage: true
         });
         return;
@@ -646,7 +646,7 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
         if (allData.length === 0) {
             container.innerHTML = renderAvatarState('empty', {
                 message: 'Категорії відсутні', size: 'medium',
-                containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar',
+                containerClass: 'empty-state', avatarClass: 'empty-state-avatar',
                 messageClass: 'avatar-state-message', showMessage: true
             });
         } else {
@@ -1278,7 +1278,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
     }
 
     const treeHtml = buildTree('root', 0);
-    container.innerHTML = `<div class="tree">${treeHtml || renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}</div>`;
+    container.innerHTML = `<div class="tree">${treeHtml || renderAvatarState('empty', { message: 'Дані відсутні', size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}</div>`;
 
     // Toggle expand/collapse
     container.querySelectorAll('.toggle-btn').forEach(btn => {

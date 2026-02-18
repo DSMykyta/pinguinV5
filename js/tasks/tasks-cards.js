@@ -231,7 +231,7 @@ function renderEmptyState(container) {
     const avatarHtml = renderAvatarState('empty', {
         message: messages[tasksState.activeTab] || 'Немає даних',
         size: 'medium',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true

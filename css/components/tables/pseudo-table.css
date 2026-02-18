@@ -216,12 +216,8 @@
     padding: 8px;
 }
 
-/* Select all checkbox */
-.header-select-all {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
+/* .row-checkbox, .header-select-all — тільки JS-селектори.
+   Візуальні стилі всіх checkbox — у checkbox.css */
 
 /* ============================================ */
 /* LEGACY TABLE STYLES (Старі варіанти) */

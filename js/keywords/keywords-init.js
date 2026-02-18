@@ -104,7 +104,7 @@ function renderAuthRequiredState() {
     const avatarHtml = renderAvatarState('authLogin', {
         message: 'Авторизуйтесь для завантаження даних',
         size: 'medium',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true
@@ -121,7 +121,7 @@ function renderErrorState() {
     const avatarHtml = renderAvatarState('error', {
         message: 'Помилка завантаження даних',
         size: 'medium',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true

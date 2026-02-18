@@ -446,7 +446,7 @@ function renderAuthRequiredState() {
         cabinetContainer.innerHTML = renderAvatarState('authLogin', {
             message: 'Авторизуйтесь для доступу до кабінету',
             size: 'xl',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true
@@ -459,7 +459,7 @@ function renderAuthRequiredState() {
         tasksContainer.innerHTML = renderAvatarState('authRequired', {
             message: 'Авторизуйтесь для перегляду задач',
             size: 'lg',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true
@@ -472,7 +472,7 @@ function renderAuthRequiredState() {
         linksContainer.innerHTML = renderAvatarState('authRequired', {
             message: 'Авторизуйтесь для перегляду посилань',
             size: 'lg',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true
@@ -490,7 +490,7 @@ function renderNoAccessState() {
     container.innerHTML = renderAvatarState('error', {
         message: 'У вас немає доступу до цієї сторінки',
         size: 'xl',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true
@@ -507,7 +507,7 @@ function renderErrorState(message = 'Помилка завантаження д�
     container.innerHTML = renderAvatarState('error', {
         message: message,
         size: 'xl',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'avatar-state-message',
         showMessage: true

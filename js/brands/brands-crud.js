@@ -618,7 +618,7 @@ function updateLinksEmptyState() {
 
     const hasLinks = container.querySelectorAll('.content-bloc').length > 0;
     if (!hasLinks && !emptyState.innerHTML.trim()) {
-        emptyState.innerHTML = renderAvatarState('empty', { message: 'Посилання відсутні', size: 'medium', containerClass: 'empty-state-container', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
+        emptyState.innerHTML = renderAvatarState('empty', { message: 'Посилання відсутні', size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
     }
     emptyState.classList.toggle('u-hidden', hasLinks);
 }

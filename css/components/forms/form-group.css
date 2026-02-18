@@ -224,5 +224,14 @@
     align-items: center;
 }
 
+/* Checkbox label — обгортка для checkbox + текст */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--color-on-surface);
+}
+
 /* DYNAMIC INPUT ROW та BRAND LINK ROW —
    перенесено в compound-input.css */

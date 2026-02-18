@@ -35,7 +35,7 @@ function createEmptyStateHtml(itemId) {
     // Використовуємо глобальну систему аватарів
     const avatarHtml = renderAvatarState('empty', {
         size: 'medium',
-        containerClass: 'empty-state-container',
+        containerClass: 'empty-state',
         avatarClass: 'empty-state-avatar',
         messageClass: 'empty-state-text',
         showMessage: true
@@ -124,7 +124,7 @@ export function renderGlossaryArticles() {
         dom.contentContainer.innerHTML = renderAvatarState('empty', {
             message: 'Немає статей для відображення',
             size: 'medium',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true

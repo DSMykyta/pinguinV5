@@ -191,7 +191,7 @@ export class TableCore {
         const emptyHTML = renderAvatarState('empty', {
             message: emptyState.message || 'Немає даних для відображення',
             size: 'medium',
-            containerClass: 'empty-state-container',
+            containerClass: 'empty-state',
             avatarClass: 'empty-state-avatar',
             messageClass: 'avatar-state-message',
             showMessage: true

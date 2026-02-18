@@ -107,4 +107,22 @@
     opacity: 0.7;
 }
 
+/* ============================================ */
+/* STATUS DOT                                  */
+/* ============================================ */
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-on-surface-v);
+}
+
+.status-dot.is-success { background-color: var(--color-success); }
+.status-dot.is-error   { background-color: var(--color-error); }
+.status-dot.is-warning { background-color: var(--color-warning); }
+.status-dot.is-info    { background-color: var(--color-info); }
+.status-dot.is-neutral { background-color: var(--color-outline); }
+
 /* Примітка: .chip-container визначено в chip.css */

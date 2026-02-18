@@ -10,9 +10,9 @@
     min-height: 300px;
     margin: 16px 0;
     padding: 48px 32px;
-    border: 2px dashed var(--outline-variant);
+    border: 2px dashed var(--color-outline);
     border-radius: 16px;
-    background-color: var(--surface-container-lowest);
+    background-color: var(--color-surface);
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -44,13 +44,13 @@
 
 
 .drop-zone:hover {
-    border-color: var(--primary);
-    background-color: var(--surface-container-low);
+    border-color: var(--color-main);
+    background-color: var(--color-surface-c-low);
 }
 
 .drop-zone.drag-over {
-    border-color: var(--primary);
-    background-color: var(--primary-container);
+    border-color: var(--color-main);
+    background-color: var(--color-main-c);
     border-style: solid;
 }
 
@@ -65,23 +65,23 @@
 
 .drop-zone-icon {
     font-size: 64px;
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .drop-zone:hover .drop-zone-icon,
 .drop-zone.drag-over .drop-zone-icon {
-    color: var(--primary);
+    color: var(--color-main);
     transform: scale(1.1);
 }
 
 .drop-zone-text {
-    color: var(--on-surface);
+    color: var(--color-on-surface);
     margin: 0;
 }
 
 .drop-zone-hint {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
     margin: 0;
 }
 
@@ -102,22 +102,22 @@
 
 /* Success state */
 .drop-zone.is-success {
-    border-color: var(--success);
-    background-color: var(--success-container, rgba(76, 175, 80, 0.1));
+    border-color: var(--color-success);
+    background-color: var(--color-success-c, rgba(76, 175, 80, 0.1));
 }
 
 .drop-zone.is-success .drop-zone-icon {
-    color: var(--success);
+    color: var(--color-success);
 }
 
 /* Error state */
 .drop-zone.is-error {
-    border-color: var(--error);
-    background-color: var(--error-container);
+    border-color: var(--color-error);
+    background-color: var(--color-error-c);
 }
 
 .drop-zone.is-error .drop-zone-icon {
-    color: var(--error);
+    color: var(--color-error);
 }
 
 /* =========================================================================
@@ -130,14 +130,14 @@
     gap: 8px;
     padding: 12px 16px;
     margin-bottom: 16px;
-    background: var(--surface-container-low);
+    background: var(--color-surface-c-low);
     border-radius: 8px;
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 .mapping-info .material-symbols-outlined {
     font-size: 20px;
-    color: var(--primary);
+    color: var(--color-main);
 }
 
 .mapping-grid {
@@ -152,31 +152,31 @@
     gap: 16px;
     align-items: center;
     padding: 8px 12px;
-    background: var(--surface-container-lowest);
+    background: var(--color-surface);
     border-radius: 8px;
 }
 
 .mapping-row.mapping-header {
-    background: var(--surface-container);
-    color: var(--on-surface-variant);
+    background: var(--color-surface-c);
+    color: var(--color-on-surface-v);
 }
 
 .mapping-row.mapping-row-filled {
     background: rgba(76, 175, 80, 0.08);
-    border-left: 3px solid var(--success, #4caf50);
+    border-left: 3px solid var(--color-success);
 }
 
 .mapping-row.mapping-row-missing {
     background: rgba(255, 152, 0, 0.08);
-    border-left: 3px solid var(--warning, #ff9800);
+    border-left: 3px solid var(--color-warning, #ff9800);
 }
 
 .mapping-label {
-    color: var(--on-surface);
+    color: var(--color-on-surface);
 }
 
 .mapping-label .required {
-    color: var(--error);
+    color: var(--color-error);
 }
 
 .mapping-select select {
@@ -184,14 +184,14 @@
 }
 
 .mapping-preview {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
     font-family: var(--font-mono);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 200px;
     padding: 4px 8px;
-    background: var(--surface-container);
+    background: var(--color-surface-c);
     border-radius: 4px;
 }
 
@@ -223,7 +223,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 .stat-item .material-symbols-outlined {
@@ -231,21 +231,21 @@
 }
 
 .stat-item.stat-new .material-symbols-outlined {
-    color: var(--success, #4caf50);
+    color: var(--color-success);
 }
 
 .stat-item.stat-update .material-symbols-outlined {
-    color: var(--warning, #ff9800);
+    color: var(--color-warning, #ff9800);
 }
 
 .stat-item.stat-skip .material-symbols-outlined {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 .preview-table-container {
     max-height: 300px;
     overflow: auto;
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--color-outline);
     border-radius: 8px;
 }
 
@@ -264,17 +264,17 @@
 .preview-table td {
     padding: 8px 12px;
     text-align: left;
-    border-bottom: 1px solid var(--outline-variant);
+    border-bottom: 1px solid var(--color-outline);
 }
 
 .preview-table th {
-    background: var(--surface-container);
-    color: var(--on-surface-variant);
+    background: var(--color-surface-c);
+    color: var(--color-on-surface-v);
 }
 
 .preview-table td {
-    background: var(--surface-container-lowest);
-    color: var(--on-surface);
+    background: var(--color-surface);
+    color: var(--color-on-surface);
 }
 
 .preview-table tr.status-new td {
@@ -286,7 +286,7 @@
 }
 
 .preview-table tr.status-same td {
-    background: var(--surface-container-lowest);
+    background: var(--color-surface);
 }
 
 .preview-table td:last-child {
@@ -299,20 +299,20 @@
 }
 
 .preview-table tr.status-new td:last-child .material-symbols-outlined {
-    color: var(--success, #4caf50);
+    color: var(--color-success);
 }
 
 .preview-table tr.status-update td:last-child .material-symbols-outlined {
-    color: var(--warning, #ff9800);
+    color: var(--color-warning, #ff9800);
 }
 
 .preview-table tr.status-same td:last-child .material-symbols-outlined {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 /* File name display */
 .file-name {
-    color: var(--primary);
+    color: var(--color-main);
 }
 
 .file-name:empty {
@@ -331,7 +331,7 @@
 }
 
 .input-hint {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 /* Form row - flex container for form groups */
@@ -375,11 +375,11 @@
 }
 
 .radio-group-vertical .radio-content strong {
-    color: var(--on-surface);
+    color: var(--color-on-surface);
 }
 
 .radio-group-vertical .radio-content small {
-    color: var(--on-surface-variant);
+    color: var(--color-on-surface-v);
 }
 
 /* =========================================================================
@@ -391,17 +391,17 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    color: var(--on-surface);
+    color: var(--color-on-surface);
     padding: 8px 12px;
-    background: var(--surface-container-lowest);
+    background: var(--color-surface);
     border-radius: 8px;
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--color-outline);
     transition: all 0.2s ease;
 }
 
 .form-actions .checkbox-label:hover {
-    background: var(--surface-container-low);
-    border-color: var(--outline);
+    background: var(--color-surface-c-low);
+    border-color: var(--color-outline);
 }
 
 .form-actions .checkbox-label input[type="checkbox"] {
@@ -409,7 +409,7 @@
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid var(--outline);
+    border: 2px solid var(--color-outline);
     border-radius: 4px;
     cursor: pointer;
     position: relative;
@@ -418,8 +418,8 @@
 }
 
 .form-actions .checkbox-label input[type="checkbox"]:checked {
-    background: var(--color-main, var(--primary));
-    border-color: var(--color-main, var(--primary));
+    background: var(--color-main, var(--color-main));
+    border-color: var(--color-main, var(--color-main));
 }
 
 .form-actions .checkbox-label input[type="checkbox"]:checked::after {
@@ -435,8 +435,8 @@
 }
 
 .form-actions .checkbox-label:has(input:checked) {
-    background: rgba(var(--primary-rgb), 0.08);
-    border-color: var(--color-main, var(--primary));
+    background: var(--color-main-c);
+    border-color: var(--color-main, var(--color-main));
 }
 
 /* =========================================================================
@@ -449,9 +449,9 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--color-outline);
     border-radius: 12px;
-    background: var(--surface-container-lowest);
+    background: var(--color-surface);
 }
 
 .brand-logo-preview-img {
@@ -465,7 +465,7 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    background: var(--surface-container);
+    background: var(--color-surface-c);
     border-radius: 50%;
 }
 

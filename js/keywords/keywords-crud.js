@@ -161,7 +161,7 @@ export async function showGlossaryModal(localId) {
             contentEl.innerHTML = renderAvatarState('empty', {
                 message: 'Текст глосарію відсутній',
                 size: 'medium',
-                containerClass: 'empty-state-container',
+                containerClass: 'empty-state',
                 avatarClass: 'empty-state-avatar',
                 messageClass: 'avatar-state-message',
                 showMessage: true

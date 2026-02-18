@@ -101,8 +101,7 @@
 @import url('components/content/content-card.css');
 
 
-/* === COMPONENTS - PRODUCTS === */
-@import url('components/products.css');
+/* === COMPONENTS - OTHER === */
 @import url('components/rich-editor.css');
 @import url('components/statistics.css');
 @import url('components/mapper-bindings.css');
