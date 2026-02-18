@@ -42,6 +42,10 @@
     text-align: left;
 }
 
+.drop-zone-text-wrap p {
+    margin: 0;
+}
+
 
 .drop-zone:hover {
     border-color: var(--color-main);
@@ -75,15 +79,6 @@
     transform: scale(1.1);
 }
 
-.drop-zone-text {
-    color: var(--color-on-surface);
-    margin: 0;
-}
-
-.drop-zone-hint {
-    color: var(--color-on-surface-v);
-    margin: 0;
-}
 
 /* Loading state */
 .drop-zone.is-loading {
@@ -103,7 +98,7 @@
 /* Success state */
 .drop-zone.is-success {
     border-color: var(--color-success);
-    background-color: var(--color-success-c, rgba(76, 175, 80, 0.1));
+    background-color: var(--color-success-c);
 }
 
 .drop-zone.is-success .drop-zone-icon {
@@ -411,36 +406,4 @@
     border-color: var(--color-main, var(--color-main));
 }
 
-/* =========================================================================
-   BRAND LOGO PREVIEW
-   ========================================================================= */
 
-.brand-logo-preview {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    border: 1px solid var(--color-outline);
-    border-radius: 12px;
-    background: var(--color-surface);
-}
-
-.brand-logo-preview-img {
-    max-width: 200px;
-    max-height: 120px;
-    object-fit: contain;
-    border-radius: 8px;
-}
-
-.brand-logo-remove {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background: var(--color-surface-c);
-    border-radius: 50%;
-}
-
-.brand-logo-url-input {
-    max-width: 480px;
-}

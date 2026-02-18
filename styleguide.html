@@ -1520,24 +1520,86 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>.drop-zone</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">drop-zone.css</span><span
-                                class="m3-tag m3-tag-use">import CSV/XLSX</span></div>
+                        <p>Зона drag & drop для завантаження файлів. Dashed border, hover підсвітка, drag-over стан. Compact варіант — горизонтальний layout. Текст — типографія (.body-m, .body-s).</p>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">forms/drop-zone.css</span><span
+                                class="m3-tag m3-tag-use">mapper-import, brand-edit</span></div>
                     </div>
-                    <div class="m3-preview">
+                    <div class="m3-preview m3-preview-col" style="gap:16px">
                         <div class="drop-zone drop-zone-compact">
                             <div class="drop-zone-content"><span
                                     class="material-symbols-outlined drop-zone-icon">upload_file</span>
                                 <div class="drop-zone-text-wrap">
-                                    <p class="drop-zone-text">Перетягніть файл сюди або клікніть</p>
-                                    <p class="drop-zone-hint">CSV, XLSX, XLS</p>
+                                    <p class="body-m">Перетягніть файл сюди або клікніть</p>
+                                    <p class="body-s">CSV, XLSX, XLS</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap">
+                            <div class="drop-zone drop-zone-compact is-success" style="flex:1;min-width:200px">
+                                <div class="drop-zone-content"><span
+                                        class="material-symbols-outlined drop-zone-icon">check_circle</span>
+                                    <div class="drop-zone-text-wrap">
+                                        <p class="body-m">Файл завантажено</p>
+                                        <p class="body-s">data.csv</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="drop-zone drop-zone-compact is-error" style="flex:1;min-width:200px">
+                                <div class="drop-zone-content"><span
+                                        class="material-symbols-outlined drop-zone-icon">error</span>
+                                    <div class="drop-zone-text-wrap">
+                                        <p class="body-m">Помилка формату</p>
+                                        <p class="body-s">Очікується CSV</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="m3-code">.drop-zone-compact — горизонтальний layout
-.is-loading — opacity 0.7, icon spin
-.is-success — border: var(--color-success)
-.is-error — border: var(--color-error)</div>
+                    <div class="m3-code">&lt;div class="drop-zone drop-zone-compact"&gt;
+  &lt;div class="drop-zone-content"&gt;
+    &lt;span class="material-symbols-outlined drop-zone-icon"&gt;upload_file&lt;/span&gt;
+    &lt;div class="drop-zone-text-wrap"&gt;
+      &lt;p class="body-m"&gt;Перетягніть файл&lt;/p&gt;
+      &lt;p class="body-s"&gt;CSV, XLSX&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Варіант: .drop-zone-compact — горизонтальний layout --&gt;
+&lt;!-- Стани (JS): .drag-over | .is-loading | .is-success | .is-error --&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>content-bloc + drop (JS)</h3>
+                        <p>Input з кнопкою дії всередині content-bloc. Drag &amp; drop через JS. Використовується для URL-завантаження файлів (логотип бренду тощо).</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">input-box.css</span>
+                            <span class="m3-tag m3-tag-use">brand-edit (логотип)</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview m3-preview-col">
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="url" placeholder="URL або перетягніть файл...">
+                                </div>
+                                <button type="button" class="btn-icon ci-action">
+                                    <span class="material-symbols-outlined">upload</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;div class="content-bloc"&gt;
+  &lt;div class="content-line"&gt;
+    &lt;div class="input-box"&gt;
+      &lt;input type="url" placeholder="URL або перетягніть файл..."&gt;
+    &lt;/div&gt;
+    &lt;button class="btn-icon ci-action"&gt;
+      &lt;span class="material-symbols-outlined"&gt;upload&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div>
                 </div>
 
                 <div class="m3-block">
@@ -1564,7 +1626,7 @@
                         </div>
                     </div>
                     <div class="m3-sub">.form-group-result / .input-readonly</div>
-                    <div class="m3-preview m3-preview-col" style="gap:8px;max-width:480px">
+                    <div class="m3-preview m3-preview-col" style="gap:8px">
                         <div class="form-group-result" style="display:flex"><span
                                 class="material-symbols-outlined form-group-icon">title</span><span
                                 class="form-group-label">Title:</span><span
