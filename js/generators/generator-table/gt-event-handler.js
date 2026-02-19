@@ -13,7 +13,7 @@
  */
 
 import { getTableDOM } from './gt-dom.js';
-import { createAndAppendRow, initializeEmptyRow, resetTableSection } from './gt-row-manager.js';
+import { createAndAppendRow, initializeEmptyRow } from './gt-row-manager.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
 import { closeModal } from '../../common/ui-modal.js';
 import { calculatePercentages, checkForEmptyNutritionFacts, markEssentialAminoAcids } from './gt-calculator.js';
@@ -28,11 +28,6 @@ import { addSampleList, addSampleTemplate } from './gt-template-helpers.js';
 export function setupEventListeners() {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
-
-    if (dom.reloadBtn) {
-        dom.reloadBtn.dataset.modalTrigger = 'confirm-clear-modal';
-        dom.reloadBtn.dataset.modalSize = 'small';
-    }
 
     const rightPanel = document.getElementById('panel-right');
     if (rightPanel) {
@@ -64,12 +59,6 @@ export function setupEventListeners() {
     document.addEventListener('click', (event) => {
         const magicApplyBtn = event.target.closest('#magic-apply-btn');
         if (magicApplyBtn) handleMagicApply();
-
-        const confirmClearBtn = event.target.closest('#confirm-clear-action');
-        if (confirmClearBtn) {
-            resetTableSection();
-            closeModal();
-        }
 
         const modalCloseBtn = event.target.closest('[data-modal-close]');
         if (modalCloseBtn) {

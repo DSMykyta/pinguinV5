@@ -277,11 +277,6 @@ export const MODAL_AVATAR_MAPPING = {
         avatarContainerId: 'confirm-delete-avatar-container',
         messageContainerId: 'confirm-delete-avatar-message'
     },
-    'confirm-clear-modal': {
-        stateType: 'confirmReset',
-        avatarContainerId: 'confirm-clear-avatar-container',
-        messageContainerId: 'confirm-clear-avatar-message'
-    },
     'auth-login-modal': {
         stateType: 'authLogin',
         avatarContainerId: 'auth-login-avatar-container',

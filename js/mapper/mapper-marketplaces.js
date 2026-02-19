@@ -48,7 +48,8 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
-import { initTableControlsCharm } from '../common/charms/table-controls.js';
+import { initRefreshCharm } from '../common/charms/charm-refresh.js';
+import { initColumnsCharm } from '../common/charms/charm-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
@@ -181,7 +182,8 @@ export async function showEditMarketplaceModal(id) {
     populateMpReferences(marketplace.slug, id);
 
     // Ініціалізувати charms для модальних таблиць
-    initTableControlsCharm();
+    initRefreshCharm();
+    initColumnsCharm();
 
     // charm:refresh listeners
     const catContainer = document.getElementById('mp-data-cat-container');

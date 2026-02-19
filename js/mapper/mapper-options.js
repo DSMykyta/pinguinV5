@@ -53,7 +53,8 @@ import {
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
-import { initTableControlsCharm } from '../common/charms/table-controls.js';
+import { initRefreshCharm } from '../common/charms/charm-refresh.js';
+import { initColumnsCharm } from '../common/charms/charm-columns.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -494,7 +495,8 @@ function populateRelatedChildOptions(optionId) {
     });
 
     initPaginationCharm();
-    initTableControlsCharm();
+    initRefreshCharm();
+    initColumnsCharm();
 
     // charm:refresh — оновити таблицю дочірніх опцій
     const container = document.getElementById('option-related-chars');

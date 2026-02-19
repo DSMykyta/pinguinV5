@@ -1,4 +1,4 @@
-// js/common/charms/morph-search.js
+// js/common/charms/charm-morph-search.js
 
 /**
  * CHARM: Morph Search

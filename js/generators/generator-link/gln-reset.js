@@ -1,8 +1,9 @@
 // js/generators/generator-link/gln-reset.js
 
 /**
- * ПЛАГІН: Кнопка оновлення Links
+ * ПЛАГІН: Оновлення Links
  * Можна видалити — Links працюватиме без кнопки оновлення.
+ * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
 import { registerLinksPlugin, runHook } from './gln-plugins.js';
@@ -12,48 +13,26 @@ import { renderLinkButtons } from './gln-ui.js';
 let updateLinksUIRef = null;
 
 /**
- * Ініціалізує кнопку "Оновити" для секції посилань.
+ * Ініціалізує charm:refresh listener для секції посилань.
  */
 function initLinksReset({ updateLinksUI }) {
     updateLinksUIRef = updateLinksUI;
 
-    const reloadBtn = document.getElementById('reload-section-links');
-    if (!reloadBtn) return;
+    const section = document.getElementById('section-links');
+    if (!section) return;
 
-    reloadBtn.addEventListener('click', handleReset);
+    section.addEventListener('charm:refresh', handleReset);
 }
 
-async function handleReset() {
-    const reloadBtn = document.getElementById('reload-section-links');
-    const icon = reloadBtn?.querySelector('span');
-
-    // --- Анімація СТАРТ ---
-    if (reloadBtn) {
-        reloadBtn.disabled = true;
-        reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('spinning');
-    }
-    // ---------------------
-
-    try {
+async function handleReset(e) {
+    const done = (async () => {
         await fetchLinksData();
         renderLinkButtons();
-
-        // Викликаємо хук — плагіни можуть реагувати на reset
         runHook('onReset');
-
         if (updateLinksUIRef) updateLinksUIRef();
+    })();
 
-    } finally {
-        // --- Анімація СТОП ---
-        if (reloadBtn) {
-            reloadBtn.disabled = false;
-            reloadBtn.style.color = 'var(--text-disabled)';
-            icon?.classList.remove('spinning');
-            if (icon) icon.style.transform = 'none';
-        }
-        // ---------------------
-    }
+    e.detail?.waitUntil(done);
 }
 
 // Самореєстрація плагіна

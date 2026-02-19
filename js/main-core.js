@@ -12,10 +12,11 @@ import { initCustomAuth } from './auth/custom-auth.js';
 import { initTooltips } from './common/ui-tooltip.js';
 import { initInfoButtons } from './common/ui-info-modal.js';
 import { initTheme } from './common/ui-theme.js';
-import { initSearchClearCharm } from './common/charms/search-clear.js';
-import { initFilterPillsCharm } from './common/charms/filter-pills.js';
-import { initMorphSearchCharm } from './common/charms/morph-search.js';
-import { initTableControlsCharm } from './common/charms/table-controls.js';
+import { initSearchClearCharm } from './common/charms/charm-search-clear.js';
+import { initFilterPillsCharm } from './common/charms/charm-filter-pills.js';
+import { initMorphSearchCharm } from './common/charms/charm-morph-search.js';
+import { initRefreshCharm } from './common/charms/charm-refresh.js';
+import { initColumnsCharm } from './common/charms/charm-columns.js';
 
 
 export function initCore() {
@@ -38,5 +39,6 @@ export function initCore() {
     initSearchClearCharm();
     initFilterPillsCharm();
     initMorphSearchCharm();
-    initTableControlsCharm();
+    initRefreshCharm();
+    initColumnsCharm();
 }

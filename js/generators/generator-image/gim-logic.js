@@ -20,7 +20,6 @@ import { handleSave } from './gim-saver.js';
 import { updateCanvasDisplay } from './gim-renderer.js';
 import { showToast } from '../../common/ui-toast.js';
 import { initCustomSelects } from '../../common/ui-select.js';
-import { closeModal } from '../../common/ui-modal.js';
 import { debounce } from '../../utils/common-utils.js';
 
 /**
@@ -39,23 +38,11 @@ export function initImageToolLogic() {
     setupFileHandlers();
     setupToolHandlers();
 
-    document.body.addEventListener('click', (e) => {
-        const confirmBtn = e.target.closest('#confirm-clear-action');
-        if (confirmBtn) {
-            const activePanel = document.querySelector('#panel-right .panel-fragment.is-active');
-            if (activePanel && activePanel.id === 'aside-image-tool') {
-                const icon = dom.reloadBtn.querySelector('.material-symbols-outlined');
-                dom.reloadBtn.disabled = true;
-                icon?.classList.add('spinning');
-                resetState();
-                showToast('Інструмент очищено', 'info');
-                setTimeout(() => {
-                    dom.reloadBtn.disabled = false;
-                    icon?.classList.remove('spinning');
-                }, 500);
-                closeModal();
-            }
-        }
+    // charm:refresh — очищення інструмента (кнопка + confirm через charm)
+    const section = document.getElementById('section-image-tool');
+    section?.addEventListener('charm:refresh', () => {
+        resetState();
+        showToast('Інструмент очищено', 'info');
     });
 
     window.addEventListener('resize', () => {

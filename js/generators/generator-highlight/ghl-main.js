@@ -2,7 +2,8 @@
 
 /**
  * Highlight Generator — ініціалізація секції
- * Створює редактор з конфігу 'ghl' + reload кнопка
+ * Створює редактор з конфігу 'ghl'.
+ * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
 import { registerPanelInitializer } from '../../panel/panel-right.js';
@@ -16,18 +17,7 @@ registerPanelInitializer('aside-highlight', async () => {
     const editor = createHighlightEditor(container, getEditorOptions('ghl'));
     if (!editor) return;
 
-    // Reload кнопка
-    const reloadBtn = document.getElementById('reload-section-highlight');
-    reloadBtn?.addEventListener('click', () => {
-        const icon = reloadBtn.querySelector('span');
-        reloadBtn.disabled = true;
-        reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('spinning');
-        editor.clear();
-        setTimeout(() => {
-            reloadBtn.disabled = false;
-            reloadBtn.style.color = '';
-            icon?.classList.remove('spinning');
-        }, 300);
-    });
+    // charm:refresh — очищення редактора
+    const section = document.getElementById('section-text');
+    section?.addEventListener('charm:refresh', () => editor.clear());
 });

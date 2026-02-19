@@ -16,7 +16,8 @@ import { bannedWordsState } from './banned-words-init.js';
 import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
-import { initTableControlsCharm } from '../common/charms/table-controls.js';
+import { initRefreshCharm } from '../common/charms/charm-refresh.js';
+import { initColumnsCharm } from '../common/charms/charm-columns.js';
 
 /**
  * Знайти контейнер з пагінацією для табу
@@ -153,7 +154,8 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     tabButton.dataset.checkColumns = JSON.stringify(columnsArr);
 
     // Ініціалізувати charms для динамічного контенту
-    initTableControlsCharm(tabContent);
+    initRefreshCharm(tabContent);
+    initColumnsCharm(tabContent);
 
     // charm:refresh на контейнері check табу
     const checkContainer = tabContent.querySelector(`#check-results-${tabId}`);

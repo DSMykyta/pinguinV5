@@ -4,11 +4,11 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    TABLE GENERATOR LEGO - RESET PLUGIN                   ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔌 ПЛАГІН — Очищення таблиці                                            ║
+ * ║  ПЛАГІН — Очищення таблиці                                              ║
  * ║                                                                          ║
  * ║  ФУНКЦІЇ:                                                                ║
  * ║  - performTableReset() — Очистити всі рядки                              ║
- * ║  - Кнопка з підтвердженням через модал                                   ║
+ * ║  - Слухає charm:refresh на секції (кнопка + confirm через charm)          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -24,7 +24,9 @@ export const PLUGIN_NAME = 'gt-reset';
 
 export function init() {
     markPluginLoaded(PLUGIN_NAME);
-    setupResetButton();
+
+    const section = document.getElementById('section-table');
+    section?.addEventListener('charm:refresh', () => performTableReset());
 }
 
 // ============================================================================
@@ -37,14 +39,7 @@ export function init() {
 export function performTableReset() {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
-    const icon = dom.reloadBtn?.querySelector('span');
 
-    // --- Анімація СТАРТ ---
-    if (dom.reloadBtn) dom.reloadBtn.disabled = true;
-    if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--color-primary)';
-    icon?.classList.add('spinning');
-
-    // Виконуємо очищення
     dom.rowsContainer.innerHTML = '';
     resetRowCounter();
 
@@ -52,41 +47,4 @@ export function performTableReset() {
     runHook('onTableReset');
 
     initializeFirstRow();
-
-    // --- Анімація СТОП ---
-    if (dom.reloadBtn) dom.reloadBtn.disabled = false;
-    if (dom.reloadBtn) dom.reloadBtn.style.color = 'var(--text-disabled)';
-    icon?.classList.remove('spinning');
-    if (icon) icon.style.transform = 'none';
-}
-
-// ============================================================================
-// BUTTON SETUP
-// ============================================================================
-
-function setupResetButton() {
-    const dom = getTableDOM();
-    if (!dom.reloadBtn) return;
-
-    // 1. Кнопка "Оновити" відкриває модал
-    dom.reloadBtn.dataset.modalTrigger = 'confirm-clear-modal';
-    dom.reloadBtn.dataset.modalSize = 'small';
-
-    // 2. Слухаємо кнопку підтвердження
-    document.body.addEventListener('click', handleConfirmClick);
-}
-
-function handleConfirmClick(e) {
-    const confirmBtn = e.target.closest('#confirm-clear-action');
-    if (confirmBtn) {
-        performTableReset();
-    }
-}
-
-// ============================================================================
-// CLEANUP
-// ============================================================================
-
-export function destroy() {
-    document.body.removeEventListener('click', handleConfirmClick);
 }

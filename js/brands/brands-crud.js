@@ -28,7 +28,8 @@ import { getEditorOptions } from '../common/editor/editor-configs.js';
 import { createManagedTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
-import { initTableControlsCharm } from '../common/charms/table-controls.js';
+import { initRefreshCharm } from '../common/charms/charm-refresh.js';
+import { initColumnsCharm } from '../common/charms/charm-columns.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../utils/api-client.js';
 
@@ -222,6 +223,21 @@ function initBrandLinesHandler() {
         };
     }
 
+    // Charms — один раз при відкритті модала
+    const container = document.getElementById('brand-lines-container');
+    if (container) {
+        initPaginationCharm();
+        initRefreshCharm();
+        initColumnsCharm();
+
+        container.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                const { loadBrandLines } = await import('./lines-data.js');
+                await loadBrandLines();
+                populateBrandLines(currentBrandId);
+            })());
+        });
+    }
 }
 
 /**
@@ -321,17 +337,6 @@ function populateBrandLines(brandId) {
         }
     });
 
-    initPaginationCharm();
-    initTableControlsCharm();
-
-    // charm:refresh — оновити лінійки
-    container.addEventListener('charm:refresh', (e) => {
-        e.detail.waitUntil((async () => {
-            const { loadBrandLines } = await import('./lines-data.js');
-            await loadBrandLines();
-            populateBrandLines(brandId);
-        })());
-    });
 }
 
 /**

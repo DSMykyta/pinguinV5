@@ -1,8 +1,9 @@
 // js/generators/generator-seo/gse-reset.js
 
 /**
- * ПЛАГІН: Кнопка скидання SEO
- * Можна видалити — SEO працюватиме без кнопки очищення.
+ * ПЛАГІН: Скидання SEO
+ * Можна видалити — SEO працюватиме без скидання.
+ * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
 import { registerSeoPlugin, runHook } from './gse-plugins.js';
@@ -12,30 +13,19 @@ import { fetchData } from './gse-data.js';
 let runCalculationsRef = null;
 
 /**
- * Ініціалізує кнопку "Очистити" для SEO-секції.
+ * Ініціалізує charm:refresh listener для SEO-секції.
  */
 function initResetButton({ runCalculations }) {
-    // Зберігаємо референс на runCalculations
     runCalculationsRef = runCalculations;
 
-    const reloadBtn = document.getElementById('reload-section-seo');
-    if (!reloadBtn) return;
+    const section = document.getElementById('section-seo');
+    if (!section) return;
 
-    reloadBtn.addEventListener('click', handleReset);
+    section.addEventListener('charm:refresh', handleReset);
 }
 
-async function handleReset() {
-    const reloadBtn = document.getElementById('reload-section-seo');
+async function handleReset(e) {
     const dom = getSeoDOM();
-    const icon = reloadBtn?.querySelector('span');
-
-    // --- Анімація СТАРТ ---
-    if (reloadBtn) {
-        reloadBtn.disabled = true;
-        reloadBtn.style.color = 'var(--color-primary)';
-        icon?.classList.add('spinning');
-    }
-    // ---------------------
 
     // Очищаємо поля
     dom.brandNameInput.value = '';
@@ -43,26 +33,13 @@ async function handleReset() {
     dom.productPackagingInput.value = '';
     dom.triggerTitlesContainer.innerHTML = '';
 
-    try {
-        await fetchData(); // Заново завантажуємо дані
-
-        // Викликаємо хук — плагіни можуть реагувати на reset
+    const done = (async () => {
+        await fetchData();
         runHook('onReset');
+        if (runCalculationsRef) runCalculationsRef();
+    })();
 
-        if (runCalculationsRef) runCalculationsRef(); // Перераховуємо SEO
-
-    } catch (error) {
-        console.error("Помилка під час перезавантаження:", error);
-    } finally {
-        // --- Анімація СТОП ---
-        if (reloadBtn) {
-            reloadBtn.disabled = false;
-            reloadBtn.style.color = 'var(--text-disabled)';
-            icon?.classList.remove('spinning');
-            if (icon) icon.style.transform = 'none';
-        }
-        // ---------------------
-    }
+    e.detail?.waitUntil(done);
 }
 
 // Самореєстрація плагіна

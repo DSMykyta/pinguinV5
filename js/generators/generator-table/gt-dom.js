@@ -20,10 +20,9 @@ export function getTableDOM() {
     }
 
     domCache = {
-        // Головні контейнери та кнопки секції
+        // Головний контейнер секції
         rowsContainer: document.getElementById('rows-container'),
-        reloadBtn: document.getElementById('reload-section-tablet'),
-        
+
         // Кнопки правої панелі
         addInputBtn: document.getElementById('add-input-btn'),
         addEmptyLineBtn: document.getElementById('add-empty-line-btn'),

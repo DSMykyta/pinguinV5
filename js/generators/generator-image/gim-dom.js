@@ -44,8 +44,6 @@ export function getImageDom() {
         // --- ▼ ДОДАНО ▼ ---
         applyCanvasBtn: document.getElementById('gim-apply-canvas'),
         // --- ▲ КІНЕЦЬ ▲ ---
-        
-        reloadBtn: document.getElementById('reload-section-image')
     };
 
     return domCache;

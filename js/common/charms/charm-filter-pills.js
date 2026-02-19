@@ -1,4 +1,4 @@
-// js/common/charms/filter-pills.js
+// js/common/charms/charm-filter-pills.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

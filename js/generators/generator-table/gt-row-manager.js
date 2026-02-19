@@ -92,25 +92,8 @@ export async function initializeEmptyRow() {
  * Повністю очищує секцію таблиць і повертає її до початкового стану.
  */
 export function resetTableSection() {
-    if (dom.reloadBtn) {
-        const icon = dom.reloadBtn.querySelector('span');
-        dom.reloadBtn.style.color = 'var(--primary-color)';
-        if (icon) {
-            icon.style.transition = 'transform 0.5s ease';
-            icon.style.transform = 'rotate(360deg)';
-        }
-    }
-
     dom.rowsContainer.innerHTML = '';
     resetRowCounter();
     clearSession();
     initializeFirstRow();
-
-    setTimeout(() => {
-        if (dom.reloadBtn) {
-            const icon = dom.reloadBtn.querySelector('span');
-            dom.reloadBtn.style.color = 'var(--text-disabled)';
-            if (icon) icon.style.transform = 'none';
-        }
-    }, 500);
 }
