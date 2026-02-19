@@ -2293,7 +2293,7 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>Tooltips</h3>
-                        <p>Кастомні підказки замість нативного title. Делегування через document — працює з динамічним контентом. Затримка 1с, слідує за курсором.</p>
+                        <p>Кастомні підказки замість нативного title. Делегування через document — працює з динамічним контентом. Затримка 500ms, слідує за курсором.</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">feedback/tooltip.css</span>
                             <span class="m3-tag m3-tag-src">ui-tooltip.js</span>
@@ -2319,7 +2319,7 @@
                                 <span class="status-dot is-error" title="Неактивний"></span>
                                 <button class="btn-icon" title="Закрити"><span class="material-symbols-outlined">close</span></button>
                             </td>
-                            <td>Показує завжди (title → data-tooltip автоматично)</td>
+                            <td>title → data-tooltip автоматично при hover</td>
                             <td>Статус-крапки, іконки-кнопки, аватарки</td>
                         </tr>
                         <tr>
@@ -2331,14 +2331,10 @@
                                     <div class="tooltip-hint"><strong>Замінити:</strong> доступний</div>
                                 </div>
                             </td>
-                            <td>Спеціальний — через chip-tooltip.js</td>
+                            <td>Rich HTML — через editor-tooltip.js</td>
                             <td>Редактор тексту, заборонені слова</td>
                         </tr>
                     </table>
-                    <div class="m3-preview" style="gap:16px;align-items:flex-start">
-                        <div class="custom-tooltip visible" style="position:relative;opacity:1;transform:scale(1)">
-                            Підказка для елемента</div>
-                    </div>
                     <div class="m3-code">&lt;!-- Overflow: показує коли текст не вміщується --&gt;
 &lt;div data-tooltip="Повний текст"&gt;Обрізаний...&lt;/div&gt;
 

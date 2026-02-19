@@ -172,21 +172,8 @@
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
                             </div>
-                            <span class="body-s" id="brand-lines-stats">Показано 0 з 0</span>
                         </div>
                         <div class="group">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="brand-lines-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button id="refresh-brand-lines" class="btn-icon" aria-label="Оновити лінійки">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="input-box">
                                 <button class="btn-icon ghost" aria-label="Пошук">
                                     <span class="material-symbols-outlined">search</span>
@@ -196,7 +183,8 @@
                         </div>
                     </div>
 
-                    <div id="brand-lines-container" class="pseudo-table-container">
+                    <div id="brand-lines-container" class="pseudo-table-container"
+                         pagination refresh columns>
                         <!-- Динамічний список лінійок додається через JS -->
                     </div>
                 </section>

@@ -18,7 +18,6 @@
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -28,6 +27,8 @@ import { createHighlightEditor } from '../common/editor/editor-main.js';
 import { getEditorOptions } from '../common/editor/editor-configs.js';
 import { createManagedTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../utils/api-client.js';
 
@@ -221,18 +222,6 @@ function initBrandLinesHandler() {
         };
     }
 
-    // Кнопка оновлення лінійок
-    const refreshBtn = document.getElementById('refresh-brand-lines');
-    if (refreshBtn) {
-        refreshBtn.onclick = () => {
-            if (!currentBrandId) return;
-            withSpinner(refreshBtn, async () => {
-                const { loadBrandLines } = await import('./lines-data.js');
-                await loadBrandLines();
-                populateBrandLines(currentBrandId);
-            });
-        };
-    }
 }
 
 /**
@@ -269,10 +258,8 @@ function populateBrandLines(brandId) {
             }
         ],
         data: allData,
-        columnsListId: 'brand-lines-columns-list',
 
         searchInputId: 'brand-lines-search',
-        statsId: 'brand-lines-stats',
         checkboxPrefix: 'brand-lines',
         pageSize: null,
         tableConfig: {
@@ -332,6 +319,18 @@ function populateBrandLines(brandId) {
                 }
             }
         }
+    });
+
+    initPaginationCharm();
+    initTableControlsCharm();
+
+    // charm:refresh — оновити лінійки
+    container.addEventListener('charm:refresh', (e) => {
+        e.detail.waitUntil((async () => {
+            const { loadBrandLines } = await import('./lines-data.js');
+            await loadBrandLines();
+            populateBrandLines(brandId);
+        })());
     });
 }
 
