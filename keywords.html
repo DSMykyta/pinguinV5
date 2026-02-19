@@ -124,28 +124,13 @@
                     </div>
                 </div>
 
-                <div class="group">
-                    <button id="refresh-tab-keywords" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-keywords" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="keywords-table-container" class="pseudo-table-container"
-                 pagination="10" data-pagination-stats="tab-stats-keywords">
+                 pagination="10" data-pagination-stats="tab-stats-keywords"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -153,23 +138,6 @@
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="footer">
             <div></div>
-
-            <div class="pagination-container">
-                <div id="pagination-nav-container" class="pagination-nav"></div>
-
-                <div class="page-size-selector" id="page-size-selector">
-                    <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="page-size-label">10</span>
-                    </button>
-                    <div class="page-size-menu">
-                        <button class="page-size-option" data-page-size="10">10</button>
-                        <button class="page-size-option" data-page-size="25">25</button>
-                        <button class="page-size-option" data-page-size="50">50</button>
-                        <button class="page-size-option" data-page-size="100">100</button>
-                        <button class="page-size-option" data-page-size="999999">Всі</button>
-                    </div>
-                </div>
-            </div>
         </footer>
 
     </main>

@@ -139,25 +139,13 @@
                     <span class="body-s" id="tab-stats-mapper-categories">Показано 0 з 0</span>
                 </div>
 
-                <div class="group">
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-mapper-categories" class="dropdown-body"></div>
-                        </div>
-                    </div>
-                    <button id="refresh-tab-mapper-categories" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="mapper-categories-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-mapper-categories">
+                 pagination data-pagination-stats="tab-stats-mapper-categories"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -173,25 +161,13 @@
                     <span class="body-s" id="tab-stats-mapper-characteristics">Показано 0 з 0</span>
                 </div>
 
-                <div class="group">
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-mapper-characteristics" class="dropdown-body"></div>
-                        </div>
-                    </div>
-                    <button id="refresh-tab-mapper-characteristics" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="mapper-characteristics-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-mapper-characteristics">
+                 pagination data-pagination-stats="tab-stats-mapper-characteristics"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -208,25 +184,13 @@
                     <!-- Фільтр по джерелу (заповнюється динамічно) -->
                 </div>
 
-                <div class="group">
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-mapper-options" class="dropdown-body"></div>
-                        </div>
-                    </div>
-                    <button id="refresh-tab-mapper-options" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="mapper-options-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-mapper-options">
+                 pagination data-pagination-stats="tab-stats-mapper-options"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -242,25 +206,13 @@
                     <span class="body-s" id="tab-stats-mapper-marketplaces">Показано 0 з 0</span>
                 </div>
 
-                <div class="group">
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-mapper-marketplaces" class="dropdown-body"></div>
-                        </div>
-                    </div>
-                    <button id="refresh-tab-mapper-marketplaces" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="mapper-marketplaces-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-mapper-marketplaces">
+                 pagination data-pagination-stats="tab-stats-mapper-marketplaces"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -268,23 +220,6 @@
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="footer">
             <div></div>
-
-            <div class="pagination-container">
-                <div id="pagination-nav-container" class="pagination-nav"></div>
-
-                <div class="page-size-selector" id="page-size-selector">
-                    <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="page-size-label">25</span>
-                    </button>
-                    <div class="page-size-menu">
-                        <button class="page-size-option" data-page-size="10">10</button>
-                        <button class="page-size-option" data-page-size="25">25</button>
-                        <button class="page-size-option" data-page-size="50">50</button>
-                        <button class="page-size-option" data-page-size="100">100</button>
-                        <button class="page-size-option" data-page-size="999999">Всі</button>
-                    </div>
-                </div>
-            </div>
         </footer>
 
     </main>

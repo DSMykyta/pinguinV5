@@ -629,8 +629,6 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
         container: `mapper-${tabName}-table-container`,
         columns: columns,
         data: rawData,
-        columnsListId: `table-columns-list-mapper-${tabName}`,
-
         searchInputId: isActive ? 'search-mapper' : null,
         statsId: null,
         paginationId: null,

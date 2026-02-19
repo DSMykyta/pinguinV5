@@ -8,16 +8,17 @@
 
 import { renderKeywordsTable } from './keywords-table.js';
 import { loadKeywords } from './keywords-data.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 
 export function initKeywordsEvents() {
 
-    const refreshBtn = document.getElementById('refresh-tab-keywords');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
-            await loadKeywords();
-            renderKeywordsTable();
-        }));
+    const container = document.getElementById('keywords-table-container');
+    if (container) {
+        container.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadKeywords();
+                renderKeywordsTable();
+            })());
+        });
     }
 }
 

@@ -135,28 +135,13 @@
                     <span class="body-s" id="tab-stats-brands">Показано 0 з 0</span>
                 </div>
 
-                <div class="group">
-                    <button id="refresh-tab-brands" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-brands" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="brands-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-brands">
+                 pagination data-pagination-stats="tab-stats-brands"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -175,28 +160,13 @@
                     <span class="body-s" id="tab-stats-lines">Показано 0 з 0</span>
                 </div>
 
-                <div class="group">
-                    <button id="refresh-tab-lines" class="btn-icon" aria-label="Оновити таб">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="table-columns-list-lines" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="group"></div>
             </div>
 
             <!-- Table Container -->
             <div id="lines-table-container" class="pseudo-table-container"
-                 pagination="25" data-pagination-stats="tab-stats-lines">
+                 pagination data-pagination-stats="tab-stats-lines"
+                 refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
@@ -204,23 +174,6 @@
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="footer">
             <div></div>
-
-            <div class="pagination-container">
-                <div id="pagination-nav-container" class="pagination-nav"></div>
-
-                <div class="page-size-selector" id="page-size-selector">
-                    <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="page-size-label">25</span>
-                    </button>
-                    <div class="page-size-menu">
-                        <button class="page-size-option" data-page-size="10">10</button>
-                        <button class="page-size-option" data-page-size="25">25</button>
-                        <button class="page-size-option" data-page-size="50">50</button>
-                        <button class="page-size-option" data-page-size="100">100</button>
-                        <button class="page-size-option" data-page-size="999999">Всі</button>
-                    </div>
-                </div>
-            </div>
         </footer>
 
     </main>

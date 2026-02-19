@@ -12,7 +12,6 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 
 let eventsInitialized = false;
 
@@ -35,8 +34,8 @@ export function initPriceEvents() {
     // Обробник табів резервів
     initReserveTabsEvents();
 
-    // Обробник кнопки оновлення
-    initRefreshButton();
+    // Обробник charm:refresh
+    initRefreshHandler();
 
     // Обробник batch actions
     initBatchActions();
@@ -217,17 +216,19 @@ function initReserveTabsEvents() {
 }
 
 /**
- * Ініціалізувати кнопку оновлення
+ * Обробник charm:refresh на контейнері
  */
-function initRefreshButton() {
-    const refreshBtn = document.getElementById('refresh-tab-price');
-    if (!refreshBtn) return;
+function initRefreshHandler() {
+    const container = document.getElementById('price-table-container');
+    if (!container) return;
 
-    refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
-        const { loadPriceData } = await import('./price-data.js');
-        await loadPriceData();
-        renderPriceTable();
-    }));
+    container.addEventListener('charm:refresh', (e) => {
+        e.detail.waitUntil((async () => {
+            const { loadPriceData } = await import('./price-data.js');
+            await loadPriceData();
+            renderPriceTable();
+        })());
+    });
 }
 
 /**

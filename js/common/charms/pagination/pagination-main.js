@@ -46,7 +46,7 @@ export function initPaginationCharm(scope = document) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function createInstance(el) {
-    const pageSize = parseInt(el.getAttribute('pagination')) || 25;
+    const pageSize = parseInt(el.getAttribute('pagination')) || 10;
 
     // Автодетект: якщо елемент в неактивному .tab-content → стартувати як deactivated
     const tabContent = el.closest('.tab-content');

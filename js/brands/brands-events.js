@@ -13,48 +13,42 @@ import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
 import { loadBrands, getBrands } from './brands-data.js';
 import { showToast } from '../common/ui-toast.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 
 /**
  * Ініціалізувати всі обробники подій
  */
 export function initBrandsEvents() {
 
-    initRefreshButton();
-    initLinesRefreshButton();
+    initRefreshHandlers();
 
 }
 
-// initBrandsSorting — тепер сортування та фільтри для брендів
-// обробляються через Table LEGO плагіни в brands-table.js
-
 /**
- * Ініціалізувати кнопку оновлення
+ * Обробники charm:refresh на контейнерах
  */
-function initRefreshButton() {
-    const refreshBtn = document.getElementById('refresh-tab-brands');
-    if (!refreshBtn) return;
+function initRefreshHandlers() {
+    const brandsContainer = document.getElementById('brands-table-container');
+    if (brandsContainer) {
+        brandsContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadBrands();
+                renderBrandsTable();
+                showToast('Дані оновлено', 'success');
+            })());
+        });
+    }
 
-    refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
-        await loadBrands();
-        renderBrandsTable();
-        showToast('Дані оновлено', 'success');
-    }));
-}
-
-/**
- * Ініціалізувати кнопку оновлення для табу лінійок
- */
-function initLinesRefreshButton() {
-    const refreshBtn = document.getElementById('refresh-tab-lines');
-    if (!refreshBtn) return;
-
-    refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
-        const { loadBrandLines } = await import('./lines-data.js');
-        await loadBrandLines();
-        runHook('onRender');
-        showToast('Дані оновлено', 'success');
-    }));
+    const linesContainer = document.getElementById('lines-table-container');
+    if (linesContainer) {
+        linesContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                const { loadBrandLines } = await import('./lines-data.js');
+                await loadBrandLines();
+                runHook('onRender');
+                showToast('Дані оновлено', 'success');
+            })());
+        });
+    }
 }
 
 // initLinesSorting — тепер сортування лінійок

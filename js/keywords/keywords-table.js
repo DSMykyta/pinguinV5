@@ -78,8 +78,6 @@ function initKeywordsTable() {
         data: getKeywords(),
 
         // DOM IDs
-        columnsListId: 'table-columns-list-keywords',
-
         searchInputId: 'search-keywords',
         statsId: null,
         paginationId: null,

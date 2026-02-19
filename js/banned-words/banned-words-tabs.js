@@ -16,6 +16,7 @@ import { bannedWordsState } from './banned-words-init.js';
 import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 
 /**
  * Знайти контейнер з пагінацією для табу
@@ -151,38 +152,37 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     tabButton.dataset.checkWords = JSON.stringify(wordsArr);
     tabButton.dataset.checkColumns = JSON.stringify(columnsArr);
 
-    // Додати обробник для кнопки refresh цього check табу
-    const refreshButton = tabContent.querySelector(`#refresh-check-${tabId}`);
-    if (refreshButton) {
-        refreshButton.addEventListener('click', async () => {
+    // Ініціалізувати charms для динамічного контенту
+    initTableControlsCharm(tabContent);
 
-            // Отримати збережені параметри перевірки з кнопки табу
-            const sheet = tabButton.dataset.checkSheet;
-            const word = tabButton.dataset.checkWord;
-            const column = tabButton.dataset.checkColumn;
-            // Масиви для мультиселекту
-            const savedSheets = JSON.parse(tabButton.dataset.checkSheets || '[]');
-            const savedWords = JSON.parse(tabButton.dataset.checkWords || '[]');
-            const savedColumns = JSON.parse(tabButton.dataset.checkColumns || '[]');
+    // charm:refresh на контейнері check табу
+    const checkContainer = tabContent.querySelector(`#check-results-${tabId}`);
+    if (checkContainer) {
+        checkContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                const sheet = tabButton.dataset.checkSheet;
+                const word = tabButton.dataset.checkWord;
+                const column = tabButton.dataset.checkColumn;
+                const savedSheets = JSON.parse(tabButton.dataset.checkSheets || '[]');
+                const savedWords = JSON.parse(tabButton.dataset.checkWords || '[]');
+                const savedColumns = JSON.parse(tabButton.dataset.checkColumns || '[]');
 
-            // Інвалідувати кеш - використовуємо ті самі ключі що і при створенні кешу
-            const { invalidateCheckCache } = await import('./banned-words-init.js');
-            const sheetsKey = [...savedSheets].sort().join('-');
-            const columnsKey = [...savedColumns].sort().join('-');
-            const wordsKey = [...savedWords].sort().join('-');
-            invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
+                const { invalidateCheckCache } = await import('./banned-words-init.js');
+                const sheetsKey = [...savedSheets].sort().join('-');
+                const columnsKey = [...savedColumns].sort().join('-');
+                const wordsKey = [...savedWords].sort().join('-');
+                invalidateCheckCache(sheetsKey, wordsKey, columnsKey);
 
-            // Оновити state перед перевіркою (включно з масивами)
-            bannedWordsState.selectedSheet = sheet;
-            bannedWordsState.selectedWord = word;
-            bannedWordsState.selectedColumn = column;
-            bannedWordsState.selectedSheets = savedSheets;
-            bannedWordsState.selectedWords = savedWords;
-            bannedWordsState.selectedColumns = savedColumns;
+                bannedWordsState.selectedSheet = sheet;
+                bannedWordsState.selectedWord = word;
+                bannedWordsState.selectedColumn = column;
+                bannedWordsState.selectedSheets = savedSheets;
+                bannedWordsState.selectedWords = savedWords;
+                bannedWordsState.selectedColumns = savedColumns;
 
-            // Повторно виконати перевірку для цього табу
-            const { performCheck } = await import('./banned-words-check.js');
-            await performCheck(sheet, word, column);
+                const { performCheck } = await import('./banned-words-check.js');
+                await performCheck(sheet, word, column);
+            })());
         });
     }
 

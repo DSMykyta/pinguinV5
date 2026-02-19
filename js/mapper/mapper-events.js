@@ -17,13 +17,12 @@ import {
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 
 /**
  * Ініціалізувати всі обробники подій
  */
 export function initMapperEvents() {
-    initRefreshButtons();
+    initRefreshHandlers();
     initAddButtons();
     initImportButton();
     initMapperBatchActions();
@@ -64,26 +63,28 @@ function initBindingChipClicks() {
 // initMapperSearch — видалено, createManagedTable керує пошуком через searchInputId
 
 /**
- * Ініціалізувати кнопки оновлення
+ * Обробники charm:refresh на контейнерах
  */
-function initRefreshButtons() {
+function initRefreshHandlers() {
     const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
 
     tabs.forEach(tab => {
-        const btn = document.getElementById(`refresh-tab-mapper-${tab}`);
-        if (btn) {
-            btn.addEventListener('click', () => withSpinner(btn, async () => {
-                await Promise.all([
-                    loadMapperData(),
-                    loadMpCategories(),
-                    loadMpCharacteristics(),
-                    loadMpOptions(),
-                    loadMapCategories(),
-                    loadMapCharacteristics(),
-                    loadMapOptions()
-                ]);
-                renderCurrentTab();
-            }));
+        const container = document.getElementById(`mapper-${tab}-table-container`);
+        if (container) {
+            container.addEventListener('charm:refresh', (e) => {
+                e.detail.waitUntil((async () => {
+                    await Promise.all([
+                        loadMapperData(),
+                        loadMpCategories(),
+                        loadMpCharacteristics(),
+                        loadMpOptions(),
+                        loadMapCategories(),
+                        loadMapCharacteristics(),
+                        loadMapOptions()
+                    ]);
+                    renderCurrentTab();
+                })());
+            });
         }
     });
 }

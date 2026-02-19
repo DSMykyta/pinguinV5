@@ -50,13 +50,22 @@ export function createManagedTable(config) {
         preFilter = null
     } = config;
 
+    // ── Resolve container element ──
+    const containerEl = typeof container === 'string' ? document.getElementById(container) : container;
+
+    // ── Auto-detect charm-generated columns dropdown ──
+    const effectiveColumnsListId = columnsListId || containerEl?._charmColumnsListId;
+
+    // ── Pagination: if charm [pagination] handles it, don't slice in managed table ──
+    const hasCharmPagination = containerEl?.hasAttribute('pagination');
+
     // ── Internal state ──
     let allData = [...data];
     let filteredData = [];
     let searchQuery = '';
     let columnFilters = {};
     let currentPage = 1;
-    let currentPageSize = pageSize || 999999;
+    let currentPageSize = hasCharmPagination ? 999999 : (pageSize || 999999);
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
 
     let isActive = true;
@@ -121,7 +130,7 @@ export function createManagedTable(config) {
     });
 
     // ── 2. Column visibility selector ──
-    if (columnsListId) {
+    if (effectiveColumnsListId) {
         const visibilityColumns = columns
             .filter(c => c.id !== '_unlink' && c.id !== '_actions' && c.label?.trim())
             .map(c => ({
@@ -130,7 +139,7 @@ export function createManagedTable(config) {
                 checked: c.checked !== false
             }));
 
-        createColumnSelector(columnsListId, visibilityColumns, {
+        createColumnSelector(effectiveColumnsListId, visibilityColumns, {
             checkboxPrefix: `${checkboxPrefix}-col`,
             onChange: (selectedIds) => {
                 visibleColumnIds = selectedIds;

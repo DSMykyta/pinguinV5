@@ -69,8 +69,6 @@ function initBrandsTable() {
         data: getBrands(),
 
         // DOM IDs
-        columnsListId: 'table-columns-list-brands',
-
         searchInputId: 'search-brands',
         statsId: null,
         paginationId: null,

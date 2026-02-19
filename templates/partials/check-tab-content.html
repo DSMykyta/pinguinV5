@@ -21,16 +21,13 @@
         </div>
     </div>
 
-    <div class="group">
-        <button id="refresh-check-{{tabId}}" class="btn-icon" aria-label="Оновити результати">
-            <span class="material-symbols-outlined">refresh</span>
-        </button>
-    </div>
+    <div class="group"></div>
 </div>
 
 <!-- Table Container -->
 <div id="check-results-{{tabId}}" class="pseudo-table-container"
-     pagination="10" data-pagination-stats="check-tab-stats-{{tabId}}">
+     pagination data-pagination-stats="check-tab-stats-{{tabId}}"
+     refresh>
     <div class="loading-state">
         <span class="material-symbols-outlined">pending</span>
         <p>Завантаження даних з Google Sheets</p>

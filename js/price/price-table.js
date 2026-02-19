@@ -110,8 +110,6 @@ function initPriceTable() {
         data: priceState.priceItems,
 
         // DOM IDs
-        columnsListId: 'table-columns-list-price',
-
         searchInputId: 'search-price',
         statsId: null,
         paginationId: null,

@@ -16,6 +16,7 @@ import { initTheme } from './common/ui-theme.js';
 import { initSearchClearCharm } from './common/charms/search-clear.js';
 import { initFilterPillsCharm } from './common/charms/filter-pills.js';
 import { initMorphSearchCharm } from './common/charms/morph-search.js';
+import { initTableControlsCharm } from './common/charms/table-controls.js';
 
 
 export function initCore() {
@@ -39,4 +40,5 @@ export function initCore() {
     initSearchClearCharm();
     initFilterPillsCharm();
     initMorphSearchCharm();
+    initTableControlsCharm();
 }

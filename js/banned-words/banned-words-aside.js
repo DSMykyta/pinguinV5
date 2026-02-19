@@ -269,15 +269,17 @@ export function initManageTabEvents() {
         });
     }
 
-    // Кнопка оновлення табу
-    const refreshTabButton = document.getElementById('refresh-tab-manage');
-    if (refreshTabButton) {
-        refreshTabButton.addEventListener('click', () => withSpinner(refreshTabButton, async () => {
-            const { loadBannedWords } = await import('./banned-words-data.js');
-            await loadBannedWords();
-            const { renderBannedWordsTable } = await import('./banned-words-manage.js');
-            await renderBannedWordsTable();
-        }));
+    // charm:refresh на контейнері (кнопка генерується table-controls charm)
+    const manageContainer = document.getElementById('banned-words-table-container');
+    if (manageContainer) {
+        manageContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                const { loadBannedWords } = await import('./banned-words-data.js');
+                await loadBannedWords();
+                const { renderBannedWordsTable } = await import('./banned-words-manage.js');
+                await renderBannedWordsTable();
+            })());
+        });
     }
 }
 
