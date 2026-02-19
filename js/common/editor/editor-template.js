@@ -155,10 +155,10 @@ function renderFindReplaceDropdown(id) {
                             <span class="material-symbols-outlined">find_replace</span>
                         </button>
                         <div class="dropdown-menu" style="min-width: 300px; padding: 12px;">
-                            <div class="form-group">
+                            <div class="group column">
                                 <input type="text" id="${id}-find-input" class="input-main" placeholder="Що знайти...">
                             </div>
-                            <div class="form-group">
+                            <div class="group column">
                                 <input type="text" id="${id}-replace-input" class="input-main" placeholder="На що замінити...">
                             </div>
                             <button type="button" class="btn-secondary" id="${id}-replace-all-btn" style="width: 100%;">Замінити все</button>

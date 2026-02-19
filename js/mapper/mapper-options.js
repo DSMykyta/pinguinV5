@@ -668,7 +668,7 @@ function renderMpDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="form-group">
+            <div class="group column">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>
@@ -743,7 +743,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
                 <div class="modal-body">
                     <p class="u-mb-16">Обрано <strong>${selectedMpIds.length}</strong> опцій маркетплейсу.</p>
                     <p class="u-mb-16">Оберіть власну опцію для прив'язки:</p>
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="select-own-option">Власна опція</label>
                         <select id="select-own-option" class="input-main">
                             <option value="">— Оберіть опцію —</option>

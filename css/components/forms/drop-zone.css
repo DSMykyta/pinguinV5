@@ -336,22 +336,6 @@
     gap: 16px;
 }
 
-/* Inline form group - horizontal layout */
-.form-group-inline {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.form-group-inline label {
-    margin-bottom: 0;
-    white-space: nowrap;
-}
-
-.form-group-inline .input-small {
-    width: 80px;
-}
 
 /* Vertical radio group */
 .radio-group-vertical {

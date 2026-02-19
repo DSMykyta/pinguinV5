@@ -14,7 +14,7 @@ import { tasksState } from './tasks-state.js';
 import { loadTasks } from './tasks-data.js';
 import { registerTasksPlugin, runHook } from './tasks-plugins.js';
 import { showToast } from '../common/ui-toast.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
+import { withSpinner } from '../common/charms/charm-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ІНІЦІАЛІЗАЦІЯ

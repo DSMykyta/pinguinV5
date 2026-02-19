@@ -51,7 +51,7 @@ export function showStatusDropdown(triggerBtn, taskId) {
     dropdown.innerHTML = `
         <div class="dropdown-body">
             ${STATUS_OPTIONS.map(opt => `
-                <button class="dropdown-item ${task.status === opt.value ? 'is-active' : ''}"
+                <button class="dropdown-item ${task.status === opt.value ? 'active' : ''}"
                         data-status="${opt.value}">
                     <span class="material-symbols-outlined">${opt.icon}</span>
                     <span>${opt.label}</span>

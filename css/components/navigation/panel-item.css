@@ -20,13 +20,13 @@
  * </a>
  *
  * <!-- Active state -->
- * <button class="panel-item is-active">
+ * <button class="panel-item active">
  *   <span class="material-symbols-outlined panel-item-icon">dashboard</span>
  *   <span class="panel-item-text">Дашборд</span>
  * </button>
  *
  * МОДИФІКАТОРИ:
- * - .is-active - активний стан (підсвічений)
+ * - .active - активний стан (підсвічений)
  * - .on-hover - елемент що з'являється при наведенні
  *
  * ЗАЛЕЖНОСТІ:
@@ -63,7 +63,7 @@
 
 /* Стан при наведенні або активний стан */
 .panel-item:hover,
-.panel-item.is-active {
+.panel-item.active {
     background-color: var(--color-main-c);
     color: var(--color-main);
 }

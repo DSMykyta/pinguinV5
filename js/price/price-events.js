@@ -191,10 +191,10 @@ function initReserveTabsEvents() {
     const sectionNavigator = document.getElementById('tabs-head-container');
     if (sectionNavigator) {
         sectionNavigator.addEventListener('click', (e) => {
-            const tabBtn = e.target.closest('.nav-icon[data-reserve-filter]');
+            const tabBtn = e.target.closest('.btn-icon.expand[data-reserve-filter]');
             if (!tabBtn) return;
 
-            sectionNavigator.querySelectorAll('.nav-icon').forEach(btn => {
+            sectionNavigator.querySelectorAll('.btn-icon.expand').forEach(btn => {
                 btn.classList.remove('active');
             });
             tabBtn.classList.add('active');

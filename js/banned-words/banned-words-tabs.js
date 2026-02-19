@@ -43,7 +43,7 @@ async function getCheckTabTemplate() {
         return checkTabTemplate;
     } catch (e) {
         console.error("Не вдалося завантажити шаблон check-tab.html:", e);
-        return '<span class="material-symbols-outlined">search</span><span class="nav-icon-label">{{tabLabel}}</span><span class="tab-close-btn" role="button" tabindex="0" aria-label="Закрити таб"><span class="material-symbols-outlined">close</span></span>';
+        return '<span class="material-symbols-outlined">search</span><span class="btn-icon-label">{{tabLabel}}</span><span class="tab-close-btn" role="button" tabindex="0" aria-label="Закрити таб"><span class="material-symbols-outlined">close</span></span>';
     }
 }
 
@@ -123,7 +123,7 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     // Створити кнопку табу
     const tabsContainer = document.getElementById('tabs-head-container');
     const tabButton = document.createElement('button');
-    tabButton.className = 'nav-icon';
+    tabButton.className = 'btn-icon expand';
     tabButton.dataset.tabTarget = tabId;
 
     const tabTemplate = await getCheckTabTemplate();
@@ -245,7 +245,7 @@ export function initTabHandlers() {
         }
 
         // Знайти батьківську кнопку табу
-        const tabButton = closeButton.closest('.nav-icon');
+        const tabButton = closeButton.closest('.btn-icon.expand');
         if (!tabButton) return;
 
         const tabId = tabButton.dataset.tabTarget;
@@ -279,7 +279,7 @@ export function initTabHandlers() {
         if (e.target.closest('.tab-close-btn')) return;
 
         // Шукаємо клікнуту кнопку табу
-        const tabButton = e.target.closest('.nav-icon');
+        const tabButton = e.target.closest('.btn-icon.expand');
         if (!tabButton) return;
 
         // Перевіряємо чи є data-tab-target
@@ -302,7 +302,7 @@ export function initTabHandlers() {
         }
 
         // Знімаємо active з ВСІХ кнопок
-        tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
+        tabsContainer.querySelectorAll('.btn-icon.expand').forEach(btn => {
             btn.classList.remove('active');
         });
 

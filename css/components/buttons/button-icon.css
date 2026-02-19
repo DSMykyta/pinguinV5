@@ -21,7 +21,7 @@
  * КЛАСИ:
  * - .btn-icon - базовий клас (32x32px, круглий, hover з фоном)
  * - .btn-icon:hover - стан наведення (фон, тінь)
- * - .btn-icon.active / .is-active - активний стан
+ * - .btn-icon.active / .active - активний стан
  *
  * ЧАРМИ (charms):
  * - .ghost - без фону при hover, тільки зміна кольору
@@ -30,6 +30,7 @@
  * - .drag - cursor: grab/grabbing для drag-handle кнопок
  * - .reveal - прихована, з'являється при hover на батьківський елемент
  * - .danger - hover червоним (error-c фон, error колір)
+ * - .expand - розкриття label тексту на hover (max-width трік)
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-main-t-2, --color-main, --color-on-surface-v, --color-surface-c-high, --transition-speed)
@@ -67,8 +68,7 @@
 }
 
 .btn-icon:hover,
-.btn-icon.active,
-.btn-icon.is-active {
+.btn-icon.active {
     background-color: var(--color-main-t-2);
     border-color: var(--color-main);
     color: var(--color-main);
@@ -138,4 +138,38 @@
     color: var(--color-error);
     border-color: transparent;
     box-shadow: none;
+}
+
+
+/* Чарм: expand — розкриття label тексту на hover */
+.btn-icon.expand {
+    justify-content: start;
+    gap: 4px;
+    padding: 8px;
+    max-width: 32px;
+    overflow: hidden;
+    border-radius: var(--radius-full);
+    color: var(--color-on-surface);
+    transition: max-width 0.55s ease,
+                background-color 0.5s ease,
+                color 0.5s ease;
+}
+
+.btn-icon.expand:hover {
+    background-color: var(--color-main-c);
+    color: var(--color-main);
+    max-width: 400px;
+    padding-right: 16px;
+    box-shadow: none;
+}
+
+.btn-icon-label {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.5s ease 0.1s;
+}
+
+.btn-icon.expand:hover .btn-icon-label {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
 }

@@ -70,6 +70,7 @@
 @import url('components/navigation/tabs.css');
 @import url('components/navigation/tab-header.css');
 @import url('components/navigation/toolbar.css');
+@import url('components/navigation/bubble-nav.css');
 
 /* === COMPONENTS - TABLES === */
 @import url('components/tables/pseudo-table.css');

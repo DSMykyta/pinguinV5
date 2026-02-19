@@ -1,43 +1,108 @@
 /**
- * COMPONENT: Form Group
+ * COMPONENT: Group
  *
  * ПРИЗНАЧЕННЯ:
- * Група елементів форми з label, input/select/textarea та підказкою.
+ * Універсальний flex-контейнер для групування елементів.
+ * Base: flex row, gap 8px, align-items center.
  *
- * ВИКОРИСТАННЯ:
- * У формах та модалках для організації полів вводу.
+ * ЧАРМИ:
+ * - .column — flex-direction: column, gap 4px, margin-bottom 12px (для форм: label → input → hint)
  *
  * HTML ПРИКЛАД:
- * <div class="form-group">
+ * <!-- Row (кнопки, бейджі, хедери) -->
+ * <div class="group">
+ *   <button class="btn-icon">...</button>
+ *   <button class="btn-icon">...</button>
+ * </div>
+ *
+ * <!-- Column (форма: label + input) -->
+ * <div class="group column">
  *   <label class="label-l" for="field-id">Назва поля <span class="required">*</span></label>
  *   <input type="text" id="field-id" class="input-main" placeholder="Введіть значення">
  *   <label class="label-s">Підказка для користувача</label>
  * </div>
  *
- *
- * <div class="form-group-column">
- *   <div class="form-group">...</div>
- *   <div class="form-group">...</div>
- * </div>
- *
  * КЛАСИ:
- * - .form-group - контейнер групи форми
- * - .form-group-column - вертикальний стовпець груп
+ * - .group — базовий (flex row, gap 8px)
+ * - .group.column — вертикальний (flex column, gap 4px, margin-bottom 12px)
  * - .label-l — верхній label (13px, типографія)
  * - .label-s — підказка під полем (11px, типографія)
  * - .required - зірочка для обов'язкових полів
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-on-surface, --color-on-surface-v, --color-error)
- * - forms/input.css (.input-main)
- *
- * ЗАСТОСУВАННЯ:
- * - Всі модалки редагування/додавання
- * - index.html (секція SEO)
- * - Форми в aside панелях
  */
 
- /* --- Grid-розкладки форм --- */
+/* --- Base --- */
+
+.group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* --- Чарм: column --- */
+
+.group.column {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.group.column label:not(.switch-label) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    min-width: 60px;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.group.column .required {
+    color: var(--color-error);
+}
+
+.group.column .custom-select-wrapper {
+    width: 100%;
+}
+
+/* Select styling */
+.group.column select {
+    padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    cursor: pointer;
+}
+
+.group.column select:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+/* Textarea styling */
+.group.column textarea {
+    padding: 8px 12px;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.group.column textarea:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+/* --- Grid-розкладки форм --- */
 
 .form-grid {
     display: grid;
@@ -65,7 +130,7 @@
     }
 }
 
- /* --- Загальні елементи форм --- */
+/* --- Загальні елементи форм --- */
 
 .form-fieldset {
     border: 1px solid var(--color-outline-v);
@@ -92,81 +157,6 @@
     box-sizing: border-box;
     min-width: 0;
 }
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 12px;
-}
-
-.form-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 8px;
-    min-width: 60px;
-    color: var(--color-on-surface-v);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.form-group .required {
-    color: var(--color-error);
-}
-
-.form-group .custom-select-wrapper {
-    width: 100%;
-}
-
-
-/* Form group column */
-.form-group-column {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-/* Form group row */
-.form-group-row {
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-}
-
-/* Select styling */
-.form-group select {
-    padding: 8px 12px;
-    border: 1px solid var(--color-outline);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-on-surface);
-    cursor: pointer;
-}
-
-.form-group select:focus {
-    outline: none;
-    border-color: var(--color-main);
-}
-
-/* Textarea styling */
-.form-group textarea {
-    padding: 8px 12px;
-    border: 1px solid var(--color-outline);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-on-surface);
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-}
-
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--color-main);
-}
-
 
 /* Checkbox label — обгортка для checkbox + текст */
 .checkbox-label {

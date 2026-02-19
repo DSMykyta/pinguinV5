@@ -499,7 +499,7 @@
                             (текст поверху) + container (напівпрозорий фон).</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">root.css :root</span>
-                            <span class="m3-tag m3-tag-use">btn-primary, chips, nav-icon, panel-item, links</span>
+                            <span class="m3-tag m3-tag-use">btn-primary, chips, btn-icon.expand, panel-item, links</span>
                         </div>
                     </div>
                     <div class="m3-preview" style="padding:16px 24px">
@@ -1875,19 +1875,19 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.section-navigator / .nav-icon</h3>
-                        <p>Горизонтальний плаваючий pill-bar. nav-icon — 32x32, розгортається при hover.</p>
+                        <h3>.bubble-nav-row / .btn-icon.expand</h3>
+                        <p>Горизонтальний плаваючий pill-bar. btn-icon.expand — 32x32, розгортається при hover.</p>
                         <div class="m3-tags"><span class="m3-tag m3-tag-src">layout-section-navigator.css</span></div>
                     </div>
                     <div class="m3-preview m3-preview-center">
-                        <nav class="section-navigator" style="position:relative;top:auto;left:auto;transform:none">
-                            <button class="nav-icon active" style="max-width:none;padding-right:16px"><span
-                                    class="material-symbols-outlined">shopping_bag</span><span class="nav-icon-label"
+                        <nav class="bubble-nav-row" style="position:relative;top:auto;left:auto;transform:none">
+                            <button class="btn-icon expand active" style="max-width:none;padding-right:16px"><span
+                                    class="material-symbols-outlined">shopping_bag</span><span class="btn-icon-label"
                                     style="opacity:1">Бренди</span></button>
-                            <button class="nav-icon"><span class="material-symbols-outlined">category</span><span
-                                    class="nav-icon-label">Лінійки</span></button>
-                            <button class="nav-icon"><span class="material-symbols-outlined">settings</span><span
-                                    class="nav-icon-label">Управління</span></button>
+                            <button class="btn-icon expand"><span class="material-symbols-outlined">category</span><span
+                                    class="btn-icon-label">Лінійки</span></button>
+                            <button class="btn-icon expand"><span class="material-symbols-outlined">settings</span><span
+                                    class="btn-icon-label">Управління</span></button>
                         </nav>
                     </div>
                 </div>
@@ -2476,7 +2476,7 @@ icon.classList.remove('spinning');</div>
                     </div>
                     <div class="m3-code">body
                         ├── .panel-left (72px collapsed / 320px expanded)
-                        │ ├── .section-navigator (.nav-icon)
+                        │ ├── .bubble-nav-row (.btn-icon.expand)
                         │ └── .panel-left-expanded (.panel-item)
                         │
                         ├── .content-main
@@ -2507,7 +2507,7 @@ icon.classList.remove('spinning');</div>
                         </tr>
                         <tr>
                             <td><code>layout-section-navigator.css</code></td>
-                            <td>.section-navigator, .nav-icon</td>
+                            <td>.bubble-nav-row, .btn-icon.expand</td>
                         </tr>
                         <tr>
                             <td><code>layout-panel-left.css</code></td>

@@ -29,7 +29,7 @@ import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
 import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../common/avatar/avatar-config.js';
 import { registerPanelInitializer } from '../panel/panel-right.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
+import { withSpinner } from '../common/charms/charm-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРІВ ASIDE (на рівні модуля)

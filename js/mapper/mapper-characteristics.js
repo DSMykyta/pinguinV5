@@ -384,7 +384,7 @@ function clearCharacteristicForm() {
 }
 
 function toggleCategoriesField(isGlobal) {
-    const categoriesGroup = document.getElementById('mapper-char-categories')?.closest('.form-group');
+    const categoriesGroup = document.getElementById('mapper-char-categories')?.closest('.group.column');
     if (categoriesGroup) {
         categoriesGroup.style.display = isGlobal ? 'none' : '';
     }
@@ -574,13 +574,13 @@ function showAddOptionToCharacteristicModal(characteristicId, onSuccess) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="inline-option-value-ua">
                             Значення (UA) <span class="required">*</span>
                         </label>
                         <input type="text" id="inline-option-value-ua" class="input-main" placeholder="Значення українською" required>
                     </div>
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="inline-option-value-ru">Значення (RU)</label>
                         <input type="text" id="inline-option-value-ru" class="input-main" placeholder="Значення російською">
                     </div>
@@ -788,7 +788,7 @@ function renderMpDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="form-group">
+            <div class="group column">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>
@@ -863,7 +863,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
                 <div class="modal-body">
                     <p class="u-mb-16">Обрано <strong>${selectedMpIds.length}</strong> характеристик маркетплейсу.</p>
                     <p class="u-mb-16">Оберіть власну характеристику для прив'язки:</p>
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="select-own-char">Власна характеристика</label>
                         <select id="select-own-char" class="input-main">
                             <option value="">— Оберіть характеристику —</option>

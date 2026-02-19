@@ -33,7 +33,7 @@ export async function loadAside() {
     } catch (error) {
         console.error('❌ Помилка завантаження aside-price:', error);
         panelContent.innerHTML = `
-            <div class="panel-fragment is-active" id="aside-price">
+            <div class="panel-fragment active" id="aside-price">
                 <div class="panel-content-scroll">
                     <p class="text-muted" style="padding: 16px;">
                         Помилка завантаження панелі

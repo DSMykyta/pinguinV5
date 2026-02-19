@@ -13,12 +13,12 @@
  * </div>
  *
  * <!-- Tab content -->
- * <div class="tab-content is-active" data-tab-content="content1">Content 1</div>
+ * <div class="tab-content active" data-tab-content="content1">Content 1</div>
  * <div class="tab-content" data-tab-content="content2">Content 2</div>
  *
  * ОСОБЛИВОСТІ:
  * - За замовчуванням весь контент прихований
- * - Клас .is-active показує активний контент табу
+ * - Клас .active показує активний контент табу
  * - Клас .active показує активну кнопку табу
  * - Працює з JavaScript для перемикання
  *
@@ -36,7 +36,7 @@
 }
 
 /* Активний контент стає видимим */
-.tab-content.is-active {
+.tab-content.active {
     display: block;
 }
 
@@ -68,7 +68,7 @@
 /* Показати кнопку при наведенні на таб (тільки для check табів) */
 .segment:not([data-tab-target="tab-manage"]):hover .tab-close-btn,
 .tab-button:not([data-tab-target="tab-manage"]):hover .tab-close-btn,
-.nav-icon:not([data-tab-target="tab-manage"]):hover .tab-close-btn {
+.btn-icon.expand:not([data-tab-target="tab-manage"]):hover .tab-close-btn {
     display: flex;
 }
 
@@ -96,11 +96,11 @@
     padding-right: 32px;
 }
 
-/* Для nav-icon структури */
-.nav-icon:not([data-tab-target="tab-manage"]) {
+/* Для btn-icon.expand структури */
+.btn-icon.expand:not([data-tab-target="tab-manage"]) {
     position: relative;
 }
 
-.nav-icon:not([data-tab-target="tab-manage"]):has(.tab-close-btn):hover {
+.btn-icon.expand:not([data-tab-target="tab-manage"]):has(.tab-close-btn):hover {
     padding-right: 40px;
 }

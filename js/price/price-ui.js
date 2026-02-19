@@ -30,7 +30,7 @@ export function populateReserveTabs() {
     // Додаємо таби для кожного резерву з аватаркою
     priceState.reserveNames.forEach(name => {
         const tab = document.createElement('button');
-        tab.className = 'nav-icon';
+        tab.className = 'btn-icon expand';
         tab.dataset.tabTarget = 'tab-price';
         tab.dataset.reserveFilter = name;
 
@@ -42,7 +42,7 @@ export function populateReserveTabs() {
             const avatarPath = getAvatarPath(userAvatar, 'calm');
             tab.innerHTML = `
                 <img src="${avatarPath}" alt="${name}" class="avatar avatar-sm" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                <span class="nav-icon-label">${name}</span>
+                <span class="btn-icon-label">${name}</span>
             `;
         } else {
             // Fallback на ініціали
@@ -50,7 +50,7 @@ export function populateReserveTabs() {
             const avatarColor = getAvatarColor(name);
             tab.innerHTML = `
                 <span class="avatar avatar-sm" style="background-color: ${avatarColor}; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;">${initials}</span>
-                <span class="nav-icon-label">${name}</span>
+                <span class="btn-icon-label">${name}</span>
             `;
         }
         reserveTabsContainer.appendChild(tab);
@@ -85,7 +85,7 @@ export function updateSectionNavigator(activeTabId) {
     const navigator = document.getElementById('tabs-head-container');
     if (!navigator) return;
 
-    navigator.querySelectorAll('.nav-icon').forEach(icon => {
+    navigator.querySelectorAll('.btn-icon.expand').forEach(icon => {
         const tabTarget = icon.dataset.tabTarget;
         if (tabTarget === activeTabId) {
             icon.classList.add('active');

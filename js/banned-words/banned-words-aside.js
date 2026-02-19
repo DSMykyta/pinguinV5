@@ -15,7 +15,7 @@
 import { bannedWordsState } from './banned-words-init.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { populateCheckSelects } from './banned-words-ui.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
+import { withSpinner } from '../common/charms/charm-refresh.js';
 
 /**
  * Завантажити aside панель

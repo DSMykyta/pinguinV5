@@ -244,7 +244,7 @@
 }
 
 /* Textarea в модалі */
-.modal-fullscreen .form-group textarea {
+.modal-fullscreen .group.column textarea {
     min-height: 80px;
     max-height: none;
     resize: vertical;
@@ -253,7 +253,7 @@
 }
 
 /* Custom select styling */
-.modal-fullscreen .form-group select {
+.modal-fullscreen .group.column select {
     display: flex;
     align-items: center;
     padding: 8px 16px;
@@ -275,11 +275,11 @@
     transition: border-color 150ms ease-in-out;
 }
 
-.modal-fullscreen .form-group select:hover {
+.modal-fullscreen .group.column select:hover {
     border-color: var(--color-on-surface-v);
 }
 
-.modal-fullscreen .form-group select:focus {
+.modal-fullscreen .group.column select:focus {
     border-color: var(--color-main);
     border-width: 2px;
     outline: none;

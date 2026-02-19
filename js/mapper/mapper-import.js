@@ -1061,7 +1061,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
                     <p class="u-mb-16">Обрано <strong>${selectedMpIds.length}</strong> характеристик маркетплейсу.</p>
                     <p class="u-mb-16">Оберіть власну характеристику для прив'язки:</p>
 
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="select-own-char">Власна характеристика</label>
                         <select id="select-own-char" class="input-main">
                             <option value="">— Оберіть характеристику —</option>
@@ -1171,7 +1171,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
                     <p class="u-mb-16">Обрано <strong>${mpIds.length}</strong> опцій маркетплейсу.</p>
                     <p class="u-mb-16">Оберіть власну опцію для прив'язки:</p>
 
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="select-own-option">Власна опція</label>
                         <select id="select-own-option" class="input-main">
                             <option value="">— Оберіть опцію —</option>
@@ -1401,42 +1401,42 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                 </div>
                 <div class="modal-body">
                     <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid2">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpChar.id)}" readonly>
                             </div>
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpChar.external_id || '')}" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Назва</label>
                             <input type="text" class="input-main" value="${escapeHtml(charData.name || '')}" readonly>
                         </div>
                         <div class="grid2">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>Тип</label>
                                 <input type="text" class="input-main" value="${escapeHtml(charData.type || '')}" readonly>
                             </div>
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>Одиниця виміру</label>
                                 <input type="text" class="input-main" value="${escapeHtml(charData.unit || '')}" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Глобальна</label>
                             <input type="text" class="input-main" value="${charData.is_global === 'TRUE' || charData.is_global === true ? 'TRUE' : 'FALSE'}" readonly>
                         </div>
                     </fieldset>
 
                     <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
                                 ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
@@ -1532,28 +1532,28 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                 </div>
                 <div class="modal-body">
                     <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid2">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
                             </div>
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Значення</label>
                             <input type="text" class="input-main" value="${escapeHtml(optData.name || '')}" readonly>
                         </div>
                     </fieldset>
 
                     <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
                                 ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
@@ -1636,7 +1636,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                 </div>
                 <div class="modal-body">
                     <p class="u-mb-16">Вибрано ${selectedMpCatIds.length} MP категорій для маппінгу</p>
-                    <div class="form-group">
+                    <div class="group column">
                         <label>Власна категорія</label>
                         <select id="select-own-category" class="input-main">
                             <option value="">Оберіть категорію...</option>
@@ -1790,26 +1790,26 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                 </div>
                 <div class="modal-body">
                     <fieldset class="form-fieldset" disabled>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid2">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>
                             </div>
-                            <div class="form-group">
+                            <div class="group column">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpCat.external_id || '')}" readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Назва</label>
                             <input type="text" class="input-main" value="${escapeHtml(catData.name || '')}" readonly>
                         </div>
                         ${parentName ? `
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Батьківська категорія</label>
                             <input type="text" class="input-main" value="${escapeHtml(parentName)}" readonly>
                         </div>
@@ -1817,7 +1817,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                     </fieldset>
 
                     <div class="form-fieldset u-mt-16">
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
                                 ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`

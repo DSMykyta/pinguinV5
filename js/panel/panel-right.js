@@ -27,12 +27,12 @@ function showActivePanel(templateName) {
 
     // Ховаємо всі завантажені фрагменти
     const allPanels = contentContainer.querySelectorAll('.panel-fragment');
-    allPanels.forEach(panel => panel.classList.remove('is-active'));
+    allPanels.forEach(panel => panel.classList.remove('active'));
 
     // Показуємо потрібний
     const activePanel = document.getElementById(templateName);
     if (activePanel) {
-        activePanel.classList.add('is-active');
+        activePanel.classList.add('active');
     }
 }
 
@@ -140,7 +140,7 @@ export async function loadAsideTemplate(templateName) {
 
     const wrapper = document.createElement('div');
     wrapper.id = templateName;
-    wrapper.className = 'panel-fragment is-active'; // Одразу активний
+    wrapper.className = 'panel-fragment active'; // Одразу активний
     contentContainer.appendChild(wrapper);
 
     const templateUrl = `templates/aside/${templateName}.html`;

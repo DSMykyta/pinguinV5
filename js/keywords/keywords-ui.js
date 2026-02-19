@@ -38,17 +38,17 @@ export function initParamTypeFilters() {
 
     // Створити HTML для кнопок
     let buttonsHTML = `
-        <button class="nav-icon active" data-filter-value="all">
+        <button class="btn-icon expand active" data-filter-value="all">
             <span class="material-symbols-outlined">list</span>
-            <span class="nav-icon-label">Всі</span>
+            <span class="btn-icon-label">Всі</span>
         </button>
     `;
 
     PARAM_TYPES.forEach(type => {
         buttonsHTML += `
-            <button class="nav-icon" data-filter-value="${type.value}">
+            <button class="btn-icon expand" data-filter-value="${type.value}">
                 <span class="material-symbols-outlined">${type.icon}</span>
-                <span class="nav-icon-label">${type.label}</span>
+                <span class="btn-icon-label">${type.label}</span>
             </button>
         `;
     });

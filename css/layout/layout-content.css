@@ -22,7 +22,7 @@
  * - .entities-main-content - батьківський flexbox контейнер
  * - .entity-content - скролящийся контент (flex: 1)
  * - .tab-content - контент табу (прихований за замовчуванням)
- * - .tab-content.active / .is-active - активний таб (видимий)
+ * - .tab-content.active / .active - активний таб (видимий)
  *
  * ЗАЛЕЖНОСТІ:
  * - layout-app.css (.content-main)
@@ -50,7 +50,7 @@
 }
 
 .tab-content.active,
-.tab-content.is-active {
+.tab-content.active {
     display: block;
     flex: 1;
     overflow: hidden;

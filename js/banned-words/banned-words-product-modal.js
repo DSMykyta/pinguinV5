@@ -194,14 +194,14 @@ function setupFieldTabs(columnNames) {
     columnsArray.forEach((columnName, index) => {
         // Створити кнопку
         const button = document.createElement('button');
-        button.className = 'nav-icon';
+        button.className = 'btn-icon expand';
         button.dataset.field = columnName;
         if (index === 0) button.classList.add('active');
 
         // Використовуємо технічну назву колонки безпосередньо
         button.innerHTML = `
             <span class="material-symbols-outlined">${getFieldIcon(columnName)}</span>
-            <span class="nav-icon-label">${columnName}</span>
+            <span class="btn-icon-label">${columnName}</span>
         `;
 
         pillsContainer.appendChild(button);
@@ -467,8 +467,8 @@ function syncTableBadge(productId, isChecked) {
  * Ініціалізувати обробники подій модалу
  */
 function initModalHandlers() {
-    // Перемикання табів колонок (використовуємо nav-icon)
-    const columnButtons = document.querySelectorAll('#product-text-field-pills .nav-icon');
+    // Перемикання табів колонок (використовуємо btn-icon expand)
+    const columnButtons = document.querySelectorAll('#product-text-field-pills .btn-icon.expand');
     const panels = document.querySelectorAll('.product-text-panel');
 
     columnButtons.forEach(button => {

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidebar — v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root {
+    --color-main: rgb(9, 63, 69);
+    --color-main-t-2: rgba(9, 63, 69, 0.15);
+    --color-surface: #fafafa;
+    --color-surface-c-low: #f5f5f5;
+    --color-outline: #d4d4d4;
+    --color-on-surface: #171717;
+    --color-on-surface-v: #737373;
+    --shadow-1: 0px 1px 3px 1px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Geologica', sans-serif; background: #e5e5e5; padding: 24px; }
+
+  .demo-title {
+    text-align: center; padding: 16px 24px 24px;
+    font-size: 14px; font-weight: 600;
+    color: var(--color-on-surface-v);
+    text-transform: uppercase; letter-spacing: 2px;
+  }
+
+  .demo-card {
+    background: var(--color-surface);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 900px; margin: 0 auto 24px;
+  }
+  .demo-label {
+    padding: 12px 16px; background: var(--color-surface-c-low);
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--color-on-surface-v);
+    border-bottom: 1px solid var(--color-outline);
+  }
+  .demo-label span { font-weight: 400; opacity: 0.6; margin-left: 6px; text-transform: none; letter-spacing: 0; }
+
+  .fake-modal { display: flex; height: 560px; }
+  .fake-modal-content {
+    flex: 1; padding: 24px; display: flex;
+    align-items: center; justify-content: center;
+    color: var(--color-on-surface-v); font-size: 13px;
+  }
+
+  /* ===========================
+     SIDEBAR
+     =========================== */
+  .sidebar {
+    position: relative;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    background: transparent;
+    overflow: visible;
+  }
+
+  /* Калюжка */
+  .sidebar .pill {
+    position: absolute;
+    left: 14px;
+    height: 44px;
+    width: 44px;
+    border-radius: 22px;
+    background: var(--color-main-t-2);
+    box-shadow: var(--shadow-1);
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-radius 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Nav item */
+  .sidebar .ni {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 22px;
+    color: var(--color-on-surface-v);
+    font-family: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: visible;
+    transition: color 0.2s;
+  }
+  .ni .material-symbols-outlined {
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Active — тільки колір іконки, без тексту */
+  .ni.is-active {
+    color: var(--color-main);
+  }
+
+  /* Текст — тільки при hover */
+  .ni-text {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin-left: 0;
+    font-weight: 500;
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.2s ease,
+                margin-left 0.3s;
+  }
+
+  .ni:hover .ni-text {
+    max-width: 160px;
+    opacity: 1;
+    margin-left: 8px;
+  }
+
+  /* Каунтер — по центру вертикально, позаду бульки */
+  .ni-count {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-on-surface-v);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ni.is-active .ni-count {
+    color: var(--color-main);
+    opacity: 0.35;
+  }
+
+  /* При hover — каунтер їде вправо, стає inline */
+  .ni:hover .ni-count {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0.5;
+  }
+
+  .ni.is-active:hover .ni-count {
+    color: var(--color-main);
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-title">v5 — hover бульк, калюжа росте</div>
+
+<!-- Product Edit -->
+<div class="demo-card">
+  <div class="demo-label">Product Edit <span>наведи мишку — калюжа розливається</span></div>
+  <div class="fake-modal">
+    <nav class="sidebar" id="nav1">
+      <div class="pill" id="pill1"></div>
+
+      <button class="ni is-active" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">edit</span>
+        <span class="ni-text">Назва</span>
+        <span class="ni-count">3</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">image</span>
+        <span class="ni-text">Фото</span>
+        <span class="ni-count">12</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">style</span>
+        <span class="ni-text">Варіанти</span>
+        <span class="ni-count">4</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">science</span>
+        <span class="ni-text">Склад</span>
+        <span class="ni-count">28</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">change_history</span>
+        <span class="ni-text">Характеристики</span>
+        <span class="ni-count">9</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">description</span>
+        <span class="ni-text">Опис</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">local_shipping</span>
+        <span class="ni-text">Фулфілмент</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">search</span>
+        <span class="ni-text">SEO</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav1','pill1')">
+        <span class="material-symbols-outlined">publish</span>
+        <span class="ni-text">Публікація</span>
+      </button>
+    </nav>
+    <div class="fake-modal-content">
+      Наводь мишку на іконки
+    </div>
+  </div>
+</div>
+
+<!-- Brand Edit -->
+<div class="demo-card">
+  <div class="demo-label">Brand Edit <span>5 секцій</span></div>
+  <div class="fake-modal" style="height: 400px;">
+    <nav class="sidebar" id="nav2">
+      <div class="pill" id="pill2"></div>
+
+      <button class="ni is-active" onclick="go(this,'nav2','pill2')">
+        <span class="material-symbols-outlined">info</span>
+        <span class="ni-text">Інформація</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav2','pill2')">
+        <span class="material-symbols-outlined">category</span>
+        <span class="ni-text">Лінійки</span>
+        <span class="ni-count">7</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav2','pill2')">
+        <span class="material-symbols-outlined">link</span>
+        <span class="ni-text">Посилання</span>
+        <span class="ni-count">3</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav2','pill2')">
+        <span class="material-symbols-outlined">storefront</span>
+        <span class="ni-text">Маркетплейси</span>
+        <span class="ni-count">2</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav2','pill2')">
+        <span class="material-symbols-outlined">article</span>
+        <span class="ni-text">Опис</span>
+      </button>
+    </nav>
+    <div class="fake-modal-content">
+      Контент
+    </div>
+  </div>
+</div>
+
+<!-- Keyword Edit -->
+<div class="demo-card">
+  <div class="demo-label">Keyword Edit <span>3 секції</span></div>
+  <div class="fake-modal" style="height: 300px;">
+    <nav class="sidebar" id="nav3">
+      <div class="pill" id="pill3"></div>
+
+      <button class="ni is-active" onclick="go(this,'nav3','pill3')">
+        <span class="material-symbols-outlined">tune</span>
+        <span class="ni-text">Основні дані</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav3','pill3')">
+        <span class="material-symbols-outlined">label</span>
+        <span class="ni-text">Ключові слова</span>
+        <span class="ni-count">15</span>
+      </button>
+      <button class="ni" onclick="go(this,'nav3','pill3')">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="ni-text">Глосарій</span>
+      </button>
+    </nav>
+    <div class="fake-modal-content">
+      Контент
+    </div>
+  </div>
+</div>
+
+<script>
+function go(clicked, navId, pillId) {
+  const nav = document.getElementById(navId);
+  const pill = document.getElementById(pillId);
+
+  nav.querySelectorAll('.ni').forEach(el => el.classList.remove('is-active'));
+  clicked.classList.add('is-active');
+
+  fit(nav, pill);
+}
+
+function fit(nav, pill) {
+  const active = nav.querySelector('.ni.is-active');
+  if (!active || !pill) return;
+
+  const nr = nav.getBoundingClientRect();
+  const ar = active.getBoundingClientRect();
+
+  pill.style.top = (ar.top - nr.top) + 'px';
+  // Калюжка кругла на active без hover
+  pill.style.width = '44px';
+}
+
+// Hover — калюжка росте
+document.addEventListener('mouseover', (e) => {
+  const ni = e.target.closest('.ni');
+  if (!ni) return;
+  const nav = ni.closest('.sidebar');
+  const pill = nav.querySelector('.pill');
+  if (!pill) return;
+
+  // Чекаємо reflow для тексту
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const nr = nav.getBoundingClientRect();
+      const ar = ni.getBoundingClientRect();
+      pill.style.top = (ar.top - nr.top) + 'px';
+      pill.style.width = ni.scrollWidth + 'px';
+    });
+  });
+});
+
+document.addEventListener('mouseout', (e) => {
+  const ni = e.target.closest('.ni');
+  if (!ni) return;
+  const nav = ni.closest('.sidebar');
+  const pill = nav.querySelector('.pill');
+  if (!pill) return;
+
+  // Повертаємо калюжку на active
+  const active = nav.querySelector('.ni.is-active');
+  if (!active) return;
+
+  const nr = nav.getBoundingClientRect();
+  const ar = active.getBoundingClientRect();
+  pill.style.top = (ar.top - nr.top) + 'px';
+  pill.style.width = '44px';
+});
+
+// Init
+window.addEventListener('load', () => {
+  [['nav1','pill1'],['nav2','pill2'],['nav3','pill3']].forEach(([nId, pId]) => {
+    const nav = document.getElementById(nId);
+    const pill = document.getElementById(pId);
+    if (nav && pill) fit(nav, pill);
+  });
+});
+
+window.addEventListener('resize', () => {
+  [['nav1','pill1'],['nav2','pill2'],['nav3','pill3']].forEach(([nId, pId]) => {
+    const nav = document.getElementById(nId);
+    const pill = document.getElementById(pId);
+    if (nav && pill) fit(nav, pill);
+  });
+});
+</script>
+
+</body>
+</html>

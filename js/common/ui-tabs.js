@@ -55,9 +55,8 @@ function activateTab(selectedTab) {
     }
 
     // Деактивуємо весь контент (шукаємо глобально)
-    // Підтримуємо обидва класи: active та is-active
-    document.querySelectorAll('.tab-content.is-active, .tab-content.active').forEach(content => {
-        content.classList.remove('is-active', 'active');
+    document.querySelectorAll('.tab-content.active').forEach(content => {
+        content.classList.remove('active');
     });
 
     // Активуємо потрібні

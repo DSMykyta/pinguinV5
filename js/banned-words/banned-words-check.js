@@ -569,7 +569,7 @@ export function resetCheckTableAPIs() {
  * Ініціалізувати фільтри для check табу
  */
 export function initCheckTabFilters(tabId) {
-    const filterButtons = document.querySelectorAll(`.nav-icon[data-filter][data-tab-id="${tabId}"]`);
+    const filterButtons = document.querySelectorAll(`.btn-icon.expand[data-filter][data-tab-id="${tabId}"]`);
     if (!filterButtons.length) return;
 
     if (!bannedWordsState.tabFilters[tabId]) {

@@ -18,7 +18,7 @@
 }
 
 /* Показуємо тільки активну квартиру і робимо її flex-контейнером */
-.panel-fragment.is-active {
+.panel-fragment.active {
     display: flex;
 }
 

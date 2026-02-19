@@ -73,15 +73,7 @@
 /* FLEX LAYOUTS */
 /* ============================================ */
 
-/**
- * Універсальна група елементів в ряд (flex row, gap 8px)
- * Замінює: .tab-controls, .modal-header-actions, .modal-fullscreen-header-right, .btn-group, .u-flex-row-8
- */
-.group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+/* .group — перенесено в css/components/forms/form-group.css */
 
 .u-flex-col-8 {
     display: flex;

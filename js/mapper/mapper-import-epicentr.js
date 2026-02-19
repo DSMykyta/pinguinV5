@@ -84,7 +84,7 @@ async function loadEpicentrCategories(marketplaceId) {
 function buildCategorySelectUI(categories, importState) {
     const container = document.createElement('div');
     container.id = 'adapter-extra-ui';
-    container.className = 'form-group';
+    container.className = 'group column';
 
     const existingOptions = categories.map(cat => {
         let catData = {};

@@ -151,7 +151,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
             return true;
         })
         .map(([key, value]) => `
-            <div class="form-group">
+            <div class="group column">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>

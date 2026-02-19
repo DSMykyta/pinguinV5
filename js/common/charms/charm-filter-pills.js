@@ -8,8 +8,8 @@
  * ║                                                                        ║
  * ║  HTML:                                                                 ║
  * ║  <div data-filter-group="paramType">                                   ║
- * ║    <button class="nav-icon active" data-filter-value="all">Всі</button>║
- * ║    <button class="nav-icon" data-filter-value="cat">Категорія</button> ║
+ * ║    <button class="btn-icon expand active" data-filter-value="all">Всі</button>║
+ * ║    <button class="btn-icon expand" data-filter-value="cat">Категорія</button> ║
  * ║  </div>                                                                ║
  * ║                                                                        ║
  * ║  Click: toggle .active (single-select).                                ║

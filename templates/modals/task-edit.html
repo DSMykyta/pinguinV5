@@ -70,7 +70,7 @@
 
                     <div class="section-content">
                         <!-- Назва -->
-                        <div class="form-group">
+                        <div class="group column">
                             <label class="label-l" for="task-title">
                                 Назва
                                 <span class="required">*</span>
@@ -80,13 +80,13 @@
                         </div>
 
                         <!-- Опис (Rich Editor) -->
-                        <div class="form-group u-mt-16">
+                        <div class="group column u-mt-16">
                             <label class="label-l">Опис</label>
                             <div id="task-description-editor" class="rich-editor-container"></div>
                         </div>
 
                         <!-- Теги -->
-                        <div class="form-group u-mt-16">
+                        <div class="group column u-mt-16">
                             <label class="label-l" for="task-tags">Теги</label>
                             <input type="text" id="task-tags" class="input-main"
                                 placeholder="тег1, тег2, тег3">
@@ -111,7 +111,7 @@
                     <div class="section-content">
                         <!-- Тип та Пріоритет -->
                         <div class="form-grid form-grid-2">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label class="label-l" for="task-type">Тип</label>
                                 <select id="task-type" data-custom-select>
                                     <option value="task">Задача</option>
@@ -121,7 +121,7 @@
                                 </select>
                             </div>
 
-                            <div class="form-group">
+                            <div class="group column">
                                 <label class="label-l" for="task-priority">Пріоритет</label>
                                 <select id="task-priority" data-custom-select>
                                     <option value="low">Низький</option>
@@ -134,7 +134,7 @@
 
                         <!-- Статус та Дедлайн -->
                         <div class="form-grid form-grid-2 u-mt-16">
-                            <div class="form-group">
+                            <div class="group column">
                                 <label class="label-l" for="task-status">Статус</label>
                                 <select id="task-status" data-custom-select>
                                     <option value="todo" selected>До виконання</option>
@@ -143,14 +143,14 @@
                                 </select>
                             </div>
 
-                            <div class="form-group">
+                            <div class="group column">
                                 <label class="label-l" for="task-due-date">Дедлайн</label>
                                 <input type="date" id="task-due-date" class="input-main">
                             </div>
                         </div>
 
                         <!-- Призначити (мультиселект) -->
-                        <div class="form-group u-mt-16">
+                        <div class="group column u-mt-16">
                             <label class="label-l" for="task-assigned-to">Призначити</label>
                             <select id="task-assigned-to" multiple data-custom-select data-select-all>
                                 <!-- Заповнюється динамічно -->
@@ -174,7 +174,7 @@
                     </div>
 
                     <div class="section-content">
-                        <div class="form-group">
+                        <div class="group column">
                             <label class="label-l" for="task-code-snippet">Код</label>
                             <textarea id="task-code-snippet" class="input-main input-code" rows="15"
                                 placeholder="// Ваш код тут..."></textarea>

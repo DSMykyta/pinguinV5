@@ -38,7 +38,7 @@
 
 /* CONTENT - активний таб займає весь доступний простір */
 .tabbed-page .tab-content.active,
-.tabbed-page .tab-content.is-active {
+.tabbed-page .tab-content.active {
     display: flex;
     flex-direction: column;
     flex: 1;

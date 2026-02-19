@@ -3,7 +3,7 @@
 import { initDropdowns } from '../common/ui-dropdown.js';
 
 /**
- * Встановлює клас 'is-active' для посилання, що відповідає поточній сторінці.
+ * Встановлює клас 'active' для посилання, що відповідає поточній сторінці.
  * (Без змін)
  */
 function setActivePageLink(panel) {
@@ -16,7 +16,7 @@ function setActivePageLink(panel) {
         }
         const linkPath = new URL(link.href).pathname;
         if (currentPagePath === linkPath) {
-            link.classList.add('is-active');
+            link.classList.add('active');
         }
     });
 }
@@ -35,12 +35,12 @@ function initScrollSpy() {
                 const sectionId = entry.target.id;
                 
                 document.querySelectorAll('.panel-item[data-scroll-to]').forEach(item => {
-                    item.classList.remove('is-active');
+                    item.classList.remove('active');
                 });
 
                 const activeItem = document.querySelector(`.panel-item[data-scroll-to="#${sectionId}"]`);
                 if (activeItem) {
-                    activeItem.classList.add('is-active');
+                    activeItem.classList.add('active');
                 }
             }
         });

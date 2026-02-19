@@ -101,10 +101,10 @@ function parseAdminHtml(html) {
 function buildEntityTypeUI() {
     const wrapper = document.createElement('div');
     wrapper.id = 'etalon-extra-ui';
-    wrapper.classList.add('form-group');
+    wrapper.classList.add('group', 'column');
 
     wrapper.innerHTML = `
-        <div class="form-group">
+        <div class="group column">
             <label for="etalon-entity-type">
                 Тип сутності
                 <span class="required">*</span>
@@ -116,8 +116,8 @@ function buildEntityTypeUI() {
                 <option value="categories">Категорії</option>
             </select>
         </div>
-        <div id="etalon-parent-group" class="form-group u-hidden"></div>
-        <div id="etalon-html-group" class="form-group u-hidden">
+        <div id="etalon-parent-group" class="group column u-hidden"></div>
+        <div id="etalon-html-group" class="group column u-hidden">
             <label for="etalon-html-input">
                 HTML код таблиці
                 <span class="required">*</span>

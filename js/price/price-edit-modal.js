@@ -145,27 +145,27 @@ function createModal() {
                 <div class="grid2" style="gap: 24px;">
                     <!-- Left column: editable fields -->
                     <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-article">Артикул</label>
                             <input type="text" id="edit-article" class="input-main" placeholder="Введіть артикул...">
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-brand">Бренд</label>
                             <input type="text" id="edit-brand" class="input-main" placeholder="Бренд">
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-name">Назва</label>
                             <input type="text" id="edit-name" class="input-main" placeholder="Назва товару">
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-category">Категорія</label>
                             <input type="text" id="edit-category" class="input-main" placeholder="Категорія">
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-packaging">Фасування</label>
                             <input type="text" id="edit-packaging" class="input-main" placeholder="Фасування">
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label for="edit-flavor">Смак</label>
                             <input type="text" id="edit-flavor" class="input-main" placeholder="Смак">
                         </div>
@@ -173,7 +173,7 @@ function createModal() {
 
                     <!-- Right column: toggle switches -->
                     <div class="form-grid" style="display: flex; flex-direction: column; gap: 16px;">
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Викладено</label>
                             <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-status-off" name="edit-status" value="FALSE" checked>
@@ -182,7 +182,7 @@ function createModal() {
                                 <label for="edit-status-on" class="switch-label">Так</label>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Перевірено</label>
                             <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-check-off" name="edit-check" value="FALSE" checked>
@@ -191,7 +191,7 @@ function createModal() {
                                 <label for="edit-check-on" class="switch-label">Так</label>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="group column">
                             <label>Оплачено</label>
                             <div class="switch switch-outline switch-fit">
                                 <input type="radio" id="edit-payment-off" name="edit-payment" value="FALSE" checked>

@@ -400,7 +400,7 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="group column">
                         <label for="select-char-to-add">Оберіть характеристику</label>
                         <select id="select-char-to-add" data-custom-select placeholder="Оберіть характеристику">
                             <option value="">-- Оберіть --</option>
@@ -630,7 +630,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
                 </div>
                 <div class="modal-body">
                     <p class="u-mb-16">Вибрано ${selectedMpCatIds.length} MP категорій для маппінгу</p>
-                    <div class="form-group">
+                    <div class="group column">
                         <label>Власна категорія</label>
                         <select id="select-own-category" class="input-main">
                             <option value="">Оберіть категорію...</option>
@@ -913,7 +913,7 @@ function renderMpCategoryDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="form-group">
+            <div class="group column">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>

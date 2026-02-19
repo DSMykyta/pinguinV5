@@ -11,7 +11,7 @@ export function initSectionNavigator() {
 
     // 1. Плавна прокрутка по кліку
     navigator.addEventListener('click', (e) => {
-        const navIcon = e.target.closest('.nav-icon');
+        const navIcon = e.target.closest('.btn-icon.expand');
         // Перевіряємо, чи це дійсно клік по посиланню з хешем
         if (!navIcon || !navIcon.hash) return;
         
@@ -29,22 +29,22 @@ export function initSectionNavigator() {
 
     // 2. Scroll Spy (підсвічування активної секції)
     const sections = document.querySelectorAll('main > section[id]');
-    const navIcons = navigator.querySelectorAll('.nav-icon');
+    const navIcons = navigator.querySelectorAll('.btn-icon.expand');
 
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const sectionId = entry.target.id;
-            const correspondingIcon = navigator.querySelector(`.nav-icon[href="#${sectionId}"]`);
+            const correspondingIcon = navigator.querySelector(`.btn-icon.expand[href="#${sectionId}"]`);
             
             // Якщо секція входить в центральну зону перегляду
             if (entry.isIntersecting) {
-                // Видаляємо .is-active з усіх іконок
-                navIcons.forEach(icon => icon.classList.remove('is-active'));
-                // Додаємо .is-active до потрібної
+                // Видаляємо .active з усіх іконок
+                navIcons.forEach(icon => icon.classList.remove('active'));
+                // Додаємо .active до потрібної
                 if (correspondingIcon) {
-                    correspondingIcon.classList.add('is-active');
+                    correspondingIcon.classList.add('active');
                 }
             }
         });

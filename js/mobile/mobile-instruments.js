@@ -208,13 +208,13 @@
     function openMenu() {
         state.isMenuOpen = true;
         document.body.classList.add('mobile-menu-open');
-        elements.menuOverlay.classList.add('is-active');
+        elements.menuOverlay.classList.add('active');
     }
 
     function closeMenu() {
         state.isMenuOpen = false;
         document.body.classList.remove('mobile-menu-open');
-        elements.menuOverlay.classList.remove('is-active');
+        elements.menuOverlay.classList.remove('active');
     }
 
     // ============================================
@@ -228,7 +228,7 @@
         nav.className = 'mobile-bottom-nav';
 
         const items = CONFIG.sections.map((section, index) => `
-            <button class="mobile-bottom-nav__item${index === 0 ? ' is-active' : ''}"
+            <button class="mobile-bottom-nav__item${index === 0 ? ' active' : ''}"
                     data-section-index="${index}"
                     data-section-id="${section.id}"
                     aria-label="${section.label}">
@@ -470,14 +470,14 @@
             });
         }
 
-        sheet.classList.add('is-active');
+        sheet.classList.add('active');
         state.activeSelectSheet = { onSelect };
     }
 
     function closeSelectSheet() {
         const sheet = elements.selectSheet;
         if (sheet) {
-            sheet.classList.remove('is-active');
+            sheet.classList.remove('active');
         }
         state.activeSelectSheet = null;
     }
@@ -496,7 +496,7 @@
 
         // Update bottom nav active state
         elements.bottomNav?.querySelectorAll('.mobile-bottom-nav__item').forEach((item, i) => {
-            item.classList.toggle('is-active', i === index);
+            item.classList.toggle('active', i === index);
         });
 
         // Scroll to section
@@ -580,7 +580,7 @@
             if (title) title.textContent = section.label;
 
             elements.bottomNav?.querySelectorAll('.mobile-bottom-nav__item').forEach((item, i) => {
-                item.classList.toggle('is-active', i === newIndex);
+                item.classList.toggle('active', i === newIndex);
             });
 
             loadAsideContent(section.asideTemplate);

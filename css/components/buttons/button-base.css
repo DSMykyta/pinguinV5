@@ -56,7 +56,7 @@ button {
 /* Стани кнопки */
 button:active:not(.tab-close-btn),
 button:hover:not(.tab-close-btn),
-.nav-icon {
+.btn-icon.expand {
     transform: scale(0.98);
 }
 
