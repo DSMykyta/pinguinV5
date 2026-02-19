@@ -52,6 +52,7 @@ import {
     buildCascadeDetails
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -477,8 +478,9 @@ function populateRelatedChildOptions(optionId) {
         columnsListId: 'option-chars-columns-list',
 
         searchInputId: 'option-chars-search',
-        statsId: 'option-chars-stats',
-        paginationId: 'option-children-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'opt-chars',
         tableConfig: {
             rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
@@ -493,6 +495,8 @@ function populateRelatedChildOptions(optionId) {
             }
         }
     });
+
+    initPaginationCharm();
 
     // Кнопка refresh
     const refreshBtn = document.getElementById('refresh-option-children');

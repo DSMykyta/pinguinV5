@@ -24,7 +24,6 @@
 import { tasksState } from './tasks-state.js';
 import { loadTasks, loadUsers } from './tasks-data.js';
 import { runHook, runHookAsync } from './tasks-plugins.js';
-import { initPagination } from '../common/ui-pagination.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
@@ -83,9 +82,6 @@ export async function initTasks() {
 
     // Завантажити плагіни
     await loadPlugins();
-
-    // Ініціалізувати пагінацію
-    initTasksPagination();
 
     // Ініціалізувати кнопку оновлення
     initRefreshButton();
@@ -150,30 +146,6 @@ async function checkAuthAndLoadData() {
         console.error('❌ Помилка завантаження даних:', error);
         renderErrorState();
     }
-}
-
-/**
- * Ініціалізувати пагінацію
- */
-function initTasksPagination() {
-    const footer = document.querySelector('.footer');
-    if (!footer) {
-        console.warn('⚠️ Footer не знайдено');
-        return;
-    }
-
-    const paginationAPI = initPagination(footer, {
-        currentPage: tasksState.pagination.currentPage,
-        pageSize: tasksState.pagination.pageSize,
-        totalItems: tasksState.pagination.totalItems,
-        onPageChange: (page, pageSize) => {
-            tasksState.pagination.currentPage = page;
-            tasksState.pagination.pageSize = pageSize;
-            runHook('onRender');
-        }
-    });
-
-    tasksState.paginationAPI = paginationAPI;
 }
 
 /**

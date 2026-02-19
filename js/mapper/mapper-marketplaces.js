@@ -47,6 +47,7 @@ import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import { createColumnSelector } from '../common/table/table-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
@@ -590,8 +591,9 @@ async function populateMpReferences(slug, marketplaceId) {
         columnsListId: 'mp-data-ref-columns-list',
 
         searchInputId: 'mp-data-ref-search',
-        statsId: 'mp-data-ref-stats',
-        paginationId: 'mp-data-ref-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'mp-ref',
         tableConfig: {
             withContainer: false,
@@ -626,6 +628,8 @@ async function populateMpReferences(slug, marketplaceId) {
             }
         }
     });
+
+    initPaginationCharm();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -768,8 +772,9 @@ function populateMpCharacteristics(allData, charMapping) {
         columnsListId: 'mp-data-char-columns-list',
 
         searchInputId: 'mp-data-char-search',
-        statsId: 'mp-data-char-stats',
-        paginationId: 'mp-data-char-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'mp-char',
         tableConfig: {
             withContainer: false,
@@ -786,6 +791,8 @@ function populateMpCharacteristics(allData, charMapping) {
             }
         }
     });
+
+    initPaginationCharm();
 }
 
 function preprocessCharsData(data, ownChars, charMapping) {
@@ -830,8 +837,9 @@ function populateMpOptions(allData, optMapping) {
         columnsListId: 'mp-data-opt-columns-list',
 
         searchInputId: 'mp-data-opt-search',
-        statsId: 'mp-data-opt-stats',
-        paginationId: 'mp-data-opt-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'mp-opt',
         tableConfig: {
             withContainer: false,
@@ -847,6 +855,8 @@ function populateMpOptions(allData, optMapping) {
             }
         }
     });
+
+    initPaginationCharm();
 }
 
 function preprocessOptsData(data, ownOpts, optMapping) {

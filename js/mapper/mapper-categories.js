@@ -52,6 +52,7 @@ import {
     buildCascadeDetails
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -521,8 +522,9 @@ function populateRelatedCharacteristics(categoryId) {
         columnsListId: 'category-chars-columns-list',
 
         searchInputId: 'category-chars-search',
-        statsId: 'category-chars-stats',
-        paginationId: 'category-chars-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'cat-chars',
         tableConfig: {
             rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
@@ -537,6 +539,8 @@ function populateRelatedCharacteristics(categoryId) {
             }
         }
     });
+
+    initPaginationCharm();
 
     // Обробник відв'язування
     const handleUnlinkCharacteristic = async (charId, charName, catId) => {

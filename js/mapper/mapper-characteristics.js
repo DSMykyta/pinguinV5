@@ -56,6 +56,7 @@ import { getBatchBar } from '../common/ui-batch-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -517,8 +518,9 @@ function populateRelatedOptions(characteristicId) {
         columnsListId: 'char-options-columns-list',
 
         searchInputId: 'char-options-search',
-        statsId: 'char-options-stats',
-        paginationId: 'char-options-pagination',
+        statsId: null,
+        paginationId: null,
+        pageSize: null,
         checkboxPrefix: 'char-opts',
         tableConfig: {
             rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
@@ -533,6 +535,8 @@ function populateRelatedOptions(characteristicId) {
             }
         }
     });
+
+    initPaginationCharm();
 
     // Кнопка refresh
     const refreshBtn = document.getElementById('refresh-char-options');

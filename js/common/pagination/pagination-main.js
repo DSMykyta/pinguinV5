@@ -312,8 +312,3 @@ function setupObserver(instance) {
     instance.observer.observe(instance.el, { childList: true });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LEGACY API (для немігрованих сторінок)
-// ═══════════════════════════════════════════════════════════════════════════
-
-export { initPagination } from '../ui-pagination.js';

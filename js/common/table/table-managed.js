@@ -9,18 +9,16 @@
  * ║  2. Dropdown видимості колонок                                          ║
  * ║  3. Пошук по всіх видимих searchable колонках                           ║
  * ║  4. Stats ("Показано X з Y")                                            ║
- * ║  5. Пагінація (опціонально)                                             ║
- * ║  6. Filters plugin (column filters + text search)                       ║
- * ║  7. dataTransform — трансформація даних перед фільтрацією               ║
- * ║  8. preFilter — додатковий зовнішній фільтр                             ║
- * ║  9. activate/deactivate — для табів зі спільним пошуком                 ║
+ * ║  5. Filters plugin (column filters + text search)                       ║
+ * ║  6. dataTransform — трансформація даних перед фільтрацією               ║
+ * ║  7. preFilter — додатковий зовнішній фільтр                             ║
+ * ║  8. activate/deactivate — для табів зі спільним пошуком                 ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { renderTable } from './table-main.js';
 import { createColumnSelector } from './table-columns.js';
 import { filterData as applyColumnFilters } from './table-filters.js';
-import { initPagination } from '../ui-pagination.js';
 
 /**
  * @param {Object} config
@@ -30,7 +28,6 @@ import { initPagination } from '../ui-pagination.js';
  * @param {string} [config.columnsListId]
  * @param {string} [config.searchInputId]
  * @param {string} [config.statsId]
- * @param {string} [config.paginationId]
  * @param {Object} [config.tableConfig]
  * @param {number|null} [config.pageSize=25]
  * @param {string} [config.checkboxPrefix='managed']
@@ -46,7 +43,6 @@ export function createManagedTable(config) {
         columnsListId,
         searchInputId,
         statsId,
-        paginationId,
         tableConfig = {},
         pageSize = 25,
         checkboxPrefix = 'managed',
@@ -63,7 +59,6 @@ export function createManagedTable(config) {
     let currentPageSize = pageSize || 999999;
     let visibleColumnIds = columns.filter(c => c.checked !== false).map(c => c.id);
 
-    let paginationAPI = null;
     let isActive = true;
     let searchHandler = null;
     let debounceTimer = null;
@@ -74,7 +69,6 @@ export function createManagedTable(config) {
     // ── DOM refs ──
     const statsEl = statsId ? document.getElementById(statsId) : null;
     let searchInput = _searchInputId ? document.getElementById(_searchInputId) : null;
-    const paginationEl = paginationId ? document.getElementById(paginationId) : null;
 
     // ── Filter columns config (from plugins.filters) ──
     const filterColumnsConfig = tableConfig.plugins?.filters?.filterColumns || [];
@@ -224,21 +218,7 @@ export function createManagedTable(config) {
     // Initial bind
     bindSearchInput();
 
-    // ── 4. Pagination ──
-    if (paginationEl && pageSize) {
-        paginationAPI = initPagination(paginationEl, {
-            currentPage,
-            pageSize: currentPageSize,
-            totalItems: filteredData.length,
-            onPageChange: (page, size) => {
-                currentPage = page;
-                currentPageSize = size;
-                renderPage();
-            }
-        });
-    }
-
-    // ── 5. Render ──
+    // ── 4. Render ──
     function renderPage() {
         let pageData;
         if (currentPageSize < 100000) {
@@ -250,14 +230,6 @@ export function createManagedTable(config) {
 
         tableAPI.render(pageData);
         updateStats(pageData.length, filteredData.length);
-
-        if (paginationAPI) {
-            paginationAPI.update({
-                totalItems: filteredData.length,
-                currentPage,
-                pageSize: currentPageSize
-            });
-        }
     }
 
     function updateStats(shown, total) {
