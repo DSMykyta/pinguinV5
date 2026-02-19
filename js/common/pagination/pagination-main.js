@@ -48,6 +48,10 @@ export function initPaginationCharm(scope = document) {
 function createInstance(el) {
     const pageSize = parseInt(el.getAttribute('pagination')) || 25;
 
+    // Автодетект: якщо елемент в неактивному .tab-content → стартувати як deactivated
+    const tabContent = el.closest('.tab-content');
+    const isActive = !tabContent || tabContent.classList.contains('active');
+
     const instance = {
         el,
         state: { currentPage: 1, pageSize, totalItems: 0 },
@@ -56,7 +60,7 @@ function createInstance(el) {
         statsEl: null,
         observer: null,
         _mutationTimer: null,
-        _active: true
+        _active: isActive
     };
 
     // Stats element
@@ -164,29 +168,45 @@ function setupControls(instance) {
         el.after(container);
     }
 
-    // Click delegation на nav (guard для multi-tab)
-    instance.navContainer.addEventListener('click', (e) => {
-        if (!instance._active) return;
-        const btn = e.target.closest('.page-btn');
-        if (!btn || btn.disabled) return;
+    // Click delegation на nav — ідемпотентний (один listener, масив callbacks)
+    setupNavClickHandler(instance.navContainer, instance);
+}
 
-        const { currentPage, pageSize, totalItems } = instance.state;
-        const totalPages = Math.ceil(totalItems / pageSize);
-        let newPage = currentPage;
+/**
+ * Ідемпотентний click handler для navContainer (shared між кількома charm інстансами)
+ */
+function setupNavClickHandler(navContainer, instance) {
+    if (!navContainer._navState) {
+        navContainer._navState = { instances: [] };
 
-        if (btn.dataset.page) {
-            newPage = parseInt(btn.dataset.page);
-        } else if (btn.dataset.action === 'prev') {
-            newPage = Math.max(1, currentPage - 1);
-        } else if (btn.dataset.action === 'next') {
-            newPage = Math.min(totalPages, currentPage + 1);
-        }
+        navContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.page-btn');
+            if (!btn || btn.disabled) return;
 
-        if (newPage !== currentPage) {
-            instance.state.currentPage = newPage;
-            applyPage(instance);
-        }
-    });
+            // Знайти активний інстанс
+            const active = navContainer._navState.instances.find(inst => inst._active);
+            if (!active) return;
+
+            const { currentPage, pageSize, totalItems } = active.state;
+            const totalPages = Math.ceil(totalItems / pageSize);
+            let newPage = currentPage;
+
+            if (btn.dataset.page) {
+                newPage = parseInt(btn.dataset.page);
+            } else if (btn.dataset.action === 'prev') {
+                newPage = Math.max(1, currentPage - 1);
+            } else if (btn.dataset.action === 'next') {
+                newPage = Math.min(totalPages, currentPage + 1);
+            }
+
+            if (newPage !== currentPage) {
+                active.state.currentPage = newPage;
+                applyPage(active);
+            }
+        });
+    }
+
+    navContainer._navState.instances.push(instance);
 }
 
 /**

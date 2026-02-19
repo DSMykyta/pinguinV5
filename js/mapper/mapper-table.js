@@ -748,8 +748,6 @@ export function renderCurrentTab() {
         mt.updateData(getter());
     }
 
-    // Оновити зовнішню пагінацію
-    updateExternalPagination();
 }
 
 /**
@@ -765,7 +763,6 @@ export function renderCurrentTabRowsOnly() {
     }
 
     mt.refilter();
-    updateExternalPagination();
 }
 
 /**
