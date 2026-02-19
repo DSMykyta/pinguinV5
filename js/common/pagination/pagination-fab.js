@@ -16,6 +16,7 @@ const SIZE_LABELS = { 999999: 'Всі' };
  * Ініціалізувати FAB page-size selector
  * Якщо в контейнері вже є .page-size-selector — підключається до нього.
  * Якщо нема — створює новий.
+ * ІДЕМПОТЕНТНИЙ: повторні виклики на тому ж selector НЕ додають нових listeners.
  *
  * @param {HTMLElement} container - .pagination-container
  * @param {number} currentSize - Поточний розмір сторінки
@@ -30,7 +31,22 @@ export function initFab(container, currentSize, onChange) {
         container.appendChild(selector);
     }
 
-    // Click delegation
+    // Якщо вже ініціалізовано — тільки додати callback, НЕ новий listener
+    if (selector._fabState) {
+        selector._fabState.callbacks.push(onChange);
+        return {
+            updateLabel(size) {
+                selector._fabState.currentSize = size;
+                const label = selector.querySelector('.page-size-label, #page-size-label');
+                if (label) label.textContent = size > 1000 ? 'Всі' : size;
+            }
+        };
+    }
+
+    // Перша ініціалізація — створити shared state і єдиний listener
+    const state = { currentSize, callbacks: [onChange] };
+    selector._fabState = state;
+
     selector.addEventListener('click', (e) => {
         if (e.target.closest('.page-size-trigger')) {
             selector.classList.toggle('is-open');
@@ -40,9 +56,9 @@ export function initFab(container, currentSize, onChange) {
         if (option) {
             const newSize = parseInt(option.dataset.pageSize);
             selector.classList.remove('is-open');
-            if (newSize !== currentSize) {
-                currentSize = newSize;
-                onChange(newSize);
+            if (newSize !== state.currentSize) {
+                state.currentSize = newSize;
+                state.callbacks.forEach(cb => cb(newSize));
             }
         }
     });
@@ -56,7 +72,7 @@ export function initFab(container, currentSize, onChange) {
 
     return {
         updateLabel(size) {
-            currentSize = size;
+            state.currentSize = size;
             const label = selector.querySelector('.page-size-label, #page-size-label');
             if (label) label.textContent = size > 1000 ? 'Всі' : size;
         }

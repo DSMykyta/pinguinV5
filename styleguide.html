@@ -1945,11 +1945,80 @@
                     </div>
                 </div>
 
+                <!-- Pagination: Пояснення -->
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>[pagination] charm</h3>
-                        <p>Додай <code>pagination="N"</code> на контейнер — пагінація автоматично. <code>data-pagination-stats</code> оновлює "Показано X з Y".</p>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">pagination-main.js</span><span class="m3-tag m3-tag-src">pagination-ui.js</span><span class="m3-tag m3-tag-src">pagination-fab.css</span></div>
+                        <p>Декларативна пагінація. Додай атрибут <code>pagination="N"</code> на будь-який контейнер з дітьми —
+                            JS автоматично розріже їх на сторінки, створить навігацію (кнопки сторінок) та FAB (вибір кількості).
+                            <code>MutationObserver</code> слідкує за DOM — при ре-рендері таблиці пагінація оновлюється автоматично.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">pagination-main.js</span>
+                            <span class="m3-tag m3-tag-src">pagination-ui.js</span>
+                            <span class="m3-tag m3-tag-src">pagination-fab.css</span>
+                        </div>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Атрибут / елемент</th>
+                            <th>Обов'язковий</th>
+                            <th>Опис</th>
+                        </tr>
+                        <tr>
+                            <td><code>pagination="N"</code></td>
+                            <td>так</td>
+                            <td>Кількість дітей на сторінку. Без значення — дефолт 25</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-pagination-stats="id"</code></td>
+                            <td>ні</td>
+                            <td>ID елемента куди писати "Показано X з Y"</td>
+                        </tr>
+                        <tr>
+                            <td><code>.pseudo-table-header</code></td>
+                            <td>—</td>
+                            <td>Пропускається при підрахунку (не рахується як рядок)</td>
+                        </tr>
+                        <tr>
+                            <td><code>.paginated-hidden</code></td>
+                            <td>—</td>
+                            <td>Клас який charm додає на сховані рядки (<code>display:none!important</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><code>.footer .pagination-nav</code></td>
+                            <td>—</td>
+                            <td>Charm шукає існуючий footer або створює контейнер для навігації</td>
+                        </tr>
+                        <tr>
+                            <td><code>.page-size-selector</code></td>
+                            <td>—</td>
+                            <td>FAB для вибору кількості на сторінку (10, 25, 50, 100, Всі)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Pagination: Шаблон -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>[pagination] — шаблон</h3>
+                    </div>
+                    <div class="m3-code">&lt;div id="check-results-{{tabId}}"
+     class="pseudo-table-container"
+     pagination="10"
+     data-pagination-stats="check-tab-stats-{{tabId}}"&gt;
+
+    &lt;div class="pseudo-table-header"&gt;...&lt;/div&gt;   /* пропускається */
+    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* сторінка 1 */
+    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* сторінка 1 */
+    &lt;div class="pseudo-table-row paginated-hidden"&gt;...&lt;/div&gt;  /* сторінка 2 — сховано */
+&lt;/div&gt;</div>
+                </div>
+
+                <!-- Pagination: Live Demo -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>[pagination] — демо</h3>
+                        <p>Клікабельна пагінація: 9 рядків, <code>pagination="3"</code>.</p>
                     </div>
                     <div class="m3-preview m3-preview-col">
                         <div style="padding:10px 24px"><span class="body-s" id="sg-pagination-stats">Показано 0 з 0</span></div>
@@ -1965,16 +2034,6 @@
                             <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">9. Ashwagandha KSM-66</div>
                         </div>
                     </div>
-                    <div class="m3-code">&lt;div id="check-results-{{tabId}}"       /* будь-який контейнер з дітьми */
-     class="pseudo-table-container"       /* необов'язково — працює на будь-чому */
-     pagination="10"                      /* кількість дітей на сторінку (дефолт 25) */
-     data-pagination-stats="stats-id"     /* ID елемента для "Показано X з Y" (необов'язково) */
-&gt;
-    &lt;div class="pseudo-table-header"&gt;...&lt;/div&gt;   /* ← пропускається (не рахується) */
-    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* ← сторінка 1 — видимий */
-    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* ← сторінка 1 — видимий */
-    &lt;div class="pseudo-table-row paginated-hidden"&gt;...&lt;/div&gt;  /* ← сторінка 2 — сховано */
-&lt;/div&gt;</div>
                 </div>
             </section>
 
