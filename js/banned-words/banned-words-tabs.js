@@ -15,7 +15,7 @@
 import { bannedWordsState } from './banned-words-init.js';
 import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 
 /**
  * Знайти контейнер з пагінацією для табу

@@ -14,6 +14,7 @@ import { tasksState } from './tasks-state.js';
 import { loadTasks } from './tasks-data.js';
 import { registerTasksPlugin, runHook } from './tasks-plugins.js';
 import { showToast } from '../common/ui-toast.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ІНІЦІАЛІЗАЦІЯ
@@ -35,23 +36,11 @@ function initRefreshButtons() {
     const refreshButtons = document.querySelectorAll('[id^="refresh-tab-"]');
 
     refreshButtons.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            // Додаємо анімацію
-            const icon = btn.querySelector('.material-symbols-outlined');
-            if (icon) icon.classList.add('spinning');
-            btn.disabled = true;
-
-            try {
-                await loadTasks();
-                runHook('onRender');
-                showToast('Дані оновлено', 'success');
-            } catch (error) {
-                showToast('Помилка оновлення', 'error');
-            } finally {
-                if (icon) icon.classList.remove('spinning');
-                btn.disabled = false;
-            }
-        });
+        btn.addEventListener('click', () => withSpinner(btn, async () => {
+            await loadTasks();
+            runHook('onRender');
+            showToast('Дані оновлено', 'success');
+        }));
     });
 }
 
@@ -101,17 +90,10 @@ function initFilterPills() {
     const pillsContainer = document.getElementById('type-filter-pills');
     if (!pillsContainer) return;
 
-    pillsContainer.addEventListener('click', (e) => {
-        const pill = e.target.closest('[data-type-filter]');
-        if (!pill) return;
+    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    pillsContainer.addEventListener('charm:filter', (e) => {
+        const filterValue = e.detail.value;
 
-        const filterValue = pill.dataset.typeFilter;
-
-        // Оновити активну pill
-        pillsContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-
-        // Оновити стан фільтрів
         if (filterValue === 'all') {
             tasksState.filters.type = [];
         } else {
@@ -141,8 +123,8 @@ function syncFilterPillsFromState() {
     if (!pillsContainer) return;
 
     const activeTypes = tasksState.filters.type;
-    pillsContainer.querySelectorAll('.filter-pill').forEach(p => {
-        const val = p.dataset.typeFilter;
+    pillsContainer.querySelectorAll('[data-filter-value]').forEach(p => {
+        const val = p.dataset.filterValue;
         if (val === 'all') {
             p.classList.toggle('active', activeTypes.length === 0);
         } else {

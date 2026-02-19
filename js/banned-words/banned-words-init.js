@@ -14,7 +14,7 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton } from './banned-words-aside.js';
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 /**

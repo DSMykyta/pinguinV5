@@ -12,12 +12,11 @@
 import { loadMapperData } from './mapper-data.js';
 import {
     renderCurrentTab, invalidateLookupCaches,
-    initAllMapperTables, ensureTabManagedTable, switchMapperTab,
-    getMapperManagedTable
+    initAllMapperTables, ensureTabManagedTable, switchMapperTab
 } from './mapper-table.js';
 import { initMapperEvents } from './mapper-events.js';
 import { createLazyLoader } from '../common/util-lazy-load.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
@@ -59,10 +58,9 @@ function initTabSwitching() {
 
             // Очистити пошуковий інпут
             const searchInput = document.getElementById('search-mapper');
-            if (searchInput) {
+            if (searchInput && searchInput.value) {
                 searchInput.value = '';
-                const clearBtn = document.getElementById('clear-search-mapper');
-                if (clearBtn) clearBtn.classList.add('u-hidden');
+                searchInput.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
             // Charm pagination — deactivate/activate при tab switch
@@ -209,22 +207,6 @@ async function loadAsideMapper() {
 
         const html = await response.text();
         panelRightContent.innerHTML = html;
-
-        // Кнопка очистки пошуку — setSearchQuery('')
-        const clearSearchBtn = document.getElementById('clear-search-mapper');
-        const searchInput = document.getElementById('search-mapper');
-
-        if (clearSearchBtn && searchInput) {
-            clearSearchBtn.addEventListener('click', () => {
-                const mt = getMapperManagedTable(mapperState.activeTab);
-                if (mt) mt.setSearchQuery('');
-                clearSearchBtn.classList.add('u-hidden');
-            });
-
-            searchInput.addEventListener('input', () => {
-                clearSearchBtn.classList.toggle('u-hidden', !searchInput.value.trim());
-            });
-        }
 
         // Кнопки додавання в aside
         const addCategoryBtn = document.getElementById('btn-add-category-aside');

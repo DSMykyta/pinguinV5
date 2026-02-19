@@ -60,6 +60,7 @@
 @import url('components/forms/switch.css');
 @import url('components/forms/checkbox.css');
 @import url('components/forms/drop-zone.css');
+@import url('components/forms/morph-search.css');
 
 /* === COMPONENTS - NAVIGATION === */
 @import url('components/navigation/panel-item.css');

@@ -139,16 +139,3 @@
     border-color: transparent;
     box-shadow: none;
 }
-
-/* Чарм: кнопка очищення пошуку */
-.clear-search-btn {
-    margin-left: auto;
-    flex-shrink: 0;
-    opacity: 0.6;
-    transition: opacity var(--transition-speed), transform var(--transition-speed);
-}
-
-.clear-search-btn:hover {
-    opacity: 1;
-    transform: rotate(90deg);
-}

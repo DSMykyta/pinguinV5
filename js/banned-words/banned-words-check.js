@@ -9,7 +9,7 @@ import { showToast } from '../common/ui-toast.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { createManagedTable } from '../common/table/table-managed.js';
 import { col } from '../common/table/table-main.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { registerActionHandlers, initActionHandlers, actionButton} from '../common/ui-actions.js';
 
 // AbortController для скасування завантаження

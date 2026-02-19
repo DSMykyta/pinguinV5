@@ -1,4 +1,4 @@
-// js/common/pagination/pagination-ui.js
+// js/common/charms/pagination/pagination-ui.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

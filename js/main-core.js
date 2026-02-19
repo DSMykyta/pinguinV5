@@ -13,6 +13,9 @@ import { initChipTooltips } from './common/chip-tooltip.js';
 import { initTooltips } from './common/ui-tooltip.js';
 import { initInfoButtons } from './common/ui-info-modal.js';
 import { initTheme } from './common/ui-theme.js';
+import { initSearchClearCharm } from './common/charms/search-clear.js';
+import { initFilterPillsCharm } from './common/charms/filter-pills.js';
+import { initMorphSearchCharm } from './common/charms/morph-search.js';
 
 
 export function initCore() {
@@ -33,4 +36,7 @@ export function initCore() {
     initChipTooltips();
     initTooltips();
     initInfoButtons();
+    initSearchClearCharm();
+    initFilterPillsCharm();
+    initMorphSearchCharm();
 }

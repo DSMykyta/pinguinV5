@@ -146,7 +146,7 @@ async function updateUIWithData() {
     initDropdowns();
 
     // 3. Ініціалізувати pagination charm
-    const { initPaginationCharm } = await import('../common/pagination/pagination-main.js');
+    const { initPaginationCharm } = await import('../common/charms/pagination/pagination-main.js');
     initPaginationCharm();
 
     // 4. Заповнити таби резервів (юзерів з аватарками)

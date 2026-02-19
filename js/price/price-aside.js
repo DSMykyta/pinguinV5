@@ -49,28 +49,7 @@ export async function loadAside() {
  * Пошук тепер керується через createManagedTable (price-table.js)
  */
 export function initAsideEvents() {
-    initClearSearchButton();
     initImportFromAside();
-}
-
-/**
- * Ініціалізувати кнопку очистки пошуку
- * Пошук input тепер керується через createManagedTable
- */
-function initClearSearchButton() {
-    const clearBtn = document.getElementById('clear-search-price');
-    const searchInput = document.getElementById('search-price');
-
-    if (!clearBtn || !searchInput) return;
-
-    clearBtn.addEventListener('click', () => {
-        priceState.priceManagedTable?.setSearchQuery('');
-        clearBtn.classList.add('u-hidden');
-    });
-
-    searchInput.addEventListener('input', () => {
-        clearBtn.classList.toggle('u-hidden', !searchInput.value.trim());
-    });
 }
 
 /**

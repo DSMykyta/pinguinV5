@@ -15,6 +15,7 @@
 import { bannedWordsState } from './banned-words-init.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { populateCheckSelects } from './banned-words-ui.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 
 /**
  * Завантажити aside панель
@@ -251,18 +252,11 @@ export function initManageTabEvents() {
         });
     }
 
-    // Пошук — для tab-manage керується через createManagedTable (banned-words-manage.js)
+    // Пошук: для tab-manage керується через createManagedTable
     // Для check табів — ручна фільтрація через renderFn
     const searchInput = document.getElementById('search-banned-words');
-    const clearSearchBtn = document.getElementById('clear-search-banned-words');
-
     if (searchInput) {
         searchInput.addEventListener('input', async (e) => {
-            if (clearSearchBtn) {
-                clearSearchBtn.classList.toggle('u-hidden', !(e.target.value));
-            }
-
-            // Для check табів — ручна фільтрація (tab-manage керується managed table)
             const activeTab = document.querySelector('.tab-content.active');
             if (activeTab) {
                 const tabId = activeTab.dataset.tabContent;
@@ -275,55 +269,15 @@ export function initManageTabEvents() {
         });
     }
 
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', async () => {
-            if (searchInput) {
-                searchInput.value = '';
-                clearSearchBtn.classList.add('u-hidden');
-
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab) {
-                    const tabId = activeTab.dataset.tabContent;
-                    if (tabId === 'tab-manage') {
-                        bannedWordsState.manageManagedTable?.setSearchQuery('');
-                    } else {
-                        bannedWordsState.searchQuery = '';
-                        const tabPagination = bannedWordsState.tabPaginations[tabId];
-                        if (tabPagination?.renderFn) await tabPagination.renderFn();
-                    }
-                }
-            }
-        });
-    }
-
     // Кнопка оновлення табу
     const refreshTabButton = document.getElementById('refresh-tab-manage');
     if (refreshTabButton) {
-        refreshTabButton.addEventListener('click', async () => {
-
-            // Додати клас обертання до іконки
-            refreshTabButton.disabled = true;
-            const icon = refreshTabButton.querySelector('.material-symbols-outlined');
-            if (icon) {
-                icon.classList.add('spinning');
-            }
-
-            try {
-                const { loadBannedWords } = await import('./banned-words-data.js');
-                await loadBannedWords();
-                const { renderBannedWordsTable } = await import('./banned-words-manage.js');
-                await renderBannedWordsTable();
-
-
-            } catch (error) {
-                console.error('❌ Помилка оновлення:', error);
-            } finally {
-                refreshTabButton.disabled = false;
-                if (icon) {
-                    icon.classList.remove('spinning');
-                }
-            }
-        });
+        refreshTabButton.addEventListener('click', () => withSpinner(refreshTabButton, async () => {
+            const { loadBannedWords } = await import('./banned-words-data.js');
+            await loadBannedWords();
+            const { renderBannedWordsTable } = await import('./banned-words-manage.js');
+            await renderBannedWordsTable();
+        }));
     }
 }
 
@@ -334,30 +288,18 @@ export function initRefreshButton() {
     const button = document.getElementById('refresh-data-btn');
     if (!button) return;
 
-    button.addEventListener('click', async () => {
-        button.disabled = true;
+    button.addEventListener('click', () => withSpinner(button, async () => {
+        const { clearAllCheckCache } = await import('./banned-words-init.js');
+        clearAllCheckCache();
 
-        try {
-            // Очистити кеш перевірок
-            const { clearAllCheckCache } = await import('./banned-words-init.js');
-            clearAllCheckCache();
+        const { loadBannedWords } = await import('./banned-words-data.js');
+        await loadBannedWords();
 
-            const { loadBannedWords } = await import('./banned-words-data.js');
-            await loadBannedWords();
-
-            // Оновити таблицю якщо в табі управління
-            if (bannedWordsState.currentTab === 'tab-manage') {
-                const { renderBannedWordsTable } = await import('./banned-words-manage.js');
-                await renderBannedWordsTable();
-            }
-
-            // Оновити селекти
-            populateCheckSelects();
-
-        } catch (error) {
-            console.error('❌ Помилка оновлення:', error);
-        } finally {
-            button.disabled = false;
+        if (bannedWordsState.currentTab === 'tab-manage') {
+            const { renderBannedWordsTable } = await import('./banned-words-manage.js');
+            await renderBannedWordsTable();
         }
-    });
+
+        populateCheckSelects();
+    }));
 }

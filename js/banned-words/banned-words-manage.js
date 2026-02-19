@@ -474,33 +474,16 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
  * Ініціалізувати фільтри для табу управління
  */
 export function initManageTabFilters() {
-    const filterButtons = document.querySelectorAll('.nav-icon[data-filter][data-tab-id="tab-manage"]');
+    const filterGroup = document.querySelector('[data-filter-group="bwManage"]');
+    if (!filterGroup) return;
 
-    if (!filterButtons.length) {
-        console.warn('⚠️ Фільтри не знайдено для табу управління');
-        return;
-    }
-
-    // Встановити початковий фільтр
     if (!bannedWordsState.tabFilters['tab-manage']) {
         bannedWordsState.tabFilters['tab-manage'] = 'all';
     }
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-            const filter = button.dataset.filter;
-
-            // Оновити стан фільтру
-            bannedWordsState.tabFilters['tab-manage'] = filter;
-
-            // Оновити UI активних кнопок
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // refilter через managed table (preFilter читає tabFilters)
-            renderBannedWordsTableRowsOnly();
-
-        });
+    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    filterGroup.addEventListener('charm:filter', (e) => {
+        bannedWordsState.tabFilters['tab-manage'] = e.detail.value;
+        renderBannedWordsTableRowsOnly();
     });
-
 }

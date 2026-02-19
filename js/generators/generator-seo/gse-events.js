@@ -5,7 +5,6 @@ import { checkSafety } from './gse-helpers.js';
 import { optionalFunctions } from './gse-plugins.js';
 import { updateCountryDisplay } from './gse-brand.js';
 import { updateCounters } from './gse-counters.js';
-import { initSearchClear } from '../../utils/search-clear.js';
 import { updateBrandAndProductFromText } from './gse-parser.js';
 import { debounce } from '../../utils/common-utils.js';
 
@@ -91,6 +90,4 @@ export function initEventListeners() {
         }
     });
 
-    // Ініціалізація кнопки очищення пошуку
-    initSearchClear('search-triger');
 }

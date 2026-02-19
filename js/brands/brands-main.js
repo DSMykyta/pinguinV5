@@ -56,7 +56,7 @@ import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -276,28 +276,6 @@ async function loadAsideBrands() {
             });
         }
 
-        // Кнопка очистки пошуку
-        const clearSearchBtn = document.getElementById('clear-search-brands');
-        const searchInput = document.getElementById('search-brands');
-        if (clearSearchBtn && searchInput) {
-            clearSearchBtn.addEventListener('click', () => {
-                // Очищаємо пошук в активній managed table
-                if (brandsState.activeTab === 'lines') {
-                    brandsState.linesManagedTable?.setSearchQuery('');
-                } else {
-                    brandsState.brandsManagedTable?.setSearchQuery('');
-                }
-                clearSearchBtn.classList.add('u-hidden');
-            });
-
-            searchInput.addEventListener('input', () => {
-                if (searchInput.value.trim()) {
-                    clearSearchBtn.classList.remove('u-hidden');
-                } else {
-                    clearSearchBtn.classList.add('u-hidden');
-                }
-            });
-        }
     } catch (error) {
         console.error('❌ Помилка завантаження aside-brands.html:', error);
     }

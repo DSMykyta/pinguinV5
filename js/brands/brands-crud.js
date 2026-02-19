@@ -18,6 +18,7 @@
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
@@ -223,22 +224,13 @@ function initBrandLinesHandler() {
     // Кнопка оновлення лінійок
     const refreshBtn = document.getElementById('refresh-brand-lines');
     if (refreshBtn) {
-        refreshBtn.onclick = async () => {
+        refreshBtn.onclick = () => {
             if (!currentBrandId) return;
-            const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            refreshBtn.disabled = true;
-            icon?.classList.add('spinning');
-
-            try {
+            withSpinner(refreshBtn, async () => {
                 const { loadBrandLines } = await import('./lines-data.js');
                 await loadBrandLines();
                 populateBrandLines(currentBrandId);
-            } finally {
-                setTimeout(() => {
-                    refreshBtn.disabled = false;
-                    icon?.classList.remove('spinning');
-                }, 500);
-            }
+            });
         };
     }
 }

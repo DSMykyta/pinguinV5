@@ -600,8 +600,8 @@ function initStatCardNavigation(container) {
                 // Синхронізувати filter pills
                 const pillsContainer = document.getElementById('type-filter-pills');
                 if (pillsContainer) {
-                    pillsContainer.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-                    const targetPill = pillsContainer.querySelector(`[data-type-filter="${typeFilter}"]`);
+                    pillsContainer.querySelectorAll('[data-filter-value]').forEach(p => p.classList.remove('active'));
+                    const targetPill = pillsContainer.querySelector(`[data-filter-value="${typeFilter}"]`);
                     if (targetPill) targetPill.classList.add('active');
                 }
 

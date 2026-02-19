@@ -10,7 +10,7 @@ import { loadKeywords } from './keywords-data.js';
 import { renderKeywordsTable } from './keywords-table.js';
 import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -123,22 +123,6 @@ async function loadAsideKeywords() {
             });
         }
 
-        const clearSearchBtn = document.getElementById('clear-search-keywords');
-        const searchInput = document.getElementById('search-keywords');
-        if (clearSearchBtn && searchInput) {
-            clearSearchBtn.addEventListener('click', () => {
-                keywordsState.keywordsManagedTable?.setSearchQuery('');
-                clearSearchBtn.classList.add('u-hidden');
-            });
-
-            searchInput.addEventListener('input', () => {
-                if (searchInput.value.trim()) {
-                    clearSearchBtn.classList.remove('u-hidden');
-                } else {
-                    clearSearchBtn.classList.add('u-hidden');
-                }
-            });
-        }
     } catch (error) {
         console.error('❌ Помилка завантаження aside-keywords.html:', error);
     }

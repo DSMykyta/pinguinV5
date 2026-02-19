@@ -44,10 +44,11 @@ import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
-import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { createColumnSelector } from '../common/table/table-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
@@ -183,55 +184,39 @@ export async function showEditMarketplaceModal(id) {
     // Refresh кнопки
     const refreshCatsBtn = document.getElementById('refresh-mp-data-cats');
     if (refreshCatsBtn) {
-        refreshCatsBtn.onclick = async () => {
-            const icon = refreshCatsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
-            try {
-                await loadMpCategories();
-                const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
-                if (catCount) catCount.textContent = freshCats.length;
-                populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
-            } finally { icon?.classList.remove('spinning'); }
-        };
+        refreshCatsBtn.onclick = () => withSpinner(refreshCatsBtn, async () => {
+            await loadMpCategories();
+            const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
+            if (catCount) catCount.textContent = freshCats.length;
+            populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
+        });
     }
 
     const refreshCharsBtn = document.getElementById('refresh-mp-data-chars');
     if (refreshCharsBtn) {
-        refreshCharsBtn.onclick = async () => {
-            const icon = refreshCharsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
-            try {
-                await loadMpCharacteristics();
-                const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
-                if (charCount) charCount.textContent = freshChars.length;
-                populateMpCharacteristics(freshChars, columnMapping.characteristics);
-            } finally { icon?.classList.remove('spinning'); }
-        };
+        refreshCharsBtn.onclick = () => withSpinner(refreshCharsBtn, async () => {
+            await loadMpCharacteristics();
+            const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
+            if (charCount) charCount.textContent = freshChars.length;
+            populateMpCharacteristics(freshChars, columnMapping.characteristics);
+        });
     }
 
     const refreshOptsBtn = document.getElementById('refresh-mp-data-opts');
     if (refreshOptsBtn) {
-        refreshOptsBtn.onclick = async () => {
-            const icon = refreshOptsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
-            try {
-                await loadMpOptions();
-                const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
-                if (optCount) optCount.textContent = freshOpts.length;
-                populateMpOptions(freshOpts, columnMapping.options);
-            } finally { icon?.classList.remove('spinning'); }
-        };
+        refreshOptsBtn.onclick = () => withSpinner(refreshOptsBtn, async () => {
+            await loadMpOptions();
+            const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
+            if (optCount) optCount.textContent = freshOpts.length;
+            populateMpOptions(freshOpts, columnMapping.options);
+        });
     }
 
     const refreshRefsBtn = document.getElementById('refresh-mp-data-refs');
     if (refreshRefsBtn) {
-        refreshRefsBtn.onclick = async () => {
-            const icon = refreshRefsBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
-            try {
-                await populateMpReferences(marketplace.slug, id);
-            } finally { icon?.classList.remove('spinning'); }
-        };
+        refreshRefsBtn.onclick = () => withSpinner(refreshRefsBtn, async () => {
+            await populateMpReferences(marketplace.slug, id);
+        });
     }
 }
 

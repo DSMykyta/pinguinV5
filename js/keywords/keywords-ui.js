@@ -38,7 +38,7 @@ export function initParamTypeFilters() {
 
     // Створити HTML для кнопок
     let buttonsHTML = `
-        <button class="nav-icon active" data-filter="all" data-filter-type="param_type">
+        <button class="nav-icon active" data-filter-value="all">
             <span class="material-symbols-outlined">list</span>
             <span class="nav-icon-label">Всі</span>
         </button>
@@ -46,33 +46,23 @@ export function initParamTypeFilters() {
 
     PARAM_TYPES.forEach(type => {
         buttonsHTML += `
-            <button class="nav-icon" data-filter="${type.value}" data-filter-type="param_type">
+            <button class="nav-icon" data-filter-value="${type.value}">
                 <span class="material-symbols-outlined">${type.icon}</span>
                 <span class="nav-icon-label">${type.label}</span>
             </button>
         `;
     });
 
+    container.dataset.filterGroup = 'paramType';
     container.innerHTML = buttonsHTML;
 
     if (!keywordsState.paramTypeFilter) {
         keywordsState.paramTypeFilter = 'all';
     }
 
-    const filterButtons = container.querySelectorAll('[data-filter-type="param_type"]');
-
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filter = button.dataset.filter;
-
-            keywordsState.paramTypeFilter = filter;
-
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // refilter через managed table (preFilter читає paramTypeFilter)
-            // Charm автоматично скине на сторінку 1 через MutationObserver
-            renderKeywordsTableRowsOnly();
-        });
+    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    container.addEventListener('charm:filter', (e) => {
+        keywordsState.paramTypeFilter = e.detail.value;
+        renderKeywordsTableRowsOnly();
     });
 }

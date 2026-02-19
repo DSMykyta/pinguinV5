@@ -12,6 +12,7 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 
 let eventsInitialized = false;
 
@@ -208,18 +209,8 @@ function initReserveTabsEvents() {
 
     const statusTabsContainer = document.getElementById('status-filter-tabs');
     if (statusTabsContainer) {
-        statusTabsContainer.addEventListener('click', (e) => {
-            const tabBtn = e.target.closest('.nav-icon');
-            if (!tabBtn) return;
-
-            statusTabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            tabBtn.classList.add('active');
-
-            priceState.currentStatusFilter = tabBtn.dataset.statusFilter;
-
-            // refilter через managed table (preFilter читає currentStatusFilter)
+        statusTabsContainer.addEventListener('charm:filter', (e) => {
+            priceState.currentStatusFilter = e.detail.value;
             renderPriceTableRowsOnly();
         });
     }
@@ -232,20 +223,11 @@ function initRefreshButton() {
     const refreshBtn = document.getElementById('refresh-tab-price');
     if (!refreshBtn) return;
 
-    refreshBtn.addEventListener('click', async () => {
-        const icon = refreshBtn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('spinning');
-
-        try {
-            const { loadPriceData } = await import('./price-data.js');
-            await loadPriceData();
-            renderPriceTable();
-        } catch (error) {
-            console.error('Помилка оновлення:', error);
-        } finally {
-            if (icon) icon.classList.remove('spinning');
-        }
-    });
+    refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
+        const { loadPriceData } = await import('./price-data.js');
+        await loadPriceData();
+        renderPriceTable();
+    }));
 }
 
 /**

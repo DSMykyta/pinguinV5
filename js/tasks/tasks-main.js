@@ -29,6 +29,7 @@ import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
 import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../common/avatar/avatar-config.js';
 import { registerPanelInitializer } from '../panel/panel-right.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРІВ ASIDE (на рівні модуля)
@@ -155,24 +156,11 @@ function initRefreshButton() {
     const refreshBtn = document.getElementById('refresh-tasks');
     if (!refreshBtn) return;
 
-    refreshBtn.addEventListener('click', async () => {
-        const icon = refreshBtn.querySelector('.material-symbols-outlined');
-        if (icon) icon.classList.add('spinning');
-        refreshBtn.disabled = true;
-
-        try {
-            await loadTasks();
-
-            tasksState.activeTab = 'my';
-            runHook('onRender');
-
-        } catch (error) {
-            console.error('❌ Помилка оновлення:', error);
-        } finally {
-            if (icon) icon.classList.remove('spinning');
-            refreshBtn.disabled = false;
-        }
-    });
+    refreshBtn.addEventListener('click', () => withSpinner(refreshBtn, async () => {
+        await loadTasks();
+        tasksState.activeTab = 'my';
+        runHook('onRender');
+    }));
 }
 
 /**
@@ -206,26 +194,6 @@ function initAsideTasksHandlers() {
             tasksState.searchQuery = e.target.value;
             tasksState.pagination.currentPage = 1;
             runHook('onRender');
-        });
-    }
-
-    // Кнопка очистки пошуку
-    const clearSearchBtn = document.getElementById('clear-search-tasks');
-    if (clearSearchBtn && searchInput) {
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            tasksState.searchQuery = '';
-            tasksState.pagination.currentPage = 1;
-            clearSearchBtn.classList.add('u-hidden');
-            runHook('onRender');
-        });
-
-        searchInput.addEventListener('input', () => {
-            if (searchInput.value.trim()) {
-                clearSearchBtn.classList.remove('u-hidden');
-            } else {
-                clearSearchBtn.classList.add('u-hidden');
-            }
         });
     }
 
@@ -305,18 +273,6 @@ function initAsideCabinetLinksHandlers() {
                 item.style.display = (name.includes(query) || desc.includes(query) || !query)
                     ? '' : 'none';
             });
-        });
-    }
-
-    const clearBtn = document.getElementById('clear-search-cabinet-links');
-    if (clearBtn && searchInput) {
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchInput.dispatchEvent(new Event('input'));
-            clearBtn.classList.add('u-hidden');
-        });
-        searchInput.addEventListener('input', () => {
-            clearBtn.classList.toggle('u-hidden', !searchInput.value.trim());
         });
     }
 

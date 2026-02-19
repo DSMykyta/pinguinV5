@@ -17,6 +17,7 @@ import {
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
+import { withSpinner } from '../common/charms/refresh-button.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -71,28 +72,18 @@ function initRefreshButtons() {
     tabs.forEach(tab => {
         const btn = document.getElementById(`refresh-tab-mapper-${tab}`);
         if (btn) {
-            btn.addEventListener('click', async () => {
-                btn.disabled = true;
-                btn.querySelector('.material-symbols-outlined').classList.add('spinning');
-
-                try {
-                    await Promise.all([
-                        loadMapperData(),
-                        loadMpCategories(),
-                        loadMpCharacteristics(),
-                        loadMpOptions(),
-                        loadMapCategories(),
-                        loadMapCharacteristics(),
-                        loadMapOptions()
-                    ]);
-                    renderCurrentTab();
-                } catch (error) {
-                    console.error(`❌ Помилка оновлення табу ${tab}:`, error);
-                } finally {
-                    btn.disabled = false;
-                    btn.querySelector('.material-symbols-outlined').classList.remove('spinning');
-                }
-            });
+            btn.addEventListener('click', () => withSpinner(btn, async () => {
+                await Promise.all([
+                    loadMapperData(),
+                    loadMpCategories(),
+                    loadMpCharacteristics(),
+                    loadMpOptions(),
+                    loadMapCategories(),
+                    loadMapCharacteristics(),
+                    loadMapOptions()
+                ]);
+                renderCurrentTab();
+            }));
         }
     });
 }
