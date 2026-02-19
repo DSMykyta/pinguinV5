@@ -1948,31 +1948,21 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>[pagination] charm</h3>
-                        <div class="m3-tags">
-                            <span class="m3-tag m3-tag-src">pagination-main.js</span>
-                            <span class="m3-tag m3-tag-src">pagination-ui.js</span>
-                            <span class="m3-tag m3-tag-src">pagination-fab.js</span>
-                            <span class="m3-tag m3-tag-src">pagination-fab.css</span>
-                        </div>
-                        <p>Додай <code>pagination="N"</code> на контейнер — JS автоматично розріже дітей на сторінки.
-                            <code>data-pagination-stats</code> — ID елемента для "Показано X з Y".
-                            Мульти-таби: <code>.deactivate()</code> / <code>.activate()</code> при перемиканні.</p>
+                        <p>Додай <code>pagination="N"</code> на контейнер — пагінація автоматично. <code>data-pagination-stats</code> оновлює "Показано X з Y".</p>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">pagination-main.js + pagination-ui.js + pagination-fab.css</span></div>
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:0;padding:0">
-                        <div style="padding:8px 24px;display:flex;align-items:center;justify-content:space-between">
-                            <span class="body-s" id="sg-pagination-stats">Показано 0 з 0</span>
-                        </div>
-                        <div id="sg-pagination-demo" pagination="3" data-pagination-stats="sg-pagination-stats"
-                             style="border-top:1px solid var(--color-outline)">
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">1</span><span>Creatine Monohydrate</span><span class="word-chip" style="font-size:11px">Креатин</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">2</span><span>Whey Protein Isolate</span><span class="word-chip" style="font-size:11px">Протеїн</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">3</span><span>Omega-3 Fish Oil</span><span class="word-chip" style="font-size:11px">Жирні кислоти</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">4</span><span>Vitamin D3 5000 IU</span><span class="word-chip" style="font-size:11px">Вітаміни</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">5</span><span>BCAA 2:1:1 Powder</span><span class="word-chip" style="font-size:11px">Амінокислоти</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">6</span><span>Magnesium Glycinate</span><span class="word-chip" style="font-size:11px">Мінерали</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">7</span><span>L-Glutamine 1000mg</span><span class="word-chip" style="font-size:11px">Амінокислоти</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px;border-bottom:1px solid var(--color-outline)"><span style="color:var(--color-on-surface-v);text-align:center">8</span><span>Zinc Picolinate 50mg</span><span class="word-chip" style="font-size:11px">Мінерали</span></div>
-                            <div style="display:grid;grid-template-columns:40px 1fr 120px;padding:10px;font-size:13px"><span style="color:var(--color-on-surface-v);text-align:center">9</span><span>Ashwagandha KSM-66</span><span class="word-chip" style="font-size:11px">Адаптогени</span></div>
+                        <div style="padding:10px 24px"><span class="body-s" id="sg-pagination-stats">Показано 0 з 0</span></div>
+                        <div id="sg-pagination-demo" pagination="3" data-pagination-stats="sg-pagination-stats">
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">1. Creatine Monohydrate</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">2. Whey Protein Isolate</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">3. Omega-3 Fish Oil</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">4. Vitamin D3 5000 IU</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">5. BCAA 2:1:1 Powder</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">6. Magnesium Glycinate</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">7. L-Glutamine 1000mg</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">8. Zinc Picolinate 50mg</div>
+                            <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">9. Ashwagandha KSM-66</div>
                         </div>
                     </div>
                 </div>
