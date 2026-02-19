@@ -68,8 +68,8 @@ function initManagedBannedWordsTable() {
         columnsListId: 'table-columns-list',
 
         searchInputId: 'search-banned-words',
-        statsId: 'tab-stats-manage',
-        paginationId: null, // спільна пагінація — керується ззовні
+        statsId: null,
+        paginationId: null,
 
         tableConfig: {
             rowActions: (row) => {
@@ -108,7 +108,7 @@ function initManagedBannedWordsTable() {
             return data;
         },
 
-        pageSize: 10,
+        pageSize: null,
         checkboxPrefix: 'banned'
     });
 

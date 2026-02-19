@@ -14,7 +14,7 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton } from './banned-words-aside.js';
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
-import { initPaginationForBannedWords } from './banned-words-pagination.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 /**
@@ -44,18 +44,8 @@ export const bannedWordsState = {
     visibleColumns: [],        // Видимі колонки таблиці
     hideChecked: false,        // Приховати перевірені рядки
 
-    // Пагінація
-    pagination: {
-        currentPage: 1,
-        pageSize: 10,
-        totalItems: 0
-    },
-
-    // Пагінація для кожного табу
+    // Пагінація для кожного табу (check tabs)
     tabPaginations: {},
-
-    // Pagination API (зберігається для оновлення)
-    paginationAPI: null,
 
     // Кеш для результатів перевірки
     checkCache: {
@@ -163,8 +153,8 @@ async function updateUIWithData() {
     const { initDropdowns } = await import('../common/ui-dropdown.js');
     initDropdowns();
 
-    // 3. Ініціалізувати pagination ПЕРЕД рендерингом таблиці
-    initPaginationForBannedWords();
+    // 3. Ініціалізувати pagination charm
+    initPaginationCharm();
 
     // 4. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
     const { renderBannedWordsTable, initManageTabFilters } = await import('./banned-words-manage.js');

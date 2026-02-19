@@ -113,8 +113,8 @@ function initPriceTable() {
         columnsListId: 'table-columns-list-price',
 
         searchInputId: 'search-price',
-        statsId: 'tab-stats-price',
-        paginationId: null, // спільна пагінація — керується ззовні
+        statsId: null,
+        paginationId: null,
 
         tableConfig: {
             rowActionsHeader: '<input type="checkbox" class="header-select-all" id="select-all-price">',
@@ -194,7 +194,7 @@ function initPriceTable() {
             return data;
         },
 
-        pageSize: 25,
+        pageSize: null,
         checkboxPrefix: 'price'
     });
 

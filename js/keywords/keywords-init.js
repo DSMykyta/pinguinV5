@@ -10,7 +10,7 @@ import { loadKeywords } from './keywords-data.js';
 import { renderKeywordsTable } from './keywords-table.js';
 import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
-import { initPagination } from '../common/ui-pagination.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -25,12 +25,6 @@ export const keywordsState = {
     columnFilters: {},       // Фільтри по колонках { columnId: ['value1', 'value2'] }
     sortKey: null,
     sortOrder: 'asc',
-    pagination: {
-        currentPage: 1,
-        pageSize: 10,
-        totalItems: 0
-    },
-    paginationAPI: null,
     sortAPI: null
 };
 
@@ -38,7 +32,7 @@ export function initKeywords() {
 
     initTooltips();
     loadAsideKeywords();
-    initKeywordsPagination();
+    initPaginationCharm();
     checkAuthAndLoadData();
 
     document.addEventListener('auth-state-changed', (event) => {
@@ -74,27 +68,6 @@ async function checkAuthAndLoadData() {
     }
 }
 
-function initKeywordsPagination() {
-    const footer = document.querySelector('.footer');
-    if (!footer) {
-        console.warn('⚠️ Footer не знайдено');
-        return;
-    }
-
-    const paginationAPI = initPagination(footer, {
-        currentPage: keywordsState.pagination.currentPage,
-        pageSize: keywordsState.pagination.pageSize,
-        totalItems: keywordsState.pagination.totalItems,
-        onPageChange: (page, pageSize) => {
-            keywordsState.pagination.currentPage = page;
-            keywordsState.pagination.pageSize = pageSize;
-            keywordsState.keywordsManagedTable?.setPage(page, pageSize);
-        }
-    });
-
-    keywordsState.paginationAPI = paginationAPI;
-
-}
 
 function renderAuthRequiredState() {
     const tableBody = document.querySelector('#tab-keywords .pseudo-table-body');

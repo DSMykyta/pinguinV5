@@ -9,12 +9,8 @@ import { showToast } from '../common/ui-toast.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { createManagedTable } from '../common/table/table-managed.js';
 import { col } from '../common/table/table-main.js';
-import { registerCheckTabPagination } from './banned-words-pagination.js';
-import {
-    registerActionHandlers,
-    initActionHandlers,
-    actionButton
-} from '../common/ui-actions.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+import { registerActionHandlers, initActionHandlers, actionButton} from '../common/ui-actions.js';
 
 // AbortController для скасування завантаження
 let currentAbortController = null;
@@ -74,10 +70,10 @@ export async function performCheck(sheetName, wordId, columnName) {
             initCheckManagedTable(tabId, container, cachedResults, selectedSheets, selectedColumns);
 
             loader.updateProgress(85, 'Налаштування пагінації...');
-            registerCheckTabPagination(tabId, cachedResults.length, async () => {
-                const mt = checkManagedTables.get(tabId);
-                if (mt) mt.refilter();
-            });
+            bannedWordsState.tabPaginations[tabId] = {
+                renderFn: async () => { const mt = checkManagedTables.get(tabId); if (mt) mt.refilter(); }
+            };
+            initPaginationCharm(container.parentElement);
 
             loader.updateProgress(95, 'Налаштування фільтрів...');
             initCheckTabFilters(tabId);
@@ -201,10 +197,10 @@ export async function performCheck(sheetName, wordId, columnName) {
         const totalMatchCount = aggregatedResults.reduce((sum, r) => sum + (r.matchCount || 0), 0);
 
         loader.updateProgress(90, 'Налаштування пагінації...');
-        registerCheckTabPagination(tabId, aggregatedResults.length, async () => {
-            const mt = checkManagedTables.get(tabId);
-            if (mt) mt.refilter();
-        });
+        bannedWordsState.tabPaginations[tabId] = {
+            renderFn: async () => { const mt = checkManagedTables.get(tabId); if (mt) mt.refilter(); }
+        };
+        initPaginationCharm(container.parentElement);
 
         loader.updateProgress(95, 'Налаштування фільтрів...');
         initCheckTabFilters(tabId);
@@ -359,8 +355,8 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
         data: data,
         columnsListId: null,
         searchInputId: null, // Пошук через shared input (banned-words-aside.js)
-        statsId: `check-tab-stats-${tabId}`,
-        paginationId: null, // Спільна пагінація
+        statsId: null,
+        paginationId: null,
         tableConfig: {
             rowActions: (row) => {
                 const selectedSet = bannedWordsState.selectedProducts[tabId] || new Set();
@@ -411,7 +407,7 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
 
             return filtered;
         },
-        pageSize: 10,
+        pageSize: null,
         checkboxPrefix: `banned-check-${tabId}`
     });
 
@@ -419,15 +415,6 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
 
     // Оновити заголовок табу
     updateCheckTabHeader(tabId, selectedSheets, selectedColumns);
-
-    // Оновити зовнішню пагінацію
-    const footer = document.querySelector('.footer');
-    if (footer && footer._paginationAPI) {
-        footer._paginationAPI.update({
-            currentPage: bannedWordsState.tabPaginations[tabId]?.currentPage || 1,
-            totalItems: mt.getFilteredCount()
-        });
-    }
 }
 
 /**
@@ -540,15 +527,6 @@ export async function renderCheckResultsRowsOnly(sheetName, bannedWord) {
     const mt = checkManagedTables.get(tabId);
     if (mt) {
         mt.refilter();
-
-        // Оновити зовнішню пагінацію
-        const footer = document.querySelector('.footer');
-        if (footer && footer._paginationAPI) {
-            footer._paginationAPI.update({
-                currentPage: bannedWordsState.tabPaginations[tabId]?.currentPage || 1,
-                totalItems: mt.getFilteredCount()
-            });
-        }
     } else {
         await renderCheckResults(sheetName, bannedWord);
     }
@@ -574,14 +552,6 @@ export async function renderCheckResults(sheetName, bannedWord) {
     const mt = checkManagedTables.get(tabId);
     if (mt) {
         mt.updateData(bannedWordsState.checkResults);
-
-        const footer = document.querySelector('.footer');
-        if (footer && footer._paginationAPI) {
-            footer._paginationAPI.update({
-                currentPage: bannedWordsState.tabPaginations[tabId]?.currentPage || 1,
-                totalItems: mt.getFilteredCount()
-            });
-        }
     } else {
         initCheckManagedTable(tabId, container, bannedWordsState.checkResults, selectedSheets, selectedColumns);
     }

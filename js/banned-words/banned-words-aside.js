@@ -314,10 +314,6 @@ export function initManageTabEvents() {
                 const { renderBannedWordsTable } = await import('./banned-words-manage.js');
                 await renderBannedWordsTable();
 
-                // Оновити pagination
-                if (bannedWordsState.paginationAPI) {
-                    bannedWordsState.paginationAPI.updateTotalItems(bannedWordsState.bannedWords.length);
-                }
 
             } catch (error) {
                 console.error('❌ Помилка оновлення:', error);

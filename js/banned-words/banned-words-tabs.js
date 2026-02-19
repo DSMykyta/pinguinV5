@@ -15,6 +15,15 @@
 import { bannedWordsState } from './banned-words-init.js';
 import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
+
+/**
+ * Знайти контейнер з пагінацією для табу
+ */
+function getPaginationContainer(tabId) {
+    if (tabId === 'tab-manage') return document.getElementById('banned-words-table-container');
+    return document.getElementById(`check-results-${tabId}`);
+}
 
 let checkTabTemplate = null;
 let checkTabContentTemplate = null;
@@ -283,6 +292,13 @@ export function initTabHandlers() {
         e.stopPropagation();
 
 
+        // Charm: deactivate old tab's pagination before switching
+        const oldActiveContent = document.querySelector('.tab-content.active');
+        if (oldActiveContent) {
+            const oldTabId = oldActiveContent.dataset.tabContent;
+            getPaginationContainer(oldTabId)?._paginationCharm?.deactivate();
+        }
+
         // Знімаємо active з ВСІХ кнопок
         tabsContainer.querySelectorAll('.nav-icon').forEach(btn => {
             btn.classList.remove('active');
@@ -308,42 +324,21 @@ export function initTabHandlers() {
             // Оновити активний таб в збереженому стані
             setActiveTab(tabId);
 
-            // Відновити пагінацію для цього табу
-            const tabPagination = bannedWordsState.tabPaginations[tabId];
-            if (tabPagination) {
-                const footer = document.querySelector('.footer');
-                if (footer && footer._paginationAPI) {
-                    footer._paginationAPI.update({
-                        currentPage: tabPagination.currentPage,
-                        pageSize: tabPagination.pageSize,
-                        totalItems: tabPagination.totalItems
-                    });
+            // Charm: activate new tab's pagination
+            getPaginationContainer(tabId)?._paginationCharm?.activate();
 
-                    // Оновити відображення розміру сторінки в UI
-                    const pageSizeLabel = document.getElementById('page-size-label');
-                    if (pageSizeLabel) {
-                        pageSizeLabel.textContent = tabPagination.pageSize;
-                    }
-                }
-            } else {
-                console.warn(`⚠️ Пагінація для табу ${tabId} не знайдена`);
+            // Якщо це check таб і дані ще не завантажені - завантажити
+            if (tabId.startsWith('check-') && tabButton.dataset.checkSheet && !bannedWordsState.tabPaginations[tabId]) {
+                const sheet = tabButton.dataset.checkSheet;
+                const word = tabButton.dataset.checkWord;
+                const column = tabButton.dataset.checkColumn;
 
-                // Якщо це check таб і пагінація відсутня - завантажити дані
-                if (tabId.startsWith('check-') && tabButton.dataset.checkSheet) {
+                bannedWordsState.selectedSheet = sheet;
+                bannedWordsState.selectedWord = word;
+                bannedWordsState.selectedColumn = column;
 
-                    const sheet = tabButton.dataset.checkSheet;
-                    const word = tabButton.dataset.checkWord;
-                    const column = tabButton.dataset.checkColumn;
-
-                    // Оновити state
-                    bannedWordsState.selectedSheet = sheet;
-                    bannedWordsState.selectedWord = word;
-                    bannedWordsState.selectedColumn = column;
-
-                    // Завантажити дані
-                    const { performCheck } = await import('./banned-words-check.js');
-                    await performCheck(sheet, word, column);
-                }
+                const { performCheck } = await import('./banned-words-check.js');
+                await performCheck(sheet, word, column);
             }
 
             // Показати відповідні controls

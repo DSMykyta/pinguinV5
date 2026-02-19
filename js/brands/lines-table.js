@@ -76,7 +76,7 @@ function initLinesTable() {
         // DOM IDs — спільний search input з brands
         columnsListId: 'table-columns-list-lines',
         searchInputId: 'search-brands',
-        statsId: 'tab-stats-lines',
+        statsId: null,
         paginationId: null,
 
         tableConfig: {
@@ -106,7 +106,7 @@ function initLinesTable() {
 
         dataTransform: (data) => enrichLinesData(data),
 
-        pageSize: 25,
+        pageSize: null,
         checkboxPrefix: 'lines'
     });
 

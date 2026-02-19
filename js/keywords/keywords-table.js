@@ -81,7 +81,7 @@ function initKeywordsTable() {
         columnsListId: 'table-columns-list-keywords',
 
         searchInputId: 'search-keywords',
-        statsId: 'tab-stats-keywords',
+        statsId: null,
         paginationId: null,
 
         tableConfig: {
@@ -125,7 +125,7 @@ function initKeywordsTable() {
             return data;
         },
 
-        pageSize: 10,
+        pageSize: null,
         checkboxPrefix: 'keywords'
     });
 

@@ -1945,10 +1945,98 @@
                     </div>
                 </div>
 
+                <!-- ── Pagination Charm ── -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.pagination-container</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">pagination-fab.css</span></div>
+                        <h3>[pagination] — Charm</h3>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">pagination-main.js</span>
+                            <span class="m3-tag m3-tag-src">pagination-ui.js</span>
+                            <span class="m3-tag m3-tag-src">pagination-fab.js</span>
+                            <span class="m3-tag m3-tag-src">pagination-fab.css</span>
+                        </div>
+                        <p>Декларативна пагінація через HTML-атрибут. Додай <code>pagination</code> на контейнер &mdash;
+                            JS автоматично розріже дітей на сторінки, створить навігацію та FAB.</p>
+                    </div>
+
+                    <!-- Принцип роботи -->
+                    <div class="m3-block-header" style="border:0;padding-top:0">
+                        <h4 style="margin:0 0 4px">Як це працює</h4>
+                        <ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.6;color:var(--color-on-surface-v)">
+                            <li><code>initPaginationCharm()</code> знаходить всі <code>[pagination]</code> елементи</li>
+                            <li>Для кожного: рахує дітей, ховає зайвих класом <code>.paginated-hidden</code></li>
+                            <li>Знаходить <code>.footer</code> або створює контейнер &mdash; рендерить кнопки сторінок + FAB</li>
+                            <li><code>MutationObserver</code> слідкує за DOM &mdash; при ре-рендері таблиці автоматично перераховує</li>
+                        </ol>
+                    </div>
+
+                    <!-- Анатомія атрибуту -->
+                    <div class="m3-block-header" style="border:0;padding-top:0">
+                        <h4 style="margin:0 0 8px">Анатомія атрибуту</h4>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap:0;font-family:monospace;font-size:13px;line-height:1.8;padding:20px 24px">
+<pre style="margin:0;color:var(--color-on-surface)"><span style="color:var(--color-on-surface-v)">&lt;div id="table-container"</span>
+     <span style="color:var(--color-on-surface-v)">class="</span><span style="color:var(--color-main)">pseudo-table-container</span><span style="color:var(--color-on-surface-v)">"</span>
+
+     <span style="color:var(--color-warning)">pagination="10"</span>                                  <span style="color:var(--color-on-surface-v)">← кількість на сторінку (дефолт 25)</span>
+     <span style="color:var(--color-warning)">data-pagination-stats="tab-stats-manage"</span>         <span style="color:var(--color-on-surface-v)">← ID елемента для "Показано X з Y"</span>
+<span style="color:var(--color-on-surface-v)">&gt;</span>
+
+  <span style="color:var(--color-on-surface-v)">&lt;div class="pseudo-table-header"&gt;...&lt;/div&gt;</span>        <span style="color:var(--color-on-surface-v)">← пропускається (не рахується)</span>
+  <span style="color:var(--color-on-surface-v)">&lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;</span>           <span style="color:var(--color-on-surface-v)">← сторінка 1</span>
+  <span style="color:var(--color-on-surface-v)">&lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;</span>           <span style="color:var(--color-on-surface-v)">← сторінка 1</span>
+  <span style="color:var(--color-on-surface-v)">&lt;div class="pseudo-table-row <span style="color:var(--color-error)">paginated-hidden</span>"&gt;...&lt;/div&gt;</span>  <span style="color:var(--color-on-surface-v)">← сторінка 2 (сховано)</span>
+
+<span style="color:var(--color-on-surface-v)">&lt;/div&gt;</span></pre>
+                    </div>
+
+                    <!-- Приклади використання -->
+                    <div class="m3-block-header" style="border:0;padding-top:12px">
+                        <h4 style="margin:0 0 8px">Приклади</h4>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap:12px;font-family:monospace;font-size:13px;padding:20px 24px">
+<pre style="margin:0;color:var(--color-on-surface-v)"><span style="color:var(--color-on-surface)">/* Таблиця — 10 рядків на сторінку */</span>
+&lt;div class="pseudo-table-container" <span style="color:var(--color-warning)">pagination="10"</span>
+     <span style="color:var(--color-warning)">data-pagination-stats="tab-stats-keywords"</span>&gt;
+
+<span style="color:var(--color-on-surface)">/* Таблиця — дефолт 25 */</span>
+&lt;div class="pseudo-table-container" <span style="color:var(--color-warning)">pagination</span>&gt;
+
+<span style="color:var(--color-on-surface)">/* Чипи — 10 штук */</span>
+&lt;div class="chip-container" <span style="color:var(--color-warning)">pagination="10"</span>&gt;</pre>
+                    </div>
+
+                    <!-- Multi-tab -->
+                    <div class="m3-block-header" style="border:0;padding-top:12px">
+                        <h4 style="margin:0 0 4px">Мульти-таби</h4>
+                        <p style="font-size:14px;color:var(--color-on-surface-v)">
+                            Кожен таб має свій <code>[pagination]</code> контейнер.
+                            При перемиканні:
+                            <code>old._paginationCharm.deactivate()</code> &rarr;
+                            <code>new._paginationCharm.activate()</code>.
+                            Controls перемальовуються у спільному footer.
+                        </p>
+                    </div>
+
+                    <!-- API на елементі -->
+                    <div class="m3-block-header" style="border:0;padding-top:12px">
+                        <h4 style="margin:0 0 8px">JS API &mdash; el._paginationCharm</h4>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap:0;font-family:monospace;font-size:13px;padding:20px 24px">
+<pre style="margin:0;color:var(--color-on-surface-v)">const el = document.getElementById('table-container');
+
+el._paginationCharm.<span style="color:var(--color-main)">setPage</span>(3);        <span style="color:var(--color-on-surface-v)">// перейти на сторінку 3</span>
+el._paginationCharm.<span style="color:var(--color-main)">getPage</span>();         <span style="color:var(--color-on-surface-v)">// поточна сторінка</span>
+el._paginationCharm.<span style="color:var(--color-main)">setPageSize</span>(50);   <span style="color:var(--color-on-surface-v)">// змінити розмір сторінки</span>
+el._paginationCharm.<span style="color:var(--color-main)">activate</span>();        <span style="color:var(--color-on-surface-v)">// показати controls (tab switch)</span>
+el._paginationCharm.<span style="color:var(--color-main)">deactivate</span>();      <span style="color:var(--color-on-surface-v)">// сховати controls (tab switch)</span>
+el._paginationCharm.<span style="color:var(--color-main)">update</span>();          <span style="color:var(--color-on-surface-v)">// перерахувати вручну</span>
+el._paginationCharm.<span style="color:var(--color-main)">destroy</span>();         <span style="color:var(--color-on-surface-v)">// видалити charm</span></pre>
+                    </div>
+
+                    <!-- Візуальний приклад -->
+                    <div class="m3-block-header" style="border:0;padding-top:12px">
+                        <h4 style="margin:0 0 8px">Controls</h4>
                     </div>
                     <div class="m3-preview m3-preview-center">
                         <div class="pagination-container">
@@ -1956,8 +2044,8 @@
                                 <button class="page-btn" disabled><span class="material-symbols-outlined"
                                         style="font-size:20px">chevron_left</span></button>
                                 <button class="page-btn active">1</button><button class="page-btn">2</button><button
-                                    class="page-btn">3</button><button class="page-btn">4</button><button
-                                    class="page-btn">5</button>
+                                    class="page-btn">3</button><button class="page-btn">...</button><button
+                                    class="page-btn">12</button>
                                 <button class="page-btn"><span class="material-symbols-outlined"
                                         style="font-size:20px">chevron_right</span></button>
                             </div>

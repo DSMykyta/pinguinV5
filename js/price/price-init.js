@@ -32,16 +32,6 @@ export const priceState = {
     searchColumns: [],           // Колонки для пошуку
     visibleColumns: [],          // Видимі колонки таблиці
 
-    // Пагінація
-    pagination: {
-        currentPage: 1,
-        pageSize: 25,
-        totalItems: 0
-    },
-
-    // Pagination API
-    paginationAPI: null,
-
     // Колонки прайсу (з Google Sheets)
     columns: [
         'code',           // Унікальний код
@@ -155,9 +145,9 @@ async function updateUIWithData() {
     const { initDropdowns } = await import('../common/ui-dropdown.js');
     initDropdowns();
 
-    // 3. Ініціалізувати pagination
-    const { initPaginationForPrice } = await import('./price-pagination.js');
-    initPaginationForPrice();
+    // 3. Ініціалізувати pagination charm
+    const { initPaginationCharm } = await import('../common/pagination/pagination-main.js');
+    initPaginationCharm();
 
     // 4. Заповнити таби резервів (юзерів з аватарками)
     const { populateReserveTabs } = await import('./price-ui.js');

@@ -632,8 +632,8 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
         columnsListId: `table-columns-list-mapper-${tabName}`,
 
         searchInputId: isActive ? 'search-mapper' : null,
-        statsId: `tab-stats-mapper-${tabName}`,
-        paginationId: null, // Спільна пагінація
+        statsId: null,
+        paginationId: null,
         tableConfig: {
             rowActionsHeader: `<input type="checkbox" class="select-all-checkbox" data-tab="${tabName}">`,
             rowActions: (row) => `
@@ -660,7 +660,7 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
             }
         },
         dataTransform: dataTransformFn,
-        pageSize: 25,
+        pageSize: null,
         checkboxPrefix: `mapper-${tabName}`
     });
 
@@ -777,23 +777,7 @@ export function switchMapperTab(newTab, oldTab) {
     }
     if (managedTables[newTab]) {
         managedTables[newTab].activate();
-        updateExternalPagination();
     }
-}
-
-/**
- * Оновити спільну пагінацію з даних активного табу
- */
-function updateExternalPagination() {
-    const activeTab = mapperState.activeTab;
-    const mt = managedTables[activeTab];
-    if (!mt || !mapperState.paginationAPI) return;
-
-    mapperState.paginationAPI.update({
-        currentPage: 1,
-        pageSize: mapperState.pagination.pageSize,
-        totalItems: mt.getFilteredCount()
-    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

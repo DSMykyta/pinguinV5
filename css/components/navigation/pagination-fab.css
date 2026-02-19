@@ -150,3 +150,8 @@
     bottom: 252px;
     transition-delay: 0s;
 }
+
+/* ═══════════════ Charm: paginated-hidden ═══════════════ */
+.paginated-hidden {
+    display: none !important;
+}

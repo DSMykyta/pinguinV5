@@ -70,23 +70,4 @@ export const brandsState = {
     linesSortKey: null,
     linesSortOrder: 'asc',
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // ПАГІНАЦІЯ
-    // ═══════════════════════════════════════════════════════════════════════
-
-    pagination: {
-        currentPage: 1,
-        pageSize: 25,
-        totalItems: 0
-    },
-
-    // Пагінація для лінійок
-    linesPagination: {
-        currentPage: 1,
-        pageSize: 25,
-        totalItems: 0
-    },
-
-    // API пагінації
-    paginationAPI: null,
 };

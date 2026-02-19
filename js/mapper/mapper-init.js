@@ -17,7 +17,7 @@ import {
 } from './mapper-table.js';
 import { initMapperEvents } from './mapper-events.js';
 import { createLazyLoader } from '../common/util-lazy-load.js';
-import { initPagination } from '../common/ui-pagination.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadMapperPlugins } from './mapper-main.js';
@@ -31,7 +31,7 @@ import { mapperState, runHook } from './mapper-state.js';
 export async function initMapper() {
     initTooltips();
     loadAsideMapper();
-    initMapperPagination();
+    initPaginationCharm();
     initTabSwitching();
     await loadMapperPlugins();
     checkAuthAndLoadData();
@@ -56,7 +56,6 @@ function initTabSwitching() {
             const oldTab = mapperState.activeTab;
 
             mapperState.activeTab = newTab;
-            mapperState.pagination.currentPage = 1;
 
             // Очистити пошуковий інпут
             const searchInput = document.getElementById('search-mapper');
@@ -65,6 +64,12 @@ function initTabSwitching() {
                 const clearBtn = document.getElementById('clear-search-mapper');
                 if (clearBtn) clearBtn.classList.add('u-hidden');
             }
+
+            // Charm pagination — deactivate/activate при tab switch
+            const oldContainer = document.getElementById(`mapper-${oldTab}-table-container`);
+            const newContainer = document.getElementById(`mapper-${newTab}-table-container`);
+            oldContainer?._paginationCharm?.deactivate();
+            newContainer?._paginationCharm?.activate();
 
             // switchMapperTab: deactivate old → activate new (search columns перебудовуються)
             switchMapperTab(newTab, oldTab);
@@ -151,32 +156,6 @@ async function checkAuthAndLoadData() {
     } else {
         renderAuthRequiredState();
     }
-}
-
-/**
- * Ініціалізувати пагінацію — спільна для всіх табів.
- * onPageChange → setPage() активного managed table.
- */
-function initMapperPagination() {
-    const footer = document.querySelector('.footer');
-    if (!footer) return;
-
-    const paginationAPI = initPagination(footer, {
-        currentPage: mapperState.pagination.currentPage,
-        pageSize: mapperState.pagination.pageSize,
-        totalItems: mapperState.pagination.totalItems,
-        onPageChange: (page, pageSize) => {
-            mapperState.pagination.currentPage = page;
-            mapperState.pagination.pageSize = pageSize;
-
-            const mt = getMapperManagedTable(mapperState.activeTab);
-            if (mt) {
-                mt.setPage(page, pageSize);
-            }
-        }
-    });
-
-    mapperState.paginationAPI = paginationAPI;
 }
 
 function renderAuthRequiredState() {

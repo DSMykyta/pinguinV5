@@ -56,7 +56,7 @@ import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
-import { initPagination } from '../common/ui-pagination.js';
+import { initPaginationCharm } from '../common/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
@@ -109,8 +109,8 @@ export async function initBrands() {
     // Завантажити aside
     await loadAsideBrands();
 
-    // Ініціалізувати пагінацію
-    initBrandsPagination();
+    // Ініціалізувати пагінацію (charm на [pagination] елементах)
+    initPaginationCharm();
 
     // Ініціалізувати перемикання табів
     initTabSwitching();
@@ -153,37 +153,6 @@ async function checkAuthAndLoadData() {
 }
 
 /**
- * Ініціалізувати пагінацію
- */
-function initBrandsPagination() {
-    const footer = document.querySelector('.footer');
-    if (!footer) {
-        console.warn('⚠️ Footer не знайдено');
-        return;
-    }
-
-    const paginationAPI = initPagination(footer, {
-        currentPage: brandsState.pagination.currentPage,
-        pageSize: brandsState.pagination.pageSize,
-        totalItems: brandsState.pagination.totalItems,
-        onPageChange: (page, pageSize) => {
-            if (brandsState.activeTab === 'lines') {
-                brandsState.linesPagination.currentPage = page;
-                brandsState.linesPagination.pageSize = pageSize;
-                brandsState.linesManagedTable?.setPage(page, pageSize);
-            } else {
-                brandsState.pagination.currentPage = page;
-                brandsState.pagination.pageSize = pageSize;
-                brandsState.brandsManagedTable?.setPage(page, pageSize);
-            }
-        }
-    });
-
-    brandsState.paginationAPI = paginationAPI;
-
-}
-
-/**
  * Ініціалізувати перемикання табів
  */
 function initTabSwitching() {
@@ -211,17 +180,16 @@ function initTabSwitching() {
             const tabName = targetTab.replace('tab-', '');
             brandsState.activeTab = tabName;
 
-            // Оновити пагінацію для нового табу
-            if (brandsState.paginationAPI) {
-                const pagination = tabName === 'lines'
-                    ? brandsState.linesPagination
-                    : brandsState.pagination;
+            // Charm pagination — deactivate/activate при tab switch
+            const brandsContainer = document.getElementById('brands-table-container');
+            const linesContainer = document.getElementById('lines-table-container');
 
-                brandsState.paginationAPI.update({
-                    currentPage: pagination.currentPage,
-                    pageSize: pagination.pageSize,
-                    totalItems: pagination.totalItems
-                });
+            if (tabName === 'lines') {
+                brandsContainer?._paginationCharm?.deactivate();
+                linesContainer?._paginationCharm?.activate();
+            } else {
+                linesContainer?._paginationCharm?.deactivate();
+                brandsContainer?._paginationCharm?.activate();
             }
 
             // Запустити хук

@@ -70,9 +70,8 @@ export function initParamTypeFilters() {
             filterButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            keywordsState.pagination.currentPage = 1;
-
             // refilter через managed table (preFilter читає paramTypeFilter)
+            // Charm автоматично скине на сторінку 1 через MutationObserver
             renderKeywordsTableRowsOnly();
         });
     });

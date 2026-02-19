@@ -100,15 +100,6 @@ export const mapperState = {
         marketplaces: { column: null, direction: null }
     },
 
-    // Пагінація
-    pagination: {
-        currentPage: 1,
-        pageSize: 25,
-        totalItems: 0
-    },
-
-    paginationAPI: null,
-
     // Вибрані рядки
     selectedRows: {
         categories: new Set(),
@@ -169,7 +160,6 @@ export function getActiveTab() {
 export function setActiveTab(tabName) {
     const prevTab = mapperState.activeTab;
     mapperState.activeTab = tabName;
-    mapperState.pagination.currentPage = 1;
     mapperState.searchQuery = '';
     runHook('onTabChange', tabName, prevTab);
 }

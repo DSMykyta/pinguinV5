@@ -72,8 +72,8 @@ function initBrandsTable() {
         columnsListId: 'table-columns-list-brands',
 
         searchInputId: 'search-brands',
-        statsId: 'tab-stats-brands',
-        paginationId: null, // спільна пагінація — керується ззовні
+        statsId: null,
+        paginationId: null,
 
         tableConfig: {
             rowActionsHeader: ' ',
@@ -117,7 +117,7 @@ function initBrandsTable() {
             });
         },
 
-        pageSize: 25,
+        pageSize: null,
         checkboxPrefix: 'brands'
     });
 
