@@ -2293,17 +2293,61 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>Tooltips</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">tooltip.css</span></div>
+                        <p>Кастомні підказки замість нативного title. Делегування через document — працює з динамічним контентом. Затримка 1с, слідує за курсором.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">feedback/tooltip.css</span>
+                            <span class="m3-tag m3-tag-src">ui-tooltip.js</span>
+                        </div>
                     </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Режим</th>
+                            <th>Демо</th>
+                            <th>Поведінка</th>
+                            <th>Де використовується</th>
+                        </tr>
+                        <tr>
+                            <td><strong>overflow</strong></td>
+                            <td><div data-tooltip="Дуже довга назва товару яка не вміщується в клітинку таблиці" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Дуже довга назва товару яка не вміщується</div></td>
+                            <td>Показує тільки коли текст обрізаний (...)</td>
+                            <td>Комірки таблиць, назви в списках</td>
+                        </tr>
+                        <tr>
+                            <td><strong>always</strong></td>
+                            <td>
+                                <span class="status-dot is-success" title="Активний"></span>
+                                <span class="status-dot is-error" title="Неактивний"></span>
+                                <button class="btn-icon" title="Закрити"><span class="material-symbols-outlined">close</span></button>
+                            </td>
+                            <td>Показує завжди (title → data-tooltip автоматично)</td>
+                            <td>Статус-крапки, іконки-кнопки, аватарки</td>
+                        </tr>
+                        <tr>
+                            <td><strong>banned-word</strong></td>
+                            <td>
+                                <div class="banned-word-tooltip visible" style="position:relative;opacity:1">
+                                    <div class="tooltip-title">Заборонене слово</div>
+                                    <div class="tooltip-description">Слово "дешевий" заборонено</div>
+                                    <div class="tooltip-hint"><strong>Замінити:</strong> доступний</div>
+                                </div>
+                            </td>
+                            <td>Спеціальний — через chip-tooltip.js</td>
+                            <td>Редактор тексту, заборонені слова</td>
+                        </tr>
+                    </table>
                     <div class="m3-preview" style="gap:16px;align-items:flex-start">
                         <div class="custom-tooltip visible" style="position:relative;opacity:1;transform:scale(1)">
                             Підказка для елемента</div>
-                        <div class="banned-word-tooltip visible" style="position:relative;opacity:1">
-                            <div class="tooltip-title">Заборонене слово</div>
-                            <div class="tooltip-description">Слово "дешевий" заборонено</div>
-                            <div class="tooltip-hint"><strong>Замінити:</strong> доступний</div>
-                        </div>
                     </div>
+                    <div class="m3-code">&lt;!-- Overflow: показує коли текст не вміщується --&gt;
+&lt;div data-tooltip="Повний текст"&gt;Обрізаний...&lt;/div&gt;
+
+&lt;!-- Always: title конвертується автоматично --&gt;
+&lt;span class="status-dot is-success" title="Активний"&gt;&lt;/span&gt;
+&lt;button class="btn-icon" title="Закрити"&gt;...&lt;/button&gt;
+
+&lt;!-- Explicit always (без title) --&gt;
+&lt;span data-tooltip="Текст" data-tooltip-always&gt;...&lt;/span&gt;</div>
                 </div>
 
                 <div class="m3-block">
@@ -2883,7 +2927,9 @@ icon.classList.remove('spinning');</div>
     <script type="module">
         import { initCustomSelects } from './js/common/ui-select.js';
         import { initPaginationCharm } from './js/common/charms/pagination/pagination-main.js';
+        import { initTooltips } from './js/common/ui-tooltip.js';
         initCustomSelects();
+        initTooltips();
         initPaginationCharm(document.getElementById('sg-pagination-demo')?.parentElement);
     </script>
 

@@ -1,11 +1,45 @@
 // js/common/ui-tooltip.js
-// Система кастомних спливаючих підказок для елементів з data-tooltip
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                     CUSTOM TOOLTIP SYSTEM                               ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Кастомні спливаючі підказки замість нативного title.                   ║
+ * ║  Делегування через document — працює з динамічним контентом.            ║
+ * ║                                                                          ║
+ * ║  📋 РЕЖИМИ:                                                              ║
+ * ║  ├── overflow  — показує тільки коли текст обрізаний (...)              ║
+ * ║  ├── always    — data-tooltip-always, показує завжди                    ║
+ * ║  └── auto      — нативний title конвертується автоматично              ║
+ * ║                                                                          ║
+ * ║  🎯 ВИКОРИСТАННЯ:                                                        ║
+ * ║                                                                          ║
+ * ║  <!-- Overflow: показує коли текст не вміщується -->                    ║
+ * ║  <div data-tooltip="Повний текст">Обрізаний...</div>                   ║
+ * ║                                                                          ║
+ * ║  <!-- Always: показує завжди (іконки, статус-крапки) -->                ║
+ * ║  <span class="status-dot" title="Активний"></span>                     ║
+ * ║  <button class="btn-icon" title="Закрити">...</button>                 ║
+ * ║                                                                          ║
+ * ║  ⚙️  ДЕТАЛІ:                                                             ║
+ * ║  ├── Затримка: 500ms перед показом                                       ║
+ * ║  ├── Позиція: слідує за курсором, не виходить за viewport               ║
+ * ║  ├── Анімація: scale(0.95→1) + opacity, 150ms ease-out                 ║
+ * ║  └── title → data-tooltip: конвертується на ходу при hover              ║
+ * ║                                                                          ║
+ * ║  📁 CSS: css/components/feedback/tooltip.css (.custom-tooltip)           ║
+ * ║  📁 INIT: main-core.js → initTooltips()                                 ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
 
 let tooltipElement;
 let tooltipTimeout;
 
 /**
- * Ініціалізує систему кастомних спливаючих підказок
+ * Ініціалізує систему кастомних спливаючих підказок.
+ * Викликається один раз з main-core.js.
  */
 export function initTooltips() {
     document.addEventListener('mouseover', handleMouseOver);
@@ -14,6 +48,14 @@ export function initTooltips() {
 }
 
 function handleMouseOver(event) {
+    // Auto-convert native title → data-tooltip (universal fallback)
+    const titled = event.target.closest('[title]');
+    if (titled && !titled.hasAttribute('data-tooltip')) {
+        titled.setAttribute('data-tooltip', titled.getAttribute('title'));
+        titled.setAttribute('data-tooltip-always', '');
+        titled.removeAttribute('title');
+    }
+
     const target = event.target.closest('[data-tooltip]');
     if (!target) return;
 
@@ -30,7 +72,7 @@ function handleMouseOver(event) {
     const tooltipText = target.getAttribute('data-tooltip');
     if (!tooltipText) return;
 
-    // Затримка 1 секунда перед показом
+    // Затримка 500ms перед показом
     tooltipTimeout = setTimeout(() => {
         // Створюємо елемент підказки
         tooltipElement = document.createElement('div');
@@ -45,7 +87,7 @@ function handleMouseOver(event) {
                 tooltipElement.classList.add('visible');
             }
         });
-    }, 1000); // 1 секунда затримки
+    }, 500);
 }
 
 function handleMouseOut(event) {

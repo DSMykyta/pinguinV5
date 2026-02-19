@@ -57,6 +57,7 @@ import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -452,13 +453,11 @@ let relatedOptionsTableAPI = null;
 
 function clearRelatedOptions() {
     const container = document.getElementById('char-related-options');
-    const statsEl = document.getElementById('char-options-stats');
     const searchInput = document.getElementById('char-options-search');
     if (!container) return;
 
     relatedOptionsTableAPI = null;
     container.innerHTML = renderAvatarState('empty', { message: "Опції з'являться після збереження", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
-    if (statsEl) statsEl.textContent = 'Показано 0 з 0';
     if (searchInput) searchInput.value = '';
 }
 
@@ -515,8 +514,6 @@ function populateRelatedOptions(characteristicId) {
             }
         ],
         data: loadData(),
-        columnsListId: 'char-options-columns-list',
-
         searchInputId: 'char-options-search',
         statsId: null,
         paginationId: null,
@@ -537,16 +534,14 @@ function populateRelatedOptions(characteristicId) {
     });
 
     initPaginationCharm();
+    initTableControlsCharm();
 
-    // Кнопка refresh
-    const refreshBtn = document.getElementById('refresh-char-options');
-    if (refreshBtn) {
-        refreshBtn.onclick = () => {
-            const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
+    // charm:refresh — оновити таблицю опцій
+    const container = document.getElementById('char-related-options');
+    if (container) {
+        container.addEventListener('charm:refresh', () => {
             managed.setData(loadData());
-            setTimeout(() => icon?.classList.remove('spinning'), 300);
-        };
+        });
     }
 
     // Кнопка "Додати опцію"

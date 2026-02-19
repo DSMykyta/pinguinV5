@@ -160,21 +160,8 @@
                             <div class="section-name">
                                 <h2 class="title-l section-upper">Опції</h2>
                             </div>
-                            <span class="body-s" id="char-options-stats">Показано 0 з 0</span>
                         </div>
                         <div class="group">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="char-options-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button class="btn-icon" id="refresh-char-options" aria-label="Оновити">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="content-line panel">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="char-options-search" placeholder="Пошук опцій...">
@@ -187,26 +174,10 @@
                     </div>
 
                     <div id="char-related-options" class="pseudo-table-container"
-                         pagination="25" data-pagination-stats="char-options-stats">
+                         pagination refresh columns>
                         <!-- Заповнюється динамічно -->
                     </div>
-                    <div class="footer" id="char-options-pagination">
-                        <div></div>
-                        <div class="pagination-container">
-                            <div class="pagination-nav"></div>
-                            <div class="page-size-selector">
-                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                                    <span class="page-size-label">25</span>
-                                </button>
-                                <div class="page-size-menu">
-                                    <button class="page-size-option" data-page-size="25">25</button>
-                                    <button class="page-size-option" data-page-size="50">50</button>
-                                    <button class="page-size-option" data-page-size="100">100</button>
-                                    <button class="page-size-option" data-page-size="999999">Всі</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="footer"><div></div></div>
                 </section>
 
                 <!-- СЕКЦІЇ МАРКЕТПЛЕЙСІВ додаються динамічно через JS -->

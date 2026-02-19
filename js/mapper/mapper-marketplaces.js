@@ -44,12 +44,11 @@ import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
 import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
-import { withSpinner } from '../common/charms/refresh-button.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
-import { createColumnSelector } from '../common/table/table-columns.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
 
@@ -181,41 +180,50 @@ export async function showEditMarketplaceModal(id) {
     // Довідники (файли на Google Drive)
     populateMpReferences(marketplace.slug, id);
 
-    // Refresh кнопки
-    const refreshCatsBtn = document.getElementById('refresh-mp-data-cats');
-    if (refreshCatsBtn) {
-        refreshCatsBtn.onclick = () => withSpinner(refreshCatsBtn, async () => {
-            await loadMpCategories();
-            const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
-            if (catCount) catCount.textContent = freshCats.length;
-            populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
+    // Ініціалізувати charms для модальних таблиць
+    initTableControlsCharm();
+
+    // charm:refresh listeners
+    const catContainer = document.getElementById('mp-data-cat-container');
+    if (catContainer) {
+        catContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadMpCategories();
+                const freshCats = getMpCategories().filter(c => c.marketplace_id === id);
+                if (catCount) catCount.textContent = freshCats.length;
+                populateMpCategories(freshCats, columnMapping.categories, marketplace.slug, id);
+            })());
         });
     }
 
-    const refreshCharsBtn = document.getElementById('refresh-mp-data-chars');
-    if (refreshCharsBtn) {
-        refreshCharsBtn.onclick = () => withSpinner(refreshCharsBtn, async () => {
-            await loadMpCharacteristics();
-            const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
-            if (charCount) charCount.textContent = freshChars.length;
-            populateMpCharacteristics(freshChars, columnMapping.characteristics);
+    const charContainer = document.getElementById('mp-data-char-container');
+    if (charContainer) {
+        charContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadMpCharacteristics();
+                const freshChars = getMpCharacteristics().filter(c => c.marketplace_id === id);
+                if (charCount) charCount.textContent = freshChars.length;
+                populateMpCharacteristics(freshChars, columnMapping.characteristics);
+            })());
         });
     }
 
-    const refreshOptsBtn = document.getElementById('refresh-mp-data-opts');
-    if (refreshOptsBtn) {
-        refreshOptsBtn.onclick = () => withSpinner(refreshOptsBtn, async () => {
-            await loadMpOptions();
-            const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
-            if (optCount) optCount.textContent = freshOpts.length;
-            populateMpOptions(freshOpts, columnMapping.options);
+    const optContainer = document.getElementById('mp-data-opt-container');
+    if (optContainer) {
+        optContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadMpOptions();
+                const freshOpts = getMpOptions().filter(o => o.marketplace_id === id);
+                if (optCount) optCount.textContent = freshOpts.length;
+                populateMpOptions(freshOpts, columnMapping.options);
+            })());
         });
     }
 
-    const refreshRefsBtn = document.getElementById('refresh-mp-data-refs');
-    if (refreshRefsBtn) {
-        refreshRefsBtn.onclick = () => withSpinner(refreshRefsBtn, async () => {
-            await populateMpReferences(marketplace.slug, id);
+    const refContainer = document.getElementById('mp-data-ref-container');
+    if (refContainer) {
+        refContainer.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil(populateMpReferences(marketplace.slug, id));
         });
     }
 }
@@ -573,8 +581,6 @@ async function populateMpReferences(slug, marketplaceId) {
             }
         ],
         data: allData,
-        columnsListId: 'mp-data-ref-columns-list',
-
         searchInputId: 'mp-data-ref-search',
         statsId: null,
         paginationId: null,
@@ -754,8 +760,6 @@ function populateMpCharacteristics(allData, charMapping) {
             }
         ],
         data: allProcessed,
-        columnsListId: 'mp-data-char-columns-list',
-
         searchInputId: 'mp-data-char-search',
         statsId: null,
         paginationId: null,
@@ -819,8 +823,6 @@ function populateMpOptions(allData, optMapping) {
             }
         ],
         data: allProcessed,
-        columnsListId: 'mp-data-opt-columns-list',
-
         searchInputId: 'mp-data-opt-search',
         statsId: null,
         paginationId: null,

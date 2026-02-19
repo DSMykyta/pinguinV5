@@ -53,6 +53,7 @@ import {
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -519,8 +520,6 @@ function populateRelatedCharacteristics(categoryId) {
             }
         ],
         data: loadData(),
-        columnsListId: 'category-chars-columns-list',
-
         searchInputId: 'category-chars-search',
         statsId: null,
         paginationId: null,
@@ -541,6 +540,15 @@ function populateRelatedCharacteristics(categoryId) {
     });
 
     initPaginationCharm();
+    initTableControlsCharm();
+
+    // charm:refresh — оновити таблицю характеристик
+    const container = document.getElementById('category-related-chars');
+    if (container) {
+        container.addEventListener('charm:refresh', () => {
+            managed.setData(loadData());
+        });
+    }
 
     // Обробник відв'язування
     const handleUnlinkCharacteristic = async (charId, charName, catId) => {
@@ -574,17 +582,6 @@ function populateRelatedCharacteristics(categoryId) {
             }
         }
     };
-
-    // Кнопка refresh
-    const refreshBtn = document.getElementById('refresh-category-chars');
-    if (refreshBtn) {
-        refreshBtn.onclick = () => {
-            const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
-            managed.setData(loadData());
-            setTimeout(() => icon?.classList.remove('spinning'), 300);
-        };
-    }
 
     // Кнопка "Додати"
     const addBtn = document.getElementById('btn-add-category-char');

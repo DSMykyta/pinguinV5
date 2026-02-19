@@ -110,21 +110,8 @@
                             <div class="section-name">
                                 <h2 class="title-l section-upper">Довідники</h2>
                             </div>
-                            <span class="body-s" id="mp-data-ref-stats">Показано 0 з 0</span>
                         </div>
                         <div class="group">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="mp-data-ref-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button class="btn-icon" id="refresh-mp-data-refs" aria-label="Оновити">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="content-line panel">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-ref-search" placeholder="Пошук довідників...">
@@ -132,26 +119,10 @@
                         </div>
                     </div>
                     <div id="mp-data-ref-container" class="pseudo-table-container"
-                         pagination="25" data-pagination-stats="mp-data-ref-stats">
+                         pagination refresh columns>
                         <!-- Заповнюється JavaScript -->
                     </div>
-                    <div class="footer" id="mp-data-ref-pagination">
-                        <div></div>
-                        <div class="pagination-container">
-                            <div class="pagination-nav"></div>
-                            <div class="page-size-selector">
-                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                                    <span class="page-size-label">25</span>
-                                </button>
-                                <div class="page-size-menu">
-                                    <button class="page-size-option" data-page-size="25">25</button>
-                                    <button class="page-size-option" data-page-size="50">50</button>
-                                    <button class="page-size-option" data-page-size="100">100</button>
-                                    <button class="page-size-option" data-page-size="999999">Всі</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="footer"><div></div></div>
                 </section>
 
                 <!-- СЕКЦІЯ: НОРМАЛІЗАЦІЯ -->
@@ -236,16 +207,14 @@
                             <button class="btn-icon" id="mp-tree-collapse-all" title="Згорнути все" aria-label="Згорнути все">
                                 <span class="material-symbols-outlined">unfold_less</span>
                             </button>
-                            <button class="btn-icon" id="refresh-mp-data-cats" aria-label="Оновити">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="content-line panel">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-cat-search" placeholder="Пошук категорій...">
                             </div>
                         </div>
                     </div>
-                    <div id="mp-data-cat-container" class="pseudo-table-container">
+                    <div id="mp-data-cat-container" class="pseudo-table-container"
+                         refresh>
                         <!-- Заповнюється JavaScript -->
                     </div>
                 </section>
@@ -257,21 +226,8 @@
                             <div class="section-name">
                                 <h2 class="title-l section-upper">Характеристики</h2>
                             </div>
-                            <span class="body-s" id="mp-data-char-stats">Показано 0 з 0</span>
                         </div>
                         <div class="group">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="mp-data-char-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button class="btn-icon" id="refresh-mp-data-chars" aria-label="Оновити">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="content-line panel">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-char-search" placeholder="Пошук характеристик...">
@@ -279,26 +235,10 @@
                         </div>
                     </div>
                     <div id="mp-data-char-container" class="pseudo-table-container"
-                         pagination="25" data-pagination-stats="mp-data-char-stats">
+                         pagination refresh columns>
                         <!-- Заповнюється JavaScript -->
                     </div>
-                    <div class="footer" id="mp-data-char-pagination">
-                        <div></div>
-                        <div class="pagination-container">
-                            <div class="pagination-nav"></div>
-                            <div class="page-size-selector">
-                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                                    <span class="page-size-label">25</span>
-                                </button>
-                                <div class="page-size-menu">
-                                    <button class="page-size-option" data-page-size="25">25</button>
-                                    <button class="page-size-option" data-page-size="50">50</button>
-                                    <button class="page-size-option" data-page-size="100">100</button>
-                                    <button class="page-size-option" data-page-size="999999">Всі</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="footer"><div></div></div>
                 </section>
 
                 <!-- СЕКЦІЯ: ОПЦІЇ -->
@@ -308,21 +248,8 @@
                             <div class="section-name">
                                 <h2 class="title-l section-upper">Опції</h2>
                             </div>
-                            <span class="body-s" id="mp-data-opt-stats">Показано 0 з 0</span>
                         </div>
                         <div class="group">
-                            <div class="dropdown-wrapper">
-                                <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                                    <span class="material-symbols-outlined">view_column</span>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <div class="dropdown-header">Показати колонки</div>
-                                    <div id="mp-data-opt-columns-list" class="dropdown-body"></div>
-                                </div>
-                            </div>
-                            <button class="btn-icon" id="refresh-mp-data-opts" aria-label="Оновити">
-                                <span class="material-symbols-outlined">refresh</span>
-                            </button>
                             <div class="content-line panel">
                                 <span class="material-symbols-outlined">search</span>
                                 <input type="text" id="mp-data-opt-search" placeholder="Пошук опцій...">
@@ -330,26 +257,10 @@
                         </div>
                     </div>
                     <div id="mp-data-opt-container" class="pseudo-table-container"
-                         pagination="25" data-pagination-stats="mp-data-opt-stats">
+                         pagination refresh columns>
                         <!-- Заповнюється JavaScript -->
                     </div>
-                    <div class="footer" id="mp-data-opt-pagination">
-                        <div></div>
-                        <div class="pagination-container">
-                            <div class="pagination-nav"></div>
-                            <div class="page-size-selector">
-                                <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                                    <span class="page-size-label">25</span>
-                                </button>
-                                <div class="page-size-menu">
-                                    <button class="page-size-option" data-page-size="25">25</button>
-                                    <button class="page-size-option" data-page-size="50">50</button>
-                                    <button class="page-size-option" data-page-size="100">100</button>
-                                    <button class="page-size-option" data-page-size="999999">Всі</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="footer"><div></div></div>
                 </section>
 
             </main>

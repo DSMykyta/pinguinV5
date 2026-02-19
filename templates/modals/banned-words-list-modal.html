@@ -18,7 +18,6 @@
         <div class="modal-body">
             <div class="section-header u-align-end">
                 <div class="section-name-block">
-                    <span class="body-s" id="modal-banned-words-stats">Показано 0 з 0</span>
                     <div class="group u-mt-8">
                         <button class="nav-icon active" data-filter="all" data-tab-id="modal-banned-words">
                             <span class="material-symbols-outlined">list</span>
@@ -42,24 +41,6 @@
                         <input type="text" id="modal-banned-words-search" class="search-input" placeholder="Пошук...">
                     </div>
 
-                    <!-- Оновити -->
-                    <button id="modal-refresh-banned-words" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-
-                    <!-- Колонки -->
-                    <div class="dropdown-wrapper">
-                        <button class="btn-icon" data-dropdown-trigger aria-label="Вибір колонок">
-                            <span class="material-symbols-outlined">view_column</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="dropdown-header">Показати колонки</div>
-                            <div id="modal-table-columns-list" class="dropdown-body">
-                                <!-- Чекбокси додаються динамічно -->
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Додати -->
                     <button id="modal-add-banned-word" class="btn-icon" aria-label="Додати слово">
                         <span class="material-symbols-outlined">add</span>
@@ -68,29 +49,13 @@
             </div>
 
             <!-- Table Container -->
-            <div id="modal-banned-words-table-container" class="pseudo-table-container">
+            <div id="modal-banned-words-table-container" class="pseudo-table-container"
+                 pagination refresh columns>
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="modal-footer">
-            <div class="pagination-container">
-                <div id="modal-pagination-nav-container" class="pagination-nav"></div>
-
-                <div class="page-size-selector" id="modal-page-size-selector">
-                    <button class="page-size-trigger" aria-label="Кількість на сторінці">
-                        <span id="modal-page-size-label">10</span>
-                    </button>
-                    <div class="page-size-menu">
-                        <button class="page-size-option" data-page-size="10">10</button>
-                        <button class="page-size-option" data-page-size="25">25</button>
-                        <button class="page-size-option" data-page-size="50">50</button>
-                        <button class="page-size-option" data-page-size="100">100</button>
-                        <button class="page-size-option" data-page-size="999999">Всі</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="modal-footer"></div>
     </div>
 </div>

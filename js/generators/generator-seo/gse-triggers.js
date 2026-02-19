@@ -40,15 +40,12 @@ function addTulip(title, isActive = true) {
     if (!triggerData) return;
 
     const tulip = document.createElement('div');
-    tulip.className = isActive ? 'chip chip-active chip-tooltip' : 'chip chip-tooltip';
+    tulip.className = isActive ? 'chip chip-active' : 'chip';
     tulip.textContent = title;
     tulip.dataset.title = title;
 
     if (triggerData.keywords && triggerData.keywords.length > 0) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'chip-tooltip-content';
-        tooltip.textContent = triggerData.keywords.join(', ');
-        tulip.appendChild(tooltip);
+        tulip.title = triggerData.keywords.join(', ');
     }
     dom.triggerTitlesContainer.appendChild(tulip);
 }

@@ -9,9 +9,9 @@
  * ║                                                                          ║
  * ║  CHARM USAGE:                                                            ║
  * ║  <div pagination="25">          — 25 елементів на сторінку               ║
- * ║  <div pagination>               — дефолт 25                              ║
- * ║  <div pagination="10"                                                    ║
- * ║       data-pagination-stats="tab-stats-keywords">  — з лічильником       ║
+ * ║  <div pagination>               — дефолт 10                              ║
+ * ║                                                                          ║
+ * ║  Stats span створюється автоматично в .section-name-block                ║
  * ║                                                                          ║
  * ║  API на елементі:                                                        ║
  * ║  el._paginationCharm.setPage(2)                                          ║
@@ -25,6 +25,7 @@
 
 import { renderPageNumbers } from './pagination-ui.js';
 import { initFab } from './pagination-fab.js';
+import { autoCreateStatsSpan } from './pagination-stats.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHARM DISCOVERY
@@ -63,10 +64,12 @@ function createInstance(el) {
         _active: isActive
     };
 
-    // Stats element
+    // Stats element — explicit або auto-create
     const statsId = el.dataset.paginationStats;
     if (statsId) {
         instance.statsEl = document.getElementById(statsId);
+    } else {
+        instance.statsEl = autoCreateStatsSpan(el);
     }
 
     // Controls (nav + FAB)

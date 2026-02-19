@@ -233,41 +233,6 @@
 }
 
 /* ============================================ */
-/* МОДИФІКАТОР: З TOOLTIP */
-/* ============================================ */
-
-.chip-tooltip {
-    position: relative;
-    cursor: help;
-}
-
-.chip-tooltip-content {
-    position: fixed;
-    padding: 8px 12px;
-    background: var(--color-on-surface);
-    color: var(--color-surface);
-    border-radius: 8px;
-    white-space: normal;
-    min-width: 400px;
-    max-width: 500px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 10000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.chip-tooltip:hover .chip-tooltip-content {
-    opacity: 1;
-}
-
-/* Позиціонування через JS - встановлюємо CSS змінні */
-.chip-tooltip-content {
-    top: var(--tooltip-top, 0);
-    left: var(--tooltip-left, 0);
-}
-
-/* ============================================ */
 /* ТЕТОВИЙ ЧІП */
 /* ============================================ */
 

@@ -53,6 +53,7 @@ import {
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../common/table/table-main.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
+import { initTableControlsCharm } from '../common/charms/table-controls.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -425,8 +426,6 @@ function populateRelatedChildOptions(optionId) {
 
     updateVisibility(initialData);
     if (initialData.length === 0) {
-        const statsEl = document.getElementById('option-chars-stats');
-        if (statsEl) statsEl.textContent = 'Показано 0 з 0';
         return;
     }
 
@@ -475,8 +474,6 @@ function populateRelatedChildOptions(optionId) {
             }
         ],
         data: initialData,
-        columnsListId: 'option-chars-columns-list',
-
         searchInputId: 'option-chars-search',
         statsId: null,
         paginationId: null,
@@ -497,18 +494,16 @@ function populateRelatedChildOptions(optionId) {
     });
 
     initPaginationCharm();
+    initTableControlsCharm();
 
-    // Кнопка refresh
-    const refreshBtn = document.getElementById('refresh-option-children');
-    if (refreshBtn) {
-        refreshBtn.onclick = () => {
-            const icon = refreshBtn.querySelector('.material-symbols-outlined');
-            icon?.classList.add('spinning');
+    // charm:refresh — оновити таблицю дочірніх опцій
+    const container = document.getElementById('option-related-chars');
+    if (container) {
+        container.addEventListener('charm:refresh', () => {
             const newData = loadData();
             updateVisibility(newData);
             managed.setData(newData);
-            setTimeout(() => icon?.classList.remove('spinning'), 300);
-        };
+        });
     }
 }
 
