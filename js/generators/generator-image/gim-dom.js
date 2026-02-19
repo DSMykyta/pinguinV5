@@ -12,7 +12,7 @@ export function getImageDom() {
         imageCanvas: document.getElementById('gim-image-canvas'),
         thumbnailsArea: document.getElementById('gim-thumbnails-area'),
         emptyState: document.getElementById('gim-empty-state'),
-        dragDropOverlay: document.getElementById('gim-drag-drop-overlay'),
+        dropzone: document.getElementById('gim-dropzone'),
         selectFileBtn: document.getElementById('gim-select-file-btn'),
         
         // --- ▼ ДОДАНО ▼ ---

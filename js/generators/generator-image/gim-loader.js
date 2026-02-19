@@ -36,30 +36,26 @@ export function setupFileHandlers() {
 
     dom.loadUrlBtn.addEventListener('click', handleUrlLoad);
 
-    const canvasArea = dom.imageCanvas.closest('.canvas-area');
-    const dragDropOverlay = dom.dragDropOverlay;
+    const dropzone = dom.dropzone;
 
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        canvasArea.addEventListener(eventName, preventDefaults, false);
+        dropzone.addEventListener(eventName, preventDefaults, false);
     });
 
-    canvasArea.addEventListener('dragenter', (e) => {
-         if (dragDropOverlay.classList.contains('visible')) {
-            dragDropOverlay.classList.add('dragover');
-         }
-    }, false);
+    dropzone.addEventListener('dragenter', () => {
+        dropzone.classList.add('dragover');
+    });
 
-    canvasArea.addEventListener('dragleave', (e) => {
-        if (e.relatedTarget === null || !canvasArea.contains(e.relatedTarget)) {
-             dragDropOverlay.classList.remove('dragover');
+    dropzone.addEventListener('dragleave', (e) => {
+        if (e.relatedTarget === null || !dropzone.contains(e.relatedTarget)) {
+            dropzone.classList.remove('dragover');
         }
-    }, false);
+    });
 
-    canvasArea.addEventListener('drop', (e) => {
-        dragDropOverlay.classList.remove('visible', 'dragover');
-        let dt = e.dataTransfer;
-        handleFileLoad(dt.files);
-    }, false);
+    dropzone.addEventListener('drop', (e) => {
+        dropzone.classList.remove('dragover');
+        handleFileLoad(e.dataTransfer.files);
+    });
 }
 
 function preventDefaults(e) {
@@ -121,8 +117,6 @@ export function handleFileLoad(files) {
 
     const dom = getImageDom();
     const imageState = getImageState();
-
-    dom.dragDropOverlay.classList.remove('visible');
 
     let firstFileId = null;
 

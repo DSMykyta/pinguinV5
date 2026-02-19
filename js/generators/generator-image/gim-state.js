@@ -72,5 +72,4 @@ export function resetCanvasState() {
     dom.canvasWidth.placeholder = 'Поточна';
     dom.canvasHeight.placeholder = 'Поточна';
     dom.saveBtn.disabled = true;
-    dom.dragDropOverlay.classList.add('visible');
 }

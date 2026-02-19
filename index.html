@@ -348,33 +348,27 @@
 
                 <div class="image-tool-container">
                     <div class="image-tool-wrapper">
-                        <div class="content-bloc">
+                        <div class="content-bloc" id="gim-dropzone">
                             <div class="content-line">
                                 <div class="input-box">
-                                    <span class="material-symbols-outlined" style="padding-left: 8px; color: var(--color-on-surface-v)">link</span>
                                     <input type="url" id="gim-image-url"
-                                        placeholder="Вставте URL зображення...">
+                                        placeholder="URL або перетягніть файл...">
                                 </div>
                                 <button type="button" id="gim-load-url-btn" class="btn-icon ci-action"
                                     data-tooltip="Додати URL">
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
+                                <button type="button" id="gim-select-file-btn" class="btn-icon ci-action"
+                                    data-tooltip="Вибрати файл">
+                                    <span class="material-symbols-outlined">upload</span>
+                                </button>
                             </div>
-                        </div>
-                        <div class="canvas-area">
-
-                            <div id="gim-drag-drop-overlay" class="drag-drop-overlay visible">
-                                <span class="material-symbols-outlined">upload_file</span>
-                                <p>Перетягніть файли сюди або</p>
-                                <button id="gim-select-file-btn" class="btn-outline"
-                                    style="pointer-events: auto;">Виберіть
-                                    файл</button>
-                            </div>
-
-                            <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
                             <input type="file" id="gim-image-input"
                                 accept="image/png, image/jpeg, image/webp, image/avif, image/gif, image/bmp, image/tiff"
                                 class="u-hidden" multiple>
+                        </div>
+                        <div class="canvas-area">
+                            <canvas id="gim-image-canvas" class="image-tool-canvas--no-shadow"></canvas>
                         </div>
 
                     </div>
