@@ -1965,6 +1965,16 @@
                             <div style="padding:10px 24px;font-size:13px;border-top:1px solid var(--color-outline)">9. Ashwagandha KSM-66</div>
                         </div>
                     </div>
+                    <div class="m3-code">&lt;div id="check-results-{{tabId}}"       /* будь-який контейнер з дітьми */
+     class="pseudo-table-container"       /* необов'язково — працює на будь-чому */
+     pagination="10"                      /* кількість дітей на сторінку (дефолт 25) */
+     data-pagination-stats="stats-id"     /* ID елемента для "Показано X з Y" (необов'язково) */
+&gt;
+    &lt;div class="pseudo-table-header"&gt;...&lt;/div&gt;   /* ← пропускається (не рахується) */
+    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* ← сторінка 1 — видимий */
+    &lt;div class="pseudo-table-row"&gt;...&lt;/div&gt;      /* ← сторінка 1 — видимий */
+    &lt;div class="pseudo-table-row paginated-hidden"&gt;...&lt;/div&gt;  /* ← сторінка 2 — сховано */
+&lt;/div&gt;</div>
                 </div>
             </section>
 
