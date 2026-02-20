@@ -1,4 +1,4 @@
-.bubble-nav-row {
+.bubble-nav.row {
     position: sticky;
     top: 8px;
     z-index: 200;

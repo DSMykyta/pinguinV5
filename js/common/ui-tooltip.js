@@ -59,6 +59,9 @@ function handleMouseOver(event) {
     const target = event.target.closest('[data-tooltip]');
     if (!target) return;
 
+    // Якщо tooltip вже показаний для цього елемента — не дублювати
+    if (tooltipElement || tooltipTimeout) return;
+
     // Для аватарок і елементів з класом tooltip-always - завжди показуємо
     const forceTooltip = target.classList.contains('avatar') || target.hasAttribute('data-tooltip-always');
 
@@ -91,6 +94,11 @@ function handleMouseOver(event) {
 }
 
 function handleMouseOut(event) {
+    // Якщо миша перейшла на дочірній елемент того ж [data-tooltip] — ігноруємо
+    const from = event.target.closest('[data-tooltip]');
+    const to = event.relatedTarget?.closest?.('[data-tooltip]');
+    if (from && from === to) return;
+
     // Скасувати затримку якщо миша пішла до появи tooltip
     if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);

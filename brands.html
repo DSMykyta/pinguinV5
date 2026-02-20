@@ -13,103 +13,13 @@
 </head>
 
 <body>
-
-    <!-- ЛІВА ПАНЕЛЬ -->
-    <nav id="panel-left" class="panel panel-left">
-        <div class="panel-content-scroll">
-
-            <a href="index.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">instant_mix</span>
-                <span class="panel-item-text">Інструменти</span>
-            </a>
-
-            <a href="glossary.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">import_contacts</span>
-                <span class="panel-item-text">Глосарій</span>
-
-            </a>
-
-            <a href="banned-words.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">block</span>
-                <span class="panel-item-text">Заборонені слова</span>
-
-            </a>
-
-            <a href="brands.html" target="_blank" class="panel-item active">
-                <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
-                <span class="panel-item-text">Бренди</span>
-
-            </a>
-
-            <a href="keywords.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">key</span>
-                <span class="panel-item-text">Ключові слова</span>
-            </a>
-
-            <a href="price.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">receipt_long</span>
-                <span class="panel-item-text">Прайс</span>
-            </a>
-
-            <a href="mapper.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">hub</span>
-                <span class="panel-item-text">Mapper</span>
-            </a>
-
-            <div class="panel-separator"></div>
-
-            <a href="https://docs.google.com/spreadsheets/d/1iFOCQUbisLprSfIkfCar3Oc5f8JW12kA0dpHzjEXSsk/edit?gid=653695455#gid=653695455"
-                target="_blank" rel="noopener noreferrer" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">table_chart</span>
-                <span class="panel-item-text">Brands Sheet</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-        </div>
-
-        <div class="panel-content-footer">
-            <!-- Theme Toggle -->
-            <button id="theme-toggle-btn" class="panel-item" aria-label="Змінити тему">
-                <span class="material-symbols-outlined panel-item-icon" id="theme-toggle-icon">brightness_auto</span>
-                <span class="panel-item-text" id="theme-toggle-text">Системна</span>
-            </button>
-
-            <!-- Login Button (показується коли НЕ авторизований) -->
-            <button id="auth-login-trigger-btn" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">login</span>
-                <span class="panel-item-text">Увійти</span>
-            </button>
-
-            <!-- User Info Display (показується коли авторизований) -->
-            <div id="auth-user-info" class="panel-item u-hidden">
-                <span id="auth-user-avatar-container" class="panel-item-icon">
-                    <span class="material-symbols-outlined">person</span>
-                </span>
-                <div class="panel-item-text">
-                    <div id="auth-username-display"></div>
-                    <div id="auth-user-role-display"></div>
-                </div>
-                <a href="tasks.html" class="btn-icon" data-tooltip="Профіль та задачі" data-tooltip-always>
-                    <span class="material-symbols-outlined">settings</span>
-                </a>
-            </div>
-
-            <!-- Logout Button (показується коли авторизований) -->
-            <button id="auth-logout-btn" class="panel-item u-hidden">
-                <span class="material-symbols-outlined panel-item-icon">logout</span>
-                <span class="panel-item-text">Вийти</span>
-            </button>
-        </div>
-
-    </nav>
+    <div class="bubble-nav column" id="bubble-nav"></div>
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
 
         <!-- НАВІГАЦІЯ ТАБІВ -->
-        <nav class="section-navigator" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+        <nav class="bubble-nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
             <button class="btn-icon expand active" aria-label="Бренди" data-tab-target="tab-brands">
                 <span class="material-symbols-outlined">shopping_bag</span>
                 <span class="btn-icon-label">Бренди</span>
@@ -183,7 +93,7 @@
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
             </button>
         </div>
-        <div id="panel-right-content" class="panel-content">
+        <div class="panel-content">
             <!-- aside-brands.html завантажується через JS -->
         </div>
     </aside>

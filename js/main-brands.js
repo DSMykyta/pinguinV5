@@ -8,7 +8,7 @@ import { initBrands } from './brands/brands-main.js';
 document.addEventListener('DOMContentLoaded', async () => {
 
     // Спочатку ініціалізуємо core функціональність
-    initCore();
+    await initCore();
 
     // Потім ініціалізуємо специфічні для brands функції (нова система з плагінами)
     await initBrands();

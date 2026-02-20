@@ -22,7 +22,7 @@ export function registerPanelInitializer(templateName, initFunction) {
  * @param {string} templateName - Назва шаблону панелі, яку треба показати.
  */
 function showActivePanel(templateName) {
-    const contentContainer = document.getElementById('panel-right-content');
+    const contentContainer = document.querySelector('.panel-right .panel-content');
     if (!contentContainer) return;
 
     // Ховаємо всі завантажені фрагменти
@@ -41,9 +41,9 @@ function showActivePanel(templateName) {
  */
 async function preloadAllPanels() {
 
-    const contentContainer = document.getElementById('panel-right-content');
+    const contentContainer = document.querySelector('.panel-right .panel-content');
     if (!contentContainer) {
-        console.error('❌ panel-right-content не знайдено');
+        console.error('❌ .panel-content не знайдено');
         return;
     }
 
@@ -132,7 +132,7 @@ export async function initPanelRight() {
  * @param {string} templateName - Назва шаблону (напр. 'aside-glossary').
  */
 export async function loadAsideTemplate(templateName) {
-    const contentContainer = document.getElementById('panel-right-content');
+    const contentContainer = document.querySelector('.panel-right .panel-content');
     if (!contentContainer) return;
 
     // Перевіряємо, чи вже завантажено

@@ -5,10 +5,10 @@ import { initCore } from './main-core.js';
 import { initMapper } from './mapper/mapper-init.js';
 
 // Ініціалізація при завантаженні DOM
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 
     // Спочатку ініціалізуємо core функціональність
-    initCore();
+    await initCore();
 
     // Потім ініціалізуємо специфічні для mapper функції
     initMapper();

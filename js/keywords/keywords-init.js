@@ -104,7 +104,7 @@ function renderErrorState() {
 }
 
 async function loadAsideKeywords() {
-    const panelRightContent = document.getElementById('panel-right-content');
+    const panelRightContent = document.querySelector('.panel-right .panel-content');
     if (!panelRightContent) return;
 
     try {

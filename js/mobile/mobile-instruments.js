@@ -288,7 +288,7 @@
         if (!container) return;
 
         // Copy content from existing panel-right if available
-        const desktopPanel = document.getElementById('panel-right-content');
+        const desktopPanel = document.querySelector('.panel-content');
         if (desktopPanel && desktopPanel.innerHTML.trim()) {
             container.innerHTML = desktopPanel.innerHTML;
             return;

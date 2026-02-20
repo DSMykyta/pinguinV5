@@ -1,7 +1,7 @@
 /* /css/layout/layout-panel-content.css */
 
-/* Головний контейнер для всіх асайдов. Він просто задає висоту. */
-#panel-right-content {
+/* Головний контейнер для панельного контенту. Задає висоту. */
+.panel-content {
     height: 100%;
     overflow: hidden; /* Запобігає появі подвійних скролбарів */
 }
@@ -54,7 +54,6 @@
 .panel-content-footer {
     flex-shrink: 0; /* Забороняємо блоку стискатися */
     margin-top: auto; /* ВАЖЛИВО: Притискає блок до низу */
-    border-top: 1px solid var(--color-outline);
     padding: var(--space-m) 0;
     display: flex;
     flex-direction: column;

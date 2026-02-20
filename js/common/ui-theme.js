@@ -45,12 +45,17 @@ function applyTheme(mode) {
 }
 
 function updateToggleButton(mode) {
+    const btn = document.getElementById('theme-toggle-btn');
     const icon = document.getElementById('theme-toggle-icon');
-    const text = document.getElementById('theme-toggle-text');
     const config = MODE_CONFIG[mode];
 
     if (icon) icon.textContent = config.icon;
-    if (text) text.textContent = config.label;
+    if (btn) {
+        btn.setAttribute('data-tooltip', config.label);
+        // Оновити активний tooltip якщо він зараз видимий
+        const activeTooltip = document.querySelector('.custom-tooltip');
+        if (activeTooltip) activeTooltip.textContent = config.label;
+    }
 }
 
 function cycleTheme() {

@@ -7,25 +7,45 @@
  * JS:  js/common/bubble-nav.js
  */
 
-.bubble-nav-row {
+.bubble-nav {
     display: flex;
-    flex-direction: row;
     gap: 12px;
     padding: 6px;
+    color: var(--color-on-surface-v);
+}
+
+/* Чарм: row — горизонтальний рядок */
+.bubble-nav.row {
+    flex-direction: row;
     border-radius: var(--radius-full);
 }
 
-.bubble-nav-column {
+/* Чарм: column — вертикальна фіксована колонка */
+.bubble-nav.column {
     position: fixed;
     top: 0;
     left: 0;
+    width: 68px;
     height: 100dvh;
     z-index: 200;
-    display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 6px;
-    border-radius: var(--radius-full);
+    align-items: flex-start;
+    padding: 12px;
+    overflow: visible;
 }
 
+/* Контейнери всередині column */
+.bubble-nav-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
 
+.bubble-nav-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}

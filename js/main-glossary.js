@@ -8,7 +8,7 @@ async function initializeApp() {
     try {
         
         // Initialize core functionality
-        initCore(); 
+        await initCore();
         
         // Load aside template explicitly
         await loadAsideTemplate('aside-glossary');

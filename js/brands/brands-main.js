@@ -243,7 +243,7 @@ function renderErrorState() {
  * Завантажити aside панель
  */
 async function loadAsideBrands() {
-    const panelRightContent = document.getElementById('panel-right-content');
+    const panelRightContent = document.querySelector('.panel-right .panel-content');
     if (!panelRightContent) return;
 
     try {

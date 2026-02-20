@@ -8,7 +8,7 @@ import { initTasks } from './tasks/tasks-main.js';
 document.addEventListener('DOMContentLoaded', async () => {
 
     // Спочатку ініціалізуємо core функціональність
-    initCore();
+    await initCore();
 
     // Потім ініціалізуємо специфічні для tasks функції
     await initTasks();

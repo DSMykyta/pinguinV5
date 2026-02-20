@@ -24,7 +24,7 @@
 }
 
 /* Navigator в табах - абсолютне позиціювання, не займає місця в потоці */
-.tabbed-page .section-navigator {
+.tabbed-page .bubble-nav.row {
     position: absolute;
     top: 8px;
     margin-top: 0;

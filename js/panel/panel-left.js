@@ -1,94 +1,28 @@
-// /js/panel/panel-left.js
+// js/panel/panel-left.js
 
-import { initDropdowns } from '../common/ui-dropdown.js';
+import { loadHTML } from '../common/util-loader.js';
 
 /**
- * Встановлює клас 'active' для посилання, що відповідає поточній сторінці.
- * (Без змін)
+ * Встановлює клас 'active' для посилання поточної сторінки.
  */
-function setActivePageLink(panel) {
-    const currentPagePath = window.location.pathname;
-    const links = panel.querySelectorAll('a.panel-item');
+function setActiveLink(nav) {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const links = nav.querySelectorAll('.bubble-nav-main a.btn-icon');
 
     links.forEach(link => {
-        if (link.getAttribute('href') === '#') {
-            return; 
-        }
-        const linkPath = new URL(link.href).pathname;
-        if (currentPagePath === linkPath) {
+        if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
         }
     });
 }
 
 /**
- * Ініціалізує відстеження прокрутки (Scroll Spy).
- * (Без змін)
+ * Завантажує шаблон bubble-nav і встановлює активну кнопку.
  */
-function initScrollSpy() {
-    const sections = document.querySelectorAll('main > section[id]');
-    if (sections.length === 0) return;
+export async function initPanelLeft() {
+    const nav = document.getElementById('bubble-nav');
+    if (!nav) return;
 
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                
-                document.querySelectorAll('.panel-item[data-scroll-to]').forEach(item => {
-                    item.classList.remove('active');
-                });
-
-                const activeItem = document.querySelector(`.panel-item[data-scroll-to="#${sectionId}"]`);
-                if (activeItem) {
-                    activeItem.classList.add('active');
-                }
-            }
-        });
-    }, {
-        rootMargin: '-50% 0px -50% 0px',
-        threshold: 0
-    });
-
-    sections.forEach(section => observer.observe(section));
-}
-
-/**
- * ▼▼▼ НОВА ФУНКЦІЯ ▼▼▼
- * Додає логіку для кнопки згортання/розгортання лівої панелі.
- */
-// function initLeftPanelToggle() {
-//     const panel = document.getElementById('panel-left');
-//     const toggleBtn = document.getElementById('btn-panel-left-toggle'); // Цей ID не існує
-//
-//     if (panel && toggleBtn) {
-//         toggleBtn.addEventListener('click', () => {
-//             const isCollapsed = panel.classList.toggle('is-collapsed');
-//             document.body.classList.toggle('left-panel-collapsed', isCollapsed);
-//             
-//             // Оновлюємо ARIA-атрибут для доступності
-//             toggleBtn.setAttribute('aria-label', isCollapsed ? 'Розгорнути панель' : 'Згорнути панель');
-//         });
-//     } else {
-//         // console.error("Не знайдено #panel-left або #btn-panel-left-toggle"); // Ця помилка очікувана для index.html
-//     }
-// }
-
-/**
- * ✨ ОСНОВНА ОНОВЛЕНА ФУНКЦІЯ ✨
- */
-export function initPanelLeft() {
-    const panel = document.getElementById('panel-left');
-    if (!panel) return;
-    
-    // 1. Ініціалізуємо дропдауни (по кліку)
-initDropdowns();
-     
-     // 2. Вмикаємо логіку кнопки-перемикача
-    // initLeftPanelToggle(); // Логіка перенесена в CSS (hover)
- 
-     // 3. Встановлюємо активне посилання сторінки
-     setActivePageLink(panel);
-
-    // 4. Вмикаємо підсвічування активної секції при скролі
-    initScrollSpy(); 
+    await loadHTML('templates/partials/bubble-nav.html', nav);
+    setActiveLink(nav);
 }

@@ -21,7 +21,7 @@ import { withSpinner } from '../common/charms/charm-refresh.js';
  * Завантажити aside панель
  */
 export async function loadAside() {
-    const panelRightContent = document.getElementById('panel-right-content');
+    const panelRightContent = document.querySelector('.panel-right .panel-content');
     if (!panelRightContent) return;
 
     try {

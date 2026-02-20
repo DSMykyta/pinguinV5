@@ -19,9 +19,9 @@ import { initRefreshCharm } from './common/charms/charm-refresh.js';
 import { initColumnsCharm } from './common/charms/charm-columns.js';
 
 
-export function initCore() {
+export async function initCore() {
+    await initPanelLeft();
     initTheme();
-    initPanelLeft();
     initPanelRight();
     initDropdowns();
 

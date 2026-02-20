@@ -11,7 +11,7 @@
  */
 
 /**
- * @param {HTMLElement} nav - елемент .bubble-nav-row
+ * @param {HTMLElement} nav - елемент .bubble-nav.row
  * @param {Object} [opts]
  * @param {HTMLElement} [opts.scrollRoot] - контейнер скролу (default: #content-main)
  */
@@ -20,7 +20,7 @@ export function initBubbleNav(nav, opts = {}) {
 
     // 1. Плавна прокрутка по кліку
     nav.addEventListener('click', (e) => {
-        const btn = e.target.closest('.bubble-nav-btn');
+        const btn = e.target.closest('.btn-icon.expand');
         if (!btn || !btn.hash) return;
 
         e.preventDefault();
@@ -32,14 +32,14 @@ export function initBubbleNav(nav, opts = {}) {
 
     // 2. Scroll Spy
     const sections = document.querySelectorAll('main > section[id]');
-    const btns = nav.querySelectorAll('.bubble-nav-btn');
+    const btns = nav.querySelectorAll('.btn-icon.expand');
 
     if (sections.length === 0) return;
 
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             const id = entry.target.id;
-            const btn = nav.querySelector(`.bubble-nav-btn[href="#${id}"]`);
+            const btn = nav.querySelector(`.btn-icon.expand[href="#${id}"]`);
 
             if (entry.isIntersecting) {
                 btns.forEach(b => b.classList.remove('active'));

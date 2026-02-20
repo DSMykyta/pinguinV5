@@ -64,6 +64,7 @@
 
     color: inherit;
 
+    backdrop-filter: blur(8px);
     transition: background-color var(--transition-speed);
 }
 
@@ -144,15 +145,20 @@
 /* Чарм: expand — розкриття label тексту на hover */
 .btn-icon.expand {
     justify-content: start;
-    gap: 4px;
     padding: 8px;
     max-width: 32px;
     overflow: hidden;
     border-radius: var(--radius-full);
-    color: var(--color-on-surface);
+    color: inherit;
     transition: max-width 0.55s ease,
+                padding 0.3s ease,
                 background-color 0.5s ease,
                 color 0.5s ease;
+}
+
+.btn-icon.expand.active {
+    background-color: var(--color-main-c);
+    color: var(--color-main);
 }
 
 .btn-icon.expand:hover {
@@ -163,13 +169,34 @@
     box-shadow: none;
 }
 
+/* expand + touch: іконка нерухома, кнопка росте вправо */
+.btn-icon.expand.touch {
+    max-width: 44px;
+    padding: 14px;
+}
+
+.btn-icon.expand.touch:hover {
+    max-width: 400px;
+    padding-left: 14px;
+    padding-right: 16px;
+    gap: 12px;
+}
+
 .btn-icon-label {
+    max-width: 0;
+    overflow: hidden;
     opacity: 0;
     white-space: nowrap;
-    transition: opacity 0.5s ease 0.1s;
+    transition: opacity 0.5s ease 0.1s,
+                max-width 0.55s ease,
+                margin 0.55s ease;
 }
 
 .btn-icon.expand:hover .btn-icon-label {
+    max-width: 200px;
+    margin-left: 4px;
     opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
+    transition: opacity 0.2s ease 0.1s,
+                max-width 0.55s ease,
+                margin 0.55s ease;
 }

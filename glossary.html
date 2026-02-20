@@ -14,133 +14,8 @@
     <link rel="stylesheet" href="css/components/content/tree.css">
 </head>
 
-<body class="panel-left-closed">
-
-    <nav id="panel-left" class="panel panel-left">
-
-        <div class="panel-content-scroll">
-
-            <a href="index.html" target="_blank" class="panel-item ">
-                <span class="material-symbols-outlined panel-item-icon">instant_mix</span>
-                <span class="panel-item-text">Інструменти</span>
-            </a>
-
-            <a href="glossary.html" target="_blank" class="panel-item active">
-                <span class="material-symbols-outlined panel-item-icon">import_contacts</span>
-                <span class="panel-item-text">Глосарій</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="banned-words.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">block</span>
-                <span class="panel-item-text">Заборонені слова</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="brands.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">shopping_bag</span>
-                <span class="panel-item-text">Бренди</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="keywords.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">key</span>
-                <span class="panel-item-text">Ключові слова</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="price.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">receipt_long</span>
-                <span class="panel-item-text">Прайс</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <a href="mapper.html" target="_blank" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">hub</span>
-                <span class="panel-item-text">Mapper</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <div class="panel-separator"></div>
-
-            <a href="javascript:void(0)" class="panel-item panel-item-disabled">
-                <span class="material-symbols-outlined panel-item-icon">show_chart</span>
-                <span class="panel-item-text">Графік</span>
-                <div class="btn-icon">
-                    <span class="material-symbols-outlined">open_in_new</span>
-                </div>
-            </a>
-
-            <div class="panel-item dropdown-wrapper">
-                <span class="material-symbols-outlined panel-item-icon">info</span>
-                <span class="panel-item-text">Доп Інфо</span>
-
-                <div class="panel-item-action-wrapper">
-                    <button class="btn-icon" data-dropdown-trigger aria-label="Додаткові дії">
-                        <span class="material-symbols-outlined">more_vert</span>
-                    </button>
-                </div>
-
-                <div class="dropdown-menu">
-                    <button class="dropdown-item" data-modal-trigger="preview-modal" data-preview-target="">Значення
-                        характеристик</button>
-                    <button class="dropdown-item" data-modal-trigger="preview-modal"
-                        data-preview-target="">Амінокислоти</button>
-                    <button class="dropdown-item" data-modal-trigger="preview-modal" data-preview-target="">Форма
-                        випуска</button>
-                    <button class="dropdown-item" data-modal-trigger="preview-modal"
-                        data-preview-target="">Макроси</button>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="panel-content-footer">
-            <!-- Theme Toggle -->
-            <button id="theme-toggle-btn" class="panel-item" aria-label="Змінити тему">
-                <span class="material-symbols-outlined panel-item-icon" id="theme-toggle-icon">brightness_auto</span>
-                <span class="panel-item-text" id="theme-toggle-text">Системна</span>
-            </button>
-
-            <!-- Login Button (показується коли НЕ авторизований) -->
-            <button id="auth-login-trigger-btn" class="panel-item">
-                <span class="material-symbols-outlined panel-item-icon">login</span>
-                <span class="panel-item-text">Увійти</span>
-            </button>
-
-            <!-- User Info Display (показується коли авторизований) -->
-            <div id="auth-user-info" class="panel-item u-hidden">
-                <span id="auth-user-avatar-container" class="panel-item-icon">
-                    <span class="material-symbols-outlined">person</span>
-                </span>
-                <div class="panel-item-text">
-                    <div id="auth-username-display"></div>
-                    <div id="auth-user-role-display"></div>
-                </div>
-                <a href="tasks.html" class="btn-icon" data-tooltip="Профіль та задачі" data-tooltip-always>
-                    <span class="material-symbols-outlined">settings</span>
-                </a>
-            </div>
-
-            <!-- Logout Button (показується коли авторизований) -->
-            <button id="auth-logout-btn" class="panel-item u-hidden">
-                <span class="material-symbols-outlined panel-item-icon">logout</span>
-            </button>
-        </div>
-
-    </nav>
+<body>
+    <div class="bubble-nav column" id="bubble-nav"></div>
 
     <main id="content-main" class="content-main">
         <!-- Articles will be rendered here by glossary-articles.js -->
@@ -152,7 +27,7 @@
                 <span class="material-symbols-outlined">keyboard_arrow_left</span>
             </button>
         </div>
-        <div id="panel-right-content" class="panel-content"></div>
+        <div class="panel-content"></div>
     </aside>
 
     <div id="modal-placeholder"></div>

@@ -11,7 +11,7 @@ import './generators/generator-highlight/ghl-main.js';
 
 async function initializeApp() {
     try {
-        initCore(); // initCore має запускати initPanelRight
+        await initCore();
     } catch (error) {
         console.error('Критична помилка під час ініціалізації:', error);
     }

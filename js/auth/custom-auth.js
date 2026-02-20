@@ -202,15 +202,13 @@ async function verifyToken(token) {
 function updateAuthUI(isAuthorized) {
   // Кнопки в панелі
   const loginTriggerButton = document.getElementById('auth-login-trigger-btn');
-  const logoutButton = document.getElementById('auth-logout-btn');
   const userInfo = document.getElementById('auth-user-info');
   const usernameDisplay = document.getElementById('auth-username-display');
   const userRoleDisplay = document.getElementById('auth-user-role-display');
 
   if (isAuthorized) {
-    // Показуємо інфо про користувача та кнопку виходу
+    // Показуємо інфо про користувача (logout кнопка всередині)
     if (loginTriggerButton) loginTriggerButton.classList.add('u-hidden');
-    if (logoutButton) logoutButton.classList.remove('u-hidden');
     if (userInfo) userInfo.classList.remove('u-hidden');
 
     // Заповнюємо дані користувача
@@ -234,7 +232,6 @@ function updateAuthUI(isAuthorized) {
   } else {
     // Показуємо кнопку логіну
     if (loginTriggerButton) loginTriggerButton.classList.remove('u-hidden');
-    if (logoutButton) logoutButton.classList.add('u-hidden');
     if (userInfo) userInfo.classList.add('u-hidden');
   }
 }
@@ -393,6 +390,7 @@ function setupLogoutButton() {
   if (logoutButton) {
     logoutButton.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       handleSignOut();
     });
   }

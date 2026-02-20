@@ -14,9 +14,9 @@ import { priceState } from './price-init.js';
  * Завантажити aside панель
  */
 export async function loadAside() {
-    const panelContent = document.getElementById('panel-right-content');
+    const panelContent = document.querySelector('.panel-right .panel-content');
     if (!panelContent) {
-        console.warn('⚠️ panel-right-content не знайдено');
+        console.warn('⚠️ .panel-content не знайдено');
         return;
     }
 

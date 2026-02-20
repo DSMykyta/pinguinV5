@@ -1859,36 +1859,71 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
+                        <h3>.bubble-nav.row</h3>
+                        <p>Горизонтальний pill-bar навігації. Кнопки — <code>.btn-icon.expand</code>, розгортаються при hover.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">bubble-nav.css</span>
+                            <span class="m3-tag m3-tag-src">button-icon.css</span>
+                            <span class="m3-tag m3-tag-use">section-navigator, tabbed-page</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview m3-preview-center">
+                        <nav class="bubble-nav row" style="position:relative;top:auto;left:auto;transform:none">
+                            <button class="btn-icon expand active"><span
+                                    class="material-symbols-outlined">shopping_bag</span><span class="btn-icon-label">Бренди</span></button>
+                            <button class="btn-icon expand"><span class="material-symbols-outlined">category</span><span
+                                    class="btn-icon-label">Лінійки</span></button>
+                            <button class="btn-icon expand"><span class="material-symbols-outlined">settings</span><span
+                                    class="btn-icon-label">Управління</span></button>
+                        </nav>
+                    </div>
+                    <div class="m3-code">&lt;nav class="bubble-nav row"&gt;
+  &lt;button class="btn-icon expand active"&gt;
+    &lt;span class="material-symbols-outlined"&gt;shopping_bag&lt;/span&gt;
+    &lt;span class="btn-icon-label"&gt;Бренди&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/nav&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>.bubble-nav.column</h3>
+                        <p>Вертикальна фіксована колонка. Кнопки 44×44px — чарм <code>.touch</code> від <code>.btn-icon</code>.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">bubble-nav.css</span>
+                            <span class="m3-tag m3-tag-src">button-icon.css</span>
+                            <span class="m3-tag m3-tag-use">index.html навігація</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="align-items:start">
+                        <button class="btn-icon expand touch active"><span
+                                class="material-symbols-outlined">instant_mix</span><span class="btn-icon-label">Інструменти</span></button>
+                        <button class="btn-icon expand touch"><span class="material-symbols-outlined">edit_note</span><span
+                                class="btn-icon-label">Текст</span></button>
+                        <button class="btn-icon expand touch"><span class="material-symbols-outlined">search</span><span
+                                class="btn-icon-label">Сео</span></button>
+                    </div>
+                    <div class="m3-code">&lt;div class="bubble-nav column"&gt;
+  &lt;button class="btn-icon expand touch active"&gt;
+    &lt;span class="material-symbols-outlined"&gt;instant_mix&lt;/span&gt;
+    &lt;span class="btn-icon-label"&gt;Інструменти&lt;/span&gt;
+  &lt;/button&gt;
+&lt;/div&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
                         <h3>.panel-item</h3>
                         <div class="m3-tags"><span class="m3-tag m3-tag-src">panel-item.css</span><span
                                 class="m3-tag m3-tag-use">panel-left, aside-*</span></div>
                     </div>
-                    <div class="m3-preview m3-preview-col" style="width:280px;gap:4px">
+                    <div class="m3-preview m3-preview-col">
                         <button class="panel-item" style="width:100%"><span
                                 class="material-symbols-outlined">table_chart</span><span>Таблиця</span></button>
                         <button class="panel-item active" style="width:100%"><span
                                 class="material-symbols-outlined">edit_note</span><span>Текст (active)</span></button>
                         <button class="panel-item" style="width:100%"><span
                                 class="material-symbols-outlined">search</span><span>SEO</span></button>
-                    </div>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.bubble-nav-row / .btn-icon.expand</h3>
-                        <p>Горизонтальний плаваючий pill-bar. btn-icon.expand — 32x32, розгортається при hover.</p>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">layout-section-navigator.css</span></div>
-                    </div>
-                    <div class="m3-preview m3-preview-center">
-                        <nav class="bubble-nav-row" style="position:relative;top:auto;left:auto;transform:none">
-                            <button class="btn-icon expand active" style="max-width:none;padding-right:16px"><span
-                                    class="material-symbols-outlined">shopping_bag</span><span class="btn-icon-label"
-                                    style="opacity:1">Бренди</span></button>
-                            <button class="btn-icon expand"><span class="material-symbols-outlined">category</span><span
-                                    class="btn-icon-label">Лінійки</span></button>
-                            <button class="btn-icon expand"><span class="material-symbols-outlined">settings</span><span
-                                    class="btn-icon-label">Управління</span></button>
-                        </nav>
                     </div>
                 </div>
 
@@ -2476,7 +2511,7 @@ icon.classList.remove('spinning');</div>
                     </div>
                     <div class="m3-code">body
                         ├── .panel-left (72px collapsed / 320px expanded)
-                        │ ├── .bubble-nav-row (.btn-icon.expand)
+                        │ ├── .bubble-nav.row (.btn-icon.expand)
                         │ └── .panel-left-expanded (.panel-item)
                         │
                         ├── .content-main
@@ -2507,7 +2542,7 @@ icon.classList.remove('spinning');</div>
                         </tr>
                         <tr>
                             <td><code>layout-section-navigator.css</code></td>
-                            <td>.bubble-nav-row, .btn-icon.expand</td>
+                            <td>.bubble-nav.row, .btn-icon.expand</td>
                         </tr>
                         <tr>
                             <td><code>layout-panel-left.css</code></td>
