@@ -24,8 +24,17 @@
  */
 
 import { renderPageNumbers } from './pagination-ui.js';
-import { initFab } from './pagination-fab.js';
+import { initFabMenu } from '../../fab-menu.js';
 import { autoCreateStatsSpan } from './pagination-stats.js';
+
+const PAGE_SIZES = [
+    { value: 10, label: '10' },
+    { value: 25, label: '25' },
+    { value: 50, label: '50' },
+    { value: 100, label: '100' },
+    { value: 999999, label: 'Всі' }
+];
+const formatPageSize = v => v > 1000 ? 'Всі' : String(v);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHARM DISCOVERY
@@ -146,11 +155,16 @@ function setupControls(instance) {
 
         // FAB plugin — підключитись до існуючого або створити
         // Guard: multi-tab — тільки активний charm реагує на FAB
-        instance.fab = initFab(paginationContainer, instance.state.pageSize, (newSize) => {
-            if (!instance._active) return;
-            instance.state.pageSize = newSize;
-            instance.state.currentPage = 1;
-            applyPage(instance);
+        instance.fab = initFabMenu(paginationContainer, {
+            items: PAGE_SIZES,
+            value: instance.state.pageSize,
+            onChange: (newSize) => {
+                if (!instance._active) return;
+                instance.state.pageSize = newSize;
+                instance.state.currentPage = 1;
+                applyPage(instance);
+            },
+            formatLabel: formatPageSize
         });
     } else {
         // Створити нові controls після елемента
@@ -161,11 +175,16 @@ function setupControls(instance) {
         instance.navContainer.className = 'pagination-nav';
         container.appendChild(instance.navContainer);
 
-        instance.fab = initFab(container, instance.state.pageSize, (newSize) => {
-            if (!instance._active) return;
-            instance.state.pageSize = newSize;
-            instance.state.currentPage = 1;
-            applyPage(instance);
+        instance.fab = initFabMenu(container, {
+            items: PAGE_SIZES,
+            value: instance.state.pageSize,
+            onChange: (newSize) => {
+                if (!instance._active) return;
+                instance.state.pageSize = newSize;
+                instance.state.currentPage = 1;
+                applyPage(instance);
+            },
+            formatLabel: formatPageSize
         });
 
         el.after(container);

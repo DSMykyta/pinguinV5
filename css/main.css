@@ -66,7 +66,7 @@
 @import url('components/navigation/panel-item.css');
 /* panel-box.css — перенесено в forms/input-box.css (.content-line.panel) */
 @import url('components/navigation/panel-title.css');
-@import url('components/navigation/pagination-fab.css');
+@import url('components/navigation/pagination.css');
 @import url('components/navigation/tabs.css');
 @import url('components/navigation/tab-header.css');
 @import url('components/navigation/toolbar.css');

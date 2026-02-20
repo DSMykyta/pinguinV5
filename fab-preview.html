@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAB Speed Dial — Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root {
+    --color-main: rgb(9, 63, 69);
+    --color-secondary: rgb(39, 93, 99);
+    --color-tertiary: rgb(232, 110, 80);
+    --color-on-main: #fff;
+    --color-surface: #fafafa;
+    --color-surface-c-low: #f5f5f5;
+    --color-outline: #d4d4d4;
+    --color-on-surface: #171717;
+    --color-on-surface-v: #737373;
+    --shadow-2: 0px 2px 6px 2px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.30);
+    --shadow-3: 0px 4px 8px 3px rgba(0,0,0,0.15), 0px 1px 3px 0px rgba(0,0,0,0.30);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Geologica', sans-serif; background: #e5e5e5; }
+
+  .demo-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .demo-label {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-on-surface-v);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .demo-card {
+    background: var(--color-surface);
+    border-radius: 16px;
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .demo-card-label {
+    padding: 12px 20px;
+    background: var(--color-surface-c-low);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-on-surface-v);
+    border-bottom: 1px solid var(--color-outline);
+  }
+  .demo-card-label span {
+    font-weight: 400; opacity: 0.6; margin-left: 8px;
+    text-transform: none; letter-spacing: 0; font-size: 11px;
+  }
+
+  /* Fake page content */
+  .fake-content { padding: 20px; }
+  .fake-row {
+    height: 40px; border-radius: 8px; margin-bottom: 8px;
+    background: var(--color-surface-c-low); border: 1px solid var(--color-outline);
+    display: flex; align-items: center; padding: 0 16px;
+    font-size: 12px; color: var(--color-on-surface-v);
+  }
+
+  /* ===========================
+     FAB SPEED DIAL
+     =========================== */
+  .fab-container {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 12px;
+    z-index: 50;
+  }
+
+  /* Main FAB button */
+  .fab-main {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-3);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s,
+                border-radius 0.3s;
+    position: relative;
+    z-index: 10;
+  }
+  .fab-main .material-symbols-outlined {
+    font-size: 24px;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .fab-main:hover {
+    box-shadow: var(--shadow-3);
+    transform: scale(1.05);
+  }
+
+  /* Color variants */
+  .fab-main.primary {
+    background: var(--color-main);
+    color: var(--color-on-main);
+  }
+  .fab-main.tertiary {
+    background: var(--color-tertiary);
+    color: white;
+  }
+  .fab-main.surface {
+    background: white;
+    color: var(--color-main);
+  }
+
+  /* Rotation on open */
+  .fab-container.is-open .fab-main .material-symbols-outlined {
+    transform: rotate(45deg);
+  }
+  .fab-container.is-open .fab-main {
+    border-radius: 50%;
+  }
+
+  /* Speed dial items */
+  .fab-dial-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 6px;
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .fab-dial-label {
+    background: var(--color-on-surface);
+    color: var(--color-surface);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: var(--shadow-2);
+    letter-spacing: 0.3px;
+  }
+
+  .fab-dial-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: white;
+    color: var(--color-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-2);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .fab-dial-btn .material-symbols-outlined { font-size: 20px; }
+  .fab-dial-btn:hover {
+    transform: scale(1.1);
+    background: var(--color-main);
+    color: white;
+  }
+
+  /* Open state — staggered reveal */
+  .fab-container.is-open .fab-dial-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .fab-container.is-open .fab-dial-item:nth-child(1) { transition-delay: 0.05s; }
+  .fab-container.is-open .fab-dial-item:nth-child(2) { transition-delay: 0.1s; }
+  .fab-container.is-open .fab-dial-item:nth-child(3) { transition-delay: 0.15s; }
+  .fab-container.is-open .fab-dial-item:nth-child(4) { transition-delay: 0.2s; }
+  .fab-container.is-open .fab-dial-item:nth-child(5) { transition-delay: 0.25s; }
+
+  /* Close — reverse delay */
+  .fab-container:not(.is-open) .fab-dial-item:nth-child(1) { transition-delay: 0.15s; }
+  .fab-container:not(.is-open) .fab-dial-item:nth-child(2) { transition-delay: 0.1s; }
+  .fab-container:not(.is-open) .fab-dial-item:nth-child(3) { transition-delay: 0.05s; }
+  .fab-container:not(.is-open) .fab-dial-item:nth-child(4) { transition-delay: 0s; }
+
+  /* Backdrop */
+  .fab-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    border-radius: 16px;
+  }
+  .fab-container.is-open ~ .fab-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ===== VARIANT 2: Extended FAB ===== */
+  .fab-extended {
+    height: 56px;
+    padding: 0 20px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    box-shadow: var(--shadow-3);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .fab-extended .material-symbols-outlined { font-size: 20px; }
+  .fab-extended:hover { transform: scale(1.03); }
+  .fab-extended.primary { background: var(--color-main); color: white; }
+  .fab-extended.tertiary { background: var(--color-tertiary); color: white; }
+
+  /* ===== VARIANT 3: Mini actions ===== */
+  .fab-mini-stack {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .fab-mini {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    transform: translateY(10px) scale(0.7);
+  }
+  .fab-mini .material-symbols-outlined { font-size: 18px; }
+  .fab-mini:hover { transform: scale(1.1) !important; }
+  .fab-mini.surface { background: white; color: var(--color-main); }
+
+  .fab-mini-stack.is-open .fab-mini {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .fab-mini-stack.is-open .fab-mini:nth-child(1) { transition-delay: 0.05s; }
+  .fab-mini-stack.is-open .fab-mini:nth-child(2) { transition-delay: 0.1s; }
+  .fab-mini-stack.is-open .fab-mini:nth-child(3) { transition-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<div class="demo-container">
+
+  <div class="demo-label">FAB Speed Dial — Варіанти для PinguinV5</div>
+
+  <!-- DEMO 1: Brands page -->
+  <div class="demo-card">
+    <div class="demo-card-label">Brands <span>speed dial з підписами</span></div>
+    <div class="fake-content">
+      <div class="fake-row">Optimum Nutrition</div>
+      <div class="fake-row">MyProtein</div>
+      <div class="fake-row">BSN</div>
+      <div class="fake-row">Universal Nutrition</div>
+      <div class="fake-row">Dymatize</div>
+      <div class="fake-row">MuscleTech</div>
+      <div class="fake-row">Scitec Nutrition</div>
+    </div>
+    <div class="fab-backdrop" onclick="toggleFab(this.parentElement, false)"></div>
+    <div class="fab-container" id="fab-brands">
+      <button class="fab-main primary" onclick="toggleFab(this.parentElement.parentElement)">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Додати бренд</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">branding_watermark</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Додати лінійку</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">list_alt</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Імпорт</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">upload_file</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO 2: Mapper page -->
+  <div class="demo-card">
+    <div class="demo-card-label">Mapper <span>4 дії</span></div>
+    <div class="fake-content">
+      <div class="fake-row">Категорії → Rozetka</div>
+      <div class="fake-row">Характеристики → Prom</div>
+      <div class="fake-row">Опції → Hotline</div>
+      <div class="fake-row">Категорії → Epicentr</div>
+    </div>
+    <div class="fab-backdrop" onclick="toggleFab(this.parentElement, false)"></div>
+    <div class="fab-container" id="fab-mapper">
+      <button class="fab-main tertiary" onclick="toggleFab(this.parentElement.parentElement)">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Маркетплейс</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">hexagon</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Категорія</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">square</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Характеристика</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">change_history</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Імпорт</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">upload_file</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO 3: Keywords — single action -->
+  <div class="demo-card">
+    <div class="demo-card-label">Keywords <span>одна дія — extended FAB</span></div>
+    <div class="fake-content">
+      <div class="fake-row">Протеїн</div>
+      <div class="fake-row">Казеїн</div>
+      <div class="fake-row">Ізолят</div>
+      <div class="fake-row">Концентрат</div>
+      <div class="fake-row">Гідролізат</div>
+    </div>
+    <div style="position:absolute; bottom:24px; right:24px;">
+      <button class="fab-extended primary">
+        <span class="material-symbols-outlined">add</span>
+        Додати ключове слово
+      </button>
+    </div>
+  </div>
+
+  <!-- DEMO 4: Tasks -->
+  <div class="demo-card">
+    <div class="demo-card-label">Tasks <span>speed dial</span></div>
+    <div class="fake-content">
+      <div class="fake-row">Оновити прайс Rozetka</div>
+      <div class="fake-row">Завантажити фото BSN</div>
+      <div class="fake-row">Перевірити SEO titles</div>
+      <div class="fake-row">Маппінг Epicentr</div>
+    </div>
+    <div class="fab-backdrop" onclick="toggleFab(this.parentElement, false)"></div>
+    <div class="fab-container" id="fab-tasks">
+      <button class="fab-main primary" onclick="toggleFab(this.parentElement.parentElement)">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Задача</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">task_alt</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Нотатка</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">note_add</span></button>
+      </div>
+      <div class="fab-dial-item">
+        <span class="fab-dial-label">Скрипт</span>
+        <button class="fab-dial-btn"><span class="material-symbols-outlined">code</span></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleFab(card, force) {
+  const container = card.querySelector('.fab-container');
+  if (!container) return;
+  
+  if (force === false) {
+    container.classList.remove('is-open');
+  } else {
+    container.classList.toggle('is-open');
+  }
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.fab-container.is-open').forEach(el => {
+      el.classList.remove('is-open');
+    });
+  }
+});
+</script>
+
+</body>
+</html>
