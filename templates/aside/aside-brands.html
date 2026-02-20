@@ -18,16 +18,27 @@
         
     </div>
 
-    <!-- FOOTER З КНОПКАМИ ДОДАТИ (ФІКСОВАНИЙ ЗНИЗУ) -->
+    <!-- FAB SPEED DIAL -->
     <div class="panel-content-footer">
-        <button id="btn-add-brand-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">add</span>
-            <span class="panel-item-text">Додати бренд</span>
-        </button>
-        <button id="btn-add-line-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">add</span>
-            <span class="panel-item-text">Додати лінійку</span>
-        </button>
+        <div class="fab-menu" id="fab-brands-aside">
+            <button class="fab-menu-trigger primary">
+                <span class="material-symbols-outlined">add</span>
+            </button>
+            <div class="fab-menu-items">
+                <div class="fab-menu-item" id="btn-add-brand-aside">
+                    <span class="fab-menu-item-label">Додати бренд</span>
+                    <button class="fab-menu-item-btn">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                    </button>
+                </div>
+                <div class="fab-menu-item" id="btn-add-line-aside">
+                    <span class="fab-menu-item-label">Додати лінійку</span>
+                    <button class="fab-menu-item-btn">
+                        <span class="material-symbols-outlined">category</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

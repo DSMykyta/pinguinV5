@@ -258,21 +258,31 @@ async function loadAsideBrands() {
 
         // Пошук тепер керується через createManagedTable (brands-table.js, lines-table.js)
 
-        // Ініціалізувати кнопку "Додати бренд"
-        const addBrandBtn = document.getElementById('btn-add-brand-aside');
-        if (addBrandBtn) {
-            addBrandBtn.addEventListener('click', async () => {
-                const { showAddBrandModal } = await import('./brands-crud.js');
-                showAddBrandModal();
-            });
-        }
+        // FAB speed dial в aside footer
+        const fabMenu = document.getElementById('fab-brands-aside');
+        if (fabMenu) {
+            fabMenu.addEventListener('click', async (e) => {
+                if (e.target.closest('.fab-menu-trigger')) {
+                    fabMenu.classList.toggle('is-open');
+                    return;
+                }
 
-        // Ініціалізувати кнопку "Додати лінійку"
-        const addLineBtn = document.getElementById('btn-add-line-aside');
-        if (addLineBtn) {
-            addLineBtn.addEventListener('click', async () => {
-                const { showAddLineModal } = await import('./lines-crud.js');
-                showAddLineModal();
+                const item = e.target.closest('.fab-menu-item');
+                if (!item) return;
+
+                fabMenu.classList.remove('is-open');
+
+                if (item.id === 'btn-add-brand-aside') {
+                    const { showAddBrandModal } = await import('./brands-crud.js');
+                    showAddBrandModal();
+                } else if (item.id === 'btn-add-line-aside') {
+                    const { showAddLineModal } = await import('./lines-crud.js');
+                    showAddLineModal();
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
             });
         }
 
