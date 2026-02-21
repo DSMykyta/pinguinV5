@@ -1,6 +1,6 @@
 // js/main-glossary.js
 import { initCore } from './main-core.js';
-import { loadAsideTemplate } from './panel/panel-right.js';
+import { loadSingleAsideTemplate } from './aside/aside-main.js';
 import { initGlossaryPage } from './glossary/glossary-init.js';
 
 
@@ -10,8 +10,8 @@ async function initializeApp() {
         // Initialize core functionality
         await initCore();
         
-        // Load aside template explicitly
-        await loadAsideTemplate('aside-glossary');
+        // Load aside template
+        await loadSingleAsideTemplate('aside-glossary');
         
         // Initialize glossary-specific functionality
         await initGlossaryPage();

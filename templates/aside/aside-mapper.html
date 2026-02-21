@@ -1,56 +1,52 @@
-<div class="panel-fragment active" id="aside-mapper">
+<!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
+<div class="panel-content-fix">
+    <div class="content-line panel">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" id="search-mapper" placeholder="Пошук...">
+        <button data-clear-for="search-mapper" class="btn-icon u-hidden" aria-label="Очистити пошук">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+</div>
 
-    <!-- ПОШУК (ФІКСОВАНИЙ ЗВЕРХУ) -->
-    <div class="panel-content-fix">
-        <div class="content-line panel">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" id="search-mapper" placeholder="Пошук...">
-            <button data-clear-for="search-mapper" class="btn-icon u-hidden" aria-label="Очистити пошук">
-                <span class="material-symbols-outlined">close</span>
-            </button>
+<div class="panel-separator"></div>
+
+<!-- ІНФОРМАЦІЯ (SCROLLABLE) -->
+<div class="panel-content-scroll">
+
+    <button id="btn-add-category-aside" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">square</span>
+        <span class="panel-item-text">Додати категорію</span>
+        <div id="btn-mapping-wizard-aside" class="btn-icon" data-tooltip="Маппінг категорій" data-tooltip-always aria-label="Маппінг категорій">
+            <span class="material-symbols-outlined">link</span>
         </div>
-    </div>
+    </button>
+    <button id="btn-add-characteristic-aside" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">change_history</span>
+        <span class="panel-item-text">Додати характеристику</span>
+        <div id="btn-mapping-wizard-characteristics-aside" class="btn-icon" data-tooltip="Маппінг характеристик" data-tooltip-always aria-label="Маппінг характеристик">
+            <span class="material-symbols-outlined">link</span>
+        </div>
+    </button>
+    <button id="btn-add-option-aside" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">circle</span>
+        <span class="panel-item-text">Додати опцію</span>
+        <div id="btn-mapping-wizard-options-aside" class="btn-icon" data-tooltip="Маппінг опцій" data-tooltip-always aria-label="Маппінг опцій">
+            <span class="material-symbols-outlined">link</span>
+        </div>
+    </button>
+</div>
 
-    <div class="panel-separator"></div>
+<!-- FOOTER З КНОПКАМИ ДОДАВАННЯ (ФІКСОВАНИЙ ЗНИЗУ) -->
+<div class="panel-content-footer">
 
-    <!-- ІНФОРМАЦІЯ (SCROLLABLE) -->
-    <div class="panel-content-scroll">
+    <button id="btn-add-mapper-marketplace" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">hexagon</span>
+        <span class="panel-item-text">Додати маркетплейс</span>
+    </button>
 
-        <button id="btn-add-category-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">square</span>
-            <span class="panel-item-text">Додати категорію</span>
-            <div id="btn-mapping-wizard-aside" class="btn-icon" data-tooltip="Маппінг категорій" data-tooltip-always aria-label="Маппінг категорій">
-                <span class="material-symbols-outlined">link</span>
-            </div>
-        </button>
-        <button id="btn-add-characteristic-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">change_history</span>
-            <span class="panel-item-text">Додати характеристику</span>
-            <div id="btn-mapping-wizard-characteristics-aside" class="btn-icon" data-tooltip="Маппінг характеристик" data-tooltip-always aria-label="Маппінг характеристик">
-                <span class="material-symbols-outlined">link</span>
-            </div>
-        </button>
-        <button id="btn-add-option-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">circle</span>
-            <span class="panel-item-text">Додати опцію</span>
-            <div id="btn-mapping-wizard-options-aside" class="btn-icon" data-tooltip="Маппінг опцій" data-tooltip-always aria-label="Маппінг опцій">
-                <span class="material-symbols-outlined">link</span>
-            </div>
-        </button>
-    </div>
-
-    <!-- FOOTER З КНОПКАМИ ДОДАВАННЯ (ФІКСОВАНИЙ ЗНИЗУ) -->
-    <div class="panel-content-footer">
-
-        <button id="btn-add-mapper-marketplace" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">hexagon</span>
-            <span class="panel-item-text">Додати маркетплейс</span>
-        </button>
-
-        <button id="btn-import-aside" class="panel-item">
-            <span class="material-symbols-outlined panel-item-icon">upload_file</span>
-            <span class="panel-item-text">Імпортувати дані</span>
-        </button>
-    </div>
-
+    <button id="btn-import-aside" class="panel-item">
+        <span class="material-symbols-outlined panel-item-icon">upload_file</span>
+        <span class="panel-item-text">Імпортувати дані</span>
+    </button>
 </div>

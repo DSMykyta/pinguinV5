@@ -19,6 +19,7 @@ import { createLazyLoader } from '../common/util-lazy-load.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+import { loadSingleAsideTemplate } from '../aside/aside-main.js';
 import { loadMapperPlugins } from './mapper-main.js';
 
 export { mapperState } from './mapper-state.js';
@@ -198,80 +199,68 @@ function renderErrorState() {
  * Тут тільки кнопка очистки + кнопки додавання.
  */
 async function loadAsideMapper() {
-    const panelRightContent = document.querySelector('.panel-right .panel-content');
-    if (!panelRightContent) return;
+    await loadSingleAsideTemplate('aside-mapper');
 
-    try {
-        const response = await fetch('templates/aside/aside-mapper.html');
-        if (!response.ok) throw new Error('Failed to load aside-mapper.html');
+    // Кнопки додавання в aside
+    const addCategoryBtn = document.getElementById('btn-add-category-aside');
+    if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', async () => {
+            const { showAddCategoryModal } = await import('./mapper-categories.js');
+            showAddCategoryModal();
+        });
+    }
 
-        const html = await response.text();
-        panelRightContent.innerHTML = html;
+    const addCharacteristicBtn = document.getElementById('btn-add-characteristic-aside');
+    if (addCharacteristicBtn) {
+        addCharacteristicBtn.addEventListener('click', async () => {
+            const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
+            showAddCharacteristicModal();
+        });
+    }
 
-        // Кнопки додавання в aside
-        const addCategoryBtn = document.getElementById('btn-add-category-aside');
-        if (addCategoryBtn) {
-            addCategoryBtn.addEventListener('click', async () => {
-                const { showAddCategoryModal } = await import('./mapper-categories.js');
-                showAddCategoryModal();
-            });
-        }
+    const addOptionBtn = document.getElementById('btn-add-option-aside');
+    if (addOptionBtn) {
+        addOptionBtn.addEventListener('click', async () => {
+            const { showAddOptionModal } = await import('./mapper-options.js');
+            showAddOptionModal();
+        });
+    }
 
-        const addCharacteristicBtn = document.getElementById('btn-add-characteristic-aside');
-        if (addCharacteristicBtn) {
-            addCharacteristicBtn.addEventListener('click', async () => {
-                const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
-                showAddCharacteristicModal();
-            });
-        }
+    const importBtn = document.getElementById('btn-import-aside');
+    if (importBtn) {
+        importBtn.addEventListener('click', async () => {
+            await import('./mapper-import-rozetka.js');
+            await import('./mapper-import-epicentr.js');
+            await import('./mapper-import-etalon.js');
+            const { showImportModal } = await import('./mapper-import.js');
+            showImportModal();
+        });
+    }
 
-        const addOptionBtn = document.getElementById('btn-add-option-aside');
-        if (addOptionBtn) {
-            addOptionBtn.addEventListener('click', async () => {
-                const { showAddOptionModal } = await import('./mapper-options.js');
-                showAddOptionModal();
-            });
-        }
+    const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
+    if (mappingWizardBtn) {
+        mappingWizardBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
+            showMappingWizard();
+        });
+    }
 
-        const importBtn = document.getElementById('btn-import-aside');
-        if (importBtn) {
-            importBtn.addEventListener('click', async () => {
-                await import('./mapper-import-rozetka.js');
-                await import('./mapper-import-epicentr.js');
-                await import('./mapper-import-etalon.js');
-                const { showImportModal } = await import('./mapper-import.js');
-                showImportModal();
-            });
-        }
+    const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
+    if (charWizardBtn) {
+        charWizardBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const { showCharacteristicMappingWizard } = await import('./mapper-mapping-wizard-characteristics.js');
+            showCharacteristicMappingWizard();
+        });
+    }
 
-        const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
-        if (mappingWizardBtn) {
-            mappingWizardBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
-                showMappingWizard();
-            });
-        }
-
-        const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
-        if (charWizardBtn) {
-            charWizardBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const { showCharacteristicMappingWizard } = await import('./mapper-mapping-wizard-characteristics.js');
-                showCharacteristicMappingWizard();
-            });
-        }
-
-        const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
-        if (optWizardBtn) {
-            optWizardBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const { showOptionMappingWizard } = await import('./mapper-mapping-wizard-options.js');
-                showOptionMappingWizard();
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside-mapper.html:', error);
+    const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
+    if (optWizardBtn) {
+        optWizardBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const { showOptionMappingWizard } = await import('./mapper-mapping-wizard-options.js');
+            showOptionMappingWizard();
+        });
     }
 }

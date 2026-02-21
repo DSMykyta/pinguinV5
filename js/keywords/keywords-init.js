@@ -13,6 +13,7 @@ import { showAddKeywordModal } from './keywords-crud.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
+import { loadSingleAsideTemplate } from '../aside/aside-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 export const keywordsState = {
@@ -104,26 +105,12 @@ function renderErrorState() {
 }
 
 async function loadAsideKeywords() {
-    const panelRightContent = document.querySelector('.panel-right .panel-content');
-    if (!panelRightContent) return;
+    await loadSingleAsideTemplate('aside-keywords');
 
-    try {
-        const response = await fetch('templates/aside/aside-keywords.html');
-        if (!response.ok) throw new Error('Failed to load aside-keywords.html');
-
-        const html = await response.text();
-        panelRightContent.innerHTML = html;
-
-        // Пошук тепер керується через createManagedTable (keywords-table.js)
-
-        const addBtn = document.getElementById('btn-add-keyword-aside');
-        if (addBtn) {
-            addBtn.addEventListener('click', () => {
-                showAddKeywordModal();
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside-keywords.html:', error);
+    const addBtn = document.getElementById('btn-add-keyword-aside');
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            showAddKeywordModal();
+        });
     }
 }

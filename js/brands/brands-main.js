@@ -59,6 +59,7 @@ import { runHook, runHookAsync } from './brands-plugins.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
+import { loadSingleAsideTemplate } from '../aside/aside-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -243,50 +244,33 @@ function renderErrorState() {
  * Завантажити aside панель
  */
 async function loadAsideBrands() {
-    const panelRightContent = document.querySelector('.panel-right .panel-content');
-    if (!panelRightContent) return;
+    await loadSingleAsideTemplate('aside-brands');
 
-    try {
-        const response = await fetch('templates/aside/aside-brands.html');
-        if (!response.ok) throw new Error('Failed to load aside-brands.html');
+    // FAB speed dial в aside footer
+    const fabMenu = document.getElementById('fab-brands-aside');
+    if (fabMenu) {
+        fabMenu.addEventListener('click', async (e) => {
+            if (e.target.closest('.fab-menu-trigger')) {
+                fabMenu.classList.toggle('is-open');
+                return;
+            }
 
-        const html = await response.text();
-        panelRightContent.innerHTML = html;
+            const item = e.target.closest('.fab-menu-item');
+            if (!item) return;
 
-        // Ініціалізувати dropdowns в aside
-        initDropdowns();
+            fabMenu.classList.remove('is-open');
 
-        // Пошук тепер керується через createManagedTable (brands-table.js, lines-table.js)
+            if (item.id === 'btn-add-brand-aside') {
+                const { showAddBrandModal } = await import('./brands-crud.js');
+                showAddBrandModal();
+            } else if (item.id === 'btn-add-line-aside') {
+                const { showAddLineModal } = await import('./lines-crud.js');
+                showAddLineModal();
+            }
+        });
 
-        // FAB speed dial в aside footer
-        const fabMenu = document.getElementById('fab-brands-aside');
-        if (fabMenu) {
-            fabMenu.addEventListener('click', async (e) => {
-                if (e.target.closest('.fab-menu-trigger')) {
-                    fabMenu.classList.toggle('is-open');
-                    return;
-                }
-
-                const item = e.target.closest('.fab-menu-item');
-                if (!item) return;
-
-                fabMenu.classList.remove('is-open');
-
-                if (item.id === 'btn-add-brand-aside') {
-                    const { showAddBrandModal } = await import('./brands-crud.js');
-                    showAddBrandModal();
-                } else if (item.id === 'btn-add-line-aside') {
-                    const { showAddLineModal } = await import('./lines-crud.js');
-                    showAddLineModal();
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
-            });
-        }
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside-brands.html:', error);
+        document.addEventListener('click', (e) => {
+            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
+        });
     }
 }

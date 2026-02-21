@@ -51,7 +51,7 @@ function createEmptyStateHtml(itemId) {
 
 /**
  * Створює HTML статті.
- * Використовує простішу структуру без data-panel-template
+ * Використовує простішу структуру без data-aside-template
  */
 function createArticleHtml(item) {
     const trigersArray = item.trigers
@@ -76,7 +76,7 @@ function createArticleHtml(item) {
         : '';
 
     return `
-        <section id="${item.id}" data-panel-template="aside-glossary">
+        <section id="${item.id}" data-aside-template="aside-glossary">
             <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
