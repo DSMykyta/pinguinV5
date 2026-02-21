@@ -137,6 +137,7 @@ function initKeywordsTable() {
 
 export function renderKeywordsTable() {
     if (!keywordsManagedTable) {
+        if (!document.getElementById('keywords-table-container')) return;
         initKeywordsTable();
         return;
     }

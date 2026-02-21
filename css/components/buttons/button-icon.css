@@ -123,6 +123,26 @@
     font-size: 22px;
 }
 
+/* Чарм: tilt — поворот іконки 90° при .is-open */
+.btn-icon.tilt .material-symbols-outlined {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-icon.tilt.is-open .material-symbols-outlined {
+    transform: rotate(90deg);
+}
+
+/* Чарм: large — розмір FAB 56×56 */
+.btn-icon.large {
+    min-width: 56px;
+    height: 56px;
+}
+
+.btn-icon.large .material-symbols-outlined {
+    font-size: 24px;
+}
+
 /* Чарм: reload — перезавантаження секції */
 .btn-icon.reload {
     color: var(--color-on-surface-v);
