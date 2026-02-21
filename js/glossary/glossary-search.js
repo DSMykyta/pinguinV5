@@ -32,7 +32,7 @@ function handleSearch(event) {
 
     if (!contentMain) return;
 
-    const sections = contentMain.querySelectorAll('section[data-panel-template="aside-glossary"]');
+    const sections = contentMain.querySelectorAll('section[data-aside-template="aside-glossary"]');
 
     if (query === '') {
         // Показуємо всі секції

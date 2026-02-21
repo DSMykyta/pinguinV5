@@ -12,7 +12,7 @@
     <script src="js/theme-init.js"></script>
 </head>
 
-<body class="right-panel-collapsed">
+<body>
     <div class="bubble-nav column" id="bubble-nav"></div>
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
@@ -44,7 +44,7 @@
         <!-- Aside: aside-cabinet.html (профіль + інструменти)                  -->
         <!-- Рендер: tasks-cabinet.js (плагін)                                  -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-cabinet" data-panel-template="aside-cabinet">
+        <section id="section-cabinet" data-aside-template="aside-cabinet">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -66,7 +66,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: ЗАДАЧІ -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-tasks" data-panel-template="aside-tasks">
+        <section id="section-tasks" data-aside-template="aside-tasks">
 
             <div class="section-header u-align-end">
                 <div class="section-name-block">
@@ -123,7 +123,7 @@
         <!-- Aside: aside-cabinet-links.html (пошук + категорії)                -->
         <!-- Рендер: tasks-links.js (плагін)                                    -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-links" data-panel-template="aside-cabinet-links">
+        <section id="section-links" data-aside-template="aside-cabinet-links">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -145,7 +145,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════ -->
         <!-- СЕКЦІЯ: АДМІНІСТРУВАННЯ (тільки для admin) -->
         <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-admin" data-panel-template="aside-admin" class="u-hidden">
+        <section id="section-admin" data-aside-template="aside-admin" class="u-hidden">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -172,17 +172,23 @@
 
     </main>
 
-    <!-- ПРАВА ПАНЕЛЬ -->
-    <aside id="panel-right" class="panel panel-right is-collapsed">
-        <div class="panel-header">
-            <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
-                <span class="material-symbols-outlined">keyboard_arrow_left</span>
-            </button>
-        </div>
-        <div class="panel-content">
-            <!-- aside шаблони завантажуються через JS -->
-        </div>
+    <!-- CONTROLS -->
+    <div class="aside-controls">
+        <button class="btn-icon ghost flip aside-expand" aria-label="Згорнути">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="btn-icon large rotate aside-trigger" aria-label="Toggle aside">
+            <span class="material-symbols-outlined">apps</span>
+        </button>
+    </div>
+
+    <!-- ASIDE -->
+    <aside class="aside collapsed">
+        <div class="aside-body"></div>
     </aside>
+
+    <!-- FAB -->
+    <div class="aside-fab"></div>
 
     <div id="modal-placeholder"></div>
 

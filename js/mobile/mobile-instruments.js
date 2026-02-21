@@ -287,8 +287,8 @@
         const container = document.getElementById('mobile-aside-content');
         if (!container) return;
 
-        // Copy content from existing panel-right if available
-        const desktopPanel = document.querySelector('.panel-content');
+        // Copy content from existing aside if available
+        const desktopPanel = document.querySelector('.aside-body');
         if (desktopPanel && desktopPanel.innerHTML.trim()) {
             container.innerHTML = desktopPanel.innerHTML;
             return;

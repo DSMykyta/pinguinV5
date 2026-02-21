@@ -9,39 +9,13 @@
  */
 
 import { priceState } from './price-init.js';
+import { loadSingleAsideTemplate } from '../aside/aside-main.js';
 
 /**
  * Завантажити aside панель
  */
 export async function loadAside() {
-    const panelContent = document.querySelector('.panel-right .panel-content');
-    if (!panelContent) {
-        console.warn('⚠️ .panel-content не знайдено');
-        return;
-    }
-
-    try {
-        const response = await fetch('templates/aside/aside-price.html');
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const html = await response.text();
-        panelContent.innerHTML = html;
-
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside-price:', error);
-        panelContent.innerHTML = `
-            <div class="panel-fragment active" id="aside-price">
-                <div class="panel-content-scroll">
-                    <p class="text-muted" style="padding: 16px;">
-                        Помилка завантаження панелі
-                    </p>
-                </div>
-            </div>
-        `;
-    }
+    await loadSingleAsideTemplate('aside-price');
 }
 
 /**

@@ -28,17 +28,17 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../common/avatar/avatar-state.js';
 import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../common/avatar/avatar-config.js';
-import { registerPanelInitializer } from '../panel/panel-right.js';
+import { registerAsideInitializer } from '../aside/aside-main.js';
 import { withSpinner } from '../common/charms/charm-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ІНІЦІАЛІЗАТОРІВ ASIDE (на рівні модуля)
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerPanelInitializer('aside-tasks', initAsideTasksHandlers);
-registerPanelInitializer('aside-cabinet', initAsideCabinetHandlers);
-registerPanelInitializer('aside-cabinet-links', initAsideCabinetLinksHandlers);
-registerPanelInitializer('aside-admin', initAsideAdminHandlers);
+registerAsideInitializer('aside-tasks', initAsideTasksHandlers);
+registerAsideInitializer('aside-cabinet', initAsideCabinetHandlers);
+registerAsideInitializer('aside-cabinet-links', initAsideCabinetLinksHandlers);
+registerAsideInitializer('aside-admin', initAsideAdminHandlers);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -184,7 +184,7 @@ function initAddButtons() {
 
 /**
  * Ініціалізувати обробники в aside-tasks
- * Викликається panel-right.js після завантаження шаблону
+ * Викликається aside системою після завантаження шаблону
  */
 function initAsideTasksHandlers() {
     // Пошук
@@ -213,7 +213,7 @@ function initAsideTasksHandlers() {
 
 /**
  * Ініціалізувати обробники в aside-cabinet
- * Викликається panel-right.js після завантаження шаблону aside-cabinet.html
+ * Викликається aside системою після завантаження шаблону aside-cabinet.html
  *
  * Заповнює профіль юзера в aside та підключає кнопку "Додати задачу"
  */
@@ -257,7 +257,7 @@ function initAsideCabinetHandlers() {
 
 /**
  * Ініціалізувати обробники в aside-cabinet-links
- * Викликається panel-right.js після завантаження шаблону
+ * Викликається aside системою після завантаження шаблону
  */
 function initAsideCabinetLinksHandlers() {
     const searchInput = document.getElementById('search-cabinet-links');
@@ -293,7 +293,7 @@ function initAsideCabinetLinksHandlers() {
 
 /**
  * Ініціалізувати обробники в aside-admin
- * Викликається panel-right.js після завантаження шаблону
+ * Викликається aside системою після завантаження шаблону
  */
 function initAsideAdminHandlers() {
     const statsEl = document.getElementById('aside-admin-stats');

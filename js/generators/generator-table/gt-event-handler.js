@@ -29,7 +29,7 @@ export function setupEventListeners() {
     const dom = getTableDOM();
     if (!dom.rowsContainer) return;
 
-    const rightPanel = document.getElementById('panel-right');
+    const rightPanel = document.querySelector('.aside');
     if (rightPanel) {
         rightPanel.addEventListener('click', (event) => {
             const target = event.target.closest('[id]');

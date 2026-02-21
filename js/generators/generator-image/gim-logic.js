@@ -29,7 +29,7 @@ export function initImageToolLogic() {
     const dom = getImageDom();
     if (!dom.imageInput) return;
 
-    const asidePanel = dom.outputFormat.closest('.panel-fragment');
+    const asidePanel = dom.outputFormat.closest('.aside-fragment');
     if (asidePanel) {
         initCustomSelects(asidePanel);
     }

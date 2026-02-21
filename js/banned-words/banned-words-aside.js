@@ -16,38 +16,26 @@ import { bannedWordsState } from './banned-words-init.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../common/ui-select.js';
 import { populateCheckSelects } from './banned-words-ui.js';
 import { withSpinner } from '../common/charms/charm-refresh.js';
+import { loadSingleAsideTemplate } from '../aside/aside-main.js';
 
 /**
  * Завантажити aside панель
  */
 export async function loadAside() {
-    const panelRightContent = document.querySelector('.panel-right .panel-content');
-    if (!panelRightContent) return;
+    await loadSingleAsideTemplate('aside-banned-words');
 
-    try {
-        const response = await fetch('templates/aside/aside-banned-words.html');
-        if (!response.ok) throw new Error('Failed to load aside');
+    // Ініціалізувати custom selects в aside
+    const asideContainer = document.getElementById('aside-banned-words');
+    if (asideContainer) {
+        initCustomSelects(asideContainer);
+    }
 
-        const html = await response.text();
-        panelRightContent.innerHTML = html;
-
-        // Ініціалізувати custom selects в aside
-        initCustomSelects(panelRightContent);
-
-        // Ініціалізувати dropdown меню
-        const { initDropdowns } = await import('../common/ui-dropdown.js');
-        initDropdowns();
-
-        // Приховати кнопку фільтрів пошуку за замовчуванням (показувати тільки на tab-manage)
-        const searchFilterBtn = document.querySelector('[data-dropdown-trigger][aria-label="Фільтри пошуку"]');
-        if (searchFilterBtn) {
-            const activeTab = document.querySelector('.tab-content.active');
-            const tabId = activeTab ? activeTab.dataset.tabContent : 'tab-manage';
-            searchFilterBtn.classList.toggle('u-hidden', !(tabId === 'tab-manage'));
-        }
-
-    } catch (error) {
-        console.error('❌ Помилка завантаження aside:', error);
+    // Приховати кнопку фільтрів пошуку за замовчуванням (показувати тільки на tab-manage)
+    const searchFilterBtn = document.querySelector('[data-dropdown-trigger][aria-label="Фільтри пошуку"]');
+    if (searchFilterBtn) {
+        const activeTab = document.querySelector('.tab-content.active');
+        const tabId = activeTab ? activeTab.dataset.tabContent : 'tab-manage';
+        searchFilterBtn.classList.toggle('u-hidden', !(tabId === 'tab-manage'));
     }
 }
 

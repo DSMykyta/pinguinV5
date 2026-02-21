@@ -86,17 +86,23 @@
 
     </main>
 
-    <!-- ПРАВА ПАНЕЛЬ -->
-    <aside id="panel-right" class="panel panel-right">
-        <div class="panel-header">
-            <button id="btn-panel-right-toggle" class="btn-icon" aria-label="Згорнути панель">
-                <span class="material-symbols-outlined">keyboard_arrow_left</span>
-            </button>
-        </div>
-        <div class="panel-content">
-            <!-- aside-brands.html завантажується через JS -->
-        </div>
+    <!-- CONTROLS -->
+    <div class="aside-controls">
+        <button class="btn-icon ghost flip aside-expand" aria-label="Згорнути">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="btn-icon large rotate aside-trigger" aria-label="Toggle aside">
+            <span class="material-symbols-outlined">apps</span>
+        </button>
+    </div>
+
+    <!-- ASIDE -->
+    <aside class="aside expanded">
+        <div class="aside-body"></div>
     </aside>
+
+    <!-- FAB -->
+    <div class="aside-fab"></div>
 
     <div id="modal-placeholder"></div>
 
