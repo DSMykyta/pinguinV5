@@ -60,22 +60,3 @@
     color: var(--color-on-surface-variant);
 }
 
-/* Пошук в .group (голий input-box без обгортки в хедері табу) */
-.group .input-box {
-    gap: 4px;
-}
-
-.group .input-box input {
-    border: none;
-    background: transparent;
-    font-family: inherit;
-    color: var(--color-on-surface);
-    padding: 0;
-    min-width: 120px;
-}
-
-.group .input-box .material-symbols-outlined {
-    font-size: 18px;
-    color: var(--color-outline);
-    flex-shrink: 0;
-}
