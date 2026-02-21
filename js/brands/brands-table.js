@@ -129,6 +129,7 @@ function initBrandsTable() {
 
 export function renderBrandsTable() {
     if (!brandsState.brandsManagedTable) {
+        if (!document.getElementById('brands-table-container')) return;
         initBrandsTable();
         return;
     }
