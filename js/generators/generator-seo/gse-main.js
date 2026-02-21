@@ -26,7 +26,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { fetchData } from './gse-data.js';
 import { runHook, getRegisteredPlugins } from './gse-plugins.js';
 import { initEventListeners, runCalculations } from './gse-events.js';
@@ -64,6 +64,6 @@ async function initSeoGenerator() {
 
 }
 
-registerPanelInitializer('aside-seo', initSeoGenerator);
+registerAsideInitializer('aside-seo', initSeoGenerator);
 
 export { runCalculations };

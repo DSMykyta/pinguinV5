@@ -1,0 +1,177 @@
+/**
+ * LAYOUT: Aside Panel
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Фіксована права панель з трьома станами: expanded, collapsed, closed.
+ * Без overflow:hidden — діти вільно виходять за межі (expand кнопка зліва).
+ * Main просто має padding-right, aside займає цей простір.
+ *
+ * СТРУКТУРА HTML:
+ * <div class="aside-controls">
+ *     <button class="btn-icon ghost aside-expand">...</button>
+ *     <button class="btn-icon large rotate aside-trigger">...</button>
+ * </div>
+ * <aside class="aside expanded">
+ *     <div class="aside-body">...</div>
+ * </aside>
+ * <div class="aside-fab">
+ *     <div class="fab-menu">...</div>
+ * </div>
+ *
+ * СТАНИ:
+ * - .aside.expanded  — повна ширина (--panel-width-expanded)
+ * - .aside.collapsed — вузька смуга (--panel-width-collapsed), тільки іконки
+ * - .aside.closed    — translateX(100%), aside за екраном, trigger видимий
+ *
+ * АНІМАЦІЇ:
+ * - aside width/transform — плавний морфінг між станами
+ * - content-main padding — синхронно з aside
+ * - Елементи не зникають — вони морфують (opacity, transform)
+ *
+ * JS: js/aside/aside-main.js
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* ASIDE — основна панель, БЕЗ overflow:hidden                          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside {
+    position: fixed;
+    top: calc(56px + var(--space-m) * 2);
+    bottom: calc(56px + var(--space-m) * 2);
+    right: 0;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    width: var(--panel-width-expanded);
+    z-index: 5;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* СТАНИ                                                                  */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside.collapsed {
+    width: var(--panel-width-collapsed);
+}
+
+.aside.closed {
+    transform: translateX(100%);
+}
+
+/* Collapsed — ховаємо текст плавно, залишаємо іконки */
+.aside.collapsed .panel-item-text,
+.aside.collapsed .panel-separator,
+.aside.collapsed .content-line.panel input {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.aside.collapsed .aside-body {
+    align-items: center;
+}
+
+.aside.collapsed .panel-item {
+    width: 48px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Closed — body плавно зникає */
+.aside.closed .aside-body {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* CONTROLS — контейнер для expand + trigger кнопок                      */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside-controls {
+    position: fixed;
+    top: var(--space-m);
+    right: var(--space-m);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.aside-closed .aside-expand {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* BODY — scrollable контент                                             */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside-body {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+}
+
+.aside-body .panel-content-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* FRAGMENTS — шаблони що перемикаються                                   */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside-fragment {
+    display: none;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.aside-fragment.active {
+    display: flex;
+}
+
+.aside-fab-fragment {
+    display: none;
+}
+
+.aside-fab-fragment.active {
+    display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* FAB — завжди видимий, fixed внизу                                     */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.aside-fab {
+    position: fixed;
+    bottom: var(--space-m);
+    right: var(--space-m);
+    z-index: 10;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* BODY SYNC — margin-right для content-main                             */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+.content-main {
+    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.aside-expanded .content-main {
+    margin-right: var(--panel-width-expanded);
+}
+
+body.aside-collapsed .content-main {
+    margin-right: var(--panel-width-collapsed);
+}
+
+body.aside-closed .content-main {
+    margin-right: 72px;
+}

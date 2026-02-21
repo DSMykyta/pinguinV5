@@ -1,5 +1,5 @@
 // js/generators/generator-translate/gtr-main.js
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { initTranslateReset } from './gtr-reset.js'; // Імпортуємо нашу функцію
 
 /**
@@ -12,4 +12,4 @@ function initTranslateGenerator() {
 }
 
 // Реєструємо наш запускач в системі правої панелі
-registerPanelInitializer('aside-translate', initTranslateGenerator);
+registerAsideInitializer('aside-translate', initTranslateGenerator);

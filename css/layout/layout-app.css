@@ -51,13 +51,19 @@ body {
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     margin-left: var(--panel-width-collapsed);
-    padding-right: var(--panel-width-expanded);
-    transition: padding-right var(--transition-speed) ease-in-out;
+    scrollbar-width: none;
+    /* OLD: padding-right: var(--panel-width-expanded); */
+    /* OLD: transition: padding-right var(--transition-speed) ease-in-out; */
 }
 
+.content-main::-webkit-scrollbar {
+    display: none;
+}
+
+/* OLD:
 body.right-panel-collapsed .content-main {
     padding-right: var(--panel-width-collapsed);
-}
+} */
 
 /* Маркери для списків */
 ::marker {

@@ -6,11 +6,11 @@
  * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { createHighlightEditor } from '../../common/editor/editor-main.js';
 import { getEditorOptions } from '../../common/editor/editor-configs.js';
 
-registerPanelInitializer('aside-highlight', async () => {
+registerAsideInitializer('aside-highlight', async () => {
     const container = document.getElementById('ghl-editor-container');
     if (!container) return;
 

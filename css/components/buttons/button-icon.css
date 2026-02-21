@@ -123,14 +123,34 @@
     font-size: 22px;
 }
 
-/* Чарм: tilt — поворот іконки 90° при .is-open */
+/* Чарм: tilt — поворот іконки 45° при .is-open (+ → ×) */
 .btn-icon.tilt .material-symbols-outlined {
     display: inline-block;
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .btn-icon.tilt.is-open .material-symbols-outlined {
+    transform: rotate(45deg);
+}
+
+/* Чарм: rotate — поворот іконки 90° при .is-open */
+.btn-icon.rotate .material-symbols-outlined {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-icon.rotate.is-open .material-symbols-outlined {
     transform: rotate(90deg);
+}
+
+/* Чарм: flip — поворот іконки 180° при .is-open (chevron → ←) */
+.btn-icon.flip .material-symbols-outlined {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-icon.flip.is-open .material-symbols-outlined {
+    transform: rotate(180deg);
 }
 
 /* Чарм: large — розмір FAB 56×56 */

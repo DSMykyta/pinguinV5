@@ -1,7 +1,8 @@
 // js/main-core.js
 
 import { initPanelLeft }        from './panel/panel-left.js';
-import { initPanelRight }       from './panel/panel-right.js';
+// OLD: import { initPanelRight } from './panel/panel-right.js';
+import { initAside }            from './aside/aside-main.js';
 import { initDropdowns }        from './common/ui-dropdown.js';
 import { initModals }           from './common/ui-modal-init.js';
 import { initAvatarSystem }     from './common/avatar/avatar-main.js';
@@ -22,7 +23,8 @@ import { initColumnsCharm }     from './common/charms/charm-columns.js';
 export async function initCore() {
     await initPanelLeft();
     initTheme();
-    initPanelRight();
+    // OLD: initPanelRight();
+    await initAside();
     initDropdowns();
 
     // ВАЖЛИВО: initModals() повинен бути ДО initCustomAuth()

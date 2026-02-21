@@ -27,7 +27,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { initImageToolLogic } from './gim-logic.js';
 import { runHook, getRegisteredPlugins } from './gim-plugins.js';
 
@@ -61,4 +61,4 @@ async function initImageToolGenerator() {
 
 }
 
-registerPanelInitializer('aside-image-tool', initImageToolGenerator);
+registerAsideInitializer('aside-image-tool', initImageToolGenerator);

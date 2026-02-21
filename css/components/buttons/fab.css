@@ -51,6 +51,13 @@
     z-index: 1;
 }
 
+/* Primary FAB — насичений колір */
+.fab.primary {
+    background: var(--color-main);
+    color: var(--color-on-main);
+    box-shadow: var(--shadow-3);
+}
+
 .fab:disabled {
     background: var(--color-surface-c);
     color: var(--color-on-surface);

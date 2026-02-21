@@ -21,7 +21,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { getTableDOM } from './gt-dom.js';
 import { SORTABLE_CONFIG } from './gt-config.js';
 import { setInitialized, getLoadedPlugins } from './gt-state.js';
@@ -137,7 +137,7 @@ async function initTableGenerator() {
 }
 
 // Реєструємо запускач
-registerPanelInitializer('aside-table', initTableGenerator);
+registerAsideInitializer('aside-table', initTableGenerator);
 
 // ============================================================================
 // EXPORTS

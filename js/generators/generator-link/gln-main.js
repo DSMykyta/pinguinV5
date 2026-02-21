@@ -20,7 +20,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerPanelInitializer } from '../../panel/panel-right.js';
+import { registerAsideInitializer } from '../../aside/aside-main.js';
 import { fetchLinksData } from './gln-data.js';
 import { renderLinkButtons } from './gln-ui.js';
 import { initLinksEventListeners, updateLinksUI } from './gln-events.js';
@@ -58,6 +58,6 @@ async function initLinksGenerator() {
 
 }
 
-registerPanelInitializer('aside-links', initLinksGenerator);
+registerAsideInitializer('aside-links', initLinksGenerator);
 
 export { updateLinksUI };
