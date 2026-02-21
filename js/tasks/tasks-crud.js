@@ -18,7 +18,6 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { initCustomSelects, populateSelect } from '../common/ui-select.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { getEditorOptions } from '../common/editor/editor-configs.js';
 
 // Екземпляр редактора опису
 let descriptionEditor = null;
@@ -177,9 +176,9 @@ function initTaskEditModal(task, readOnly = false) {
         const isEditable = !readOnly && (isOwner || !isEdit);
 
         if (isEditable) {
-            descriptionEditor = createHighlightEditor(editorContainer, getEditorOptions('task-description', {
+            descriptionEditor = createHighlightEditor(editorContainer, {
                 initialValue: task?.description || '',
-            }));
+            });
         } else {
             // Read-only режим - показати як текст
             editorContainer.innerHTML = `<div class="text-viewer">${task?.description || '<em>Немає опису</em>'}</div>`;

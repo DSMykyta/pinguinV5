@@ -438,6 +438,9 @@
             <a href="#charms" class="m3-nav-item">
                 <span class="material-symbols-outlined">diamond</span>Charms
             </a>
+            <a href="#editor" class="m3-nav-item">
+                <span class="material-symbols-outlined">edit_note</span>Editor
+            </a>
         </div>
 
         <div class="m3-nav-group">
@@ -2493,6 +2496,415 @@ icon.classList.add('spinning');
 
 &lt;!-- JS знімає коли готово --&gt;
 icon.classList.remove('spinning');</div>
+                </div>
+
+            </section>
+
+
+            <!-- ================================================================= -->
+            <!-- 10.5. EDITOR (Charm-based)                                         -->
+            <!-- ================================================================= -->
+            <section class="m3-section" id="editor">
+                <h2 class="m3-section-title"><span class="material-symbols-outlined"
+                        style="font-size:28px;vertical-align:middle">edit_note</span> Editor</h2>
+                <p class="m3-section-desc">
+                    Універсальний WYSIWYG редактор з конфігурацією через HTML-чарми.
+                    Замість JS конфіг-об'єкта — декларативні атрибути на контейнері.
+                    Без чармів = readonly текстовий блок. Кожен чарм додає функціонал.
+                </p>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Концепція чармів                                     -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Система чармів</h3>
+                        <p>Кожен чарм — HTML-атрибут на контейнері редактора. Можна комбінувати в будь-якій комбінації.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">editor-main.js</span>
+                            <span class="m3-tag m3-tag-src">editor-template.js</span>
+                        </div>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Чарм</th>
+                            <th>Що додає</th>
+                            <th>Плагіни</th>
+                        </tr>
+                        <tr>
+                            <td><code>editor</code></td>
+                            <td>Базовий маркер. Без інших чармів — readonly блок (<code>contenteditable="false"</code>)</td>
+                            <td>editor-paste, editor-undo, editor-enter</td>
+                        </tr>
+                        <tr>
+                            <td><code>tools</code></td>
+                            <td>Панель інструментів: bold, italic, H1-H3, list, case + find/replace. Вмикає <code>contenteditable="true"</code></td>
+                            <td>editor-formatting, editor-case, editor-find</td>
+                        </tr>
+                        <tr>
+                            <td><code>code</code></td>
+                            <td>Перемикач Текст/Код (radio switch в тулбарі)</td>
+                            <td>editor-mode</td>
+                        </tr>
+                        <tr>
+                            <td><code>check</code></td>
+                            <td>Перевірка заборонених слів: chips в тулбарі, підсвічування в тексті, tooltip</td>
+                            <td>editor-validation, editor-chip-navigation, editor-tooltip</td>
+                        </tr>
+                        <tr>
+                            <td><code>stats</code></td>
+                            <td>Футер: кількість символів, слів, час читання</td>
+                            <td>editor-stats</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-links</code></td>
+                            <td>Тогл очистки посилань у футері. Без значення = очистка ON. <code>="allow"</code> = лінки дозволені</td>
+                            <td>editor-cleanup</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-styles</code></td>
+                            <td>Тогл очистки inline стилів у футері</td>
+                            <td>editor-cleanup</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-images</code></td>
+                            <td>Тогл очистки зображень у футері</td>
+                            <td>editor-cleanup</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Data-атрибути                                       -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Data-атрибути</h3>
+                        <p>Додаткові налаштування через data-* атрибути.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Атрибут</th>
+                            <th>Опис</th>
+                            <th>За замовч.</th>
+                        </tr>
+                        <tr>
+                            <td><code>data-editor-id</code></td>
+                            <td>Кастомний ID префікс для DOM елементів (→ <code>{id}-editor</code>, <code>{id}-toolbar</code> тощо)</td>
+                            <td><code>editor-1</code>, <code>editor-2</code>... (auto)</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-placeholder</code></td>
+                            <td>Текст placeholder коли редактор порожній</td>
+                            <td><code>Введіть текст...</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>data-min-height</code></td>
+                            <td>Мінімальна висота редактора в px</td>
+                            <td><code>200</code></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Приклади конфігурацій                               -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Приклади конфігурацій</h3>
+                        <p>Реальні конфігурації редакторів у системі.</p>
+                    </div>
+
+                    <div class="m3-sub">1. Повний редактор (Highlight Generator)</div>
+                    <div class="m3-code">&lt;!-- Всі функції: toolbar, code, validation, stats, cleanup --&gt;
+&lt;div id="ghl-editor-container"
+     editor tools code check stats
+     cleanup-links cleanup-styles cleanup-images
+     data-editor-id="ghl"
+     data-placeholder="Вставте сюди текст для перевірки..."
+     data-min-height="200"&gt;
+&lt;/div&gt;</div>
+
+                    <div class="m3-sub">2. Редактор з дозволеними посиланнями (Glossary, Brand)</div>
+                    <div class="m3-code">&lt;!-- Editing + code + stats, лінки дозволені за замовчанням --&gt;
+&lt;div id="keyword-glossary-editor-container"
+     editor tools code stats cleanup-links="allow"
+     data-placeholder="Введіть опис терміну для глосарію..."
+     data-min-height="300"&gt;
+&lt;/div&gt;</div>
+
+                    <div class="m3-sub">3. Мінімальний редактор (Tasks)</div>
+                    <div class="m3-code">&lt;!-- Тільки toolbar з форматуванням + find/replace --&gt;
+&lt;div id="task-description-editor"
+     editor tools
+     data-placeholder="Детальний опис задачі..."
+     data-min-height="150"&gt;
+&lt;/div&gt;</div>
+
+                    <div class="m3-sub">4. Readonly блок (preview)</div>
+                    <div class="m3-code">&lt;!-- Без чармів = текстовий блок без редагування --&gt;
+&lt;div id="my-preview" editor&gt;
+&lt;/div&gt;</div>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- JS ініціалізація                                    -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>JS ініціалізація</h3>
+                        <p>Фабрика читає чарми автоматично. В JS передаються тільки runtime-опції.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">editor-main.js</span>
+                            <span class="m3-tag">createHighlightEditor()</span>
+                        </div>
+                    </div>
+
+                    <div class="m3-sub">Базовий виклик (все з чармів)</div>
+                    <div class="m3-code">import { createHighlightEditor } from '../common/editor/editor-main.js';
+
+const container = document.getElementById('ghl-editor-container');
+const editor = createHighlightEditor(container);
+// Чарми на контейнері визначають всю конфігурацію</div>
+
+                    <div class="m3-sub">З runtime-опціями</div>
+                    <div class="m3-code">// initialValue та onChange — єдине що передається в JS
+const editor = createHighlightEditor(container, {
+    initialValue: '&lt;p&gt;Початковий текст&lt;/p&gt;',
+    onChange: (html) =&gt; console.log('Changed:', html),
+});</div>
+
+                    <div class="m3-sub">Публічне API</div>
+                    <div class="m3-code">editor.getValue();      // Чистий HTML (без підсвічувань)
+editor.setValue(html);   // Встановити HTML
+editor.getPlainText();   // Тільки текст
+editor.getMode();        // 'text' або 'code'
+editor.setMode('code');  // Переключити режим
+editor.focus();          // Фокус на редактор
+editor.clear();          // Очистити все
+editor.destroy();        // Знищити екземпляр</div>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Як створити новий редактор                          -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block" style="border-color:var(--color-main)">
+                    <div class="m3-block-header">
+                        <h3>Як створити новий редактор</h3>
+                        <p>Покрокова інструкція для додавання нового екземпляра.</p>
+                    </div>
+
+                    <div class="m3-sub">Крок 1: HTML — додати контейнер з потрібними чармами</div>
+                    <div class="m3-code">&lt;!-- Приклад: редактор для опису категорії з підсвіткою --&gt;
+&lt;div id="category-description-editor"
+     editor tools code check stats cleanup-links="allow"
+     data-placeholder="Опис категорії..."
+     data-min-height="250"&gt;
+&lt;/div&gt;</div>
+
+                    <div class="m3-sub">Крок 2: JS — створити екземпляр</div>
+                    <div class="m3-code">import { createHighlightEditor } from '../common/editor/editor-main.js';
+
+let categoryEditor = null;
+
+function initCategoryEditor() {
+    const container = document.getElementById('category-description-editor');
+    if (!container) return;
+
+    // Знищити попередній (якщо повторна ініціалізація)
+    if (categoryEditor) {
+        categoryEditor.destroy();
+        categoryEditor = null;
+    }
+
+    categoryEditor = createHighlightEditor(container, {
+        initialValue: existingData?.description || '',
+    });
+}
+
+// Отримати значення при збереженні
+function save() {
+    const html = categoryEditor.getValue();
+    // html — чистий, без highlight-span'ів
+}</div>
+
+                    <div class="m3-sub">Крок 3: Обрати чарми під задачу</div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Задача</th>
+                            <th>Чарми</th>
+                        </tr>
+                        <tr>
+                            <td>Просте форматування</td>
+                            <td><code>editor tools</code></td>
+                        </tr>
+                        <tr>
+                            <td>Форматування + код</td>
+                            <td><code>editor tools code</code></td>
+                        </tr>
+                        <tr>
+                            <td>З валідацією заборонених слів</td>
+                            <td><code>editor tools code check</code></td>
+                        </tr>
+                        <tr>
+                            <td>Зі статистикою тексту</td>
+                            <td><code>editor tools stats</code></td>
+                        </tr>
+                        <tr>
+                            <td>З дозволеними лінками</td>
+                            <td><code>editor tools cleanup-links="allow"</code></td>
+                        </tr>
+                        <tr>
+                            <td>Повний набір</td>
+                            <td><code>editor tools code check stats cleanup-links cleanup-styles cleanup-images</code></td>
+                        </tr>
+                        <tr>
+                            <td>Тільки перегляд (readonly)</td>
+                            <td><code>editor</code></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Архітектура                                         -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Архітектура</h3>
+                        <p>Ядро + плагіни. Кожен плагін можна видалити без впливу на решту.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">js/common/editor/</span>
+                        </div>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Файл</th>
+                            <th>Тип</th>
+                            <th>Опис</th>
+                        </tr>
+                        <tr>
+                            <td><code>editor-main.js</code></td>
+                            <td><strong>Ядро</strong></td>
+                            <td>Фабрика, readCharms(), завантаження плагінів</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-template.js</code></td>
+                            <td><strong>Ядро</strong></td>
+                            <td>HTML шаблон, умовний рендеринг секцій</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-state.js</code></td>
+                            <td><strong>Ядро</strong></td>
+                            <td>State, DOM refs, хуки (onInput, onValidate...)</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-mode.js</code></td>
+                            <td><strong>Ядро</strong></td>
+                            <td>Перемикання Text/Code режимів</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-utils.js</code></td>
+                            <td><strong>Ядро</strong></td>
+                            <td>sanitizeHtml, saveCaretPosition</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-formatting.js</code></td>
+                            <td>Плагін</td>
+                            <td>Bold, Italic, H1-H3, List</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-case.js</code></td>
+                            <td>Плагін</td>
+                            <td>lowercase, UPPERCASE, Title Case</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-find.js</code></td>
+                            <td>Плагін</td>
+                            <td>Find &amp; Replace (частина tools)</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-undo.js</code></td>
+                            <td>Плагін</td>
+                            <td>Undo/Redo (Ctrl+Z/Y, 50 записів)</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-validation.js</code></td>
+                            <td>Плагін</td>
+                            <td>Перевірка заборонених слів</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-stats.js</code></td>
+                            <td>Плагін</td>
+                            <td>Символи, слова, час читання</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-paste.js</code></td>
+                            <td>Плагін</td>
+                            <td>Smart paste + copy з очисткою HTML</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-cleanup.js</code></td>
+                            <td>Плагін</td>
+                            <td>Тогли links/styles/images</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-enter.js</code></td>
+                            <td>Плагін</td>
+                            <td>Enter/Shift+Enter поведінка</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-chip-navigation.js</code></td>
+                            <td>Плагін</td>
+                            <td>Клік по chip → скрол до слова</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor-tooltip.js</code></td>
+                            <td>Плагін</td>
+                            <td>Hover підказка на підсвічених словах</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ─────────────────────────────────────────────────── -->
+                <!-- Поточні екземпляри                                  -->
+                <!-- ─────────────────────────────────────────────────── -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Екземпляри в системі</h3>
+                        <p>Де зараз використовуються редактори.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Сторінка</th>
+                            <th>Контейнер</th>
+                            <th>Чарми</th>
+                            <th>JS файл</th>
+                        </tr>
+                        <tr>
+                            <td>Highlight Generator</td>
+                            <td><code>#ghl-editor-container</code></td>
+                            <td><code>tools code check stats cleanup-links cleanup-styles cleanup-images</code></td>
+                            <td><code>ghl-main.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Keywords → Glossary</td>
+                            <td><code>#keyword-glossary-editor-container</code></td>
+                            <td><code>tools code stats cleanup-links="allow"</code></td>
+                            <td><code>keywords-crud.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Brands → Опис</td>
+                            <td><code>#brand-text-editor-container</code></td>
+                            <td><code>tools code stats cleanup-links="allow"</code></td>
+                            <td><code>brands-crud.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Tasks → Опис</td>
+                            <td><code>#task-description-editor</code></td>
+                            <td><code>tools</code></td>
+                            <td><code>tasks-crud.js</code></td>
+                        </tr>
+                    </table>
                 </div>
 
             </section>
