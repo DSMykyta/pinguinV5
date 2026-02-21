@@ -85,22 +85,6 @@
     border-color: var(--color-main);
 }
 
-/* Textarea styling */
-.group.column textarea {
-    padding: 8px 12px;
-    border: 1px solid var(--color-outline);
-    border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-on-surface);
-    font-family: inherit;
-    resize: vertical;
-    min-height: 80px;
-}
-
-.group.column textarea:focus {
-    outline: none;
-    border-color: var(--color-main);
-}
 
 /* --- Grid-розкладки форм --- */
 

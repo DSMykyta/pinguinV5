@@ -224,7 +224,7 @@
 .content-bloc select,
 .content-line.panel input {
     border: none;
-    padding: 0 12px;
+    padding: 0 16px;
     background-color: transparent;
     width: 100%;
     resize: vertical;
@@ -240,7 +240,7 @@
 }
 
 .content-bloc textarea {
-    padding: 10px 12px 0 12px;
+    padding: 10px 16px 0 16px;
     min-height: 40px;
 }
 
