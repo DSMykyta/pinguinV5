@@ -2,14 +2,14 @@
 
 /**
  * HTML шаблон для редактора
- * Рендерить секції умовно на основі конфігу
+ * Рендерить секції умовно на основі чармів (атрибутів контейнера)
  *
- * Використовує стандартні компоненти:
- * - .toolbar-wrapper (toolbar.css)
- * - .format-toolbar (toolbar.css)
- * - .toolbar-separator (toolbar.css)
- * - .btn-icon (button-icon.css)
- * - .dropdown-wrapper (dropdown.css)
+ * Без чармів = readonly текстовий блок (contenteditable="false")
+ * tools → toolbar + editing + find/replace
+ * code → Text/Code перемикач
+ * check → validation chips
+ * stats → footer зі статистикою
+ * cleanup-links/styles/images → окремі тогли очистки
  */
 
 /**
@@ -28,12 +28,16 @@ export function createEditorTemplate(id, config) {
         validation,
         showStats,
         showFindReplace,
+        showCleanupLinks,
+        showCleanupStyles,
+        showCleanupImages,
     } = config;
 
-    const showCleanup = toolbar !== false;
-    const showToolbar = toolbar !== false;
-    const showCode = code !== false;
-    const showEditing = editing !== false;
+    const showToolbar = toolbar === true;
+    const showEditing = editing === true;
+    const showCode = code === true;
+    const showCleanup = showCleanupLinks || showCleanupStyles || showCleanupImages;
+    const isEditable = showEditing;
 
     return `
         <div class="editor-component rich-editor-container" data-editor-id="${id}" style="--editor-min-height: ${minHeight}px;">
@@ -46,7 +50,7 @@ export function createEditorTemplate(id, config) {
                 <div
                     id="${id}-editor"
                     class="rich-editor-content"
-                    contenteditable="true"
+                    contenteditable="${isEditable}"
                     data-placeholder="${placeholder}"
                 ></div>
 
@@ -73,15 +77,15 @@ export function createEditorTemplate(id, config) {
                 ` : '<div></div>'}
                 ${showCleanup ? `
                 <div id="${id}-cleanup-toggles" style="display: flex; gap: 4px;">
-                    <button type="button" class="btn-icon" id="${id}-toggle-links" title="Очищати посилання" data-cleanup-toggle="allowLinks">
+                    ${showCleanupLinks ? `<button type="button" class="btn-icon" id="${id}-toggle-links" title="Очищати посилання" data-cleanup-toggle="allowLinks">
                         <span class="material-symbols-outlined">link_off</span>
-                    </button>
-                    <button type="button" class="btn-icon" id="${id}-toggle-styles" title="Очищати стилі" data-cleanup-toggle="allowStyles">
+                    </button>` : ''}
+                    ${showCleanupStyles ? `<button type="button" class="btn-icon" id="${id}-toggle-styles" title="Очищати стилі" data-cleanup-toggle="allowStyles">
                         <span class="material-symbols-outlined">format_color_reset</span>
-                    </button>
-                    <button type="button" class="btn-icon" id="${id}-toggle-images" title="Очищати зображення" data-cleanup-toggle="allowImages">
+                    </button>` : ''}
+                    ${showCleanupImages ? `<button type="button" class="btn-icon" id="${id}-toggle-images" title="Очищати зображення" data-cleanup-toggle="allowImages">
                         <span class="material-symbols-outlined">hide_image</span>
-                    </button>
+                    </button>` : ''}
                 </div>
                 ` : ''}
             </div>

@@ -5,6 +5,29 @@
  * ║              UNIVERSAL HIGHLIGHT EDITOR                                  ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
+ * ║  Конфігурація через HTML-чарми на контейнері:                            ║
+ * ║                                                                          ║
+ * ║  ЧАРМИ (атрибути):                                                       ║
+ * ║  ├── editor          — Базовий маркер (без чармів = readonly блок)       ║
+ * ║  ├── tools           — Панель інструментів + find/replace + editing      ║
+ * ║  ├── code            — Перемикач Текст/Код                               ║
+ * ║  ├── check           — Перевірка заборонених слів + підсвічування        ║
+ * ║  ├── stats           — Статистика (символи/слова/час читання)            ║
+ * ║  ├── cleanup-links   — Тогл очистки посилань                             ║
+ * ║  ├── cleanup-styles  — Тогл очистки стилів                               ║
+ * ║  └── cleanup-images  — Тогл очистки зображень                            ║
+ * ║                                                                          ║
+ * ║  DATA-АТРИБУТИ:                                                          ║
+ * ║  ├── data-editor-id  — Кастомний ID префікс (за замовч. auto)           ║
+ * ║  ├── data-placeholder — Placeholder тексту                               ║
+ * ║  └── data-min-height  — Мінімальна висота в px                           ║
+ * ║                                                                          ║
+ * ║  ПРИКЛАД:                                                                ║
+ * ║  <div editor tools code check stats                                      ║
+ * ║       data-editor-id="ghl"                                               ║
+ * ║       data-placeholder="Вставте текст...">                               ║
+ * ║  </div>                                                                  ║
+ * ║                                                                          ║
  * ║  🔒 ЯДРО (не видаляти):                                                  ║
  * ║  ├── editor-main.js       — Фабрика, завантаження плагінів               ║
  * ║  ├── editor-template.js   — HTML шаблон                                  ║
@@ -51,6 +74,36 @@ const PLUGINS = [
 ];
 
 /**
+ * Прочитати чарми з HTML-атрибутів контейнера
+ */
+function readCharms(container) {
+    const hasTools = container.hasAttribute('tools');
+    const hasCode = container.hasAttribute('code');
+    const hasCheck = container.hasAttribute('check');
+    const hasStats = container.hasAttribute('stats');
+    const hasCleanupLinks = container.hasAttribute('cleanup-links');
+    const hasCleanupStyles = container.hasAttribute('cleanup-styles');
+    const hasCleanupImages = container.hasAttribute('cleanup-images');
+
+    return {
+        toolbar: hasTools,
+        code: hasCode,
+        editing: hasTools,
+        validation: hasCheck,
+        showStats: hasStats,
+        showFindReplace: hasTools,
+        showCleanupLinks: hasCleanupLinks,
+        showCleanupStyles: hasCleanupStyles,
+        showCleanupImages: hasCleanupImages,
+        allowLinks: container.getAttribute('cleanup-links') === 'allow',
+        allowImages: container.getAttribute('cleanup-images') === 'allow',
+        allowStyles: container.getAttribute('cleanup-styles') === 'allow',
+        placeholder: container.dataset.placeholder || 'Введіть текст...',
+        minHeight: parseInt(container.dataset.minHeight) || 200,
+    };
+}
+
+/**
  * Створити екземпляр редактора
  */
 export function createHighlightEditor(container, options = {}) {
@@ -59,23 +112,18 @@ export function createHighlightEditor(container, options = {}) {
         return null;
     }
 
-    const id = options.idPrefix || `editor-${++instanceCounter}`;
+    // Читаємо чарми з контейнера
+    const charms = readCharms(container);
+
+    const id = options.idPrefix
+        || container.dataset.editorId
+        || `editor-${++instanceCounter}`;
 
     const config = {
-        toolbar: true,
-        code: true,
-        editing: true,
-        validation: false,
-        showStats: false,
-        showFindReplace: false,
-        placeholder: 'Введіть текст...',
+        ...charms,
         initialValue: '',
-        minHeight: 200,
         onChange: null,
-        allowLinks: false,
-        allowImages: false,
-        allowStyles: false,
-        ...options
+        ...options,
     };
 
     // Створити HTML

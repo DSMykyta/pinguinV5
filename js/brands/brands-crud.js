@@ -24,7 +24,6 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { getEditorOptions } from '../common/editor/editor-configs.js';
 import { createManagedTable } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
@@ -189,7 +188,7 @@ function initTextEditor() {
         textEditor = null;
     }
 
-    textEditor = createHighlightEditor(container, getEditorOptions('brand-description'));
+    textEditor = createHighlightEditor(container);
 }
 
 /**
