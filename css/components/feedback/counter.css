@@ -8,11 +8,11 @@
  * ВИКОРИСТАННЯ:
  * <span class="counter">3×</span>
  * <span class="counter c-main">5</span>
- * <span class="counter c-muted">0</span>
+ * <span class="counter c-grey">0</span>
  *
  * КОЛЬОРИ:
- * Через шар colors.css (.c-main, .c-muted)
- * Без кольору — secondary color (default).
+ * Через шар colors.css (.c-main, .c-grey)
+ * Без кольору — нейтральний/прозорий (surface).
  *
  * ЗАЛЕЖНОСТІ:
  * - layers/colors.css (--c, --c-on)
@@ -28,8 +28,8 @@
     align-items: center;
     justify-content: center;
     padding: 2px 6px;
-    color: var(--c-on, var(--color-on-secondary));
-    background-color: var(--c, var(--color-secondary));
+    color: var(--c-on, var(--color-on-surface));
+    background-color: var(--c, var(--color-surface-c-low));
     border-radius: 12px;
     white-space: nowrap;
 }

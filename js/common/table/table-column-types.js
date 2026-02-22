@@ -79,7 +79,7 @@ export const COLUMN_TYPES = {
             const val = (typeof value === 'boolean')
                 ? (value ? 'active' : 'inactive')
                 : String(value ?? '').toLowerCase();
-            const color = DOT_COLOR[val] || 'c-muted';
+            const color = DOT_COLOR[val] || 'c-grey';
             return `<span class="dot ${color}" title="${escapeHtml(value ?? '')}"></span>`;
         }
     },

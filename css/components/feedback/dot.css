@@ -10,11 +10,11 @@
  * <span class="dot c-red" title="Неактивний"></span>
  * <span class="dot c-yellow" title="Чернетка"></span>
  * <span class="dot c-blue" title="Інформація"></span>
- * <span class="dot c-muted" title="Невідомо"></span>
+ * <span class="dot c-grey" title="Невідомо"></span>
  * <span class="dot"></span>  <!-- default grey -->
  *
  * КОЛЬОРИ:
- * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-muted)
+ * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-grey)
  *
  * ЗАЛЕЖНОСТІ:
  * - layers/colors.css (--c)

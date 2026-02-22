@@ -27,7 +27,7 @@
  * КОЛЬОРИ:
  * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-main)
  * Chip використовує контейнерний варіант: --c-c (фон), --c-on-c (текст).
- * Без кольору — main color (default).
+ * Без кольору — нейтральний/прозорий (surface).
  *
  * ЗАЛЕЖНОСТІ:
  * - layers/colors.css (--c, --c-on, --c-c, --c-on-c)
@@ -128,15 +128,15 @@
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
-    background: var(--c-c, var(--color-main-c));
-    color: var(--c-on-c, var(--color-main));
-    border: 1px solid var(--c-c, var(--color-main-c));
+    background: var(--c-c, var(--color-surface-c-low));
+    color: var(--c-on-c, var(--color-on-surface));
+    border: 1px solid var(--c-c, var(--color-surface-c));
 }
 
 .chip:hover {
-    background: var(--c, var(--color-main));
-    color: var(--c-on, var(--color-on-main));
-    border-color: var(--c, var(--color-main));
+    background: var(--c, var(--color-surface-c));
+    color: var(--c-on, var(--color-on-surface));
+    border-color: var(--c, var(--color-surface-c));
     border-radius: 16px;
 }
 
@@ -145,8 +145,8 @@
 /* ============================================ */
 
 .chip.filled {
-    background: var(--c, var(--color-main));
-    color: var(--c-on, var(--color-on-main));
+    background: var(--c, var(--color-surface-c));
+    color: var(--c-on, var(--color-on-surface));
     border-color: transparent;
 }
 

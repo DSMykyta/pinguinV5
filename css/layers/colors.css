@@ -4,6 +4,9 @@
  * Кольоровий шар — утилітарні класи, які встановлюють CSS-змінні.
  * Компоненти (dot, badge, chip, tag, counter, severity-badge) читають ці змінні.
  *
+ * БЕЗ КЛАСУ — компонент нейтральний/прозорий.
+ * З КЛАСОМ — бере колір з цього шару.
+ *
  * ЗМІННІ:
  * --c       — основний колір (solid)
  * --c-on    — текст на solid фоні
@@ -14,17 +17,53 @@
  * <span class="dot c-green"></span>
  * <span class="badge c-red">Ні</span>
  * <span class="chip c-yellow">Warning</span>
- * <span class="counter c-main">5</span>
+ * <span class="tag c-main">UA-12345</span>
+ * <span class="counter c-blue">5</span>
  *
- * КОЛЬОРИ:
- * .c-red     — error / danger
- * .c-green   — success
- * .c-yellow  — warning
- * .c-blue    — info
- * .c-main    — primary / brand
+ * КОЛЬОРИ (8):
+ * .c-main      — primary / brand
  * .c-secondary — secondary
- * .c-muted   — neutral / grey
+ * .c-tertiary  — tertiary / accent
+ * .c-grey      — neutral / muted
+ * .c-red       — error / danger
+ * .c-green     — success
+ * .c-yellow    — warning
+ * .c-blue      — info
  */
+
+/* === BRAND === */
+
+.c-main {
+    --c: var(--color-main);
+    --c-on: var(--color-on-main);
+    --c-c: var(--color-main-c);
+    --c-on-c: var(--color-on-main-c);
+}
+
+.c-secondary {
+    --c: var(--color-secondary);
+    --c-on: var(--color-on-secondary);
+    --c-c: var(--color-secondary-c);
+    --c-on-c: var(--color-on-secondary-c);
+}
+
+.c-tertiary {
+    --c: var(--color-tertiary);
+    --c-on: var(--color-on-tertiary);
+    --c-c: var(--color-tertiary-c);
+    --c-on-c: var(--color-on-tertiary-c);
+}
+
+/* === NEUTRAL === */
+
+.c-grey {
+    --c: var(--color-outline);
+    --c-on: var(--color-on-surface);
+    --c-c: var(--color-surface-c-low);
+    --c-on-c: var(--color-on-surface-v);
+}
+
+/* === SEMANTIC === */
 
 .c-red {
     --c: var(--color-error);
@@ -52,25 +91,4 @@
     --c-on: var(--color-on-info);
     --c-c: var(--color-info-c);
     --c-on-c: var(--color-on-info-c);
-}
-
-.c-main {
-    --c: var(--color-main);
-    --c-on: var(--color-on-main);
-    --c-c: var(--color-main-c);
-    --c-on-c: var(--color-on-main-c);
-}
-
-.c-secondary {
-    --c: var(--color-secondary);
-    --c-on: var(--color-on-secondary);
-    --c-c: var(--color-secondary-c);
-    --c-on-c: var(--color-on-secondary-c);
-}
-
-.c-muted {
-    --c: var(--color-outline);
-    --c-on: var(--color-on-surface);
-    --c-c: var(--color-surface-c-low);
-    --c-on-c: var(--color-on-surface-v);
 }

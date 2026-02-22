@@ -1810,7 +1810,37 @@
             <!-- ================================================================= -->
             <section class="m3-section" id="chips">
                 <h2 class="m3-section-title">Chips & Inline Elements</h2>
-                <p style="color:var(--color-on-surface-v);margin-bottom:16px">4 базові компоненти для інлайнових індикаторів. Покривають всі випадки: статуси, мітки, лічильники.</p>
+                <p style="color:var(--color-on-surface-v);margin-bottom:16px">5 базових компонентів (dot, badge, chip, tag, counter). Без класу = нейтральний. Колір — тільки з шару <code>colors.css</code>.</p>
+
+                <!-- 0. COLOR LAYER -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Color Layer (colors.css)</h3>
+                        <p>8 кольорових класів. Встановлюють CSS-змінні --c, --c-on, --c-c, --c-on-c. Компоненти читають ці змінні.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">colors.css</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview" style="gap:12px;align-items:center;flex-wrap:wrap">
+                        <span class="badge c-main">c-main</span>
+                        <span class="badge c-secondary">c-secondary</span>
+                        <span class="badge c-tertiary">c-tertiary</span>
+                        <span class="badge c-grey">c-grey</span>
+                        <span class="badge c-red">c-red</span>
+                        <span class="badge c-green">c-green</span>
+                        <span class="badge c-yellow">c-yellow</span>
+                        <span class="badge c-blue">c-blue</span>
+                        <span class="badge">default</span>
+                    </div>
+                    <div class="m3-code">&lt;span class="badge c-main"&gt;...&lt;/span&gt;
+&lt;span class="chip c-red"&gt;...&lt;/span&gt;
+&lt;span class="dot c-green"&gt;&lt;/span&gt;
+&lt;span class="tag c-blue"&gt;...&lt;/span&gt;
+&lt;span class="counter c-yellow"&gt;3&lt;/span&gt;
+
+&lt;!-- Без класу = нейтральний --&gt;
+&lt;span class="badge"&gt;Default&lt;/span&gt;</div>
+                </div>
 
                 <!-- 1. DOT -->
                 <div class="m3-block">
@@ -1837,7 +1867,7 @@
                             <span class="dot c-blue"></span><span class="m3-label">.c-blue</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="dot c-muted"></span><span class="m3-label">.c-muted</span>
+                            <span class="dot c-grey"></span><span class="m3-label">.c-grey</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
                             <span class="dot"></span><span class="m3-label">default</span>
@@ -1942,12 +1972,12 @@
                             <span class="counter c-main">5</span><span class="m3-label">.counter.c-main</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="counter c-muted">0</span><span class="m3-label">.counter.c-muted</span>
+                            <span class="counter c-grey">0</span><span class="m3-label">.counter.c-grey</span>
                         </div>
                     </div>
                     <div class="m3-code">&lt;span class="counter"&gt;3&amp;times;&lt;/span&gt;
 &lt;span class="counter c-main"&gt;5&lt;/span&gt;
-&lt;span class="counter c-muted"&gt;0&lt;/span&gt;</div>
+&lt;span class="counter c-grey"&gt;0&lt;/span&gt;</div>
                 </div>
             </section>
 
