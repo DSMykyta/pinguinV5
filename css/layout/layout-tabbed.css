@@ -15,11 +15,6 @@
  * </main>
  */
 
-/* Табована сторінка — тільки override overflow */
-.content-main.tabbed-page {
-    overflow: hidden;
-}
-
 /* Navigator в табах - абсолютне позиціювання, не займає місця в потоці */
 .tabbed-page .nav.row {
     position: absolute;

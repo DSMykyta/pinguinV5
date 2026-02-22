@@ -1,6 +1,6 @@
 // js/main-core.js
 
-import { initPanelLeft }        from './panel/panel-left.js';
+import { initNav }              from './common/nav.js';
 import { initAside }            from './aside/aside-main.js';
 import { initDropdowns }        from './common/ui-dropdown.js';
 import { initModals }           from './common/ui-modal-init.js';
@@ -21,7 +21,7 @@ import { initPaginationCharm }  from './common/charms/pagination/pagination-main
 
 
 export async function initCore() {
-    await initPanelLeft();
+    await initNav();
     initTheme();
     await initAside();
     initDropdowns();

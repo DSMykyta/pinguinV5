@@ -35,8 +35,7 @@
         }
 
         .content-main,
-        .panel-left,
-        .panel-right,
+        .nav.column,
         .section-navigator {
             display: none !important;
         }
@@ -1978,16 +1977,16 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.bubble-nav.row</h3>
+                        <h3>.nav.row</h3>
                         <p>Горизонтальний pill-bar навігації. Кнопки — <code>.btn-icon.expand</code>, розгортаються при hover.</p>
                         <div class="m3-tags">
-                            <span class="m3-tag m3-tag-src">bubble-nav.css</span>
+                            <span class="m3-tag m3-tag-src">nav.css</span>
                             <span class="m3-tag m3-tag-src">button-icon.css</span>
                             <span class="m3-tag m3-tag-use">section-navigator, tabbed-page</span>
                         </div>
                     </div>
                     <div class="m3-preview m3-preview-center">
-                        <nav class="bubble-nav row" style="position:relative;top:auto;left:auto;transform:none">
+                        <nav class="nav row" style="position:relative;top:auto;left:auto;transform:none">
                             <button class="btn-icon expand active"><span
                                     class="material-symbols-outlined">shopping_bag</span><span class="btn-icon-label">Бренди</span></button>
                             <button class="btn-icon expand"><span class="material-symbols-outlined">category</span><span
@@ -1996,7 +1995,7 @@
                                     class="btn-icon-label">Управління</span></button>
                         </nav>
                     </div>
-                    <div class="m3-code">&lt;nav class="bubble-nav row"&gt;
+                    <div class="m3-code">&lt;nav class="nav row"&gt;
   &lt;button class="btn-icon expand active"&gt;
     &lt;span class="material-symbols-outlined"&gt;shopping_bag&lt;/span&gt;
     &lt;span class="btn-icon-label"&gt;Бренди&lt;/span&gt;
@@ -2006,10 +2005,10 @@
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.bubble-nav.column</h3>
+                        <h3>.nav.column</h3>
                         <p>Вертикальна фіксована колонка. Кнопки 44×44px — чарм <code>.touch</code> від <code>.btn-icon</code>.</p>
                         <div class="m3-tags">
-                            <span class="m3-tag m3-tag-src">bubble-nav.css</span>
+                            <span class="m3-tag m3-tag-src">nav.css</span>
                             <span class="m3-tag m3-tag-src">button-icon.css</span>
                             <span class="m3-tag m3-tag-use">index.html навігація</span>
                         </div>
@@ -2022,7 +2021,7 @@
                         <button class="btn-icon expand touch"><span class="material-symbols-outlined">search</span><span
                                 class="btn-icon-label">Сео</span></button>
                     </div>
-                    <div class="m3-code">&lt;div class="bubble-nav column"&gt;
+                    <div class="m3-code">&lt;div class="nav column"&gt;
   &lt;button class="btn-icon expand touch active"&gt;
     &lt;span class="material-symbols-outlined"&gt;instant_mix&lt;/span&gt;
     &lt;span class="btn-icon-label"&gt;Інструменти&lt;/span&gt;
@@ -2034,7 +2033,7 @@
                     <div class="m3-block-header">
                         <h3>.panel-item</h3>
                         <div class="m3-tags"><span class="m3-tag m3-tag-src">panel-item.css</span><span
-                                class="m3-tag m3-tag-use">panel-left, aside-*</span></div>
+                                class="m3-tag m3-tag-use">nav, aside-*</span></div>
                     </div>
                     <div class="m3-preview m3-preview-col">
                         <button class="panel-item" style="width:100%"><span
@@ -3034,28 +3033,29 @@ function save() {
             <!-- ================================================================= -->
             <section class="m3-section" id="layout">
                 <h2 class="m3-section-title">Layout</h2>
-                <p class="m3-section-desc">Структура сторінки: body > panel-left + content-main + panel-right.</p>
+                <p class="m3-section-desc">Структура сторінки: body > nav + content-main + aside.</p>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>Page Structure</h3>
                     </div>
                     <div class="m3-code">body
-                        ├── .panel-left (72px collapsed / 320px expanded)
-                        │ ├── .bubble-nav.row (.btn-icon.expand)
-                        │ └── .panel-left-expanded (.panel-item)
-                        │
-                        ├── .content-main
-                        │ ├── section (.section-header + .section-content)
-                        │ │ ├── .entity-header (.xr-toolbar)
-                        │ │ ├── .entity-content (.tab-content)
-                        │ │ └── .entity-footer
-                        │ └── section ...
-                        │
-                        └── .panel-right (320px)
-                        ├── .panel-content-fix
-                        ├── .panel-content-scroll
-                        └── .panel-content-footer</div>
+├── .nav.column (72px collapsed / 320px expanded)
+│   ├── .nav-main (.btn-icon.expand)
+│   └── .nav-footer
+│
+├── .content-main
+│   ├── section (.section-header + .section-content)  ← секційна сторінка
+│   └── .tab-content (.section-header + table)        ← табована сторінка
+│
+├── .aside-controls (.aside-expand + .aside-trigger)
+├── .aside (expanded / collapsed / closed)
+│   └── .aside-body
+│       └── .aside-fragment.active / .panel-fragment.active
+│           ├── .panel-content-fix
+│           ├── .panel-content-scroll
+│           └── .panel-content-footer
+└── .aside-fab</div>
                 </div>
 
                 <div class="m3-block">
@@ -3068,32 +3068,28 @@ function save() {
                             <th>Responsibility</th>
                         </tr>
                         <tr>
-                            <td><code>layout-app.css</code></td>
-                            <td>body, .content-main, Material Icons base</td>
+                            <td><code>layout-base.css</code></td>
+                            <td>Reset, body, .content-main, ::selection, Material Icons</td>
                         </tr>
                         <tr>
-                            <td><code>layout-section-navigator.css</code></td>
-                            <td>.bubble-nav.row, .btn-icon.expand</td>
-                        </tr>
-                        <tr>
-                            <td><code>layout-panel-left.css</code></td>
-                            <td>.panel-left (72/320px sidebar)</td>
-                        </tr>
-                        <tr>
-                            <td><code>layout-panel-right.css</code></td>
-                            <td>.panel-right (320px aside)</td>
+                            <td><code>layout-aside.css</code></td>
+                            <td>.aside, .aside-controls, .aside-fab, .panel-content-*</td>
                         </tr>
                         <tr>
                             <td><code>layout-section.css</code></td>
                             <td>section, .section-header, .section-content</td>
                         </tr>
                         <tr>
-                            <td><code>layout-header.css</code></td>
-                            <td>.entity-header, .xr-toolbar</td>
+                            <td><code>layout-section-navigator.css</code></td>
+                            <td>.nav.row, .btn-icon.expand</td>
                         </tr>
                         <tr>
-                            <td><code>layout-content.css</code></td>
-                            <td>.entity-content, .tab-content</td>
+                            <td><code>layout-tabbed.css</code></td>
+                            <td>.tabbed-page, .tab-content</td>
+                        </tr>
+                        <tr>
+                            <td><code>layout-footer.css</code></td>
+                            <td>.footer, .entity-footer</td>
                         </tr>
                     </table>
                 </div>
@@ -3385,12 +3381,6 @@ function save() {
                             <td>Scroll-snap (6 sections)</td>
                         </tr>
                         <tr>
-                            <td><code>index-mobile.html</code></td>
-                            <td>Instruments Mobile</td>
-                            <td><code>main-instruments.js</code></td>
-                            <td>Mobile + bottom nav</td>
-                        </tr>
-                        <tr>
                             <td><code>banned-words.html</code></td>
                             <td>Banned Words</td>
                             <td><code>main-banned-words.js</code></td>
@@ -3481,10 +3471,6 @@ function save() {
                         <tr>
                             <td><code>statistics.css</code></td>
                             <td>0 посилань. Класи не використовуються.</td>
-                        </tr>
-                        <tr>
-                            <td><code>layout-main.css</code></td>
-                            <td>НЕ імпортується в main.css. Legacy дублікат.</td>
                         </tr>
                         <tr>
                             <td><code>toggle.css</code></td>

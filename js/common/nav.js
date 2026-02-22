@@ -1,13 +1,13 @@
-// js/panel/panel-left.js
+// js/common/nav.js
 
-import { loadHTML } from '../common/util-loader.js';
+import { loadHTML } from './util-loader.js';
 
 /**
  * Встановлює клас 'active' для посилання поточної сторінки.
  */
 function setActiveLink(nav) {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const links = nav.querySelectorAll('.bubble-nav-main a.btn-icon');
+    const links = nav.querySelectorAll('.nav-main a.btn-icon');
 
     links.forEach(link => {
         if (link.getAttribute('href') === currentPage) {
@@ -17,12 +17,12 @@ function setActiveLink(nav) {
 }
 
 /**
- * Завантажує шаблон bubble-nav і встановлює активну кнопку.
+ * Завантажує шаблон nav і встановлює активну кнопку.
  */
-export async function initPanelLeft() {
-    const nav = document.getElementById('bubble-nav');
+export async function initNav() {
+    const nav = document.getElementById('main-nav');
     if (!nav) return;
 
-    await loadHTML('templates/partials/bubble-nav.html', nav);
+    await loadHTML('templates/partials/nav.html', nav);
     setActiveLink(nav);
 }

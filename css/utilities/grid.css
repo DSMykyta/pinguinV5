@@ -6,7 +6,7 @@
  * таблиць, модалів, форм, карток, дашбордів.
  *
  * КОНТЕЙНЕР:
- * .grid — 12-колонкова сітка (gap: 12px 16px)
+ * .grid — 12-колонкова сітка (gap: 8px 12px)
  *
  * КОЛОНКИ (фракції):
  * .col-1 → повна ширина   (12/12)
@@ -52,7 +52,7 @@
 .grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    gap: 12px 16px;
+    gap: 8px 12px;
     align-items: start;
 }
 

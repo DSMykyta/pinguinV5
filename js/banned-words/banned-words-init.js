@@ -123,6 +123,10 @@ async function initializeUIWithoutData() {
     // 2. Ініціалізувати обробники табів (не потребує даних)
     initTabHandlers();
 
+    // 3. Ініціалізувати FAB, пошук та refresh (не потребують даних)
+    initManageTabEvents();
+    initRefreshButton();
+
     // 3. Показати aside-check-panel (з селектами для перевірки)
     const checkPanel = document.getElementById('aside-check-panel');
     if (checkPanel) checkPanel.classList.remove('u-hidden');
@@ -163,9 +167,7 @@ async function updateUIWithData() {
     const { initBannedWordsEvents } = await import('./banned-words-events.js');
     initBannedWordsEvents();
 
-    // 6. Ініціалізувати обробники табу управління та aside
-    initManageTabEvents();
-    initRefreshButton();
+    // 6. Ініціалізувати обробники aside (FAB та refresh вже ініціалізовані в initializeUIWithoutData)
     initCheckPanelEvents();
 }
 

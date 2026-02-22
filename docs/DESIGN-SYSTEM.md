@@ -5,8 +5,8 @@
 **Все — generic.** Кожен компонент повинен бути таким, щоб його можна було використати будь-де без змін. Жодних унікальних класів для конкретних випадків. Якщо потрібна варіація — це чарм, а не новий компонент.
 
 Правила:
-- Компонент = один CSS-файл з базовим класом (`.btn-icon`, `.bubble-nav`, `.switch`)
-- Варіація = чарм — додатковий клас на тому ж елементі (`.btn-icon.touch`, `.bubble-nav.row`)
+- Компонент = один CSS-файл з базовим класом (`.btn-icon`, `.nav`, `.switch`)
+- Варіація = чарм — додатковий клас на тому ж елементі (`.btn-icon.touch`, `.nav.row`)
 - Ніяких scoped overrides типу `.my-page .btn-icon { ... }` — якщо стиль потрібен на одній сторінці, він потрібен як чарм для всіх
 - HTML диктує поведінку через класи і атрибути, CSS/JS реагують на них
 - Якщо щось можна вирішити одним `max-height: 32px` на контейнері — не створюй `font-size`/`padding` модифікатори на дітях
@@ -34,7 +34,7 @@
 
 | Тип | Визначається | Ініціалізація | Приклад |
 |-----|-------------|---------------|---------|
-| **CSS-чарм** | Клас в CSS-файлі компонента | Не потрібна | `.btn-icon.ghost`, `.bubble-nav.row` |
+| **CSS-чарм** | Клас в CSS-файлі компонента | Не потрібна | `.btn-icon.ghost`, `.nav.row` |
 | **JS-чарм** | HTML-атрибут | `initXxxCharm()` в `main-core.js` | `[refresh]`, `[pagination]`, `[columns]` |
 | **Гібридний** | Клас + JS логіка | JS додає/знімає CSS-класи | `.morph-search` + `.is-open` |
 
@@ -176,14 +176,14 @@ export async function initCore() {
 
 Комбінації: `.expand.touch` — розкриття з великою ціллю (навігація)
 
-### .bubble-nav (CSS)
+### .nav (CSS)
 
 | Чарм | Клас | Ефект |
 |------|------|-------|
-| **row** | `.bubble-nav.row` | Горизонтальний рядок, sticky, centered |
-| **column** | `.bubble-nav.column` | Вертикальна фіксована колонка (68px, 100dvh) |
+| **row** | `.nav.row` | Горизонтальний рядок, sticky, centered |
+| **column** | `.nav.column` | Вертикальна фіксована колонка (68px, 100dvh) |
 
-Діти column: `.bubble-nav-main` (навігація), `.bubble-nav-footer` (тема, авторизація)
+Діти column: `.nav-main` (навігація), `.nav-footer` (тема, авторизація)
 
 ### Секції / контейнери (JS, атрибути)
 
@@ -221,7 +221,7 @@ css/components/
 ├── buttons/
 │   └── button-icon.css       ← .btn-icon + чарми (ghost, touch, expand...)
 ├── navigation/
-│   └── bubble-nav.css         ← .bubble-nav + чарми (row, column)
+│   └── nav.css         ← .nav + чарми (row, column)
 ├── forms/
 │   └── switch.css             ← .switch + чарми (switch-bordered, switch-sm)
 └── ...
@@ -239,5 +239,5 @@ js/common/charms/
     └── pagination-stats.js
 
 templates/partials/
-└── bubble-nav.html            ← шаблон навігації (завантажується JS)
+└── nav.html            ← шаблон навігації (завантажується JS)
 ```

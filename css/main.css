@@ -21,17 +21,12 @@
 @import url('foundation/typography.css');
 
 /* === LAYOUT === */
-@import url('layout/layout-app.css');
-@import url('layout/layout-section-navigator.css');
-@import url('layout/layout-panel-left.css');
-@import url('layout/layout-panel-right.css');
+@import url('layout/layout-base.css');
+@import url('layout/layout-nav.css');
 @import url('layout/layout-aside.css');
-@import url('layout/layout-panel-content.css');
 @import url('layout/layout-section.css');
-@import url('layout/layout-header.css');
+@import url('layout/layout-tabbed.css');
 @import url('layout/layout-footer.css');
-@import url('layout/layout-content.css');
-@import url('layout/layout-tabbed-page.css');
 
 /* === COMPONENTS - BUTTONS === */
 @import url('components/buttons/button-base.css');
@@ -58,7 +53,6 @@
 @import url('components/forms/checkbox.css');
 @import url('components/forms/drop-zone.css');
 @import url('components/forms/morph-search.css');
-@import url('components/forms/char-grid.css');
 
 /* === COMPONENTS - NAVIGATION === */
 @import url('components/navigation/panel-item.css');
@@ -68,7 +62,7 @@
 @import url('components/navigation/tabs.css');
 @import url('components/navigation/tab-header.css');
 @import url('components/navigation/toolbar.css');
-@import url('components/navigation/bubble-nav.css');
+/* nav.css — перенесено в layout/layout-nav.css */
 
 /* === COMPONENTS - TABLES === */
 @import url('components/tables/pseudo-table.css');

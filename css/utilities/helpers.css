@@ -100,12 +100,6 @@
     position: relative;
 }
 
-/**
- * Align items до нижнього краю
- */
-.u-align-end {
-    align-items: flex-end;
-}
 
 /**
  * Margin top 8px

@@ -37,8 +37,8 @@
 
 .aside {
     position: fixed;
-    top: calc(56px + var(--space-m) * 2);
-    bottom: calc(56px + var(--space-m) * 2);
+    top: calc(48px + 12px * 2);
+    bottom: calc(48px + 12px * 2);
     right: 0;
     background-color: transparent;
     display: flex;
@@ -93,8 +93,8 @@
 
 .aside-controls {
     position: fixed;
-    top: var(--space-m);
-    right: var(--space-m);
+    top: 12px;
+    right: 12px;
     z-index: 10;
     display: flex;
     align-items: center;
@@ -126,14 +126,18 @@ body.aside-closed .aside-expand {
 /* FRAGMENTS — шаблони що перемикаються                                   */
 /* ═══════════════════════════════════════════════════════════════════════ */
 
-.aside-fragment {
+.aside-fragment,
+.panel-fragment {
     display: none;
     flex-direction: column;
     flex-grow: 1;
     overflow: hidden;
+    gap: var(--space-m);
+    padding-right: 12px;
 }
 
-.aside-fragment.active {
+.aside-fragment.active,
+.panel-fragment.active {
     display: flex;
 }
 
@@ -151,10 +155,69 @@ body.aside-closed .aside-expand {
 
 .aside-fab {
     position: fixed;
-    bottom: var(--space-m);
-    right: var(--space-m);
+    bottom: 12px;
+    right: 12px;
     z-index: 10;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* PANEL CONTENT — внутрішня структура aside шаблонів                    */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Верхній зафіксований блок */
+.panel-content-fix {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+}
+
+/* Центральний блок що прокручується */
+.panel-content-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0;
+    margin: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.panel-content-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Нижній зафіксований блок */
+.panel-content-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-s);
+    overflow: visible;
+}
+
+.panel-separator {
+    height: 1px;
+    background-color: var(--color-outline);
+    margin: 4px 0;
+}
+
+.panel-info-text {
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    text-align: center;
+}
+
+.panel-info-text strong {
+    color: var(--text-primary);
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 /* BODY SYNC — margin-right для content-main                             */
@@ -173,5 +236,5 @@ body.aside-collapsed .content-main {
 }
 
 body.aside-closed .content-main {
-    margin-right: 72px;
+    margin-right: var(--panel-width-collapsed);
 }

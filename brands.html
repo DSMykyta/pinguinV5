@@ -13,13 +13,13 @@
 </head>
 
 <body>
-    <div class="bubble-nav column" id="bubble-nav"></div>
+    <div class="nav column" id="main-nav"></div>
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main tabbed-page">
 
         <!-- НАВІГАЦІЯ ТАБІВ -->
-        <nav class="bubble-nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+        <nav class="nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
             <button class="btn-icon expand active" aria-label="Бренди" data-tab-target="tab-brands">
                 <span class="material-symbols-outlined">shopping_bag</span>
                 <span class="btn-icon-label">Бренди</span>
@@ -34,7 +34,7 @@
         <!-- TAB: УПРАВЛІННЯ БРЕНДАМИ -->
         <div class="tab-content active" data-tab-content="tab-brands" id="tab-brands">
 
-            <div class="section-header u-align-end">
+            <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Бренди</h2>
@@ -58,7 +58,7 @@
         <!-- TAB: ЛІНІЙКИ БРЕНДІВ -->
         <div class="tab-content" data-tab-content="tab-lines" id="tab-lines">
 
-            <div class="section-header u-align-end">
+            <div class="section-header">
                 <div class="section-name-block">
                     <div class="section-name">
                         <h2 class="display-l section-upper">Лінійки брендів</h2>
@@ -81,7 +81,8 @@
 
         <!-- ФІКСОВАНИЙ ФУТЕР -->
         <footer class="footer">
-            <div></div>
+            <div class="footer-left"></div>
+            <div class="footer-right"></div>
         </footer>
 
     </main>

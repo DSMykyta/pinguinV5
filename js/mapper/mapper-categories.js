@@ -882,7 +882,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
     }).join('');
 
     return `
-        <div class="section-header u-align-end">
+        <div class="section-header">
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>Маркетплейси</h2>
