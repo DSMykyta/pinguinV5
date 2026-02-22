@@ -56,7 +56,6 @@ import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
-import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { loadSingleAsideTemplate } from '../aside/aside-main.js';
@@ -109,9 +108,6 @@ export async function initBrands() {
 
     // Завантажити aside
     await loadAsideBrands();
-
-    // Ініціалізувати пагінацію (charm на [pagination] елементах)
-    initPaginationCharm();
 
     // Ініціалізувати перемикання табів
     initTabSwitching();

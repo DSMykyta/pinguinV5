@@ -22,7 +22,7 @@
     --color-on-tertiary: rgb(255, 255, 255);
 
     --color-tertiary-c: rgba(232, 110, 80, 0.1);
-    --color-on-tertiary-c:rgb(190, 70, 50);
+    --color-on-tertiary-c: rgb(190, 70, 50);
 
 
     --color-error: rgb(239, 68, 68);
@@ -80,7 +80,6 @@
     --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
     --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
 
-
     /* --- СТИЛІ ТЕКСТУ --- */
     --text-primary: #171717;
     --text-secondary: var(--color-on-surface-v);
@@ -99,15 +98,29 @@
     --panel-width-collapsed: 72px;
     --panel-width-expanded: 320px;
 
+    /* --- ПЕРЕХОДИ --- */
     --transition-speed: 0.2s;
+    --transition-ease: cubic-bezier(0.2, 0, 0, 1);
+    --transition-standard: var(--transition-speed) var(--transition-ease);
 
+    /* --- Z-INDEX ШАРИ --- */
+    --z-content: 1;
+    --z-sticky: 10;
+    --z-fab: 20;
+    --z-header: 100;
+    --z-panel: 200;
+    --z-tabs: 300;
+    --z-modal: 1000;
+    --z-dropdown: 10000;
+    --z-tooltip: 10000;
+    --z-toast: 10000;
 
+    /* --- AFFINITY (ролі команди) --- */
     --affinity-main: #86efac;
     --affinity-vector: #06b6d4;
     --affinity-pixel: #d946ef;
     --affinity-layout: #fb923c;
     --affinity-canvas: #60a5fa;
-
 }
 
 /* --- DARK MODE OVERRIDES --- */
@@ -116,21 +129,20 @@
 
     /* 1. ФОНИ (Інверсія) */
     --color-surface: #121212;
-    --color-background: #121212;     /* Той самий що surface — панелі не виділяються */
-    --color-surface-c-low: #1e1e1e;  /* Трохи світліший за surface */
+    --color-background: #121212;
+    --color-surface-c-low: #1e1e1e;
     --color-surface-c: #2c2c2c;
     --color-surface-c-high: #3d3d3d;
 
-    --color-outline: #404040;        /* Темніші лінії */
+    --color-outline: #404040;
     --color-outline-v: #525252;
 
     /* 2. ТЕКСТ (Інверсія) */
-    --text-primary: #e5e5e5;         /* Майже білий */
-    --text-secondary: #a3a3a3;       /* Світло-сірий */
+    --text-primary: #e5e5e5;
+    --text-secondary: #a3a3a3;
     --text-disabled: rgba(255, 255, 255, 0.38);
     --text-hint: rgba(255, 255, 255, 0.5);
 
-    /* Колір тексту на поверхнях теж змінюється */
     --color-on-surface: #e5e5e5;
     --color-on-surface-v: #a3a3a3;
 
@@ -166,4 +178,11 @@
     --shadow-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.6), 0px 1px 2px 0px rgba(0, 0, 0, 0.5);
     --shadow-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.6), 0px 1px 3px 0px rgba(0, 0, 0, 0.5);
     --color-modal-overlay: rgba(0, 0, 0, 0.8);
+
+    /* 7. AFFINITY (ролі команди) */
+    --affinity-main: #4ade80;
+    --affinity-vector: #22d3ee;
+    --affinity-pixel: #e879f9;
+    --affinity-layout: #fdba74;
+    --affinity-canvas: #93c5fd;
 }

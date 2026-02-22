@@ -52,13 +52,22 @@
 
 /* Нижній "зафіксований" блок */
 .panel-content-footer {
-    flex-shrink: 0; /* Забороняємо блоку стискатися */
-    margin-top: auto; /* ВАЖЛИВО: Притискає блок до низу */
-    padding: var(--space-m) 0;
+    flex-shrink: 0;
+    margin-top: auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: var(--space-s);
     overflow: visible;
+}
+
+/* FAB в aside — фіксований внизу */
+.panel-content-footer .fab,
+.panel-content-footer .fab-menu {
+    position: fixed;
+    bottom: 12px;
+    right: var(--space-m);
+    z-index: var(--z-fab, 20);
 }
 
 .panel-separator {

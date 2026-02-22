@@ -1,7 +1,6 @@
 // js/main-core.js
 
 import { initPanelLeft }        from './panel/panel-left.js';
-// OLD: import { initPanelRight } from './panel/panel-right.js';
 import { initAside }            from './aside/aside-main.js';
 import { initDropdowns }        from './common/ui-dropdown.js';
 import { initModals }           from './common/ui-modal-init.js';
@@ -18,12 +17,12 @@ import { initFilterPillsCharm } from './common/charms/charm-filter-pills.js';
 import { initMorphSearchCharm } from './common/charms/charm-morph-search.js';
 import { initRefreshCharm }     from './common/charms/charm-refresh.js';
 import { initColumnsCharm }     from './common/charms/charm-columns.js';
+import { initPaginationCharm }  from './common/charms/pagination/pagination-main.js';
 
 
 export async function initCore() {
     await initPanelLeft();
     initTheme();
-    // OLD: initPanelRight();
     await initAside();
     initDropdowns();
 
@@ -43,4 +42,5 @@ export async function initCore() {
     initMorphSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
+    initPaginationCharm();
 }

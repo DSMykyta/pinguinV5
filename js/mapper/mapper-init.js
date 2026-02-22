@@ -16,7 +16,6 @@ import {
 } from './mapper-table.js';
 import { initMapperEvents } from './mapper-events.js';
 import { createLazyLoader } from '../common/util-lazy-load.js';
-import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 import { loadSingleAsideTemplate } from '../aside/aside-main.js';
@@ -31,7 +30,6 @@ import { mapperState, runHook } from './mapper-state.js';
 export async function initMapper() {
     initTooltips();
     loadAsideMapper();
-    initPaginationCharm();
     initTabSwitching();
     await loadMapperPlugins();
     checkAuthAndLoadData();
@@ -201,31 +199,41 @@ function renderErrorState() {
 async function loadAsideMapper() {
     await loadSingleAsideTemplate('aside-mapper');
 
-    // Кнопки додавання в aside
-    const addCategoryBtn = document.getElementById('btn-add-category-aside');
-    if (addCategoryBtn) {
-        addCategoryBtn.addEventListener('click', async () => {
-            const { showAddCategoryModal } = await import('./mapper-categories.js');
-            showAddCategoryModal();
+    // FAB speed dial — делегування подій
+    const fabMenu = document.getElementById('fab-mapper-aside');
+    if (fabMenu) {
+        fabMenu.addEventListener('click', async (e) => {
+            if (e.target.closest('.fab-menu-trigger')) {
+                fabMenu.classList.toggle('is-open');
+                return;
+            }
+
+            const item = e.target.closest('.fab-menu-item');
+            if (!item) return;
+
+            fabMenu.classList.remove('is-open');
+
+            if (item.id === 'btn-add-category-aside') {
+                const { showAddCategoryModal } = await import('./mapper-categories.js');
+                showAddCategoryModal();
+            } else if (item.id === 'btn-add-characteristic-aside') {
+                const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
+                showAddCharacteristicModal();
+            } else if (item.id === 'btn-add-option-aside') {
+                const { showAddOptionModal } = await import('./mapper-options.js');
+                showAddOptionModal();
+            } else if (item.id === 'btn-add-mapper-marketplace') {
+                const { showAddMarketplaceModal } = await import('./mapper-marketplaces.js');
+                showAddMarketplaceModal();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
         });
     }
 
-    const addCharacteristicBtn = document.getElementById('btn-add-characteristic-aside');
-    if (addCharacteristicBtn) {
-        addCharacteristicBtn.addEventListener('click', async () => {
-            const { showAddCharacteristicModal } = await import('./mapper-characteristics.js');
-            showAddCharacteristicModal();
-        });
-    }
-
-    const addOptionBtn = document.getElementById('btn-add-option-aside');
-    if (addOptionBtn) {
-        addOptionBtn.addEventListener('click', async () => {
-            const { showAddOptionModal } = await import('./mapper-options.js');
-            showAddOptionModal();
-        });
-    }
-
+    // Import button (panel item)
     const importBtn = document.getElementById('btn-import-aside');
     if (importBtn) {
         importBtn.addEventListener('click', async () => {
@@ -237,10 +245,10 @@ async function loadAsideMapper() {
         });
     }
 
+    // Mapping wizard buttons (panel items)
     const mappingWizardBtn = document.getElementById('btn-mapping-wizard-aside');
     if (mappingWizardBtn) {
-        mappingWizardBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
+        mappingWizardBtn.addEventListener('click', async () => {
             const { showMappingWizard } = await import('./mapper-mapping-wizard.js');
             showMappingWizard();
         });
@@ -248,8 +256,7 @@ async function loadAsideMapper() {
 
     const charWizardBtn = document.getElementById('btn-mapping-wizard-characteristics-aside');
     if (charWizardBtn) {
-        charWizardBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
+        charWizardBtn.addEventListener('click', async () => {
             const { showCharacteristicMappingWizard } = await import('./mapper-mapping-wizard-characteristics.js');
             showCharacteristicMappingWizard();
         });
@@ -257,8 +264,7 @@ async function loadAsideMapper() {
 
     const optWizardBtn = document.getElementById('btn-mapping-wizard-options-aside');
     if (optWizardBtn) {
-        optWizardBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
+        optWizardBtn.addEventListener('click', async () => {
             const { showOptionMappingWizard } = await import('./mapper-mapping-wizard-options.js');
             showOptionMappingWizard();
         });

@@ -10,7 +10,6 @@ import { loadKeywords } from './keywords-data.js';
 import { renderKeywordsTable } from './keywords-table.js';
 import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
-import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initTooltips } from '../common/ui-tooltip.js';
 import { initDropdowns } from '../common/ui-dropdown.js';
 import { loadSingleAsideTemplate } from '../aside/aside-main.js';
@@ -33,7 +32,6 @@ export function initKeywords() {
 
     initTooltips();
     loadAsideKeywords();
-    initPaginationCharm();
     checkAuthAndLoadData();
 
     document.addEventListener('auth-state-changed', (event) => {

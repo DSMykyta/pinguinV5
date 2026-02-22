@@ -145,11 +145,7 @@ async function updateUIWithData() {
     const { initDropdowns } = await import('../common/ui-dropdown.js');
     initDropdowns();
 
-    // 3. Ініціалізувати pagination charm
-    const { initPaginationCharm } = await import('../common/charms/pagination/pagination-main.js');
-    initPaginationCharm();
-
-    // 4. Заповнити таби резервів (юзерів з аватарками)
+    // 3. Заповнити таби резервів (юзерів з аватарками)
     const { populateReserveTabs } = await import('./price-ui.js');
     populateReserveTabs();
 

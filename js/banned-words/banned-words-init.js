@@ -14,7 +14,6 @@ import { initTooltips } from '../common/ui-tooltip.js';
 import { loadAside, initCheckPanelEvents, initManageTabEvents, initRefreshButton } from './banned-words-aside.js';
 import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
-import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
 
 /**
@@ -153,10 +152,7 @@ async function updateUIWithData() {
     const { initDropdowns } = await import('../common/ui-dropdown.js');
     initDropdowns();
 
-    // 3. Ініціалізувати pagination charm
-    initPaginationCharm();
-
-    // 4. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
+    // 3. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
     const { renderBannedWordsTable, initManageTabFilters } = await import('./banned-words-manage.js');
     await renderBannedWordsTable();
 

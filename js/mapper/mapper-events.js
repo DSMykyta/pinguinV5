@@ -117,13 +117,6 @@ function initAddButtons() {
         });
     }
 
-    const addMarketplaceBtn = document.getElementById('btn-add-mapper-marketplace');
-    if (addMarketplaceBtn) {
-        addMarketplaceBtn.addEventListener('click', async () => {
-            const { showAddMarketplaceModal } = await import('./mapper-marketplaces.js');
-            showAddMarketplaceModal();
-        });
-    }
 }
 
 /**
