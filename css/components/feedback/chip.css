@@ -228,6 +228,13 @@
     margin: 1px;
 }
 
+/* Dark background (content-card) */
+.content-card .tag {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-surface);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
 /* ============================================ */
 /* FILTER PILL — pill-shaped фільтр             */
 /* ============================================ */
@@ -266,4 +273,34 @@
 
 .filter-pill .material-symbols-outlined {
     font-size: 16px;
+}
+
+/* ============================================ */
+/* MOBILE — chip-container responsive           */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .chip-container {
+        gap: 8px !important;
+    }
+
+    .chip-container .chip {
+        flex: 0 0 calc(50% - 4px) !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .chip-list {
+        flex-wrap: wrap !important;
+    }
+
+    .chip:active {
+        transform: scale(0.98) !important;
+    }
+}
+
+/* Full-height section context */
+.section-content-full-height .chip-container {
+    height: 100%;
+    overflow-y: auto;
 }

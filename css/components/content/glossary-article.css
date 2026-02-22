@@ -106,23 +106,7 @@
     text-transform: uppercase;
 }
 
-.cell-words-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-outline-v);
-    border-radius: 12px;
-    color: var(--color-on-surface);
-}
-
-/* tag кольори — визначено через шар colors.css (.c-main) */
+/* .cell-words-list, .tag — визначено в feedback/chip.css */
 
 .text-muted {
     color: var(--color-on-surface-v);

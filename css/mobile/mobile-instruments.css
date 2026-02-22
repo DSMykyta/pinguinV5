@@ -661,10 +661,7 @@
         min-height: 44px !important;
     }
 
-    /* Chip lists */
-    .chip-list {
-        flex-wrap: wrap !important;
-    }
+    /* chip-list — мобільні стилі перенесені в feedback/chip.css */
 
     /* Toolbar */
     .toolbar-wrapper {
@@ -786,17 +783,7 @@
 /* LINKS SECTION ADAPTATION                    */
 /* ============================================ */
 
-@media (max-width: 768px) {
-    .chip-container {
-        gap: 8px !important;
-    }
-
-    .chip-container .chip {
-        flex: 0 0 calc(50% - 4px) !important;
-        justify-content: center !important;
-        text-align: center !important;
-    }
-}
+/* chip-container, chip — мобільні стилі перенесені в feedback/chip.css */
 
 /* ============================================ */
 /* TRANSLATE SECTION ADAPTATION                */
@@ -989,10 +976,10 @@
     }
 
     /* Active state for items */
-    .panel-item:active,
-    .chip:active {
+    .panel-item:active {
         transform: scale(0.98) !important;
     }
+    /* .chip:active — перенесено в feedback/chip.css */
 }
 
 /* ============================================ */
