@@ -3,7 +3,8 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--color-on-surface-v);
+    color: var(--color-on-surface-v);
+    background-color: currentColor;
 }
 
 .dot:hover {

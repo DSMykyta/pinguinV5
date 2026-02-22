@@ -14,9 +14,6 @@
 /* === ROOT VARIABLES === */
 @import url('root.css');
 
-/* === LAYERS === */
-@import url('layers/colors.css');
-
 /* === FOUNDATION === */
 @import url('foundation/reset.css');
 @import url('foundation/scrollbar.css');
@@ -114,6 +111,7 @@
 @import url('components/mapper-bindings.css');
 
 /* === UTILITIES === */
+@import url('layers/colors.css');
 @import url('utilities/helpers.css');
 @import url('utilities/animations.css');
 @import url('utilities/grid.css');
