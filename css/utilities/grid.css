@@ -9,11 +9,11 @@
  * .grid — 12-колонкова сітка (gap: 12px 16px)
  *
  * КОЛОНКИ (фракції):
- * .col-2  → span 2   (1/6 — шоста)
- * .col-3  → span 3   (1/4 — чверть)
- * .col-4  → span 4   (1/3 — третина)
- * .col-6  → span 6   (1/2 — половина)
- * .col-12 → span 12  (повна ширина)
+ * .col-1 → повна ширина   (12/12)
+ * .col-2 → половина       (6/12)
+ * .col-3 → третина        (4/12)
+ * .col-4 → чверть         (3/12)
+ * .col-6 → шоста          (2/12)
  *
  * GAP МОДИФІКАТОРИ:
  * .grid.gap-0  → gap: 0
@@ -26,11 +26,11 @@
  * HTML ПРИКЛАД:
  * <!-- Половина + половина -->
  * <div class="grid gap-8">
- *   <div class="group column col-6">
+ *   <div class="group column col-2">
  *     <label class="label-l">Назва</label>
  *     <input class="input-main">
  *   </div>
- *   <div class="group column col-6">
+ *   <div class="group column col-2">
  *     <label class="label-l">Тип</label>
  *     <select class="input-main">...</select>
  *   </div>
@@ -38,9 +38,9 @@
  *
  * <!-- Третина × 3 -->
  * <div class="grid">
- *   <div class="group column col-4">...</div>
- *   <div class="group column col-4">...</div>
- *   <div class="group column col-4">...</div>
+ *   <div class="group column col-3">...</div>
+ *   <div class="group column col-3">...</div>
+ *   <div class="group column col-3">...</div>
  * </div>
  *
  * ЗАЛЕЖНОСТІ:
@@ -66,14 +66,14 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   COLUMN SPANS (тільки чисті фракції від 12)
+   COLUMN SPANS (.col-N = 1/N ширини)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.col-2  { grid-column: span 2; }  /* 1/6 — шоста   */
-.col-3  { grid-column: span 3; }  /* 1/4 — чверть  */
-.col-4  { grid-column: span 4; }  /* 1/3 — третина */
-.col-6  { grid-column: span 6; }  /* 1/2 — половина */
-.col-12 { grid-column: span 12; } /* повна ширина   */
+.col-1 { grid-column: span 12; } /* повна ширина   */
+.col-2 { grid-column: span 6; }  /* половина       */
+.col-3 { grid-column: span 4; }  /* третина        */
+.col-4 { grid-column: span 3; }  /* чверть         */
+.col-6 { grid-column: span 2; }  /* шоста          */
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -94,13 +94,13 @@
 
 /* Mobile: все в одну колонку */
 @media (max-width: 768px) {
-    .col-2, .col-3, .col-4, .col-6, .col-12 {
+    .col-1, .col-2, .col-3, .col-4, .col-6 {
         grid-column: span 12;
     }
 }
 
 /* Tablet: шосту та чверть збільшуємо до третини */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .col-2 { grid-column: span 4; }
-    .col-3 { grid-column: span 4; }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 4; }
 }
