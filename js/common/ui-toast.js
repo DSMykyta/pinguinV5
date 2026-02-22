@@ -1,5 +1,8 @@
 // js/common/ui-toast.js
 
+/** type → color class (error = c-red, інше — базовий чорний) */
+const TOAST_COLOR = { error: 'c-red' };
+
 /**
  * Знаходить або створює контейнер для toast-повідомлень.
  */
@@ -19,7 +22,7 @@ function getOrCreateToastContainer() {
  * @param {string} [type='success'] - Тип повідомлення ('success', 'error', 'info').
  * @param {number|Object} [durationOrOptions=3000] - Тривалість (мс) або об'єкт опцій.
  * @param {number} [durationOrOptions.duration=5000] - Тривалість показу в мілісекундах.
- * @param {Object} [durationOrOptions.action] - Action button для toast (M3 Snackbar pattern).
+ * @param {Object} [durationOrOptions.action] - Action button для toast.
  * @param {string} durationOrOptions.action.label - Текст кнопки.
  * @param {Function} durationOrOptions.action.onClick - Callback при натисканні.
  */
@@ -35,7 +38,8 @@ export function showToast(message, type = 'success', durationOrOptions = 3000) {
     const toastContainer = getOrCreateToastContainer();
 
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    const colorClass = TOAST_COLOR[type] || '';
+    toast.className = colorClass ? `toast ${colorClass}` : 'toast';
 
     // Текст повідомлення
     const textSpan = document.createElement('span');
@@ -51,7 +55,7 @@ export function showToast(message, type = 'success', durationOrOptions = 3000) {
         btn.addEventListener('click', () => {
             clearTimeout(dismissTimer);
             action.onClick();
-            toast.classList.remove('toast-visible');
+            toast.classList.remove('visible');
             toast.addEventListener('transitionend', () => toast.remove(), { once: true });
         });
         toast.appendChild(btn);
@@ -61,12 +65,12 @@ export function showToast(message, type = 'success', durationOrOptions = 3000) {
 
     // Запускаємо анімацію появи
     setTimeout(() => {
-        toast.classList.add('toast-visible');
+        toast.classList.add('visible');
     }, 10);
 
     // Зникнення та видалення після завершення тривалості
     const dismissTimer = setTimeout(() => {
-        toast.classList.remove('toast-visible');
+        toast.classList.remove('visible');
 
         // Чекаємо завершення анімації зникнення перед видаленням з DOM
         toast.addEventListener('transitionend', () => {
