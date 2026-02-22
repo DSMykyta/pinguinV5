@@ -3,16 +3,19 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    color: var(--color-on-surface-v);
-    background-color: currentColor;
-}
-
-/* c-* утиліти задають background-color контейнера —
-   для dot потрібен суцільний колір, не контейнерний */
-.dot[class*="c-"] {
-    background-color: currentColor;
+    background-color: var(--color-on-surface-v);
 }
 
 .dot:hover {
     filter: brightness(0.85);
 }
+
+/* dot — суцільний кружок, фон = color з c-* утиліти.
+   c-* задає background-color контейнерний (блідий) —
+   для dot перевизначаємо на яскравий color. */
+.dot.c-main    { background-color: var(--color-main); }
+.dot.c-red     { background-color: var(--color-error); }
+.dot.c-green   { background-color: var(--color-success); }
+.dot.c-yellow  { background-color: var(--color-warning); }
+.dot.c-blue    { background-color: var(--color-info); }
+.dot.c-grey    { background-color: var(--color-outline); }
