@@ -298,11 +298,29 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
     }
 
     if (showColumnColumn) {
-        columns.push(col('columnName', 'Колонка', 'code', { className: 'cell-l' }));
+        columns.push({
+            key: 'columnName',
+            label: 'Колонка',
+            className: 'cell-l',
+            sortable: true,
+            render: (value, row) => {
+                if (row.multipleColumns && row.columnNames) {
+                    const tooltip = row.columnNames.join('\n');
+                    return `<code data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always>${escapeHtml(value)}</code>`;
+                }
+                return value ? `<code>${escapeHtml(value)}</code>` : '';
+            }
+        });
     }
 
     columns.push(
-        col('matchCount', 'Кількість', 'counter'),
+        {
+            ...col('matchCount', 'Кількість', 'counter'),
+            tooltip: false,
+            render: (value) => (value != null && value !== '')
+                ? `<span class="counter c-red">${value}×</span>`
+                : ''
+        },
         col('cheaked_line', 'Статус', 'badge-toggle')
     );
 
