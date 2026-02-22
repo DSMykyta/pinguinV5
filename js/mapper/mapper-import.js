@@ -1405,7 +1405,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="group column col-2">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpChar.id)}" readonly>
@@ -1419,7 +1419,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                             <label>Назва</label>
                             <input type="text" class="input-main" value="${escapeHtml(charData.name || '')}" readonly>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="group column col-2">
                                 <label>Тип</label>
                                 <input type="text" class="input-main" value="${escapeHtml(charData.type || '')}" readonly>
@@ -1536,7 +1536,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="group column col-2">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
@@ -1794,7 +1794,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="group column col-2">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>

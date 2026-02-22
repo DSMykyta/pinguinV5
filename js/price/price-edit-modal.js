@@ -142,7 +142,7 @@ function createModal() {
             <div class="modal-body">
                 <input type="hidden" id="edit-reserve-value">
 
-                <div class="grid gap-24">
+                <div class="grid">
                     <!-- Left column: editable fields -->
                     <div class="col-2" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="group column">

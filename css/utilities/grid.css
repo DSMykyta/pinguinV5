@@ -15,17 +15,9 @@
  * .col-4 → чверть         (3/12)
  * .col-6 → шоста          (2/12)
  *
- * GAP МОДИФІКАТОРИ:
- * .grid.gap-0  → gap: 0
- * .grid.gap-4  → gap: 4px
- * .grid.gap-8  → gap: 8px
- * .grid.gap-12 → gap: 12px (default)
- * .grid.gap-16 → gap: 16px
- * .grid.gap-24 → gap: 24px
- *
  * HTML ПРИКЛАД:
  * <!-- Половина + половина -->
- * <div class="grid gap-8">
+ * <div class="grid">
  *   <div class="group column col-2">
  *     <label class="label-l">Назва</label>
  *     <input class="input-main">
@@ -76,16 +68,6 @@
 .col-6 { grid-column: span 2; }  /* шоста          */
 
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   GAP MODIFIERS
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.grid.gap-0  { gap: 0; }
-.grid.gap-4  { gap: 4px; }
-.grid.gap-8  { gap: 8px; }
-.grid.gap-12 { gap: 12px; }
-.grid.gap-16 { gap: 16px; }
-.grid.gap-24 { gap: 24px; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
