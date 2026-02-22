@@ -31,8 +31,12 @@
     display: none;
 }
 
-.panel-left:not(:hover) .grid2 {
+.panel-left:not(:hover) .grid {
     grid-template-columns: 1fr; /* Одна колонка при згорнутій панелі */
+}
+
+.panel-left:not(:hover) .grid > * {
+    grid-column: span 1;
 }
 
 /* Повністю ховаємо елемент при згорнутій панелі */

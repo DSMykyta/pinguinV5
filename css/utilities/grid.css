@@ -8,26 +8,12 @@
  * КОНТЕЙНЕР:
  * .grid — 12-колонкова сітка (gap: 12px 16px)
  *
- * КОЛОНКИ (span):
- * .col-1  → span 1   (8.3%)
- * .col-2  → span 2   (16.7%)
- * .col-3  → span 3   (25%)
- * .col-4  → span 4   (33.3%)
- * .col-5  → span 5   (41.7%)
- * .col-6  → span 6   (50%)
- * .col-7  → span 7   (58.3%)
- * .col-8  → span 8   (66.7%)
- * .col-9  → span 9   (75%)
- * .col-10 → span 10  (83.3%)
- * .col-11 → span 11  (91.7%)
- * .col-12 → span 12  (100%)
- *
- * ШОРТКАТИ:
- * .grid2 — equal 2-col (repeat(2, 1fr))
- * .grid3 — equal 3-col
- * .grid4 — equal 4-col
- * .grid5 — equal 5-col
- * .grid6 — equal 6-col
+ * КОЛОНКИ (фракції):
+ * .col-1 → повна ширина   (12/12)
+ * .col-2 → половина       (6/12)
+ * .col-3 → третина        (4/12)
+ * .col-4 → чверть         (3/12)
+ * .col-6 → шоста          (2/12)
  *
  * GAP МОДИФІКАТОРИ:
  * .grid.gap-0  → gap: 0
@@ -38,33 +24,23 @@
  * .grid.gap-24 → gap: 24px
  *
  * HTML ПРИКЛАД:
- * <!-- 12-col grid з різними span -->
- * <div class="grid">
- *   <div class="col-8">Контент (66.7%)</div>
- *   <div class="col-4">Сайдбар (33.3%)</div>
- * </div>
- *
- * <!-- Форма: 3 поля по 4 колонки -->
- * <div class="grid">
- *   <div class="group column col-4">
+ * <!-- Половина + половина -->
+ * <div class="grid gap-8">
+ *   <div class="group column col-2">
  *     <label class="label-l">Назва</label>
  *     <input class="input-main">
  *   </div>
- *   <div class="group column col-4">
+ *   <div class="group column col-2">
  *     <label class="label-l">Тип</label>
  *     <select class="input-main">...</select>
  *   </div>
- *   <div class="group column col-4">
- *     <label class="label-l">Одиниця</label>
- *     <input class="input-main">
- *   </div>
  * </div>
  *
- * <!-- Shortcut: 3 equal columns -->
- * <div class="grid3">
- *   <div>...</div>
- *   <div>...</div>
- *   <div>...</div>
+ * <!-- Третина × 3 -->
+ * <div class="grid">
+ *   <div class="group column col-3">...</div>
+ *   <div class="group column col-3">...</div>
+ *   <div class="group column col-3">...</div>
  * </div>
  *
  * ЗАЛЕЖНОСТІ:
@@ -90,56 +66,14 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   COLUMN SPANS
+   COLUMN SPANS (.col-N = 1/N ширини)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.col-1  { grid-column: span 1; }
-.col-2  { grid-column: span 2; }
-.col-3  { grid-column: span 3; }
-.col-4  { grid-column: span 4; }
-.col-5  { grid-column: span 5; }
-.col-6  { grid-column: span 6; }
-.col-7  { grid-column: span 7; }
-.col-8  { grid-column: span 8; }
-.col-9  { grid-column: span 9; }
-.col-10 { grid-column: span 10; }
-.col-11 { grid-column: span 11; }
-.col-12 { grid-column: span 12; }
-
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   EQUAL-COLUMN SHORTCUTS
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.grid2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-}
-
-.grid3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.grid4 {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.grid5 {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-
-.grid6 {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-}
+.col-1 { grid-column: span 12; } /* повна ширина   */
+.col-2 { grid-column: span 6; }  /* половина       */
+.col-3 { grid-column: span 4; }  /* третина        */
+.col-4 { grid-column: span 3; }  /* чверть         */
+.col-6 { grid-column: span 2; }  /* шоста          */
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -160,23 +94,13 @@
 
 /* Mobile: все в одну колонку */
 @media (max-width: 768px) {
-    .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
-    .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
+    .col-1, .col-2, .col-3, .col-4, .col-6 {
         grid-column: span 12;
-    }
-
-    .grid2, .grid3, .grid4, .grid5, .grid6 {
-        grid-template-columns: 1fr;
     }
 }
 
-/* Tablet: малі колонки збільшуємо */
+/* Tablet: шосту та чверть збільшуємо до третини */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .col-1  { grid-column: span 4; }
-    .col-2  { grid-column: span 4; }
-    .col-3  { grid-column: span 4; }
-
-    .grid4, .grid5, .grid6 {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .col-4 { grid-column: span 4; }
+    .col-6 { grid-column: span 4; }
 }
