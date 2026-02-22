@@ -308,7 +308,9 @@ function getCharacteristicFormData() {
         filter_type: document.getElementById('mapper-char-filter')?.value || 'disable',
         block_number: document.getElementById('mapper-char-block')?.value || '',
         is_global: isGlobal,
-        category_ids: isGlobal === 'TRUE' ? '' : selectedCategories.join(',')
+        category_ids: isGlobal === 'TRUE' ? '' : selectedCategories.join(','),
+        sort_order: document.getElementById('mapper-char-sort-order')?.value || '',
+        col_size: document.getElementById('mapper-char-col-size')?.value || ''
     };
 }
 
@@ -321,10 +323,13 @@ function fillCharacteristicForm(characteristic) {
     const blockField = document.getElementById('mapper-char-block');
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
+    const sortOrderField = document.getElementById('mapper-char-sort-order');
+    const colSizeField = document.getElementById('mapper-char-col-size');
 
     if (nameUaField) nameUaField.value = characteristic.name_ua || characteristic.name_uk || '';
     if (nameRuField) nameRuField.value = characteristic.name_ru || '';
     if (unitField) unitField.value = characteristic.unit || '';
+    if (sortOrderField) sortOrderField.value = characteristic.sort_order || '';
 
     if (typeField) {
         const typeValue = characteristic.type || characteristic.param_type || 'TextInput';
@@ -338,6 +343,10 @@ function fillCharacteristicForm(characteristic) {
     if (blockField) {
         blockField.value = characteristic.block_number || '';
         reinitializeCustomSelect(blockField);
+    }
+    if (colSizeField) {
+        colSizeField.value = characteristic.col_size || '';
+        reinitializeCustomSelect(colSizeField);
     }
 
     const isGlobal = characteristic.is_global === true ||
@@ -358,10 +367,13 @@ function clearCharacteristicForm() {
     const globalYes = document.getElementById('mapper-char-global-yes');
     const globalNo = document.getElementById('mapper-char-global-no');
     const categoriesSelect = document.getElementById('mapper-char-categories');
+    const sortOrderField = document.getElementById('mapper-char-sort-order');
+    const colSizeField = document.getElementById('mapper-char-col-size');
 
     if (nameUaField) nameUaField.value = '';
     if (nameRuField) nameRuField.value = '';
     if (unitField) unitField.value = '';
+    if (sortOrderField) sortOrderField.value = '';
     if (globalYes) globalYes.checked = false;
     if (globalNo) globalNo.checked = true;
 
@@ -372,6 +384,10 @@ function clearCharacteristicForm() {
     if (filterField) {
         filterField.value = 'disable';
         reinitializeCustomSelect(filterField);
+    }
+    if (colSizeField) {
+        colSizeField.value = '';
+        reinitializeCustomSelect(colSizeField);
     }
 
     if (categoriesSelect) {

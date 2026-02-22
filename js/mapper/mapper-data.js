@@ -252,7 +252,7 @@ export async function loadCharacteristics() {
 
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEETS.CHARACTERISTICS}!A:K`,
+            range: `${SHEETS.CHARACTERISTICS}!A:M`,
             spreadsheetType: 'main'
         });
 
@@ -622,11 +622,13 @@ export async function addCharacteristic(data) {
             toSheetsBool(data.is_global),
             data.category_ids || '',
             data.block_number || '',
-            timestamp
+            timestamp,
+            data.sort_order || '',
+            data.col_size || ''
         ];
 
         await callSheetsAPI('append', {
-            range: `${SHEETS.CHARACTERISTICS}!A:K`,
+            range: `${SHEETS.CHARACTERISTICS}!A:M`,
             values: [newRow],
             spreadsheetType: 'main'
         });
@@ -642,7 +644,9 @@ export async function addCharacteristic(data) {
             is_global: toSheetsBool(data.is_global),
             category_ids: data.category_ids || '',
             block_number: data.block_number || '',
-            created_at: timestamp
+            created_at: timestamp,
+            sort_order: data.sort_order || '',
+            col_size: data.col_size || ''
         };
 
         mapperState.characteristics.push(newCharacteristic);
@@ -665,7 +669,7 @@ export async function updateCharacteristic(id, updates) {
         }
 
         const timestamp = new Date().toISOString();
-        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:K${characteristic._rowIndex}`;
+        const range = `${SHEETS.CHARACTERISTICS}!A${characteristic._rowIndex}:M${characteristic._rowIndex}`;
 
         const updatedRow = [
             characteristic.id,
@@ -678,7 +682,9 @@ export async function updateCharacteristic(id, updates) {
             toSheetsBool(updates.is_global !== undefined ? updates.is_global : characteristic.is_global),
             updates.category_ids !== undefined ? updates.category_ids : characteristic.category_ids,
             updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || ''),
-            timestamp
+            timestamp,
+            updates.sort_order !== undefined ? updates.sort_order : (characteristic.sort_order || ''),
+            updates.col_size !== undefined ? updates.col_size : (characteristic.col_size || '')
         ];
 
         await callSheetsAPI('update', {
