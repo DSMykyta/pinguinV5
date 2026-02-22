@@ -89,6 +89,8 @@
 
 /* === COMPONENTS - FEEDBACK === */
 @import url('components/feedback/chip.css');
+@import url('components/feedback/status-dot.css');
+@import url('components/feedback/counter.css');
 @import url('components/feedback/text-stats.css');
 @import url('components/feedback/states.css');
 @import url('components/feedback/loading.css');

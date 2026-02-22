@@ -421,7 +421,7 @@
                 <span class="material-symbols-outlined">view_stream</span>Content Line
             </a>
             <a href="#chips" class="m3-nav-item">
-                <span class="material-symbols-outlined">label</span>Chips
+                <span class="material-symbols-outlined">label</span>Chips & Inline
             </a>
             <a href="#navigation" class="m3-nav-item">
                 <span class="material-symbols-outlined">menu</span>Navigation
@@ -1806,50 +1806,153 @@
 
 
             <!-- ================================================================= -->
-            <!-- 6. CHIPS                                                           -->
+            <!-- 6. CHIPS & INLINE ELEMENTS                                         -->
             <!-- ================================================================= -->
             <section class="m3-section" id="chips">
-                <h2 class="m3-section-title">Chips</h2>
+                <h2 class="m3-section-title">Chips & Inline Elements</h2>
+                <p style="color:var(--color-on-surface-v);margin-bottom:16px">4 базові компоненти для інлайнових індикаторів. Покривають всі випадки: статуси, мітки, лічильники.</p>
 
+                <!-- 1. STATUS DOT -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>.chip</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">chip.css</span><span
-                                class="m3-tag m3-tag-use">SEO, banned-words, validation</span></div>
-                    </div>
-                    <div class="m3-preview">
-                        <span class="chip">Default</span><span class="chip chip-active">Active</span><span
-                            class="chip chip-error">Error</span><span class="chip chip-warning">Warning</span><span
-                            class="chip chip-success">Success</span><button
-                            class="chip chip-clickable">Clickable</button>
-                    </div>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.word-chip</h3>
-                    </div>
-                    <div class="m3-preview">
-                        <span class="word-chip">звичайний</span><span class="word-chip primary">primary</span><span
-                            class="word-chip word-chip-small">small</span>
-                    </div>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.filter-pill</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-use">tasks.html</span></div>
-                    </div>
-                    <div class="m3-preview">
-                        <div class="filter-pills-container">
-                            <button class="filter-pill active"><span
-                                    class="material-symbols-outlined">check_circle</span>Всі</button>
-                            <button class="filter-pill"><span class="material-symbols-outlined">pending</span>В
-                                роботі</button>
-                            <button class="filter-pill"><span
-                                    class="material-symbols-outlined">task_alt</span>Готові</button>
+                        <h3>1. Status Dot</h3>
+                        <p>Маленька кольорова крапка (10px). Чистий візуальний індикатор без тексту.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">status-dot.css</span>
+                            <span class="m3-tag m3-tag-use">tables, brand-edit, mapper</span>
                         </div>
                     </div>
+                    <div class="m3-preview" style="gap:16px;align-items:center">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot is-success"></span><span class="m3-label">.is-success</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot is-error"></span><span class="m3-label">.is-error</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot is-warning"></span><span class="m3-label">.is-warning</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot is-info"></span><span class="m3-label">.is-info</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot is-neutral"></span><span class="m3-label">.is-neutral</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="status-dot"></span><span class="m3-label">default</span>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;span class="status-dot is-success" title="Активний"&gt;&lt;/span&gt;
+&lt;span class="status-dot is-error" title="Неактивний"&gt;&lt;/span&gt;</div>
+                </div>
+
+                <!-- 2. BADGE -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>2. Badge</h3>
+                        <p>Статусний індикатор з іконкою + текстом. 32px height, pill-shaped. Для бінарних станів.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">badge.css</span>
+                            <span class="m3-tag m3-tag-use">task-edit, banned-word-edit, tables</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview" style="gap:12px;flex-wrap:wrap">
+                        <span class="badge">Default</span>
+                        <span class="badge badge-success"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span>Так</span>
+                        <span class="badge badge-error"><span class="material-symbols-outlined" style="font-size:16px">cancel</span>Ні</span>
+                        <span class="badge badge-warning"><span class="material-symbols-outlined" style="font-size:16px">warning</span>Warning</span>
+                        <span class="badge badge-info"><span class="material-symbols-outlined" style="font-size:16px">info</span>Info</span>
+                        <span style="width:8px"></span>
+                        <span class="severity-badge severity-low"><span class="material-symbols-outlined">check_circle</span></span>
+                        <span class="severity-badge severity-medium"><span class="material-symbols-outlined">warning</span></span>
+                        <span class="severity-badge severity-high"><span class="material-symbols-outlined">error</span></span>
+                    </div>
+                    <div class="m3-code">&lt;span class="badge badge-success"&gt;
+  &lt;span class="material-symbols-outlined"&gt;check_circle&lt;/span&gt; Так
+&lt;/span&gt;
+&lt;span class="badge badge-error"&gt;
+  &lt;span class="material-symbols-outlined"&gt;cancel&lt;/span&gt; Ні
+&lt;/span&gt;
+
+&lt;!-- Severity --&gt;
+&lt;span class="severity-badge severity-high"&gt;
+  &lt;span class="material-symbols-outlined"&gt;error&lt;/span&gt;
+&lt;/span&gt;</div>
+                </div>
+
+                <!-- 3. CHIP -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>3. Chip</h3>
+                        <p>Інлайновий тег/мітка. Для категорій, фільтрів, валідації, зв'язків.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">chip.css</span>
+                            <span class="m3-tag m3-tag-use">SEO, banned-words, validation, mapper</span>
+                        </div>
+                    </div>
+                    <div class="m3-sub">Кольорові варіанти</div>
+                    <div class="m3-preview">
+                        <span class="chip">Default</span>
+                        <span class="chip chip-active">Active</span>
+                        <span class="chip chip-error">Error</span>
+                        <span class="chip chip-warning">Warning</span>
+                        <span class="chip chip-success">Success</span>
+                        <button class="chip chip-clickable">Clickable</button>
+                    </div>
+                    <div class="m3-sub">Word Chip (маленький, для таблиць)</div>
+                    <div class="m3-preview">
+                        <span class="word-chip">звичайний</span>
+                        <span class="word-chip primary">primary</span>
+                        <span class="word-chip word-chip-small">small</span>
+                    </div>
+                    <div class="m3-sub">Filter Pill (pill-shaped)</div>
+                    <div class="m3-preview">
+                        <div class="filter-pills-container">
+                            <button class="filter-pill active"><span class="material-symbols-outlined">check_circle</span>Всі</button>
+                            <button class="filter-pill"><span class="material-symbols-outlined">pending</span>В роботі</button>
+                            <button class="filter-pill"><span class="material-symbols-outlined">task_alt</span>Готові</button>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;span class="chip chip-active"&gt;Active&lt;/span&gt;
+&lt;span class="chip chip-error"&gt;Error&lt;/span&gt;
+
+&lt;!-- Word chip (маленький) --&gt;
+&lt;span class="word-chip primary"&gt;UA-12345&lt;/span&gt;
+
+&lt;!-- Filter pill --&gt;
+&lt;button class="filter-pill active"&gt;Всі&lt;/button&gt;</div>
+                </div>
+
+                <!-- 4. COUNTER -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>4. Counter Badge</h3>
+                        <p>Маленький числовий індикатор для таблиць. Лічильник входжень або прив'язок.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">counter.css</span>
+                            <span class="m3-tag m3-tag-use">tables (counter, binding-chip)</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview" style="gap:12px;align-items:center">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="counter-badge">3&times;</span><span class="m3-label">.counter-badge</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="counter-badge counter-badge-active">5</span><span class="m3-label">.counter-badge-active</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="counter-badge counter-badge-muted">0</span><span class="m3-label">.counter-badge-muted</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="match-count-badge">2&times;</span><span class="m3-label">.match-count-badge (legacy)</span>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;span class="counter-badge"&gt;3&amp;times;&lt;/span&gt;
+&lt;span class="counter-badge counter-badge-active"&gt;5&lt;/span&gt;
+&lt;span class="counter-badge counter-badge-muted"&gt;0&lt;/span&gt;
+
+&lt;!-- Legacy alias --&gt;
+&lt;span class="match-count-badge"&gt;2&amp;times;&lt;/span&gt;</div>
                 </div>
             </section>
 
@@ -2238,26 +2341,6 @@
             <!-- ================================================================= -->
             <section class="m3-section" id="feedback">
                 <h2 class="m3-section-title">Feedback</h2>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.badge / .severity-badge</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">feedback/badge.css</span><span
-                                class="m3-tag m3-tag-use">task-edit, banned-word-edit</span></div>
-                    </div>
-                    <div class="m3-preview">
-                        <span class="badge">Default</span>
-                        <span class="badge badge-neutral">Error</span>
-                        <span class="badge badge-success">Success</span>
-                        <span style="width:16px"></span>
-                        <span class="severity-badge severity-low"><span
-                                class="material-symbols-outlined">check_circle</span></span>
-                        <span class="severity-badge severity-medium"><span
-                                class="material-symbols-outlined">warning</span></span>
-                        <span class="severity-badge severity-high"><span
-                                class="material-symbols-outlined">error</span></span>
-                    </div>
-                </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
