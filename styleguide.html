@@ -3095,10 +3095,6 @@ function save() {
                             <td><code>layout-content.css</code></td>
                             <td>.entity-content, .tab-content</td>
                         </tr>
-                        <tr>
-                            <td><code>layout-grid.css</code></td>
-                            <td>.grid2/.grid3 (gap: 4px) — overridden by utilities/grid.css</td>
-                        </tr>
                     </table>
                 </div>
             </section>
@@ -3164,53 +3160,205 @@ function save() {
 &lt;/div&gt;</div>
                 </div>
 
+                <!-- 12-Column Grid System -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>grid.css</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-warn">Конфлікт: layout-grid.css (4px) vs
-                                grid.css (8px)</span></div>
+                        <h3>Grid System — 12 колонок</h3>
+                        <p>Універсальна 12-колонкова CSS Grid система для таблиць, модалів, форм, карток, дашбордів.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">utilities/grid.css</span>
+                            <span class="m3-tag">repeat(12, 1fr)</span>
+                            <span class="m3-tag">gap: 12px 16px</span>
+                        </div>
+                    </div>
+
+                    <!-- 12-col demo -->
+                    <div class="m3-sub">12 колонок — базова сітка</div>
+                    <div class="m3-preview m3-preview-col" style="gap:4px">
+                        <div class="grid gap-4">
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                            <div class="col-1" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1</div>
+                        </div>
+                    </div>
+
+                    <!-- Span combinations -->
+                    <div class="m3-sub">Комбінації .col-*</div>
+                    <div class="m3-preview m3-preview-col" style="gap:8px">
+                        <div class="grid gap-8">
+                            <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
+                            <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
+                        </div>
+                        <div class="grid gap-8">
+                            <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
+                            <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
+                            <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
+                        </div>
+                        <div class="grid gap-8">
+                            <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                            <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                            <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                            <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                        </div>
+                        <div class="grid gap-8">
+                            <div class="col-8" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-8</div>
+                            <div class="col-4" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
+                        </div>
+                        <div class="grid gap-8">
+                            <div class="col-3" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                            <div class="col-6" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
+                            <div class="col-3" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                        </div>
+                        <div class="grid gap-8">
+                            <div class="col-2" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-2</div>
+                            <div class="col-7" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-7</div>
+                            <div class="col-3" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
+                        </div>
+                    </div>
+
+                    <!-- Form example -->
+                    <div class="m3-sub">Форма в .grid</div>
+                    <div class="m3-preview" style="display:block;max-width:700px">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l">Назва товару <span class="required">*</span></label>
+                                <input type="text" class="input-main" placeholder="Введіть назву">
+                            </div>
+                            <div class="group column col-3">
+                                <label class="label-l">Артикул</label>
+                                <input type="text" class="input-main" placeholder="SKU-001">
+                            </div>
+                            <div class="group column col-3">
+                                <label class="label-l">Ціна</label>
+                                <input type="number" class="input-main" placeholder="0.00">
+                            </div>
+                            <div class="group column col-12">
+                                <label class="label-l">Опис</label>
+                                <textarea class="input-main" rows="2" placeholder="Детальний опис..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spec table -->
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Клас</th>
+                            <th>Span</th>
+                            <th>Ширина</th>
+                        </tr>
+                        <tr><td><code>.col-1</code></td><td>span 1</td><td>8.3%</td></tr>
+                        <tr><td><code>.col-2</code></td><td>span 2</td><td>16.7%</td></tr>
+                        <tr><td><code>.col-3</code></td><td>span 3</td><td>25%</td></tr>
+                        <tr><td><code>.col-4</code></td><td>span 4</td><td>33.3%</td></tr>
+                        <tr><td><code>.col-5</code></td><td>span 5</td><td>41.7%</td></tr>
+                        <tr><td><code>.col-6</code></td><td>span 6</td><td>50%</td></tr>
+                        <tr><td><code>.col-7</code></td><td>span 7</td><td>58.3%</td></tr>
+                        <tr><td><code>.col-8</code></td><td>span 8</td><td>66.7%</td></tr>
+                        <tr><td><code>.col-9</code></td><td>span 9</td><td>75%</td></tr>
+                        <tr><td><code>.col-10</code></td><td>span 10</td><td>83.3%</td></tr>
+                        <tr><td><code>.col-11</code></td><td>span 11</td><td>91.7%</td></tr>
+                        <tr><td><code>.col-12</code></td><td>span 12</td><td>100%</td></tr>
+                    </table>
+
+                    <!-- Gap modifiers -->
+                    <div class="m3-sub">Gap модифікатори</div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Клас</th>
+                            <th>Gap</th>
+                        </tr>
+                        <tr><td><code>.grid.gap-0</code></td><td>0</td></tr>
+                        <tr><td><code>.grid.gap-4</code></td><td>4px</td></tr>
+                        <tr><td><code>.grid.gap-8</code></td><td>8px</td></tr>
+                        <tr><td><code>.grid.gap-12</code></td><td>12px (default)</td></tr>
+                        <tr><td><code>.grid.gap-16</code></td><td>16px</td></tr>
+                        <tr><td><code>.grid.gap-24</code></td><td>24px</td></tr>
+                    </table>
+
+                    <!-- Code -->
+                    <div class="m3-code">&lt;!-- 12-col grid --&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="col-8"&gt;Контент (66.7%)&lt;/div&gt;
+  &lt;div class="col-4"&gt;Сайдбар (33.3%)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Форма --&gt;
+&lt;div class="grid"&gt;
+  &lt;div class="group column col-6"&gt;
+    &lt;label class="label-l"&gt;Назва&lt;/label&gt;
+    &lt;input class="input-main"&gt;
+  &lt;/div&gt;
+  &lt;div class="group column col-3"&gt;
+    &lt;label class="label-l"&gt;Артикул&lt;/label&gt;
+    &lt;input class="input-main"&gt;
+  &lt;/div&gt;
+  &lt;div class="group column col-3"&gt;
+    &lt;label class="label-l"&gt;Ціна&lt;/label&gt;
+    &lt;input class="input-main"&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Gap модифікатор --&gt;
+&lt;div class="grid gap-24"&gt;...&lt;/div&gt;</div>
+                </div>
+
+                <!-- Equal-column shortcuts -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Шорткати .grid2–.grid6</h3>
+                        <p>Equal-column сітки для простих розкладок (gap: 8px).</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">utilities/grid.css</span>
+                            <span class="m3-tag m3-tag-use">aside, панелі кнопок, картки</span>
+                        </div>
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:16px">
                         <div><span class="m3-label">.grid2</span>
                             <div class="grid2">
-                                <div
-                                    style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">
-                                    1</div>
-                                <div
-                                    style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">
-                                    2</div>
+                                <div style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">2</div>
                             </div>
                         </div>
                         <div><span class="m3-label">.grid3</span>
                             <div class="grid3">
-                                <div
-                                    style="background:var(--color-secondary-c);color:var(--color-secondary);padding:16px;border-radius:8px;text-align:center;font-weight:500">
-                                    1</div>
-                                <div
-                                    style="background:var(--color-secondary-c);color:var(--color-secondary);padding:16px;border-radius:8px;text-align:center;font-weight:500">
-                                    2</div>
-                                <div
-                                    style="background:var(--color-secondary-c);color:var(--color-secondary);padding:16px;border-radius:8px;text-align:center;font-weight:500">
-                                    3</div>
+                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
                             </div>
                         </div>
                         <div><span class="m3-label">.grid4</span>
                             <div class="grid4">
-                                <div
-                                    style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">
-                                    1</div>
-                                <div
-                                    style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">
-                                    2</div>
-                                <div
-                                    style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">
-                                    3</div>
-                                <div
-                                    style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">
-                                    4</div>
+                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
+                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">4</div>
+                            </div>
+                        </div>
+                        <div><span class="m3-label">.grid6</span>
+                            <div class="grid6">
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">3</div>
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">4</div>
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">5</div>
+                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">6</div>
                             </div>
                         </div>
                     </div>
+                    <div class="m3-code">&lt;div class="grid3"&gt;
+  &lt;div&gt;1&lt;/div&gt;
+  &lt;div&gt;2&lt;/div&gt;
+  &lt;div&gt;3&lt;/div&gt;
+&lt;/div&gt;</div>
                 </div>
 
                 <div class="m3-block">
@@ -3401,11 +3549,6 @@ function save() {
                         <tr>
                             <th>Issue</th>
                             <th>Details</th>
-                        </tr>
-                        <tr>
-                            <td><strong>Grid gap</strong></td>
-                            <td><code>layout-grid.css</code> (4px) перекривається <code>utilities/grid.css</code> (8px)
-                            </td>
                         </tr>
                         <tr>
                             <td><strong>drop-zone.css</strong></td>
