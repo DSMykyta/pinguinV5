@@ -15,8 +15,8 @@
  *
  * РОЗМІРИ:
  * - .chip               — стандартний (4px 12px)
- * - .word-chip           — маленький (2px 8px) — для ID, кодів в таблицях
- * - .word-chip-small     — ще менший (1px 6px)
+ * - .tag           — маленький (2px 8px) — для ID, кодів в таблицях
+ * - .tag-small     — ще менший (1px 6px)
  *
  * КОНТЕЙНЕРИ:
  * - .chip-container      — flex-wrap зі scroll (для великої кількості)
@@ -38,7 +38,7 @@
  * - Banned words (лічильники, помилки, знайдені слова)
  * - Validation (валідація в toolbar)
  * - Mapper (статуси імпорту)
- * - Таблиці (word-chip для ID/кодів)
+ * - Таблиці (tag для ID/кодів)
  */
 
 /* ============================================ */
@@ -200,7 +200,7 @@
 }
 
 /* ============================================ */
-/* WORD CHIP — маленький чіп для таблиць        */
+/* TAG — маленький тег для таблиць, мультиселектів */
 /* ============================================ */
 
 .pseudo-table-cell .cell-words-list {
@@ -213,7 +213,7 @@
     overflow: hidden;
 }
 
-.word-chip {
+.tag {
     display: inline-block;
     padding: 2px 8px;
     background: var(--c-c, var(--color-surface-c-low));
@@ -223,7 +223,7 @@
     flex-shrink: 0;
 }
 
-.word-chip-small {
+.tag-small {
     padding: 1px 6px;
     margin: 1px;
 }

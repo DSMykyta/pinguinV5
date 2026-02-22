@@ -499,7 +499,7 @@ function populateRelatedCharacteristics(categoryId) {
     const managed = createManagedTable({
         container: 'category-related-chars',
         columns: [
-            { ...col('id', 'ID', 'word-chip'), searchable: true },
+            { ...col('id', 'ID', 'tag'), searchable: true },
             { ...col('category_ids', 'Категорія', 'binding-chip'), searchable: true, searchChecked: false },
             { ...col('name_ua', 'Назва', 'name'), searchable: true },
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
@@ -886,7 +886,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>Маркетплейси</h2>
-                    <span class="word-chip">${totalCount}</span>
+                    <span class="tag">${totalCount}</span>
                 </div>
                 <span class="body-s">Прив'язані категорії маркетплейсів</span>
             </div>

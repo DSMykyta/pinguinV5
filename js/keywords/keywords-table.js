@@ -48,7 +48,7 @@ const PARAM_TYPE_LABELS = {
 
 export function getColumns() {
     return [
-        col('local_id', 'ID', 'word-chip'),
+        col('local_id', 'ID', 'tag'),
         col('param_type', 'Тип', 'text', { className: 'cell-s', filterable: true, filterType: 'values' }),
         col('name_uk', 'Назва', 'name'),
         col('trigers', 'Тригери', 'words-list', { sortable: true, searchable: true })

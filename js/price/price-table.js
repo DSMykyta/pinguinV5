@@ -20,10 +20,10 @@ import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
 
 export function getColumns() {
     return [
-        col('code', 'Код', 'word-chip'),
+        col('code', 'Код', 'tag'),
         col('article', 'Артикул', 'input', { className: 'cell-s', sortable: true, searchable: true }),
         col('product', 'Товар', 'name', { sortKey: 'product' }),
-        col('shiping_date', 'Відправка', 'word-chip', { className: '', searchable: false, filterable: true }),
+        col('shiping_date', 'Відправка', 'tag', { className: '', searchable: false, filterable: true }),
         col('status', 'Викладено', 'badge-toggle', { filterable: true }),
         col('check', 'Перевірено', 'badge-toggle', { filterable: true }),
         col('payment', 'Оплата', 'badge-toggle', { filterable: true }),

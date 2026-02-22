@@ -1,14 +1,14 @@
 /**
- * COMPONENT: Counter Badge
+ * COMPONENT: Counter
  *
  * ПРИЗНАЧЕННЯ:
  * Маленький числовий індикатор для таблиць.
  * Показує кількість (входжень, прив'язок, тощо).
  *
  * ВИКОРИСТАННЯ:
- * <span class="counter-badge">3×</span>
- * <span class="counter-badge c-main">5</span>
- * <span class="counter-badge c-muted">0</span>
+ * <span class="counter">3×</span>
+ * <span class="counter c-main">5</span>
+ * <span class="counter c-muted">0</span>
  *
  * КОЛЬОРИ:
  * Через шар colors.css (.c-main, .c-muted)
@@ -23,8 +23,7 @@
  * - dropdown.css (.filter-count)
  */
 
-.counter-badge,
-.match-count-badge {
+.counter {
     display: inline-flex;
     align-items: center;
     justify-content: center;

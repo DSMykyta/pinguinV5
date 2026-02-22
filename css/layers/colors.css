@@ -2,7 +2,7 @@
  * LAYER: Colors
  *
  * Кольоровий шар — утилітарні класи, які встановлюють CSS-змінні.
- * Компоненти (dot, badge, chip, counter, severity-badge) читають ці змінні.
+ * Компоненти (dot, badge, chip, tag, counter, severity-badge) читають ці змінні.
  *
  * ЗМІННІ:
  * --c       — основний колір (solid)
@@ -14,7 +14,7 @@
  * <span class="dot c-green"></span>
  * <span class="badge c-red">Ні</span>
  * <span class="chip c-yellow">Warning</span>
- * <span class="counter-badge c-main">5</span>
+ * <span class="counter c-main">5</span>
  *
  * КОЛЬОРИ:
  * .c-red     — error / danger

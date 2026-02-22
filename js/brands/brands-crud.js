@@ -255,7 +255,7 @@ function populateBrandLines(brandId) {
             {
                 id: 'line_id', label: 'ID', sortable: true, searchable: true, checked: true,
                 className: 'cell-m',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+                render: (value) => `<span class="tag">${escapeHtml(value || '')}</span>`
             },
             {
                 id: 'name_uk', label: 'Назва', sortable: true, searchable: true, checked: true,

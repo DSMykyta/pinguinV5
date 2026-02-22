@@ -63,11 +63,11 @@ function createArticleHtml(item) {
         : [];
 
     const triggersHtml = trigersArray.length > 0
-        ? trigersArray.map(tr => `<span class="word-chip c-main">${tr}</span>`).join(' ')
+        ? trigersArray.map(tr => `<span class="tag c-main">${tr}</span>`).join(' ')
         : '<span class="text-muted">Немає тригерів</span>';
 
     const keywordsUaHtml = keywordsUaArray.length > 0
-        ? keywordsUaArray.map(kw => `<span class="word-chip">${kw}</span>`).join(' ')
+        ? keywordsUaArray.map(kw => `<span class="tag">${kw}</span>`).join(' ')
         : '<span class="text-muted">Немає ключових слів</span>';
 
     // Badge for param_type

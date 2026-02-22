@@ -32,7 +32,7 @@ registerActionHandlers('banned-words-manage', {
 
 export function getColumns() {
     return [
-        col('local_id', 'ID', 'word-chip'),
+        col('local_id', 'ID', 'tag'),
         col('severity', ' ', 'severity-badge', { searchable: true }),
         col('group_name_ua', 'Назва Групи', 'name'),
         col('banned_type', 'Тип', 'text'),

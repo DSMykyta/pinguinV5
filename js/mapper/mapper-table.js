@@ -445,7 +445,7 @@ function transformMarketplaces(data) {
 
 export function getCategoriesColumns() {
     return [
-        { ...col('id', 'ID', 'word-chip'), searchable: true },
+        { ...col('id', 'ID', 'tag'), searchable: true },
         col('_nestingLevel', 'Рів.', 'binding-chip'),
         { ...col('name_ua', 'Назва UA', 'name'), searchable: true },
         { ...col('name_ru', 'Назва RU', 'text'), searchable: true, checked: false },
@@ -457,7 +457,7 @@ export function getCategoriesColumns() {
 
 export function getCharacteristicsColumns() {
     return [
-        { ...col('id', 'ID', 'word-chip'), searchable: true },
+        { ...col('id', 'ID', 'tag'), searchable: true },
         {
             id: '_raw_category_ids', label: 'Категорія',
             className: 'cell-xs cell-center', sortable: false, filterable: true,
@@ -478,7 +478,7 @@ export function getCharacteristicsColumns() {
 
 export function getOptionsColumns() {
     return [
-        { ...col('id', 'ID', 'word-chip'), searchable: true },
+        { ...col('id', 'ID', 'tag'), searchable: true },
         { ...col('characteristic_id', 'Характеристика', 'text', { filterable: true }) },
         { ...col('value_ua', 'Значення', 'name'), searchable: true },
         col('category_ids', 'Категорія', 'binding-chip'),
@@ -488,7 +488,7 @@ export function getOptionsColumns() {
 
 export function getMarketplacesColumns() {
     return [
-        { ...col('id', 'ID', 'word-chip'), searchable: true },
+        { ...col('id', 'ID', 'tag'), searchable: true },
         { ...col('name', 'Назва', 'name'), searchable: true },
         { ...col('slug', 'Slug', 'code'), searchable: true },
         col('is_active', 'Активний', 'status-dot', { filterable: true, className: 'cell-s cell-center' })

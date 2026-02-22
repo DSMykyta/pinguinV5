@@ -739,7 +739,7 @@ function populateMpCharacteristics(allData, charMapping) {
     createManagedTable({
         container: 'mp-data-char-container',
         columns: [
-            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            { ...col('external_id', 'ID', 'tag'), searchable: true },
             {
                 id: 'category_name', label: 'Категорія', searchable: true, checked: true,
                 className: 'cell-xs cell-center', sortable: false, filterable: true,
@@ -813,7 +813,7 @@ function populateMpOptions(allData, optMapping) {
     createManagedTable({
         container: 'mp-data-opt-container',
         columns: [
-            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            { ...col('external_id', 'ID', 'tag'), searchable: true },
             { ...col('_name', 'Назва', 'name'), searchable: true },
             { ...col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }), searchable: true },
             {

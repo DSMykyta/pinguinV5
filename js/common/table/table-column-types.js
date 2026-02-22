@@ -9,10 +9,10 @@
  * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
  * ║  КОЛЬОРИ: через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue) ║
- * ║  Компоненти: dot, badge, chip, word-chip, counter-badge                ║
+ * ║  Компоненти: dot, badge, chip, tag, counter                ║
  * ║                                                                          ║
  * ║  ТИПИ (15):                                                              ║
- * ║  1.  word-chip     — ID, коди, артикули         [chip]                  ║
+ * ║  1.  tag     — ID, коди, артикули         [chip]                  ║
  * ║  2.  name          — головна назва              <strong>                ║
  * ║  3.  text          — звичайний текст            escaped string          ║
  * ║  4.  status-dot    — кольорова крапка статусу   ● active/inactive      ║
@@ -48,11 +48,11 @@ const DOT_COLOR = { active: 'c-green', draft: 'c-yellow', hidden: 'c-red', inact
 export const COLUMN_TYPES = {
 
     // 1. Word-chip — ID, коди, артикули
-    'word-chip': {
+    'tag': {
         className: 'cell-m',
         sortable: true,
         searchable: true,
-        render: (value) => `<span class="word-chip">${escapeHtml(value ?? '')}</span>`
+        render: (value) => `<span class="tag">${escapeHtml(value ?? '')}</span>`
     },
 
     // 2. Name — головна назва (bold)
@@ -105,7 +105,7 @@ export const COLUMN_TYPES = {
     counter: {
         className: 'cell-2xs cell-center',
         sortable: true,
-        render: (value) => (value != null && value !== '') ? `<span class="match-count-badge">${value}×</span>` : ''
+        render: (value) => (value != null && value !== '') ? `<span class="counter">${value}×</span>` : ''
     },
 
     // 8. Words-list — список chips з "+N" counter
@@ -117,9 +117,9 @@ export const COLUMN_TYPES = {
             const words = (typeof value === 'string' ? value.split(',') : value)
                 .map(s => String(s).trim()).filter(Boolean);
             if (!words.length) return '<span class="text-muted">—</span>';
-            const first = `<span class="word-chip c-main">${escapeHtml(words[0])}</span>`;
+            const first = `<span class="tag c-main">${escapeHtml(words[0])}</span>`;
             const rest = words.length > 1
-                ? ` <span class="word-chip">${escapeHtml('+' + (words.length - 1))}</span>`
+                ? ` <span class="tag">${escapeHtml('+' + (words.length - 1))}</span>`
                 : '';
             return `<div class="cell-words-list">${first}${rest}</div>`;
         }
@@ -223,7 +223,7 @@ export const COLUMN_TYPES = {
  * @returns {Object} Конфіг колонки для createTable
  *
  * @example
- * col('brand_id', 'ID', 'word-chip')
+ * col('brand_id', 'ID', 'tag')
  * col('name_uk', 'Назва', 'name')
  * col('status', 'Статус', 'status-dot')
  * col('severity', ' ', 'severity-badge', { className: 'cell-2xs cell-center' })
