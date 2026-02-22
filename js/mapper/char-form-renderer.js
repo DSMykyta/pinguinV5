@@ -130,7 +130,7 @@ function renderBlock(blockNum, chars, options, values) {
     section.className = 'char-form-block';
     section.dataset.block = blockNum;
 
-    // Заголовок блоку
+    // Заголовок блоку (як в модалках: section-header > section-name-block)
     const blockName = BLOCK_NAMES[blockNum] || `Блок ${blockNum}`;
     const header = document.createElement('div');
     header.className = 'section-header';
@@ -138,12 +138,16 @@ function renderBlock(blockNum, chars, options, values) {
         <div class="section-name-block">
             <div class="section-name">
                 <h2 class="title-l section-upper">${escapeHtml(blockName)}</h2>
+                <span class="word-chip">${chars.length}</span>
             </div>
         </div>
     `;
     section.appendChild(header);
 
-    // Grid контейнер
+    // section-content > char-grid (як в модалках)
+    const content = document.createElement('div');
+    content.className = 'section-content';
+
     const grid = document.createElement('div');
     grid.className = 'char-grid';
 
@@ -152,7 +156,8 @@ function renderBlock(blockNum, chars, options, values) {
         grid.appendChild(field);
     }
 
-    section.appendChild(grid);
+    content.appendChild(grid);
+    section.appendChild(content);
     return section;
 }
 
@@ -179,23 +184,23 @@ function renderField(char, allOptions, currentValue) {
     label.textContent = char.name_ua || char.id;
     wrapper.appendChild(label);
 
-    // Input inside char-field-box (з unit suffix якщо є)
     const charOptions = allOptions.filter(o => o.characteristic_id === char.id);
     const type = char.type || 'TextInput';
 
-    // CheckBoxGroup рендериться без char-field-box
+    // CheckBoxGroup — рендериться без обгортки
     if (type === 'CheckBoxGroup') {
         const input = createInput(char, charOptions, currentValue);
         wrapper.appendChild(input);
     } else {
+        // Все інше — всередині char-field-box (єдиний бордер на обгортці)
         const box = document.createElement('div');
         box.className = 'char-field-box';
 
         const input = createInput(char, charOptions, currentValue);
         box.appendChild(input);
 
-        // Unit suffix
-        if (char.unit) {
+        // Unit suffix (тільки для числових / текстових)
+        if (char.unit && type !== 'List' && type !== 'ComboBox' && type !== 'ListValues') {
             const unitSpan = document.createElement('span');
             unitSpan.className = 'char-field-unit';
             unitSpan.textContent = char.unit;
