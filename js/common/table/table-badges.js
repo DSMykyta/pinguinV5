@@ -13,7 +13,7 @@
  * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ ФУНКЦІЇ:                                                   ║
  * ║  - renderBadge(value, type, options) — Бейдж зі статусом                ║
- * ║  - renderSeverityBadge(severity) — Бейдж severity (low/medium/high)     ║
+ * ║  - renderSeverityBadge(severity) — Badge severity (low/medium/high)     ║
  * ║  - updateTableCounter(el, current, total) — Лічильник записів           ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -131,7 +131,7 @@ export function renderSeverityBadge(severity) {
     }
 
     return `
-        <span class="severity-badge ${colorClass}">
+        <span class="badge ${colorClass}">
             <span class="material-symbols-outlined">${icon}</span>
         </span>
     `.trim();

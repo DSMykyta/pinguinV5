@@ -1784,24 +1784,6 @@
                     </div>
                 </div>
 
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>.input-tag</h3>
-                        <p>Мітка всередині input-box. .visible — показати. .essential-amino — warning колір.</p>
-                    </div>
-                    <div class="m3-preview m3-preview-col" style="gap:0">
-                        <div class="content-bloc-container">
-                            <div class="content-bloc td">
-                                <div class="content-line">
-                                    <div class="input-box large"><input type="text" value="L-Аргінін" readonly></div>
-                                    <div class="separator-v"></div>
-                                    <div class="input-box small"><input type="text" value="500 мг" readonly><span
-                                            class="input-tag visible">НЕЗАМІННА</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </section>
 
 
@@ -1816,7 +1798,7 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>Color Layer (colors.css)</h3>
-                        <p>8 кольорових класів. Встановлюють CSS-змінні --c, --c-on, --c-c, --c-on-c. Компоненти читають ці змінні.</p>
+                        <p>8 кольорових класів. Встановлюють color, fill, background-color. Компоненти наслідують колір.</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">colors.css</span>
                         </div>
@@ -1894,9 +1876,9 @@
                         <span class="badge c-yellow"><span class="material-symbols-outlined" style="font-size:16px">warning</span>Warning</span>
                         <span class="badge c-blue"><span class="material-symbols-outlined" style="font-size:16px">info</span>Info</span>
                         <span style="width:8px"></span>
-                        <span class="severity-badge c-green"><span class="material-symbols-outlined">check_circle</span></span>
-                        <span class="severity-badge c-yellow"><span class="material-symbols-outlined">warning</span></span>
-                        <span class="severity-badge c-red"><span class="material-symbols-outlined">error</span></span>
+                        <span class="badge c-green"><span class="material-symbols-outlined">check_circle</span></span>
+                        <span class="badge c-yellow"><span class="material-symbols-outlined">warning</span></span>
+                        <span class="badge c-red"><span class="material-symbols-outlined">error</span></span>
                     </div>
                     <div class="m3-code">&lt;span class="badge c-green"&gt;
   &lt;span class="material-symbols-outlined"&gt;check_circle&lt;/span&gt; Так
@@ -1906,7 +1888,7 @@
 &lt;/span&gt;
 
 &lt;!-- Severity --&gt;
-&lt;span class="severity-badge c-red"&gt;
+&lt;span class="badge c-red"&gt;
   &lt;span class="material-symbols-outlined"&gt;error&lt;/span&gt;
 &lt;/span&gt;</div>
                 </div>
@@ -1915,49 +1897,55 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>3. Chip</h3>
-                        <p>Інлайновий тег/мітка. Для категорій, фільтрів, валідації, зв'язків.</p>
+                        <p>Інлайновий тег/мітка. Для категорій, фільтрів, валідації, зв'язків. <code>&lt;button class="chip"&gt;</code> — клікабельний.</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">chip.css</span>
                             <span class="m3-tag m3-tag-use">SEO, banned-words, validation, mapper</span>
                         </div>
                     </div>
-                    <div class="m3-sub">Кольорові варіанти</div>
                     <div class="m3-preview">
                         <span class="chip">Default</span>
-                        <span class="chip c-main filled">Active</span>
+                        <span class="chip c-main">Active</span>
                         <span class="chip c-red">Error</span>
                         <span class="chip c-yellow">Warning</span>
                         <span class="chip c-green">Success</span>
-                        <button class="chip chip-clickable">Clickable</button>
+                        <button class="chip">Clickable</button>
                     </div>
-                    <div class="m3-sub">Tag (маленький, для таблиць)</div>
-                    <div class="m3-preview">
-                        <span class="tag">звичайний</span>
-                        <span class="tag c-main">primary</span>
-                        <span class="tag tag-small">small</span>
-                    </div>
-                    <div class="m3-sub">Filter Pill (pill-shaped)</div>
-                    <div class="m3-preview">
-                        <div class="filter-pills-container">
-                            <button class="filter-pill active"><span class="material-symbols-outlined">check_circle</span>Всі</button>
-                            <button class="filter-pill"><span class="material-symbols-outlined">pending</span>В роботі</button>
-                            <button class="filter-pill"><span class="material-symbols-outlined">task_alt</span>Готові</button>
-                        </div>
-                    </div>
-                    <div class="m3-code">&lt;span class="chip c-main filled"&gt;Active&lt;/span&gt;
+                    <div class="m3-code">&lt;span class="chip c-main"&gt;Active&lt;/span&gt;
 &lt;span class="chip c-red"&gt;Error&lt;/span&gt;
-
-&lt;!-- Tag (маленький) --&gt;
-&lt;span class="tag c-main"&gt;UA-12345&lt;/span&gt;
-
-&lt;!-- Filter pill --&gt;
-&lt;button class="filter-pill active"&gt;Всі&lt;/button&gt;</div>
+&lt;button class="chip"&gt;Clickable&lt;/button&gt;</div>
                 </div>
 
-                <!-- 4. COUNTER -->
+                <!-- 4. TAG -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>4. Counter</h3>
+                        <h3>4. Tag</h3>
+                        <p>Маленька мітка для таблиць і input-box. Колір через <code>colors.css</code>.</p>
+                        <div class="m3-tags">
+                            <span class="m3-tag m3-tag-src">tag.css</span>
+                            <span class="m3-tag m3-tag-use">tables, keywords-edit, brand-edit, generator-table</span>
+                        </div>
+                    </div>
+                    <div class="m3-preview" style="gap:12px;align-items:center">
+                        <span class="tag">Default</span>
+                        <span class="tag c-main">Primary</span>
+                        <span class="tag c-yellow">EAA</span>
+                        <span class="tag c-red">Error</span>
+                    </div>
+                    <div class="m3-code">&lt;span class="tag c-main"&gt;UA-12345&lt;/span&gt;
+&lt;span class="tag c-yellow"&gt;EAA&lt;/span&gt;
+
+&lt;!-- В input-box (позиціонується абсолютно) --&gt;
+&lt;div class="input-box small"&gt;
+  &lt;input type="text" value="500 мг"&gt;
+  &lt;span class="tag c-yellow"&gt;НЕЗАМІННА&lt;/span&gt;
+&lt;/div&gt;</div>
+                </div>
+
+                <!-- 5. COUNTER -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>5. Counter</h3>
                         <p>Маленький числовий індикатор для таблиць. Лічильник входжень або прив'язок.</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">counter.css</span>
@@ -2253,13 +2241,13 @@
                                 <div class="dropdown-header">Severity</div>
                                 <div class="dropdown-body">
                                     <button class="dropdown-item" data-severity-value="low"><span
-                                            class="severity-badge c-green"><span
+                                            class="badge c-green"><span
                                                 class="material-symbols-outlined">check_circle</span></span>Низький</button>
                                     <button class="dropdown-item active" data-severity-value="medium"><span
-                                            class="severity-badge c-yellow"><span
+                                            class="badge c-yellow"><span
                                                 class="material-symbols-outlined">warning</span></span>Середній</button>
                                     <button class="dropdown-item" data-severity-value="high"><span
-                                            class="severity-badge c-red"><span
+                                            class="badge c-red"><span
                                                 class="material-symbols-outlined">brightness_alert</span></span>Критичний</button>
                                 </div>
                             </div>
@@ -2283,21 +2271,44 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>.toast</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">toast.css</span></div>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">toast.css</span><span class="m3-tag m3-tag-src">ui-toast.js</span></div>
                     </div>
+                    <p class="m3-section-desc">
+                        Єдина система сповіщень. Базовий тост — темний (інвертований surface).
+                        Помилки — через шар colors.css (<code>.c-red</code>).
+                        <strong>alert() заборонено</strong> — завжди використовуй showToast.
+                    </p>
                     <div class="m3-preview m3-preview-col" style="gap:8px">
-                        <div class="toast toast-visible toast-success"
+                        <!-- Базовий (success/info) — чорний -->
+                        <div class="toast visible"
                             style="position:relative;transform:none;opacity:1;min-width:auto"><span
-                                class="material-symbols-outlined"
-                                style="font-size:18px;margin-right:12px;color:var(--color-success)">check_circle</span><span
                                 class="toast-message">Дані збережені</span><button class="toast-action">UNDO</button>
                         </div>
-                        <div class="toast toast-visible toast-error"
+                        <!-- Помилка — .c-red -->
+                        <div class="toast visible c-red"
                             style="position:relative;transform:none;opacity:1;min-width:auto"><span
-                                class="material-symbols-outlined"
-                                style="font-size:18px;margin-right:12px">error</span><span class="toast-message">Помилка
-                                збереження</span><button class="toast-action">RETRY</button></div>
+                                class="toast-message">Помилка збереження</span><button class="toast-action">RETRY</button>
+                        </div>
                     </div>
+                    <div class="m3-code">// JS — імпорт і використання
+import { showToast } from '../common/ui-toast.js';
+
+// Успіх (чорний тост, за замовчуванням)
+showToast('Збережено');
+showToast('Скопійовано', 'success', 2000);
+
+// Помилка (червоний тост — .c-red)
+showToast('Помилка збереження', 'error');
+
+// З action-кнопкою
+showToast('Видалено', 'success', {
+  duration: 5000,
+  action: { label: 'UNDO', onClick: () =&gt; restore() }
+});
+
+// ЗАБОРОНЕНО — не використовуй alert()
+// alert('Помилка');              — замінити на showToast
+// window.showToast('...');       — замінити на import</div>
                 </div>
             </section>
 

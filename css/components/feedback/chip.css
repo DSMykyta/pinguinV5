@@ -9,13 +9,8 @@
     transition: all 0.2s;
     background: var(--color-surface-c-low);
     color: var(--color-on-surface);
-    border: 1px solid var(--color-surface-c);
 }
 
 .chip:hover {
     filter: brightness(0.85);
-}
-
-.chip.filled {
-    border-color: transparent;
 }

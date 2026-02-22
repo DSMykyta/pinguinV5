@@ -12,6 +12,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../common/ui-actions.js';
+import { showToast } from '../common/ui-toast.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -33,7 +34,7 @@ registerActionHandlers('banned-words-manage', {
 export function getColumns() {
     return [
         col('local_id', 'ID', 'tag'),
-        col('severity', ' ', 'severity-badge', { searchable: true }),
+        col('severity', ' ', 'severity', { searchable: true }),
         col('group_name_ua', 'Назва Групи', 'name'),
         col('banned_type', 'Тип', 'text'),
         col('cheaked_line', 'Перевірено', 'badge-toggle')
@@ -287,7 +288,7 @@ export async function openBannedWordModal(wordData = null) {
     // Функція оновлення бейджа "Перевірено"
     const updateCheckedBadge = (badge, isChecked) => {
         const icon = badge.querySelector('.material-symbols-outlined');
-        const label = badge.querySelector('.badge-label');
+        const label = badge.querySelector('span:not(.material-symbols-outlined)');
 
         badge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
         badge.classList.remove('c-red', 'c-green');
@@ -419,7 +420,7 @@ async function handleSaveBannedWord(isEdit, originalWordData = null) { // ДОД
 
     // Валідація
 if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
-        alert('Будь ласка, заповніть обов\'язкові поля: Назва Групи, Українське слово і Російське слово');
+        showToast('Будь ласка, заповніть обов\'язкові поля: Назва Групи, Українське слово і Російське слово', 'error');
         return;
     }
 

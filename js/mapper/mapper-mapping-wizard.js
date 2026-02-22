@@ -241,7 +241,7 @@ function renderFilterPhase() {
         mpCheckboxes += `
             <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
                 <input type="checkbox" class="wizard-mp-filter" data-mp-id="${mpId}" ${checked} />
-                <span class="chip c-main filled">${escapeHtml(name)}</span>
+                <span class="chip c-main">${escapeHtml(name)}</span>
             </label>`;
     });
 
@@ -370,7 +370,7 @@ function renderCard() {
                     <div style="font-weight:500;">${escapeHtml(mpCat.name)}</div>
                     <div style="font-size:12px;color:var(--color-text-secondary);">#${escapeHtml(mpCat.external_id)}</div>
                 </div>
-                <span class="chip c-main filled">${escapeHtml(mpCat.marketplaceName)}</span>
+                <span class="chip c-main">${escapeHtml(mpCat.marketplaceName)}</span>
             </label>`;
     });
     listHtml += '</div>';

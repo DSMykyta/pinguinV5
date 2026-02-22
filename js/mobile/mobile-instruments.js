@@ -365,34 +365,9 @@
         }
     }
 
-    function showToast(message) {
-        // Simple toast notification
-        const existing = document.querySelector('.mobile-toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = 'mobile-toast';
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            bottom: calc(var(--mobile-bottom-nav-height, 56px) + var(--mobile-aside-collapsed-height, 48px) + 80px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--color-on-surface, #171717);
-            color: var(--color-surface, #fafafa);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 1200;
-            animation: toastFadeIn 0.3s ease;
-        `;
-
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.animation = 'toastFadeOut 0.3s ease';
-            setTimeout(() => toast.remove(), 300);
-        }, 2000);
+    async function showToast(message) {
+        const { showToast: toast } = await import('../common/ui-toast.js');
+        toast(message);
     }
 
     // ============================================

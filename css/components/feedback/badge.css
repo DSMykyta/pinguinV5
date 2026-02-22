@@ -8,7 +8,6 @@
     padding: 2px 8px;
     background-color: var(--color-surface-c-low);
     color: inherit;
-    border: 1px solid var(--color-outline);
     border-radius: 12px;
 }
 

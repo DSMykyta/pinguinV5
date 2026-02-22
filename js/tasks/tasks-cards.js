@@ -6,7 +6,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Рендеринг карток задач.
- * Використовує content-card, severity-badge, badge, tag, btn-icon
+ * Використовує content-card, badge, tag, btn-icon
  *
  * 🔌 ПЛАГІН — цей файл можна видалити, система працюватиме без нього.
  */
@@ -186,7 +186,7 @@ function renderCard(task) {
         <div class="content-card" data-task-id="${task.id}" data-status="${task.status}">
             <div class="content-card-header">
                 <h4 class="content-card-title">${escapeHtml(task.title)}</h4>
-                <span class="severity-badge ${priority.class}">
+                <span class="badge ${priority.class}">
                     <span class="material-symbols-outlined">${priority.icon}</span>
                 </span>
             </div>

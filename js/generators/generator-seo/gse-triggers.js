@@ -21,7 +21,7 @@ function renderTriggerButtons() {
 
     triggersData.forEach(trigger => {
         const button = document.createElement('button');
-        button.className = 'chip chip-clickable';
+        button.className = 'chip';
         button.textContent = trigger.title;
         button.dataset.title = trigger.title;
         dom.trigerButtonsContainer.appendChild(button);
@@ -40,7 +40,7 @@ function addTulip(title, isActive = true) {
     if (!triggerData) return;
 
     const tulip = document.createElement('div');
-    tulip.className = isActive ? 'chip c-main filled' : 'chip';
+    tulip.className = isActive ? 'chip c-main' : 'chip';
     tulip.textContent = title;
     tulip.dataset.title = title;
 

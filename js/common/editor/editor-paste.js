@@ -8,6 +8,7 @@
  */
 
 import { sanitizeHtml, sanitizeEditor, escapeHtml } from './editor-utils.js';
+import { showToast } from '../ui-toast.js';
 
 export function init(state) {
     const { dom } = state;
@@ -39,7 +40,7 @@ export function init(state) {
         e.preventDefault();
         e.clipboardData.setData('text/plain', htmlCode);
 
-        showMessage('Скопійовано HTML код');
+        showToast('Скопійовано HTML код');
     });
 
     // Ctrl+Shift+C — копіювати тільки текст без HTML розмітки
@@ -50,7 +51,7 @@ export function init(state) {
             if (plainText) {
                 e.preventDefault();
                 navigator.clipboard.writeText(plainText).then(() => {
-                    showMessage('Скопійовано текст (без HTML)');
+                    showToast('Скопійовано текст (без HTML)');
                 });
             }
         }
@@ -95,10 +96,4 @@ export function init(state) {
             state.runHook('onValidate');
         }, 50);
     });
-}
-
-function showMessage(text) {
-    import('../../common/ui-toast.js')
-        .then(module => module.showToast(text, 'success'))
-        .catch(() => {});
 }

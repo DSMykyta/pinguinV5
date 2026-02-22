@@ -28,6 +28,7 @@
 
 import { initTabs } from './ui-tabs.js';
 import { initDropdowns } from './ui-dropdown.js';
+import { showToast } from './ui-toast.js';
 
 // Кеш завантажених шаблонів
 const modalTemplateCache = new Map();
@@ -120,7 +121,7 @@ export async function showModal(modalId, triggerElement = null) {
     } catch (error) {
         console.error('Помилка при відображенні модального вікна:', error);
         // Показуємо повідомлення користувачу
-        alert(`Помилка: не вдалося відкрити модальне вікно "${modalId}"`);
+        showToast(`Помилка: не вдалося відкрити модальне вікно "${modalId}"`, 'error');
     }
 }
 

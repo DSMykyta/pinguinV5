@@ -508,7 +508,7 @@ function populateRelatedCharacteristics(categoryId) {
                 className: 'cell-xs cell-center',
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
-                    const cls = count === 0 ? 'chip' : 'chip c-main filled';
+                    const cls = count === 0 ? 'chip' : 'chip c-main';
                     return `<span class="${cls}">${count}</span>`;
                 }
             },

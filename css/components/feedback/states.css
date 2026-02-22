@@ -22,11 +22,9 @@
  *   <p>Перейдіть на таб щоб завантажити дані</p>
  * </div>
  *
- * <!-- Chip container (див. chip.css) -->
- * <div class="chip-container">
- *   <span class="chip chip-active">Протеїн</span>
- *   <button class="chip chip-clickable">BCAA</button>
- * </div>
+ * <!-- Chips -->
+ *   <span class="chip c-main">Протеїн</span>
+ *   <button class="chip">BCAA</button>
  *
  * КЛАСИ:
  * - .warning-text - текст попередження (червоний background)

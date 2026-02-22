@@ -17,7 +17,7 @@
  * ║  3.  text          — звичайний текст            escaped string          ║
  * ║  4.  status-dot    — кольорова крапка статусу   ● active/inactive      ║
  * ║  5.  badge-toggle  — перемикач Так/Ні           clickable badge         ║
- * ║  6.  severity-badge— іконка важливості          low/medium/high        ║
+ * ║  6.  severity     — іконка важливості            low/medium/high        ║
  * ║  7.  counter       — число з badge              N×                      ║
  * ║  8.  words-list    — список chips               first +N               ║
  * ║  9.  photo         — зображення/placeholder     <img> / icon           ║
@@ -94,8 +94,8 @@ export const COLUMN_TYPES = {
         })
     },
 
-    // 6. Severity-badge — іконка рівня важливості
-    'severity-badge': {
+    // 6. Severity — іконка рівня важливості (badge)
+    severity: {
         className: 'cell-2xs cell-center',
         sortable: true,
         render: (value) => renderSeverityBadge(value)
@@ -150,7 +150,7 @@ export const COLUMN_TYPES = {
         sortable: false,
         render: (value) => {
             if (!value || value.count == null) return '';
-            const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip c-main filled';
+            const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip c-main';
             return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
         }
     },
@@ -226,7 +226,7 @@ export const COLUMN_TYPES = {
  * col('brand_id', 'ID', 'tag')
  * col('name_uk', 'Назва', 'name')
  * col('status', 'Статус', 'status-dot')
- * col('severity', ' ', 'severity-badge', { className: 'cell-2xs cell-center' })
+ * col('severity', ' ', 'severity', { className: 'cell-2xs cell-center' })
  */
 export function col(id, label, type, overrides = {}) {
     const base = COLUMN_TYPES[type] || COLUMN_TYPES.text;

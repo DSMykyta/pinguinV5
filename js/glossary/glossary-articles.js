@@ -72,7 +72,7 @@ function createArticleHtml(item) {
 
     // Badge for param_type
     const paramTypeHtml = item.param_type
-        ? `<span class="badge badge-param-type">${item.param_type}</span>`
+        ? `<span class="badge">${item.param_type}</span>`
         : '';
 
     return `
