@@ -177,18 +177,41 @@ function renderField(char, allOptions, currentValue) {
     label.className = 'label-l';
     label.setAttribute('for', `char-field-${char.id}`);
     label.textContent = char.name_ua || char.id;
-    if (char.unit) {
-        const unitSpan = document.createElement('span');
-        unitSpan.className = 'label-unit';
-        unitSpan.textContent = ` (${char.unit})`;
-        label.appendChild(unitSpan);
-    }
     wrapper.appendChild(label);
 
-    // Input element based on type
+    // Input inside char-field-box (з unit suffix якщо є)
     const charOptions = allOptions.filter(o => o.characteristic_id === char.id);
-    const input = createInput(char, charOptions, currentValue);
-    wrapper.appendChild(input);
+    const type = char.type || 'TextInput';
+
+    // CheckBoxGroup рендериться без char-field-box
+    if (type === 'CheckBoxGroup') {
+        const input = createInput(char, charOptions, currentValue);
+        wrapper.appendChild(input);
+    } else {
+        const box = document.createElement('div');
+        box.className = 'char-field-box';
+
+        const input = createInput(char, charOptions, currentValue);
+        box.appendChild(input);
+
+        // Unit suffix
+        if (char.unit) {
+            const unitSpan = document.createElement('span');
+            unitSpan.className = 'char-field-unit';
+            unitSpan.textContent = char.unit;
+            box.appendChild(unitSpan);
+        }
+
+        wrapper.appendChild(box);
+    }
+
+    // Hint (підказка під полем)
+    if (char.hint) {
+        const hint = document.createElement('label');
+        hint.className = 'label-s';
+        hint.textContent = char.hint;
+        wrapper.appendChild(hint);
+    }
 
     return wrapper;
 }
@@ -239,7 +262,6 @@ function createTextInput(id, value, char) {
     const input = document.createElement('input');
     input.type = 'text';
     input.id = id;
-    input.className = 'input-main';
     input.value = value;
     input.placeholder = char.name_ua || '';
     return input;
@@ -252,7 +274,6 @@ function createNumberInput(id, value, step) {
     const input = document.createElement('input');
     input.type = 'number';
     input.id = id;
-    input.className = 'input-main';
     input.value = value;
     input.step = step;
     input.placeholder = '0';
@@ -265,7 +286,6 @@ function createNumberInput(id, value, step) {
 function createTextArea(id, value) {
     const textarea = document.createElement('textarea');
     textarea.id = id;
-    textarea.className = 'input-main';
     textarea.value = value;
     textarea.rows = 3;
     return textarea;
@@ -277,7 +297,6 @@ function createTextArea(id, value) {
 function createSelect(id, charOptions, currentValue, multiple) {
     const select = document.createElement('select');
     select.id = id;
-    select.className = 'input-main';
     if (multiple) select.multiple = true;
 
     // Пустий option для single select

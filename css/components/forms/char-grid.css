@@ -13,19 +13,33 @@
  * - .char-col-4 — span 3  (25%, чверть)
  * - .char-col-6 — span 2  (16.7%, шоста)
  *
+ * ПОЛЕ З ЮНІТОМ:
+ * <div class="char-field-box">
+ *   <input type="text" />
+ *   <span class="char-field-unit">%</span>
+ * </div>
+ *
  * HTML ПРИКЛАД:
  * <div class="char-grid">
- *   <div class="group column char-col-2">Тип</div>
- *   <div class="group column char-col-6">Білки</div>
- *   <div class="group column char-col-6">Жири</div>
- *   <div class="group column char-col-6">Вуглеводи</div>
- *   <div class="group column char-col-2">Походження</div>
- *   <div class="group column char-col-3">Стать</div>
- *   <div class="group column char-col-3">Вік</div>
+ *   <div class="group column char-col-2">
+ *     <label class="label-l">Тип</label>
+ *     <div class="char-field-box">
+ *       <input type="text" />
+ *     </div>
+ *     <label class="label-s">Підказка</label>
+ *   </div>
+ *   <div class="group column char-col-6">
+ *     <label class="label-l">Білки</label>
+ *     <div class="char-field-box">
+ *       <input type="number" />
+ *       <span class="char-field-unit">%</span>
+ *     </div>
+ *   </div>
  * </div>
  *
  * ЗАЛЕЖНОСТІ:
  * - form-group.css (.group.column)
+ * - input.css (.input-main стилі)
  * - root.css (CSS змінні)
  */
 
@@ -45,6 +59,61 @@
 .char-col-3 { grid-column: span 4; }
 .char-col-4 { grid-column: span 3; }
 .char-col-6 { grid-column: span 2; }
+
+/* --- Field box: input + unit suffix --- */
+
+.char-field-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    min-height: 40px;
+    transition: border-color 150ms ease-in-out;
+}
+
+.char-field-box:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.char-field-box:focus-within {
+    outline: 2px solid var(--color-main);
+    outline-offset: -2px;
+    border-color: transparent;
+}
+
+.char-field-box input,
+.char-field-box textarea,
+.char-field-box select {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+    padding: 8px 12px;
+    min-width: 0;
+}
+
+.char-field-box textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.char-field-box select {
+    cursor: pointer;
+}
+
+/* Unit suffix */
+
+.char-field-unit {
+    flex-shrink: 0;
+    padding: 0 12px 0 0;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+}
 
 /* --- Mobile: все в одну колонку --- */
 

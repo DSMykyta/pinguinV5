@@ -310,7 +310,8 @@ function getCharacteristicFormData() {
         is_global: isGlobal,
         category_ids: isGlobal === 'TRUE' ? '' : selectedCategories.join(','),
         sort_order: document.getElementById('mapper-char-sort-order')?.value || '',
-        col_size: document.getElementById('mapper-char-col-size')?.value || ''
+        col_size: document.getElementById('mapper-char-col-size')?.value || '',
+        hint: document.getElementById('mapper-char-hint')?.value.trim() || ''
     };
 }
 
@@ -325,11 +326,13 @@ function fillCharacteristicForm(characteristic) {
     const globalNo = document.getElementById('mapper-char-global-no');
     const sortOrderField = document.getElementById('mapper-char-sort-order');
     const colSizeField = document.getElementById('mapper-char-col-size');
+    const hintField = document.getElementById('mapper-char-hint');
 
     if (nameUaField) nameUaField.value = characteristic.name_ua || characteristic.name_uk || '';
     if (nameRuField) nameRuField.value = characteristic.name_ru || '';
     if (unitField) unitField.value = characteristic.unit || '';
     if (sortOrderField) sortOrderField.value = characteristic.sort_order || '';
+    if (hintField) hintField.value = characteristic.hint || '';
 
     if (typeField) {
         const typeValue = characteristic.type || characteristic.param_type || 'TextInput';
@@ -369,11 +372,13 @@ function clearCharacteristicForm() {
     const categoriesSelect = document.getElementById('mapper-char-categories');
     const sortOrderField = document.getElementById('mapper-char-sort-order');
     const colSizeField = document.getElementById('mapper-char-col-size');
+    const hintField = document.getElementById('mapper-char-hint');
 
     if (nameUaField) nameUaField.value = '';
     if (nameRuField) nameRuField.value = '';
     if (unitField) unitField.value = '';
     if (sortOrderField) sortOrderField.value = '';
+    if (hintField) hintField.value = '';
     if (globalYes) globalYes.checked = false;
     if (globalNo) globalNo.checked = true;
 
