@@ -165,8 +165,8 @@ function initBrandStatusToggle() {
     document.querySelectorAll('input[name="brand-status"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isActive = radio.value === 'active';
-            dot.classList.remove('is-success', 'is-error');
-            dot.classList.add(isActive ? 'is-success' : 'is-error');
+            dot.classList.remove('c-green', 'c-red');
+            dot.classList.add(isActive ? 'c-green' : 'c-red');
             dot.title = isActive ? 'Активний' : 'Неактивний';
         });
     });
@@ -255,7 +255,7 @@ function populateBrandLines(brandId) {
             {
                 id: 'line_id', label: 'ID', sortable: true, searchable: true, checked: true,
                 className: 'cell-m',
-                render: (value) => `<span class="word-chip">${escapeHtml(value || '')}</span>`
+                render: (value) => `<span class="tag">${escapeHtml(value || '')}</span>`
             },
             {
                 id: 'name_uk', label: 'Назва', sortable: true, searchable: true, checked: true,
@@ -879,8 +879,8 @@ function fillBrandForm(brand) {
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
         const isActive = brand.brand_status !== 'inactive';
-        statusBadge.classList.remove('is-success', 'is-error');
-        statusBadge.classList.add(isActive ? 'is-success' : 'is-error');
+        statusBadge.classList.remove('c-green', 'c-red');
+        statusBadge.classList.add(isActive ? 'c-green' : 'c-red');
         statusBadge.title = isActive ? 'Активний' : 'Неактивний';
     }
 
@@ -934,8 +934,8 @@ function clearBrandForm() {
     // Статус dot
     const statusBadge = document.getElementById('brand-status-badge');
     if (statusBadge) {
-        statusBadge.classList.remove('is-success', 'is-error');
-        statusBadge.classList.add('is-success');
+        statusBadge.classList.remove('c-green', 'c-red');
+        statusBadge.classList.add('c-green');
         statusBadge.title = 'Активний';
     }
 

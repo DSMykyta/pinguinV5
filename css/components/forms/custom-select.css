@@ -155,56 +155,10 @@
     display: none;
 }
 
-/* Multiselect Chips */
-.custom-select-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    background-color: var(--color-secondary-c);
-    color: var(--color-on-secondary-c);
-    border-radius: 12px;
-    gap: 4px;
+/* Multiselect tags — контекстні стилі для .tag всередині селекту */
+.custom-select-value-container .tag {
     max-width: 150px;
     overflow: hidden;
-    white-space: nowrap;
-}
-
-.custom-select-chip__label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.custom-select-chip__remove {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 16px;
-    height: 16px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    opacity: 0.7;
-    padding: 0;
-    color: inherit;
-    transition: opacity 150ms ease-in-out;
-}
-
-.custom-select-chip__remove:hover {
-    opacity: 1;
-}
-
-/* Counter "+N" — показує кількість прихованих chips */
-.custom-select-chip.is-counter,
-.custom-select-chip.is-summary {
-    background-color: var(--color-surface-c);
-    color: var(--color-on-surface-v);
-    font-weight: 600;
-    padding: 2px 8px;
-    min-width: 32px;
-    justify-content: center;
-    flex-shrink: 0;
-    cursor: default;
 }
 
 /* Overflow Chips (в панелі) */

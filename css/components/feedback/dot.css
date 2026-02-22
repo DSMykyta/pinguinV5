@@ -1,0 +1,11 @@
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-on-surface-v);
+}
+
+.dot:hover {
+    filter: brightness(0.85);
+}

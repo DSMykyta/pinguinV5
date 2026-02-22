@@ -113,7 +113,7 @@ export function init(state) {
     if (state.dom.validationResults) {
         state.dom.validationResults.addEventListener('mouseover', (e) => {
             // Заборонені слова
-            const errorChip = e.target.closest('.chip-error[data-banned-word]');
+            const errorChip = e.target.closest('.chip.c-red[data-banned-word]');
             if (errorChip) {
                 const wordInfo = state.findBannedWordInfo?.(errorChip.dataset.bannedWord);
                 if (wordInfo) showTooltip(errorChip, wordInfo);
@@ -121,7 +121,7 @@ export function init(state) {
             }
 
             // HTML патерни
-            const warningChip = e.target.closest('.chip-warning[data-html-pattern]');
+            const warningChip = e.target.closest('.chip.c-yellow[data-html-pattern]');
             if (warningChip) {
                 const patternInfo = state.findHtmlPatternInfo?.(warningChip.dataset.htmlPattern);
                 if (patternInfo) showTooltip(warningChip, patternInfo);

@@ -380,8 +380,8 @@ function buildColumnMappingFromForm() {
 function updateMpStatusDot(isActive) {
     const dot = document.getElementById('mp-data-status-dot');
     if (dot) {
-        dot.classList.remove('is-success', 'is-error');
-        dot.classList.add(isActive ? 'is-success' : 'is-error');
+        dot.classList.remove('c-green', 'c-red');
+        dot.classList.add(isActive ? 'c-green' : 'c-red');
         dot.title = isActive ? 'Активний' : 'Неактивний';
     }
 }
@@ -739,7 +739,7 @@ function populateMpCharacteristics(allData, charMapping) {
     createManagedTable({
         container: 'mp-data-char-container',
         columns: [
-            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            { ...col('external_id', 'ID', 'tag'), searchable: true },
             {
                 id: 'category_name', label: 'Категорія', searchable: true, checked: true,
                 className: 'cell-xs cell-center', sortable: false, filterable: true,
@@ -747,7 +747,7 @@ function populateMpCharacteristics(allData, charMapping) {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
                     const tooltip = names.join('\n') || "Не прив'язано до категорій";
-                    const cls = count === 0 ? 'chip' : 'chip chip-active';
+                    const cls = count === 0 ? 'chip' : 'chip c-main filled';
                     return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
                 }
             },
@@ -813,7 +813,7 @@ function populateMpOptions(allData, optMapping) {
     createManagedTable({
         container: 'mp-data-opt-container',
         columns: [
-            { ...col('external_id', 'ID', 'word-chip'), searchable: true },
+            { ...col('external_id', 'ID', 'tag'), searchable: true },
             { ...col('_name', 'Назва', 'name'), searchable: true },
             { ...col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }), searchable: true },
             {

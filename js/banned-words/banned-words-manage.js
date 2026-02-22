@@ -32,7 +32,7 @@ registerActionHandlers('banned-words-manage', {
 
 export function getColumns() {
     return [
-        col('local_id', 'ID', 'word-chip'),
+        col('local_id', 'ID', 'tag'),
         col('severity', ' ', 'severity-badge', { searchable: true }),
         col('group_name_ua', 'Назва Групи', 'name'),
         col('banned_type', 'Тип', 'text'),
@@ -290,8 +290,8 @@ export async function openBannedWordModal(wordData = null) {
         const label = badge.querySelector('.badge-label');
 
         badge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
-        badge.classList.remove('badge-neutral', 'badge-success');
-        badge.classList.add(isChecked ? 'badge-success' : 'badge-neutral');
+        badge.classList.remove('c-red', 'c-green');
+        badge.classList.add(isChecked ? 'c-green' : 'c-red');
 
         if (icon) icon.textContent = isChecked ? 'check_circle' : 'cancel';
         if (label) label.textContent = isChecked ? 'Так' : 'Ні';

@@ -133,7 +133,7 @@ async function handleStatusBadgeClick(badge) {
         return;
     }
 
-    const currentValue = badge.classList.contains('badge-success');
+    const currentValue = badge.classList.contains('c-green');
     const newValue = !currentValue ? 'TRUE' : 'FALSE';
 
     try {

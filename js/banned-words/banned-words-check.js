@@ -289,7 +289,7 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
     const showColumnColumn = (columnsWithErrors || []).length > 1;
 
     const columns = [
-        { ...col('id', 'ID', 'word-chip'), searchable: true },
+        { ...col('id', 'ID', 'tag'), searchable: true },
         { ...col('title', 'Назва', 'name', { className: 'cell-l' }), searchable: true }
     ];
 

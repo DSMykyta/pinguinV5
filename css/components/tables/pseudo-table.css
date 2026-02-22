@@ -334,7 +334,7 @@
     animation: highlight-flash 1.2s ease-out;
 }
 
-/* match-count-badge — перенесено в feedback/counter.css */
+/* counter — визначено в feedback/counter.css */
 
 /* Текст без даних */
 .text-muted {
@@ -345,5 +345,5 @@
 
 /* ============================================ */
 /* WORD CHIPS IN TABLE CELLS */
-/* cell-words-list, word-chip — визначено в feedback/chip.css */
+/* cell-words-list, tag — визначено в feedback/chip.css */
 

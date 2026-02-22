@@ -18,7 +18,7 @@ export function init(state) {
 
     // Делегування подій — один обробник на контейнер
     state.dom.validationResults.addEventListener('click', (e) => {
-        const errorChip = e.target.closest('.chip-error[data-banned-word]');
+        const errorChip = e.target.closest('.chip.c-red[data-banned-word]');
         if (errorChip) {
             const word = errorChip.dataset.bannedWord;
             if (word) navigateToBannedWord(word);

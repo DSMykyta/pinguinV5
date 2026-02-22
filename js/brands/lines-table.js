@@ -38,7 +38,7 @@ let _actionCleanup = null;
 
 export function getLinesColumns() {
     return [
-        col('line_id', 'ID', 'word-chip'),
+        col('line_id', 'ID', 'tag'),
         col('_brandName', 'Бренд', 'text'),
         col('name_uk', 'Назва лінійки', 'name'),
         col('_hasLogo', 'Логотип', 'status-dot', { className: 'cell-xs cell-center' })

@@ -414,8 +414,8 @@ function toggleCategoriesField(isGlobal) {
 function updateCharGlobalDot(isGlobal) {
     const dot = document.getElementById('char-global-dot');
     if (dot) {
-        dot.classList.remove('is-success', 'is-error');
-        dot.classList.add(isGlobal ? 'is-success' : 'is-error');
+        dot.classList.remove('c-green', 'c-red');
+        dot.classList.add(isGlobal ? 'c-green' : 'c-red');
         dot.title = isGlobal ? 'Глобальна' : 'Категорійна';
     }
 }
@@ -524,7 +524,7 @@ function populateRelatedOptions(characteristicId) {
     const managed = createManagedTable({
         container: 'char-related-options',
         columns: [
-            { ...col('id', 'ID', 'word-chip'), searchable: true },
+            { ...col('id', 'ID', 'tag'), searchable: true },
             { ...col('value_ua', 'Значення', 'name'), searchable: true },
             { ...col('value_ru', 'Назва (RU)', 'text'), searchable: true, checked: true },
             {
@@ -782,7 +782,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>Маркетплейси</h2>
-                    <span class="word-chip">${totalCount}</span>
+                    <span class="tag">${totalCount}</span>
                 </div>
                 <span class="body-s">Прив'язані характеристики маркетплейсів</span>
             </div>

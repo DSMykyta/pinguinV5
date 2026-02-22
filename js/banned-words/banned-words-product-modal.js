@@ -383,7 +383,7 @@ function updateModalStats(fieldName) {
             const sortedWords = Array.from(wordCountsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
             sortedWords.forEach(([word, count]) => {
                 const chip = document.createElement('span');
-                chip.className = 'chip chip-error';
+                chip.className = 'chip c-red';
                 chip.textContent = `${word} (${count})`;
 
                 // Додати tooltip обробники для кожного чіпа
@@ -429,8 +429,8 @@ function updateModalBadge(productId) {
  * @param {boolean} isChecked - Чи перевірено
  */
 function setBadgeAppearance(badge, isChecked) {
-    badge.classList.remove('badge-success', 'badge-neutral');
-    badge.classList.add(isChecked ? 'badge-success' : 'badge-neutral');
+    badge.classList.remove('c-green', 'c-red');
+    badge.classList.add(isChecked ? 'c-green' : 'c-red');
 
     const icon = badge.querySelector('.material-symbols-outlined');
     const label = badge.querySelector('.badge-label');
@@ -842,8 +842,8 @@ function initBannedWordTooltips() {
         });
     });
 
-    // Обробники для chip-error елементів (статистика)
-    const chipErrors = document.querySelectorAll('#product-modal-banned-chips .chip-error');
+    // Обробники для chip c-red елементів (статистика)
+    const chipErrors = document.querySelectorAll('#product-modal-banned-chips .chip.c-red');
     chipErrors.forEach(element => {
         element.addEventListener('mouseenter', (e) => {
             // Витягти слово з тексту чіпа (формат: "слово (N)")

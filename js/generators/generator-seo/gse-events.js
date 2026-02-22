@@ -18,7 +18,7 @@ export function runCalculations() {
     const product = dom.productNameInput.value.trim();
     const packaging = dom.productPackagingInput.value.trim();
     const mainText = dom.ghlEditor?.textContent || '';
-    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip-active'))
+    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip.filled'))
                               .map(t => t.dataset.title);
 
     dom.seoTitleInput.value = generateSeoTitle(brand, product, packaging);
@@ -85,7 +85,8 @@ export function initEventListeners() {
     dom.triggerTitlesContainer.addEventListener('click', e => {
         const target = e.target;
         if (target.dataset.title && target.classList.contains('chip')) {
-            target.classList.toggle('chip-active');
+            target.classList.toggle('c-main');
+            target.classList.toggle('filled');
             runCalculations();
         }
     });

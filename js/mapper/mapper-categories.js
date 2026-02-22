@@ -297,8 +297,8 @@ function getCategoryFormData() {
 function updateCategoryGroupingDot(isGrouping) {
     const dot = document.getElementById('category-grouping-dot');
     if (dot) {
-        dot.classList.remove('is-success', 'is-warning');
-        dot.classList.add(isGrouping ? 'is-warning' : 'is-success');
+        dot.classList.remove('c-green', 'c-yellow');
+        dot.classList.add(isGrouping ? 'c-yellow' : 'c-green');
         dot.title = isGrouping ? 'Групуюча' : 'Товарна';
     }
 }
@@ -499,7 +499,7 @@ function populateRelatedCharacteristics(categoryId) {
     const managed = createManagedTable({
         container: 'category-related-chars',
         columns: [
-            { ...col('id', 'ID', 'word-chip'), searchable: true },
+            { ...col('id', 'ID', 'tag'), searchable: true },
             { ...col('category_ids', 'Категорія', 'binding-chip'), searchable: true, searchChecked: false },
             { ...col('name_ua', 'Назва', 'name'), searchable: true },
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
@@ -508,7 +508,7 @@ function populateRelatedCharacteristics(categoryId) {
                 className: 'cell-xs cell-center',
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
-                    const cls = count === 0 ? 'chip' : 'chip chip-active';
+                    const cls = count === 0 ? 'chip' : 'chip c-main filled';
                     return `<span class="${cls}">${count}</span>`;
                 }
             },
@@ -886,7 +886,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
             <div class="section-name-block">
                 <div class="section-name">
                     <h2>Маркетплейси</h2>
-                    <span class="word-chip">${totalCount}</span>
+                    <span class="tag">${totalCount}</span>
                 </div>
                 <span class="body-s">Прив'язані категорії маркетплейсів</span>
             </div>

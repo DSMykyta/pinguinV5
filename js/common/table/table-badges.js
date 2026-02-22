@@ -9,12 +9,17 @@
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Допоміжні функції рендерингу, які використовуються в column.render().   ║
  * ║                                                                          ║
+ * ║  КОЛЬОРИ: через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue)  ║
+ * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ ФУНКЦІЇ:                                                   ║
  * ║  - renderBadge(value, type, options) — Бейдж зі статусом                ║
  * ║  - renderSeverityBadge(severity) — Бейдж severity (low/medium/high)     ║
  * ║  - updateTableCounter(el, current, total) — Лічильник записів           ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
+
+/** severity → color class */
+const SEVERITY_COLOR = { low: 'c-green', medium: 'c-yellow', high: 'c-red' };
 
 /**
  * Відрендерити badge (бейдж) зі статусом
@@ -28,7 +33,7 @@
 export function renderBadge(value, type = 'default', options = {}) {
     const { clickable = false, id = null } = options;
 
-    let badgeClass = 'badge';
+    let colorClass = '';
     let icon = '';
     let text = '';
 
@@ -36,49 +41,50 @@ export function renderBadge(value, type = 'default', options = {}) {
         case 'checked':
         case 'boolean':
             const isTrue = value === 'TRUE' || value === true || value === 1;
-            badgeClass += isTrue ? ' badge-success' : ' badge-neutral';
+            colorClass = isTrue ? 'c-green' : 'c-red';
             icon = isTrue ? 'check_circle' : 'cancel';
             text = isTrue ? 'Так' : 'Ні';
             break;
 
         case 'status':
             if (value === 'ACTIVE' || value === 'TRUE' || value === true) {
-                badgeClass += ' badge-success';
+                colorClass = 'c-green';
                 icon = 'check_circle';
                 text = value;
             } else if (value === 'FALSE' || value === false) {
-                badgeClass += ' badge-neutral';
+                colorClass = 'c-red';
                 icon = 'cancel';
                 text = value;
             } else {
-                badgeClass += ' badge-neutral';
+                colorClass = 'c-red';
                 text = value;
             }
             break;
 
         case 'success':
-            badgeClass += ' badge-success';
+            colorClass = 'c-green';
             icon = 'check_circle';
             text = value;
             break;
 
         case 'error':
-            badgeClass += ' badge-error';
+            colorClass = 'c-red';
             icon = 'error';
             text = value;
             break;
 
         case 'warning':
-            badgeClass += ' badge-warning';
+            colorClass = 'c-yellow';
             icon = 'warning';
             text = value;
             break;
 
         default:
-            badgeClass += ' badge-neutral';
+            colorClass = 'c-red';
             text = value;
     }
 
+    let badgeClass = `badge ${colorClass}`;
     if (clickable) {
         badgeClass += ' clickable';
     }
@@ -107,6 +113,7 @@ export function renderSeverityBadge(severity) {
     if (!severity) severity = 'high';
 
     const severityLower = severity.toLowerCase();
+    const colorClass = SEVERITY_COLOR[severityLower] || 'c-red';
     let icon = '';
 
     switch (severityLower) {
@@ -124,7 +131,7 @@ export function renderSeverityBadge(severity) {
     }
 
     return `
-        <span class="severity-badge severity-${severityLower}">
+        <span class="severity-badge ${colorClass}">
             <span class="material-symbols-outlined">${icon}</span>
         </span>
     `.trim();

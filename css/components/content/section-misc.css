@@ -71,10 +71,7 @@
     border-radius: 12px;
 }
 
-.section-content-full-height .chip-container {
-    height: 100%;
-    overflow-y: auto;
-}
+/* .chip-container — стилі перенесені в feedback/chip.css */
 
 /* Links container */
 

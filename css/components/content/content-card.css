@@ -15,7 +15,7 @@
  * ВИКОРИСТОВУЄ ІСНУЮЧІ КЛАСИ:
  * - severity-badge (пріоритет/важливість)
  * - badge, badge-neutral (статус виконання)
- * - word-chip (теги)
+ * - tag (теги)
  * - btn-icon (кнопки)
  */
 
@@ -120,25 +120,7 @@
     flex-wrap: wrap;
 }
 
-/* Теги в картці - інвертовані кольори */
-.content-card .word-chip {
-    background: rgba(255, 255, 255, 0.15);
-    color: var(--color-surface);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Badge в картці - інвертовані */
-.content-card .badge {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--color-surface);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.content-card .badge-neutral {
-    background: var(--color-error);
-    color: var(--color-on-error);
-    border-color: var(--color-error);
-}
+/* badge, tag — інвертовані стилі для темного фону перенесені в badge.css і chip.css */
 
 /* ============================================ */
 /* ACTIONS: Кнопки */

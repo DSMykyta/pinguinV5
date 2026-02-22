@@ -48,7 +48,7 @@ const PARAM_TYPE_LABELS = {
 
 export function getColumns() {
     return [
-        col('local_id', 'ID', 'word-chip'),
+        col('local_id', 'ID', 'tag'),
         col('param_type', 'Тип', 'text', { className: 'cell-s', filterable: true, filterType: 'values' }),
         col('name_uk', 'Назва', 'name'),
         col('trigers', 'Тригери', 'words-list', { sortable: true, searchable: true })
@@ -86,7 +86,7 @@ function initKeywordsTable() {
             rowActionsHeader: ' ',
             rowActions: (row) => {
                 const hasGlossary = row.glossary_text && row.glossary_text.trim();
-                const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
+                const extraClass = hasGlossary ? 'c-green' : 'c-red';
                 return `
                     ${actionButton({ action: 'view', rowId: row.local_id, context: 'keywords', extraClass, title: 'Переглянути глосарій' })}
                     ${actionButton({ action: 'edit', rowId: row.local_id, context: 'keywords' })}
