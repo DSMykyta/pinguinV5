@@ -86,14 +86,6 @@
 }
 
 
-/* --- Grid-розкладки форм (legacy aliases → utilities/grid.css) --- */
-
-.form-grid {
-    display: grid;
-    gap: 16px;
-    align-content: start;
-}
-
 
 
 /* --- Загальні елементи форм --- */
