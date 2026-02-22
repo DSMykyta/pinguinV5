@@ -86,7 +86,7 @@
 }
 
 
-/* --- Grid-розкладки форм --- */
+/* --- Grid-розкладки форм (legacy aliases → utilities/grid.css) --- */
 
 .form-grid {
     display: grid;
@@ -94,17 +94,9 @@
     align-content: start;
 }
 
-.form-grid-2 {
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.form-grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.form-grid-4 {
-    grid-template-columns: repeat(4, 1fr);
-}
+.form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.form-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
 @media (max-width: 768px) {
     .form-grid-2,
