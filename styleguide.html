@@ -2283,17 +2283,44 @@
                 <div class="m3-block">
                     <div class="m3-block-header">
                         <h3>.toast</h3>
-                        <div class="m3-tags"><span class="m3-tag m3-tag-src">toast.css</span></div>
+                        <div class="m3-tags"><span class="m3-tag m3-tag-src">toast.css</span><span class="m3-tag m3-tag-src">ui-toast.js</span></div>
                     </div>
+                    <p class="m3-section-desc">
+                        Єдина система сповіщень. Базовий тост — темний (інвертований surface).
+                        Помилки — через шар colors.css (<code>.c-red</code>).
+                        <strong>alert() заборонено</strong> — завжди використовуй showToast.
+                    </p>
                     <div class="m3-preview m3-preview-col" style="gap:8px">
+                        <!-- Базовий (success/info) — чорний -->
                         <div class="toast visible"
                             style="position:relative;transform:none;opacity:1;min-width:auto"><span
                                 class="toast-message">Дані збережені</span><button class="toast-action">UNDO</button>
                         </div>
+                        <!-- Помилка — .c-red -->
                         <div class="toast visible c-red"
                             style="position:relative;transform:none;opacity:1;min-width:auto"><span
-                                class="toast-message">Помилка збереження</span><button class="toast-action">RETRY</button></div>
+                                class="toast-message">Помилка збереження</span><button class="toast-action">RETRY</button>
+                        </div>
                     </div>
+                    <div class="m3-code">// JS — імпорт і використання
+import { showToast } from '../common/ui-toast.js';
+
+// Успіх (чорний тост, за замовчуванням)
+showToast('Збережено');
+showToast('Скопійовано', 'success', 2000);
+
+// Помилка (червоний тост — .c-red)
+showToast('Помилка збереження', 'error');
+
+// З action-кнопкою
+showToast('Видалено', 'success', {
+  duration: 5000,
+  action: { label: 'UNDO', onClick: () =&gt; restore() }
+});
+
+// ЗАБОРОНЕНО — не використовуй alert()
+// alert('Помилка');              — замінити на showToast
+// window.showToast('...');       — замінити на import</div>
                 </div>
             </section>
 
