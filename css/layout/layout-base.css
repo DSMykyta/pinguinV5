@@ -1,0 +1,53 @@
+/**
+ * LAYOUT: Base
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Body layout та .content-main контейнер.
+ * Базова структура сторінки: ліва навігація, центральний контент, права панель.
+ *
+ * HTML ПРИКЛАД:
+ * <body>
+ *   <div class="nav column" id="main-nav"></div>
+ *   <main class="content-main">...</main>
+ *   <aside class="aside expanded">...</aside>
+ * </body>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface, --color-on-surface, --panel-width-*)
+ * - foundation/reset.css (global reset)
+ * - foundation/scrollbar.css, foundation/selection.css
+ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BODY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    display: flex;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTENT MAIN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.content-main {
+    flex-grow: 1;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    margin-left: var(--panel-width-collapsed);
+    padding: 12px;
+    scrollbar-width: none;
+}
+
+.content-main::-webkit-scrollbar {
+    display: none;
+}
