@@ -7,31 +7,29 @@
  *
  * ВИКОРИСТАННЯ:
  * <span class="badge">Default</span>
- * <span class="badge badge-success">
+ * <span class="badge c-green">
  *   <span class="material-symbols-outlined">check_circle</span> Так
  * </span>
- * <span class="badge badge-error">
+ * <span class="badge c-red">
  *   <span class="material-symbols-outlined">cancel</span> Ні
  * </span>
+ * <span class="badge c-yellow">Warning</span>
+ * <span class="badge c-blue">Info</span>
  *
- * ВАРІАНТИ:
- * - .badge               — базовий (сірий фон, рамка)
- * - .badge-success        — зелений (позитивний стан)
- * - .badge-error          — червоний (негативний стан)
- * - .badge-warning        — жовтий (попередження)
- * - .badge-info           — синій (інформація)
- * - .badge.clickable      — інтерактивний (cursor: pointer)
+ * КОЛЬОРИ:
+ * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-main)
+ * Без кольору — сірий фон з рамкою (default).
  *
- * SEVERITY (окремий під-компонент):
- * <span class="severity-badge severity-low">
+ * МОДИФІКАТОРИ:
+ * - .clickable — cursor: pointer (для badge-toggle)
+ *
+ * SEVERITY (під-компонент):
+ * <span class="severity-badge c-green">
  *   <span class="material-symbols-outlined">check_circle</span>
  * </span>
- * - .severity-badge                — контейнер
- * - .severity-badge.severity-low   — зелений
- * - .severity-badge.severity-medium — жовтий
- * - .severity-badge.severity-high  — червоний
  *
  * ЗАЛЕЖНОСТІ:
+ * - layers/colors.css (--c, --c-on, --c-c, --c-on-c)
  * - root.css (кольори, тіні)
  *
  * ЗАСТОСУВАННЯ:
@@ -53,42 +51,14 @@
     min-width: 32px;
     gap: 4px;
     padding: 2px 8px;
-    background-color: var(--color-surface-c-low);
-    border: 1px solid var(--color-outline);
+    background-color: var(--c, var(--color-surface-c-low));
+    color: var(--c-on, inherit);
+    border: 1px solid var(--c, var(--color-outline));
     border-radius: 12px;
 }
 
 .badge:hover {
     box-shadow: var(--shadow-1);
-}
-
-/* ============================================ */
-/* COLOR VARIANTS                               */
-/* ============================================ */
-
-.badge-success {
-    color: var(--color-on-success);
-    background-color: var(--color-success);
-    border-color: var(--color-success);
-}
-
-.badge-error,
-.badge-neutral {
-    color: var(--color-on-error);
-    background-color: var(--color-error);
-    border-color: var(--color-error);
-}
-
-.badge-warning {
-    color: var(--color-on-warning);
-    background-color: var(--color-warning);
-    border-color: var(--color-warning);
-}
-
-.badge-info {
-    color: var(--color-on-info);
-    background-color: var(--color-info);
-    border-color: var(--color-info);
 }
 
 /* ============================================ */
@@ -109,21 +79,8 @@
     gap: 4px;
     padding: 4px;
     border-radius: 12px;
-}
-
-.severity-badge.severity-low {
-    background-color: var(--color-success-c);
-    color: var(--color-success);
-}
-
-.severity-badge.severity-medium {
-    background-color: var(--color-warning-c);
-    color: var(--color-warning);
-}
-
-.severity-badge.severity-high {
-    background-color: var(--color-error-c);
-    color: var(--color-error);
+    background-color: var(--c-c);
+    color: var(--c);
 }
 
 .severity-badge .material-symbols-outlined {

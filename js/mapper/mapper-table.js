@@ -243,7 +243,7 @@ function createBindingsColumn(entityType) {
         render: (value, row) => {
             const bindingsInfo = getBindingsInfo(entityType, row.id);
             const tooltipContent = renderBindingsTooltip(bindingsInfo);
-            const cls = bindingsInfo.count === 0 ? 'chip' : 'chip chip-active';
+            const cls = bindingsInfo.count === 0 ? 'chip' : 'chip c-main filled';
             return `<span class="${cls} binding-chip" data-entity-type="${entityType}" data-entity-id="${escapeHtml(row.id)}" data-entity-name="${escapeHtml(row.name_ua || row.value_ua || row.id)}" data-tooltip="${escapeHtml(tooltipContent)}" data-tooltip-always style="cursor:pointer">${bindingsInfo.count}</span>`;
         }
     };
@@ -464,7 +464,7 @@ export function getCharacteristicsColumns() {
             render: (value, row) => {
                 const display = row.category_ids;
                 if (!display || display.count == null) return '';
-                const cls = (display.count === 0 || display.count === '0') ? 'chip' : 'chip chip-active';
+                const cls = (display.count === 0 || display.count === '0') ? 'chip' : 'chip c-main filled';
                 return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(display.tooltip || '')}" data-tooltip-always style="cursor:pointer">${display.count}</span>`;
             }
         },

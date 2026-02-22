@@ -196,7 +196,8 @@ class CustomSelect {
 
         // Оновлюємо кнопку "Всі"
         if (this.selectAllBtn) {
-            this.selectAllBtn.classList.toggle('chip-active', isAllSelected);
+            this.selectAllBtn.classList.toggle('c-main', isAllSelected);
+            this.selectAllBtn.classList.toggle('filled', isAllSelected);
         }
 
         if (!this.isMultiSelect) {

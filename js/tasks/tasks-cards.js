@@ -22,10 +22,10 @@ import { registerActionHandlers, initActionHandlers, actionButton } from '../com
 // ═══════════════════════════════════════════════════════════════════════════
 
 const PRIORITY_MAP = {
-    urgent: { icon: 'brightness_alert', class: 'severity-high', text: 'Терміново' },
-    high: { icon: 'warning', class: 'severity-high', text: 'Високий' },
-    medium: { icon: 'info', class: 'severity-medium', text: 'Середній' },
-    low: { icon: 'check_circle', class: 'severity-low', text: 'Низький' }
+    urgent: { icon: 'brightness_alert', class: 'c-red', text: 'Терміново' },
+    high: { icon: 'warning', class: 'c-red', text: 'Високий' },
+    medium: { icon: 'info', class: 'c-yellow', text: 'Середній' },
+    low: { icon: 'check_circle', class: 'c-green', text: 'Низький' }
 };
 
 const STATUS_MAP = {
@@ -155,7 +155,7 @@ function renderCard(task) {
     });
 
     // Статус badge (клікабельний якщо можна змінити)
-    const statusBadgeClass = canStatus ? 'badge badge-neutral clickable' : 'badge';
+    const statusBadgeClass = canStatus ? 'badge c-red clickable' : 'badge';
     const statusBadge = canStatus
         ? actionButton({
             action: 'status',

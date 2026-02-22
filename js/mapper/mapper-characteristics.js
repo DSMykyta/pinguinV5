@@ -393,8 +393,8 @@ function toggleCategoriesField(isGlobal) {
 function updateCharGlobalDot(isGlobal) {
     const dot = document.getElementById('char-global-dot');
     if (dot) {
-        dot.classList.remove('is-success', 'is-error');
-        dot.classList.add(isGlobal ? 'is-success' : 'is-error');
+        dot.classList.remove('c-green', 'c-red');
+        dot.classList.add(isGlobal ? 'c-green' : 'c-red');
         dot.title = isGlobal ? 'Глобальна' : 'Категорійна';
     }
 }

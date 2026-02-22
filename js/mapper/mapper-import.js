@@ -1439,7 +1439,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
-                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                ? `<div class="chip c-green">${escapeHtml(mappedToName)}</div>`
                                 : `<div class="chip">Не замаплено</div>`
                             }
                         </div>
@@ -1556,7 +1556,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
-                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                ? `<div class="chip c-green">${escapeHtml(mappedToName)}</div>`
                                 : `<div class="chip">Не замаплено</div>`
                             }
                         </div>
@@ -1820,7 +1820,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
-                                ? `<div class="chip chip-success">${escapeHtml(mappedToName)}</div>`
+                                ? `<div class="chip c-green">${escapeHtml(mappedToName)}</div>`
                                 : `<div class="chip">Не замаплено</div>`
                             }
                         </div>

@@ -86,7 +86,7 @@ function initKeywordsTable() {
             rowActionsHeader: ' ',
             rowActions: (row) => {
                 const hasGlossary = row.glossary_text && row.glossary_text.trim();
-                const extraClass = hasGlossary ? 'severity-low' : 'severity-high';
+                const extraClass = hasGlossary ? 'c-green' : 'c-red';
                 return `
                     ${actionButton({ action: 'view', rowId: row.local_id, context: 'keywords', extraClass, title: 'Переглянути глосарій' })}
                     ${actionButton({ action: 'edit', rowId: row.local_id, context: 'keywords' })}

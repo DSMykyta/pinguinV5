@@ -14,6 +14,8 @@
 /* === ROOT VARIABLES === */
 @import url('root.css');
 
+/* === LAYERS === */
+@import url('layers/colors.css');
 
 /* === FOUNDATION === */
 @import url('foundation/reset.css');
@@ -89,7 +91,7 @@
 
 /* === COMPONENTS - FEEDBACK === */
 @import url('components/feedback/chip.css');
-@import url('components/feedback/status-dot.css');
+@import url('components/feedback/dot.css');
 @import url('components/feedback/counter.css');
 @import url('components/feedback/text-stats.css');
 @import url('components/feedback/states.css');

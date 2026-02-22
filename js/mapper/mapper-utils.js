@@ -163,7 +163,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                 <div class="modal-header">
                     <h2 class="modal-title">${escapeHtml(title)}</h2>
                     <div class="group">
-                        <span class="chip chip-active">${escapeHtml(mpName)}</span>
+                        <span class="chip c-main filled">${escapeHtml(mpName)}</span>
                         <button class="btn-icon modal-close-btn" aria-label="Закрити">
                             <div class="state-layer">
                                 <span class="material-symbols-outlined">close</span>
@@ -176,7 +176,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                         <div class="mp-item-header">
                             <span class="mp-item-id">#${escapeHtml(externalId || '')}</span>
                             ${mappedToName
-                                ? `<span class="chip chip-success">${escapeHtml(mappedToName)}</span>`
+                                ? `<span class="chip c-green">${escapeHtml(mappedToName)}</span>`
                                 : `<span class="chip">Не замаплено</span>`
                             }
                         </div>

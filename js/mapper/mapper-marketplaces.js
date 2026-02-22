@@ -380,8 +380,8 @@ function buildColumnMappingFromForm() {
 function updateMpStatusDot(isActive) {
     const dot = document.getElementById('mp-data-status-dot');
     if (dot) {
-        dot.classList.remove('is-success', 'is-error');
-        dot.classList.add(isActive ? 'is-success' : 'is-error');
+        dot.classList.remove('c-green', 'c-red');
+        dot.classList.add(isActive ? 'c-green' : 'c-red');
         dot.title = isActive ? 'Активний' : 'Неактивний';
     }
 }
@@ -747,7 +747,7 @@ function populateMpCharacteristics(allData, charMapping) {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
                     const tooltip = names.join('\n') || "Не прив'язано до категорій";
-                    const cls = count === 0 ? 'chip' : 'chip chip-active';
+                    const cls = count === 0 ? 'chip' : 'chip c-main filled';
                     return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
                 }
             },

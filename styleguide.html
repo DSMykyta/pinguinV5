@@ -1812,38 +1812,39 @@
                 <h2 class="m3-section-title">Chips & Inline Elements</h2>
                 <p style="color:var(--color-on-surface-v);margin-bottom:16px">4 базові компоненти для інлайнових індикаторів. Покривають всі випадки: статуси, мітки, лічильники.</p>
 
-                <!-- 1. STATUS DOT -->
+                <!-- 1. DOT -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>1. Status Dot</h3>
-                        <p>Маленька кольорова крапка (10px). Чистий візуальний індикатор без тексту.</p>
+                        <h3>1. Dot</h3>
+                        <p>Маленька кольорова крапка (10px). Чистий візуальний індикатор без тексту. Колір через шар <code>colors.css</code>.</p>
                         <div class="m3-tags">
-                            <span class="m3-tag m3-tag-src">status-dot.css</span>
+                            <span class="m3-tag m3-tag-src">dot.css</span>
+                            <span class="m3-tag m3-tag-src">colors.css</span>
                             <span class="m3-tag m3-tag-use">tables, brand-edit, mapper</span>
                         </div>
                     </div>
                     <div class="m3-preview" style="gap:16px;align-items:center">
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot is-success"></span><span class="m3-label">.is-success</span>
+                            <span class="dot c-green"></span><span class="m3-label">.c-green</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot is-error"></span><span class="m3-label">.is-error</span>
+                            <span class="dot c-red"></span><span class="m3-label">.c-red</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot is-warning"></span><span class="m3-label">.is-warning</span>
+                            <span class="dot c-yellow"></span><span class="m3-label">.c-yellow</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot is-info"></span><span class="m3-label">.is-info</span>
+                            <span class="dot c-blue"></span><span class="m3-label">.c-blue</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot is-neutral"></span><span class="m3-label">.is-neutral</span>
+                            <span class="dot c-muted"></span><span class="m3-label">.c-muted</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="status-dot"></span><span class="m3-label">default</span>
+                            <span class="dot"></span><span class="m3-label">default</span>
                         </div>
                     </div>
-                    <div class="m3-code">&lt;span class="status-dot is-success" title="Активний"&gt;&lt;/span&gt;
-&lt;span class="status-dot is-error" title="Неактивний"&gt;&lt;/span&gt;</div>
+                    <div class="m3-code">&lt;span class="dot c-green" title="Активний"&gt;&lt;/span&gt;
+&lt;span class="dot c-red" title="Неактивний"&gt;&lt;/span&gt;</div>
                 </div>
 
                 <!-- 2. BADGE -->
@@ -1858,24 +1859,24 @@
                     </div>
                     <div class="m3-preview" style="gap:12px;flex-wrap:wrap">
                         <span class="badge">Default</span>
-                        <span class="badge badge-success"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span>Так</span>
-                        <span class="badge badge-error"><span class="material-symbols-outlined" style="font-size:16px">cancel</span>Ні</span>
-                        <span class="badge badge-warning"><span class="material-symbols-outlined" style="font-size:16px">warning</span>Warning</span>
-                        <span class="badge badge-info"><span class="material-symbols-outlined" style="font-size:16px">info</span>Info</span>
+                        <span class="badge c-green"><span class="material-symbols-outlined" style="font-size:16px">check_circle</span>Так</span>
+                        <span class="badge c-red"><span class="material-symbols-outlined" style="font-size:16px">cancel</span>Ні</span>
+                        <span class="badge c-yellow"><span class="material-symbols-outlined" style="font-size:16px">warning</span>Warning</span>
+                        <span class="badge c-blue"><span class="material-symbols-outlined" style="font-size:16px">info</span>Info</span>
                         <span style="width:8px"></span>
-                        <span class="severity-badge severity-low"><span class="material-symbols-outlined">check_circle</span></span>
-                        <span class="severity-badge severity-medium"><span class="material-symbols-outlined">warning</span></span>
-                        <span class="severity-badge severity-high"><span class="material-symbols-outlined">error</span></span>
+                        <span class="severity-badge c-green"><span class="material-symbols-outlined">check_circle</span></span>
+                        <span class="severity-badge c-yellow"><span class="material-symbols-outlined">warning</span></span>
+                        <span class="severity-badge c-red"><span class="material-symbols-outlined">error</span></span>
                     </div>
-                    <div class="m3-code">&lt;span class="badge badge-success"&gt;
+                    <div class="m3-code">&lt;span class="badge c-green"&gt;
   &lt;span class="material-symbols-outlined"&gt;check_circle&lt;/span&gt; Так
 &lt;/span&gt;
-&lt;span class="badge badge-error"&gt;
+&lt;span class="badge c-red"&gt;
   &lt;span class="material-symbols-outlined"&gt;cancel&lt;/span&gt; Ні
 &lt;/span&gt;
 
 &lt;!-- Severity --&gt;
-&lt;span class="severity-badge severity-high"&gt;
+&lt;span class="severity-badge c-red"&gt;
   &lt;span class="material-symbols-outlined"&gt;error&lt;/span&gt;
 &lt;/span&gt;</div>
                 </div>
@@ -1893,16 +1894,16 @@
                     <div class="m3-sub">Кольорові варіанти</div>
                     <div class="m3-preview">
                         <span class="chip">Default</span>
-                        <span class="chip chip-active">Active</span>
-                        <span class="chip chip-error">Error</span>
-                        <span class="chip chip-warning">Warning</span>
-                        <span class="chip chip-success">Success</span>
+                        <span class="chip c-main filled">Active</span>
+                        <span class="chip c-red">Error</span>
+                        <span class="chip c-yellow">Warning</span>
+                        <span class="chip c-green">Success</span>
                         <button class="chip chip-clickable">Clickable</button>
                     </div>
                     <div class="m3-sub">Word Chip (маленький, для таблиць)</div>
                     <div class="m3-preview">
                         <span class="word-chip">звичайний</span>
-                        <span class="word-chip primary">primary</span>
+                        <span class="word-chip c-main">primary</span>
                         <span class="word-chip word-chip-small">small</span>
                     </div>
                     <div class="m3-sub">Filter Pill (pill-shaped)</div>
@@ -1913,11 +1914,11 @@
                             <button class="filter-pill"><span class="material-symbols-outlined">task_alt</span>Готові</button>
                         </div>
                     </div>
-                    <div class="m3-code">&lt;span class="chip chip-active"&gt;Active&lt;/span&gt;
-&lt;span class="chip chip-error"&gt;Error&lt;/span&gt;
+                    <div class="m3-code">&lt;span class="chip c-main filled"&gt;Active&lt;/span&gt;
+&lt;span class="chip c-red"&gt;Error&lt;/span&gt;
 
 &lt;!-- Word chip (маленький) --&gt;
-&lt;span class="word-chip primary"&gt;UA-12345&lt;/span&gt;
+&lt;span class="word-chip c-main"&gt;UA-12345&lt;/span&gt;
 
 &lt;!-- Filter pill --&gt;
 &lt;button class="filter-pill active"&gt;Всі&lt;/button&gt;</div>
@@ -1938,18 +1939,18 @@
                             <span class="counter-badge">3&times;</span><span class="m3-label">.counter-badge</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="counter-badge counter-badge-active">5</span><span class="m3-label">.counter-badge-active</span>
+                            <span class="counter-badge c-main">5</span><span class="m3-label">.counter-badge.c-main</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
-                            <span class="counter-badge counter-badge-muted">0</span><span class="m3-label">.counter-badge-muted</span>
+                            <span class="counter-badge c-muted">0</span><span class="m3-label">.counter-badge.c-muted</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:8px">
                             <span class="match-count-badge">2&times;</span><span class="m3-label">.match-count-badge (legacy)</span>
                         </div>
                     </div>
                     <div class="m3-code">&lt;span class="counter-badge"&gt;3&amp;times;&lt;/span&gt;
-&lt;span class="counter-badge counter-badge-active"&gt;5&lt;/span&gt;
-&lt;span class="counter-badge counter-badge-muted"&gt;0&lt;/span&gt;
+&lt;span class="counter-badge c-main"&gt;5&lt;/span&gt;
+&lt;span class="counter-badge c-muted"&gt;0&lt;/span&gt;
 
 &lt;!-- Legacy alias --&gt;
 &lt;span class="match-count-badge"&gt;2&amp;times;&lt;/span&gt;</div>
@@ -2079,8 +2080,8 @@
                                         class="material-symbols-outlined">uppercase</span></button>
                             </div>
                             <div class="validation-results-wrapper" style="flex:1;min-width:0">
-                                <div class="chip-list"><span class="chip chip-success">OK</span><span
-                                        class="chip chip-error">H1 довгий</span></div>
+                                <div class="chip-list"><span class="chip c-green">OK</span><span
+                                        class="chip c-red">H1 довгий</span></div>
                             </div>
                         </div>
                     </div>
@@ -2228,13 +2229,13 @@
                                 <div class="dropdown-header">Severity</div>
                                 <div class="dropdown-body">
                                     <button class="dropdown-item" data-severity-value="low"><span
-                                            class="severity-badge severity-low"><span
+                                            class="severity-badge c-green"><span
                                                 class="material-symbols-outlined">check_circle</span></span>Низький</button>
                                     <button class="dropdown-item active" data-severity-value="medium"><span
-                                            class="severity-badge severity-medium"><span
+                                            class="severity-badge c-yellow"><span
                                                 class="material-symbols-outlined">warning</span></span>Середній</button>
                                     <button class="dropdown-item" data-severity-value="high"><span
-                                            class="severity-badge severity-high"><span
+                                            class="severity-badge c-red"><span
                                                 class="material-symbols-outlined">brightness_alert</span></span>Критичний</button>
                                 </div>
                             </div>
@@ -2310,7 +2311,7 @@
                             <div style="padding:10px;font-weight:500">Now Foods Vitamin D3</div>
                             <div style="padding:10px;display:flex;align-items:center"><span class="word-chip"
                                     style="font-size:11px">Вітаміни</span></div>
-                            <div style="padding:10px;display:flex;align-items:center"><span class="badge badge-success"
+                            <div style="padding:10px;display:flex;align-items:center"><span class="badge c-green"
                                     style="font-size:11px;height:24px;padding:0 8px">Active</span></div>
                             <div style="padding:10px;display:flex;align-items:center;justify-content:center"><button
                                     class="btn-icon ghost" style="width:24px;height:24px"><span
@@ -2436,8 +2437,8 @@
                         <tr>
                             <td><strong>always</strong></td>
                             <td>
-                                <span class="status-dot is-success" title="Активний"></span>
-                                <span class="status-dot is-error" title="Неактивний"></span>
+                                <span class="dot c-green" title="Активний"></span>
+                                <span class="dot c-red" title="Неактивний"></span>
                                 <button class="btn-icon" title="Закрити"><span class="material-symbols-outlined">close</span></button>
                             </td>
                             <td>title → data-tooltip автоматично при hover</td>
@@ -2460,7 +2461,7 @@
 &lt;div data-tooltip="Повний текст"&gt;Обрізаний...&lt;/div&gt;
 
 &lt;!-- Always: title конвертується автоматично --&gt;
-&lt;span class="status-dot is-success" title="Активний"&gt;&lt;/span&gt;
+&lt;span class="dot c-green" title="Активний"&gt;&lt;/span&gt;
 &lt;button class="btn-icon" title="Закрити"&gt;...&lt;/button&gt;
 
 &lt;!-- Explicit always (без title) --&gt;

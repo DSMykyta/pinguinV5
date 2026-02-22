@@ -6,24 +6,16 @@
  * Показує кількість (входжень, прив'язок, тощо).
  *
  * ВИКОРИСТАННЯ:
- * <!-- Лічильник входжень (2×, 3×) -->
  * <span class="counter-badge">3×</span>
+ * <span class="counter-badge c-main">5</span>
+ * <span class="counter-badge c-muted">0</span>
  *
- * <!-- Лічильник прив'язок (0, 1, 2) -->
- * <span class="counter-badge counter-badge-active">2</span>
- *
- * <!-- Нульове значення (subtle) -->
- * <span class="counter-badge counter-badge-muted">0</span>
- *
- * ВАРІАНТИ:
- * - .counter-badge               — базовий (secondary color)
- * - .counter-badge-active         — активний (main color)
- * - .counter-badge-muted          — тьмяний (surface color, для 0)
- *
- * LEGACY:
- * - .match-count-badge            — alias для counter-badge
+ * КОЛЬОРИ:
+ * Через шар colors.css (.c-main, .c-muted)
+ * Без кольору — secondary color (default).
  *
  * ЗАЛЕЖНОСТІ:
+ * - layers/colors.css (--c, --c-on)
  * - root.css (кольори)
  *
  * ЗАСТОСУВАННЯ:
@@ -31,34 +23,14 @@
  * - dropdown.css (.filter-count)
  */
 
-/* ============================================ */
-/* BASE COUNTER                                 */
-/* ============================================ */
-
 .counter-badge,
 .match-count-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 2px 6px;
-    color: var(--color-on-secondary);
-    background-color: var(--color-secondary);
+    color: var(--c-on, var(--color-on-secondary));
+    background-color: var(--c, var(--color-secondary));
     border-radius: 12px;
     white-space: nowrap;
-}
-
-/* ============================================ */
-/* VARIANTS                                     */
-/* ============================================ */
-
-/* Активний (main color — для ненульових значень з акцентом) */
-.counter-badge-active {
-    background-color: var(--color-main);
-    color: var(--color-on-main);
-}
-
-/* Тьмяний (для нульових значень) */
-.counter-badge-muted {
-    background-color: var(--color-surface-c-low);
-    color: var(--color-on-surface-v);
 }

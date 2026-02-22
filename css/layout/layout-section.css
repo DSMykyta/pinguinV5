@@ -121,21 +121,4 @@ section {
     text-transform: uppercase;
 }
 
-.cell-words-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.word-chip {
-    padding: 4px 10px;
-    border-radius: 16px;
-    background-color: var(--color-surface-c-high);
-    border: 1px solid var(--color-outline);
-}
-
-.word-chip.primary {
-    background-color: var(--color-primary-container);
-    color: var(--color-on-primary-container);
-    border: none;
-}
+/* cell-words-list, word-chip — визначено в feedback/chip.css */

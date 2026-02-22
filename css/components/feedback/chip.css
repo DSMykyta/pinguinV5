@@ -6,10 +6,10 @@
  *
  * ВИКОРИСТАННЯ:
  * <span class="chip">Default</span>
- * <span class="chip chip-active">Active</span>
- * <span class="chip chip-error">Error</span>
- * <span class="chip chip-warning">Warning</span>
- * <span class="chip chip-success">Success</span>
+ * <span class="chip c-main filled">Active</span>
+ * <span class="chip c-red">Error</span>
+ * <span class="chip c-yellow">Warning</span>
+ * <span class="chip c-green">Success</span>
  * <button class="chip chip-clickable">Clickable</button>
  * <a class="chip chip-link" href="#">Link</a>
  *
@@ -18,17 +18,19 @@
  * - .word-chip           — маленький (2px 8px) — для ID, кодів в таблицях
  * - .word-chip-small     — ще менший (1px 6px)
  *
- * ФОРМИ:
- * - .chip               — border-radius 8px (16px при hover)
- * - .filter-pill         — border-radius full (pill-shaped)
- *
  * КОНТЕЙНЕРИ:
  * - .chip-container      — flex-wrap зі scroll (для великої кількості)
  * - .chip-list           — горизонтальний scroll (для невеликої кількості)
  * - .validation-results-wrapper — з fade-ефектом
  * - .filter-pills-container    — для filter-pills
  *
+ * КОЛЬОРИ:
+ * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-main)
+ * Chip використовує контейнерний варіант: --c-c (фон), --c-on-c (текст).
+ * Без кольору — main color (default).
+ *
  * ЗАЛЕЖНОСТІ:
+ * - layers/colors.css (--c, --c-on, --c-c, --c-on-c)
  * - root.css (кольори, радіуси)
  *
  * ЗАСТОСУВАННЯ:
@@ -43,7 +45,6 @@
 /* КОНТЕЙНЕРИ                                   */
 /* ============================================ */
 
-/* Контейнер зі scroll (для великої кількості елементів) */
 .chip-container {
     display: flex;
     flex-wrap: wrap;
@@ -53,7 +54,6 @@
     overflow-y: auto;
 }
 
-/* Горизонтальний scroll-список */
 .chip-list {
     display: flex;
     flex-wrap: nowrap;
@@ -128,64 +128,41 @@
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
-    background: var(--color-main-c);
-    color: var(--color-main);
-    border: 1px solid var(--color-main-c);
+    background: var(--c-c, var(--color-main-c));
+    color: var(--c-on-c, var(--color-main));
+    border: 1px solid var(--c-c, var(--color-main-c));
 }
 
 .chip:hover {
-    background: var(--color-main);
-    color: var(--color-on-main);
-    border-color: var(--color-main);
+    background: var(--c, var(--color-main));
+    color: var(--c-on, var(--color-on-main));
+    border-color: var(--c, var(--color-main));
     border-radius: 16px;
 }
 
 /* ============================================ */
-/* COLOR VARIANTS                               */
+/* FILLED VARIANT — solid fill замість container */
 /* ============================================ */
 
-/* Активний (filled) */
-.chip-active {
-    background: var(--color-main);
-    color: var(--color-on-main);
+.chip.filled {
+    background: var(--c, var(--color-main));
+    color: var(--c-on, var(--color-on-main));
     border-color: transparent;
 }
 
-/* Помилка (червоний) */
-.chip-error {
-    background: var(--color-error-c);
-    color: var(--color-error);
-    border-color: var(--color-error);
+/* ============================================ */
+/* SPECIAL BEHAVIORS                            */
+/* ============================================ */
+
+/* Error/Warning chips: cursor help, no hover morph */
+.chip.c-red,
+.chip.c-yellow {
     cursor: help;
 }
 
-.chip-error:hover {
-    background: var(--color-error-c);
-    color: var(--color-error);
-    border-color: var(--color-error);
+.chip.c-red:hover,
+.chip.c-yellow:hover {
     border-radius: 8px;
-}
-
-/* Попередження (жовтий) */
-.chip-warning {
-    background: var(--color-warning-c);
-    color: var(--color-warning);
-    border-color: var(--color-warning);
-    cursor: help;
-}
-
-.chip-warning:hover {
-    background: var(--color-warning-c);
-    color: var(--color-warning);
-    border-color: var(--color-warning);
-    border-radius: 8px;
-}
-
-/* Успіх (зелений) */
-.chip-success {
-    background: var(--color-success-c);
-    color: var(--color-success);
-    border-color: transparent;
 }
 
 /* ============================================ */
@@ -197,15 +174,14 @@
     cursor: pointer;
 }
 
-/* Навігаційний (клік → перехід кудись) */
 .chip-nav {
     cursor: pointer;
 }
 
-.chip-error.chip-nav:hover {
-    background: var(--color-error);
-    color: var(--color-on-error);
-    border-color: var(--color-error);
+.chip.c-red.chip-nav:hover {
+    background: var(--c);
+    color: var(--c-on);
+    border-color: var(--c);
 }
 
 /* ============================================ */
@@ -227,7 +203,6 @@
 /* WORD CHIP — маленький чіп для таблиць        */
 /* ============================================ */
 
-/* Комірка зі списком слів (специфічно для pseudo-table) */
 .pseudo-table-cell .cell-words-list {
     display: flex;
     flex-wrap: wrap;
@@ -241,19 +216,13 @@
 .word-chip {
     display: inline-block;
     padding: 2px 8px;
-    background: var(--color-surface-c-low);
-    border: 1px solid var(--color-outline);
+    background: var(--c-c, var(--color-surface-c-low));
+    color: var(--c-on-c, inherit);
+    border: 1px solid var(--c, var(--color-outline));
     border-radius: 8px;
     flex-shrink: 0;
 }
 
-/* Виділення основного слова */
-.word-chip.primary {
-    background: var(--color-main-c);
-    color: var(--color-main);
-}
-
-/* Ще менший варіант */
 .word-chip-small {
     padding: 1px 6px;
     margin: 1px;

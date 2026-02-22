@@ -188,7 +188,7 @@ function renderHints(hints) {
         if (hint.type === 'vitamin') {
             return `<span class="badge">${hint.text}</span>`;
         } else {
-            return `<span class="severity-badge severity-medium">${hint.name} — EAA</span>`;
+            return `<span class="severity-badge c-yellow">${hint.name} — EAA</span>`;
         }
     }).join('');
 }

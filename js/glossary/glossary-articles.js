@@ -63,7 +63,7 @@ function createArticleHtml(item) {
         : [];
 
     const triggersHtml = trigersArray.length > 0
-        ? trigersArray.map(tr => `<span class="word-chip primary">${tr}</span>`).join(' ')
+        ? trigersArray.map(tr => `<span class="word-chip c-main">${tr}</span>`).join(' ')
         : '<span class="text-muted">Немає тригерів</span>';
 
     const keywordsUaHtml = keywordsUaArray.length > 0

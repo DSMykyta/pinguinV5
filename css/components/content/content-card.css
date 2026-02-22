@@ -134,7 +134,7 @@
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.content-card .badge-neutral {
+.content-card .badge.c-red {
     background: var(--color-error);
     color: var(--color-on-error);
     border-color: var(--color-error);

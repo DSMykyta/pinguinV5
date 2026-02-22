@@ -40,7 +40,7 @@ function addTulip(title, isActive = true) {
     if (!triggerData) return;
 
     const tulip = document.createElement('div');
-    tulip.className = isActive ? 'chip chip-active' : 'chip';
+    tulip.className = isActive ? 'chip c-main filled' : 'chip';
     tulip.textContent = title;
     tulip.dataset.title = title;
 
