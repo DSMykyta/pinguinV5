@@ -218,15 +218,15 @@ async function sheetsGetSheetNames(spreadsheetType = 'main') {
 // ============= Утиліти =============
 
 /**
- * Показує помилку користувачу (можна використовувати існуючий toast)
+ * Показує помилку користувачу через toast
  */
-function showError(message) {
+async function showError(message) {
   console.error('API Error:', message);
 
-  // Якщо є система тостів - використовуємо її
-  if (typeof window.showToast === 'function') {
-    window.showToast(message, 'error');
-  } else {
+  try {
+    const { showToast } = await import('../common/ui-toast.js');
+    showToast(message, 'error');
+  } catch {
     alert(message);
   }
 }
