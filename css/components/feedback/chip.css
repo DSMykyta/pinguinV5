@@ -1,38 +1,46 @@
 /**
- * COMPONENT: Chip (Badge)
+ * COMPONENT: Chip
  *
  * ПРИЗНАЧЕННЯ:
- * ЄДИНИЙ універсальний компонент chip/badge.
- * Всі варіанти використовують базовий клас .chip + модифікатор.
+ * Інлайновий тег/мітка. Для категорій, фільтрів, валідації, зв'язків.
  *
  * ВИКОРИСТАННЯ:
- * <span class="chip">Базовий</span>
- * <span class="chip chip-active">Активний</span>
- * <button class="chip chip-clickable">Кнопка</button>
- * <a class="chip chip-link" href="#">Посилання</a>
- * <span class="chip chip-error">Помилка</span>
+ * <span class="chip">Default</span>
+ * <span class="chip chip-active">Active</span>
+ * <span class="chip chip-error">Error</span>
+ * <span class="chip chip-warning">Warning</span>
+ * <span class="chip chip-success">Success</span>
+ * <button class="chip chip-clickable">Clickable</button>
+ * <a class="chip chip-link" href="#">Link</a>
+ *
+ * РОЗМІРИ:
+ * - .chip               — стандартний (4px 12px)
+ * - .word-chip           — маленький (2px 8px) — для ID, кодів в таблицях
+ * - .word-chip-small     — ще менший (1px 6px)
+ *
+ * ФОРМИ:
+ * - .chip               — border-radius 8px (16px при hover)
+ * - .filter-pill         — border-radius full (pill-shaped)
  *
  * КОНТЕЙНЕРИ:
- * - .chip-container - зі scroll (для великої кількості)
- * - .chip-list - без scroll (для невеликої кількості, tooltip-friendly)
- *
- * ЄДИНИЙ ВИГЛЯД:
- * - padding: 4px 12px
- * - border-radius: 16px (4px за замовчуванням, 16px при hover)
- * - font-size: 13px
- * - font-weight: 500
+ * - .chip-container      — flex-wrap зі scroll (для великої кількості)
+ * - .chip-list           — горизонтальний scroll (для невеликої кількості)
+ * - .validation-results-wrapper — з fade-ефектом
+ * - .filter-pills-container    — для filter-pills
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main, --color-error, --color-success, --color-surface-c-low)
+ * - root.css (кольори, радіуси)
  *
  * ЗАСТОСУВАННЯ:
  * - Генератори (SEO, Links, Text)
  * - Banned words (лічильники, помилки, знайдені слова)
- * - Validation (заборонені слова)
+ * - Validation (валідація в toolbar)
+ * - Mapper (статуси імпорту)
+ * - Таблиці (word-chip для ID/кодів)
  */
 
 /* ============================================ */
-/* КОНТЕЙНЕРИ ДЛЯ CHIP */
+/* КОНТЕЙНЕРИ                                   */
 /* ============================================ */
 
 /* Контейнер зі scroll (для великої кількості елементів) */
@@ -45,7 +53,7 @@
     overflow-y: auto;
 }
 
-/* Список chips - горизонтальний scroll */
+/* Горизонтальний scroll-список */
 .chip-list {
     display: flex;
     flex-wrap: nowrap;
@@ -55,12 +63,11 @@
     overflow-y: hidden;
 }
 
-/* Якщо chip-list не порожній - додаємо padding */
 .chip-list:not(:empty) {
     padding: 8px 0;
 }
 
-/* Контейнер з fade-ефектом для chip-list (validation results) */
+/* Контейнер з fade-ефектом (validation results) */
 .validation-results-wrapper {
     position: relative;
     flex: 1;
@@ -72,7 +79,6 @@
     flex-direction: row-reverse;
 }
 
-/* Fade-ефект зліва */
 .validation-results-wrapper::before {
     content: '';
     position: absolute;
@@ -87,7 +93,6 @@
     transition: opacity 0.2s;
 }
 
-/* Fade-ефект справа */
 .validation-results-wrapper::after {
     content: '';
     position: absolute;
@@ -102,7 +107,6 @@
     transition: opacity 0.2s;
 }
 
-/* Показуємо fade коли є прокрутка */
 .validation-results-wrapper.has-scroll-left::before {
     opacity: 1;
 }
@@ -112,7 +116,7 @@
 }
 
 /* ============================================ */
-/* БАЗОВИЙ CHIP */
+/* BASE CHIP                                    */
 /* ============================================ */
 
 .chip {
@@ -124,7 +128,6 @@
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
-    /* За замовчуванням: сірий з рамкою */
     background: var(--color-main-c);
     color: var(--color-main);
     border: 1px solid var(--color-main-c);
@@ -138,19 +141,17 @@
 }
 
 /* ============================================ */
-/* МОДИФІКАТОР: АКТИВНИЙ (кольоровий) */
+/* COLOR VARIANTS                               */
 /* ============================================ */
 
+/* Активний (filled) */
 .chip-active {
     background: var(--color-main);
     color: var(--color-on-main);
     border-color: transparent;
 }
 
-/* ============================================ */
-/* МОДИФІКАТОР: ПОМИЛКА (червоний) */
-/* ============================================ */
-
+/* Помилка (червоний) */
 .chip-error {
     background: var(--color-error-c);
     color: var(--color-error);
@@ -165,10 +166,7 @@
     border-radius: 8px;
 }
 
-/* ============================================ */
-/* МОДИФІКАТОР: ПОПЕРЕДЖЕННЯ (жовтий) */
-/* ============================================ */
-
+/* Попередження (жовтий) */
 .chip-warning {
     background: var(--color-warning-c);
     color: var(--color-warning);
@@ -183,11 +181,23 @@
     border-radius: 8px;
 }
 
+/* Успіх (зелений) */
+.chip-success {
+    background: var(--color-success-c);
+    color: var(--color-success);
+    border-color: transparent;
+}
+
 /* ============================================ */
-/* МОДИФІКАТОР: НАВІГАЦІЙНИЙ (клік → перехід) */
-/* Для chips які ведуть кудись при кліку */
+/* INTERACTIVE VARIANTS                         */
 /* ============================================ */
 
+.chip-clickable,
+.chip-link {
+    cursor: pointer;
+}
+
+/* Навігаційний (клік → перехід кудись) */
 .chip-nav {
     cursor: pointer;
 }
@@ -199,26 +209,7 @@
 }
 
 /* ============================================ */
-/* МОДИФІКАТОР: УСПІХ (зелений) */
-/* ============================================ */
-
-.chip-success {
-    background: var(--color-success-c);
-    color: var(--color-success);
-    border-color: transparent;
-}
-
-/* ============================================ */
-/* МОДИФІКАТОР: ІНТЕРАКТИВНИЙ */
-/* ============================================ */
-
-.chip-clickable,
-.chip-link {
-    cursor: pointer;
-}
-
-/* ============================================ */
-/* TOOLTIP CONTENT - базовий стиль (картка) */
+/* TOOLTIP CONTENT — картка tooltip             */
 /* ============================================ */
 
 .tooltip-content {
@@ -233,16 +224,10 @@
 }
 
 /* ============================================ */
-/* ТЕТОВИЙ ЧІП */
+/* WORD CHIP — маленький чіп для таблиць        */
 /* ============================================ */
 
-/* ... в кінець /css/components/tables/pseudo-table.css ... */
-
-/* ============================================ */
-/* WORD CHIPS IN CELLS - (ВИПРАВЛЕНО v2) */
-/* ============================================ */
-
-/* Комірка зі списком слів в таблиці (специфічний селектор для pseudo-table) */
+/* Комірка зі списком слів (специфічно для pseudo-table) */
 .pseudo-table-cell .cell-words-list {
     display: flex;
     flex-wrap: wrap;
@@ -259,26 +244,24 @@
     background: var(--color-surface-c-low);
     border: 1px solid var(--color-outline);
     border-radius: 8px;
-    flex-shrink: 0; /* Заборонити чіпам стискатися */
+    flex-shrink: 0;
 }
 
-/* Виділення основного слова (для name_uk) */
+/* Виділення основного слова */
 .word-chip.primary {
     background: var(--color-main-c);
     color: var(--color-main);
 }
 
-/* Маленький варіант для таблиць */
+/* Ще менший варіант */
 .word-chip-small {
     padding: 1px 6px;
     margin: 1px;
 }
 
-
 /* ============================================ */
-/* FILTER PILLS */
+/* FILTER PILL — pill-shaped фільтр             */
 /* ============================================ */
-/* Простий компонент для фільтрів/табів */
 
 .filter-pills-container {
     display: flex;
@@ -315,4 +298,3 @@
 .filter-pill .material-symbols-outlined {
     font-size: 16px;
 }
-
