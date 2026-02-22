@@ -121,7 +121,7 @@ function initManagedBannedWordsTable() {
 async function attachManageRowEventHandlers(container) {
     initActionHandlers(container, 'banned-words-manage');
 
-    container.querySelectorAll('.badge.clickable').forEach(badge => {
+    container.querySelectorAll('.badge[data-badge-id]').forEach(badge => {
         badge.addEventListener('click', async (e) => {
             e.stopPropagation();
             const wordId = badge.dataset.badgeId;
@@ -480,7 +480,7 @@ export function initManageTabFilters() {
         bannedWordsState.tabFilters['tab-manage'] = 'all';
     }
 
-    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    // Charm filter-pills керує .c-main toggle, ми слухаємо charm:filter
     filterGroup.addEventListener('charm:filter', (e) => {
         bannedWordsState.tabFilters['tab-manage'] = e.detail.value;
         renderBannedWordsTableRowsOnly();

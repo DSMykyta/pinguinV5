@@ -444,7 +444,7 @@ async function attachCheckRowEventHandlers(container, tabId) {
     initActionHandlers(container, `banned-words-check-${tabId}`);
 
     // Обробник кліків на clickable badges
-    container.querySelectorAll('.badge.clickable').forEach(badge => {
+    container.querySelectorAll('.badge[data-badge-id]').forEach(badge => {
         badge.addEventListener('click', async (e) => {
             e.stopPropagation();
             const productId = badge.dataset.badgeId;

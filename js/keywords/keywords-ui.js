@@ -60,7 +60,7 @@ export function initParamTypeFilters() {
         keywordsState.paramTypeFilter = 'all';
     }
 
-    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    // Charm filter-pills керує .c-main toggle, ми слухаємо charm:filter
     container.addEventListener('charm:filter', (e) => {
         keywordsState.paramTypeFilter = e.detail.value;
         renderKeywordsTableRowsOnly();

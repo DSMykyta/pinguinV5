@@ -45,11 +45,11 @@ export function setupEventListeners() {
                 'add-aminos-btn': () => addSampleList(getAminoAcids()),
                 'result-card-html': () => {
                     if (checkForEmptyNutritionFacts()) return;
-                    copyToClipboard(generateHtmlTable());
+                    copyToClipboard(generateHtmlTable(), 'Таблицю складу');
                 },
                 'result-card-br': () => {
                     if (checkForEmptyNutritionFacts()) return;
-                    copyToClipboard(generateBrText());
+                    copyToClipboard(generateBrText(), 'Склад на 1 порцію');
                 }
             };
             if (actions[target.id]) actions[target.id](event);

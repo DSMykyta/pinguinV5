@@ -205,7 +205,7 @@ export function init(state) {
             // Заборонені слова (червоні чіпи з навігацією)
             const sorted = Array.from(wordCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
             for (const [word, cnt] of sorted) {
-                chips.push(`<span class="chip c-red chip-nav" data-banned-word="${word}">${word} (${cnt})</span>`);
+                chips.push(`<span class="chip c-red" data-banned-word="${word}">${word} (${cnt})</span>`);
             }
 
             container.innerHTML = chips.join(' ');

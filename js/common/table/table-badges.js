@@ -84,10 +84,7 @@ export function renderBadge(value, type = 'default', options = {}) {
             text = value;
     }
 
-    let badgeClass = `badge ${colorClass}`;
-    if (clickable) {
-        badgeClass += ' clickable';
-    }
+    const badgeClass = `badge ${colorClass}`;
 
     const idAttr = id ? `data-badge-id="${id}"` : '';
     const statusAttr = clickable && (type === 'checked' || type === 'boolean')

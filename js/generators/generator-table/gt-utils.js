@@ -14,10 +14,12 @@ import { showToast } from '../../common/ui-toast.js';
 /**
  * Копіює переданий текст у буфер обміну.
  * @param {string} text - Текст для копіювання.
+ * @param {string} [label=''] - Що саме копіюється (для toast).
  */
-export function copyToClipboard(text) {
+export function copyToClipboard(text, label = '') {
+    const msg = label ? `${label} скопійовано` : 'Скопійовано';
     navigator.clipboard.writeText(text).then(() => {
-        showToast('Скопійовано', 'success', 2000);
+        showToast(msg, 'success', 2000);
     }).catch(err => {
         console.error('Не вдалося скопіювати текст: ', err);
         showToast('Помилка копіювання', 'error', 2000);
