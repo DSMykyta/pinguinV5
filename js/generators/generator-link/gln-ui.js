@@ -30,7 +30,7 @@ export function renderLinkButtons() {
 
     data.forEach(item => {
         const button = document.createElement("a");
-        button.className = "chip";
+        button.className = "badge c-main";
         button.href = item.url;
         button.target = "_blank";
         button.rel = "noopener noreferrer";
@@ -62,7 +62,7 @@ export function updateLinkCountryDisplay() {
     const countryName = countries[brandName];
 
     if (countryName) {
-        dom.countryDisplay.innerHTML = `<span class="chip">${countryName}</span>`;
+        dom.countryDisplay.innerHTML = `<span class="badge c-main">${countryName}</span>`;
     } else {
         dom.countryDisplay.innerHTML = '';
     }
@@ -76,7 +76,7 @@ export function filterLinkButtons() {
     if (!dom.searchInput || !dom.buttonsContainer) return;
 
     const searchTerm = dom.searchInput.value.toLowerCase();
-    const buttons = dom.buttonsContainer.querySelectorAll(".chip");
+    const buttons = dom.buttonsContainer.querySelectorAll(".badge");
 
     buttons.forEach(button => {
         const brandName = button.dataset.brandLower;

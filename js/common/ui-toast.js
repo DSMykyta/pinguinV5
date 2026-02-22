@@ -63,10 +63,12 @@ export function showToast(message, type = 'success', durationOrOptions = 3000) {
 
     toastContainer.appendChild(toast);
 
-    // Запускаємо анімацію появи
-    setTimeout(() => {
-        toast.classList.add('visible');
-    }, 10);
+    // Запускаємо анімацію появи (double rAF гарантує що браузер зареєстрував початковий стан)
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.classList.add('visible');
+        });
+    });
 
     // Зникнення та видалення після завершення тривалості
     const dismissTimer = setTimeout(() => {

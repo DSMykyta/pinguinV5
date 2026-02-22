@@ -18,7 +18,7 @@ export function runCalculations() {
     const product = dom.productNameInput.value.trim();
     const packaging = dom.productPackagingInput.value.trim();
     const mainText = dom.ghlEditor?.textContent || '';
-    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip.c-main'))
+    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.badge.c-main'))
                               .map(t => t.dataset.title);
 
     dom.seoTitleInput.value = generateSeoTitle(brand, product, packaging);
@@ -70,13 +70,13 @@ export function initEventListeners() {
 
     dom.searchTrigerInput.addEventListener('input', e => {
         const searchTerm = e.target.value.toLowerCase();
-        dom.trigerButtonsContainer.querySelectorAll('.chip').forEach(button => {
+        dom.trigerButtonsContainer.querySelectorAll('.badge').forEach(button => {
             button.classList.toggle('u-hidden', !(button.textContent.toLowerCase().includes(searchTerm)));
         });
     });
 
     dom.trigerButtonsContainer.addEventListener('click', e => {
-        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('chip')) {
+        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('badge')) {
             optionalFunctions.addTulip?.(e.target.dataset.title, true);
             runCalculations();
         }
@@ -84,7 +84,7 @@ export function initEventListeners() {
 
     dom.triggerTitlesContainer.addEventListener('click', e => {
         const target = e.target;
-        if (target.dataset.title && target.classList.contains('chip')) {
+        if (target.dataset.title && target.classList.contains('badge')) {
             target.classList.toggle('c-main');
             runCalculations();
         }

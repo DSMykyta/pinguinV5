@@ -12,7 +12,7 @@ export function updateCountryDisplay() {
     const brandInfo = brandsData[brandName];
 
     if (brandInfo && brandInfo.country) {
-        dom.countryNameDiv.innerHTML = `<span class="chip">${brandInfo.country}</span>`;
+        dom.countryNameDiv.innerHTML = `<span class="badge c-main">${brandInfo.country}</span>`;
     } else {
         dom.countryNameDiv.innerHTML = '';
     }
