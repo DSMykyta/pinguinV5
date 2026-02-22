@@ -17,7 +17,7 @@
  * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-grey)
  *
  * ЗАЛЕЖНОСТІ:
- * - layers/colors.css (--c)
+ * - layers/colors.css (background-color)
  * - root.css (fallback кольори)
  *
  * ЗАСТОСУВАННЯ:
@@ -32,7 +32,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--c, var(--color-on-surface-v));
+    background-color: var(--color-on-surface-v);
 }
 
 /* Loading dots — збільшені з анімацією */

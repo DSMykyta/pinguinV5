@@ -11,11 +11,11 @@
  * <span class="counter c-grey">0</span>
  *
  * КОЛЬОРИ:
- * Через шар colors.css (.c-main, .c-grey)
- * Без кольору — нейтральний/прозорий (surface).
+ * Через шар colors.css (color, fill, background-color).
+ * Без кольору — нейтральний (surface).
  *
  * ЗАЛЕЖНОСТІ:
- * - layers/colors.css (--c, --c-on)
+ * - layers/colors.css (color, fill, background-color)
  * - root.css (кольори)
  *
  * ЗАСТОСУВАННЯ:
@@ -28,8 +28,8 @@
     align-items: center;
     justify-content: center;
     padding: 2px 6px;
-    color: var(--c-on, var(--color-on-surface));
-    background-color: var(--c, var(--color-surface-c-low));
+    color: var(--color-on-surface);
+    background-color: var(--color-surface-c-low);
     border-radius: 12px;
     white-space: nowrap;
 }

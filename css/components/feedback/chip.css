@@ -25,12 +25,11 @@
  * - .filter-pills-container    — для filter-pills
  *
  * КОЛЬОРИ:
- * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-main)
- * Chip використовує контейнерний варіант: --c-c (фон), --c-on-c (текст).
- * Без кольору — нейтральний/прозорий (surface).
+ * Через шар colors.css (color, fill, background-color).
+ * Без кольору — нейтральний (surface).
  *
  * ЗАЛЕЖНОСТІ:
- * - layers/colors.css (--c, --c-on, --c-c, --c-on-c)
+ * - layers/colors.css (color, fill, background-color)
  * - root.css (кольори, радіуси)
  *
  * ЗАСТОСУВАННЯ:
@@ -128,15 +127,13 @@
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
-    background: var(--c-c, var(--color-surface-c-low));
-    color: var(--c-on-c, var(--color-on-surface));
-    border: 1px solid var(--c-c, var(--color-surface-c));
+    background: var(--color-surface-c-low);
+    color: var(--color-on-surface);
+    border: 1px solid var(--color-surface-c);
 }
 
 .chip:hover {
-    background: var(--c, var(--color-surface-c));
-    color: var(--c-on, var(--color-on-surface));
-    border-color: var(--c, var(--color-surface-c));
+    filter: brightness(0.85);
     border-radius: 16px;
 }
 
@@ -145,8 +142,6 @@
 /* ============================================ */
 
 .chip.filled {
-    background: var(--c, var(--color-surface-c));
-    color: var(--c-on, var(--color-on-surface));
     border-color: transparent;
 }
 
@@ -176,12 +171,6 @@
 
 .chip-nav {
     cursor: pointer;
-}
-
-.chip.c-red.chip-nav:hover {
-    background: var(--c);
-    color: var(--c-on);
-    border-color: var(--c);
 }
 
 /* ============================================ */
@@ -216,9 +205,9 @@
 .tag {
     display: inline-block;
     padding: 2px 8px;
-    background: var(--c-c, var(--color-surface-c-low));
-    color: var(--c-on-c, inherit);
-    border: 1px solid var(--c, var(--color-outline));
+    background: var(--color-surface-c-low);
+    color: inherit;
+    border: 1px solid var(--color-outline);
     border-radius: 8px;
     flex-shrink: 0;
 }
