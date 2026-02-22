@@ -1,13 +1,35 @@
 .tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 2px 8px;
     background: var(--color-surface-c-low);
     color: inherit;
     border: 1px solid var(--color-outline);
     border-radius: 8px;
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .tag:hover {
     filter: brightness(0.85);
+}
+
+.tag__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 0;
+    color: inherit;
+    transition: opacity 150ms ease-in-out;
+}
+
+.tag__remove:hover {
+    opacity: 1;
 }

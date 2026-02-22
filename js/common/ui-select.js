@@ -289,7 +289,7 @@ class CustomSelect {
 
         // Якщо нічого не влазить - показати тільки кількість
         if (fittingCount === 0) {
-            const summaryChip = this._createElement('div', { class: 'custom-select-chip is-summary' });
+            const summaryChip = this._createElement('div', { class: 'tag' });
             summaryChip.textContent = totalChips;
             this.valueContainer.appendChild(summaryChip);
 
@@ -319,7 +319,7 @@ class CustomSelect {
         // Додаємо лічильник якщо є більше чіпів
         const hiddenCount = totalChips - fittingCount;
         if (hiddenCount > 0) {
-            const counterChip = this._createElement('div', { class: 'custom-select-chip is-counter' });
+            const counterChip = this._createElement('div', { class: 'tag' });
             counterChip.textContent = `+${hiddenCount}`;
             this.valueContainer.appendChild(counterChip);
 
@@ -333,19 +333,19 @@ class CustomSelect {
     }
 
     _createChip(option) {
-        const chip = this._createElement('div', { class: 'custom-select-chip' });
+        const tag = this._createElement('div', { class: 'tag' });
 
-        // Логіка відображення чіпа з підтримкою ієрархії
+        // Логіка відображення з підтримкою ієрархії
         const shortName = option.dataset.name;
         const level = parseInt(option.dataset.level, 10);
         if (shortName && !isNaN(level)) {
             const prefix = ' / '.repeat(level);
-            chip.textContent = `${prefix}${shortName}`.trim();
+            tag.textContent = `${prefix}${shortName}`.trim();
         } else {
-            chip.textContent = option.textContent;
+            tag.textContent = option.textContent;
         }
 
-        const removeBtn = this._createElement('button', { type: 'button', class: 'custom-select-chip__remove' });
+        const removeBtn = this._createElement('button', { type: 'button', class: 'tag__remove' });
         removeBtn.innerHTML = '&times;';
 
         removeBtn.addEventListener('click', (e) => {
@@ -356,8 +356,8 @@ class CustomSelect {
             this._updateSelection();
         });
 
-        chip.appendChild(removeBtn);
-        return chip;
+        tag.appendChild(removeBtn);
+        return tag;
     }
 
     _bindEvents() {
