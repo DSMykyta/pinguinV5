@@ -1,0 +1,135 @@
+/**
+ * COMPONENT: Characteristic Form Grid
+ *
+ * ПРИЗНАЧЕННЯ:
+ * 12-колонкова CSS Grid сітка для динамічного рендерингу
+ * характеристик товару. Кожна характеристика має col_size
+ * який визначає скільки колонок вона займає.
+ *
+ * РОЗМІРИ:
+ * - .char-col-1 — span 12 (100%, повна ширина)
+ * - .char-col-2 — span 6  (50%, половина)
+ * - .char-col-3 — span 4  (33.3%, третина)
+ * - .char-col-4 — span 3  (25%, чверть)
+ * - .char-col-6 — span 2  (16.7%, шоста)
+ *
+ * ПОЛЕ З ЮНІТОМ:
+ * <div class="char-field-box">
+ *   <input type="text" />
+ *   <span class="char-field-unit">%</span>
+ * </div>
+ *
+ * HTML ПРИКЛАД:
+ * <div class="char-grid">
+ *   <div class="group column char-col-2">
+ *     <label class="label-l">Тип</label>
+ *     <div class="char-field-box">
+ *       <input type="text" />
+ *     </div>
+ *     <label class="label-s">Підказка</label>
+ *   </div>
+ *   <div class="group column char-col-6">
+ *     <label class="label-l">Білки</label>
+ *     <div class="char-field-box">
+ *       <input type="number" />
+ *       <span class="char-field-unit">%</span>
+ *     </div>
+ *   </div>
+ * </div>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - form-group.css (.group.column)
+ * - input.css (.input-main стилі)
+ * - root.css (CSS змінні)
+ */
+
+/* --- Container --- */
+
+.char-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 8px 12px;
+    align-items: start;
+}
+
+/* --- Column sizes --- */
+
+.char-col-1 { grid-column: span 12; }
+.char-col-2 { grid-column: span 6; }
+.char-col-3 { grid-column: span 4; }
+.char-col-4 { grid-column: span 3; }
+.char-col-6 { grid-column: span 2; }
+
+/* --- Field box: input + unit suffix --- */
+
+.char-field-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s, 8px);
+    background-color: var(--color-surface);
+    min-height: 40px;
+    transition: border-color 150ms ease-in-out;
+}
+
+.char-field-box:hover {
+    border-color: var(--color-on-surface-v);
+}
+
+.char-field-box:focus-within {
+    outline: 2px solid var(--color-main);
+    outline-offset: -2px;
+    border-color: transparent;
+}
+
+.char-field-box input,
+.char-field-box textarea,
+.char-field-box select {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: inherit;
+    font: inherit;
+    width: 100%;
+    padding: 8px 12px;
+    min-width: 0;
+}
+
+.char-field-box textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.char-field-box select {
+    cursor: pointer;
+}
+
+/* Unit suffix */
+
+.char-field-unit {
+    flex-shrink: 0;
+    padding: 0 12px 0 0;
+    color: var(--color-on-surface-v);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* --- Mobile: все в одну колонку --- */
+
+@media (max-width: 768px) {
+    .char-col-1,
+    .char-col-2,
+    .char-col-3,
+    .char-col-4,
+    .char-col-6 {
+        grid-column: span 12;
+    }
+}
+
+/* --- Tablet: малі поля збільшуємо --- */
+
+@media (max-width: 1024px) and (min-width: 769px) {
+    .char-col-6 { grid-column: span 4; }
+    .char-col-4 { grid-column: span 4; }
+}

@@ -95,6 +95,14 @@
                             </div>
                         </div>
 
+                        <div class="form-grid form-grid-2">
+                            <div class="group column">
+                                <label class="label-l" for="mapper-char-hint">Підказка</label>
+                                <input type="text" id="mapper-char-hint" class="input-main" placeholder="Підказка під полем у формі товару">
+                                <label class="label-s">Відображається під полем (наприклад: "Вказуйте на 100г продукту")</label>
+                            </div>
+                        </div>
+
                         <!-- Тип та налаштування -->
                         <div class="form-grid form-grid-2">
                             <div class="group column">
@@ -148,7 +156,24 @@
                                 </select>
                             </div>
 
-                            
+                            <div class="group column">
+                                <label class="label-l" for="mapper-char-sort-order">Сортування</label>
+                                <input type="number" id="mapper-char-sort-order" class="input-main" placeholder="0" min="0">
+                                <label class="label-s">Порядок в формі товару</label>
+                            </div>
+
+                            <div class="group column">
+                                <label class="label-l" for="mapper-char-col-size">Ширина поля</label>
+                                <select id="mapper-char-col-size" data-custom-select>
+                                    <option value="">— Авто —</option>
+                                    <option value="1">Все</option>
+                                    <option value="2">Половина</option>
+                                    <option value="3">Третина</option>
+                                    <option value="4">Чвертина</option>
+                                    <option value="6">Шоста</option>
+                                </select>
+                                <label class="label-s">Ширина поля в формі товару</label>
+                            </div>
                         </div>
                     </div>
                 </section>
