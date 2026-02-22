@@ -155,14 +155,9 @@ function setupSheetTabs() {
         }
 
         const button = document.createElement('button');
-        button.className = 'filter-pill';
+        button.className = sheet === activeSheet ? 'chip c-main' : 'chip';
         button.dataset.sheet = sheet;
         button.textContent = sheet;
-
-        // Активний таб - поточний аркуш
-        if (sheet === activeSheet) {
-            button.classList.add('active');
-        }
 
         sheetPillsContainer.appendChild(button);
     });
@@ -454,7 +449,7 @@ function setBadgeAppearance(badge, isChecked) {
  */
 function syncTableBadge(productId, isChecked) {
     // Знайти badge в таблиці по data-badge-id
-    const tableBadge = document.querySelector(`.badge.clickable[data-badge-id="${productId}"]`);
+    const tableBadge = document.querySelector(`.badge[data-badge-id="${productId}"]`);
     if (tableBadge) {
         tableBadge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
         setBadgeAppearance(tableBadge, isChecked);
@@ -491,7 +486,7 @@ function initModalHandlers() {
     });
 
     // Перемикання табів аркушів
-    const sheetButtons = document.querySelectorAll('#product-sheet-pills .filter-pill');
+    const sheetButtons = document.querySelectorAll('#product-sheet-pills .chip');
     sheetButtons.forEach(button => {
         button.addEventListener('click', () => handleSheetTabClick(button));
     });
@@ -529,9 +524,9 @@ async function handleSheetTabClick(button) {
 
 
     // Оновити активний таб
-    const sheetButtons = document.querySelectorAll('#product-sheet-pills .filter-pill');
-    sheetButtons.forEach(btn => btn.classList.remove('active'));
-    button.classList.add('active');
+    const sheetButtons = document.querySelectorAll('#product-sheet-pills .chip');
+    sheetButtons.forEach(btn => btn.classList.remove('c-main'));
+    button.classList.add('c-main');
 
     // Оновити активний аркуш
     activeSheet = newSheet;
@@ -682,7 +677,7 @@ function handleCopyText() {
     // Копіювати в буфер обміну
     navigator.clipboard.writeText(textToCopy)
         .then(() => {
-            showToast('Текст скопійовано', 'success');
+            showToast('Опис товару скопійовано', 'success');
         })
         .catch(err => {
             console.error('❌ Помилка копіювання:', err);

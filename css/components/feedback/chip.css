@@ -7,7 +7,7 @@
     white-space: nowrap;
     text-decoration: none;
     transition: all 0.2s;
-    background: var(--color-surface-c-low);
+    background: transparent;
     color: var(--color-on-surface);
 }
 

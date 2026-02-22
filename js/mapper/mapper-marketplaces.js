@@ -748,7 +748,7 @@ function populateMpCharacteristics(allData, charMapping) {
                     const count = names.length;
                     const tooltip = names.join('\n') || "Не прив'язано до категорій";
                     const cls = count === 0 ? 'chip' : 'chip c-main';
-                    return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
+                    return `<span class="${cls}" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
                 }
             },
             { ...col('_name', 'Назва', 'name'), searchable: true },

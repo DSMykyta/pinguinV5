@@ -8,11 +8,11 @@
  * ║                                                                        ║
  * ║  HTML:                                                                 ║
  * ║  <div data-filter-group="paramType">                                   ║
- * ║    <button class="btn-icon expand active" data-filter-value="all">Всі</button>║
- * ║    <button class="btn-icon expand" data-filter-value="cat">Категорія</button> ║
+ * ║    <button class="chip c-main" data-filter-value="all">Всі</button>   ║
+ * ║    <button class="chip" data-filter-value="cat">Категорія</button>    ║
  * ║  </div>                                                                ║
  * ║                                                                        ║
- * ║  Click: toggle .active (single-select).                                ║
+ * ║  Click: toggle .c-main (single-select).                                ║
  * ║  Dispatch на контейнер:                                                ║
  * ║    charm:filter { detail: { group, value } }                           ║
  * ║                                                                        ║
@@ -33,8 +33,8 @@ export function initFilterPillsCharm() {
         if (!group) return;
 
         // Single-select: deactivate all, activate clicked
-        group.querySelectorAll('[data-filter-value]').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
+        group.querySelectorAll('[data-filter-value]').forEach(p => p.classList.remove('c-main'));
+        pill.classList.add('c-main');
 
         group.dispatchEvent(new CustomEvent('charm:filter', {
             bubbles: true,

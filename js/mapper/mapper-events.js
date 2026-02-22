@@ -37,7 +37,7 @@ function initBindingChipClicks() {
     if (!mainContent) return;
 
     mainContent.addEventListener('click', async (e) => {
-        const chip = e.target.closest('.binding-chip');
+        const chip = e.target.closest('[data-entity-type]');
         if (!chip) return;
 
         const entityType = chip.dataset.entityType;

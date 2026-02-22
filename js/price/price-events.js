@@ -46,7 +46,7 @@ export function initPriceEvents() {
  * Обробник кліків по таблиці
  */
 async function handleTableClick(e) {
-    const badge = e.target.closest('.badge.clickable');
+    const badge = e.target.closest('.badge[data-badge-id]');
     if (badge) {
         e.preventDefault();
         await handleStatusBadgeClick(badge);

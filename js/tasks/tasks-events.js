@@ -90,7 +90,7 @@ function initFilterPills() {
     const pillsContainer = document.getElementById('type-filter-pills');
     if (!pillsContainer) return;
 
-    // Charm filter-pills керує .active toggle, ми слухаємо charm:filter
+    // Charm filter-pills керує .c-main toggle, ми слухаємо charm:filter
     pillsContainer.addEventListener('charm:filter', (e) => {
         const filterValue = e.detail.value;
 
@@ -126,9 +126,9 @@ function syncFilterPillsFromState() {
     pillsContainer.querySelectorAll('[data-filter-value]').forEach(p => {
         const val = p.dataset.filterValue;
         if (val === 'all') {
-            p.classList.toggle('active', activeTypes.length === 0);
+            p.classList.toggle('c-main', activeTypes.length === 0);
         } else {
-            p.classList.toggle('active', activeTypes.length === 1 && activeTypes[0] === val);
+            p.classList.toggle('c-main', activeTypes.length === 1 && activeTypes[0] === val);
         }
     });
 }

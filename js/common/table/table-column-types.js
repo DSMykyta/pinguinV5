@@ -151,7 +151,7 @@ export const COLUMN_TYPES = {
         render: (value) => {
             if (!value || value.count == null) return '';
             const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip c-main';
-            return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
+            return `<span class="${cls}" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
         }
     },
 
@@ -201,7 +201,7 @@ export const COLUMN_TYPES = {
         render: (value, row, col) => {
             const id = row.id || row.local_id || row.code;
             if (!value || !String(value).trim()) {
-                return `<span class="badge clickable" data-badge-id="${escapeHtml(id)}:reserve" data-status="" style="cursor:pointer">N/D</span>`;
+                return `<span class="badge" data-badge-id="${escapeHtml(id)}:reserve" data-status="" style="cursor:pointer">N/D</span>`;
             }
             const name = String(value).trim();
             if (col.resolveAvatar) {

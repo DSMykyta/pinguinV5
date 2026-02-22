@@ -347,7 +347,7 @@
                 const seoTitle = document.getElementById('seo-title');
                 if (seoTitle && seoTitle.value) {
                     navigator.clipboard.writeText(seoTitle.value);
-                    showToast('Скопійовано!');
+                    showToast('SEO Title скопійовано');
                 }
                 break;
 

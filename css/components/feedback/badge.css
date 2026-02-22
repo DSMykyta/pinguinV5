@@ -6,7 +6,7 @@
     min-width: 32px;
     gap: 4px;
     padding: 2px 8px;
-    background-color: var(--color-surface-c-low);
+    background-color: transparent;
     color: inherit;
     border-radius: 12px;
 }
