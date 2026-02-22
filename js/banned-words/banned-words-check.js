@@ -478,7 +478,7 @@ async function attachCheckRowEventHandlers(container, tabId) {
 
             } catch (error) {
                 console.error('❌ Помилка оновлення статусу:', error);
-                alert('Помилка при оновленні статусу: ' + error.message);
+                showToast('Помилка при оновленні статусу: ' + error.message, 'error');
             }
         });
     });

@@ -10,6 +10,7 @@
 
 import { priceState } from './price-init.js';
 import { loadSingleAsideTemplate } from '../aside/aside-main.js';
+import { showToast } from '../common/ui-toast.js';
 
 /**
  * Завантажити aside панель
@@ -42,7 +43,7 @@ function initImportFromAside() {
             await handleFileImport(file);
         } catch (error) {
             console.error('Помилка імпорту:', error);
-            alert('Помилка імпорту файлу');
+            showToast('Помилка імпорту файлу', 'error');
         }
 
         importInput.value = '';

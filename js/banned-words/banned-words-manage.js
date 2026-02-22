@@ -12,6 +12,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../common/ui-actions.js';
+import { showToast } from '../common/ui-toast.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -419,7 +420,7 @@ async function handleSaveBannedWord(isEdit, originalWordData = null) { // ДОД
 
     // Валідація
 if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
-        alert('Будь ласка, заповніть обов\'язкові поля: Назва Групи, Українське слово і Російське слово');
+        showToast('Будь ласка, заповніть обов\'язкові поля: Назва Групи, Українське слово і Російське слово', 'error');
         return;
     }
 

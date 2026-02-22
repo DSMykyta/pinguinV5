@@ -12,6 +12,7 @@
 import { priceState } from './price-init.js';
 import { updateItemStatus, updateItemArticle } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
+import { showToast } from '../common/ui-toast.js';
 
 let eventsInitialized = false;
 
@@ -99,7 +100,7 @@ async function handleArticleBlur(e) {
             articleInput.replaceWith(createArticleSpan(value));
         } catch (error) {
             console.error('Помилка збереження артикулу:', error);
-            alert('Помилка збереження артикулу');
+            showToast('Помилка збереження артикулу', 'error');
         }
     }
 }
@@ -142,7 +143,7 @@ async function handleStatusBadgeClick(badge) {
         renderPriceTableRowsOnly();
     } catch (error) {
         console.error('Помилка оновлення статусу:', error);
-        alert('Помилка оновлення статусу');
+        showToast('Помилка оновлення статусу', 'error');
     } finally {
         badge.classList.remove('is-loading');
     }
@@ -252,13 +253,13 @@ function initBatchActions() {
         if (selected.length === 0) return;
 
         if (!window.isAuthorized || !window.currentUser) {
-            alert('Потрібно авторизуватися для резервування');
+            showToast('Потрібно авторизуватися для резервування', 'error');
             return;
         }
 
         const userName = window.currentUser.display_name;
         if (!userName) {
-            alert('Не вдалося отримати ім\'я користувача');
+            showToast('Не вдалося отримати ім\'я користувача', 'error');
             return;
         }
 
@@ -268,7 +269,7 @@ function initBatchActions() {
         });
 
         if (alreadyReserved.length > 0) {
-            alert(`${alreadyReserved.length} товар(ів) вже зарезервовано іншими користувачами. Змінити резерв можна тільки через кнопку редагування.`);
+            showToast(`${alreadyReserved.length} товар(ів) вже зарезервовано іншими користувачами`, 'error');
             const toReserve = selected.filter(code => !alreadyReserved.includes(code));
             if (toReserve.length === 0) return;
             await batchReserve(toReserve, userName);
@@ -329,7 +330,7 @@ function initBatchActions() {
             renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Batch reserve error:', error);
-            alert('Помилка масового резервування');
+            showToast('Помилка масового резервування', 'error');
         }
     }
 
@@ -342,7 +343,7 @@ function initBatchActions() {
             renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Batch update error:', error);
-            alert('Помилка масового оновлення');
+            showToast('Помилка масового оновлення', 'error');
         }
     }
 }
