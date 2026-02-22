@@ -889,13 +889,13 @@
     }
 
     /* Grid items */
-    .mobile-aside__content .grid2 {
+    .mobile-aside__content .grid {
         display: flex !important;
         flex-wrap: wrap !important;
         gap: 0 !important;
     }
 
-    .mobile-aside__content .grid2 .panel-item {
+    .mobile-aside__content .grid .panel-item {
         flex: 0 0 auto !important;
     }
 

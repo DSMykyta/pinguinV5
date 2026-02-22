@@ -63,7 +63,10 @@
     display: none;
 }
 
-.panel-right.is-collapsed .grid2,
-.panel-right.is-collapsed .grid3 {
+.panel-right.is-collapsed .grid {
     grid-template-columns: 1fr;
+}
+
+.panel-right.is-collapsed .grid > * {
+    grid-column: span 1;
 }

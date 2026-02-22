@@ -3311,53 +3311,53 @@ function save() {
 &lt;div class="grid gap-24"&gt;...&lt;/div&gt;</div>
                 </div>
 
-                <!-- Equal-column shortcuts -->
+                <!-- Equal-column layouts via col-* -->
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Шорткати .grid2–.grid6</h3>
-                        <p>Equal-column сітки для простих розкладок (gap: 8px).</p>
+                        <h3>Рівні колонки через .col-*</h3>
+                        <p>Половина (.col-6), третина (.col-4), чверть (.col-3), шоста (.col-2).</p>
                         <div class="m3-tags">
                             <span class="m3-tag m3-tag-src">utilities/grid.css</span>
-                            <span class="m3-tag m3-tag-use">aside, панелі кнопок, картки</span>
+                            <span class="m3-tag m3-tag-use">aside, панелі кнопок, картки, форми</span>
                         </div>
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:16px">
-                        <div><span class="m3-label">.grid2</span>
-                            <div class="grid2">
-                                <div style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">1</div>
-                                <div style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                        <div><span class="m3-label">.col-6 (половина)</span>
+                            <div class="grid gap-8">
+                                <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">2</div>
                             </div>
                         </div>
-                        <div><span class="m3-label">.grid3</span>
-                            <div class="grid3">
-                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
-                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
-                                <div style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
+                        <div><span class="m3-label">.col-4 (третина)</span>
+                            <div class="grid gap-8">
+                                <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div class="col-4" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
                             </div>
                         </div>
-                        <div><span class="m3-label">.grid4</span>
-                            <div class="grid4">
-                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
-                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
-                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
-                                <div style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">4</div>
+                        <div><span class="m3-label">.col-3 (чверть)</span>
+                            <div class="grid gap-8">
+                                <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
+                                <div class="col-3" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">4</div>
                             </div>
                         </div>
-                        <div><span class="m3-label">.grid6</span>
-                            <div class="grid6">
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">1</div>
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">2</div>
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">3</div>
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">4</div>
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">5</div>
-                                <div style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">6</div>
+                        <div><span class="m3-label">.col-2 (шоста)</span>
+                            <div class="grid gap-8">
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">1</div>
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">2</div>
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">3</div>
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">4</div>
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">5</div>
+                                <div class="col-2" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">6</div>
                             </div>
                         </div>
                     </div>
-                    <div class="m3-code">&lt;div class="grid3"&gt;
-  &lt;div&gt;1&lt;/div&gt;
-  &lt;div&gt;2&lt;/div&gt;
-  &lt;div&gt;3&lt;/div&gt;
+                    <div class="m3-code">&lt;div class="grid gap-8"&gt;
+  &lt;div class="col-4"&gt;1&lt;/div&gt;
+  &lt;div class="col-4"&gt;2&lt;/div&gt;
+  &lt;div class="col-4"&gt;3&lt;/div&gt;
 &lt;/div&gt;</div>
                 </div>
 

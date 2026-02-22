@@ -294,7 +294,7 @@ function renderGreeting() {
 
 /**
  * Згенерувати HTML для stat-карток.
- * 2 картки: задачі + товари. Використовує grid2 та існуючі badge/chip класи.
+ * 2 картки: задачі + товари. Використовує grid та існуючі badge/chip класи.
  *
  * @returns {string} HTML
  */
@@ -304,8 +304,8 @@ function renderStats() {
     const brands = tasksState.brandsStats || {};
 
     return `
-        <div class="grid2" style="margin-top: 16px;">
-            <div class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
+        <div class="grid gap-8" style="margin-top: 16px;">
+            <div class="content-line panel col-6" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
                  data-cabinet-navigate="section-tasks">
                 <span class="material-symbols-outlined">task_alt</span>
                 <strong style="font-size: 24px;">${stats.active}</strong>
@@ -313,7 +313,7 @@ function renderStats() {
                 ${stats.urgent > 0 ? `<span class="chip c-red" style="font-size: 11px;">${stats.urgent} термінових</span>` : ''}
             </div>
 
-            <a href="price.html" class="content-line panel" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
+            <a href="price.html" class="content-line panel col-6" style="flex-direction: column; height: auto; gap: 4px; text-decoration: none; color: inherit;">
                 <span class="material-symbols-outlined">inventory_2</span>
                 <strong style="font-size: 24px;">${price.loaded ? price.totalReserved : '...'}</strong>
                 <span class="avatar-state-message" style="font-size: 12px; max-width: none;">зарезервовано</span>
