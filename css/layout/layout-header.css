@@ -1,0 +1,33 @@
+/**
+ * LAYOUT: Header
+ *
+ * Заголовок секції/табу. Спільний для всіх сторінок.
+ *
+ * HTML:
+ * <div class="section-header">
+ *     <div class="section-name-block">
+ *         <div class="section-name">
+ *             <h2 class="display-l section-upper">Назва</h2>
+ *         </div>
+ *     </div>
+ *     <div class="group">...</div>
+ * </div>
+ */
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.section-name {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+}
+
+/* h2 всередині section-name — line-height: 1 щоб збігатись з висотою кнопок (32px) */
+.section-name h2 {
+    line-height: 1;
+}

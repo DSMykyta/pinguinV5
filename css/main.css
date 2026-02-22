@@ -24,8 +24,8 @@
 @import url('layout/layout-base.css');
 @import url('layout/layout-nav.css');
 @import url('layout/layout-aside.css');
-@import url('layout/layout-section.css');
-@import url('layout/layout-tabbed.css');
+@import url('layout/layout-header.css');
+@import url('layout/layout-body.css');
 @import url('layout/layout-footer.css');
 
 /* === COMPONENTS - BUTTONS === */
@@ -93,7 +93,7 @@
 /* === COMPONENTS - CONTENT === */
 @import url('components/content/preview.css');
 @import url('components/content/tree.css');
-@import url('components/content/glossary-article.css');
+/* glossary-article.css — видалено, стилі в section-misc.css */
 @import url('components/content/section-misc.css');
 @import url('components/content/image-tool.css');
 @import url('components/content/content-card.css');

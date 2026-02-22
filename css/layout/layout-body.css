@@ -1,0 +1,74 @@
+/**
+ * LAYOUT: Body
+ *
+ * Тіло сторінки — секції (scroll-snap) і таби (show/hide).
+ *
+ * СЕКЦІЇ (index, glossary):
+ * <section> — 100dvh, scroll-snap між секціями
+ *
+ * ТАБИ (mapper, brands, banned-words, price, keywords):
+ * <main class="content-main tabbed-page">
+ *   <div class="tab-content active"> — flex:1, займає весь простір
+ */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTIONS — повноекранні блоки зі scroll-snap
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+section {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 12px;
+}
+
+.content-main section {
+    scroll-snap-align: start;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SECTION CONTENT — біла картка всередині секції
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.section-content {
+    margin: 16px 0;
+    padding: 24px 16px;
+    background-color: var(--color-surface-c-lowest);
+    border: 1px solid var(--color-outline);
+    border-radius: 12px;
+    overflow: scroll;
+}
+
+.section-content::-webkit-scrollbar {
+    display: none; 
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABS — перемикання контенту
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Navigator в табах — абсолютне позиціювання */
+.tabbed-page .nav.row {
+    position: absolute;
+    top: 8px;
+    margin-top: 0;
+    z-index: 300;
+}
+
+/* Неактивні таби приховані */
+.tabbed-page .tab-content {
+    display: none;
+}
+
+/* Активний таб займає весь доступний простір */
+.tabbed-page .tab-content.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
