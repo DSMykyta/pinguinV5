@@ -7,6 +7,12 @@
     background-color: currentColor;
 }
 
+/* c-* утиліти задають background-color контейнера —
+   для dot потрібен суцільний колір, не контейнерний */
+.dot[class*="c-"] {
+    background-color: currentColor;
+}
+
 .dot:hover {
     filter: brightness(0.85);
 }
