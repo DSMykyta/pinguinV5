@@ -1,0 +1,13 @@
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--color-surface-c-low);
+    color: inherit;
+    border: 1px solid var(--color-outline);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.tag:hover {
+    filter: brightness(0.85);
+}
