@@ -16,7 +16,7 @@
  * │  │  │ .content-line                                  │  │  │
  * │  │  │  ┌────────────────┐   ┌─────────────────────┐  │  │  │
  * │  │  │  │ .input-box     │ | │ .input-box          │  │  │  │
- * │  │  │  │  [input]       │ . │  [input] [input-tag]│  │  │  │
+ * │  │  │  │  [input]       │ . │  [input] [.tag]     │  │  │  │
  * │  │  │  │  .large        │ s │  .small             │  │  │  │
  * │  │  │  └────────────────┘ v └─────────────────────┘  │  │  │
  * │  │  └────────────────────────────────────────────────┘  │  │
@@ -250,41 +250,15 @@
 }
 
 
-/* ============================================ */
-/* INPUT TAG (індикатор всередині input-box)   */
-/* ============================================ */
-
-.input-tag {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-main);
-    background-color: var(--color-main-c);
-    padding: 4px 8px;
-    border-radius: 16px;
-    margin-right: 4px;
-    flex-shrink: 0;
-}
-
-.input-tag.visible {
-    display: flex;
-}
-
 /* В textarea — тег фіксовано у верхньому правому куті */
 .input-box:has(textarea) {
     position: relative;
 }
 
-.input-box:has(textarea) .input-tag {
+.input-box:has(textarea) .tag {
     position: absolute;
     top: 12px;
     right: 4px;
-}
-
-/* Незамінна амінокислота */
-.input-tag.essential-amino {
-    background-color: var(--color-warning-c);
-    color: var(--color-warning);
 }
 
 

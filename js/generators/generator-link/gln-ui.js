@@ -30,7 +30,7 @@ export function renderLinkButtons() {
 
     data.forEach(item => {
         const button = document.createElement("a");
-        button.className = "chip chip-link";
+        button.className = "chip";
         button.href = item.url;
         button.target = "_blank";
         button.rel = "noopener noreferrer";

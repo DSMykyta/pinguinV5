@@ -65,7 +65,7 @@ export function calculatePercentages() {
             const percentage = value > 0 ? `${Math.round((value / servingWeight) * 100)}%` : '';
             const toolSpan = row.querySelector(SELECTORS.INPUT_TAG);
             toolSpan.textContent = percentage;
-            toolSpan.classList.toggle('visible', !!percentage);
+            toolSpan.classList.toggle('u-hidden', !percentage);
         }
     });
 }
@@ -105,12 +105,14 @@ export function markEssentialAminoAcids() {
 
         if (isEssential) {
             toolSpan.textContent = 'EAA';
-            toolSpan.classList.add('visible', 'essential-amino');
+            toolSpan.classList.remove('u-hidden', 'c-main');
+            toolSpan.classList.add('c-yellow');
         } else {
-            toolSpan.classList.remove('essential-amino');
+            toolSpan.classList.remove('c-yellow');
+            toolSpan.classList.add('c-main');
             if (toolSpan.textContent === 'EAA') {
                 toolSpan.textContent = '';
-                toolSpan.classList.remove('visible');
+                toolSpan.classList.add('u-hidden');
             }
         }
     });

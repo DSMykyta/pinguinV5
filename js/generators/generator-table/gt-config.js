@@ -29,7 +29,7 @@ export const SELECTORS = {
     INPUTS_BLOC: '.content-bloc',
     INPUT_LEFT: '.input-box.large input, .input-box.large textarea',
     INPUT_RIGHT: '.input-box.small input, .input-box.small textarea',
-    INPUT_TAG: '.input-tag',
+    INPUT_TAG: '.tag',
 };
 
 // Конфігурація для бібліотеки Sortable.js

@@ -287,7 +287,7 @@ export async function openBannedWordModal(wordData = null) {
     // Функція оновлення бейджа "Перевірено"
     const updateCheckedBadge = (badge, isChecked) => {
         const icon = badge.querySelector('.material-symbols-outlined');
-        const label = badge.querySelector('.badge-label');
+        const label = badge.querySelector('span:not(.material-symbols-outlined)');
 
         badge.dataset.status = isChecked ? 'TRUE' : 'FALSE';
         badge.classList.remove('c-red', 'c-green');

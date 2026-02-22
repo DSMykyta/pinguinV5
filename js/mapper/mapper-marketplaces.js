@@ -747,7 +747,7 @@ function populateMpCharacteristics(allData, charMapping) {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
                     const tooltip = names.join('\n') || "Не прив'язано до категорій";
-                    const cls = count === 0 ? 'chip' : 'chip c-main filled';
+                    const cls = count === 0 ? 'chip' : 'chip c-main';
                     return `<span class="${cls} binding-chip" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
                 }
             },

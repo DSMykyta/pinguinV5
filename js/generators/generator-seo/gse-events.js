@@ -18,7 +18,7 @@ export function runCalculations() {
     const product = dom.productNameInput.value.trim();
     const packaging = dom.productPackagingInput.value.trim();
     const mainText = dom.ghlEditor?.textContent || '';
-    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip.filled'))
+    const activeTulips = Array.from(dom.triggerTitlesContainer.querySelectorAll('.chip.c-main'))
                               .map(t => t.dataset.title);
 
     dom.seoTitleInput.value = generateSeoTitle(brand, product, packaging);
@@ -76,7 +76,7 @@ export function initEventListeners() {
     });
 
     dom.trigerButtonsContainer.addEventListener('click', e => {
-        if (e.target.classList.contains('chip-clickable')) {
+        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('chip')) {
             optionalFunctions.addTulip?.(e.target.dataset.title, true);
             runCalculations();
         }
@@ -86,7 +86,6 @@ export function initEventListeners() {
         const target = e.target;
         if (target.dataset.title && target.classList.contains('chip')) {
             target.classList.toggle('c-main');
-            target.classList.toggle('filled');
             runCalculations();
         }
     });

@@ -433,15 +433,13 @@ function setBadgeAppearance(badge, isChecked) {
     badge.classList.add(isChecked ? 'c-green' : 'c-red');
 
     const icon = badge.querySelector('.material-symbols-outlined');
-    const label = badge.querySelector('.badge-label');
+    const label = badge.querySelector('span:not(.material-symbols-outlined)');
 
     if (icon) icon.textContent = isChecked ? 'check_circle' : 'cancel';
 
-    // Підтримка обох структур: з .badge-label або без
     if (label) {
         label.textContent = isChecked ? 'Так' : 'Ні';
     } else {
-        // Таблична структура - текст йде напряму після іконки
         const textNode = Array.from(badge.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
         if (textNode) {
             textNode.textContent = isChecked ? ' Так' : ' Ні';
