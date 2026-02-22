@@ -43,6 +43,12 @@
  * - root.css (CSS змінні)
  */
 
+/* --- Block (section) --- */
+
+.char-form-block + .char-form-block {
+    margin-top: 24px;
+}
+
 /* --- Container --- */
 
 .char-grid {
@@ -102,6 +108,39 @@
 
 .char-field-box select {
     cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Select arrow indicator */
+.char-field-box:has(select:not([multiple])):after {
+    content: 'expand_more';
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px;
+    color: var(--color-on-surface-v);
+    padding-right: 8px;
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* Multiple select — збільшити висоту */
+.char-field-box:has(select[multiple]) {
+    min-height: 80px;
+    align-items: stretch;
+}
+
+.char-field-box select[multiple] {
+    padding: 4px 8px;
+}
+
+.char-field-box select[multiple] option {
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.char-field-box select[multiple] option:checked {
+    background: var(--color-main-c);
+    color: var(--color-on-main-c);
 }
 
 /* Unit suffix */
@@ -113,6 +152,15 @@
     white-space: nowrap;
     user-select: none;
     pointer-events: none;
+}
+
+/* --- CheckBoxGroup --- */
+
+.char-grid .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 8px 0;
 }
 
 /* --- Mobile: все в одну колонку --- */
