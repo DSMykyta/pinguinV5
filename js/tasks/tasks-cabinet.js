@@ -304,7 +304,7 @@ function renderStats() {
     const brands = tasksState.brandsStats || {};
 
     return `
-        <div class="grid gap-8" style="margin-top: 16px;">
+        <div class="grid" style="margin-top: 16px;">
             <div class="content-line panel col-2" style="flex-direction: column; height: auto; gap: 4px; cursor: pointer;"
                  data-cabinet-navigate="section-tasks">
                 <span class="material-symbols-outlined">task_alt</span>

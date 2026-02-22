@@ -3175,7 +3175,7 @@ function save() {
                     <!-- 12-col demo -->
                     <div class="m3-sub">6 × .col-6 (шоста)</div>
                     <div class="m3-preview m3-preview-col" style="gap:4px">
-                        <div class="grid gap-4">
+                        <div class="grid">
                             <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1/6</div>
                             <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1/6</div>
                             <div class="col-6" style="background:var(--color-main-c);color:var(--color-main);padding:8px 0;border-radius:6px;text-align:center;font-size:11px;font-weight:500">1/6</div>
@@ -3188,22 +3188,22 @@ function save() {
                     <!-- Span combinations -->
                     <div class="m3-sub">Комбінації .col-*</div>
                     <div class="m3-preview m3-preview-col" style="gap:8px">
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-2" style="background:var(--color-main-c);color:var(--color-main);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-2</div>
                             <div class="col-2" style="background:var(--color-main-c);color:var(--color-main);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-2</div>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
                             <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
                             <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                             <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                             <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                             <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
                             <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
                             <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
@@ -3211,12 +3211,12 @@ function save() {
                             <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
                             <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-4" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                             <div class="col-2" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-2</div>
                             <div class="col-4" style="background:var(--color-success-c);color:var(--color-success);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-4</div>
                         </div>
-                        <div class="grid gap-8">
+                        <div class="grid">
                             <div class="col-6" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-6</div>
                             <div class="col-3" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-3</div>
                             <div class="col-2" style="background:var(--color-warning-c);color:var(--color-warning);padding:12px;border-radius:8px;text-align:center;font-weight:500">.col-2</div>
@@ -3260,24 +3260,9 @@ function save() {
                         <tr><td><code>.col-6</code></td><td>1/6 — шоста</td><td>16.7%</td></tr>
                     </table>
 
-                    <!-- Gap modifiers -->
-                    <div class="m3-sub">Gap модифікатори</div>
-                    <table class="m3-spec">
-                        <tr>
-                            <th>Клас</th>
-                            <th>Gap</th>
-                        </tr>
-                        <tr><td><code>.grid.gap-0</code></td><td>0</td></tr>
-                        <tr><td><code>.grid.gap-4</code></td><td>4px</td></tr>
-                        <tr><td><code>.grid.gap-8</code></td><td>8px</td></tr>
-                        <tr><td><code>.grid.gap-12</code></td><td>12px (default)</td></tr>
-                        <tr><td><code>.grid.gap-16</code></td><td>16px</td></tr>
-                        <tr><td><code>.grid.gap-24</code></td><td>24px</td></tr>
-                    </table>
-
                     <!-- Code -->
                     <div class="m3-code">&lt;!-- Половина + половина --&gt;
-&lt;div class="grid gap-8"&gt;
+&lt;div class="grid"&gt;
   &lt;div class="col-2"&gt;Контент (50%)&lt;/div&gt;
   &lt;div class="col-2"&gt;Сайдбар (50%)&lt;/div&gt;
 &lt;/div&gt;
@@ -3296,10 +3281,7 @@ function save() {
     &lt;label class="label-l"&gt;Ціна&lt;/label&gt;
     &lt;input class="input-main"&gt;
   &lt;/div&gt;
-&lt;/div&gt;
-
-&lt;!-- Gap модифікатор --&gt;
-&lt;div class="grid gap-24"&gt;...&lt;/div&gt;</div>
+&lt;/div&gt;</div>
                 </div>
 
                 <!-- Equal-column layouts via col-* -->
@@ -3314,20 +3296,20 @@ function save() {
                     </div>
                     <div class="m3-preview m3-preview-col" style="gap:16px">
                         <div><span class="m3-label">.col-2 (половина)</span>
-                            <div class="grid gap-8">
+                            <div class="grid">
                                 <div class="col-2" style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">1</div>
                                 <div class="col-2" style="background:var(--color-main-c);color:var(--color-main);padding:16px;border-radius:8px;text-align:center;font-weight:500">2</div>
                             </div>
                         </div>
                         <div><span class="m3-label">.col-3 (третина)</span>
-                            <div class="grid gap-8">
+                            <div class="grid">
                                 <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
                                 <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
                                 <div class="col-3" style="background:var(--color-secondary-c);color:var(--color-secondary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
                             </div>
                         </div>
                         <div><span class="m3-label">.col-4 (чверть)</span>
-                            <div class="grid gap-8">
+                            <div class="grid">
                                 <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">1</div>
                                 <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">2</div>
                                 <div class="col-4" style="background:var(--color-tertiary-c);color:var(--color-tertiary);padding:12px;border-radius:8px;text-align:center;font-weight:500">3</div>
@@ -3335,7 +3317,7 @@ function save() {
                             </div>
                         </div>
                         <div><span class="m3-label">.col-6 (шоста)</span>
-                            <div class="grid gap-8">
+                            <div class="grid">
                                 <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">1</div>
                                 <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">2</div>
                                 <div class="col-6" style="background:var(--color-info-c);color:var(--color-info);padding:10px;border-radius:8px;text-align:center;font-weight:500">3</div>
@@ -3345,7 +3327,7 @@ function save() {
                             </div>
                         </div>
                     </div>
-                    <div class="m3-code">&lt;div class="grid gap-8"&gt;
+                    <div class="m3-code">&lt;div class="grid"&gt;
   &lt;div class="col-3"&gt;1&lt;/div&gt;
   &lt;div class="col-3"&gt;2&lt;/div&gt;
   &lt;div class="col-3"&gt;3&lt;/div&gt;
