@@ -2,12 +2,11 @@
  * UTILITY: Colors
  *
  * Кольорові утиліти — додаєш клас, отримуєш колір.
- * Чотири властивості: color, fill, background-color, border-color.
+ * Три властивості: color, fill, background-color.
  *
  * color            — текст + font-іконки (Material Symbols)
  * fill             — SVG-іконки
  * background-color — контейнерний фон
- * border-color     — бордер (badge, tag, chip)
  *
  * ВИКОРИСТАННЯ:
  * <span class="dot c-green"></span>
@@ -23,21 +22,18 @@
     color: var(--color-main);
     fill: var(--color-main);
     background-color: var(--color-main-c);
-    border-color: var(--color-main);
 }
 
 .c-secondary {
     color: var(--color-secondary);
     fill: var(--color-secondary);
     background-color: var(--color-secondary-c);
-    border-color: var(--color-secondary);
 }
 
 .c-tertiary {
     color: var(--color-tertiary);
     fill: var(--color-tertiary);
     background-color: var(--color-tertiary-c);
-    border-color: var(--color-tertiary);
 }
 
 /* === NEUTRAL === */
@@ -46,7 +42,6 @@
     color: var(--color-outline);
     fill: var(--color-outline);
     background-color: var(--color-surface-c-low);
-    border-color: var(--color-outline);
 }
 
 /* === SEMANTIC === */
@@ -55,26 +50,22 @@
     color: var(--color-error);
     fill: var(--color-error);
     background-color: var(--color-error-c);
-    border-color: var(--color-error);
 }
 
 .c-green {
     color: var(--color-success);
     fill: var(--color-success);
     background-color: var(--color-success-c);
-    border-color: var(--color-success);
 }
 
 .c-yellow {
     color: var(--color-warning);
     fill: var(--color-warning);
     background-color: var(--color-warning-c);
-    border-color: var(--color-warning);
 }
 
 .c-blue {
     color: var(--color-info);
     fill: var(--color-info);
     background-color: var(--color-info-c);
-    border-color: var(--color-info);
 }
