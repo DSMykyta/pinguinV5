@@ -94,17 +94,7 @@
     align-content: start;
 }
 
-.form-grid-2 { grid-template-columns: repeat(2, 1fr); }
-.form-grid-3 { grid-template-columns: repeat(3, 1fr); }
-.form-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
-@media (max-width: 768px) {
-    .form-grid-2,
-    .form-grid-3,
-    .form-grid-4 {
-        grid-template-columns: 1fr;
-    }
-}
 
 /* --- Загальні елементи форм --- */
 

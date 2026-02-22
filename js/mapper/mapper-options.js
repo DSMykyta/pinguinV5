@@ -627,7 +627,7 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
                         ${actionButton({ action: 'unmap', rowId: item.id, data: { mappingId: item._mappingId } })}
                     </div>
                     <div class="mp-item-fields">
-                        <div class="form-grid form-grid-2">
+                        <div class="grid">
                             ${renderMpDataFields(data)}
                         </div>
                     </div>
@@ -668,7 +668,7 @@ function renderMpDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="group column">
+            <div class="group column col-2">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>

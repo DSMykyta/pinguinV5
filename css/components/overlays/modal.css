@@ -191,12 +191,4 @@ body.is-modal-open {
     border-color: var(--color-main);
 }
 
-/* ============================================
-   MODAL GRID (для форм з колонками)
-   ============================================ */
 
-.modal-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
