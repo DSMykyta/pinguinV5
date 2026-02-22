@@ -1,0 +1,76 @@
+/**
+ * LAYER: Colors
+ *
+ * Кольоровий шар — утилітарні класи, які встановлюють CSS-змінні.
+ * Компоненти (dot, badge, chip, counter, severity-badge) читають ці змінні.
+ *
+ * ЗМІННІ:
+ * --c       — основний колір (solid)
+ * --c-on    — текст на solid фоні
+ * --c-c     — контейнерний (світлий) фон
+ * --c-on-c  — текст на контейнерному фоні
+ *
+ * ВИКОРИСТАННЯ:
+ * <span class="dot c-green"></span>
+ * <span class="badge c-red">Ні</span>
+ * <span class="chip c-yellow">Warning</span>
+ * <span class="counter-badge c-main">5</span>
+ *
+ * КОЛЬОРИ:
+ * .c-red     — error / danger
+ * .c-green   — success
+ * .c-yellow  — warning
+ * .c-blue    — info
+ * .c-main    — primary / brand
+ * .c-secondary — secondary
+ * .c-muted   — neutral / grey
+ */
+
+.c-red {
+    --c: var(--color-error);
+    --c-on: var(--color-on-error);
+    --c-c: var(--color-error-c);
+    --c-on-c: var(--color-on-error-c);
+}
+
+.c-green {
+    --c: var(--color-success);
+    --c-on: var(--color-on-success);
+    --c-c: var(--color-success-c);
+    --c-on-c: var(--color-on-success-c);
+}
+
+.c-yellow {
+    --c: var(--color-warning);
+    --c-on: var(--color-on-warning);
+    --c-c: var(--color-warning-c);
+    --c-on-c: var(--color-on-warning-c);
+}
+
+.c-blue {
+    --c: var(--color-info);
+    --c-on: var(--color-on-info);
+    --c-c: var(--color-info-c);
+    --c-on-c: var(--color-on-info-c);
+}
+
+.c-main {
+    --c: var(--color-main);
+    --c-on: var(--color-on-main);
+    --c-c: var(--color-main-c);
+    --c-on-c: var(--color-on-main-c);
+}
+
+.c-secondary {
+    --c: var(--color-secondary);
+    --c-on: var(--color-on-secondary);
+    --c-c: var(--color-secondary-c);
+    --c-on-c: var(--color-on-secondary-c);
+}
+
+.c-muted {
+    --c: var(--color-outline);
+    --c-on: var(--color-on-surface);
+    --c-c: var(--color-surface-c-low);
+    --c-on-c: var(--color-on-surface-v);
+}

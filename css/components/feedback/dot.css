@@ -1,0 +1,36 @@
+/**
+ * COMPONENT: Dot
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Маленька кольорова крапка (10px) для індикації статусу.
+ * Чистий візуальний індикатор без тексту.
+ *
+ * ВИКОРИСТАННЯ:
+ * <span class="dot c-green" title="Активний"></span>
+ * <span class="dot c-red" title="Неактивний"></span>
+ * <span class="dot c-yellow" title="Чернетка"></span>
+ * <span class="dot c-blue" title="Інформація"></span>
+ * <span class="dot c-muted" title="Невідомо"></span>
+ * <span class="dot"></span>  <!-- default grey -->
+ *
+ * КОЛЬОРИ:
+ * Через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue, .c-muted)
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - layers/colors.css (--c)
+ * - root.css (fallback кольори)
+ *
+ * ЗАСТОСУВАННЯ:
+ * - table-column-types.js (status-dot тип колонки)
+ * - brand-edit.html (статус бренду)
+ * - mapper-category-edit.html (групування)
+ * - mapper-characteristic-edit.html (глобальна характеристика)
+ */
+
+.dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--c, var(--color-on-surface-v));
+}
