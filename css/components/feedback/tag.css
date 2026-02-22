@@ -5,7 +5,6 @@
     padding: 2px 8px;
     background: var(--color-surface-c-low);
     color: inherit;
-    border: 1px solid var(--color-outline);
     border-radius: 8px;
     flex-shrink: 0;
     white-space: nowrap;
