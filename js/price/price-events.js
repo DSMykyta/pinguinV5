@@ -123,13 +123,13 @@ async function handleStatusBadgeClick(badge) {
             const userName = getCurrentUserName();
             if (!userName) return;
 
-            badge.classList.add('is-loading');
+            badge.classList.add('loading');
             await reserveItem(code, userName);
             renderPriceTableRowsOnly();
         } catch (error) {
             console.error('Помилка резервування:', error);
         } finally {
-            badge.classList.remove('is-loading');
+            badge.classList.remove('loading');
         }
         return;
     }
@@ -138,14 +138,14 @@ async function handleStatusBadgeClick(badge) {
     const newValue = !currentValue ? 'TRUE' : 'FALSE';
 
     try {
-        badge.classList.add('is-loading');
+        badge.classList.add('loading');
         await updateItemStatus(code, field, newValue);
         renderPriceTableRowsOnly();
     } catch (error) {
         console.error('Помилка оновлення статусу:', error);
         showToast('Помилка оновлення статусу', 'error');
     } finally {
-        badge.classList.remove('is-loading');
+        badge.classList.remove('loading');
     }
 }
 

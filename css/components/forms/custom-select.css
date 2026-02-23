@@ -25,7 +25,7 @@
     border-color: var(--primary);
 }
 
-.custom-select-wrapper.is-open .custom-select-trigger {
+.custom-select-wrapper.open .custom-select-trigger {
     border-color: var(--primary);
     box-shadow: 0 0 0 1px var(--primary);
 }
@@ -53,7 +53,7 @@
     fill: var(--color-on-surface-v);
 }
 
-.custom-select-wrapper.is-open .custom-select-arrow {
+.custom-select-wrapper.open .custom-select-arrow {
     transform: rotate(180deg);
 }
 
@@ -76,14 +76,14 @@
     overflow: hidden;
 }
 
-.custom-select-wrapper.is-open .custom-select-panel,
-.custom-select-panel.is-open {
+.custom-select-wrapper.open .custom-select-panel,
+.custom-select-panel.open {
     opacity: 1;
     pointer-events: auto;
 }
 
 /* Відкриття вгору */
-.custom-select-wrapper.is-open-upward .custom-select-panel {
+.custom-select-wrapper.open-upward .custom-select-panel {
     border-radius: var(--radius-m, 8px);
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -133,25 +133,25 @@
 
 /* Hover - тільки коли НЕ в keyboard mode */
 /* PORTAL: Селектори через panel, бо при відкритті panel переміщується в body */
-.custom-select-panel:not(.is-keyboard-nav) .custom-select-option:hover {
+.custom-select-panel:not(.keyboard-nav) .custom-select-option:hover {
     background-color: var(--color-surface-c);
     font-style: italic;
     letter-spacing: 0.03em;
 }
 
 /* Keyboard focus - тільки коли в keyboard mode */
-.custom-select-panel.is-keyboard-nav .custom-select-option.is-focused {
+.custom-select-panel.keyboard-nav .custom-select-option.focused {
     background-color: var(--color-surface-c);
     font-style: italic;
     letter-spacing: 0.03em;
 }
 
-.custom-select-option.is-selected {
+.custom-select-option.selected {
     background-color: var(--color-main-c);
     color: var(--color-on-main-c);
 }
 
-.custom-select-option.is-hidden {
+.custom-select-option.hidden {
     display: none;
 }
 
@@ -183,13 +183,13 @@
 }
 
 /* Disabled state */
-.custom-select-wrapper.is-disabled .custom-select-trigger {
+.custom-select-wrapper.disabled .custom-select-trigger {
     opacity: 0.5;
     cursor: not-allowed;
     background-color: var(--color-surface-c);
 }
 
-.custom-select-wrapper.is-disabled .custom-select-trigger:hover {
+.custom-select-wrapper.disabled .custom-select-trigger:hover {
     border-color: var(--color-outline);
     box-shadow: none;
 }
@@ -226,7 +226,7 @@
     height: 16px;
 }
 
-.pseudo-table-row .custom-select-trigger.is-mapped {
+.pseudo-table-row .custom-select-trigger.mapped {
     color: var(--color-on-surface);
     border-color: var(--color-main);
     background: var(--color-main-c);

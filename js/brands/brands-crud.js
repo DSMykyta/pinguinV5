@@ -724,13 +724,13 @@ async function handleLogoFileUpload(file) {
         return;
     }
 
-    dropzone.classList.add('is-loading');
+    dropzone.classList.add('loading');
 
     try {
         const brandName = getCurrentBrandName();
         const result = await uploadBrandLogoFile(file, brandName);
 
-        dropzone.classList.remove('is-loading');
+        dropzone.classList.remove('loading');
         dropzone.classList.add('is-success');
         setTimeout(() => dropzone.classList.remove('is-success'), 2000);
 
@@ -738,7 +738,7 @@ async function handleLogoFileUpload(file) {
         showToast('Логотип завантажено', 'success');
     } catch (error) {
         console.error('❌ Помилка завантаження логотипу:', error);
-        dropzone.classList.remove('is-loading');
+        dropzone.classList.remove('loading');
         dropzone.classList.add('is-error');
         setTimeout(() => dropzone.classList.remove('is-error'), 2000);
         showToast('Помилка завантаження логотипу', 'error');
@@ -753,13 +753,13 @@ async function handleLogoUrlUpload(url) {
     const dropzone = document.getElementById('brand-logo-dropzone');
     if (!dropzone) return;
 
-    dropzone.classList.add('is-loading');
+    dropzone.classList.add('loading');
 
     try {
         const brandName = getCurrentBrandName();
         const result = await uploadBrandLogoUrl(url, brandName);
 
-        dropzone.classList.remove('is-loading');
+        dropzone.classList.remove('loading');
         dropzone.classList.add('is-success');
         setTimeout(() => dropzone.classList.remove('is-success'), 2000);
 
@@ -772,7 +772,7 @@ async function handleLogoUrlUpload(url) {
         showToast('Логотип завантажено з URL', 'success');
     } catch (error) {
         console.error('❌ Помилка завантаження з URL:', error);
-        dropzone.classList.remove('is-loading');
+        dropzone.classList.remove('loading');
         dropzone.classList.add('is-error');
         setTimeout(() => dropzone.classList.remove('is-error'), 2000);
         showToast('Помилка завантаження з URL', 'error');

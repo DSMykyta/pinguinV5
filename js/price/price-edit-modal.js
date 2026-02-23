@@ -34,8 +34,8 @@ export function openEditModal(item) {
     initDropdowns();
 
     // Показуємо модал
-    modal.classList.add('is-open');
-    document.body.classList.add('is-modal-open');
+    modal.classList.add('open');
+    document.body.classList.add('modal-open');
 }
 
 /**
@@ -44,8 +44,8 @@ export function openEditModal(item) {
 export function closeEditModal() {
     const modal = document.getElementById('price-edit-modal');
     if (modal) {
-        modal.classList.remove('is-open');
-        document.body.classList.remove('is-modal-open');
+        modal.classList.remove('open');
+        document.body.classList.remove('modal-open');
     }
     currentItem = null;
 }
@@ -111,8 +111,8 @@ function createModal() {
                                     <span class="material-symbols-outlined">person</span>
                                 </span>
                             </button>
-                            <div class="dropdown-menu" id="reserve-dropdown-menu" style="min-width: 160px;">
-                                <button class="dropdown-item" data-reserve-value="" title="Зняти резерв">
+                            <div class="dropdown-panel" id="reserve-dropdown-panel" style="min-width: 160px;">
+                                <button class="dropdown-option" data-reserve-value="" title="Зняти резерв">
                                     <span class="material-symbols-outlined">person_off</span>
                                     <span>Не зарезервовано</span>
                                 </button>
@@ -236,7 +236,7 @@ function createModal() {
             // Закриваємо dropdown
             const dropdown = modal.querySelector('#reserve-dropdown-trigger');
             if (dropdown) {
-                dropdown.closest('.dropdown-wrapper')?.querySelector('.dropdown-menu')?.classList.remove('is-open');
+                dropdown.closest('.dropdown-wrapper')?.querySelector('.dropdown-panel')?.classList.remove('open');
             }
         }
     });
@@ -260,7 +260,7 @@ function selectReserve(value) {
     }
 
     // Оновити активний стан в dropdown
-    document.querySelectorAll('#reserve-dropdown-menu [data-reserve-value]').forEach(item => {
+    document.querySelectorAll('#reserve-dropdown-panel [data-reserve-value]').forEach(item => {
         if (item.dataset.reserveValue === value) {
             item.classList.add('active');
         } else {
@@ -299,7 +299,7 @@ function fillModalData(item) {
     if (usersList) {
         usersList.innerHTML = priceState.reserveNames.map(name => {
             return `
-                <button class="dropdown-item" data-reserve-value="${name}" title="${name}">
+                <button class="dropdown-option" data-reserve-value="${name}" title="${name}">
                     ${getUserAvatar(name, 'sm')}
                     <span>${name}</span>
                 </button>

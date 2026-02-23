@@ -37,7 +37,7 @@
     background: var(--color-surface);
 }
 
-.modal-fullscreen.is-open {
+.modal-fullscreen.open {
     backdrop-filter: none;
 }
 

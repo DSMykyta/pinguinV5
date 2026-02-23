@@ -158,7 +158,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
         `).join('');
 
     return `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">${escapeHtml(title)}</h2>

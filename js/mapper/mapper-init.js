@@ -204,14 +204,14 @@ async function loadAsideMapper() {
     if (fabMenu) {
         fabMenu.addEventListener('click', async (e) => {
             if (e.target.closest('.fab-menu-trigger')) {
-                fabMenu.classList.toggle('is-open');
+                fabMenu.classList.toggle('open');
                 return;
             }
 
             const item = e.target.closest('.fab-menu-item');
             if (!item) return;
 
-            fabMenu.classList.remove('is-open');
+            fabMenu.classList.remove('open');
 
             if (item.id === 'btn-add-category-aside') {
                 const { showAddCategoryModal } = await import('./mapper-categories.js');
@@ -229,7 +229,7 @@ async function loadAsideMapper() {
         });
 
         document.addEventListener('click', (e) => {
-            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
+            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
         });
     }
 

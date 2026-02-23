@@ -582,7 +582,7 @@ function populateRelatedOptions(characteristicId) {
  */
 function showAddOptionToCharacteristicModal(characteristicId, onSuccess) {
     const modalHtml = `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-small">
                 <div class="modal-header">
                     <h2 class="modal-title">Додати опцію</h2>
@@ -869,7 +869,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
     }
 
     const modalHtml = `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної характеристики</h2>

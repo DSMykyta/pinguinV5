@@ -28,9 +28,9 @@ export function initMorphSearchCharm() {
         const btn = e.target.closest('.morph-search-btn');
         if (!btn) return;
         const morph = btn.closest('.morph-search');
-        if (!morph || morph.classList.contains('is-open')) return;
+        if (!morph || morph.classList.contains('open')) return;
 
-        morph.classList.add('is-open');
+        morph.classList.add('open');
         const input = morph.querySelector('input');
         if (input) setTimeout(() => input.focus(), 350);
     });
@@ -47,14 +47,14 @@ export function initMorphSearchCharm() {
     // Escape
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        const morph = document.querySelector('.morph-search.is-open');
+        const morph = document.querySelector('.morph-search.open');
         if (!morph) return;
         closeMorphSearch(morph);
     });
 }
 
 function closeMorphSearch(morph) {
-    morph.classList.remove('is-open');
+    morph.classList.remove('open');
     const input = morph.querySelector('input');
     if (input && input.value) {
         input.value = '';

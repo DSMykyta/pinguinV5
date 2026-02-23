@@ -728,7 +728,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
     }
 
     const modalHtml = `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-medium">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>

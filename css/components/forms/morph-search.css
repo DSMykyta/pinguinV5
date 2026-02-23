@@ -94,23 +94,23 @@
 
 /* ── Відкритий стан ── */
 
-.morph-search.is-open {
+.morph-search.open {
     width: 360px;
 }
 
-.morph-search.is-open .morph-search-btn {
+.morph-search.open .morph-search-btn {
     opacity: 0;
     pointer-events: none;
 }
 
-.morph-search.is-open .morph-search-field {
+.morph-search.open .morph-search-field {
     width: 360px;
     border-radius: 14px;
     box-shadow: var(--shadow-1);
     pointer-events: auto;
 }
 
-.morph-search.is-open .morph-search-field > * {
+.morph-search.open .morph-search-field > * {
     opacity: 1;
     transition-delay: 0.15s;
 }

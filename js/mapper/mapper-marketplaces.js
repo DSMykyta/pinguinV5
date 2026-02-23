@@ -665,7 +665,7 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
         if (!q) {
             allLi.forEach(li => {
                 li.style.display = '';
-                li.classList.remove('is-open');
+                li.classList.remove('open');
             });
             updateStats(allData.length, allData.length);
             return;
@@ -674,7 +674,7 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
         // Сховати все
         allLi.forEach(li => {
             li.style.display = 'none';
-            li.classList.remove('is-open');
+            li.classList.remove('open');
         });
 
         // Знайти співпадіння
@@ -699,7 +699,7 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
                 let parent = li.parentElement?.closest('li');
                 while (parent) {
                     parent.style.display = '';
-                    parent.classList.add('is-open');
+                    parent.classList.add('open');
                     parent = parent.parentElement?.closest('li');
                 }
             }
@@ -717,10 +717,10 @@ function populateMpCategories(allData, catMapping, slug, marketplaceId) {
     const expandBtn = document.getElementById('mp-tree-expand-all');
     const collapseBtn = document.getElementById('mp-tree-collapse-all');
     if (expandBtn) expandBtn.onclick = () => {
-        container.querySelectorAll('li.has-children').forEach(li => li.classList.add('is-open'));
+        container.querySelectorAll('li.has-children').forEach(li => li.classList.add('open'));
     };
     if (collapseBtn) collapseBtn.onclick = () => {
-        container.querySelectorAll('li.has-children').forEach(li => li.classList.remove('is-open'));
+        container.querySelectorAll('li.has-children').forEach(li => li.classList.remove('open'));
     };
 
     render();
@@ -756,7 +756,7 @@ function populateMpCharacteristics(allData, charMapping) {
             {
                 id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
                 render: (value, row) => {
-                    const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                    const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
                 }
             }
@@ -819,7 +819,7 @@ function populateMpOptions(allData, optMapping) {
             {
                 id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
                 render: (value, row) => {
-                    const cls = row._mappedId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+                    const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
                 }
             }
@@ -907,7 +907,7 @@ function initMappingTriggerDelegation(container, entityType) {
                                 await createCharacteristicMapping(undoOwnId, undoMpId);
                                 const restoredChar = ownChars.find(c => c.id === undoOwnId);
                                 trigger.dataset.currentValue = undoOwnId;
-                                trigger.classList.add('is-mapped');
+                                trigger.classList.add('mapped');
                                 const lbl = trigger.querySelector('.mp-tree-mapping-label');
                                 if (lbl) lbl.textContent = restoredChar ? (restoredChar.name_ua || restoredChar.id) : undoOwnId;
                             }
@@ -916,7 +916,7 @@ function initMappingTriggerDelegation(container, entityType) {
                 }
                 const newChar = newValue ? ownChars.find(c => c.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
-                trigger.classList.toggle('is-mapped', !!newValue);
+                trigger.classList.toggle('mapped', !!newValue);
                 const label = trigger.querySelector('.mp-tree-mapping-label');
                 if (label) label.textContent = newChar ? (newChar.name_ua || newChar.id) : '—';
             });
@@ -942,7 +942,7 @@ function initMappingTriggerDelegation(container, entityType) {
                                 await createOptionMapping(undoOwnId, undoMpId);
                                 const restoredOpt = ownOpts.find(o => o.id === undoOwnId);
                                 trigger.dataset.currentValue = undoOwnId;
-                                trigger.classList.add('is-mapped');
+                                trigger.classList.add('mapped');
                                 const lbl = trigger.querySelector('.mp-tree-mapping-label');
                                 if (lbl) lbl.textContent = restoredOpt ? (restoredOpt.value_ua || restoredOpt.id) : undoOwnId;
                             }
@@ -951,7 +951,7 @@ function initMappingTriggerDelegation(container, entityType) {
                 }
                 const newOpt = newValue ? ownOpts.find(o => o.id === newValue) : null;
                 trigger.dataset.currentValue = newValue || '';
-                trigger.classList.toggle('is-mapped', !!newValue);
+                trigger.classList.toggle('mapped', !!newValue);
                 const label = trigger.querySelector('.mp-tree-mapping-label');
                 if (label) label.textContent = newOpt ? (newOpt.value_ua || newOpt.id) : '—';
             }, (o) => o.value_ua || o.id);
@@ -1239,7 +1239,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             const mappedCatId = mapping?.category_id || '';
             const mappedCat = mappedCatId ? ownCategories.find(c => c.id === mappedCatId) : null;
             const mappedLabel = mappedCat ? (mappedCat.name_ua || mappedCat.id) : '';
-            const triggerClass = mappedCatId ? 'custom-select-trigger is-mapped' : 'custom-select-trigger';
+            const triggerClass = mappedCatId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
 
             const fileId = item.file_id || '';
             let downloadBtn = '';
@@ -1284,7 +1284,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const li = btn.closest('li');
-            if (li) li.classList.toggle('is-open');
+            if (li) li.classList.toggle('open');
         });
     });
 
@@ -1393,7 +1393,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
                             await createCategoryMapping(undoOwnId, undoMpId);
                             const restoredCat = ownCategories.find(c => c.id === undoOwnId);
                             trigger.dataset.currentCatId = undoOwnId;
-                            trigger.classList.add('is-mapped');
+                            trigger.classList.add('mapped');
                             const lbl = trigger.querySelector('.mp-tree-mapping-label');
                             if (lbl) lbl.textContent = restoredCat ? (restoredCat.name_ua || restoredCat.id) : undoOwnId;
                         }
@@ -1404,7 +1404,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             // Оновити trigger
             const newCat = newCatId ? ownCategories.find(c => c.id === newCatId) : null;
             trigger.dataset.currentCatId = newCatId || '';
-            trigger.classList.toggle('is-mapped', !!newCatId);
+            trigger.classList.toggle('mapped', !!newCatId);
             const label = trigger.querySelector('.mp-tree-mapping-label');
             if (label) label.textContent = newCat ? (newCat.name_ua || newCat.id) : '—';
         });
@@ -1429,10 +1429,10 @@ function showMappingPicker(triggerEl, items, currentValue, onSelect, labelFn) {
     const search = picker.querySelector('.custom-select-search');
 
     // Заповнити список
-    list.innerHTML = `<li class="custom-select-option${!currentValue ? ' is-selected' : ''}" data-value="">— Без прив'язки —</li>` +
+    list.innerHTML = `<li class="custom-select-option${!currentValue ? ' selected' : ''}" data-value="">— Без прив'язки —</li>` +
         items.map(c => {
             const name = labelFn(c);
-            const selected = c.id === currentValue ? ' is-selected' : '';
+            const selected = c.id === currentValue ? ' selected' : '';
             return `<li class="custom-select-option${selected}" data-value="${escapeHtml(c.id)}">${escapeHtml(name)}</li>`;
         }).join('');
 
@@ -1459,7 +1459,7 @@ function showMappingPicker(triggerEl, items, currentValue, onSelect, labelFn) {
     }
 
     picker.style.display = 'flex';
-    picker.classList.add('is-open');
+    picker.classList.add('open');
 
     // Автофокус на пошук
     if (search) {
@@ -1517,7 +1517,7 @@ function closeMappingPicker() {
     }
     if (_mappingPickerEl) {
         _mappingPickerEl.style.display = 'none';
-        _mappingPickerEl.classList.remove('is-open');
+        _mappingPickerEl.classList.remove('open');
     }
 }
 

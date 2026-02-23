@@ -36,7 +36,7 @@
 |-----|-------------|---------------|---------|
 | **CSS-чарм** | Клас в CSS-файлі компонента | Не потрібна | `.btn-icon.ghost`, `.nav.row` |
 | **JS-чарм** | HTML-атрибут | `initXxxCharm()` в `main-core.js` | `[refresh]`, `[pagination]`, `[columns]` |
-| **Гібридний** | Клас + JS логіка | JS додає/знімає CSS-класи | `.morph-search` + `.is-open` |
+| **Гібридний** | Клас + JS логіка | JS додає/знімає CSS-класи | `.morph-search` + `.open` |
 
 ---
 
@@ -208,7 +208,7 @@ export async function initCore() {
 | Клас | Ефект |
 |------|-------|
 | `.active` | Активний стан (кнопки, таби, пагінація) |
-| `.is-open` | Відкритий стан (дропдауни, morph-search) |
+| `.open` | Відкритий стан (дропдауни, morph-search) |
 | `.u-hidden` | Сховати елемент (display: none !important) |
 | `.spinning` | Обертання іконки 360 (анімація завантаження) |
 

@@ -8,7 +8,7 @@
  * ВИКОРИСТАННЯ:
  * <div class="tree">
  *   <ul class="tree-level-0">
- *     <li class="is-open">
+ *     <li class="open">
  *       <div class="tree-item-content">
  *         <button class="toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>
  *         <a href="#article-1" class="tree-item-link">Категорія</a>
@@ -33,7 +33,7 @@
  * - .tree-item-link        — посилання (для glossary)
  * - .tree-item-name        — текстовий label (для mapper)
  * - .leaf-placeholder      — заповнювач для листків без дітей
- * - .is-open               — відкритий стан елемента з дітьми
+ * - .open               — відкритий стан елемента з дітьми
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (CSS змінні)
@@ -64,7 +64,7 @@
     transition: max-height 0.15s ease-in, opacity 0.1s ease-in;
 }
 
-.tree li.is-open > ul {
+.tree li.open > ul {
     max-height: 1000px;
     opacity: 1;
     transition: max-height 0.4s ease-out, opacity 0.2s ease-out;
@@ -114,7 +114,7 @@
     transition: transform 0.2s ease-in-out;
 }
 
-.tree li:not(.is-open) > .tree-item-content .toggle-btn .material-symbols-outlined {
+.tree li:not(.open) > .tree-item-content .toggle-btn .material-symbols-outlined {
     transform: rotate(-90deg);
 }
 
@@ -180,7 +180,7 @@
     height: 16px;
 }
 
-.tree-item-content .custom-select-trigger.is-mapped {
+.tree-item-content .custom-select-trigger.mapped {
     color: var(--color-on-surface);
     border-color: var(--color-main);
     background: var(--color-main-c);

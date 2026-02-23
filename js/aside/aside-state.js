@@ -13,8 +13,8 @@
  * Синхронізує:
  * - Клас стану на .aside (.expanded / .collapsed / .closed)
  * - Клас на body (body.aside-expanded / .aside-collapsed / .aside-closed)
- * - .is-open на trigger (rotate шарм)
- * - .is-open на expand (flip шарм)
+ * - .open на trigger (rotate шарм)
+ * - .open на expand (flip шарм)
  *
  * CSS: css/layout/layout-aside.css
  */
@@ -34,10 +34,10 @@ function applyState(state) {
     _aside.classList.add(state);
     document.body.classList.add('aside-' + state);
 
-    _trigger.classList.toggle('is-open', state !== 'closed');
+    _trigger.classList.toggle('open', state !== 'closed');
 
     if (_expandBtn) {
-        _expandBtn.classList.toggle('is-open', state === 'collapsed');
+        _expandBtn.classList.toggle('open', state === 'collapsed');
     }
 }
 

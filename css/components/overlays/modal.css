@@ -29,7 +29,7 @@
    BODY STATE
    ============================================ */
 
-body.is-modal-open {
+body.modal-open {
     overflow: hidden;
 }
 
@@ -57,7 +57,7 @@ body.is-modal-open {
     transition: opacity 0.2s ease, visibility 0s 0.2s linear, backdrop-filter 0.2s ease;
 }
 
-.modal-overlay.is-open {
+.modal-overlay.open {
     opacity: 1;
     visibility: visible;
     transition-delay: 0s;
@@ -82,7 +82,7 @@ body.is-modal-open {
     overflow: visible;
 }
 
-.modal-overlay.is-open .modal-container {
+.modal-overlay.open .modal-container {
     transform: scale(1);
 }
 

@@ -158,7 +158,7 @@ function renderFindReplaceDropdown(id) {
                         <button type="button" class="btn-icon" data-dropdown-trigger title="Знайти та замінити" aria-label="Знайти та замінити">
                             <span class="material-symbols-outlined">find_replace</span>
                         </button>
-                        <div class="dropdown-menu" style="min-width: 300px; padding: 12px;">
+                        <div class="dropdown-panel" style="min-width: 300px; padding: 12px;">
                             <div class="group column">
                                 <input type="text" id="${id}-find-input" class="input-main" placeholder="Що знайти...">
                             </div>

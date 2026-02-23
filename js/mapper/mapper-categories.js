@@ -387,7 +387,7 @@ async function showAddCharacteristicToCategoryModal(categoryId, onSuccess) {
 
     // Створюємо модалку
     const modalHtml = `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-small">
                 <div class="modal-header">
                     <h2 class="modal-title">Додати характеристику</h2>
@@ -616,7 +616,7 @@ export async function showSelectOwnCategoryModal(selectedMpCatIds) {
     const optionsHtml = renderTreeOptions(categoryTree);
 
     const modalHtml = `
-        <div class="modal-overlay is-open">
+        <div class="modal-overlay open">
             <div class="modal-container modal-small">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до категорії</h2>

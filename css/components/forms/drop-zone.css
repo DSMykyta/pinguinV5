@@ -81,12 +81,12 @@
 
 
 /* Loading state */
-.drop-zone.is-loading {
+.drop-zone.loading {
     pointer-events: none;
     opacity: 0.7;
 }
 
-.drop-zone.is-loading .drop-zone-icon {
+.drop-zone.loading .drop-zone-icon {
     animation: spin 1s linear infinite;
 }
 
@@ -96,22 +96,22 @@
 }
 
 /* Success state */
-.drop-zone.is-success {
+.drop-zone.success {
     border-color: var(--color-success);
     background-color: var(--color-success-c);
 }
 
-.drop-zone.is-success .drop-zone-icon {
+.drop-zone.success .drop-zone-icon {
     color: var(--color-success);
 }
 
 /* Error state */
-.drop-zone.is-error {
+.drop-zone.error {
     border-color: var(--color-error);
     background-color: var(--color-error-c);
 }
 
-.drop-zone.is-error .drop-zone-icon {
+.drop-zone.error .drop-zone-icon {
     color: var(--color-error);
 }
 

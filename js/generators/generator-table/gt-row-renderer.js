@@ -69,7 +69,7 @@ function syncDropdownState(row, dropdown) {
 }
 
 function attachRowEvents(row) {
-    const dropdown = row.querySelector('.dropdown-menu');
+    const dropdown = row.querySelector('.dropdown-panel');
     const triggerBtn = row.querySelector('[data-dropdown-trigger]');
     const closeBtn = row.querySelector('[data-action="delete-row"]');
 

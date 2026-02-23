@@ -13,7 +13,7 @@
  * 1. Кнопка-тригер має атрибут `data-modal-trigger="modal-id"`
  * 2. Скрипт завантажує повний HTML з `/templates/modals/modal-id.html`
  * 3. HTML вставляється в DOM як окремий елемент
- * 4. Модал показується (додається клас is-open)
+ * 4. Модал показується (додається клас open)
  * 5. Підтримка стеку модалів - можна відкрити модал поверх модалу
  *
  * ЕКСПОРТОВАНІ ФУНКЦІЇ:
@@ -53,8 +53,8 @@ export async function showModal(modalId, triggerElement = null) {
 
         if (existingModal) {
             // Модал вже в DOM, просто показуємо
-            existingModal.classList.add('is-open');
-            document.body.classList.add('is-modal-open');
+            existingModal.classList.add('open');
+            document.body.classList.add('modal-open');
 
             // Додаємо до стеку якщо його там немає
             if (!openModalsStack.includes(modalId)) {
@@ -96,11 +96,11 @@ export async function showModal(modalId, triggerElement = null) {
         });
 
         // Показуємо модал
-        document.body.classList.add('is-modal-open');
+        document.body.classList.add('modal-open');
 
         // Невелика затримка для анімації (щоб CSS transition спрацював)
         requestAnimationFrame(() => {
-            modalElement.classList.add('is-open');
+            modalElement.classList.add('open');
         });
 
         // Додаємо в стек
@@ -146,7 +146,7 @@ export function closeModal(modalId = null) {
     if (!modalElement) return;
 
     // Ховаємо модал
-    modalElement.classList.remove('is-open');
+    modalElement.classList.remove('open');
 
     // Видаляємо зі стеку
     const index = openModalsStack.indexOf(modalId);
@@ -156,7 +156,7 @@ export function closeModal(modalId = null) {
 
     // Якщо це останній модал - прибираємо блокування body
     if (openModalsStack.length === 0) {
-        document.body.classList.remove('is-modal-open');
+        document.body.classList.remove('modal-open');
     }
 
     // Диспатч події закриття
@@ -165,7 +165,7 @@ export function closeModal(modalId = null) {
     // Опціонально: видалити з DOM через затримку (для анімації)
     // Якщо не потрібно - закоментуйте цей блок
     setTimeout(() => {
-        if (modalElement && !modalElement.classList.contains('is-open')) {
+        if (modalElement && !modalElement.classList.contains('open')) {
             modalElement.remove();
         }
     }, 300); // 300ms = час анімації

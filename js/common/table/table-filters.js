@@ -12,17 +12,17 @@
  * ║                                                                          ║
  * ║  HTML СТРУКТУРА DROPDOWN (must match ui-table-controls.js exactly):      ║
  * ║  <div class="dropdown-wrapper filter-dropdown filter-dropdown-hover">    ║
- * ║    <div class="dropdown-menu" data-column="..." style="position:fixed">  ║
+ * ║    <div class="dropdown-panel" data-column="..." style="position:fixed">  ║
  * ║      <div class="dropdown-header">Label</div>                           ║
  * ║      <div class="dropdown-search">                                       ║
  * ║        <input placeholder="Пошук..." data-filter-search>                ║
  * ║      </div>                                                              ║
  * ║      <div class="dropdown-body">                                         ║
- * ║        <label class="dropdown-item filter-select-all">                   ║
+ * ║        <label class="dropdown-option filter-select-all">                   ║
  * ║          <input type="checkbox" data-filter-all> <span>Всі</span>       ║
  * ║        </label>                                                          ║
  * ║        <div class="dropdown-separator"></div>                            ║
- * ║        <label class="dropdown-item" data-filter-label="...">            ║
+ * ║        <label class="dropdown-option" data-filter-label="...">            ║
  * ║          <input type="checkbox" data-filter-value="...">                ║
  * ║          <span>label</span>                                              ║
  * ║          <span class="filter-count">N</span>                            ║
@@ -33,8 +33,8 @@
  * ║                                                                          ║
  * ║  СЕЛЕКТОРИ:                                                              ║
  * ║  - .sortable-header.filterable — елементи з hover dropdown               ║
- * ║  - position: fixed на .dropdown-menu (НЕ на wrapper!)                    ║
- * ║  - .is-open клас для плавної появи                                       ║
+ * ║  - position: fixed на .dropdown-panel (НЕ на wrapper!)                    ║
+ * ║  - .open клас для плавної появи                                       ║
  * ║                                                                          ║
  * ║  ТИПИ ФІЛЬТРІВ: values, exists, contains                                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
@@ -246,9 +246,9 @@ export class FiltersPlugin {
         const wrapper = document.createElement('div');
         wrapper.className = 'dropdown-wrapper filter-dropdown filter-dropdown-hover';
 
-        // === Menu (child): dropdown-menu з position: fixed ===
+        // === Menu (child): dropdown-panel з position: fixed ===
         const dropdown = document.createElement('div');
-        dropdown.className = 'dropdown-menu';
+        dropdown.className = 'dropdown-panel';
         dropdown.dataset.column = columnId;
 
         const hasSearch = uniqueValues.length > 10;
@@ -261,13 +261,13 @@ export class FiltersPlugin {
                 </div>
             ` : ''}
             <div class="dropdown-body">
-                <label class="dropdown-item filter-select-all">
+                <label class="dropdown-option filter-select-all">
                     <input type="checkbox" data-filter-all ${allSelected ? 'checked' : ''}>
                     <span>Всі</span>
                 </label>
                 <div class="dropdown-separator"></div>
                 ${uniqueValues.map(({ value, label, count }) => `
-                    <label class="dropdown-item" data-filter-label="${label.toLowerCase()}">
+                    <label class="dropdown-option" data-filter-label="${label.toLowerCase()}">
                         <input type="checkbox" data-filter-value="${value}" ${currentFilter.has(value) ? 'checked' : ''}>
                         <span>${label}</span>
                         <span class="filter-count">${count}</span>
@@ -325,7 +325,7 @@ export class FiltersPlugin {
             const searchInput = dropdown.querySelector('[data-filter-search]');
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase().trim();
-                const items = dropdown.querySelectorAll('.dropdown-body .dropdown-item:not(.filter-select-all)');
+                const items = dropdown.querySelectorAll('.dropdown-body .dropdown-option:not(.filter-select-all)');
                 items.forEach(item => {
                     const label = item.dataset.filterLabel || '';
                     item.style.display = label.includes(query) ? '' : 'none';
@@ -357,11 +357,11 @@ export class FiltersPlugin {
 
     // ==================== POSITION DROPDOWN ====================
     // Ідентично до ui-table-controls.js positionDropdown()
-    // position: fixed на .dropdown-menu (НЕ на wrapper!)
+    // position: fixed на .dropdown-panel (НЕ на wrapper!)
 
     positionDropdown(wrapper, header) {
         const headerRect = header.getBoundingClientRect();
-        const dropdown = wrapper.querySelector('.dropdown-menu');
+        const dropdown = wrapper.querySelector('.dropdown-panel');
 
         dropdown.style.position = 'fixed';
         dropdown.style.top = `${headerRect.bottom + 4}px`;
@@ -408,7 +408,7 @@ export class FiltersPlugin {
         // Плавна поява
         requestAnimationFrame(() => {
             if (wrapper.parentNode) {
-                wrapper.classList.add('is-open');
+                wrapper.classList.add('open');
             }
         });
 
@@ -451,7 +451,7 @@ export class FiltersPlugin {
                 this.hoverState.activeDropdown.remove();
             } else {
                 // Плавне зникнення
-                this.hoverState.activeDropdown.classList.remove('is-open');
+                this.hoverState.activeDropdown.classList.remove('open');
                 const dropdown = this.hoverState.activeDropdown;
                 setTimeout(() => {
                     if (dropdown.parentNode) {

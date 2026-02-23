@@ -54,7 +54,7 @@ export function initModals() {
 
     // Слухач для закриття модалу клавішею ESC
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && document.body.classList.contains('is-modal-open')) {
+        if (e.key === 'Escape' && document.body.classList.contains('modal-open')) {
             closeModal();
         }
     });

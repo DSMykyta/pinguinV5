@@ -21,7 +21,7 @@ function buildTreeHtml(parentId, level = 0) {
         const isInitiallyOpen = level < 1; // Розгортаємо перші рівні за замовчуванням
 
         html += `
-            <li data-id="${item.id}" class="${hasChildren ? 'has-children' : ''} ${isInitiallyOpen ? 'is-open' : ''}">
+            <li data-id="${item.id}" class="${hasChildren ? 'has-children' : ''} ${isInitiallyOpen ? 'open' : ''}">
                 <div class="tree-item-content">
                     ${hasChildren ? '<button class="btn-icon ghost toggle-btn"><span class="material-symbols-outlined">arrow_drop_down</span></button>' : '<span class="leaf-placeholder"></span>'}
                     <a href="#${item.id}" class="tree-item-link">${item.name}</a>
@@ -59,7 +59,7 @@ export function initTreeToggles() {
         if (toggleButton) {
             const parentLi = toggleButton.closest('li');
             if (parentLi) {
-                parentLi.classList.toggle('is-open');
+                parentLi.classList.toggle('open');
             }
         }
     });

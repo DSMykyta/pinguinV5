@@ -1,49 +1,55 @@
-/* /css/component/component-dropdown.css */
+/* css/components/overlays/dropdown.css */
+/* Уніфікована dropdown система з portal-позиціонуванням */
 
-/* Батьківський контейнер, потрібен для позиціонування меню */
+/* ============================================ */
+/* WRAPPER                                      */
+/* ============================================ */
+
 .dropdown-wrapper {
     position: relative;
-    display: inline-flex; /* Дозволяє обгортці мати розмір вмісту */
+    display: inline-flex;
     align-items: center;
-    overflow: visible; /* Дозволяє меню виходити за межі */
+    overflow: visible;
 }
 
-/* Загальне випадаюче меню (початковий стан прихований) */
-.dropdown-menu {
-    display: none; /* Приховане за замовчуванням */
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    
+/* ============================================ */
+/* PANEL (спадне меню)                          */
+/* ============================================ */
+
+.dropdown-panel {
+    display: none;
     min-width: 200px;
     background-color: var(--color-surface-c-low);
-    border-radius: var(--radius-s); /* 8px */
+    border-radius: var(--radius-s);
     box-shadow: var(--shadow-2);
     padding: 4px;
     border: 1px solid var(--color-outline);
     z-index: 10000;
 
-    /* Анімація: початковий стан для плавності */
     opacity: 0;
     transform: translateY(-10px);
     transition: opacity 0.15s ease-out, transform 0.15s ease-out;
 }
 
-/* Стан, коли меню відкрите (загальний) */
-.dropdown-wrapper.is-open .dropdown-menu {
+/* Відкритий стан — на wrapper (для CSS-only fallback) і на panel (portal в body) */
+.dropdown-wrapper.open .dropdown-panel,
+.dropdown-panel.open {
     display: block;
     opacity: 1;
     transform: translateY(0);
 }
 
-
-.content-line.panel.dropdown-wrapper.is-open .dropdown-menu {
-    display: block; /* Забезпечення видимості в боксі */
+/* Відкриття вгору */
+.dropdown-wrapper.open-upward .dropdown-panel,
+.dropdown-panel.open-upward {
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Елемент всередині меню (загальний) */
-.dropdown-item {
+/* ============================================ */
+/* OPTION (елемент меню)                        */
+/* ============================================ */
+
+.dropdown-option {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -62,35 +68,46 @@
     transition: background-color 0.15s ease-out;
 }
 
-.dropdown-item:hover {
+.dropdown-option:hover {
     background-color: var(--color-main-c);
     color: var(--color-main);
 }
 
-.dropdown-item:active {
+.dropdown-option:active {
     background-color: var(--color-main-c-high);
 }
 
-/* Розділювач у меню (якщо використовується) */
-.dropdown-menu .panel-separator {
+.dropdown-option.active {
+    background-color: var(--color-main-c);
+    color: var(--color-main);
+}
+
+/* ============================================ */
+/* РОЗДІЛЮВАЧ                                   */
+/* ============================================ */
+
+.dropdown-panel .panel-separator {
     height: 1px;
     background-color: var(--color-outline);
     margin: 4px 0;
 }
 
-.dropdown-item.active{
-    background-color: var(--color-main-c);
-    color: var(--color-main);
+.dropdown-separator {
+    height: 1px;
+    background-color: var(--color-outline-v);
+    margin: 4px 8px;
 }
 
-/* Заголовок dropdown меню */
+/* ============================================ */
+/* HEADER / BODY / SEARCH                       */
+/* ============================================ */
+
 .dropdown-header {
     padding: 8px 12px;
     color: var(--color-on-surface-variant);
     text-transform: uppercase;
 }
 
-/* Тіло dropdown меню */
 .dropdown-body {
     display: flex;
     flex-direction: column;
@@ -99,17 +116,14 @@
     overflow-y: auto;
 }
 
-/* Варіант dropdown меню справа */
-.dropdown-menu-right {
-    right: 0;
-    left: auto;
+.dropdown-search {
+    padding: 4px 8px 0;
 }
 
 /* ============================================ */
 /* TABLE COLUMN FILTERS                         */
 /* ============================================ */
 
-/* Dropdown фільтра в заголовку таблиці */
 .filter-dropdown {
     margin-left: auto;
     flex-shrink: 0;
@@ -135,41 +149,36 @@
     opacity: 1;
 }
 
-/* Dropdown menu для фільтра - поверх всього */
-.filter-dropdown .dropdown-menu {
+.filter-dropdown .dropdown-panel {
     z-index: 10001;
     min-width: 280px;
     max-width: 400px;
 }
 
-/* Дозволити довгий текст в опціях фільтра */
-.filter-dropdown .dropdown-item {
+.filter-dropdown .dropdown-option {
     white-space: normal;
     overflow: visible;
     text-overflow: unset;
 }
 
-/* Індикатор активного фільтра */
-.filter-dropdown .btn-filter.is-filtered {
+.filter-dropdown .btn-filter.filtered {
     opacity: 1;
     color: var(--color-main);
 }
 
-.filter-dropdown .btn-filter.is-filtered .material-symbols-outlined {
+.filter-dropdown .btn-filter.filtered .material-symbols-outlined {
     font-variation-settings: 'FILL' 1;
 }
 
 /* ============================================ */
-/* HOVER FILTER DROPDOWN (появляється при наведенні) */
+/* HOVER FILTER DROPDOWN                        */
 /* ============================================ */
 
-/* Wrapper для hover dropdown */
 .filter-dropdown-hover {
     pointer-events: none;
 }
 
-/* Dropdown menu - позиціонування задається через JS */
-.filter-dropdown-hover .dropdown-menu {
+.filter-dropdown-hover .dropdown-panel {
     display: block;
     opacity: 0;
     transform: translateY(-8px);
@@ -178,44 +187,23 @@
     z-index: 10001;
 }
 
-/* Відкритий стан */
-.filter-dropdown-hover.is-open .dropdown-menu {
+.filter-dropdown-hover.open .dropdown-panel {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-/* Виділення активного header при hover */
 .sortable-header.filterable.filter-hover-active {
     background-color: var(--color-surface-c-high);
 }
 
-/* Курсор для filterable колонок */
 .sortable-header.filterable {
     cursor: pointer;
 }
 
-/* Розділювач в фільтрі */
-.dropdown-separator {
-    height: 1px;
-    background-color: var(--color-outline-v);
-    margin: 4px 8px;
-}
-
-/* Опція "Всі" */
 .filter-select-all {
 }
 
-/* ============================================ */
-/* DROPDOWN SEARCH INPUT                        */
-/* ============================================ */
-
-/* Контейнер пошуку в dropdown */
-.dropdown-search {
-    padding: 4px 8px 0;
-}
-
-/* Лічильник елементів */
 .filter-count {
     margin-left: auto;
     color: var(--color-on-surface-v);
@@ -225,5 +213,3 @@
     min-width: 20px;
     text-align: center;
 }
-
-

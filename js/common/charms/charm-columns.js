@@ -53,7 +53,7 @@ function setupColumnsDropdown(container) {
     trigger.innerHTML = '<span class="material-symbols-outlined">view_column</span>';
 
     const menu = document.createElement('div');
-    menu.className = 'dropdown-menu dropdown-menu-right';
+    menu.className = 'dropdown-panel';
 
     const header = document.createElement('div');
     header.className = 'dropdown-header';

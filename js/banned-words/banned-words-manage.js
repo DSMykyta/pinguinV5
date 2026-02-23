@@ -269,7 +269,7 @@ export async function openBannedWordModal(wordData = null) {
     // ДОДАНО: Знаходимо елементи керування рівнем небезпеки
     const severityHiddenInput = document.getElementById('banned-word-severity');
     const severityTriggerIcon = document.getElementById('severity-trigger-icon');
-    const severityOptions = document.querySelectorAll('.dropdown-menu [data-severity-value]');
+    const severityOptions = document.querySelectorAll('.dropdown-panel [data-severity-value]');
 
     // Карта для іконок/тексту рівнів
     const severityMap = {
@@ -305,7 +305,7 @@ export async function openBannedWordModal(wordData = null) {
             updateSeverityTrigger(newSeverity);
             // Закриваємо dropdown (якщо він не закривається автоматично)
             const wrapper = button.closest('.dropdown-wrapper');
-            if (wrapper) wrapper.classList.remove('is-open');
+            if (wrapper) wrapper.classList.remove('open');
         });
     });
 

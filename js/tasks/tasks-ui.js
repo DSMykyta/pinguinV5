@@ -45,13 +45,13 @@ export function showStatusDropdown(triggerBtn, taskId) {
 
     // Створити dropdown
     const dropdown = document.createElement('div');
-    dropdown.className = 'dropdown-menu dropdown-menu-status is-open';
+    dropdown.className = 'dropdown-panel dropdown-panel-status open';
     dropdown.dataset.taskId = taskId;
 
     dropdown.innerHTML = `
         <div class="dropdown-body">
             ${STATUS_OPTIONS.map(opt => `
-                <button class="dropdown-item ${task.status === opt.value ? 'active' : ''}"
+                <button class="dropdown-option ${task.status === opt.value ? 'active' : ''}"
                         data-status="${opt.value}">
                     <span class="material-symbols-outlined">${opt.icon}</span>
                     <span>${opt.label}</span>
@@ -104,7 +104,7 @@ export function showStatusDropdown(triggerBtn, taskId) {
  * Закрити всі dropdown статусів
  */
 function closeAllStatusDropdowns() {
-    document.querySelectorAll('.dropdown-menu-status').forEach(el => el.remove());
+    document.querySelectorAll('.dropdown-panel-status').forEach(el => el.remove());
     document.removeEventListener('click', handleOutsideClick);
 }
 
@@ -112,7 +112,7 @@ function closeAllStatusDropdowns() {
  * Обробник кліку поза dropdown
  */
 function handleOutsideClick(e) {
-    if (!e.target.closest('.dropdown-menu-status') && !e.target.closest('[data-action="status"]')) {
+    if (!e.target.closest('.dropdown-panel-status') && !e.target.closest('[data-action="status"]')) {
         closeAllStatusDropdowns();
     }
 }

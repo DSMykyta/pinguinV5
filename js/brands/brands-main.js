@@ -247,14 +247,14 @@ async function loadAsideBrands() {
     if (fabMenu) {
         fabMenu.addEventListener('click', async (e) => {
             if (e.target.closest('.fab-menu-trigger')) {
-                fabMenu.classList.toggle('is-open');
+                fabMenu.classList.toggle('open');
                 return;
             }
 
             const item = e.target.closest('.fab-menu-item');
             if (!item) return;
 
-            fabMenu.classList.remove('is-open');
+            fabMenu.classList.remove('open');
 
             if (item.id === 'btn-add-brand-aside') {
                 const { showAddBrandModal } = await import('./brands-crud.js');
@@ -266,7 +266,7 @@ async function loadAsideBrands() {
         });
 
         document.addEventListener('click', (e) => {
-            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('is-open');
+            if (!fabMenu.contains(e.target)) fabMenu.classList.remove('open');
         });
     }
 }

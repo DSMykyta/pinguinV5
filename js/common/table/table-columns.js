@@ -68,7 +68,7 @@ export function createColumnSelector(containerId, columns, options = {}) {
 
         filteredColumns.forEach(column => {
             const label = document.createElement('label');
-            label.className = 'dropdown-item';
+            label.className = 'dropdown-option';
             label.classList.remove('u-hidden');
 
             const checkbox = document.createElement('input');

@@ -188,10 +188,10 @@ class CustomSelect {
         const selectedOptions = allOptions.filter(opt => opt.selected);
         const isAllSelected = allOptions.length > 0 && selectedOptions.length === allOptions.length;
 
-        // Оновлюємо стан is-selected для списку
+        // Оновлюємо стан selected для списку
         this.optionsList.querySelectorAll('.custom-select-option').forEach(customOpt => {
             const isSelected = selectedOptions.some(selOpt => selOpt.value === customOpt.dataset.value);
-            customOpt.classList.toggle('is-selected', isSelected);
+            customOpt.classList.toggle('selected', isSelected);
         });
 
         // Оновлюємо кнопку "Всі"
@@ -304,7 +304,7 @@ class CustomSelect {
         // Якщо влазить один чіп але він дуже довгий - обрізаємо з blur
         if (fittingCount === 1 && totalChips === 1 && chipWidths[0] > containerWidth - 10) {
             const chip = chips[0];
-            chip.classList.add('is-truncated');
+            chip.classList.add('truncated');
             chip.style.maxWidth = `${containerWidth - 20}px`; // -20 для кнопки видалення
             this.valueContainer.appendChild(chip);
             return;
@@ -361,7 +361,7 @@ class CustomSelect {
 
     _bindEvents() {
         this.trigger.addEventListener('click', () => {
-            if (this.wrapper.classList.contains('is-open')) {
+            if (this.wrapper.classList.contains('open')) {
                 this._closePanel();
             } else {
                 this._openPanel();
@@ -418,7 +418,7 @@ class CustomSelect {
         let closeTimeout = null;
 
         const startCloseTimeout = () => {
-            if (this.wrapper.classList.contains('is-open')) {
+            if (this.wrapper.classList.contains('open')) {
                 closeTimeout = setTimeout(() => {
                     this._closePanel();
                 }, 300);
@@ -444,10 +444,10 @@ class CustomSelect {
             const optionEl = e.target.closest('.custom-select-option');
             if (optionEl) {
                 // Вимикаємо keyboard mode - тепер працює hover
-                this.panel.classList.remove('is-keyboard-nav');
-                // Скидаємо всі is-focused
+                this.panel.classList.remove('keyboard-nav');
+                // Скидаємо всі focused
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
-                    opt.classList.remove('is-focused');
+                    opt.classList.remove('focused');
                 });
                 // Оновлюємо індекс для клавіатури (продовжить звідси)
                 const visibleOptions = this._getVisibleOptions();
@@ -463,7 +463,7 @@ class CustomSelect {
      * Обробка клавіатурної навігації
      */
     _handleKeyDown(e) {
-        if (!this.wrapper.classList.contains('is-open')) return;
+        if (!this.wrapper.classList.contains('open')) return;
 
         const visibleOptions = this._getVisibleOptions();
         if (visibleOptions.length === 0) return;
@@ -506,10 +506,10 @@ class CustomSelect {
      */
     _moveFocus(direction, visibleOptions) {
         // Вмикаємо keyboard mode - відключає hover
-        this.panel.classList.add('is-keyboard-nav');
+        this.panel.classList.add('keyboard-nav');
 
         // Скидаємо попередній фокус
-        visibleOptions.forEach(opt => opt.classList.remove('is-focused'));
+        visibleOptions.forEach(opt => opt.classList.remove('focused'));
 
         // Обчислюємо новий індекс
         if (this.focusedIndex === -1) {
@@ -529,7 +529,7 @@ class CustomSelect {
         // Встановлюємо фокус на новий елемент
         const focusedOption = visibleOptions[this.focusedIndex];
         if (focusedOption) {
-            focusedOption.classList.add('is-focused');
+            focusedOption.classList.add('focused');
             // Прокрутка до елемента
             focusedOption.scrollIntoView({ block: 'nearest' });
         }
@@ -566,7 +566,7 @@ class CustomSelect {
      * PORTAL: Переміщуємо панель в body щоб уникнути проблем з transform на модалах
      */
     _openPanel() {
-        if (this.wrapper.classList.contains('is-open')) return;
+        if (this.wrapper.classList.contains('open')) return;
 
         const triggerRect = this.trigger.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
@@ -595,11 +595,11 @@ class CustomSelect {
         if (openUpward) {
             this.panel.style.top = 'auto';
             this.panel.style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
-            this.wrapper.classList.add('is-open-upward');
+            this.wrapper.classList.add('open-upward');
         } else {
             this.panel.style.top = `${triggerRect.bottom + 4}px`;
             this.panel.style.bottom = 'auto';
-            this.wrapper.classList.remove('is-open-upward');
+            this.wrapper.classList.remove('open-upward');
         }
 
         // Перевіряємо чи панель не виходить за праву межу
@@ -609,9 +609,9 @@ class CustomSelect {
 
         this.panel.style.visibility = '';
         this.panel.style.display = '';
-        this.wrapper.classList.add('is-open');
-        // PORTAL FIX: Додаємо клас безпосередньо на panel (бо CSS селектор .wrapper.is-open .panel не працює коли panel в body)
-        this.panel.classList.add('is-open');
+        this.wrapper.classList.add('open');
+        // PORTAL FIX: Додаємо клас безпосередньо на panel (бо CSS селектор .wrapper.open .panel не працює коли panel в body)
+        this.panel.classList.add('open');
 
         // Автофокус на пошук при відкритті
         if (this.searchInput) {
@@ -637,13 +637,13 @@ class CustomSelect {
      * PORTAL: Повертаємо панель назад до wrapper
      */
     _closePanel() {
-        if (!this.wrapper.classList.contains('is-open')) return;
+        if (!this.wrapper.classList.contains('open')) return;
 
-        this.wrapper.classList.remove('is-open');
-        this.wrapper.classList.remove('is-open-upward');
+        this.wrapper.classList.remove('open');
+        this.wrapper.classList.remove('open-upward');
         // PORTAL FIX: Знімаємо класи з panel
-        this.panel.classList.remove('is-open');
-        this.panel.classList.remove('is-keyboard-nav');
+        this.panel.classList.remove('open');
+        this.panel.classList.remove('keyboard-nav');
 
         // Скидаємо fixed стилі
         this.panel.style.position = '';
@@ -660,7 +660,7 @@ class CustomSelect {
 
         // Скидаємо фокус з опцій
         this.optionsList.querySelectorAll('.custom-select-option').forEach(opt => {
-            opt.classList.remove('is-focused');
+            opt.classList.remove('focused');
         });
         this.focusedIndex = -1;
 

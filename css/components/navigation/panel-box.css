@@ -22,8 +22,8 @@
  *       <span class="material-symbols-outlined">more_vert</span>
  *     </button>
  *   </div>
- *   <div class="dropdown-menu">
- *     <button class="dropdown-item">Дія 1</button>
+ *   <div class="dropdown-panel">
+ *     <button class="dropdown-option">Дія 1</button>
  *   </div>
  * </div>
  *
@@ -88,7 +88,7 @@
 }
 
 /* Показ dropdown меню */
-.panel-box.dropdown-wrapper.is-open .dropdown-menu {
+.panel-box.dropdown-wrapper.open .dropdown-panel {
     display: block;
 }
 

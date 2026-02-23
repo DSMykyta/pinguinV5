@@ -43,14 +43,14 @@ export function initFabMenu(container, { items, value, onChange, formatLabel = S
 
     menu.addEventListener('click', (e) => {
         if (e.target.closest('.fab-menu-trigger')) {
-            menu.classList.toggle('is-open');
+            menu.classList.toggle('open');
         }
 
         const item = e.target.closest('.fab-menu-item');
         if (item) {
             const raw = item.dataset.value;
             const newValue = isNaN(raw) ? raw : Number(raw);
-            menu.classList.remove('is-open');
+            menu.classList.remove('open');
             if (newValue !== state.value) {
                 state.value = newValue;
                 const label = menu.querySelector('.fab-menu-label');
@@ -61,7 +61,7 @@ export function initFabMenu(container, { items, value, onChange, formatLabel = S
     });
 
     document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target)) menu.classList.remove('is-open');
+        if (!menu.contains(e.target)) menu.classList.remove('open');
     });
 
     return makeAPI(menu, formatLabel);

@@ -14,8 +14,8 @@
  * Синхронізує:
  * - Клас стану на aside (.expanded / .collapsed / .closed)
  * - Клас на body (body.aside-expanded / .aside-collapsed / .aside-closed)
- * - .is-open на trigger (для rotate шарму)
- * - .is-open на expand (для flip шарму)
+ * - .open на trigger (для rotate шарму)
+ * - .open на expand (для flip шарму)
  * - Видимість expand кнопки (ховає в closed стані)
  *
  * Зовнішній контроль:
@@ -39,10 +39,10 @@ function applyState(state) {
     _aside.classList.add(state);
     document.body.classList.add('aside-' + state);
 
-    _trigger.classList.toggle('is-open', state !== 'closed');
+    _trigger.classList.toggle('open', state !== 'closed');
 
     if (_expandBtn) {
-        _expandBtn.classList.toggle('is-open', state === 'collapsed');
+        _expandBtn.classList.toggle('open', state === 'collapsed');
     }
 }
 

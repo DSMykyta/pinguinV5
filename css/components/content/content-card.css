@@ -172,10 +172,10 @@
 }
 
 /* Read-only режим */
-.content-card.is-readonly {
+.content-card.readonly {
     cursor: default;
 }
 
-.content-card.is-readonly:hover {
+.content-card.readonly:hover {
     transform: none;
 }
