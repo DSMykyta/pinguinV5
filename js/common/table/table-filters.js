@@ -1,5 +1,7 @@
 // js/common/table/table-filters.js
 
+import { positionPanel } from '../ui-dropdown.js';
+
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    TABLE LEGO - FILTERS PLUGIN                           ║
@@ -356,31 +358,12 @@ export class FiltersPlugin {
     }
 
     // ==================== POSITION DROPDOWN ====================
-    // Ідентично до ui-table-controls.js positionDropdown()
-    // position: fixed на .dropdown-panel (НЕ на wrapper!)
+    // Використовує positionPanel() з ui-dropdown.js — єдина функція позиціонування
 
     positionDropdown(wrapper, header) {
         const headerRect = header.getBoundingClientRect();
         const dropdown = wrapper.querySelector('.dropdown-panel');
-
-        dropdown.style.position = 'fixed';
-        dropdown.style.top = `${headerRect.bottom + 4}px`;
-        dropdown.style.left = `${headerRect.left}px`;
-        dropdown.style.right = 'auto';
-        dropdown.style.marginTop = '0';
-
-        // Корекція позиції після рендерингу
-        requestAnimationFrame(() => {
-            const dropdownRect = dropdown.getBoundingClientRect();
-
-            if (dropdownRect.right > window.innerWidth - 8) {
-                dropdown.style.left = `${window.innerWidth - dropdownRect.width - 8}px`;
-            }
-
-            if (dropdownRect.bottom > window.innerHeight - 8) {
-                dropdown.style.top = `${headerRect.top - dropdownRect.height - 4}px`;
-            }
-        });
+        positionPanel(dropdown, headerRect, { center: true });
     }
 
     // ==================== SHOW / HIDE ====================

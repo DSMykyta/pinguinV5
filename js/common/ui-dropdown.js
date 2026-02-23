@@ -3,6 +3,71 @@
 
 const CLOSE_DELAY = 300;
 
+/**
+ * Smart positioning для dropdown panel.
+ * Єдина функція позиціонування — використовується і в Dropdown, і в table-filters.
+ *
+ * @param {HTMLElement} panel - dropdown panel
+ * @param {DOMRect} anchorRect - bounding rect якоря (trigger або header cell)
+ * @param {Object} [options]
+ * @param {boolean} [options.center=false] - центрувати під якорем (для широких комірок)
+ * @param {boolean} [options.matchWidth=false] - minWidth = anchorRect.width
+ * @returns {{ openUpward: boolean }}
+ */
+export function positionPanel(panel, anchorRect, options = {}) {
+    const { center = false, matchWidth = false } = options;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    // Вимірюємо розміри panel
+    panel.style.visibility = 'hidden';
+    panel.style.display = 'block';
+    panel.style.position = 'fixed';
+    const panelHeight = panel.scrollHeight;
+
+    // Auto up/down
+    const spaceBelow = viewportHeight - anchorRect.bottom - 8;
+    const spaceAbove = anchorRect.top - 8;
+    const openUpward = spaceBelow < panelHeight && spaceAbove > spaceBelow;
+
+    // Vertical
+    if (openUpward) {
+        panel.style.top = 'auto';
+        panel.style.bottom = `${viewportHeight - anchorRect.top + 4}px`;
+    } else {
+        panel.style.top = `${anchorRect.bottom + 4}px`;
+        panel.style.bottom = 'auto';
+    }
+
+    panel.style.maxHeight = `${Math.min(400, openUpward ? spaceAbove : spaceBelow)}px`;
+
+    // Horizontal
+    let left;
+    if (center) {
+        const panelWidth = panel.scrollWidth;
+        left = anchorRect.left + anchorRect.width / 2 - panelWidth / 2;
+    } else {
+        left = anchorRect.left;
+    }
+
+    // Viewport corrections
+    if (left < 8) left = 8;
+    const effectiveWidth = panel.offsetWidth || panel.scrollWidth;
+    if (left + effectiveWidth > viewportWidth - 8) {
+        left = viewportWidth - effectiveWidth - 8;
+    }
+
+    panel.style.left = `${left}px`;
+    panel.style.right = 'auto';
+    panel.style.width = '';
+    panel.style.minWidth = matchWidth ? `${anchorRect.width}px` : '';
+
+    panel.style.visibility = '';
+    panel.style.display = '';
+
+    return { openUpward };
+}
+
 class Dropdown {
     constructor(wrapper) {
         this.wrapper = wrapper;
@@ -52,49 +117,19 @@ class Dropdown {
         });
 
         const triggerRect = this.trigger.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
 
         // Portal: переміщуємо panel в body
         document.body.appendChild(this.panel);
 
-        // Вимірюємо розміри panel
-        this.panel.style.visibility = 'hidden';
-        this.panel.style.display = 'block';
-        const panelHeight = this.panel.scrollHeight;
-        const panelWidth = Math.max(this.panel.scrollWidth, triggerRect.width);
-
-        // Auto up/down
-        const spaceBelow = viewportHeight - triggerRect.bottom - 8;
-        const spaceAbove = triggerRect.top - 8;
-        const openUpward = spaceBelow < panelHeight && spaceAbove > spaceBelow;
-
-        // Fixed positioning
-        this.panel.style.position = 'fixed';
-        this.panel.style.left = `${triggerRect.left}px`;
-        this.panel.style.width = '';
-        this.panel.style.minWidth = `${triggerRect.width}px`;
-        this.panel.style.maxHeight = `${Math.min(400, openUpward ? spaceAbove : spaceBelow)}px`;
+        // Smart positioning (спільна функція)
+        const { openUpward } = positionPanel(this.panel, triggerRect, { matchWidth: true });
 
         if (openUpward) {
-            this.panel.style.top = 'auto';
-            this.panel.style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
             this.wrapper.classList.add('open-upward');
         } else {
-            this.panel.style.top = `${triggerRect.bottom + 4}px`;
-            this.panel.style.bottom = 'auto';
             this.wrapper.classList.remove('open-upward');
         }
 
-        // Корекція правого краю
-        const panelLeft = triggerRect.left;
-        const effectiveWidth = this.panel.offsetWidth || panelWidth;
-        if (panelLeft + effectiveWidth > viewportWidth - 8) {
-            this.panel.style.left = `${viewportWidth - effectiveWidth - 8}px`;
-        }
-
-        this.panel.style.visibility = '';
-        this.panel.style.display = '';
         this.wrapper.classList.add('open');
         this.panel.classList.add('open');
 
