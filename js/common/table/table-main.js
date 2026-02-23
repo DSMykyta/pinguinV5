@@ -56,6 +56,7 @@ export { renderBadge, renderSeverityBadge, updateTableCounter } from './table-ba
 export { createColumnSelector, setupTableColumnsSelector, setupSearchColumnsSelector } from './table-columns.js';
 export { col, COLUMN_TYPES } from './table-column-types.js';
 export { createManagedTable } from './table-managed.js';
+export { renderTableState, TABLE_STATES } from './table-states.js';
 
 // Import for internal use
 import { createTableState } from './table-state.js';

@@ -467,7 +467,7 @@ function populateRelatedChildOptions(optionId) {
             { ...col('value_ua', 'Значення', 'name'), searchable: true },
             { ...col('value_ru', 'Назва (RU)', 'text'), searchable: true, checked: true },
             {
-                id: '_unlink', label: ' ', sortable: false, className: 'cell-s',
+                id: '_unlink', label: ' ', sortable: false, span: 1,
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.value_ua || row.id }
@@ -668,7 +668,7 @@ function renderMpDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="group column col-2">
+            <div class="group column col-6">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>

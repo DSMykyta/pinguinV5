@@ -1406,11 +1406,11 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid">
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpChar.id)}" readonly>
                             </div>
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpChar.external_id || '')}" readonly>
                             </div>
@@ -1420,11 +1420,11 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                             <input type="text" class="input-main" value="${escapeHtml(charData.name || '')}" readonly>
                         </div>
                         <div class="grid">
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>Тип</label>
                                 <input type="text" class="input-main" value="${escapeHtml(charData.type || '')}" readonly>
                             </div>
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>Одиниця виміру</label>
                                 <input type="text" class="input-main" value="${escapeHtml(charData.unit || '')}" readonly>
                             </div>
@@ -1537,11 +1537,11 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid">
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpOption.id)}" readonly>
                             </div>
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpOption.external_id || '')}" readonly>
                             </div>
@@ -1795,11 +1795,11 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
                         </div>
                         <div class="grid">
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpCat.id)}" readonly>
                             </div>
-                            <div class="group column col-2">
+                            <div class="group column col-6">
                                 <label>External ID</label>
                                 <input type="text" class="input-main" value="${escapeHtml(mpCat.external_id || '')}" readonly>
                             </div>

@@ -20,14 +20,14 @@ import { getInitials, getAvatarColor } from '../common/avatar/avatar-text.js';
 
 export function getColumns() {
     return [
-        col('code', 'Код', 'tag'),
-        col('article', 'Артикул', 'input', { className: 'cell-s', sortable: true, searchable: true }),
+        col('code', 'Код', 'tag', { span: 1 }),
+        col('article', 'Артикул', 'input', { span: 1, sortable: true, searchable: true }),
         col('product', 'Товар', 'name', { sortKey: 'product' }),
-        col('shiping_date', 'Відправка', 'tag', { className: '', searchable: false, filterable: true }),
+        col('shiping_date', 'Відправка', 'tag', { span: 1, searchable: false, filterable: true }),
         col('status', 'Викладено', 'badge-toggle', { filterable: true }),
         col('check', 'Перевірено', 'badge-toggle', { filterable: true }),
         col('payment', 'Оплата', 'badge-toggle', { filterable: true }),
-        col('update_date', 'Оновлено', 'text', { searchable: false, filterable: true }),
+        col('update_date', 'Оновлено', 'text', { span: 1, searchable: false, filterable: true }),
         col('reserve', 'Резерв', 'reserve', { filterable: true, resolveAvatar: renderReserveCell })
     ];
 }
@@ -206,6 +206,7 @@ function initPriceTable() {
 
 export function renderPriceTable() {
     if (!priceManagedTable) {
+        if (!document.getElementById('price-table-container')) return;
         initPriceTable();
         return;
     }

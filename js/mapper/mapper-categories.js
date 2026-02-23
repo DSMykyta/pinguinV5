@@ -505,7 +505,7 @@ function populateRelatedCharacteristics(categoryId) {
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
             {
                 id: '_optCount', label: 'Опції', sortable: true,
-                className: 'cell-xs cell-center',
+                span: 1, align: 'center',
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
                     const cls = count === 0 ? 'chip' : 'chip c-main';
@@ -513,7 +513,7 @@ function populateRelatedCharacteristics(categoryId) {
                 }
             },
             {
-                id: '_unlink', label: ' ', sortable: false, className: 'cell-s',
+                id: '_unlink', label: ' ', sortable: false, span: 1,
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.name_ua || row.id }
@@ -913,7 +913,7 @@ function renderMpCategoryDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="group column col-2">
+            <div class="group column col-6">
                 <label>${escapeHtml(key)}</label>
                 <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
             </div>

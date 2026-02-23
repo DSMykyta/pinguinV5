@@ -38,10 +38,10 @@ let _actionCleanup = null;
 export function getColumns() {
     return [
         col('brand_logo_url', ' ', 'photo'),
-        col('brand_id', 'ID', 'tag'),
+        col('brand_id', 'ID', 'tag', { span: 1 }),
         col('name_uk', 'Назва', 'name'),
         col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),
-        col('country_option_id', 'Країна', 'text', { filterable: true }),
+        col('country_option_id', 'Країна', 'text', { span: 1, filterable: true }),
         col('brand_status', 'Статус', 'status-dot', { filterable: true }),
         col('brand_links', 'Посилання', 'links'),
         col('bindings', 'Лінійки', 'binding-chip')
@@ -57,7 +57,9 @@ function initBrandsTable() {
         ? brandsState.visibleColumns
         : ['brand_id', 'name_uk', 'country_option_id', 'brand_links'];
 
-    const searchCols = brandsState.searchColumns || ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
+    const searchCols = brandsState.searchColumns.length > 0
+        ? brandsState.searchColumns
+        : ['brand_id', 'name_uk', 'names_alt', 'country_option_id'];
 
     brandsState.brandsManagedTable = createManagedTable({
         container: 'brands-table-container',
@@ -137,7 +139,11 @@ export function renderBrandsTable() {
 }
 
 export function renderBrandsTableRowsOnly() {
-    renderBrandsTable();
+    if (brandsState.brandsManagedTable) {
+        brandsState.brandsManagedTable.refilter();
+    } else {
+        renderBrandsTable();
+    }
 }
 
 export function resetTableAPI() {

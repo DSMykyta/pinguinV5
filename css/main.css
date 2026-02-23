@@ -66,6 +66,7 @@
 
 /* === COMPONENTS - TABLES === */
 @import url('components/tables/pseudo-table.css');
+@import url('components/tables/table-states.css');
 /* table-row-inputs.css — перенесено в forms/input-box.css */
 @import url('components/permissions-matrix.css');
 

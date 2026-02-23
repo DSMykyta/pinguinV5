@@ -1,5 +1,5 @@
 /**
- * COMPONENT: Pseudo Table (Об'єднаний файл)
+ * COMPONENT: Pseudo Table
  *
  * ПРИЗНАЧЕННЯ:
  * Універсальний компонент псевдо-таблиці з фіксованою шапкою.
@@ -9,14 +9,41 @@
  * ВИКОРИСТАННЯ:
  * <div class="pseudo-table-container">
  *   <div class="pseudo-table-header">
- *     <div class="pseudo-table-cell cell-id">ID</div>
- *     <div class="pseudo-table-cell cell-name">Назва</div>
+ *     <div class="pseudo-table-cell col-2">ID</div>
+ *     <div class="pseudo-table-cell col-4">Назва</div>
  *   </div>
  *   <div class="pseudo-table-row">
- *     <div class="pseudo-table-cell cell-id">1</div>
- *     <div class="pseudo-table-cell cell-name">Контент</div>
+ *     <div class="pseudo-table-cell col-2">1</div>
+ *     <div class="pseudo-table-cell col-4">Контент</div>
  *   </div>
  * </div>
+ *
+ * РОЗКЛАДКА:
+ * Рядки і шапка — flex-контейнери. Клітинки використовують .col-N
+ * з grid.css для пропорційної ваги (1-12). Приховані колонки
+ * автоматично не займають місця — видимі розтягуються.
+ *
+ * ЧАРМИ:
+ * [compact]  — зменшений padding клітинок (8px 10px)
+ * [striped]  — чергування фону парних/непарних рядків
+ * [pagination] — пагінація (charm-pagination)
+ * [refresh]    — кнопка оновлення (charm-refresh)
+ * [columns]    — вибір видимих колонок (charm-columns)
+ *
+ * КЛАСИ:
+ * .pseudo-table-container — зовнішній контейнер зі скролом
+ * .pseudo-table-header    — sticky шапка
+ * .pseudo-table-row       — рядок даних
+ * .pseudo-table-cell      — клітинка (використовує .col-N для ширини)
+ * .cell-align-center      — центрування вмісту клітинки
+ * .cell-align-end         — вирівнювання вмісту праворуч
+ * .header-actions-cell    — шапка колонки дій
+ * .column-hidden          — прихована колонка
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (CSS змінні)
+ * - grid.css (.col-N класи для пропорційних розмірів)
+ * - avatar-states.css (стани аватарів для empty/error/loading/auth)
  */
 
 /* ============================================ */
@@ -70,7 +97,7 @@
     border-bottom: none;
 }
 
-/* Кліка́бельні рядки (відкривають модал) */
+/* Клікабельні рядки (відкривають модал) */
 .pseudo-table-row.clickable-row {
     cursor: pointer;
 }
@@ -81,84 +108,36 @@
 }
 
 /* ============================================ */
-/* КЛІТИНКИ */
+/* КЛІТИНКИ                                     */
+/* Розмір контролюється через .col-N (grid.css) */
 /* ============================================ */
 
 .pseudo-table-cell {
     padding: 12px 16px;
     display: flex;
     align-items: center;
-    flex: 1;
     min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;  /* Автоматично додає ... коли текст обрізається */
-    white-space: nowrap;       /* Заборонити перенесення тексту */
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ============================================ */
-/* РОЗМІРИ КОЛОНОК */
-/* ============================================ */
-/*
- * flex: 0 0 XXpx - фіксована ширина
- * flex: 1 - рівномірний розподіл
- * flex: 2 - в 2 рази більше місця ніж flex: 1
- */
-
-/* ============================================ */
-/* CELL SIZES — універсальна система розмірів   */
+/* ВИРІВНЮВАННЯ КЛІТИНОК                        */
 /* ============================================ */
 
-/* Колонка дій (іконки редагування/видалення) */
-.cell-actions {
-    flex: 0 0 80px;
-    justify-content: flex-start;
-}
-
-/* 2XS — 40px — крихітні: лічильник, severity dot */
-.cell-2xs {
-    flex: 0 0 40px;
-}
-
-/* XS — 70px — малі: фото, маленький статус, чіп прів'язок */
-.cell-xs {
-    flex: 0 0 70px;
-}
-
-/* S — 100px — стандартні: bool, джерело, артикул, статус, тип */
-.cell-s {
-    flex: 0 0 100px;
-}
-
-/* M — 140px — середні: ID, категорія, лого */
-.cell-m {
-    flex: 0 0 140px;
-}
-
-/* L — розтягується: другорядні текстові колонки */
-.cell-l {
-    flex: 1;
-}
-
-/* XL — головна назва: займає найбільше місця */
-.cell-xl {
-    flex: 3;
-    min-width: 200px;
-}
-
-/* Модифікатор — центрування */
-.cell-center {
+.cell-align-center {
     justify-content: center;
     text-align: center;
 }
 
-/* Колонка аватарів */
-.pseudo-table-cell[data-column="avatar"] {
-    flex: 0 0 60px;
-    justify-content: center;
+.cell-align-end {
+    justify-content: flex-end;
+    text-align: right;
 }
 
 /* ============================================ */
-/* SORTABLE HEADERS */
+/* SORTABLE HEADERS                             */
 /* ============================================ */
 
 .sortable-header {
@@ -188,19 +167,29 @@
 }
 
 /* ============================================ */
-/* LOADING STATE */
+/* ЧАРМИ ТАБЛИЦІ                                */
 /* ============================================ */
 
-.loading-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 24px;
-    color: var(--color-on-surface-v);
+/* compact — зменшений padding */
+.pseudo-table-container[compact] .pseudo-table-cell {
+    padding: 8px 10px;
+}
+
+.pseudo-table-container[compact] .header-actions-cell {
+    padding: 4px 8px;
+}
+
+/* striped — чергування фону рядків */
+.pseudo-table-container[striped] .pseudo-table-row:nth-child(even) {
+    background-color: var(--color-surface-c);
+}
+
+.pseudo-table-container[striped] .pseudo-table-row:nth-child(even):hover {
+    background-color: var(--color-surface-c-high);
 }
 
 /* ============================================ */
-/* UTILITY CLASSES */
+/* UTILITY CLASSES                              */
 /* ============================================ */
 
 /* Приховані колонки */
@@ -220,7 +209,7 @@
    Візуальні стилі всіх checkbox — у checkbox.css */
 
 /* ============================================ */
-/* LEGACY TABLE STYLES (Старі варіанти) */
+/* LEGACY TABLE STYLES (Старі варіанти)         */
 /* ============================================ */
 
 /* Admin table wrapper */
@@ -287,24 +276,18 @@
 }
 
 /* ============================================ */
-/* CONTEXTUAL VIEW - Контекст з підсвіткою */
+/* CONTEXTUAL VIEW - Контекст з підсвіткою      */
 /* ============================================ */
-
-/* Колонка контексту - займає достатньо місця */
-.cell-context {
-    flex: 3;
-    min-width: 300px;
-}
 
 /* Контейнер фрагменту тексту */
 .context-fragment {
-    display: block; /* Змінено з flex на block для суцільного тексту */
+    display: block;
     color: var(--color-on-surface);
-    white-space: normal; /* Дозволити перенесення тексту для контексту */
+    white-space: normal;
     word-break: break-word;
 }
 
-/* Підсвітка знайденого забороненого слова (червона як chip-error) */
+/* Підсвітка знайденого забороненого слова */
 .highlight-banned-word {
     background: var(--color-error-c);
     color: var(--color-error);
@@ -346,4 +329,3 @@
 /* ============================================ */
 /* WORD CHIPS IN TABLE CELLS */
 /* cell-words-list, tag — визначено в feedback/chip.css */
-

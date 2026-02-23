@@ -290,18 +290,18 @@ function getCheckResultsColumns(selectedSheets, selectedColumns, columnsWithErro
 
     const columns = [
         { ...col('id', 'ID', 'tag'), searchable: true },
-        { ...col('title', 'Назва', 'name', { className: 'cell-l' }), searchable: true }
+        { ...col('title', 'Назва', 'name', { span: 4 }), searchable: true }
     ];
 
     if (showSheetColumn) {
-        columns.push(col('sheetName', 'Аркуш', 'code', { className: 'cell-l' }));
+        columns.push(col('sheetName', 'Аркуш', 'code', { span: 2 }));
     }
 
     if (showColumnColumn) {
         columns.push({
-            key: 'columnName',
+            id: 'columnName',
             label: 'Колонка',
-            className: 'cell-l',
+            span: 2,
             sortable: true,
             render: (value, row) => {
                 if (row.multipleColumns && row.columnNames) {

@@ -566,10 +566,10 @@ async function populateMpReferences(slug, marketplaceId) {
         columns: [
             { ...col('_category', 'Категорія', 'text'), searchable: true },
             { ...col('name', 'Назва', 'name'), searchable: true },
-            { ...col('_size', 'Розмір', 'code', { className: 'cell-s' }), searchable: true },
-            { ...col('_date', 'Дата', 'text', { className: 'cell-s' }), searchable: true },
+            { ...col('_size', 'Розмір', 'code', { span: 1 }), searchable: true },
+            { ...col('_date', 'Дата', 'text', { span: 1 }), searchable: true },
             {
-                id: '_actions', label: ' ', sortable: false, className: 'cell-s',
+                id: '_actions', label: ' ', sortable: false, span: 1,
                 render: (value, row) => `
                     <div class="mp-item-actions">
                         <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
@@ -742,7 +742,7 @@ function populateMpCharacteristics(allData, charMapping) {
             { ...col('external_id', 'ID', 'tag'), searchable: true },
             {
                 id: 'category_name', label: 'Категорія', searchable: true, checked: true,
-                className: 'cell-xs cell-center', sortable: false, filterable: true,
+                span: 1, align: 'center', sortable: false, filterable: true,
                 render: (value) => {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
@@ -754,7 +754,7 @@ function populateMpCharacteristics(allData, charMapping) {
             { ...col('_name', 'Назва', 'name'), searchable: true },
             { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true, checked: true },
             {
-                id: '_mapping', label: 'Наша характ.', className: 'cell-l', sortable: false,
+                id: '_mapping', label: 'Наша характ.', span: 3, sortable: false,
                 render: (value, row) => {
                     const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
@@ -815,9 +815,9 @@ function populateMpOptions(allData, optMapping) {
         columns: [
             { ...col('external_id', 'ID', 'tag'), searchable: true },
             { ...col('_name', 'Назва', 'name'), searchable: true },
-            { ...col('_charName', 'Характ.', 'text', { className: 'cell-m', filterable: true }), searchable: true },
+            { ...col('_charName', 'Характ.', 'text', { filterable: true }), searchable: true },
             {
-                id: '_mapping', label: 'Наша опція', className: 'cell-l', sortable: false,
+                id: '_mapping', label: 'Наша опція', span: 3, sortable: false,
                 render: (value, row) => {
                     const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;

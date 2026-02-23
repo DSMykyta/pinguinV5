@@ -71,6 +71,8 @@ function initTabSwitching() {
             // switchMapperTab: deactivate old → activate new (search columns перебудовуються)
             switchMapperTab(newTab, oldTab);
 
+            if (!window.isAuthorized) return;
+
             // Lazy load даних для цього табу
             await ensureTabData(newTab);
 

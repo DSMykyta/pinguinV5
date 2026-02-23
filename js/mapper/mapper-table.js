@@ -22,7 +22,7 @@ import { createCachedFn } from '../common/util-lazy-load.js';
 import { createManagedTable } from '../common/table/table-managed.js';
 import { col } from '../common/table/table-main.js';
 import { escapeHtml } from '../utils/text-utils.js';
-import { renderAvatarState } from '../common/avatar/avatar-ui-states.js';
+
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -239,7 +239,8 @@ function createBindingsColumn(entityType) {
         id: 'bindings',
         label: 'Прів.',
         sortable: true,
-        className: 'cell-xs cell-center',
+        span: 1,
+        align: 'center',
         render: (value, row) => {
             const bindingsInfo = getBindingsInfo(entityType, row.id);
             const tooltipContent = renderBindingsTooltip(bindingsInfo);
@@ -460,7 +461,7 @@ export function getCharacteristicsColumns() {
         { ...col('id', 'ID', 'tag'), searchable: true },
         {
             id: '_raw_category_ids', label: 'Категорія',
-            className: 'cell-xs cell-center', sortable: false, filterable: true,
+            span: 1, align: 'center', sortable: false, filterable: true,
             render: (value, row) => {
                 const display = row.category_ids;
                 if (!display || display.count == null) return '';
@@ -470,7 +471,7 @@ export function getCharacteristicsColumns() {
         },
         { ...col('name_ua', 'Назва', 'name'), searchable: true },
         { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true },
-        col('is_global', 'Глобальна', 'status-dot', { filterable: true, className: 'cell-s cell-center' }),
+        col('is_global', 'Глобальна', 'status-dot', { filterable: true }),
         col('unit', 'Одиниця', 'text'),
         createBindingsColumn('characteristic')
     ];
@@ -491,7 +492,7 @@ export function getMarketplacesColumns() {
         { ...col('id', 'ID', 'tag'), searchable: true },
         { ...col('name', 'Назва', 'name'), searchable: true },
         { ...col('slug', 'Slug', 'code'), searchable: true },
-        col('is_active', 'Активний', 'status-dot', { filterable: true, className: 'cell-s cell-center' })
+        col('is_active', 'Активний', 'status-dot', { filterable: true })
     ];
 }
 

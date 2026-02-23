@@ -144,7 +144,7 @@ function createModal() {
 
                 <div class="grid">
                     <!-- Left column: editable fields -->
-                    <div class="col-2" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="col-6" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="group column">
                             <label for="edit-article">Артикул</label>
                             <input type="text" id="edit-article" class="input-main" placeholder="Введіть артикул...">
@@ -172,7 +172,7 @@ function createModal() {
                     </div>
 
                     <!-- Right column: toggle switches -->
-                    <div class="col-2" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="col-6" style="display: flex; flex-direction: column; gap: 16px;">
                         <div class="group column">
                             <label>Викладено</label>
                             <div class="switch switch-outline switch-fit">

@@ -1,28 +1,39 @@
 /**
- * UTILITY: Grid System
+ * UTILITY: Flex Grid System
  *
  * ПРИЗНАЧЕННЯ:
- * 12-колонкова CSS Grid система для будь-яких розкладок:
+ * Пропорційна flex-система з 12 вагами для будь-яких розкладок:
  * таблиць, модалів, форм, карток, дашбордів.
  *
  * КОНТЕЙНЕР:
- * .grid — 12-колонкова сітка (gap: 8px 12px)
+ * .grid — flex-контейнер з пропорційними дочірніми елементами
  *
- * КОЛОНКИ (фракції):
- * .col-1 → повна ширина   (12/12)
- * .col-2 → половина       (6/12)
- * .col-3 → третина        (4/12)
- * .col-4 → чверть         (3/12)
- * .col-6 → шоста          (2/12)
+ * КОЛОНКИ (пропорційна вага):
+ * .col-1  → 1/12 ваги     (найвужча)
+ * .col-2  → 2/12 ваги     (шоста)
+ * .col-3  → 3/12 ваги     (чверть)
+ * .col-4  → 4/12 ваги     (третина)
+ * .col-5  → 5/12 ваги
+ * .col-6  → 6/12 ваги     (половина)
+ * .col-7  → 7/12 ваги
+ * .col-8  → 8/12 ваги
+ * .col-9  → 9/12 ваги
+ * .col-10 → 10/12 ваги
+ * .col-11 → 11/12 ваги
+ * .col-12 → 12/12 ваги    (повна ширина)
+ *
+ * АВТО-РОЗТЯГУВАННЯ:
+ * Якщо елемент прихований (display: none) — сусіди автоматично
+ * розтягуються пропорційно до своїх ваг. Без JS.
  *
  * HTML ПРИКЛАД:
  * <!-- Половина + половина -->
  * <div class="grid">
- *   <div class="group column col-2">
+ *   <div class="group column col-6">
  *     <label class="label-l">Назва</label>
  *     <input class="input-main">
  *   </div>
- *   <div class="group column col-2">
+ *   <div class="group column col-6">
  *     <label class="label-l">Тип</label>
  *     <select class="input-main">...</select>
  *   </div>
@@ -30,44 +41,49 @@
  *
  * <!-- Третина × 3 -->
  * <div class="grid">
- *   <div class="group column col-3">...</div>
- *   <div class="group column col-3">...</div>
- *   <div class="group column col-3">...</div>
+ *   <div class="group column col-4">...</div>
+ *   <div class="group column col-4">...</div>
+ *   <div class="group column col-4">...</div>
  * </div>
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (CSS змінні)
  *
  * ЗАСТОСУВАННЯ:
- * - Таблиці, модалі, форми, картки, дашборди
+ * - Таблиці (рядки), модалі, форми, картки, дашборди
  * - aside панелі (кнопки форматування)
- * - Будь-яка розкладка де потрібен контроль ширини
+ * - Будь-яка розкладка де потрібен пропорційний контроль ширини
  */
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   12-COLUMN GRID CONTAINER
+   FLEX GRID CONTAINER
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px 12px;
     align-items: start;
 }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   COLUMN SPANS (.col-N = 1/N ширини)
+   COLUMN WEIGHTS (.col-N = пропорційна вага N із 12)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.col-1 { grid-column: span 12; } /* повна ширина   */
-.col-2 { grid-column: span 6; }  /* половина       */
-.col-3 { grid-column: span 4; }  /* третина        */
-.col-4 { grid-column: span 3; }  /* чверть         */
-.col-6 { grid-column: span 2; }  /* шоста          */
-
-
+.col-1  { flex: 1;  min-width: 0; }
+.col-2  { flex: 2;  min-width: 0; }
+.col-3  { flex: 3;  min-width: 0; }
+.col-4  { flex: 4;  min-width: 0; }
+.col-5  { flex: 5;  min-width: 0; }
+.col-6  { flex: 6;  min-width: 0; }
+.col-7  { flex: 7;  min-width: 0; }
+.col-8  { flex: 8;  min-width: 0; }
+.col-9  { flex: 9;  min-width: 0; }
+.col-10 { flex: 10; min-width: 0; }
+.col-11 { flex: 11; min-width: 0; }
+.col-12 { flex: 12; min-width: 0; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -76,13 +92,14 @@
 
 /* Mobile: все в одну колонку */
 @media (max-width: 768px) {
-    .col-1, .col-2, .col-3, .col-4, .col-6 {
-        grid-column: span 12;
+    .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
+    .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
+        flex-basis: 100%;
+        flex-grow: 0;
     }
 }
 
-/* Tablet: шосту та чверть збільшуємо до третини */
+/* Tablet: дрібні елементи збільшуємо */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .col-4 { grid-column: span 4; }
-    .col-6 { grid-column: span 4; }
+    .col-1, .col-2 { flex: 3; }
 }

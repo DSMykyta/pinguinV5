@@ -24,7 +24,12 @@ import { showModal, closeModal } from '../common/ui-modal.js';
 import { showToast } from '../common/ui-toast.js';
 import { showConfirmModal } from '../common/ui-modal-confirm.js';
 import { createHighlightEditor } from '../common/editor/editor-main.js';
-import { createManagedTable } from '../common/table/table-main.js';
+import { createManagedTable, col } from '../common/table/table-main.js';
+import {
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../common/ui-actions.js';
 import { escapeHtml } from '../utils/text-utils.js';
 import { initPaginationCharm } from '../common/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../common/charms/charm-refresh.js';
@@ -243,33 +248,58 @@ function initBrandLinesHandler() {
  * Заповнити секцію лінійок бренду
  * @param {string} brandId - ID бренду
  */
+let _brandLinesCleanup = null;
+let _brandLinesManagedTable = null;
+
 function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
     if (!container) return;
 
     const allData = getBrandLinesByBrandId(brandId) || [];
 
-    const managed = createManagedTable({
+    registerActionHandlers('brand-crud-lines', {
+        edit: async (rowId) => {
+            const { showEditLineModal } = await import('./lines-crud.js');
+            await showEditLineModal(rowId);
+        },
+        unlink: async (rowId) => {
+            if (!rowId) return;
+
+            const line = _brandLinesManagedTable?.getFilteredData().find(l => l.line_id === rowId);
+            const lineName = line?.name_uk || rowId;
+
+            const confirmed = await showConfirmModal({
+                title: 'Відв\'язати лінійку?',
+                message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
+                confirmText: 'Відв\'язати',
+                cancelText: 'Скасувати',
+                confirmClass: 'btn-warning'
+            });
+
+            if (confirmed) {
+                try {
+                    await updateBrandLine(rowId, { brand_id: '' });
+                    showToast('Лінійку відв\'язано від бренду', 'success');
+                    populateBrandLines(brandId);
+                } catch (error) {
+                    console.error('❌ Помилка відв\'язування лінійки:', error);
+                    showToast('Помилка відв\'язування лінійки', 'error');
+                }
+            }
+        }
+    });
+
+    _brandLinesManagedTable = createManagedTable({
         container: 'brand-lines-container',
         columns: [
-            {
-                id: 'line_id', label: 'ID', sortable: true, searchable: true, checked: true,
-                className: 'cell-m',
-                render: (value) => `<span class="tag">${escapeHtml(value || '')}</span>`
-            },
-            {
-                id: 'name_uk', label: 'Назва', sortable: true, searchable: true, checked: true,
-                className: 'cell-l',
-                render: (value, row) => escapeHtml(value || row.line_id || '-')
-            },
+            { ...col('line_id', 'ID', 'tag'), searchable: true, checked: true, span: 2 },
+            { ...col('name_uk', 'Назва', 'name'), searchable: true, checked: true, span: 8 },
             {
                 id: '_unlink', label: ' ', sortable: false, searchable: false, checked: true,
-                className: 'cell-xs',
-                render: (value, row) => `
-                    <button class="btn-icon" data-row-id="${escapeHtml(row.line_id)}" data-action="unlink" data-tooltip="Відв'язати від бренду">
-                        <span class="material-symbols-outlined">link_off</span>
-                    </button>
-                `
+                span: 1,
+                render: (value, row) => actionButton({
+                    action: 'unlink', rowId: row.line_id, context: 'brand-crud-lines'
+                })
             }
         ],
         data: allData,
@@ -279,54 +309,15 @@ function populateBrandLines(brandId) {
         pageSize: null,
         tableConfig: {
             rowActionsHeader: ' ',
-            rowActions: (row) => `
-                <button class="btn-icon" data-row-id="${row.line_id}" data-action="edit" data-tooltip="Редагувати">
-                    <span class="material-symbols-outlined">edit</span>
-                </button>
-            `,
+            rowActions: (row) => actionButton({
+                action: 'edit', rowId: row.line_id, context: 'brand-crud-lines'
+            }),
+            getRowId: (row) => row.line_id,
             emptyState: { message: 'Лінійки відсутні' },
             withContainer: false,
             onAfterRender: (cont) => {
-                cont.querySelectorAll('[data-action="edit"]').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const lineId = btn.dataset.rowId;
-                        if (lineId) {
-                            const { showEditLineModal } = await import('./lines-crud.js');
-                            await showEditLineModal(lineId);
-                        }
-                    });
-                });
-
-                cont.querySelectorAll('[data-action="unlink"]').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const lineId = btn.dataset.rowId;
-                        if (!lineId) return;
-
-                        const line = managed.getFilteredData().find(l => l.line_id === lineId);
-                        const lineName = line?.name_uk || lineId;
-
-                        const confirmed = await showConfirmModal({
-                            title: 'Відв\'язати лінійку?',
-                            message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
-                            confirmText: 'Відв\'язати',
-                            cancelText: 'Скасувати',
-                            confirmClass: 'btn-warning'
-                        });
-
-                        if (confirmed) {
-                            try {
-                                await updateBrandLine(lineId, { brand_id: '' });
-                                showToast('Лінійку відв\'язано від бренду', 'success');
-                                populateBrandLines(brandId);
-                            } catch (error) {
-                                console.error('❌ Помилка відв\'язування лінійки:', error);
-                                showToast('Помилка відв\'язування лінійки', 'error');
-                            }
-                        }
-                    });
-                });
+                if (_brandLinesCleanup) _brandLinesCleanup();
+                _brandLinesCleanup = initActionHandlers(cont, 'brand-crud-lines');
             },
             plugins: {
                 sorting: {
@@ -335,7 +326,6 @@ function populateBrandLines(brandId) {
             }
         }
     });
-
 }
 
 /**

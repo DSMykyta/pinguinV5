@@ -1,0 +1,143 @@
+/**
+ * COMPONENT: Table States
+ *
+ * ПРИЗНАЧЕННЯ:
+ * 4 стани порожньої таблиці з аватарами. Кожен стан визначає
+ * свій вигляд всередині .pseudo-table-container.
+ *
+ * СТАНИ:
+ * 1. .table-state-auth     — Потрібна авторизація. Немає шапки ні рядків —
+ *                             тільки аватар із підозрою та повідомлення.
+ * 2. .table-state-loading  — Завантаження даних. Спокійний аватар із
+ *                             спінером поруч. Всередині таблиці, не оверлей.
+ * 3. .table-state-empty    — Даних немає (порожній результат фільтру/пошуку).
+ *                             Шапка залишається. Сумний аватар та підпис.
+ * 4. .table-state-error    — Помилка сервера або мережі. Наляканий аватар
+ *                             і повідомлення про помилку.
+ *
+ * ВИКОРИСТАННЯ:
+ * Рендеряться JS-модулем table-states.js всередині
+ * .pseudo-table-container. Шапка зберігається для станів
+ * empty (3) та error (4), відсутня для auth (1) та loading (2).
+ *
+ * HTML СТРУКТУРА:
+ * <div class="pseudo-table-container">
+ *   <!-- шапка (тільки для empty/error) -->
+ *   <div class="pseudo-table-header">...</div>
+ *   <!-- стан -->
+ *   <div class="table-state table-state-{type}">
+ *     <img class="table-state-avatar" src="..." alt="...">
+ *     <div class="spinner"></div>  <!-- тільки loading -->
+ *     <p class="table-state-message">...</p>
+ *   </div>
+ * </div>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (CSS змінні)
+ * - feedback/loading.css (.spinner анімація)
+ * - Аватар-зображення з resources/avatars/1056/
+ */
+
+
+/* ============================================ */
+/* БАЗОВИЙ СТАН (спільне для всіх 4)            */
+/* ============================================ */
+
+.table-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    min-height: 200px;
+    height: 100%;
+}
+
+.table-state-avatar {
+    object-fit: contain;
+    opacity: 0.85;
+}
+
+.table-state-message {
+    color: var(--color-on-surface-v);
+    text-align: center;
+    margin: 16px 0 0 0;
+    max-width: 360px;
+    line-height: 1.5;
+}
+
+
+/* ============================================ */
+/* 1. AUTH — Потрібна авторизація               */
+/*    Немає шапки. Великий аватар з підозрою.  */
+/* ============================================ */
+
+.table-state-auth {
+    gap: 8px;
+}
+
+.table-state-auth .table-state-avatar {
+    width: 120px;
+    height: 120px;
+}
+
+.table-state-auth .table-state-message {
+    font-weight: 500;
+}
+
+
+/* ============================================ */
+/* 2. LOADING — Завантаження даних              */
+/*    Немає шапки. Аватар + спінер.            */
+/* ============================================ */
+
+.table-state-loading {
+    gap: 16px;
+}
+
+.table-state-loading .table-state-avatar {
+    width: 80px;
+    height: 80px;
+}
+
+/* Спінер рендериться як дочірній елемент */
+.table-state-loading .spinner {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+}
+
+
+/* ============================================ */
+/* 3. EMPTY — Даних немає                       */
+/*    Шапка зберігається. Сумний аватар.        */
+/* ============================================ */
+
+.table-state-empty {
+    gap: 8px;
+}
+
+.table-state-empty .table-state-avatar {
+    width: 100px;
+    height: 100px;
+    opacity: 0.75;
+}
+
+
+/* ============================================ */
+/* 4. ERROR — Помилка завантаження              */
+/*    Шапка зберігається. Наляканий аватар.     */
+/* ============================================ */
+
+.table-state-error {
+    gap: 8px;
+}
+
+.table-state-error .table-state-avatar {
+    width: 100px;
+    height: 100px;
+}
+
+.table-state-error .table-state-message {
+    color: var(--color-error);
+}

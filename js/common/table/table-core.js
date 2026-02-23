@@ -4,17 +4,24 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    TABLE LEGO - CORE RENDERER                            ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔒 ЯДРО — Рендеринг HTML структури таблиці                              ║
+ * ║  ЯДРО — Рендеринг HTML структури таблиці.                               ║
  * ║                                                                          ║
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Генерація та оновлення DOM структури таблиці.                           ║
- * ║  HTML вихід ІДЕНТИЧНИЙ до ui-table.js createPseudoTable().               ║
+ * ║  Таблиця — самодостатній LEGO-блок.                                     ║
+ * ║  Сторінки лише конфігурують колонки та дані.                             ║
  * ║                                                                          ║
- * ║  HTML СТРУКТУРА (must match ui-table.js exactly):                        ║
+ * ║  РОЗКЛАДКА:                                                              ║
+ * ║  Рядки і шапка — flex-контейнери. Клітинки отримують .col-N клас        ║
+ * ║  з col.span (1-12), де N — пропорційна flex-вага (grid.css).           ║
+ * ║  Приховані колонки (column-hidden → display:none) автоматично            ║
+ * ║  розтягують видимих сусідів без JS.                                     ║
+ * ║                                                                          ║
+ * ║  HTML СТРУКТУРА:                                                         ║
  * ║  <div class="pseudo-table-container">                                    ║
  * ║    <div class="pseudo-table-header">                                     ║
- * ║      <div class="pseudo-table-cell cell-actions header-actions-cell">    ║
- * ║      <div class="pseudo-table-cell sortable-header filterable"           ║
+ * ║      <div class="pseudo-table-cell col-1 header-actions-cell">          ║
+ * ║      <div class="pseudo-table-cell col-3 sortable-header"               ║
  * ║           data-sort-key="..." data-column="...">                         ║
  * ║        <span>Label</span>                                                ║
  * ║        <span class="sort-indicator">                                     ║
@@ -23,11 +30,15 @@
  * ║      </div>                                                              ║
  * ║    </div>                                                                ║
  * ║    <div class="pseudo-table-row" data-row-id="...">                      ║
- * ║      <div class="pseudo-table-cell cell-actions">actions</div>           ║
- * ║      <div class="pseudo-table-cell" data-column="..."                    ║
- * ║           data-tooltip="...">content</div>                               ║
+ * ║      <div class="pseudo-table-cell col-1">actions</div>                 ║
+ * ║      <div class="pseudo-table-cell col-3 cell-align-center"             ║
+ * ║           data-column="..." data-tooltip="...">content</div>            ║
  * ║    </div>                                                                ║
  * ║  </div>                                                                  ║
+ * ║                                                                          ║
+ * ║  СТАНИ ТАБЛИЦІ:                                                          ║
+ * ║  Порожній стан (empty) рендериться через table-states.js                ║
+ * ║  renderTableState('empty', { message }) замість старого avatar.         ║
  * ║                                                                          ║
  * ║  ЕКСПОРТОВАНІ КЛАСИ:                                                     ║
  * ║  - TableCore — Базовий клас для рендерингу                               ║
@@ -35,7 +46,7 @@
  */
 
 import { escapeHtml } from '../../utils/text-utils.js';
-import { renderAvatarState } from '../avatar/avatar-ui-states.js';
+import { renderTableState } from './table-states.js';
 
 /**
  * Базовий клас для рендерингу таблиці
@@ -89,6 +100,25 @@ export class TableCore {
         return this;
     }
 
+    // ==================== VALIDATION ====================
+
+    /**
+     * Перевірити що сума span колонок = 12.
+     * Викликається при render(). Якщо сума != 12, виводить console.warn.
+     */
+    _validateSpans() {
+        const { columns, rowActions } = this.config;
+        const actionsSpan = rowActions ? 1 : 0;
+        const columnsSpan = columns.reduce((sum, col) => sum + (col.span || 2), 0);
+        const total = actionsSpan + columnsSpan;
+        if (total !== 12) {
+            console.warn(`[TableCore] Column spans sum to ${total}, expected 12. Columns:`,
+                columns.map(c => `${c.id}:${c.span || 2}`).join(', '),
+                actionsSpan ? '+ actions:1' : ''
+            );
+        }
+    }
+
     // ==================== VISIBILITY ====================
 
     isColumnVisible(columnId) {
@@ -110,19 +140,19 @@ export class TableCore {
         return `
             <div class="pseudo-table-header">
                 ${rowActions || rowActionsHeader != null ? `
-                    <div class="pseudo-table-cell cell-actions header-actions-cell">
+                    <div class="pseudo-table-cell col-1 header-actions-cell">
                         ${rowActionsHeader || ''}
                     </div>
                 ` : ''}
                 ${columns.map(col => {
-                    const cellClass = col.className || '';
+                    const colClass = `col-${col.span || 2}`;
+                    const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
                     const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
                     const filterableClass = col.filterable ? ' filterable' : '';
-
                     const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
 
                     return `
-                        <div class="pseudo-table-cell ${cellClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
+                        <div class="pseudo-table-cell ${colClass}${alignClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
                              ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                              data-column="${col.id}"${colTypeAttr}>
                             <span>${col.label || col.id}</span>
@@ -146,13 +176,14 @@ export class TableCore {
         return `
             <div class="${rowClasses.join(' ')}" data-row-id="${rowId}">
                 ${rowActions ? `
-                    <div class="pseudo-table-cell cell-actions">
+                    <div class="pseudo-table-cell col-1">
                         ${rowActions(row)}
                     </div>
                 ` : ''}
                 ${columns.map(col => {
                     const value = row[col.id];
-                    const cellClass = col.className || '';
+                    const colClass = `col-${col.span || 2}`;
+                    const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
                     const tooltipAttr = col.tooltip !== false && value ?
                         `data-tooltip="${escapeHtml(String(value))}"` : '';
 
@@ -166,7 +197,7 @@ export class TableCore {
                     const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
 
                     return `
-                        <div class="pseudo-table-cell ${cellClass}${this.hiddenClass(col.id)}"
+                        <div class="pseudo-table-cell ${colClass}${alignClass}${this.hiddenClass(col.id)}"
                              data-column="${col.id}"${colTypeAttr}
                              ${tooltipAttr}>
                             ${cellContent}
@@ -182,22 +213,16 @@ export class TableCore {
     }
 
     // ==================== EMPTY STATE ====================
-    // Ідентичний до ui-table.js — використовує renderAvatarState
+    // Використовує renderTableState() з table-states.js
 
     renderEmptyState() {
         const { emptyState } = this.config;
         if (!emptyState) return '';
 
-        const emptyHTML = renderAvatarState('empty', {
-            message: emptyState.message || 'Немає даних для відображення',
-            size: 'medium',
-            containerClass: 'empty-state',
-            avatarClass: 'empty-state-avatar',
-            messageClass: 'avatar-state-message',
-            showMessage: true
+        const stateType = emptyState.type || 'empty';
+        return renderTableState(stateType, {
+            message: emptyState.message || 'Немає даних для відображення'
         });
-
-        return `<div class="pseudo-table-body pseudo-table-empty">${emptyHTML}</div>`;
     }
 
     // ==================== FULL RENDER ====================
@@ -205,6 +230,8 @@ export class TableCore {
     // Обгортка тільки .pseudo-table-container якщо withContainer=true
 
     render(data) {
+        this._validateSpans();
+
         const renderData = data || this.state.getFilteredData() || this.state.getData();
         this.currentData = Array.isArray(renderData) ? renderData : [];
 
@@ -251,9 +278,9 @@ export class TableCore {
 
         this.state.runHook('onBeforeRender', this.currentData);
 
-        // Видаляємо тільки рядки та empty state (не заголовок!)
+        // Видаляємо тільки рядки та empty/table state (не заголовок!)
         this.container.querySelectorAll('.pseudo-table-row').forEach(row => row.remove());
-        this.container.querySelectorAll('.pseudo-table-body').forEach(el => el.remove());
+        this.container.querySelectorAll('.table-state').forEach(el => el.remove());
 
         if (this.currentData.length === 0) {
             // Вставляємо empty state після header

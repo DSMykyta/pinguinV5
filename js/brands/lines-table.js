@@ -39,9 +39,9 @@ let _actionCleanup = null;
 export function getLinesColumns() {
     return [
         col('line_id', 'ID', 'tag'),
-        col('_brandName', 'Бренд', 'text'),
-        col('name_uk', 'Назва лінійки', 'name'),
-        col('_hasLogo', 'Логотип', 'status-dot', { className: 'cell-xs cell-center' })
+        col('_brandName', 'Бренд', 'text', { span: 3 }),
+        col('name_uk', 'Назва лінійки', 'name', { span: 5 }),
+        col('_hasLogo', 'Логотип', 'status-dot')
     ];
 }
 
@@ -62,13 +62,15 @@ function initLinesTable() {
         ? brandsState.linesVisibleColumns
         : ['line_id', '_brandName', 'name_uk'];
 
-    const searchCols = brandsState.linesSearchColumns || ['line_id', 'name_uk', '_brandName'];
+    const searchCols = brandsState.linesSearchColumns.length > 0
+        ? brandsState.linesSearchColumns
+        : ['line_id', 'name_uk', '_brandName'];
 
     brandsState.linesManagedTable = createManagedTable({
         container: 'lines-table-container',
         columns: getLinesColumns().map(c => ({
             ...c,
-            searchable: searchCols.includes(c.id),
+            searchable: searchCols.includes(c.id) || c.searchable === true,
             checked: visibleCols.includes(c.id)
         })),
         data: enrichLinesData(getBrandLines()),
@@ -121,8 +123,10 @@ function initLinesTable() {
 
 export function renderLinesTable() {
     if (brandsState.activeTab !== 'lines') return;
+    if (!window.isAuthorized) return;
 
     if (!brandsState.linesManagedTable) {
+        if (!document.getElementById('lines-table-container')) return;
         initLinesTable();
         brandsState.linesManagedTable.activate();
         return;
@@ -131,7 +135,11 @@ export function renderLinesTable() {
 }
 
 export function renderLinesTableRowsOnly() {
-    renderLinesTable();
+    if (brandsState.linesManagedTable) {
+        brandsState.linesManagedTable.refilter();
+    } else {
+        renderLinesTable();
+    }
 }
 
 export function resetLinesTableAPI() {
@@ -161,12 +169,14 @@ registerBrandsPlugin('onRender', () => {
 registerBrandsPlugin('onTabChange', (tab) => {
     if (tab === 'lines') {
         brandsState.brandsManagedTable?.deactivate();
+        if (!window.isAuthorized) return;
         if (!brandsState.linesManagedTable) {
             initLinesTable();
         }
         brandsState.linesManagedTable.activate();
     } else {
         brandsState.linesManagedTable?.deactivate();
+        if (!window.isAuthorized) return;
         brandsState.brandsManagedTable?.activate();
     }
 });

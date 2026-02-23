@@ -49,9 +49,9 @@ const PARAM_TYPE_LABELS = {
 export function getColumns() {
     return [
         col('local_id', 'ID', 'tag'),
-        col('param_type', 'Тип', 'text', { className: 'cell-s', filterable: true, filterType: 'values' }),
-        col('name_uk', 'Назва', 'name'),
-        col('trigers', 'Тригери', 'words-list', { sortable: true, searchable: true })
+        col('param_type', 'Тип', 'text', { filterable: true, filterType: 'values' }),
+        col('name_uk', 'Назва', 'name', { span: 4 }),
+        col('trigers', 'Тригери', 'words-list', { span: 3, sortable: true, searchable: true })
     ];
 }
 
@@ -66,7 +66,9 @@ function initKeywordsTable() {
         ? keywordsState.visibleColumns
         : ['local_id', 'param_type', 'name_uk', 'trigers'];
 
-    const searchCols = keywordsState.searchColumns || ['local_id', 'name_uk', 'param_type', 'trigers'];
+    const searchCols = keywordsState.searchColumns.length > 0
+        ? keywordsState.searchColumns
+        : ['local_id', 'name_uk', 'param_type', 'trigers'];
 
     keywordsManagedTable = createManagedTable({
         container: 'keywords-table-container',

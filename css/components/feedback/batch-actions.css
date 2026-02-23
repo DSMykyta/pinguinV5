@@ -48,19 +48,3 @@
     gap: 8px;
 }
 
-/* Checkbox + actions in table cell */
-.cell-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px !important;
-}
-
-.cell-actions input[type="checkbox"] {
-    margin: 0;
-    flex-shrink: 0;
-}
-
-.cell-actions .btn-icon {
-    margin: 0;
-}

@@ -8,6 +8,11 @@
  * ║  Кожна сторінка описує колонки через col() замість ручного конфігу.     ║
  * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
+ * ║  РОЗКЛАДКА:                                                              ║
+ * ║  Кожен тип задає span (1-12) — пропорційну вагу колонки у рядку.       ║
+ * ║  span використовується як .col-N клас (grid.css flex-система).         ║
+ * ║  align задає вирівнювання вмісту: 'start' | 'center' | 'end'.         ║
+ * ║                                                                          ║
  * ║  КОЛЬОРИ: через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue) ║
  * ║  Компоненти: dot, badge, chip, tag, counter                ║
  * ║                                                                          ║
@@ -42,14 +47,14 @@ const DOT_COLOR = { active: 'c-green', draft: 'c-yellow', hidden: 'c-red', inact
 
 /**
  * Стандартні типи колонок (15 типів).
- * Кожен тип задає: className, sortable, searchable, render.
- * Override render ЗАБОРОНЕНО — тільки структурні overrides (className, sortable, filterable тощо).
+ * Кожен тип задає: span, align, sortable, searchable, render.
+ * Override render ЗАБОРОНЕНО — тільки структурні overrides (span, sortable, filterable тощо).
  */
 export const COLUMN_TYPES = {
 
     // 1. Word-chip — ID, коди, артикули
     'tag': {
-        className: 'cell-m',
+        span: 2,
         sortable: true,
         searchable: true,
         render: (value) => `<span class="tag">${escapeHtml(value ?? '')}</span>`
@@ -57,7 +62,7 @@ export const COLUMN_TYPES = {
 
     // 2. Name — головна назва (bold)
     name: {
-        className: 'cell-xl',
+        span: 3,
         sortable: true,
         searchable: true,
         render: (value) => `<strong>${escapeHtml(value ?? '')}</strong>`
@@ -65,7 +70,7 @@ export const COLUMN_TYPES = {
 
     // 3. Text — звичайний текст
     text: {
-        className: '',
+        span: 2,
         sortable: true,
         searchable: true,
         render: (value) => escapeHtml(value ?? '')
@@ -73,7 +78,8 @@ export const COLUMN_TYPES = {
 
     // 4. Status-dot → dot з c-* класом
     'status-dot': {
-        className: 'cell-xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: true,
         render: (value) => {
             const val = (typeof value === 'boolean')
@@ -86,7 +92,8 @@ export const COLUMN_TYPES = {
 
     // 5. Badge-toggle — перемикач (clickable badge Так/Ні)
     'badge-toggle': {
-        className: 'cell-s cell-center',
+        span: 1,
+        align: 'center',
         sortable: true,
         render: (value, row) => renderBadge(value, 'checked', {
             clickable: true,
@@ -96,21 +103,23 @@ export const COLUMN_TYPES = {
 
     // 6. Severity — іконка рівня важливості (badge)
     severity: {
-        className: 'cell-2xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: true,
         render: (value) => renderSeverityBadge(value)
     },
 
     // 7. Counter — число з badge (0×, 1×, 2×)
     counter: {
-        className: 'cell-2xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: true,
         render: (value) => (value != null && value !== '') ? `<span class="counter">${value}×</span>` : ''
     },
 
     // 8. Words-list — список chips з "+N" counter
     'words-list': {
-        className: 'cell-l',
+        span: 2,
         sortable: false,
         render: (value) => {
             if (!value) return '<span class="text-muted">—</span>';
@@ -127,7 +136,8 @@ export const COLUMN_TYPES = {
 
     // 9. Photo — зображення або placeholder
     photo: {
-        className: 'cell-xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: false,
         render: (value, row) => value
             ? `<img src="${value}" alt="${escapeHtml(row.name_short || '')}" class="product-thumb">`
@@ -136,7 +146,7 @@ export const COLUMN_TYPES = {
 
     // 10. Input — редагований інпут
     input: {
-        className: 'cell-s',
+        span: 2,
         sortable: false,
         render: (value, row, col) =>
             value
@@ -146,7 +156,8 @@ export const COLUMN_TYPES = {
 
     // 11. Binding-chip — чіп з кількістю прив'язок + tooltip
     'binding-chip': {
-        className: 'cell-xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: false,
         render: (value) => {
             if (!value || value.count == null) return '';
@@ -157,7 +168,7 @@ export const COLUMN_TYPES = {
 
     // 12. Code — технічне значення (slug, type, enum)
     code: {
-        className: '',
+        span: 2,
         sortable: true,
         searchable: true,
         render: (value) => value ? `<code>${escapeHtml(value)}</code>` : ''
@@ -165,7 +176,7 @@ export const COLUMN_TYPES = {
 
     // 13. Select — custom-select dropdown (потребує initCustomSelects після рендеру)
     select: {
-        className: 'cell-m',
+        span: 2,
         sortable: false,
         render: (value, row, col) => {
             const options = col.options || [];
@@ -181,7 +192,7 @@ export const COLUMN_TYPES = {
 
     // 14. Links — масив посилань [{name, url}] → іконки btn-icon
     links: {
-        className: 'cell-s',
+        span: 1,
         sortable: false,
         searchable: false,
         render: (value) => {
@@ -196,7 +207,8 @@ export const COLUMN_TYPES = {
 
     // 15. Reserve — badge N/D → avatar (resolveAvatar callback для аватарки)
     reserve: {
-        className: 'cell-xs cell-center',
+        span: 1,
+        align: 'center',
         sortable: true,
         render: (value, row, col) => {
             const id = row.id || row.local_id || row.code;
@@ -219,14 +231,14 @@ export const COLUMN_TYPES = {
  * @param {string} id - ID колонки (ключ в даних)
  * @param {string} label - Відображувана назва
  * @param {string} type - Тип з COLUMN_TYPES
- * @param {Object} [overrides] - Перевизначення будь-яких полів
+ * @param {Object} [overrides] - Перевизначення будь-яких полів (span, align, sortable, filterable тощо)
  * @returns {Object} Конфіг колонки для createTable
  *
  * @example
  * col('brand_id', 'ID', 'tag')
  * col('name_uk', 'Назва', 'name')
  * col('status', 'Статус', 'status-dot')
- * col('severity', ' ', 'severity', { className: 'cell-2xs cell-center' })
+ * col('country', 'Країна', 'text', { span: 1, filterable: true })
  */
 export function col(id, label, type, overrides = {}) {
     const base = COLUMN_TYPES[type] || COLUMN_TYPES.text;

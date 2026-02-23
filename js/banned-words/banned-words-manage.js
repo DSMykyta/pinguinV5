@@ -35,8 +35,8 @@ export function getColumns() {
     return [
         col('local_id', 'ID', 'tag'),
         col('severity', ' ', 'severity', { searchable: true }),
-        col('group_name_ua', 'Назва Групи', 'name'),
-        col('banned_type', 'Тип', 'text'),
+        col('group_name_ua', 'Назва Групи', 'name', { span: 4 }),
+        col('banned_type', 'Тип', 'text', { span: 3 }),
         col('cheaked_line', 'Перевірено', 'badge-toggle')
     ];
 }
@@ -48,11 +48,11 @@ export function getColumns() {
 let managedTable = null;
 
 function initManagedBannedWordsTable() {
-    const visibleCols = (bannedWordsState.visibleColumns && bannedWordsState.visibleColumns.length > 0)
+    const visibleCols = bannedWordsState.visibleColumns.length > 0
         ? bannedWordsState.visibleColumns
         : ['local_id', 'severity', 'group_name_ua', 'banned_type', 'cheaked_line'];
 
-    const searchCols = (bannedWordsState.searchColumns && bannedWordsState.searchColumns.length > 0)
+    const searchCols = bannedWordsState.searchColumns.length > 0
         ? bannedWordsState.searchColumns
         : ['local_id', 'group_name_ua', 'banned_type'];
 
@@ -71,6 +71,7 @@ function initManagedBannedWordsTable() {
         paginationId: null,
 
         tableConfig: {
+            rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
             rowActions: (row) => {
                 const selectedSet = bannedWordsState.selectedProducts['tab-manage'] || new Set();
                 const isChecked = selectedSet.has(row.local_id);
@@ -79,7 +80,6 @@ function initManagedBannedWordsTable() {
                     ${actionButton({ action: 'edit', rowId: row.local_id, context: 'banned-words-manage' })}
                 `;
             },
-            rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
             getRowId: (row) => row.local_id,
             emptyState: { message: 'Заборонені слова не знайдено' },
             withContainer: false,
@@ -167,6 +167,7 @@ export async function renderBannedWordsManageTab() {
 
 export async function renderBannedWordsTable() {
     if (!managedTable) {
+        if (!document.getElementById('banned-words-table-container')) return;
         initManagedBannedWordsTable();
         return;
     }
