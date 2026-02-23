@@ -117,6 +117,49 @@ function adjustAfterBatchDelete(stateArray, deletedItems) {
 }
 
 /**
+ * Дедуплікація маппінгів — знаходить дублі за ключовими полями,
+ * видаляє зайві з Google Sheets і повертає чистий масив.
+ * Залишає найстаріший запис (найменший _rowIndex).
+ * @param {string} sheetGidKey - Ключ у SHEET_GIDS (напр. 'MAP_CATEGORIES')
+ * @param {Array} items - Масив маппінгів
+ * @param {Function} keyFn - Функція що повертає унікальний ключ для елемента
+ * @returns {Array} Масив без дублів
+ */
+async function deduplicateMappings(sheetGidKey, items, keyFn) {
+    const seen = new Map();
+    const duplicates = [];
+
+    for (const item of items) {
+        const key = keyFn(item);
+        if (seen.has(key)) {
+            duplicates.push(item);
+        } else {
+            seen.set(key, item);
+        }
+    }
+
+    if (duplicates.length === 0) return items;
+
+    console.warn(`🧹 Знайдено ${duplicates.length} дублів у ${sheetGidKey}, видаляю...`);
+
+    // Видалити з Google Sheets
+    const rowIndices = duplicates.map(d => d._rowIndex).filter(Boolean);
+    if (rowIndices.length > 0) {
+        try {
+            await hardDeleteRowsBatch(sheetGidKey, rowIndices);
+        } catch (error) {
+            console.error(`❌ Помилка видалення дублів з ${sheetGidKey}:`, error);
+        }
+    }
+
+    // Повернути чистий масив з перерахованими _rowIndex
+    const clean = [...seen.values()];
+    clean.sort((a, b) => (a._rowIndex || 0) - (b._rowIndex || 0));
+    clean.forEach((item, i) => { item._rowIndex = i + 2; });
+    return clean;
+}
+
+/**
  * Каскадне видалення всіх MP сутностей маркетплейсу
  * (mp_categories, mp_characteristics, mp_options).
  * Маппінги видаляються окремо ДО виклику цієї функції.
@@ -379,6 +422,13 @@ export async function loadMapCategories() {
             return obj;
         }).filter(item => item.id);
 
+        // Дедуплікація: ключ = category_id + mp_category_id
+        mapperState.mapCategories = await deduplicateMappings(
+            'MAP_CATEGORIES',
+            mapperState.mapCategories,
+            m => `${m.category_id}|${m.mp_category_id}`
+        );
+
         return mapperState.mapCategories;
     } catch (error) {
         console.error('❌ Помилка завантаження маппінгів категорій:', error);
@@ -414,6 +464,13 @@ export async function loadMapCharacteristics() {
             return obj;
         }).filter(item => item.id);
 
+        // Дедуплікація: ключ = characteristic_id + mp_characteristic_id
+        mapperState.mapCharacteristics = await deduplicateMappings(
+            'MAP_CHARACTERISTICS',
+            mapperState.mapCharacteristics,
+            m => `${m.characteristic_id}|${m.mp_characteristic_id}`
+        );
+
         return mapperState.mapCharacteristics;
     } catch (error) {
         console.error('❌ Помилка завантаження маппінгів характеристик:', error);
@@ -448,6 +505,13 @@ export async function loadMapOptions() {
             });
             return obj;
         }).filter(item => item.id);
+
+        // Дедуплікація: ключ = option_id + mp_option_id
+        mapperState.mapOptions = await deduplicateMappings(
+            'MAP_OPTIONS',
+            mapperState.mapOptions,
+            m => `${m.option_id}|${m.mp_option_id}`
+        );
 
         return mapperState.mapOptions;
     } catch (error) {
