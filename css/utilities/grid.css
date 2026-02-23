@@ -1,30 +1,32 @@
 /**
- * UTILITY: Flex Grid System
+ * UTILITY: Grid System (CSS Grid + Flex)
  *
  * ПРИЗНАЧЕННЯ:
- * Пропорційна flex-система з 12 вагами для будь-яких розкладок:
- * таблиць, модалів, форм, карток, дашбордів.
+ * 12-колонкова система для форм, модалів, карток, дашбордів.
+ * Таблиці використовують flex-ваги (.col-N) напряму.
  *
- * КОНТЕЙНЕР:
- * .grid — flex-контейнер з пропорційними дочірніми елементами
+ * ДВА КОНТЕКСТИ:
+ * 1. .grid — CSS Grid 12 колонок (форми, модалі). Перенесення рядків автоматичне.
+ * 2. flex-контейнери (таблиці) — .col-N = flex: N, пропорційна вага.
  *
- * КОЛОНКИ (пропорційна вага):
- * .col-1  → 1/12 ваги     (найвужча)
- * .col-2  → 2/12 ваги     (шоста)
- * .col-3  → 3/12 ваги     (чверть)
- * .col-4  → 4/12 ваги     (третина)
- * .col-5  → 5/12 ваги
- * .col-6  → 6/12 ваги     (половина)
- * .col-7  → 7/12 ваги
- * .col-8  → 8/12 ваги
- * .col-9  → 9/12 ваги
- * .col-10 → 10/12 ваги
- * .col-11 → 11/12 ваги
- * .col-12 → 12/12 ваги    (повна ширина)
+ * КОЛОНКИ:
+ * .col-1  → span 1  (1/12)
+ * .col-2  → span 2  (шоста)
+ * .col-3  → span 3  (чверть)
+ * .col-4  → span 4  (третина)
+ * .col-5  → span 5
+ * .col-6  → span 6  (половина)
+ * .col-7  → span 7
+ * .col-8  → span 8
+ * .col-9  → span 9
+ * .col-10 → span 10
+ * .col-11 → span 11
+ * .col-12 → span 12 (повна ширина)
  *
- * АВТО-РОЗТЯГУВАННЯ:
- * Якщо елемент прихований (display: none) — сусіди автоматично
- * розтягуються пропорційно до своїх ваг. Без JS.
+ * ПЕРЕНЕСЕННЯ:
+ * col-6 + col-6 = один рядок (6+6=12)
+ * col-6 + col-6 + col-6 = два рядки (6+6 | 6)
+ * col-12 = завжди окремий рядок
  *
  * HTML ПРИКЛАД:
  * <!-- Половина + половина -->
@@ -48,42 +50,39 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (CSS змінні)
- *
- * ЗАСТОСУВАННЯ:
- * - Таблиці (рядки), модалі, форми, картки, дашборди
- * - aside панелі (кнопки форматування)
- * - Будь-яка розкладка де потрібен пропорційний контроль ширини
  */
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   FLEX GRID CONTAINER
+   CSS GRID CONTAINER (форми, модалі, картки)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
     gap: 8px 12px;
     align-items: start;
 }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   COLUMN WEIGHTS (.col-N = пропорційна вага N із 12)
+   COLUMN SPANS + FLEX WEIGHTS
+   В .grid контексті: grid-column: span N (розкладка з перенесенням)
+   В flex контексті (таблиці): flex: N (пропорційна вага)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.col-1  { flex: 1;  min-width: 0; }
-.col-2  { flex: 2;  min-width: 0; }
-.col-3  { flex: 3;  min-width: 0; }
-.col-4  { flex: 4;  min-width: 0; }
-.col-5  { flex: 5;  min-width: 0; }
-.col-6  { flex: 6;  min-width: 0; }
-.col-7  { flex: 7;  min-width: 0; }
-.col-8  { flex: 8;  min-width: 0; }
-.col-9  { flex: 9;  min-width: 0; }
-.col-10 { flex: 10; min-width: 0; }
-.col-11 { flex: 11; min-width: 0; }
-.col-12 { flex: 12; min-width: 0; }
+.col-1  { flex: 1;  min-width: 0; grid-column: span 1; }
+.col-2  { flex: 2;  min-width: 0; grid-column: span 2; }
+.col-3  { flex: 3;  min-width: 0; grid-column: span 3; }
+.col-4  { flex: 4;  min-width: 0; grid-column: span 4; }
+.col-5  { flex: 5;  min-width: 0; grid-column: span 5; }
+.col-6  { flex: 6;  min-width: 0; grid-column: span 6; }
+.col-7  { flex: 7;  min-width: 0; grid-column: span 7; }
+.col-8  { flex: 8;  min-width: 0; grid-column: span 8; }
+.col-9  { flex: 9;  min-width: 0; grid-column: span 9; }
+.col-10 { flex: 10; min-width: 0; grid-column: span 10; }
+.col-11 { flex: 11; min-width: 0; grid-column: span 11; }
+.col-12 { flex: 12; min-width: 0; grid-column: span 12; }
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -92,8 +91,13 @@
 
 /* Mobile: все в одну колонку */
 @media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
     .col-1, .col-2, .col-3, .col-4, .col-5, .col-6,
     .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
+        grid-column: span 1;
         flex-basis: 100%;
         flex-grow: 0;
     }
@@ -101,5 +105,5 @@
 
 /* Tablet: дрібні елементи збільшуємо */
 @media (max-width: 1024px) and (min-width: 769px) {
-    .col-1, .col-2 { flex: 3; }
+    .col-1, .col-2 { flex: 3; grid-column: span 3; }
 }
