@@ -148,6 +148,10 @@ async function checkAuthAndLoadData() {
             // Ініціалізувати обробники подій
             initMapperEvents();
 
+            // Запустити фоновий polling маппінгів
+            const { startPolling } = await import('./mapper-polling.js');
+            startPolling();
+
         } catch (error) {
             console.error('❌ Помилка завантаження даних:', error);
             renderErrorState();

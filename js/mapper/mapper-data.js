@@ -12,6 +12,7 @@
 import { mapperState } from './mapper-state.js';
 import { callSheetsAPI } from '../utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../config/spreadsheet-config.js';
+import { pausePolling, resumePolling } from './mapper-polling.js';
 
 // Назви аркушів у Google Sheets
 const SHEETS = {
@@ -1397,7 +1398,7 @@ export function getMappedMpCategories(ownCatId) {
  * @param {string} mpCatId - ID MP категорії
  */
 export async function createCategoryMapping(ownCatId, mpCatId) {
-
+    pausePolling();
     try {
         // Перевірити чи вже існує
         const existing = mapperState.mapCategories.find(m =>
@@ -1432,6 +1433,8 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
     } catch (error) {
         console.error('❌ Помилка створення маппінгу категорії:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1440,7 +1443,7 @@ export async function createCategoryMapping(ownCatId, mpCatId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteCategoryMapping(mappingId) {
-
+    pausePolling();
     try {
         const mapping = mapperState.mapCategories.find(m => m.id === mappingId);
         if (!mapping) {
@@ -1460,6 +1463,8 @@ export async function deleteCategoryMapping(mappingId) {
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу категорії:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1480,23 +1485,24 @@ export async function deleteCategoryMappingByMpId(mpCatId) {
  * @param {string} ownCatId - ID власної категорії
  */
 export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
+    pausePolling();
+    try {
+        const results = { success: [], failed: [] };
 
-    const results = {
-        success: [],
-        failed: []
-    };
-
-    for (const mpCatId of mpCatIds) {
-        try {
-            await createCategoryMapping(ownCatId, mpCatId);
-            results.success.push(mpCatId);
-        } catch (error) {
-            console.error(`❌ Помилка маппінгу ${mpCatId}:`, error);
-            results.failed.push({ id: mpCatId, error: error.message });
+        for (const mpCatId of mpCatIds) {
+            try {
+                await createCategoryMapping(ownCatId, mpCatId);
+                results.success.push(mpCatId);
+            } catch (error) {
+                console.error(`❌ Помилка маппінгу ${mpCatId}:`, error);
+                results.failed.push({ id: mpCatId, error: error.message });
+            }
         }
-    }
 
-    return results;
+        return results;
+    } finally {
+        resumePolling();
+    }
 }
 
 // -------------------------
@@ -1509,7 +1515,7 @@ export async function batchCreateCategoryMapping(mpCatIds, ownCatId) {
  * @param {string} mpCharId - ID MP характеристики
  */
 export async function createCharacteristicMapping(ownCharId, mpCharId) {
-
+    pausePolling();
     try {
         // Перевірити чи вже існує
         const existing = mapperState.mapCharacteristics.find(m =>
@@ -1544,6 +1550,8 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
     } catch (error) {
         console.error('❌ Помилка створення маппінгу:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1552,7 +1560,7 @@ export async function createCharacteristicMapping(ownCharId, mpCharId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteCharacteristicMapping(mappingId) {
-
+    pausePolling();
     try {
         const mapping = mapperState.mapCharacteristics.find(m => m.id === mappingId);
         if (!mapping) {
@@ -1572,6 +1580,8 @@ export async function deleteCharacteristicMapping(mappingId) {
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1668,7 +1678,7 @@ export function getCharacteristicMappingByMpId(mpCharId) {
  * @param {string} mpOptionId - ID MP опції
  */
 export async function createOptionMapping(ownOptionId, mpOptionId) {
-
+    pausePolling();
     try {
         // Перевірити чи вже існує
         const existing = mapperState.mapOptions.find(m =>
@@ -1703,6 +1713,8 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
     } catch (error) {
         console.error('❌ Помилка створення маппінгу опції:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1711,7 +1723,7 @@ export async function createOptionMapping(ownOptionId, mpOptionId) {
  * @param {string} mappingId - ID маппінгу
  */
 export async function deleteOptionMapping(mappingId) {
-
+    pausePolling();
     try {
         const mapping = mapperState.mapOptions.find(m => m.id === mappingId);
         if (!mapping) {
@@ -1731,6 +1743,8 @@ export async function deleteOptionMapping(mappingId) {
     } catch (error) {
         console.error('❌ Помилка видалення маппінгу опції:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -1823,23 +1837,24 @@ export function getOptionMappingByMpId(mpOptionId) {
  * @param {string} ownCharId - ID власної характеристики
  */
 export async function batchCreateCharacteristicMapping(mpCharIds, ownCharId) {
+    pausePolling();
+    try {
+        const results = { success: [], failed: [] };
 
-    const results = {
-        success: [],
-        failed: []
-    };
-
-    for (const mpCharId of mpCharIds) {
-        try {
-            await createCharacteristicMapping(ownCharId, mpCharId);
-            results.success.push(mpCharId);
-        } catch (error) {
-            console.error(`❌ Помилка маппінгу ${mpCharId}:`, error);
-            results.failed.push({ id: mpCharId, error: error.message });
+        for (const mpCharId of mpCharIds) {
+            try {
+                await createCharacteristicMapping(ownCharId, mpCharId);
+                results.success.push(mpCharId);
+            } catch (error) {
+                console.error(`❌ Помилка маппінгу ${mpCharId}:`, error);
+                results.failed.push({ id: mpCharId, error: error.message });
+            }
         }
-    }
 
-    return results;
+        return results;
+    } finally {
+        resumePolling();
+    }
 }
 
 /**
@@ -1848,23 +1863,24 @@ export async function batchCreateCharacteristicMapping(mpCharIds, ownCharId) {
  * @param {string} ownOptionId - ID власної опції
  */
 export async function batchCreateOptionMapping(mpOptionIds, ownOptionId) {
+    pausePolling();
+    try {
+        const results = { success: [], failed: [] };
 
-    const results = {
-        success: [],
-        failed: []
-    };
-
-    for (const mpOptionId of mpOptionIds) {
-        try {
-            await createOptionMapping(ownOptionId, mpOptionId);
-            results.success.push(mpOptionId);
-        } catch (error) {
-            console.error(`❌ Помилка маппінгу ${mpOptionId}:`, error);
-            results.failed.push({ id: mpOptionId, error: error.message });
+        for (const mpOptionId of mpOptionIds) {
+            try {
+                await createOptionMapping(ownOptionId, mpOptionId);
+                results.success.push(mpOptionId);
+            } catch (error) {
+                console.error(`❌ Помилка маппінгу ${mpOptionId}:`, error);
+                results.failed.push({ id: mpOptionId, error: error.message });
+            }
         }
-    }
 
-    return results;
+        return results;
+    } finally {
+        resumePolling();
+    }
 }
 
 /**
@@ -1872,7 +1888,8 @@ export async function batchCreateOptionMapping(mpOptionIds, ownOptionId) {
  * @param {Array<string>} mpCharIds - Масив ID MP характеристик для автомаппінгу
  */
 export async function autoMapCharacteristics(mpCharIds) {
-
+    pausePolling();
+    try {
     const results = {
         mapped: [],
         notFound: [],
@@ -1917,6 +1934,9 @@ export async function autoMapCharacteristics(mpCharIds) {
     }
 
     return results;
+    } finally {
+        resumePolling();
+    }
 }
 
 /**
@@ -1924,7 +1944,8 @@ export async function autoMapCharacteristics(mpCharIds) {
  * @param {Array<string>} mpOptionIds - Масив ID MP опцій для автомаппінгу
  */
 export async function autoMapOptions(mpOptionIds) {
-
+    pausePolling();
+    try {
     const results = {
         mapped: [],
         notFound: [],
@@ -1969,4 +1990,7 @@ export async function autoMapOptions(mpOptionIds) {
     }
 
     return results;
+    } finally {
+        resumePolling();
+    }
 }

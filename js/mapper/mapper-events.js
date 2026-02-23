@@ -17,6 +17,7 @@ import {
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
 import { createBatchActionsBar, getBatchBar } from '../common/ui-batch-actions.js';
+import { resetSnapshots } from './mapper-polling.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -83,6 +84,7 @@ function initRefreshHandlers() {
                         loadMapOptions()
                     ]);
                     renderCurrentTab();
+                    resetSnapshots();
                 })());
             });
         }
