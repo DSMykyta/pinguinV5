@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone Matching System — Офіційний міжнародний реєстр пігментів</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, sans-serif; }
+        .cylinder { perspective: 1000px; }
+        .swatch { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100">
+    <!-- HEADER -->
+    <header class="border-b border-zinc-800 bg-black sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-violet-600 to-fuchsia-500 rounded flex items-center justify-center text-white font-bold text-2xl">P</div>
+                <div>
+                    <h1 class="text-2xl font-semibold tracking-tight">Pantone Matching System</h1>
+                    <p class="text-xs text-zinc-500 -mt-1">ООН • Міжнародний реєстр</p>
+                </div>
+            </div>
+            <nav class="flex gap-8 text-sm font-medium">
+                <a href="#home" class="hover:text-violet-400 transition">Головна</a>
+                <a href="#visualizer" class="hover:text-violet-400 transition">Візуалізатор</a>
+                <a href="#registry" class="hover:text-violet-400 transition">Реєстр</a>
+                <a href="#careers" class="hover:text-violet-400 transition">Кар'єра</a>
+                <a href="#register" class="hover:text-violet-400 transition">Реєстрація</a>
+            </nav>
+            <div class="flex items-center gap-3">
+                <span class="px-4 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-mono rounded-full border border-emerald-500/30">ONLINE • 7 892 341 пігментів</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO + BANNER AD -->
+    <section id="home" class="relative h-screen flex items-center bg-[radial-gradient(at_center,#4f46e510_0%,transparent_70%)]">
+        <div class="max-w-7xl mx-auto px-8">
+            <div class="max-w-2xl">
+                <h2 class="text-7xl font-bold leading-none tracking-tighter">Ваш колір —<br>ваша сила.</h2>
+                <p class="mt-6 text-xl text-zinc-400">Офіційна система класифікації пігментів за стандартом Pantone HSV. Реєстрація, сертифікація, працевлаштування.</p>
+                <div class="mt-10 flex gap-4">
+                    <a href="#visualizer" class="px-8 py-4 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition">Перевірити свій пігмент</a>
+                    <a href="#register" class="px-8 py-4 border border-white/70 rounded-xl hover:bg-white/10 transition">Зареєструвати пігмент</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANERNA REKLAMA -->
+        <div class="absolute bottom-8 right-8 bg-zinc-900 border border-amber-500/30 rounded-2xl p-5 max-w-xs shadow-2xl">
+            <div class="flex items-center gap-3 text-amber-400 text-sm">
+                <i class="fa-solid fa-bolt"></i>
+                <span class="font-mono uppercase tracking-widest text-xs">Терміновий набір</span>
+            </div>
+            <p class="text-lg font-semibold mt-2 leading-tight">Червоний пігмент (H 0–15)?<br>Оперативна група ООН у Кіото шукає вас!</p>
+            <a href="#careers" class="mt-4 inline-block text-amber-400 text-sm font-medium hover:underline">Подати заявку →</a>
+        </div>
+    </section>
+
+    <!-- VISUALIZER (3D-style HSV) -->
+    <section id="visualizer" class="py-24 bg-zinc-900">
+        <div class="max-w-7xl mx-auto px-8">
+            <h2 class="text-4xl font-semibold mb-3">Інтерактивний HSV-циліндр</h2>
+            <p class="text-zinc-400 max-w-md mb-12">Переміщуйте слайдери та дізнайтеся, який пігмент відповідає Вашим координатам. Точність до 1 одиниці.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div class="space-y-8">
+                    <div>
+                        <label class="block text-sm mb-2 text-zinc-400">H (Hue / Тип) — 0–360°</label>
+                        <input id="hue" type="range" min="0" max="360" value="0" class="w-full accent-violet-500">
+                        <div class="flex justify-between text-xs text-zinc-500"><span>Червоний (Атака)</span><span>Пурпурний (Зміна)</span></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 text-zinc-400">S (Saturation / Направленість) — 0–100</label>
+                        <input id="sat" type="range" min="0" max="100" value="81" class="w-full accent-violet-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 text-zinc-400">V (Value / Комплексність) — 0–100</label>
+                        <input id="val" type="range" min="0" max="100" value="18" class="w-full accent-violet-500">
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <div id="swatch" class="swatch w-28 h-28 rounded-2xl border-4 border-white/20 shadow-inner" style="background-color: #2f0909"></div>
+                        <div>
+                            <div class="font-mono text-3xl font-bold" id="coords">H 0 • S 81 • V 18</div>
+                            <div id="name" class="text-xl text-violet-300 font-medium">Парфумована кров</div>
+                            <div id="domain" class="text-sm text-zinc-400">Чиста Атака • Кендзо Ітагакі</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAKE 3D CYLINDER -->
+                <div class="cylinder h-96 bg-gradient-to-b from-transparent via-zinc-800 to-transparent rounded-3xl flex items-center justify-center overflow-hidden border border-white/10">
+                    <div id="cylinder" class="w-48 h-80 bg-gradient-to-br from-[#2f0909] via-[#4f46e5] to-[#c026d3] rounded-full border-8 border-white/20 shadow-2xl relative" style="transform: rotateX(65deg) rotateZ(15deg);">
+                        <div class="absolute inset-0 bg-[radial-gradient(#fff_0.8px,transparent_1px)] [background-size:20px_20px] opacity-10"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REGISTRY -->
+    <section id="registry" class="py-24">
+        <div class="max-w-7xl mx-auto px-8">
+            <h2 class="text-4xl font-semibold mb-12">Реєстр відомих пігментів</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Cards with generated photos (use the rendered images above) -->
+                <div class="bg-zinc-900 rounded-3xl overflow-hidden border border-white/10">
+                    <img src="https://picsum.photos/id/1015/600/400" alt="Кендзо Ітагакі" class="w-full h-60 object-cover">
+                    <div class="p-6">
+                        <div class="font-mono text-xs text-red-400">#2F0909 • H0 S81 V18</div>
+                        <h3 class="text-2xl font-semibold mt-1">Кендзо Ітагакі</h3>
+                        <p class="text-sm text-zinc-400">Японія • «Парфумована кров»</p>
+                    </div>
+                </div>
+                <!-- Repeat for other 5 characters with different picsum or real generated alt descriptions -->
+                <!-- (for brevity, only one shown; in real file duplicate 5 more) -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CAREERS -->
+    <section id="careers" class="py-24 bg-zinc-900">
+        <div class="max-w-7xl mx-auto px-8">
+            <h2 class="text-4xl font-semibold mb-3">Міжнародні вакансії для пігментів</h2>
+            <p class="text-zinc-400 mb-12">Шукаємо спеціалістів усіх доменів. Конкурентна зарплата + повний пакет захисту.</p>
+            
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-zinc-700 text-xs uppercase tracking-widest text-zinc-500">
+                        <th class="pb-4">Домен</th>
+                        <th class="pb-4">Позиція</th>
+                        <th class="pb-4">Місце</th>
+                        <th class="pb-4">Зарплата</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-zinc-800">
+                    <tr><td class="py-5 text-red-400">Атака (H 0)</td><td>Старший оперативник «Кайзер-2»</td><td>Кіото / Штаб ООН</td><td>€18 400 / міс</td></tr>
+                    <tr><td class="py-5 text-blue-400">Рух (H 240)</td><td>Агент просторової підтримки</td><td>Париж</td><td>€14 900 / міс</td></tr>
+                    <tr><td class="py-5 text-orange-400">Плоть (H 30)</td><td>Медичний координатор</td><td>Афіни</td><td>€12 700 / міс</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- REGISTRATION FORM -->
+    <section id="register" class="py-24">
+        <div class="max-w-2xl mx-auto px-8">
+            <div class="bg-zinc-900 rounded-3xl p-12">
+                <h2 class="text-4xl font-semibold mb-8">Реєстрація пігменту</h2>
+                <form class="space-y-8">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm mb-2">ПІБ</label>
+                            <input type="text" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-6 py-4 focus:outline-none focus:border-violet-500" placeholder="Ім'я Прізвище">
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-2">Дата народження</label>
+                            <input type="date" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-6 py-4 focus:outline-none focus:border-violet-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2">Координати пігменту (за спектрографом)</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <input id="regH" type="number" min="0" max="360" value="0" class="bg-zinc-800 border border-zinc-700 rounded-xl px-6 py-4">
+                            <input id="regS" type="number" min="0" max="100" value="50" class="bg-zinc-800 border border-zinc-700 rounded-xl px-6 py-4">
+                            <input id="regV" type="number" min="0" max="100" value="80" class="bg-zinc-800 border border-zinc-700 rounded-xl px-6 py-4">
+                        </div>
+                    </div>
+                    <button type="button" onclick="alert('Заявка прийнята! Ваш пігмент внесено до Чорного циліндра.')" 
+                            class="w-full py-5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl font-semibold text-lg hover:brightness-110 transition">Зареєструвати пігмент</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black py-12 border-t border-zinc-800">
+        <div class="max-w-7xl mx-auto px-8 text-center text-xs text-zinc-500">
+            © 2026 Pantone Matching System • Офіційний реєстр під егідою ООН • Всі права захищено. Конфіденційність пігментів — наш пріоритет.
+        </div>
+    </footer>
+
+    <script>
+        // Live HSV visualizer
+        const hue = document.getElementById('hue');
+        const sat = document.getElementById('sat');
+        const val = document.getElementById('val');
+        const swatch = document.getElementById('swatch');
+        const coords = document.getElementById('coords');
+        const nameEl = document.getElementById('name');
+        const domainEl = document.getElementById('domain');
+
+        function updateSwatch() {
+            const h = parseInt(hue.value);
+            const s = parseInt(sat.value);
+            const v = parseInt(val.value);
+            
+            const color = `hsl(${h}, ${s}%, ${v}%)`;
+            swatch.style.backgroundColor = color;
+            coords.textContent = `H ${h} • S ${s} • V ${v}`;
+            
+            // Match known pigments
+            if (h === 0 && s > 75 && v < 25) {
+                nameEl.textContent = "Парфумована кров";
+                domainEl.textContent = "Чиста Атака • Кендзо Ітагакі";
+            } else if (h > 200 && h < 260 && v < 30) {
+                nameEl.textContent = "Сингулярність";
+                domainEl.textContent = "Простір • Невідомий арій";
+            } else {
+                nameEl.textContent = "Невідомий пігмент";
+                domainEl.textContent = "Очікуйте класифікацію";
+            }
+        }
+
+        hue.addEventListener('input', updateSwatch);
+        sat.addEventListener('input', updateSwatch);
+        val.addEventListener('input', updateSwatch);
+        updateSwatch();
+    </script>
+</body>
+</html>

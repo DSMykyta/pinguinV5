@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pantone Matching System — State Registry</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#0b0f14;
+    color:#e6e6e6;
+}
+header{
+    background:#111821;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #222;
+}
+header h1{
+    margin:0;
+    font-weight:600;
+    letter-spacing:2px;
+}
+nav a{
+    margin-left:20px;
+    color:#aaa;
+    text-decoration:none;
+}
+nav a:hover{color:white;}
+section{
+    padding:60px 10%;
+    border-bottom:1px solid #111;
+}
+h2{
+    font-weight:400;
+    margin-bottom:30px;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+}
+.card{
+    background:#111821;
+    padding:20px;
+    border-radius:6px;
+}
+button{
+    padding:10px 20px;
+    background:#1e2a38;
+    border:none;
+    color:white;
+    cursor:pointer;
+}
+button:hover{background:#2e3f55;}
+input,select{
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+    background:#1b2430;
+    border:1px solid #333;
+    color:white;
+}
+#ad{
+    background:#202020;
+    text-align:center;
+    padding:20px;
+    font-size:14px;
+    color:#bbb;
+}
+footer{
+    padding:30px;
+    text-align:center;
+    font-size:12px;
+    color:#555;
+}
+canvas{display:block;margin:auto;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>PANTONE MATCHING SYSTEM</h1>
+<nav>
+<a href="#registry">Registry</a>
+<a href="#jobs">Employment</a>
+<a href="#research">Research</a>
+<a href="#3d">HSV Model</a>
+</nav>
+</header>
+
+<section>
+<h2>Official State Platform for Pigment Registration</h2>
+<p>
+Pantone Matching System (PMS) is the official international authority for classification,
+registration and certification of human pigments under UN compliance protocols.
+</p>
+</section>
+
+<section id="registry">
+<h2>Pigment Registration Portal</h2>
+<div class="grid">
+<div class="card">
+<h3>Create Account</h3>
+<input placeholder="Full Name">
+<input placeholder="Passport ID">
+<select>
+<option>Select Pigment Status</option>
+<option>White (#FFFFFF)</option>
+<option>Registered Pigment</option>
+<option>Unverified / Mutation</option>
+</select>
+<button>Submit Registration</button>
+</div>
+
+<div class="card">
+<h3>Spectrograph Certification</h3>
+<p>Upload official HSV coordinates:</p>
+<input placeholder="Hue (0–360)">
+<input placeholder="Saturation (0–100)">
+<input placeholder="Value (0–100)">
+<button>Validate Spectrum</button>
+</div>
+</div>
+</section>
+
+<section id="jobs">
+<h2>Government Employment</h2>
+<div class="grid">
+<div class="card">
+<h3>Defense Sector — Red Domain (H 0°)</h3>
+<p>Recruitment of Attack-class pigments.
+Mandatory psychological evaluation.</p>
+<button>Apply</button>
+</div>
+<div class="card">
+<h3>Medical Sector — Orange Domain (H 30°)</h3>
+<p>Body & regeneration specialists.
+International relocation available.</p>
+<button>Apply</button>
+</div>
+<div class="card">
+<h3>Energy & Influence — Yellow Domain (H 60°)</h3>
+<p>Industrial stabilization programs.</p>
+<button>Apply</button>
+</div>
+</div>
+</section>
+
+<section id="research">
+<h2>Featured Certified Individuals</h2>
+<div class="grid">
+<div class="card">
+<img src="https://thispersondoesnotexist.com/" width="100%">
+<p><strong>Kenzo I.</strong><br>H 0 / S 81 / V 18<br>Status: Monitored</p>
+</div>
+<div class="card">
+<img src="https://thispersondoesnotexist.com/" width="100%">
+<p><strong>Astrid W.</strong><br>H 18 / S 38 / V 82<br>Status: Registered Minor</p>
+</div>
+<div class="card">
+<img src="https://thispersondoesnotexist.com/" width="100%">
+<p><strong>Lars W.</strong><br>H 209 / S 29 / V 67<br>Status: Passive Constant Effect</p>
+</div>
+</div>
+</section>
+
+<section id="3d">
+<h2>Interactive HSV State Model</h2>
+<div id="canvas-container"></div>
+</section>
+
+<div id="ad">
+ADVERTISEMENT — Certified Spectrograph Device v4.2  
+Government Approved. Detects pigment at S ≥ 3 / V ≤ 97  
+Order through licensed distributors only.
+</div>
+
+<footer>
+© 2026 Pantone Matching System — United Nations Registry Division  
+All pigment data protected under International Spectrum Security Act
+</footer>
+
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/500, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, 500);
+document.getElementById("canvas-container").appendChild(renderer.domElement);
+
+const geometry = new THREE.ConeGeometry(5, 10, 64, 32, true);
+const material = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true});
+const cone = new THREE.Mesh(geometry, material);
+scene.add(cone);
+
+camera.position.z = 15;
+
+function animate(){
+requestAnimationFrame(animate);
+cone.rotation.y += 0.005;
+renderer.render(scene, camera);
+}
+animate();
+</script>
+
+</body>
+</html>

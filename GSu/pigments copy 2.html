@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMS — Pantone Matching System | Офіційний реєстр пігментів</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0C;--bg2:#111116;--bg3:#1A1A22;--bgc:#15151C;--t1:#E8E6E3;--t2:#8A8A95;--t3:#55555F;--red:#ED2939;--orange:#E87A3A;--yellow:#D4A843;--green:#3A9E6E;--blue:#2E6BC4;--purple:#8B45B0;--brd:#252530;--brd2:#2A2A38;--gold:#C5A55A}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--red);color:#fff}
+
+.gov-bar{background:#06060A;border-bottom:1px solid var(--brd);padding:6px 0;font-size:11px;color:var(--t3);letter-spacing:.08em}
+.gov-bar-inner{max-width:1400px;margin:0 auto;padding:0 40px;display:flex;justify-content:space-between;align-items:center}
+.gov-bar a{color:var(--t2);text-decoration:none;margin-left:20px}.gov-bar a:hover{color:var(--t1)}
+.un-badge{display:inline-flex;align-items:center;gap:6px}
+.un-badge::before{content:'';width:8px;height:8px;background:var(--blue);border-radius:50%;display:inline-block}
+
+header{background:var(--bg2);border-bottom:1px solid var(--brd);position:sticky;top:0;z-index:1000}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none}
+.logo-mark{width:42px;height:42px;background:var(--red);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;color:#fff;letter-spacing:-.5px}
+.logo-text{display:flex;flex-direction:column;line-height:1}
+.logo-text-main{font-family:'Instrument Serif',serif;font-size:22px;color:var(--t1);letter-spacing:-.02em}
+.logo-text-sub{font-size:9px;letter-spacing:.25em;color:var(--t3);text-transform:uppercase;margin-top:2px}
+nav{display:flex;align-items:center;gap:32px}
+nav a{color:var(--t2);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.02em;transition:color .2s;position:relative}
+nav a:hover{color:var(--t1)}nav a.active{color:var(--t1)}
+nav a.active::after{content:'';position:absolute;bottom:-26px;left:0;right:0;height:2px;background:var(--red)}
+.header-actions{display:flex;align-items:center;gap:16px}
+.btn-ghost{padding:8px 18px;background:0 0;border:1px solid var(--brd);color:var(--t2);font-size:13px;border-radius:4px;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-ghost:hover{border-color:var(--t2);color:var(--t1)}
+.btn-primary{padding:8px 20px;background:var(--red);border:none;color:#fff;font-size:13px;font-weight:500;border-radius:4px;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary:hover{background:#D42B35;transform:translateY(-1px)}
+.lang-switch{font-size:11px;color:var(--t3);cursor:pointer;padding:4px 8px;border:1px solid var(--brd);border-radius:3px}
+
+.alert-bar{background:linear-gradient(90deg,#1A0A0A,#2A0E0E,#1A0A0A);border-bottom:1px solid #3A1515;padding:10px 0;text-align:center;font-size:12px;color:#E88;letter-spacing:.04em;animation:ap 4s ease-in-out infinite}
+@keyframes ap{0%,100%{opacity:.8}50%{opacity:1}}
+.alert-bar strong{color:var(--red);margin-right:8px}.alert-bar a{color:#FAA;text-decoration:underline;margin-left:12px}
+
+.hero{position:relative;min-height:85vh;display:flex;align-items:center;overflow:hidden;background:radial-gradient(ellipse at 30% 50%,#12101A,var(--bg) 70%)}
+.hero-grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--brd) 1px,transparent 1px),linear-gradient(90deg,var(--brd) 1px,transparent 1px);background-size:80px 80px;opacity:.15}
+.hero-inner{max-width:1400px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;width:100%;position:relative;z-index:2}
+.hero-content h1{font-family:'Instrument Serif',serif;font-size:58px;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px}
+.hero-content h1 span{color:var(--red)}
+.hero-content p{font-size:17px;color:var(--t2);max-width:480px;margin-bottom:36px;line-height:1.7}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-large{padding:14px 32px;font-size:14px;font-weight:600;border-radius:4px;cursor:pointer;transition:all .25s;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
+.btn-large.primary{background:var(--red);border:none;color:#fff}
+.btn-large.primary:hover{background:#D42B35;transform:translateY(-2px);box-shadow:0 8px 30px rgba(237,41,57,.3)}
+.btn-large.secondary{background:0 0;border:1px solid var(--brd2);color:var(--t1)}.btn-large.secondary:hover{border-color:var(--t2)}
+.hero-stats{display:flex;gap:40px;margin-top:48px;padding-top:32px;border-top:1px solid var(--brd)}
+.hero-stat-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--t1)}
+.hero-stat-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+.hero-3d{height:520px;position:relative}
+#cone-canvas{width:100%;height:100%;border-radius:8px}
+.cone-label{position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--t3);pointer-events:none}
+.cone-label.h-label{bottom:20px;left:50%;transform:translateX(-50%)}
+.cone-label.v-label{right:20px;top:50%;transform:translateY(-50%) rotate(90deg)}
+
+.banner-ad{max-width:1400px;margin:0 auto;padding:0 40px}
+.banner-ad-inner{background:linear-gradient(135deg,#0E1A2A,#0A1420);border:1px solid #1A2A3A;border-radius:6px;padding:20px 32px;display:flex;align-items:center;justify-content:space-between;margin:40px 0;position:relative;overflow:hidden}
+.banner-ad-inner::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(46,107,196,.15),transparent);border-radius:50%}
+.ad-content{display:flex;align-items:center;gap:24px;z-index:1}
+.ad-badge{font-size:8px;letter-spacing:.15em;color:var(--t3);text-transform:uppercase;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:2px;position:absolute;top:8px;right:12px}
+.ad-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ad-text h4{font-size:14px;color:var(--t1);margin-bottom:2px}.ad-text p{font-size:12px;color:var(--t2)}
+.ad-cta{padding:8px 20px;background:var(--blue);border:none;color:#fff;font-size:12px;font-weight:500;border-radius:4px;cursor:pointer;white-space:nowrap;z-index:1}
+
+section{padding:80px 0}.section-inner{max-width:1400px;margin:0 auto;padding:0 40px}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px}
+.section-header h2{font-family:'Instrument Serif',serif;font-size:38px;letter-spacing:-.02em}
+.section-header p{font-size:14px;color:var(--t2);max-width:420px}
+.section-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--red);text-transform:uppercase;margin-bottom:12px}
+
+.domains-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.domain-card{background:var(--bgc);border:1px solid var(--brd);border-radius:6px;padding:28px 20px;text-align:center;transition:all .3s;cursor:default;position:relative;overflow:hidden}
+.domain-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.domain-card:hover{transform:translateY(-4px);border-color:var(--brd2);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.hue-circle{width:52px;height:52px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#fff}
+.domain-card h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.domain-name{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.1em}
+.domain-desc{font-size:12px;color:var(--t2);margin-top:12px;line-height:1.5}
+.domain-card[data-hue="0"]::before,.domain-card[data-hue="0"] .hue-circle{background:var(--red)}
+.domain-card[data-hue="30"]::before,.domain-card[data-hue="30"] .hue-circle{background:var(--orange)}
+.domain-card[data-hue="60"]::before,.domain-card[data-hue="60"] .hue-circle{background:var(--yellow)}
+.domain-card[data-hue="120"]::before,.domain-card[data-hue="120"] .hue-circle{background:var(--green)}
+.domain-card[data-hue="240"]::before,.domain-card[data-hue="240"] .hue-circle{background:var(--blue)}
+.domain-card[data-hue="300"]::before,.domain-card[data-hue="300"] .hue-circle{background:var(--purple)}
+
+.stats-bar{background:var(--bg2);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);padding:48px 0}
+.stats-grid{max-width:1400px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:repeat(5,1fr);gap:32px;text-align:center}
+.stat-number{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
+
+.reg-section{background:var(--bg2);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd)}
+.reg-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:start}
+.reg-steps{display:flex;flex-direction:column;gap:24px}
+.reg-step{display:flex;gap:20px;padding:20px;border-radius:6px;transition:background .2s}
+.reg-step:hover{background:rgba(255,255,255,.02)}
+.reg-step-num{width:36px;height:36px;background:var(--bg3);border:1px solid var(--brd);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0;color:var(--red)}
+.reg-step h4{font-size:15px;font-weight:600;margin-bottom:4px}.reg-step p{font-size:13px;color:var(--t2);line-height:1.5}
+
+.reg-form-card{background:var(--bgc);border:1px solid var(--brd);border-radius:8px;padding:36px}
+.reg-form-card h3{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:8px}
+.reg-form-card>p{font-size:13px;color:var(--t2);margin-bottom:28px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}.form-group.full{grid-column:1/-1}
+.form-group label{font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.08em}
+.form-group input,.form-group select{padding:10px 14px;background:var(--bg3);border:1px solid var(--brd);border-radius:4px;color:var(--t1);font-size:14px;font-family:inherit;outline:0;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--red)}
+.form-group select{cursor:pointer}.form-group select option{background:var(--bg3)}
+.form-hsv{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.hsv-input{background:var(--bg3);border:1px solid var(--brd);border-radius:4px;padding:12px;text-align:center}
+.hsv-input label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:6px;letter-spacing:.1em}
+.hsv-input input{width:100%;text-align:center;background:0 0;border:none;color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;outline:0}
+.form-color-preview{height:40px;border-radius:4px;margin-bottom:14px;border:1px solid var(--brd);transition:background-color .3s}
+.form-submit{width:100%;padding:14px;background:var(--red);border:none;color:#fff;font-size:14px;font-weight:600;border-radius:4px;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px}
+.form-submit:hover{background:#D42B35}
+.form-notice{font-size:11px;color:var(--t3);text-align:center;margin-top:14px;line-height:1.5}
+
+.careers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.career-card{background:var(--bgc);border:1px solid var(--brd);border-radius:6px;padding:28px;transition:all .3s;cursor:pointer}
+.career-card:hover{border-color:var(--brd2);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.career-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.career-badge{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.05em}
+.career-badge.urgent{background:rgba(237,41,57,.15);color:#F66}
+.career-badge.open{background:rgba(58,158,110,.15);color:#6DA}
+.career-badge.classified{background:rgba(197,165,90,.15);color:var(--gold)}
+.career-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.career-card p{font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.5}
+.career-meta{display:flex;gap:16px;font-size:11px;color:var(--t3)}
+.career-meta span{display:flex;align-items:center;gap:4px}
+.career-req{margin-top:16px;padding-top:16px;border-top:1px solid var(--brd);font-size:11px;color:var(--t3)}
+.career-req strong{color:var(--t2)}
+
+.people-section{background:var(--bg2);border-top:1px solid var(--brd)}
+.people-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.person-card{background:var(--bgc);border:1px solid var(--brd);border-radius:6px;overflow:hidden;transition:all .3s}
+.person-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.person-photo{height:220px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.person-photo::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,var(--bgc))}
+.person-pigment-dot{position:absolute;top:12px;right:12px;width:16px;height:16px;border-radius:50%;border:2px solid rgba(0,0,0,.4);box-shadow:0 0 10px currentColor;z-index:2}
+.person-info{padding:16px 20px 20px}
+.person-info h4{font-size:15px;font-weight:600;margin-bottom:2px}
+.person-role{font-size:12px;color:var(--t2);margin-bottom:10px}
+.person-coords{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);letter-spacing:.05em;background:var(--bg3);padding:4px 8px;border-radius:3px;display:inline-block}
+
+.news-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:16px}
+.news-card{background:var(--bgc);border:1px solid var(--brd);border-radius:6px;overflow:hidden;transition:all .3s;cursor:pointer}
+.news-card:hover{border-color:var(--brd2);transform:translateY(-3px)}
+.news-img{height:180px;position:relative;overflow:hidden}.news-img.main{height:280px}
+.news-img-gradient{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,10,12,.9) 100%)}
+.news-category{position:absolute;top:12px;left:12px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:2px;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);color:var(--t1)}
+.news-body{padding:20px}.news-body h3{font-size:16px;font-weight:600;margin-bottom:8px;line-height:1.3}
+.news-body.main-body h3{font-size:22px;font-family:'Instrument Serif',serif}
+.news-body p{font-size:13px;color:var(--t2);line-height:1.5}
+.news-date{font-size:11px;color:var(--t3);margin-top:12px}
+
+.spectro-section{background:linear-gradient(180deg,var(--bg),var(--bg2))}
+.spectro-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.spectro-card{background:var(--bgc);border:1px solid var(--brd);border-radius:6px;padding:32px}
+.spectro-card h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.spectro-card p{font-size:13px;color:var(--t2);margin-bottom:20px}
+.spectro-features{display:flex;flex-direction:column;gap:12px}
+.spectro-feat{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--t2)}
+.spectro-feat::before{content:'✓';color:var(--green);font-weight:700;width:20px;text-align:center;flex-shrink:0}
+.spectro-price{margin-top:24px;padding-top:20px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
+.spectro-price .price{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700}
+.spectro-price .price span{font-size:13px;font-weight:400;color:var(--t3)}
+
+footer{background:#06060A;border-top:1px solid var(--brd);padding:60px 0 30px}
+.footer-inner{max-width:1400px;margin:0 auto;padding:0 40px}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.footer-brand .logo{margin-bottom:16px}.footer-brand p{font-size:13px;color:var(--t3);max-width:280px;line-height:1.6}
+.footer-col h5{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--t2);margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--t3);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.footer-col a:hover{color:var(--t1)}
+.footer-bottom{border-top:1px solid var(--brd);padding-top:24px;display:flex;justify-content:space-between;font-size:11px;color:var(--t3)}
+.footer-bottom a{color:var(--t3);text-decoration:none;margin-left:20px}
+
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* Silhouette avatars */
+.silhouette{width:80px;height:80px;border-radius:50%;margin:0 auto;position:relative}
+.silhouette-body{position:absolute;bottom:0;width:100%;height:60%;border-radius:0 0 50% 50%;opacity:.7}
+.silhouette-head{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;opacity:.8}
+
+@media(max-width:1024px){
+.hero-inner{grid-template-columns:1fr}.hero-3d{display:none}
+.domains-grid{grid-template-columns:repeat(3,1fr)}
+.careers-grid{grid-template-columns:repeat(2,1fr)}
+.people-grid{grid-template-columns:repeat(2,1fr)}
+.news-grid{grid-template-columns:1fr}
+.reg-grid{grid-template-columns:1fr}
+.footer-grid{grid-template-columns:repeat(3,1fr)}
+.stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="gov-bar"><div class="gov-bar-inner">
+<div><span class="un-badge">Уповноважений реєстр ООН</span><span style="margin-left:16px">Резолюція A/RES/78/214</span></div>
+<div><a href="#">English</a><a href="#">Français</a><a href="#">日本語</a><a href="#" style="color:var(--t1)">Українська</a></div>
+</div></div>
+
+<header><div class="header-inner">
+<a href="#" class="logo"><div class="logo-mark">PMS</div><div class="logo-text"><span class="logo-text-main">Pantone Matching System</span><span class="logo-text-sub">Міжнародний реєстр пігментів</span></div></a>
+<nav><a href="#" class="active">Головна</a><a href="#domains">Класифікація</a><a href="#register">Реєстрація</a><a href="#spectro">Спектрографія</a><a href="#careers">Кар'єра</a><a href="#news">Новини</a></nav>
+<div class="header-actions"><div class="lang-switch">UA ▾</div><button class="btn-ghost">Увійти</button><button class="btn-primary">Мій PMS-ID</button></div>
+</div></header>
+
+<div class="alert-bar"><strong>⚠ ПРОТОКОЛ КІОТО</strong>Зона відчуження 2 км · Цивільних евакуйовано · Рейтинг загрози: KAISER-2 <a href="#">Деталі →</a></div>
+
+<section class="hero"><div class="hero-grid-bg"></div><div class="hero-inner">
+<div class="hero-content">
+<div class="section-tag">Est. 1987 · Женева</div>
+<h1>Кожен колір —<br>це <span>координата</span><br>людської здібності</h1>
+<p>Pantone Matching System — єдиний офіційний стандарт ідентифікації, класифікації та реєстрації пігментів. Затверджено Резолюцією Генеральної Асамблеї ООН.</p>
+<div class="hero-actions"><button class="btn-large primary" onclick="document.getElementById('register').scrollIntoView({behavior:'smooth'})">Зареєструвати пігмент →</button><button class="btn-large secondary" onclick="document.getElementById('domains').scrollIntoView({behavior:'smooth'})">HSV-класифікація</button></div>
+<div class="hero-stats"><div><div class="hero-stat-num">812M</div><div class="hero-stat-label">Зареєстровано</div></div><div><div class="hero-stat-num">194</div><div class="hero-stat-label">Країни</div></div><div><div class="hero-stat-num">6</div><div class="hero-stat-label">Доменів HSV</div></div><div><div class="hero-stat-num">24/7</div><div class="hero-stat-label">Моніторинг</div></div></div>
+</div>
+<div class="hero-3d"><canvas id="cone-canvas"></canvas><div class="cone-label h-label">← HUE (ТИП) →</div><div class="cone-label v-label">VALUE →</div></div>
+</div></section>
+
+<div class="banner-ad"><div class="banner-ad-inner"><span class="ad-badge">Реклама</span><div class="ad-content"><div class="ad-icon">🔬</div><div class="ad-text"><h4>SpectraVue Pro X4 — нове покоління портативних спектрографів</h4><p>Визначення HSV-координат за 0.3 секунди. Точність ±0.5°. Сертифіковано PMS.</p></div></div><button class="ad-cta">Дізнатися більше</button></div></div>
+
+<section id="domains"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Класифікація</div><h2>Шість доменів кольору</h2></div><p>HSV-система визначає три координати кожного пігмента: тип (H), направленість (S) та комплексність (V).</p></div>
+<div class="domains-grid">
+<div class="domain-card fade-in" data-hue="0"><div class="hue-circle">H 0°</div><h3>Червоний</h3><div class="domain-name">Атака</div><div class="domain-desc">Наступальні здібності прямої дії. Кінетика, деструкція, силові імпульси.</div></div>
+<div class="domain-card fade-in" data-hue="30"><div class="hue-circle">H 30°</div><h3>Оранжевий</h3><div class="domain-name">Плоть</div><div class="domain-desc">Біологічний домен. Лікування, діагностика, вплив на тіло.</div></div>
+<div class="domain-card fade-in" data-hue="60"><div class="hue-circle">H 60°</div><h3>Жовтий</h3><div class="domain-name">Вплив</div><div class="domain-desc">Хімічні процеси, енергія, зміна станів матерії.</div></div>
+<div class="domain-card fade-in" data-hue="120"><div class="hue-circle">H 120°</div><h3>Зелений</h3><div class="domain-name">Розум</div><div class="domain-desc">Ментальний домен. Сприйняття, обробка, когнітивні здібності.</div></div>
+<div class="domain-card fade-in" data-hue="240"><div class="hue-circle">H 240°</div><h3>Синій</h3><div class="domain-name">Рух</div><div class="domain-desc">Кінематика, телепортація, маніпуляція простором.</div></div>
+<div class="domain-card fade-in" data-hue="300"><div class="hue-circle">H 300°</div><h3>Пурпурний</h3><div class="domain-name">Зміна</div><div class="domain-desc">Трансформація. Зміна властивостей, структури, природи об'єктів.</div></div>
+</div>
+</div></section>
+
+<div class="stats-bar"><div class="stats-grid">
+<div class="stat-item fade-in"><div class="stat-number">~800 000 000</div><div class="stat-label">Пігментів на планеті</div></div>
+<div class="stat-item fade-in"><div class="stat-number">90%</div><div class="stat-label">Білі (#FFFFFF)</div></div>
+<div class="stat-item fade-in"><div class="stat-number">~50</div><div class="stat-label">Темних (V 20-30)</div></div>
+<div class="stat-item fade-in"><div class="stat-number">5</div><div class="stat-label">Нижче V 20</div></div>
+<div class="stat-item fade-in"><div class="stat-number">1</div><div class="stat-label">Чорний циліндр</div></div>
+</div></div>
+
+<section class="reg-section" id="register"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Реєстрація</div><h2>PMS-ідентифікація</h2></div></div>
+<div class="reg-grid">
+<div class="reg-steps">
+<div class="reg-step fade-in"><div class="reg-step-num">1</div><div><h4>Первинне звернення</h4><p>Заповніть онлайн-форму або зверніться до найближчого PMS-центру. Потрібен дійсний паспорт або ID громадянина.</p></div></div>
+<div class="reg-step fade-in"><div class="reg-step-num">2</div><div><h4>Спектрографічне сканування</h4><p>Сертифікований спеціаліст проведе вимірювання HSV-координат за допомогою каліброваного спектрографа PMS-стандарту.</p></div></div>
+<div class="reg-step fade-in"><div class="reg-step-num">3</div><div><h4>Класифікація домену</h4><p>На основі координат H визначається домен здібності. S та V уточнюють направленість і комплексність пігмента.</p></div></div>
+<div class="reg-step fade-in"><div class="reg-step-num">4</div><div><h4>Отримання PMS-ID</h4><p>Видається унікальний ідентифікатор, що додається до паспорта та вноситься до міжнародного реєстру.</p></div></div>
+<div class="reg-step fade-in"><div class="reg-step-num">5</div><div><h4>Регіональні протоколи</h4><p>Залежно від країни можуть діяти додаткові вимоги. ЄС — запис у паспорті. США — розширений моніторинг.</p></div></div>
+</div>
+<div class="reg-form-card fade-in">
+<h3>Попередня реєстрація</h3><p>Заповніть форму для бронювання спектрографічного сканування у вашому регіоні.</p>
+<div class="form-row"><div class="form-group"><label>Ім'я</label><input type="text" placeholder="Введіть ім'я"></div><div class="form-group"><label>Прізвище</label><input type="text" placeholder="Введіть прізвище"></div></div>
+<div class="form-row"><div class="form-group"><label>Країна</label><select><option>Оберіть країну</option><option>Україна</option><option>Велика Британія</option><option>Німеччина</option><option>Франція</option><option>Японія</option><option>Швеція</option></select></div><div class="form-group"><label>Дата народження</label><input type="date"></div></div>
+<div class="form-group full" style="margin-bottom:14px"><label>Електронна адреса</label><input type="email" placeholder="your@email.com"></div>
+<label style="font-size:11px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:10px">Попередні HSV-координати (якщо відомі)</label>
+<div class="form-hsv"><div class="hsv-input"><label>H (HUE)</label><input type="number" id="form-h" placeholder="0-360" min="0" max="360" oninput="updatePreview()"></div><div class="hsv-input"><label>S (SAT)</label><input type="number" id="form-s" placeholder="0-100" min="0" max="100" oninput="updatePreview()"></div><div class="hsv-input"><label>V (VAL)</label><input type="number" id="form-v" placeholder="0-100" min="0" max="100" oninput="updatePreview()"></div></div>
+<div class="form-color-preview" id="color-preview" style="background:#333"></div>
+<div class="form-group full"><label>Тип звернення</label><select><option>Первинна реєстрація</option><option>Оновлення даних</option><option>Реєстрація неповнолітнього</option><option>Повторне сканування</option></select></div>
+<button class="form-submit">Надіслати заявку</button>
+<div class="form-notice">Реєстрація безкоштовна. Дані захищені протоколом PMS-GDPR-7.<br>Обов'язкова для всіх пігментів з S ≥ 5, V ≤ 95 (Резолюція 78/214, ст. 4).</div>
+</div>
+</div>
+</div></section>
+
+<div class="banner-ad"><div class="banner-ad-inner" style="background:linear-gradient(135deg,#1A140A,#14100A);border-color:#2A2010"><span class="ad-badge">Реклама</span><div class="ad-content"><div class="ad-icon" style="background:linear-gradient(135deg,var(--yellow),var(--orange))">🛡️</div><div class="ad-text"><h4>ChromaShield™ — страхування для пігментів від Allianz</h4><p>Цивільна відповідальність, покриття побічних ефектів, юридичний супровід. Знижка 20% для H 30° (Плоть).</p></div></div><button class="ad-cta" style="background:var(--orange)">Розрахувати тариф</button></div></div>
+
+<section class="people-section" id="team"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Команда PMS</div><h2>Ключові спеціалісти</h2></div><p>Експерти з класифікації, польові координатори та спектрографічні аналітики.</p></div>
+<div class="people-grid">
+<div class="person-card fade-in">
+<div class="person-photo" style="background:linear-gradient(180deg,#2A3545 0%,#1A2535 100%)">
+<svg viewBox="0 0 200 240" width="200" height="240" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><ellipse cx="100" cy="70" rx="38" ry="42" fill="#C4A888"/><path d="M100 112 C60 112 30 150 30 200 L30 240 L170 240 L170 200 C170 150 140 112 100 112Z" fill="#2A3A4A"/><path d="M62 55 Q100 30 138 55 Q140 70 100 68 Q60 70 62 55Z" fill="#3A2A1A"/></svg>
+<div class="person-pigment-dot" style="background:#E8D0B8;color:#E8D0B8"></div>
+</div>
+<div class="person-info"><h4>Д-р Елена Кравченко</h4><div class="person-role">Директорка європейського відділу PMS</div><span class="person-coords">H 28 · S 12 · V 91 — ПЛОТЬ (БЛІДИЙ)</span></div>
+</div>
+<div class="person-card fade-in">
+<div class="person-photo" style="background:linear-gradient(180deg,#1E2838 0%,#141E28 100%)">
+<svg viewBox="0 0 200 240" width="200" height="240" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><ellipse cx="100" cy="70" rx="38" ry="42" fill="#D4B896"/><path d="M100 112 C60 112 30 150 30 200 L30 240 L170 240 L170 200 C170 150 140 112 100 112Z" fill="#1A2A3A"/><path d="M65 52 Q100 42 135 52 L130 60 Q100 55 70 60Z" fill="#C4A040"/></svg>
+<div class="person-pigment-dot" style="background:#FFF;color:#FFF"></div>
+</div>
+<div class="person-info"><h4>Маркус Холлберг</h4><div class="person-role">Головний спектрографічний аналітик</div><span class="person-coords">БІЛИЙ (#FFFFFF) — БЕЗ ПІГМЕНТА</span></div>
+</div>
+<div class="person-card fade-in">
+<div class="person-photo" style="background:linear-gradient(180deg,#2A2040 0%,#1A1030 100%)">
+<svg viewBox="0 0 200 240" width="200" height="240" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><ellipse cx="100" cy="70" rx="36" ry="40" fill="#8A6A4A"/><path d="M100 110 C62 110 35 148 35 200 L35 240 L165 240 L165 200 C165 148 138 110 100 110Z" fill="#3A2040"/><path d="M64 50 Q100 25 136 50 Q138 65 100 62 Q62 65 64 50Z" fill="#1A0A0A"/><rect x="55" y="65" width="90" height="2" rx="1" fill="#3A2040" opacity=".6"/></svg>
+<div class="person-pigment-dot" style="background:#7CBA6E;color:#7CBA6E"></div>
+</div>
+<div class="person-info"><h4>Д-р Аміна Фарух</h4><div class="person-role">Керівниця польових операцій MENA</div><span class="person-coords">H 110 · S 40 · V 73 — РОЗУМ</span></div>
+</div>
+<div class="person-card fade-in">
+<div class="person-photo" style="background:linear-gradient(180deg,#1E2830 0%,#141E20 100%)">
+<svg viewBox="0 0 200 240" width="200" height="240" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%)"><ellipse cx="100" cy="70" rx="36" ry="40" fill="#D4BA96"/><path d="M100 110 C62 110 35 148 35 200 L35 240 L165 240 L165 200 C165 148 138 110 100 110Z" fill="#1A2828"/><path d="M70 52 Q100 44 130 52 L128 58 Q100 53 72 58Z" fill="#0A0A0A"/></svg>
+<div class="person-pigment-dot" style="background:#FFF;color:#FFF"></div>
+</div>
+<div class="person-info"><h4>Такеші Мурата</h4><div class="person-role">Координатор Азійсько-Тихоокеанського</div><span class="person-coords">БІЛИЙ (#FFFFFF) — БЕЗ ПІГМЕНТА</span></div>
+</div>
+</div>
+</div></section>
+
+<section id="careers"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Кар'єра</div><h2>Відкриті позиції</h2></div><p>PMS шукає фахівців для роботи в 42 регіональних офісах та штаб-квартирі в Женеві.</p></div>
+<div class="careers-grid">
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge urgent">Терміново</span></div><h3>Польовий оперативник класу Б</h3><p>Виїзд на інциденти з пігментами рівня S > 50. Координація з локальними силовими структурами.</p><div class="career-meta"><span>📍 Різні регіони</span><span>💼 Повна зайнятість</span></div><div class="career-req"><strong>Вимоги:</strong> Пігмент з S ≥ 30, V ≤ 60. Фізпідготовка рівня 3+.</div></div>
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge open">Відкрито</span></div><h3>Спектрографічний технік</h3><p>Калібрування та обслуговування обладнання PMS-стандарту. Первинні та повторні сканування.</p><div class="career-meta"><span>📍 Женева, Берлін, Токіо</span><span>💼 Контракт 2 роки</span></div><div class="career-req"><strong>Вимоги:</strong> Вища технічна освіта. Сертифікат PMS-TECH-II.</div></div>
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge classified">Закритий конкурс</span></div><h3>Аналітик Чорного циліндра</h3><p>Цілодобовий моніторинг HSV-простору. Виявлення аномалій, відстеження появи та зникнення крапок.</p><div class="career-meta"><span>📍 Штаб-квартира ООН</span><span>💼 Допуск рівня 4</span></div><div class="career-req"><strong>Вимоги:</strong> Допуск безпеки ООН. Аналіз спектральних даних 5+ років.</div></div>
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge open">Відкрито</span></div><h3>Медичний координатор (Плоть)</h3><p>Інтеграція пігментів H 25-35° у системи охорони здоров'я. Протоколи лікувальної взаємодії.</p><div class="career-meta"><span>📍 Цюрих, Відень</span><span>💼 Повна зайнятість</span></div><div class="career-req"><strong>Вимоги:</strong> Медична освіта. Пігмент H 20-40° бажаний.</div></div>
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge urgent">Терміново</span></div><h3>Кризовий перемовник</h3><p>Деескалація інцидентів з пігментами V < 40. Дипломатичне врегулювання без застосування сили.</p><div class="career-meta"><span>📍 Мобільна група</span><span>💼 Повна зайнятість</span></div><div class="career-req"><strong>Вимоги:</strong> Психологічна освіта. Кризові переговори. Мінімум 3 мови.</div></div>
+<div class="career-card fade-in"><div class="career-header"><span class="career-badge open">Відкрито</span></div><h3>Юрист з пігментного права</h3><p>Правовий супровід реєстрацій. Справи дискримінації. Міжнародне пігментне законодавство.</p><div class="career-meta"><span>📍 Женева, Нью-Йорк</span><span>💼 Повна зайнятість</span></div><div class="career-req"><strong>Вимоги:</strong> Юридична освіта. Конвенція про права пігментів (2019).</div></div>
+</div>
+</div></section>
+
+<section class="spectro-section" id="spectro"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Спектрографія</div><h2>Сертифіковане обладнання</h2></div><p>Тільки обладнання зі знаком PMS-Certified відповідає міжнародним стандартам.</p></div>
+<div class="spectro-grid">
+<div class="spectro-card fade-in"><h3>SpectraVue Pro X4</h3><p>Портативний спектрограф для польових команд та мобільних PMS-центрів.</p><div class="spectro-features"><div class="spectro-feat">Вимірювання HSV за 0.3 секунди</div><div class="spectro-feat">Точність ±0.5° по H, ±0.3% по S та V</div><div class="spectro-feat">Автоматичне завантаження в реєстр PMS</div><div class="spectro-feat">Захист IP67 — польові умови</div><div class="spectro-feat">Батарея на 200+ сканувань</div></div><div class="spectro-price"><div class="price">€12,400 <span>/ од.</span></div><button class="btn-primary">Замовити</button></div></div>
+<div class="spectro-card fade-in"><h3>ChromaStation 700</h3><p>Стаціонарна система для PMS-центрів і лабораторій. Золотий стандарт калібрування.</p><div class="spectro-features"><div class="spectro-feat">Точність ±0.1° по H — лабораторний клас</div><div class="spectro-feat">Одночасне вимірювання до 3 суб'єктів</div><div class="spectro-feat">Інтеграція з Чорним циліндром (read-only)</div><div class="spectro-feat">Автозвіт для органів реєстрації</div><div class="spectro-feat">Повна сервісна підтримка 5 років</div></div><div class="spectro-price"><div class="price">€87,000 <span>/ комплект</span></div><button class="btn-primary">Запит на КП</button></div></div>
+</div>
+</div></section>
+
+<section id="news"><div class="section-inner">
+<div class="section-header"><div><div class="section-tag">Новини</div><h2>Останні події</h2></div><a href="#" style="color:var(--red);text-decoration:none;font-size:14px">Усі новини →</a></div>
+<div class="news-grid">
+<div class="news-card fade-in"><div class="news-img main" style="background:linear-gradient(135deg,#1A0A0A,#2A1515 50%,#0A0A1A)"><div class="news-img-gradient"></div><span class="news-category" style="background:rgba(237,41,57,.7)">Протокол KAISER</span></div><div class="news-body main-body"><h3>Інцидент у Кіото: зона відчуження розширена до 2 км</h3><p>Японський уряд затвердив ізоляційний периметр після виявлення активності пігмента класу V < 20 в підземних рівнях міста. Евакуйовано понад 14 000 цивільних.</p><div class="news-date">24 лютого 2026 · PMS Alert Desk</div></div></div>
+<div class="news-card fade-in"><div class="news-img" style="background:linear-gradient(135deg,#0A1A2A,#152535)"><div class="news-img-gradient"></div><span class="news-category">Законодавство</span></div><div class="news-body"><h3>ЄС прийняв поправки до Пігментної хартії</h3><p>Нові правила спрощують реєстрацію для блідих пігментів (S < 10) і скасовують щорічний перегляд.</p><div class="news-date">22 лютого 2026</div></div></div>
+<div class="news-card fade-in"><div class="news-img" style="background:linear-gradient(135deg,#1A1A0A,#25250E)"><div class="news-img-gradient"></div><span class="news-category">Технології</span></div><div class="news-body"><h3>SpectraVue X5 — анонс наступного покоління</h3><p>Новий портативний спектрограф обіцяє точність стаціонарного обладнання. Реліз Q3 2026.</p><div class="news-date">20 лютого 2026</div></div></div>
+</div>
+</div></section>
+
+<div class="banner-ad" style="padding-bottom:40px"><div class="banner-ad-inner" style="background:linear-gradient(135deg,#0E0A1A,#140E20);border-color:#201A2A"><span class="ad-badge">Реклама</span><div class="ad-content"><div class="ad-icon" style="background:linear-gradient(135deg,var(--purple),var(--red))">🎓</div><div class="ad-text"><h4>Женевська Академія Пігментології — набір на осінній семестр 2026</h4><p>Магістратура з спектральної аналітики. Стипендії для пігментів H 120° (Розум). Подача до 15.06.</p></div></div><button class="ad-cta" style="background:var(--purple)">Подати заявку</button></div></div>
+
+<footer><div class="footer-inner">
+<div class="footer-grid">
+<div class="footer-brand"><a href="#" class="logo"><div class="logo-mark">PMS</div><div class="logo-text"><span class="logo-text-main">Pantone Matching System</span><span class="logo-text-sub">Міжнародний реєстр</span></div></a><p>Офіційна система ідентифікації та класифікації пігментів. Затверджена Генеральною Асамблеєю ООН. Штаб-квартира: Женева.</p></div>
+<div class="footer-col"><h5>Реєстрація</h5><a href="#">Попередня заявка</a><a href="#">PMS-центри</a><a href="#">FAQ реєстрації</a><a href="#">Неповнолітні</a><a href="#">Апеляції</a></div>
+<div class="footer-col"><h5>Класифікація</h5><a href="#">HSV-система</a><a href="#">6 доменів</a><a href="#">Каталог пігментів</a><a href="#">Спектрографи</a><a href="#">API для розробників</a></div>
+<div class="footer-col"><h5>Юрисдикції</h5><a href="#">Європейський Союз</a><a href="#">США</a><a href="#">Японія</a><a href="#">Близький Схід</a><a href="#">Міжнародне право</a></div>
+<div class="footer-col"><h5>Організація</h5><a href="#">Про PMS</a><a href="#">Кар'єра</a><a href="#">Прес-центр</a><a href="#">Контакти</a><a href="#">Партнери</a></div>
+</div>
+<div class="footer-bottom"><span>© 2026 Pantone Matching System — Організація Об'єднаних Націй. Усі права захищені.</span><div><a href="#">Конфіденційність</a><a href="#">Умови використання</a><a href="#">Доступність</a><a href="#">PMS-GDPR-7</a></div></div>
+</div></footer>
+
+<script>
+function hsvToRgb(h,s,v){s/=100;v/=100;const c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c;let r,g,b;if(h<60){r=c;g=x;b=0}else if(h<120){r=x;g=c;b=0}else if(h<180){r=0;g=c;b=x}else if(h<240){r=0;g=x;b=c}else if(h<300){r=x;g=0;b=c}else{r=c;g=0;b=x}return[Math.round((r+m)*255),Math.round((g+m)*255),Math.round((b+m)*255)]}
+
+function updatePreview(){const h=parseInt(document.getElementById('form-h').value)||0,s=parseInt(document.getElementById('form-s').value)||50,v=parseInt(document.getElementById('form-v').value)||50,[r,g,b]=hsvToRgb(h%360,Math.min(s,100),Math.min(v,100));document.getElementById('color-preview').style.background='rgb('+r+','+g+','+b+')'}
+
+// 3D HSV Cylinder
+(function(){
+const canvas=document.getElementById('cone-canvas');if(!canvas)return;
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(45,canvas.parentElement.clientWidth/canvas.parentElement.clientHeight,.1,100),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setSize(canvas.parentElement.clientWidth,canvas.parentElement.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));renderer.setClearColor(0x000000,0);
+
+const R=2,H=3,seg=64,ring=32,positions=[],colors=[],indices=[];
+for(let i=0;i<=seg;i++)for(let j=0;j<=ring;j++){const t=(i/seg)*Math.PI*2,y=(j/ring)*H-H/2;positions.push(Math.cos(t)*R,y,Math.sin(t)*R);const[r,g,b]=hsvToRgb((i/seg)*360,80,20+(j/ring)*60);colors.push(r/255,g/255,b/255)}
+for(let i=0;i<seg;i++)for(let j=0;j<ring;j++){const a=i*(ring+1)+j,b=a+1,c=(i+1)*(ring+1)+j,d=c+1;indices.push(a,c,b,b,c,d)}
+const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.setIndex(indices);geo.computeVertexNormals();
+scene.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.65,side:THREE.DoubleSide})));
+scene.add(new THREE.Mesh(geo.clone(),new THREE.MeshBasicMaterial({vertexColors:true,wireframe:true,transparent:true,opacity:.12})));
+
+// Pigment dots
+const dg=new THREE.SphereGeometry(.07,8,8);
+[{h:0,s:81,v:18},{h:240,s:90,v:15},{h:21,s:74,v:78},{h:209,s:29,v:67},{h:18,s:38,v:82},{h:110,s:40,v:73},{h:300,s:95,v:10},{h:51,s:100,v:100},{h:0,s:60,v:85},{h:60,s:50,v:80},{h:240,s:30,v:75}].forEach(d=>{
+const[r,g,b]=hsvToRgb(d.h,d.s,d.v),col=new THREE.Color(r/255,g/255,b/255);
+const m=new THREE.Mesh(dg,new THREE.MeshBasicMaterial({color:col}));
+const a=(d.h/360)*Math.PI*2,rad=R*(1-d.v/100),ht=(d.s/100)*H-H/2;
+m.position.set(Math.cos(a)*rad,ht,Math.sin(a)*rad);scene.add(m);
+const gl=new THREE.Mesh(new THREE.SphereGeometry(.14,8,8),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.3}));
+gl.position.copy(m.position);scene.add(gl)});
+
+// White center
+scene.add(new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,H,16),new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:.5})));
+scene.add(new THREE.Mesh(new THREE.CylinderGeometry(.4,.4,H,16),new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:.08})));
+
+camera.position.set(4,2.5,4);camera.lookAt(0,0,0);
+let isDrag=false,rotY=0,rotX=.3,lastT=null;
+canvas.addEventListener('mousedown',()=>isDrag=true);window.addEventListener('mouseup',()=>isDrag=false);
+canvas.addEventListener('mousemove',e=>{if(isDrag){rotY+=e.movementX*.008;rotX+=e.movementY*.005;rotX=Math.max(-.8,Math.min(.8,rotX))}});
+canvas.addEventListener('touchstart',e=>{lastT={x:e.touches[0].clientX,y:e.touches[0].clientY}});
+canvas.addEventListener('touchmove',e=>{if(lastT){rotY+=(e.touches[0].clientX-lastT.x)*.008;rotX+=(e.touches[0].clientY-lastT.y)*.005;rotX=Math.max(-.8,Math.min(.8,rotX));lastT={x:e.touches[0].clientX,y:e.touches[0].clientY}}});
+let auto=0;
+(function anim(){requestAnimationFrame(anim);auto+=.003;const ty=rotY+auto,d=6;camera.position.set(Math.sin(ty)*Math.cos(rotX)*d,Math.sin(rotX)*d*.5+1,Math.cos(ty)*Math.cos(rotX)*d);camera.lookAt(0,0,0);renderer.render(scene,camera)})();
+window.addEventListener('resize',()=>{const w=canvas.parentElement.clientWidth,h=canvas.parentElement.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)})
+})();
+
+// Scroll animations
+const obs=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting)en.target.classList.add('visible')}),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
+document.querySelectorAll('nav a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})}));
+</script>
+</body>
+</html>

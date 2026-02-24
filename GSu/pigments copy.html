@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone Matching System | Global Registry</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --border-color: #d2d2d7;
+            --accent: #0066cc;
+            --header-bg: rgba(255, 255, 255, 0.8);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; }
+        
+        /* Header & Navigation */
+        header { position: sticky; top: 0; background: var(--header-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); z-index: 100; padding: 0 2rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .logo { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+        .logo-box { width: 24px; height: 24px; background: linear-gradient(135deg, #ff0000, #0000ff); border-radius: 4px; }
+        
+        .tabs { display: flex; gap: 2rem; }
+        .tab-btn { background: none; border: none; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; padding: 10px 0; font-weight: 500; transition: color 0.2s; }
+        .tab-btn.active { color: var(--text-main); border-bottom: 2px solid var(--text-main); }
+        .tab-btn:hover { color: var(--text-main); }
+        
+        /* Layout */
+        main { max-width: 1400px; margin: 2rem auto; padding: 0 2rem; min-height: 80vh; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Typography & Utilities */
+        h1 { font-size: 3rem; font-weight: 700; letter-spacing: -1px; margin-bottom: 1rem; }
+        h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 1.5rem; }
+        p { color: var(--text-muted); margin-bottom: 1rem; }
+        .btn { background: var(--text-main); color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #000; }
+        
+        /* Banner Ad */
+        .banner-ad { background: #000; color: #fff; padding: 2rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; overflow: hidden; position: relative; }
+        .banner-ad::after { content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1)); transform: skewX(-45deg); }
+        .banner-text h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .banner-text p { color: #aaa; margin: 0; }
+        .banner-btn { background: #fff; color: #000; padding: 10px 20px; border-radius: 20px; font-weight: 600; text-decoration: none; font-size: 0.9rem; }
+        
+        /* Grid & Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; }
+        .card { background: #fff; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card-img { width: 100%; height: 250px; background-color: #eee; object-fit: cover; border-bottom: 1px solid var(--border-color); }
+        .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .color-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #f0f0f0; margin-bottom: 1rem; width: fit-content; border: 1px solid rgba(0,0,0,0.1); }
+        .color-swatch { width: 12px; height: 12px; border-radius: 50%; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 0.2rem; }
+        .card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .card .desc { font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
+        .card .pitch { font-size: 0.85rem; font-style: italic; background: #f9f9f9; padding: 10px; border-left: 3px solid var(--text-main); border-radius: 0 6px 6px 0; }
+        
+        /* Form */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <div class="logo">
+            <div class="logo-box"></div>
+            PANTONE MATCHING SYSTEM
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('home')">Головна</button>
+            <button class="tab-btn" onclick="openTab('recruiting')">Рекрутинг</button>
+            <button class="tab-btn" onclick="openTab('registration')">Реєстрація Пігменту</button>
+            <button class="tab-btn" onclick="openTab('database')">База Даних (HSV)</button>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div id="home" class="tab-content active">
+        <h1>Стандартизація. Контроль. Прогрес.</h1>
+        <p style="font-size: 1.2rem; max-width: 600px; margin-bottom: 3rem;">Глобальний реєстр та система класифікації здібностей. Ми забезпечуємо безпеку та інтеграцію пігментів у світову економіку.</p>
+        
+        <div class="banner-ad">
+            <div class="banner-text">
+                <h3>Sony Spectrograph V4 Pro</h3>
+                <p>Точність визначення HSV-координат до 0.001%. Офіційно сертифіковано PMS.</p>
+            </div>
+            <a href="#" class="banner-btn">Замовити обладнання</a>
+        </div>
+        
+        <div class="grid" style="grid-template-columns: 1fr 1fr;">
+            <div style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <h2>Для Корпорацій</h2>
+                <p>Отримайте доступ до найбільшої бази верифікованих спеціалістів. Від промислового синтезу до кінетичного транспортування.</p>
+                <button class="btn" onclick="openTab('recruiting')">Перейти до бази кандидатів</button>
+            </div>
+            <div style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <h2>Для Пігментів</h2>
+                <p>Офіційна сертифікація ваших здібностей, легальне працевлаштування та юридичний захист у 142 країнах світу.</p>
+                <button class="btn" onclick="openTab('registration')">Почати реєстрацію</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="recruiting" class="tab-content">
+        <h2>Верифіковані кандидати (Активний пошук)</h2>
+        <p>Усі кандидати пройшли медичний та психологічний контроль. Рівень V (Комплексність) підтверджено апаратно.</p>
+        
+        <div class="grid" id="candidates-grid">
+            </div>
+    </div>
+
+    <div id="registration" class="tab-content">
+        <h2>Первинна Реєстрація та Сертифікація</h2>
+        <div style="max-width: 600px; background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <div class="form-group">
+                <label>Повне ім'я (згідно з паспортом)</label>
+                <input type="text" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Попередні координати (якщо відомі)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" placeholder="H (0-360)">
+                    <input type="number" placeholder="S (0-100)">
+                    <input type="number" placeholder="V (0-100)">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Домен (Тип здібності)</label>
+                <select>
+                    <option>Атака (H 0 - Червоний)</option>
+                    <option>Плоть (H 30 - Оранжевий)</option>
+                    <option>Вплив (H 60 - Жовтий)</option>
+                    <option>Розум (H 120 - Зелений)</option>
+                    <option>Рух (H 240 - Синій)</option>
+                    <option>Зміна (H 300 - Пурпурний)</option>
+                </select>
+            </div>
+            <button class="btn">Подати заявку на сканування</button>
+        </div>
+    </div>
+
+    <div id="database" class="tab-content">
+        <h2>Специфікація HSV</h2>
+        <div style="background: #fff; padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <tr style="border-bottom: 2px solid var(--text-main);">
+                    <th style="padding: 10px;">Домен (H)</th>
+                    <th style="padding: 10px;">Колір</th>
+                    <th style="padding: 10px;">Опис</th>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 10px; font-weight: bold;">0° (Червоний)</td>
+                    <td style="padding: 10px;"><div style="width: 20px; height: 20px; background: #ff0000; border-radius: 4px;"></div></td>
+                    <td style="padding: 10px;">Атака. Деструктивні здібності високого ризику.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 10px; font-weight: bold;">30° (Оранжевий)</td>
+                    <td style="padding: 10px;"><div style="width: 20px; height: 20px; background: #ff8000; border-radius: 4px;"></div></td>
+                    <td style="padding: 10px;">Плоть. Регенерація, вплив на біологічні тканини.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 10px; font-weight: bold;">60° (Жовтий)</td>
+                    <td style="padding: 10px;"><div style="width: 20px; height: 20px; background: #ffff00; border-radius: 4px;"></div></td>
+                    <td style="padding: 10px;">Вплив. Температури, хімічні реакції, енергія.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    function openTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+</body>
+</html>

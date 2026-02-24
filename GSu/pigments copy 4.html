@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone Matching System — Офіційний реєстр пігментів</title>
+    <style>
+        :root { --accent: #6b21a8; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin:0; background:#f8f9fa; color:#111827; line-height:1.6; }
+        header { background: linear-gradient(90deg, #6b21a8, #c026d3); color:white; padding:1.5rem 0; }
+        .container { max-width: 1280px; margin:0 auto; padding:0 2rem; }
+        nav a { color:white; margin:0 1rem; text-decoration:none; font-weight:500; }
+        section { padding:4rem 0; }
+        h1, h2 { font-weight:700; }
+        .card { background:white; border-radius:16px; overflow:hidden; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1); transition:all .3s; }
+        .card:hover { transform:translateY(-8px); box-shadow:0 20px 25px -5px rgba(0,0,0,0.15); }
+        .swatch { width:80px; height:80px; border-radius:12px; border:4px solid white; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); }
+        .hero { background: linear-gradient(rgba(107,33,168,0.85), rgba(192,38,211,0.85)), url('https://picsum.photos/id/1015/2000/1200') center/cover; color:white; min-height:90vh; display:flex; align-items:center; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <div style="width:48px;height:48px;background:white;border-radius:9999px;display:flex;align-items:center;justify-content:center;color:#6b21a8;font-size:28px;font-weight:900;">P</div>
+            <div>
+                <h1 style="font-size:28px;margin:0;">Pantone Matching System</h1>
+                <p style="margin:0;opacity:0.9;font-size:14px;">Міжнародний реєстр пігментів під егідою ООН</p>
+            </div>
+        </div>
+        <nav>
+            <a href="#home">Головна</a>
+            <a href="#visualizer">Візуалізатор</a>
+            <a href="#registry">Реєстр</a>
+            <a href="#careers">Кар'єра</a>
+            <a href="#register">Реєстрація</a>
+        </nav>
+    </div>
+</header>
+
+<section id="home" class="hero">
+    <div class="container">
+        <div style="max-width:620px;">
+            <h1 style="font-size:4.5rem;line-height:1.05;margin-bottom:1rem;">Ваш колір —<br>ваша сила</h1>
+            <p style="font-size:1.35rem;opacity:0.95;">Офіційна глобальна система класифікації пігментів за стандартом HSV. Реєстрація, сертифікація, працевлаштування.</p>
+            <div style="margin-top:2.5rem;">
+                <a href="#visualizer" style="background:white;color:#6b21a8;padding:16px 36px;border-radius:9999px;font-weight:700;text-decoration:none;display:inline-block;margin-right:1rem;">Перевірити свій пігмент</a>
+                <a href="#register" style="border:3px solid white;padding:13px 34px;border-radius:9999px;font-weight:700;text-decoration:none;display:inline-block;">Зареєструвати пігмент</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="visualizer" style="background:#f1f5f9;">
+    <div class="container">
+        <h2 style="font-size:2.75rem;margin-bottom:0.5rem;">Інтерактивний HSV-циліндр</h2>
+        <p style="max-width:460px;margin-bottom:2rem;">Пересувайте повзунки та дізнавайтеся точну назву та домен будь-якого пігмента.</p>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+            <div>
+                <label style="display:block;margin-bottom:8px;font-weight:600;">H — Тип (0–360°)</label>
+                <input id="h" type="range" min="0" max="360" value="0" style="width:100%;">
+                
+                <label style="display:block;margin:24px 0 8px;font-weight:600;">S — Направленість (0–100)</label>
+                <input id="s" type="range" min="0" max="100" value="81" style="width:100%;">
+                
+                <label style="display:block;margin:24px 0 8px;font-weight:600;">V — Комплексність (0–100)</label>
+                <input id="v" type="range" min="0" max="100" value="18" style="width:100%;">
+                
+                <div style="margin-top:2rem;display:flex;gap:2rem;align-items:center;">
+                    <div id="colorBox" style="width:120px;height:120px;border-radius:16px;background:#2f0909;box-shadow:0 10px 15px -3px rgb(47 9 9 / 40%);"></div>
+                    <div>
+                        <div id="coords" style="font-family:monospace;font-size:2rem;font-weight:700;">H 0 • S 81 • V 18</div>
+                        <div id="pigmentName" style="font-size:1.5rem;color:#6b21a8;font-weight:600;">Парфумована кров</div>
+                        <div id="domain" style="color:#374151;">Чиста Атака • Кендзо Ітагакі</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background:white;padding:3rem;border-radius:24px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);text-align:center;">
+                <p style="font-size:1.1rem;margin-bottom:1rem;">Чорний циліндр показує саме цей колір у реальному часі</p>
+                <div id="cylinderPreview" style="margin:0 auto;width:180px;height:240px;background:conic-gradient(#6b21a8,#c026d3,#6b21a8);border-radius:50%;box-shadow:inset 0 0 60px rgba(0,0,0,0.3);"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="registry">
+    <div class="container">
+        <h2 style="font-size:2.75rem;margin-bottom:2rem;">Реєстр відомих пігментів (V ≤ 20)</h2>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:2rem;">
+            
+            <!-- Кендзо -->
+            <div class="card">
+                <img src="https://picsum.photos/id/1015/600/380" alt="Кендзо Ітагакі" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#2f0909;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#6b21a8;">#2F0909 • H0 S81 V18</span>
+                            <h3 style="margin:4px 0 0;">Кендзо Ітагакі</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">«Парфумована кров». Чиста атака найвищої комплексності. Японія.</p>
+                </div>
+            </div>
+            
+            <!-- Сингулярність -->
+            <div class="card">
+                <img src="https://picsum.photos/id/64/600/380" alt="Сингулярність" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#1e40af;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#1e40af;">H≈240 S≈95 V≈12</span>
+                            <h3 style="margin:4px 0 0;">Сингулярність</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">27 років, арійська зовнішність. Повний контроль простору.</p>
+                </div>
+            </div>
+            
+            <!-- Астрід -->
+            <div class="card">
+                <img src="https://picsum.photos/id/1005/600/380" alt="Астрід Вестергрен" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#e11d48;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#e11d48;">H18 S38 V82</span>
+                            <h3 style="margin:4px 0 0;">Астрід Вестергрен</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">«Коралова пиль». Швеція, 16 років.</p>
+                </div>
+            </div>
+            
+            <!-- Ларс -->
+            <div class="card">
+                <img src="https://picsum.photos/id/201/600/380" alt="Ларс Вестергрен" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#64748b;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#64748b;">H209 S29 V67</span>
+                            <h3 style="margin:4px 0 0;">Ларс Вестергрен</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">«Відвід очей» — постійна невидимість. Швеція, 19 років.</p>
+                </div>
+            </div>
+            
+            <!-- Грекиня -->
+            <div class="card">
+                <img src="https://picsum.photos/id/1011/600/380" alt="Старовинна фігурка" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#854d0e;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#854d0e;">H≈25 S≈40 V≈15</span>
+                            <h3 style="margin:4px 0 0;">Старовинна фігурка</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">Безсмертна. Тисячі років. Греція.</p>
+                </div>
+            </div>
+            
+            <!-- Оперативники -->
+            <div class="card">
+                <img src="https://picsum.photos/id/201/600/380" alt="Кайзер-2" style="width:100%;height:220px;object-fit:cover;">
+                <div style="padding:1.5rem;">
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <div style="width:60px;height:60px;background:#b91c1c;border-radius:12px;"></div>
+                        <div>
+                            <span style="font-family:monospace;font-size:13px;color:#b91c1c;">H0–15</span>
+                            <h3 style="margin:4px 0 0;">Група «Кайзер-2»</h3>
+                        </div>
+                    </div>
+                    <p style="margin-top:1rem;font-size:0.95rem;color:#374151;">Нейт, Джеймі, Коул. Елітні оперативники ООН.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="careers" style="background:#1e2937;color:white;">
+    <div class="container">
+        <h2 style="font-size:2.75rem;color:white;">Міжнародні вакансії</h2>
+        <table style="width:100%;border-collapse:collapse;margin-top:2rem;">
+            <thead>
+                <tr style="border-bottom:2px solid #64748b;">
+                    <th style="text-align:left;padding:1rem 0;">Домен</th>
+                    <th style="text-align:left;padding:1rem 0;">Позиція</th>
+                    <th style="text-align:left;padding:1rem 0;">Місце</th>
+                    <th style="text-align:right;padding:1rem 0;">Зарплата</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #475569;"><td style="padding:1.25rem 0;color:#f43f5e;">Атака</td><td style="padding:1.25rem 0;">Старший оперативник</td><td style="padding:1.25rem 0;">Кіото / Нью-Йорк</td><td style="padding:1.25rem 0;text-align:right;">€18 400</td></tr>
+                <tr style="border-bottom:1px solid #475569;"><td style="padding:1.25rem 0;color:#1e40af;">Рух</td><td style="padding:1.25rem 0;">Агент просторової підтримки</td><td style="padding:1.25rem 0;">Париж</td><td style="padding:1.25rem 0;text-align:right;">€14 900</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section id="register" style="background:#f8f9fa;">
+    <div class="container" style="max-width:680px;">
+        <div style="background:white;padding:3rem;border-radius:24px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);">
+            <h2 style="font-size:2.5rem;margin-bottom:1.5rem;">Реєстрація пігменту</h2>
+            <form style="display:grid;gap:1.5rem;">
+                <input type="text" placeholder="Прізвище, ім’я" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;font-size:1.1rem;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                    <input type="date" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;">
+                    <input type="text" placeholder="Країна" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <input id="regH" type="number" placeholder="H" value="0" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;">
+                    <input id="regS" type="number" placeholder="S" value="50" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;">
+                    <input id="regV" type="number" placeholder="V" value="80" style="padding:1rem;border:1px solid #cbd5e1;border-radius:12px;">
+                </div>
+                <button type="button" onclick="alert('Дякуємо! Ваш пігмент внесено до Чорного циліндра. Спектрограф підтверджено.')" 
+                        style="background:#6b21a8;color:white;padding:1.25rem;font-size:1.25rem;font-weight:700;border:none;border-radius:9999px;cursor:pointer;">
+                    Зареєструвати пігмент
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<footer style="background:#111827;color:#9ca3af;padding:3rem 0;text-align:center;font-size:0.9rem;">
+    © 2026 Pantone Matching System • Офіційний реєстр ООН • Конфіденційність пігментів — наш пріоритет
+</footer>
+
+<script>
+    // Живий візуалізатор
+    const h = document.getElementById('h');
+    const s = document.getElementById('s');
+    const v = document.getElementById('v');
+    const colorBox = document.getElementById('colorBox');
+    const coords = document.getElementById('coords');
+    const pigmentName = document.getElementById('pigmentName');
+    const domain = document.getElementById('domain');
+
+    function update() {
+        const hueVal = h.value;
+        const satVal = s.value;
+        const valVal = v.value;
+        const hsl = `hsl(${hueVal}, ${satVal}%, ${valVal}%)`;
+        colorBox.style.background = hsl;
+        coords.textContent = `H ${hueVal} • S ${satVal} • V ${valVal}`;
+        
+        if (hueVal < 15 && satVal > 70 && valVal < 25) {
+            pigmentName.textContent = "Парфумована кров";
+            domain.textContent = "Чиста Атака • Кендзо Ітагакі";
+        } else if (hueVal > 200 && hueVal < 260 && valVal < 25) {
+            pigmentName.textContent = "Сингулярність";
+            domain.textContent = "Простір • Невідомий арій";
+        } else {
+            pigmentName.textContent = "Невідомий пігмент";
+            domain.textContent = "Очікуйте класифікацію";
+        }
+    }
+    h.oninput = s.oninput = v.oninput = update;
+    update();
+</script>
+</body>
+</html>
