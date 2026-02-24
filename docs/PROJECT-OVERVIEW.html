@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Огляд проєкту — pinguin-v5</title>
+    <title>Принципи JS — pinguin-v5</title>
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
@@ -63,15 +63,6 @@
             display: block;
             margin-top: 2px;
         }
-        .m3-nav-group { padding: 4px 0; }
-        .m3-nav-group-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--color-on-surface-v);
-            padding: 12px 12px 6px;
-        }
         .m3-nav-item {
             display: flex;
             align-items: center;
@@ -117,6 +108,29 @@
             margin: 0 0 24px;
             line-height: 1.6;
             max-width: 640px;
+        }
+
+        /* SECTION HERO */
+        .m3-section-hero {
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: var(--color-on-secondary);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+        }
+        .m3-section-hero h2 {
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            color: inherit;
+        }
+        .m3-section-hero p {
+            font-size: 13px;
+            opacity: 0.88;
+            margin: 0;
+            max-width: 600px;
+            line-height: 1.55;
+            color: inherit;
         }
 
         /* BLOCK */
@@ -170,6 +184,152 @@
             background: var(--color-outline);
             border-radius: 4px;
         }
+
+        /* LAW CARDS */
+        .m3-law {
+            display: flex;
+            gap: 20px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--color-outline);
+            align-items: flex-start;
+        }
+        .m3-law:last-child { border-bottom: none; }
+        .m3-law-num {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--color-main);
+            min-width: 28px;
+            line-height: 1.15;
+            font-variant-numeric: tabular-nums;
+        }
+        .m3-law-title { font-size: 14px; font-weight: 600; color: var(--color-on-surface); margin-bottom: 5px; }
+        .m3-law-desc { font-size: 13px; color: var(--color-on-surface-v); line-height: 1.65; }
+
+        /* CODE BLOCKS */
+        .m3-code {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-outline);
+            background: var(--color-surface-c-low);
+            overflow-x: auto;
+        }
+.m3-code-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 10px;
+        }
+        .m3-code pre {
+            margin: 0;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-on-surface);
+            white-space: pre;
+        }
+
+        /* PART DIVIDERS */
+        .m3-part {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 48px 0 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .m3-part:first-of-type { margin-top: 0; }
+        .m3-part-icon { font-size: 22px; color: var(--color-main); }
+        .m3-part-title { font-size: 20px; font-weight: 600; color: var(--color-on-surface); flex: 1; }
+        .m3-part-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.03em;
+        }
+        .m3-part-badge.locked {
+            background: color-mix(in srgb, #ba1a1a 12%, transparent);
+            color: #ba1a1a;
+        }
+        .m3-part-badge.removable {
+            background: var(--color-main-c);
+            color: var(--color-main);
+        }
+        .m3-part-badge.global {
+            background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+            color: var(--color-secondary, #7b5ea7);
+        }
+
+        /* FILE CARDS GRID */
+        .m3-file-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .m3-file-card {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--color-outline);
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-file-card:nth-child(2n) { border-right: none; }
+        .m3-file-card:nth-last-child(-n+2) { border-bottom: none; }
+        .m3-file-card-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-main);
+            margin-bottom: 4px;
+        }
+        .m3-file-card-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            margin-bottom: 5px;
+        }
+        .m3-file-card-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.6; }
+
+        /* HOOKS FLOW */
+        .m3-hooks {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        .m3-hook-step {
+            flex: 1;
+            padding: 16px 18px;
+            border-right: 1px solid var(--color-outline);
+            position: relative;
+        }
+        .m3-hook-step:last-child { border-right: none; }
+        .m3-hook-step-num {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 6px;
+        }
+        .m3-hook-step-title { font-size: 13px; font-weight: 600; color: var(--color-on-surface); margin-bottom: 4px; }
+        .m3-hook-step-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.55; }
+
+        /* VIOLATIONS */
+        .m3-violations { padding: 0 24px 8px; }
+        .m3-violation {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-violation:last-child { border-bottom: none; }
+        .m3-violation-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            color: #ba1a1a;
+        }
+        .m3-violation-text { font-size: 13px; color: var(--color-on-surface); margin-bottom: 3px; }
+        .m3-violation-fix { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.5; }
     </style>
 </head>
 
@@ -178,55 +338,25 @@
     <!-- SIDEBAR -->
     <aside class="m3-sidebar">
         <div class="m3-sidebar-title">
-            Огляд проєкту
+            Принципи JS
             <span>pinguin-v5</span>
         </div>
 
-        <div class="m3-nav-group">
-            <div class="m3-nav-group-title">Загальне</div>
-            <a href="#project" class="m3-nav-item active">
-                <span class="material-symbols-outlined">info</span>Що це за проєкт
-            </a>
-            <a href="#pages" class="m3-nav-item">
-                <span class="material-symbols-outlined">web</span>Сторінки
-            </a>
-        </div>
-
-        <div class="m3-nav-group">
-            <div class="m3-nav-group-title">Структура JS</div>
-            <a href="#js" class="m3-nav-item">
-                <span class="material-symbols-outlined">folder</span>Папка js/
-            </a>
-            <a href="#layout" class="m3-nav-item">
-                <span class="material-symbols-outlined">dashboard</span>Система layout/
-            </a>
-            <a href="#module" class="m3-nav-item">
-                <span class="material-symbols-outlined">extension</span>Суфікси файлів
-            </a>
-            <a href="#plugins" class="m3-nav-item">
-                <span class="material-symbols-outlined">electrical_services</span>Ядро · Плагіни · Шарми
-            </a>
-            <a href="#components" class="m3-nav-item">
-                <span class="material-symbols-outlined">widgets</span>Папка components/
-            </a>
-        </div>
-
-        <div class="m3-nav-group">
-            <div class="m3-nav-group-title">Інше</div>
-            <a href="#config" class="m3-nav-item">
-                <span class="material-symbols-outlined">settings</span>Папка config/
-            </a>
-            <a href="#api" class="m3-nav-item">
-                <span class="material-symbols-outlined">cloud</span>Папка api/
-            </a>
-        </div>
-
-        <div class="m3-nav-group">
-            <div class="m3-nav-group-title">Оформлення</div>
-            <a href="#headers" class="m3-nav-item">
-                <span class="material-symbols-outlined">article</span>Шапки файлів
-            </a>
-        </div>
+        <a href="#system" class="m3-nav-item active">
+            <span class="material-symbols-outlined">schema</span>Система перед кодом
+        </a>
+        <a href="#core" class="m3-nav-item">
+            <span class="material-symbols-outlined">hub</span>Ядро
+        </a>
+        <a href="#plugins" class="m3-nav-item">
+            <span class="material-symbols-outlined">extension</span>Плагіни
+        </a>
+        <a href="#charms" class="m3-nav-item">
+            <span class="material-symbols-outlined">auto_fix_high</span>Шарми
+        </a>
+        <a href="#headers" class="m3-nav-item">
+            <span class="material-symbols-outlined">code</span>Шапки файлів
+        </a>
     </aside>
 
     <!-- MAIN -->
@@ -242,272 +372,316 @@
 
             <!-- HERO -->
             <div class="m3-hero">
-                <h1>Огляд проєкту</h1>
-                <p>Пояснення структури для людини без технічного фону. Що де лежить, навіщо і як пов'язане між собою.</p>
+                <h1>Принципи JS</h1>
+                <p>Система диктує код — не навпаки. Три закони, п'ять контрактів, один шаблон. Кожен новий модуль виглядає однаково.</p>
             </div>
 
             <!-- ============================================================ -->
-            <!-- ЩО ЦЕ ЗА ПРОЄКТ -->
+            <!-- СИСТЕМА ПЕРЕД КОДОМ -->
             <!-- ============================================================ -->
-            <section class="m3-section" id="project">
-                <h2 class="m3-section-title">Що це за проєкт?</h2>
-                <p class="m3-section-desc">Це веб-інструмент для контент-менеджерів — схоже на внутрішній корпоративний сайт. Він має кілька окремих сторінок-інструментів, кожна зі своєю задачею. Дані зберігаються в Google Sheets.</p>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- СТОРІНКИ -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="pages">
-                <h2 class="m3-section-title">Сторінки</h2>
-                <p class="m3-section-desc">Те, що відкривається в браузері. Кожна сторінка — окремий інструмент.</p>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>HTML файли в корені проєкту</h3>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Файл</th><th>Що це</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>index.html</code></td><td>Головна — набір генераторів (SEO, таблиці, переклад, зображення...)</td></tr>
-                            <tr><td><code>brands.html</code></td><td><strong>Бренди</strong> — база даних брендів і лінійок</td></tr>
-                            <tr><td><code>keywords.html</code></td><td><strong>Ключові слова</strong> — бібліотека ключовиків</td></tr>
-                            <tr><td><code>glossary.html</code></td><td><strong>Глосарій</strong> — словник термінів</td></tr>
-                            <tr><td><code>price.html</code></td><td><strong>Прайс</strong> — робота з цінами</td></tr>
-                            <tr><td><code>tasks.html</code></td><td><strong>Завдання</strong> — таск-менеджер</td></tr>
-                            <tr><td><code>mapper.html</code></td><td><strong>Маппер</strong> — прив'язка категорій і характеристик до маркетплейсів</td></tr>
-                            <tr><td><code>banned-words.html</code></td><td><strong>Стоп-слова</strong> — список заборонених слів і перевірка текстів</td></tr>
-                        </tbody>
-                    </table>
+            <section class="m3-section" id="system">
+                <div class="m3-section-hero m3-section-hero--system">
+                    <h2>Система перед кодом</h2>
+                    <p>Код підкоряється системі — не навпаки. Якщо нова функція не вписується в шаблон — змінюй код, не систему. Кожен модуль виглядає однаково. Людина знає де шукати і що очікувати ще до того як відкрила файл.</p>
                 </div>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- ПАПКА JS/ -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="js">
-                <h2 class="m3-section-title">Папка js/ — серце програми</h2>
-                <p class="m3-section-desc">Весь JavaScript проєкту. Кожна папка відповідає одній ролі.</p>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Структура папок</h3>
+                        <h3>Три закони</h3>
                     </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Папка / файл</th><th>Що це</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>main-core.js</code></td><td>Головний запуск — ініціалізує layout і всі спільні компоненти</td></tr>
-                            <tr><td><code>main-*.js</code></td><td>"Вхідна точка" кожної сторінки — запускає свій модуль</td></tr>
-                            <tr><td><code>layout/</code></td><td>Скелет кожної сторінки: меню, таби, права панель. Один оркестратор <code>layout-main.js</code></td></tr>
-                            <tr><td><code>pages/</code></td><td>Модулі сторінок: brands/, keywords/, mapper/, price/, tasks/, banned-words/, glossary/</td></tr>
-                            <tr><td><code>components/</code></td><td>Спільні UI компоненти — використовуються скрізь</td></tr>
-                            <tr><td><code>generators/</code></td><td>Генератори: SEO, таблиці, посилання, зображення, переклад...</td></tr>
-                            <tr><td><code>auth/</code></td><td>Авторизація Google</td></tr>
-                            <tr><td><code>config/</code></td><td>Налаштування (ID Google Sheets таблиць)</td></tr>
-                            <tr><td><code>utils/</code></td><td>Маленькі допоміжні функції</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- СИСТЕМА LAYOUT -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="layout">
-                <h2 class="m3-section-title">Система layout/ — скелет сторінки</h2>
-                <p class="m3-section-desc">
-                    Layout — це те, що є на кожній сторінці: ліве меню, права панель, таби. Уся система запускається одним викликом <code>initLayout()</code> з <code>main-core.js</code>. Всередині — дві підсистеми з чіткими префіксами.
-                </p>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>Оркестратор</h3>
-                        <p><code>layout-main.js</code> — єдина точка входу для всього layout. Запускає обидві підсистеми послідовно. Реекспортує публічне API для сторінок.</p>
+                    <div class="m3-law">
+                        <div class="m3-law-num">I</div>
+                        <div>
+                            <div class="m3-law-title">Один файл — одна роль</div>
+                            <div class="m3-law-desc">Файл або завантажує плагіни, або зберігає стан, або генерує HTML, або реалізує одну фічу. Ніколи не поєднує. Якщо файл робить дві речі — це два файли.</div>
+                        </div>
+                    </div>
+                    <div class="m3-law">
+                        <div class="m3-law-num">II</div>
+                        <div>
+                            <div class="m3-law-title">Плагін не знає про інші плагіни</div>
+                            <div class="m3-law-desc">Єдиний канал між плагінами — <code>state</code> через хуки. Плагін не імпортує інший плагін, не викликає функції сусідів. Реагує на події — і все.</div>
+                        </div>
+                    </div>
+                    <div class="m3-law">
+                        <div class="m3-law-num">III</div>
+                        <div>
+                            <div class="m3-law-title">Система не падає через один плагін</div>
+                            <div class="m3-law-desc"><code>Promise.allSettled</code> — завжди, без виключень. Хуки обгорнуті в <code>try/catch</code>. Видаляти плагін безпечно в будь-який момент.</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>nav-* — навігація</h3>
-                        <p>Файли з префіксом <code>nav-</code> відповідають за переміщення по сторінці.</p>
+                        <h3>Контракт рівнів</h3>
+                        <p>Якщо код не відповідає контракту — він лежить не в тому файлі. Переміщуй код, не правила.</p>
                     </div>
                     <table class="m3-spec">
                         <thead>
-                            <tr><th>Файл</th><th>Що робить</th></tr>
+                            <tr><th>Рівень</th><th>Зобов'язаний</th><th>Заборонено</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td><code>nav-menu.js</code></td><td>Завантажує ліву навігаційну панель, підсвічує активну сторінку</td></tr>
-                            <tr><td><code>nav-tabs.js</code></td><td>Перемикач вкладок (табів) — реагує на клік, активує контент</td></tr>
-                            <tr><td><code>nav-tabs-dynamic.js</code></td><td>Динамічне створення нових вкладок в runtime</td></tr>
-                            <tr><td><code>nav-sections.js</code></td><td>Іконки-посилання для переходу між секціями + scroll spy (підсвічує активну)</td></tr>
+                            <tr>
+                                <td><code>-main.js</code></td>
+                                <td>Завантажувати плагіни через <code>Promise.allSettled</code>. Експортувати <code>init*()</code> або <code>create*()</code></td>
+                                <td>Реалізовувати фічу напряму. Маніпулювати DOM. Містити бізнес-логіку</td>
+                            </tr>
+                            <tr>
+                                <td><code>-state.js</code></td>
+                                <td>Зберігати стан. Реалізовувати <code>registerHook</code> / <code>runHook</code>. Кешувати DOM-посилання</td>
+                                <td>Завантажувати плагіни. Маніпулювати DOM. Містити обробники подій</td>
+                            </tr>
+                            <tr>
+                                <td><code>-template.js</code></td>
+                                <td>Генерувати і повертати HTML-рядок на основі конфігурації</td>
+                                <td>Вставляти HTML в DOM. Вішати <code>addEventListener</code>. Знати про <code>state</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>-core.js</code></td>
+                                <td>Ініціалізувати базову DOM-логіку. Запускати <code>state.runHook()</code> в ключових точках</td>
+                                <td>Реалізовувати окремі фічі. Знати про конкретні плагіни</td>
+                            </tr>
+                            <tr>
+                                <td>plugin</td>
+                                <td>Експортувати <code>function init(state)</code>. Реагувати через <code>state.registerHook()</code></td>
+                                <td>Імпортувати інші плагіни. Зберігати дані поза <code>state</code>. Покладатися на порядок завантаження</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>aside-* — права панель</h3>
-                        <p>Файли з префіксом <code>aside-</code> відповідають за бічну панель праворуч.</p>
+                        <h3>Мінімальний новий модуль</h3>
+                        <p>Три файли — повна ЛЕГО-система. Нова фіча = новий плагін. Видалення фічі = видалення файлу.</p>
                     </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Файл</th><th>Що робить</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>aside-state.js</code></td><td>Стан панелі: розгорнута / згорнута / закрита. Кнопки керування.</td></tr>
-                            <tr><td><code>aside-loader.js</code></td><td>Завантажує HTML-шаблони в панель. Реєстр ініціалізаторів сторінок.</td></tr>
-                            <tr><td><code>aside-observer.js</code></td><td>Стежить за скролом — перемикає вміст панелі при прокрутці до нової секції</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">my-main.js — фабрика і завантажувач</div>
+<pre>import { createMyState } from './my-state.js';
+
+const PLUGINS = [
+    './my-feature-a.js',
+    './my-feature-b.js',
+];
+
+export async function initMyModule() {
+    const state = createMyState();
+    const results = await Promise.allSettled(PLUGINS.map(p => import(p)));
+    results.forEach(r => r.status === 'fulfilled' && r.value.init?.(state));
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">my-state.js — стан і хуки (єдине джерело правди)</div>
+<pre>export function createMyState() {
+    const hooks = { onUpdate: [], onRender: [] };
+    return {
+        data: [],
+        registerHook: (name, fn) => hooks[name]?.push(fn),
+        runHook: (name, ...args) => hooks[name]?.forEach(fn => {
+            try { fn(...args) } catch (e) { console.error('[MyModule]', e) }
+        }),
+    };
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">my-feature-a.js — плагін (можна видалити, система не впаде)</div>
+<pre>export function init(state) {
+    state.registerHook('onUpdate', () => { /* реакція на подію */ });
+    state.registerHook('onRender', () => { /* реакція на рендер */ });
+}</pre>
+                    </div>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Як підключити aside до сторінки</h3>
-                        <p>Достатньо двох речей — атрибут в HTML і один рядок в JS. Жодних додаткових викликів.</p>
+                        <h3>Порушення системи</h3>
+                        <p>Якщо бачиш одне з цього — система порушена. Рефактор обов'язковий, виключень немає.</p>
                     </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Де</th><th>Що зробити</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>В HTML</td><td>Додати <code>data-aside-template="aside-brands"</code> на тег <code>&lt;main&gt;</code>, <code>.tab-content</code> або <code>&lt;section&gt;</code></td></tr>
-                            <tr><td>В JS модулі</td><td>Викликати <code>registerAsideInitializer('aside-brands', () =&gt; { ... })</code> на рівні модуля</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- СУФІКСИ ФАЙЛІВ -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="module">
-                <h2 class="m3-section-title">Суфікси файлів</h2>
-                <p class="m3-section-desc">Кожен файл: назва модуля + суфікс що описує роль. Наприклад: <code>brands-data.js</code>, <code>editor-state.js</code>, <code>aside-observer.js</code>.</p>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>🔒 Суфікси ядра — не видаляти</h3>
-                        <p>Ці суфікси утворюють ЛЕГО-ядро. Де вони є — там повноцінна система з плагінами.</p>
+                    <div class="m3-violations">
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text">Плагін імпортує інший плагін</div>
+                                <div class="m3-violation-fix">→ Перенести спільну логіку в <code>-state.js</code> або <code>-core.js</code>. Комунікація тільки через хуки.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text"><code>-main.js</code> містить логіку фічі (не просто завантажує плагіни)</div>
+                                <div class="m3-violation-fix">→ Витягнути у плагін або в <code>-core.js</code>. Main — тільки bootstrap.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text"><code>-state.js</code> містить <code>querySelector</code> або маніпулює DOM</div>
+                                <div class="m3-violation-fix">→ State зберігає посилання, не маніпулює. DOM-логіка — в <code>-core.js</code> або плагін.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text"><code>-template.js</code> вставляє HTML в DOM або вішає <code>addEventListener</code></div>
+                                <div class="m3-violation-fix">→ Template повертає рядок. Вставка — в main, події — в плагін або core.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text"><code>Promise.all</code> замість <code>Promise.allSettled</code> для завантаження плагінів</div>
+                                <div class="m3-violation-fix">→ Завжди <code>allSettled</code>. Один плагін що впав не зупиняє решту.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text">Плагін зберігає дані в модульній змінній поза <code>state</code></div>
+                                <div class="m3-violation-fix">→ Весь стан — у <code>state</code>. Інакше неможливо ізолювати декілька екземплярів.</div>
+                            </div>
+                        </div>
+                        <div class="m3-violation">
+                            <span class="material-symbols-outlined m3-violation-icon">block</span>
+                            <div>
+                                <div class="m3-violation-text">Плагін покладається на те, що інший плагін вже завантажений</div>
+                                <div class="m3-violation-fix">→ Плагіни завантажуються паралельно. Порядок не гарантований ніколи.</div>
+                            </div>
+                        </div>
                     </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Суфікс</th><th>Роль</th><th>Приклад</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>-main.js</code></td><td>Фабрика. Створює екземпляр, будує DOM, запускає ядро, завантажує плагіни через <code>Promise.allSettled</code></td><td>editor-main.js, brands-main.js</td></tr>
-                            <tr><td><code>-state.js</code></td><td>Стан. Живий об'єкт який передається в кожен плагін. Містить DOM-посилання, хуки, методи</td><td>editor-state.js, brands-state.js</td></tr>
-                            <tr><td><code>-template.js</code></td><td>HTML-шаблон. Генерує розмітку компонента до вставки в DOM</td><td>editor-template.js</td></tr>
-                            <tr><td><code>-plugins.js</code></td><td>Хук-система. Реєстр подій (<code>onInit</code>, <code>onUpdate</code>...) через які плагіни спілкуються</td><td>brands-plugins.js, gse-plugins.js</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>Дані і бекенд</h3>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Суфікс</th><th>Роль</th><th>Приклад</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>-data.js</code></td><td>Завантаження і збереження даних у Google Sheets. API-виклики.</td><td>brands-data.js, banned-words-data.js</td></tr>
-                            <tr><td><code>-import.js</code></td><td>Імпорт зовнішніх файлів (XLSX, CSV, JSON) або даних з маркетплейсів</td><td>price-import.js, mapper-import.js</td></tr>
-                            <tr><td><code>-polling.js</code></td><td>Фонова синхронізація — регулярно перевіряє зміни в Google Sheets</td><td>mapper-polling.js</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>UI і відображення</h3>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Суфікс</th><th>Роль</th><th>Приклад</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>-table.js</code></td><td>Відображення і керування таблицею через <code>createManagedTable</code></td><td>brands-table.js, mapper-table.js</td></tr>
-                            <tr><td><code>-ui.js</code></td><td>Відображення UI-елементів (селекти, чіпи, лічильники)</td><td>brands-ui.js, banned-words-ui.js</td></tr>
-                            <tr><td><code>-crud.js</code></td><td>Модальні вікна для додавання / редагування / видалення</td><td>keywords-crud.js, brands-crud.js</td></tr>
-                            <tr><td><code>-aside.js</code></td><td>Реєструє <code>registerAsideInitializer</code> для правої панелі цього модуля</td><td>price-aside.js, banned-words-aside.js</td></tr>
-                            <tr><td><code>-manage.js</code></td><td>Сторінка управління: рендер таблиці + дії</td><td>banned-words-manage.js</td></tr>
-                            <tr><td><code>-tabs.js</code></td><td>Динамічні таби специфічні для модуля</td><td>banned-words-tabs.js</td></tr>
-                            <tr><td><code>-dom.js</code></td><td>Кеш DOM-елементів. Один раз шукає, зберігає посилання</td><td>gse-dom.js, gt-dom.js</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>Поведінка і логіка</h3>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Суфікс</th><th>Роль</th><th>Приклад</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>-init.js</code></td><td>Точка входу сторінки. Ініціалізація табів, кнопок, першого завантаження</td><td>mapper-init.js, keywords-init.js</td></tr>
-                            <tr><td><code>-events.js</code></td><td>Обробники подій користувача (кліки, введення, зміни)</td><td>mapper-events.js, brands-events.js</td></tr>
-                            <tr><td><code>-loader.js</code></td><td>Завантаження HTML-шаблонів в DOM</td><td>aside-loader.js</td></tr>
-                            <tr><td><code>-observer.js</code></td><td>IntersectionObserver або MutationObserver — реагує на scroll / DOM</td><td>aside-observer.js</td></tr>
-                            <tr><td><code>-mode.js</code></td><td>Базова поведінкова логіка системи (перемикання режимів)</td><td>editor-mode.js</td></tr>
-                            <tr><td><code>-parser.js</code></td><td>Парсинг і розбір тексту, назв, шаблонів</td><td>gse-parser.js, magic-smart-parser.js</td></tr>
-                            <tr><td><code>-utils.js</code> / <code>-helpers.js</code></td><td>Допоміжні функції специфічні для модуля</td><td>editor-utils.js, gse-helpers.js</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </section>
 
             <!-- ============================================================ -->
-            <!-- ЯДРО · ПЛАГІНИ · ШАРМИ -->
+            <!-- ЯДРО -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="core">
+                <div class="m3-section-hero m3-section-hero--core">
+                    <h2>Ядро</h2>
+                    <p>Файли без яких модуль не існує. Позначені міткою 🔒 ЯДРО в шапці. Якщо одного не стає — система не стартує.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Чотири файли — чотири ролі</h3>
+                        <p>Кожен відповідає за одне. Ніколи не поєднуються в один файл.</p>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">-main.js</div>
+                            <div class="m3-file-card-role">Фабрика і оркестратор</div>
+                            <div class="m3-file-card-desc">Створює екземпляр, вставляє HTML в DOM, запускає ядро, завантажує плагіни через <code>Promise.allSettled</code>. Єдина точка входу.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">-state.js</div>
+                            <div class="m3-file-card-role">Єдине джерело правди</div>
+                            <div class="m3-file-card-desc">Живий об'єкт що передається в кожен плагін. Зберігає дані, DOM-посилання, реєстр хуків. Плагіни читають і пишуть тільки через нього.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">-template.js</div>
+                            <div class="m3-file-card-role">HTML-фабрика</div>
+                            <div class="m3-file-card-desc">Генерує розмітку компонента на основі конфігурації. Повертає рядок. Нічого не вставляє в DOM, не знає про state.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">-core.js</div>
+                            <div class="m3-file-card-role">Базова DOM-логіка</div>
+                            <div class="m3-file-card-desc">Ініціалізує core-поведінку, вішає базові обробники подій, запускає <code>state.runHook()</code> в ключових точках. Не знає про конкретні плагіни.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>State — спільна шина між усіма рівнями</h3>
+                        <p>Плагіни не знають одне про одного. Вони спілкуються виключно через <code>state</code> — підписуються на події і запускають їх.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Структура state-об'єкта</div>
+<pre>const state = {
+    // Дані
+    data: [],
+    config: { ... },
+
+    // DOM-посилання (кешуються один раз в -main.js)
+    dom: { container, toolbar, editor, ... },
+
+    // Хук-шина (приватна, керується через методи)
+    registerHook(name, fn) { hooks[name]?.push(fn) },
+    runHook(name, ...args) {
+        hooks[name]?.forEach(fn => { try { fn(...args) } catch(e) { console.error(e) } })
+    },
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ПЛАГІНИ -->
             <!-- ============================================================ -->
             <section class="m3-section" id="plugins">
-                <h2 class="m3-section-title">Ядро · Плагіни · Шарми</h2>
-                <p class="m3-section-desc">
-                    Три рівні гнучкості. Еталон — папка <code>editor/</code>: вона показує як має виглядати правильно побудована ЛЕГО-система.
-                    Ядро завжди присутнє і не видаляється. Плагіни розширюють можливості — кожен можна видалити незалежно.
-                    Шарми чіпляються до HTML без жодного JS на рівні сторінки.
-                </p>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>🔒 Ядро — не видаляти</h3>
-                        <p>
-                            Файли без яких система не існує. Ядро створює екземпляр, тримає його стан і будує HTML.
-                            Позначені у шапці міткою <code>🔒 ЯДРО</code>.
-                        </p>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Суфікс</th><th>Роль</th><th>Приклад</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>-main.js</code></td><td>Фабрика. Створює екземпляр, будує HTML, запускає ядро, завантажує плагіни</td><td>editor-main.js</td></tr>
-                            <tr><td><code>-state.js</code></td><td>Стан екземпляра. Живий об'єкт який передається в кожен плагін як аргумент <code>init(state)</code></td><td>editor-state.js</td></tr>
-                            <tr><td><code>-template.js</code></td><td>HTML-шаблон компонента. Генерує розмітку до вставки в DOM</td><td>editor-template.js</td></tr>
-                            <tr><td><code>-mode.js</code></td><td>Базова логіка специфічна для системи. Без якої інше не має сенсу</td><td>editor-mode.js</td></tr>
-                        </tbody>
-                    </table>
+                <div class="m3-section-hero m3-section-hero--plugins">
+                    <h2>Плагіни</h2>
+                    <p>Кожен плагін — окремий файл, одна фіча. Завантажується динамічно. Можна видалити будь-який — система продовжує працювати. Позначені 🔌 ПЛАГІН в шапці.</p>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>🔌 Плагіни — можна видалити</h3>
-                        <p>
-                            Кожен плагін — окремий файл з єдиним публічним методом <code>export function init(state) {}</code>.
-                            Завантажуються динамічно через <code>Promise.allSettled()</code>.
-                            Якщо файл плагіна видалити — решта системи продовжує працювати.
-                            Позначені міткою <code>🔌 ПЛАГІН</code>.
-                        </p>
+                        <h3>Єдиний контракт для всіх плагінів</h3>
+                        <p>Один публічний метод. Завжди. Ніяких винятків.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Шаблон плагіна — завжди однаковий</div>
+<pre>// js/components/editor/editor-formatting.js
+// 🔌 ПЛАГІН
+
+export function init(state) {
+    const { dom } = state;
+
+    // Підписуємось на події ядра
+    state.registerHook('onInput', () => updateToolbarState(state));
+    state.registerHook('onSelectionChange', () => updateToolbarState(state));
+
+    // Реагуємо на UI-події
+    dom.toolbar?.addEventListener('click', e => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        applyFormat(state, btn.dataset.action);
+    });
+}</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Як плагіни спілкуються — через хуки</h3>
+                        <p>Плагін ніколи не імпортує інший плагін. Тільки підписка і реакція через <code>state</code>.</p>
+                    </div>
+                    <div class="m3-hooks">
+                        <div class="m3-hook-step">
+                            <div class="m3-hook-step-num">1 — Підписка</div>
+                            <div class="m3-hook-step-title">registerHook</div>
+                            <div class="m3-hook-step-desc">При <code>init(state)</code> плагін реєструє callback на подію. Може підписатись на кілька хуків.</div>
+                        </div>
+                        <div class="m3-hook-step">
+                            <div class="m3-hook-step-num">2 — Тригер</div>
+                            <div class="m3-hook-step-title">runHook</div>
+                            <div class="m3-hook-step-desc">Ядро або плагін викликає <code>state.runHook('onInput')</code>. Всі підписники отримують виклик паралельно.</div>
+                        </div>
+                        <div class="m3-hook-step">
+                            <div class="m3-hook-step-num">3 — Реакція</div>
+                            <div class="m3-hook-step-title">callback</div>
+                            <div class="m3-hook-step-desc">Кожен плагін реагує незалежно. Помилка в одному не зупиняє інших — <code>try/catch</code> в <code>runHook</code>.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Плагіни в реальних модулях</h3>
                     </div>
                     <table class="m3-spec">
                         <thead>
-                            <tr><th>Система</th><th>Плагіни</th></tr>
+                            <tr><th>Модуль</th><th>Плагіни</th></tr>
                         </thead>
                         <tbody>
                             <tr><td><code>editor/</code></td><td>formatting, case, undo, validation, find, stats, paste, cleanup, enter, chip-navigation, tooltip</td></tr>
@@ -517,116 +691,62 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>Де живе спільний стан</h3>
-                        <p>
-                            Ключова ідея ЛЕГО: плагіни не знають одне про одного. Вони спілкуються через спільний об'єкт — <strong>state</strong>.
-                            Ядро (<code>-state.js</code>) створює цей об'єкт і передає його в кожен плагін при ініціалізації.
-                            Плагін підписується на події через <code>state.registerHook()</code> і реагує коли їх запускають.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>✨ Шарми — чіпляються до HTML</h3>
-                        <p>
-                            Шарми — маленькі готові прибудови до таблиць і форм. Вони не вимагають жодного JS на рівні сторінки.
-                            Достатньо додати атрибут або клас в HTML — шарм сам знаходить елемент і вмикається.
-                            Ініціалізуються один раз глобально в <code>main-core.js</code> через делегування подій на <code>document</code>.
-                        </p>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Шарм</th><th>HTML-атрибут / клас</th><th>Що робить</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>charm-search-clear</code></td><td><code>data-clear-for="input-id"</code></td><td>Кнопка × для очищення поля пошуку</td></tr>
-                            <tr><td><code>charm-filter-pills</code></td><td><code>.filter-pill[data-filter]</code></td><td>Чіпи-фільтри — клік перемикає активний фільтр</td></tr>
-                            <tr><td><code>charm-morph-search</code></td><td><code>[data-morph-search]</code></td><td>Пошук що розгортається з кнопки в поле вводу</td></tr>
-                            <tr><td><code>charm-refresh</code></td><td><code>refresh</code> на контейнері</td><td>Кнопка оновлення зі спіннером, подія <code>charm:refresh</code></td></tr>
-                            <tr><td><code>charm-columns</code></td><td><code>columns</code> на контейнері</td><td>Вибір видимих колонок таблиці</td></tr>
-                            <tr><td><code>charm-pagination</code></td><td><code>pagination</code> на контейнері</td><td>Пагінація — навігація по сторінках таблиці</td></tr>
-                        </tbody>
-                    </table>
-                </div>
             </section>
 
             <!-- ============================================================ -->
-            <!-- COMPONENTS -->
+            <!-- ШАРМИ -->
             <!-- ============================================================ -->
-            <section class="m3-section" id="components">
-                <h2 class="m3-section-title">Папка components/ — спільні компоненти</h2>
-                <p class="m3-section-desc">Речі, які використовуються на всіх сторінках одночасно. Написані один раз — підключаються скрізь.</p>
-
-                <div class="m3-block">
-                    <div class="m3-block-header">
-                        <h3>Компоненти</h3>
-                    </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Папка / файл</th><th>Що це</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>editor/</code></td><td><strong>ЛЕГО.</strong> Текстовий редактор. Ядро: main, state, template, mode. Плагіни: formatting, undo, find, stats, paste, validation, cleanup та інші</td></tr>
-                            <tr><td><code>avatar/</code></td><td><strong>ЛЕГО.</strong> Аватарки і "порожні стани". Ядро: main, state, config. Плагіни: user, ui-states, modal, selector, text</td></tr>
-                            <tr><td><code>table/</code></td><td><strong>ЛЕГО.</strong> Універсальна таблиця. Ядро: main, core, state. Плагіни: sorting, filters, checkboxes, columns. <code>table-managed.js</code> — обгортка з пошуком + пагінацією</td></tr>
-                            <tr><td><code>charms/</code></td><td>Шарми — прибудови через HTML-атрибути (пошук, фільтри, колонки, оновлення, пагінація)</td></tr>
-                            <tr><td><code>ui-modal.js</code></td><td>Спливаючі вікна (попапи)</td></tr>
-                            <tr><td><code>ui-toast.js</code></td><td>Маленькі повідомлення ("Збережено ✓")</td></tr>
-                            <tr><td><code>ui-dropdown.js</code></td><td>Випадаючі меню</td></tr>
-                            <tr><td><code>ui-select.js</code></td><td>Кастомні мультиселекти</td></tr>
-                            <tr><td><code>ui-tooltip.js</code></td><td>Підказки при наведенні</td></tr>
-                            <tr><td><code>ui-theme.js</code></td><td>Перемикач темної / світлої теми</td></tr>
-                            <tr><td><code>fab-menu.js</code></td><td>Floating action button — меню що відкривається знизу</td></tr>
-                        </tbody>
-                    </table>
+            <section class="m3-section" id="charms">
+                <div class="m3-section-hero m3-section-hero--charms">
+                    <h2>Шарми</h2>
+                    <p>Готові поведінки що активуються HTML-атрибутом. Нульовий JS на рівні сторінки — достатньо додати атрибут в розмітку.</p>
                 </div>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- CONFIG -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="config">
-                <h2 class="m3-section-title">Папка config/ — налаштування</h2>
-                <p class="m3-section-desc">Файли з налаштуваннями, які використовуються по всьому проєкту.</p>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Файли конфігурації</h3>
+                        <h3>Як це працює</h3>
+                        <p>Шарми ініціалізуються один раз глобально в <code>main-core.js</code> через делегування подій на <code>document</code>. Після цього будь-який елемент з потрібним атрибутом отримує поведінку автоматично.</p>
                     </div>
-                    <table class="m3-spec">
-                        <thead>
-                            <tr><th>Файл</th><th>Що це</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>spreadsheet-config.js</code></td><td>ID Google Таблиць (адреси документів для кожного модуля)</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">main-core.js — одна ініціалізація для всіх сторінок</div>
+<pre>export async function initCore() {
+    initSearchClearCharm();   // слухає document, шукає [data-clear-for]
+    initFilterPillsCharm();   // слухає document, шукає .filter-pill[data-filter]
+    initMorphSearchCharm();   // слухає document, шукає [data-morph-search]
+    initRefreshCharm();       // слухає document, шукає [refresh]
+    initColumnsCharm();       // слухає document, шукає [columns]
+    initPaginationCharm();    // знаходить [pagination] і будує екземпляр
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML на сторінці — тільки атрибут, нуль JS</div>
+<pre>&lt;!-- Кнопка очищення пошуку --&gt;
+&lt;input type="text" id="search-brands"&gt;
+&lt;button data-clear-for="search-brands"&gt;×&lt;/button&gt;
+
+&lt;!-- Пагінація таблиці --&gt;
+&lt;div pagination="25" id="brands-table"&gt;&lt;/div&gt;
+
+&lt;!-- Кнопка оновлення --&gt;
+&lt;div refresh&gt;&lt;/div&gt;</pre>
+                    </div>
                 </div>
-            </section>
-
-            <!-- ============================================================ -->
-            <!-- API -->
-            <!-- ============================================================ -->
-            <section class="m3-section" id="api">
-                <h2 class="m3-section-title">Папка api/ — серверна частина</h2>
-                <p class="m3-section-desc">Бекенд — код, який працює не в браузері, а на сервері (Vercel). Користувач його не бачить, але без нього нічого не працює.</p>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Для чого потрібен сервер</h3>
+                        <h3>Довідник шармів</h3>
                     </div>
                     <table class="m3-spec">
                         <thead>
-                            <tr><th>Задача</th></tr>
+                            <tr><th>Шарм</th><th>HTML-атрибут</th><th>Що робить</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td>Авторизація через Google (OAuth)</td></tr>
-                            <tr><td>Читання та запис Google Sheets від імені сервісного акаунту</td></tr>
-                            <tr><td>Робота з файлами Google Drive</td></tr>
+                            <tr><td><code>charm-search-clear</code></td><td><code>data-clear-for="id"</code></td><td>Кнопка × для очищення поля пошуку. З'являється коли є текст.</td></tr>
+                            <tr><td><code>charm-filter-pills</code></td><td><code>.filter-pill[data-filter]</code></td><td>Чіпи-фільтри — клік перемикає активний фільтр і знімає з інших.</td></tr>
+                            <tr><td><code>charm-morph-search</code></td><td><code>[data-morph-search]</code></td><td>Пошук що розгортається з іконки в поле вводу і назад.</td></tr>
+                            <tr><td><code>charm-refresh</code></td><td><code>refresh</code></td><td>Кнопка оновлення зі спіннером. Кидає подію <code>charm:refresh</code>.</td></tr>
+                            <tr><td><code>charm-columns</code></td><td><code>columns</code></td><td>Дропдаун вибору видимих колонок таблиці.</td></tr>
+                            <tr><td><code>charm-pagination</code></td><td><code>pagination="25"</code></td><td>Повна пагінація — навігація, розмір сторінки, лічильник.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -636,11 +756,10 @@
             <!-- ШАПКИ ФАЙЛІВ -->
             <!-- ============================================================ -->
             <section class="m3-section" id="headers">
-                <h2 class="m3-section-title">Правила оформлення шапок файлів</h2>
-                <p class="m3-section-desc">
-                    Кожен JS файл в проєкті починається з однакової структури: шлях до файлу + блок-коментар з рамкою.
-                    Це допомагає зразу зрозуміти що робить файл без потреби читати код.
-                </p>
+                <div class="m3-section-hero m3-section-hero--headers">
+                    <h2>Правила оформлення шапок файлів</h2>
+                    <p>Кожен JS файл в проєкті починається з однакової структури: шлях до файлу + блок-коментар з рамкою. Це допомагає зразу зрозуміти що робить файл без потреби читати код.</p>
+                </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
@@ -727,5 +846,21 @@
         </div>
     </main>
 
+    <script>
+        const navItems = document.querySelectorAll('.m3-nav-item[href^="#"]');
+        const sections = [...navItems].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(a => a.classList.remove('active'));
+                    const active = document.querySelector(`.m3-nav-item[href="#${entry.target.id}"]`);
+                    active?.classList.add('active');
+                }
+            });
+        }, { threshold: 0.25 });
+
+        sections.forEach(s => observer.observe(s));
+    </script>
 </body>
 </html>
