@@ -18,7 +18,7 @@ import { initMapperEvents } from './mapper-events.js';
 import { createLazyLoader } from '../../components/util-lazy-load.js';
 import { initTooltips } from '../../components/ui-tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { loadMapperPlugins } from './mapper-main.js';
 
 export { mapperState } from './mapper-state.js';

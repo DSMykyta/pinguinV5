@@ -26,7 +26,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { fetchData } from './gse-data.js';
 import { runHook, getRegisteredPlugins } from './gse-plugins.js';
 import { initEventListeners, runCalculations } from './gse-events.js';

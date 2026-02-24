@@ -27,7 +27,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { initImageToolLogic } from './gim-logic.js';
 import { runHook, getRegisteredPlugins } from './gim-plugins.js';
 

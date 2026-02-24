@@ -18,7 +18,7 @@
  * ║  └── cleanup-images  — Тогл очистки зображень                            ║
  * ║                                                                          ║
  * ║  DATA-АТРИБУТИ:                                                          ║
- * ║  ├── data-editor-id  — Кастомний ID префікс (за замовч. auto)           ║
+ * ║  ├── data-editor-id  — Кастомний ID префікс (за замовч. auto)            ║
  * ║  ├── data-placeholder — Placeholder тексту                               ║
  * ║  └── data-min-height  — Мінімальна висота в px                           ║
  * ║                                                                          ║
@@ -43,9 +43,9 @@
  * ║  ├── editor-stats.js      — Статистика                                   ║
  * ║  ├── editor-paste.js      — Обробка вставки                              ║
  * ║  ├── editor-cleanup.js   — Тогли очистки (links/images/styles)           ║
- * ║  ├── editor-enter.js     — Обробка Enter/Shift+Enter                    ║
+ * ║  ├── editor-enter.js     — Обробка Enter/Shift+Enter                     ║
  * ║  ├── editor-chip-navigation.js — Навігація по чіпах валідації            ║
- * ║  └── editor-tooltip.js   — Підказки для заборонених слів                ║
+ * ║  └── editor-tooltip.js   — Підказки для заборонених слів                 ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */

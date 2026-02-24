@@ -1,13 +1,10 @@
 // js/main-core.js
 
-import { initNav }              from './layout/menu-nav.js';
-import { initAside }            from './layout/aside-main.js';
+import { initLayout }           from './layout/layout-main.js';
 import { initDropdowns }        from './components/ui-dropdown.js';
 import { initModals }           from './components/ui-modal-init.js';
 import { initAvatarSystem }     from './components/avatar/avatar-main.js';
-import { initTabs }             from './layout/nav-tabs.js';
 import { initEventHandlers }    from './utils/event-handlers.js';
-import { initSectionNavigator } from './layout/nav-sections.js';
 import { initCustomAuth }       from './auth/auth-google.js';
 import { initTooltips }         from './components/ui-tooltip.js';
 import { initInfoButtons }      from './components/ui-info-modal.js';
@@ -21,9 +18,8 @@ import { initPaginationCharm }  from './components/charms/pagination/pagination-
 
 
 export async function initCore() {
-    await initNav();
     initTheme();
-    await initAside();
+    await initLayout();
     initDropdowns();
 
     // ВАЖЛИВО: initModals() повинен бути ДО initCustomAuth()
@@ -31,9 +27,7 @@ export async function initCore() {
     initModals();
 
     initAvatarSystem();
-    initTabs();
     initEventHandlers();
-    initSectionNavigator();
     initCustomAuth();
     initTooltips();
     initInfoButtons();

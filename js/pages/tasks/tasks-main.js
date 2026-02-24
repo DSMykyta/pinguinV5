@@ -28,7 +28,7 @@ import { initTooltips } from '../../components/ui-tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../../components/avatar/avatar-state.js';
 import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../../components/avatar/avatar-config.js';
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { withSpinner } from '../../components/charms/charm-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

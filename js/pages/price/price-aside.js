@@ -8,7 +8,7 @@
  * Завантаження та управління бічною панеллю для прайсу.
  */
 
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { showToast } from '../../components/ui-toast.js';
 import { initDropdowns } from '../../components/ui-dropdown.js';
 

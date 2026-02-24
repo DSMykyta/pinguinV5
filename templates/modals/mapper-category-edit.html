@@ -14,7 +14,8 @@
             </div>
             <div class="group">
                 <div class="switch switch-outline switch-fit" id="mapper-category-grouping-switch">
-                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false" checked>
+                    <input type="radio" id="mapper-category-grouping-no" name="mapper-category-grouping" value="false"
+                        checked>
                     <label for="mapper-category-grouping-no" class="switch-label">Товарна</label>
                     <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
                     <label for="mapper-category-grouping-yes" class="switch-label">Групуюча</label>
@@ -54,7 +55,7 @@
             <main class="modal-fullscreen-content">
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
-                <section id="section-category-main" >
+                <section id="section-category-main">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -78,28 +79,37 @@
                                 <label class="label-s">Оберіть категорію вищого рівня</label>
                             </div>
 
-                        </div>
-
-                        <!-- Назва -->
-                        <div class="grid">
                             <div class="group column col-6">
                                 <label class="label-l" for="mapper-category-name-ua">
-                                    Назва (UA)
+                                    Назви
                                     <span class="required">*</span>
                                 </label>
-                                <input type="text" id="mapper-category-name-ua" class="input-main" placeholder="Назва українською" required>
-                            </div>
-
-                            <div class="group column col-6">
-                                <label class="label-l" for="mapper-category-name-ru">Назва (RU)</label>
-                                <input type="text" id="mapper-category-name-ru" class="input-main" placeholder="Назва російською">
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="mapper-category-name-ua" class="input-main"
+                                                    placeholder="Назва українською" required>
+                                                    <span class="tag c-main">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="mapper-category-name-ru" class="input-main"
+                                                    placeholder="Назва російською">
+                                                    <span class="tag c-main">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                 </section>
 
                 <!-- СЕКЦІЯ: ХАРАКТЕРИСТИКИ -->
-                <section id="section-category-chars" >
+                <section id="section-category-chars">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
@@ -118,11 +128,13 @@
                         </div>
                     </div>
 
-                    <div id="category-related-chars" class="pseudo-table-container"
-                         pagination refresh columns>
+                    <div id="category-related-chars" class="pseudo-table-container" pagination refresh columns>
                         <!-- Заповнюється динамічно -->
                     </div>
-                    <div class="footer"><div class="footer-left"></div><div class="footer-right"></div></div>
+                    <div class="footer">
+                        <div class="footer-left"></div>
+                        <div class="footer-right"></div>
+                    </div>
                 </section>
 
                 <!-- СЕКЦІЇ МАРКЕТПЛЕЙСІВ додаються динамічно через JS -->

@@ -16,7 +16,7 @@ import { bannedWordsState } from './banned-words-init.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
 import { populateCheckSelects } from './banned-words-ui.js';
 import { withSpinner } from '../../components/charms/charm-refresh.js';
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 
 registerAsideInitializer('aside-banned-words', () => {
     // Ініціалізувати custom selects в aside

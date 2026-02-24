@@ -1,48 +1,50 @@
-// js/layout/menu-nav.js
+// js/layout/layout-main.js
 
-/**
+/*
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                     ЛІВА НАВІГАЦІЙНА ПАНЕЛЬ (MENU)                       ║
+ * ║                      LAYOUT — ГОЛОВНИЙ МОДУЛЬ                            ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
- * ║  Завантажує HTML шаблон лівого меню і підсвічує активну сторінку.        ║
+ * ║  Єдина точка входу для всієї системи лейауту.                            ║
+ * ║  Збирає: nav-menu + nav-tabs + nav-sections + aside.                     ║
  * ║                                                                          ║
- * ║  📋 ЩО РОБИТЬ:                                                           ║
- * ║  ├── Завантажує templates/partials/nav.html у #main-nav                  ║
- * ║  └── Додає клас .active на посилання поточної сторінки                   ║
+ * ║  ВИКОРИСТАННЯ (main-core.js):                                            ║
+ * ║     import { initLayout } from './layout/layout-main.js';                ║
+ * ║     await initLayout();                                                   ║
  * ║                                                                          ║
- * ║  🎯 ВИКОРИСТАННЯ:                                                        ║
- * ║  import { initNav } from './layout/menu-nav.js';                         ║
- * ║  await initNav();                                                         ║
+ * ║  РЕЄСТРАЦІЯ ASIDE (сторінки):                                            ║
+ * ║     import { registerAsideInitializer } from './layout/layout-main.js'; ║
+ * ║     registerAsideInitializer('aside-brands', () => { ...setup... });    ║
+ * ║     Виклик на рівні модуля (до initCore()), щоб встигло зареєструватись  ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { loadHTML } from '../components/util-loader.js';
+import { initNav }               from './nav-menu.js';
+import { initAsideState }        from './aside-state.js';
+import { preloadAsideTemplates } from './aside-loader.js';
+import { initAsideObserver }     from './aside-observer.js';
+import { initTabs }              from './nav-tabs.js';
+import { initSectionNavigator }  from './nav-sections.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ВНУТРІШНЯ ЛОГІКА
+// РЕЕКСПОРТ
 // ═══════════════════════════════════════════════════════════════════════════
 
-function setActiveLink(nav) {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const links = nav.querySelectorAll('.nav-main a.btn-icon');
-
-    links.forEach(link => {
-        if (link.getAttribute('href') === currentPage) {
-            link.classList.add('active');
-        }
-    });
-}
+export { registerAsideInitializer,
+         loadSingleAsideTemplate } from './aside-loader.js';
+export { setAsideState }           from './aside-state.js';
+export { initTabs }                from './nav-tabs.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПУБЛІЧНЕ API
 // ═══════════════════════════════════════════════════════════════════════════
 
-export async function initNav() {
-    const nav = document.getElementById('main-nav');
-    if (!nav) return;
-
-    await loadHTML('templates/partials/nav.html', nav);
-    setActiveLink(nav);
+export async function initLayout() {
+    await initNav();
+    initAsideState();
+    await preloadAsideTemplates();
+    initAsideObserver();
+    initTabs();
+    initSectionNavigator();
 }

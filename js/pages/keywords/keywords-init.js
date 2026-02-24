@@ -12,7 +12,7 @@ import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
 import { initTooltips } from '../../components/ui-tooltip.js';
 import { initDropdowns } from '../../components/ui-dropdown.js';
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 export const keywordsState = {

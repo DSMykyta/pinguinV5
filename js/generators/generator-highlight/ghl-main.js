@@ -6,7 +6,7 @@
  * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 registerAsideInitializer('aside-highlight', async () => {

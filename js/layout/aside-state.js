@@ -24,7 +24,7 @@
  * ║     <aside class="aside collapsed">  ← expanded | collapsed | closed     ║
  * ║                                                                          ║
  * ║  2. Змінити стан програмно під час роботи сторінки:                      ║
- * ║     import { setAsideState } from './layout/aside-main.js';              ║
+ * ║     import { setAsideState } from './layout/layout-main.js';              ║
  * ║     setAsideState('collapsed');                                          ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝

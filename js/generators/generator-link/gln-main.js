@@ -20,7 +20,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerAsideInitializer } from '../../layout/aside-main.js';
+import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { fetchLinksData } from './gln-data.js';
 import { renderLinkButtons } from './gln-ui.js';
 import { initLinksEventListeners, updateLinksUI } from './gln-events.js';
