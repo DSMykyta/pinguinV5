@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Огляд проєкту — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+
+        body {
+            display: flex !important;
+            flex-direction: row !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            scroll-snap-type: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            background: var(--color-surface);
+        }
+
+        section {
+            height: auto !important;
+            min-height: auto !important;
+            scroll-snap-align: none !important;
+            overflow: visible !important;
+        }
+
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        /* SIDEBAR */
+        .m3-sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: 100dvh;
+            overflow-y: auto;
+            background: var(--color-surface-c-low);
+            border-right: 1px solid var(--color-outline);
+            padding: 24px 16px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m3-sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 8px 12px 20px;
+            color: var(--color-on-surface);
+            border-bottom: 1px solid var(--color-outline);
+            margin-bottom: 12px;
+        }
+        .m3-sidebar-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--color-on-surface-v);
+            display: block;
+            margin-top: 2px;
+        }
+        .m3-nav-group { padding: 4px 0; }
+        .m3-nav-group-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-on-surface-v);
+            padding: 12px 12px 6px;
+        }
+        .m3-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active {
+            background: var(--color-main-c);
+            color: var(--color-main);
+            font-weight: 600;
+        }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* MAIN */
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        /* HERO */
+        .m3-hero {
+            background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%);
+            border-radius: 28px;
+            padding: 48px;
+            margin-bottom: 40px;
+            color: var(--color-on-main);
+        }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        /* SECTION */
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+        .m3-section-title { font-size: 28px; font-weight: 400; color: var(--color-on-surface); margin: 0 0 8px; }
+        .m3-section-desc {
+            font-size: 14px;
+            color: var(--color-on-surface-v);
+            margin: 0 0 24px;
+            line-height: 1.6;
+            max-width: 640px;
+        }
+
+        /* BLOCK */
+        .m3-block {
+            margin-bottom: 32px;
+            border: 1px solid var(--color-outline);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+        .m3-block-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        /* SPEC TABLE */
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-on-surface-v);
+            background: var(--color-surface-c-low);
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-spec td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--color-outline);
+            color: var(--color-on-surface);
+        }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            background: var(--color-surface-c);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* THEME TOGGLE */
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        /* SCROLLBAR */
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb {
+            background: var(--color-outline);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">
+            Огляд проєкту
+            <span>pinguin-v5</span>
+        </div>
+
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Загальне</div>
+            <a href="#project" class="m3-nav-item active">
+                <span class="material-symbols-outlined">info</span>Що це за проєкт
+            </a>
+            <a href="#pages" class="m3-nav-item">
+                <span class="material-symbols-outlined">web</span>Сторінки
+            </a>
+        </div>
+
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Структура коду</div>
+            <a href="#js" class="m3-nav-item">
+                <span class="material-symbols-outlined">folder</span>Папка js/
+            </a>
+            <a href="#module" class="m3-nav-item">
+                <span class="material-symbols-outlined">extension</span>Типовий модуль
+            </a>
+            <a href="#common" class="m3-nav-item">
+                <span class="material-symbols-outlined">widgets</span>Папка common/
+            </a>
+            <a href="#config" class="m3-nav-item">
+                <span class="material-symbols-outlined">settings</span>Папка config/
+            </a>
+            <a href="#api" class="m3-nav-item">
+                <span class="material-symbols-outlined">cloud</span>Папка api/
+            </a>
+            <a href="#headers" class="m3-nav-item">
+                <span class="material-symbols-outlined">article</span>Шапки файлів
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="m3-main">
+        <div class="m3-content">
+
+            <div class="m3-theme-toggle">
+                <button class="fab"
+                    onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>Огляд проєкту</h1>
+                <p>Пояснення структури для людини без технічного фону. Що де лежить, навіщо і як пов'язане між собою.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ЩО ЦЕ ЗА ПРОЄКТ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="project">
+                <h2 class="m3-section-title">Що це за проєкт?</h2>
+                <p class="m3-section-desc">Це веб-інструмент для контент-менеджерів (схоже на внутрішній корпоративний сайт). Він має кілька окремих сторінок-інструментів, кожна зі своєю задачею.</p>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- СТОРІНКИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="pages">
+                <h2 class="m3-section-title">Сторінки</h2>
+                <p class="m3-section-desc">Те, що відкривається в браузері. Кожна сторінка — окремий інструмент.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>HTML файли в корені проєкту</h3>
+                        <p>Кожен файл — це окрема сторінка з власним набором функцій.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Файл</th><th>Що це</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>index.html</code></td><td>Головна сторінка / набір генераторів</td></tr>
+                            <tr><td><code>mapper.html</code></td><td><strong>Маппер</strong> — прив'язка категорій/характеристик до маркетплейсів</td></tr>
+                            <tr><td><code>brands.html</code></td><td><strong>Бренди</strong> — база даних брендів</td></tr>
+                            <tr><td><code>keywords.html</code></td><td><strong>Ключові слова</strong> — бібліотека ключовиків</td></tr>
+                            <tr><td><code>glossary.html</code></td><td><strong>Глосарій</strong> — словник термінів</td></tr>
+                            <tr><td><code>price.html</code></td><td><strong>Прайс</strong> — робота з цінами</td></tr>
+                            <tr><td><code>tasks.html</code></td><td><strong>Завдання</strong> — таск-менеджер</td></tr>
+                            <tr><td><code>banned-words.html</code></td><td><strong>Стоп-слова</strong> — список заборонених слів</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ПАПКА JS/ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="js">
+                <h2 class="m3-section-title">Папка js/ — серце програми</h2>
+                <p class="m3-section-desc">Кожна папка всередині відповідає одній сторінці або спільному інструменту.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Папки модулів</h3>
+                        <p>Кожна папка — це окремий модуль зі своїми файлами.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Папка</th><th>Що це</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>main-*.js</code></td><td>"Вхідна точка" кожної сторінки — запускає все</td></tr>
+                            <tr><td><code>pages/</code></td><td>Всі сторінки: mapper, brands, keywords, glossary, price, tasks, banned-words</td></tr>
+                            <tr><td><code>components/</code></td><td>Спільні UI компоненти — використовуються скрізь</td></tr>
+                            <tr><td><code>layout/</code></td><td>Скелет сторінки: menu (ліве меню) + nav (таби/навігація) + aside (права панель)</td></tr>
+                            <tr><td><code>generators/</code></td><td>Генератори (SEO, таблиці, посилання, зображення...)</td></tr>
+                            <tr><td><code>auth/</code></td><td>Авторизація Google</td></tr>
+                            <tr><td><code>config/</code></td><td>Налаштування (ID таблиць Google Sheets)</td></tr>
+                            <tr><td><code>utils/</code></td><td>Маленькі допоміжні функції</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ТИПОВИЙ МОДУЛЬ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="module">
+                <h2 class="m3-section-title">Як влаштований типовий модуль</h2>
+                <p class="m3-section-desc">Кожна велика сторінка розбита на файли за відповідальністю. Наприклад, Mapper складається з mapper-data.js, mapper-table.js, mapper-events.js і так далі.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Суфікси файлів — нормалізовані</h3>
+                        <p>Кожен файл починається з назви папки або модуля, потім суфікс що описує його роль. Наприклад: <code>mapper-data.js</code>, <code>auth-google.js</code>, <code>nav-tabs.js</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Суфікс</th><th>Що він робить</th><th>Приклад</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>-main.js</code></td><td>Запускає модуль, підключає плагіни</td><td>brands-main.js</td></tr>
+                            <tr><td><code>-init.js</code></td><td>Ініціалізація: таби, кнопки, завантаження</td><td>mapper-init.js</td></tr>
+                            <tr><td><code>-data.js</code></td><td>Завантаження/збереження даних з Google Sheets</td><td>brands-data.js</td></tr>
+                            <tr><td><code>-state.js</code></td><td>"Пам'ять" модуля — що активне, що завантажено</td><td>mapper-state.js</td></tr>
+                            <tr><td><code>-table.js</code></td><td>Відображення таблиці на екрані</td><td>brands-table.js</td></tr>
+                            <tr><td><code>-events.js</code></td><td>Реакція на дії користувача (кліки, введення)</td><td>mapper-events.js</td></tr>
+                            <tr><td><code>-ui.js</code></td><td>Відображення елементів інтерфейсу</td><td>brands-ui.js</td></tr>
+                            <tr><td><code>-crud.js</code></td><td>Додати / змінити / видалити запис</td><td>keywords-crud.js</td></tr>
+                            <tr><td><code>-polling.js</code></td><td>Автоматичне оновлення даних у фоні</td><td>mapper-polling.js</td></tr>
+                            <tr><td><code>-google.js</code></td><td>Інтеграція з Google (авторизація)</td><td>auth-google.js</td></tr>
+                            <tr><td><code>-nav.js</code></td><td>Навігація (меню, таби, секції)</td><td>menu-nav.js, nav-tabs.js</td></tr>
+                            <tr><td><code>-panel.js</code></td><td>Поведінка панелі (відкрити/закрити)</td><td>aside-panel.js</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- COMMON -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="common">
+                <h2 class="m3-section-title">Папка common/ — спільні компоненти</h2>
+                <p class="m3-section-desc">Це речі, які використовуються на всіх сторінках одночасно.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Компоненти</h3>
+                        <p>Один раз написано — використовується скрізь.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Папка / файл</th><th>Що це</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>table/</code></td><td>Універсальна таблиця з пошуком, сортуванням, пагінацією</td></tr>
+                            <tr><td><code>editor/</code></td><td>Текстовий редактор (схожий на Word, але в браузері)</td></tr>
+                            <tr><td><code>avatar/</code></td><td>Аватарки користувачів і "порожні стани" (коли нема даних)</td></tr>
+                            <tr><td><code>charms/</code></td><td>Маленькі "прибудови" до таблиці: пошук, фільтри, колонки</td></tr>
+                            <tr><td><code>ui-modal.js</code></td><td>Спливаючі вікна (попапи)</td></tr>
+                            <tr><td><code>ui-toast.js</code></td><td>Маленькі повідомлення ("Збережено ✓")</td></tr>
+                            <tr><td><code>ui-dropdown.js</code></td><td>Випадаючі списки</td></tr>
+                            <tr><td><code>polling.js</code></td><td>Логіка автооновлення (базова, спільна)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- CONFIG -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="config">
+                <h2 class="m3-section-title">Папка config/ — налаштування</h2>
+                <p class="m3-section-desc">Файли з налаштуваннями, які використовуються по всьому проєкту.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Файли конфігурації</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Файл</th><th>Що це</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>spreadsheet-config.js</code></td><td>ID Google Таблиць (адреси документів)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- API -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="api">
+                <h2 class="m3-section-title">Папка api/ — серверна частина</h2>
+                <p class="m3-section-desc">Це бекенд — код, який працює не в браузері, а на сервері (Vercel). Користувач його не бачить, але без нього нічого не працює.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Для чого потрібен сервер</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Задача</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Авторизація через Google</td></tr>
+                            <tr><td>Читання та запис Google Sheets</td></tr>
+                            <tr><td>Робота з Google Drive</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ШАПКИ ФАЙЛІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="headers">
+                <h2 class="m3-section-title">Правила оформлення шапок файлів</h2>
+                <p class="m3-section-desc">
+                    Кожен JS файл в проєкті починається з однакової структури: шлях до файлу + декоративний коментар-блок.
+                    Це допомагає зразу зрозуміти що робить файл без потреби читати код.
+                </p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Обов'язкова перша рядок</h3>
+                        <p>Перший рядок кожного файлу — завжди коментар з реальним шляхом файлу від кореня <code>js/</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Що пишемо</th><th>Приклад</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>// js/шлях/до/файлу.js</code></td>
+                                <td><code>// js/layout/aside-main.js</code></td>
+                            </tr>
+                            <tr>
+                                <td>Завжди реальний шлях, не старий</td>
+                                <td>Якщо файл переміщено — оновлюємо цей рядок</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Структура блоку-коментаря</h3>
+                        <p>Після першого рядка йде JSDoc коментар <code>/** ... */</code> з рамкою з Unicode символів. Рамка дає чіткий візуальний кордон і легко читається в будь-якому редакторі.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Елемент рамки</th><th>Символи</th><th>Призначення</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Верхня межа</td><td><code>╔══════╗</code></td><td>Початок шапки</td></tr>
+                            <tr><td>Рядок заголовку</td><td><code>║ НАЗВА ║</code></td><td>Назва модуля великими літерами, по центру</td></tr>
+                            <tr><td>Розділювач</td><td><code>╠══════╣</code></td><td>Відділяє заголовок від опису (якщо є опис)</td></tr>
+                            <tr><td>Порожній рядок</td><td><code>║      ║</code></td><td>Відступ між блоками тексту</td></tr>
+                            <tr><td>Рядок тексту</td><td><code>║  текст  ║</code></td><td>Опис, правила, приклади — з відступом 2 пробіли</td></tr>
+                            <tr><td>Нижня межа</td><td><code>╚══════╝</code></td><td>Кінець шапки</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Іконки для груп інформації</h3>
+                        <p>Всередині блоку використовуються іконки-емодзі щоб позначити тип інформації. Після іконки — список через <code>├──</code> і <code>└──</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Іконка</th><th>Коли використовувати</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>📋</code></td><td>Перелік правил, можливостей, HTML структури, атрибутів, опцій</td></tr>
+                            <tr><td><code>🎯</code></td><td>Приклад використання — як імпортувати і викликати</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Повний приклад шапки</h3>
+                        <p>Так виглядає шапка файлу <code>js/layout/aside-main.js</code>:</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tbody>
+                            <tr>
+                                <td style="font-family: 'Roboto Mono', monospace; font-size: 11px; line-height: 1.8; white-space: pre; padding: 20px 24px; color: var(--color-on-surface-v);">// js/layout/aside-main.js
+
+/**
+ * ╔══════════════════════════════════════════════════╗
+ * ║          ПРАВА ПАНЕЛЬ — ГОЛОВНИЙ МОДУЛЬ           ║
+ * ╠══════════════════════════════════════════════════╣
+ * ║                                                  ║
+ * ║  Точка входу для всієї системи правої панелі.    ║
+ * ║  Збирає aside-state + aside-loader + observer.   ║
+ * ║                                                  ║
+ * ║  🎯 ВИКОРИСТАННЯ:                                ║
+ * ║                                                  ║
+ * ║  // Сторінки з кількома секціями:                ║
+ * ║  import { initAside } from './layout/aside-main.js';
+ * ║  await initAside();                              ║
+ * ║                                                  ║
+ * ╚══════════════════════════════════════════════════╝
+ */</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Правила і принципи</h3>
+                        <p>Коротко про що не забувати при написанні або оновленні шапки.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Правило</th><th>Пояснення</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Перший рядок — завжди шлях</td><td>Навіть якщо файл переміщено, шлях оновлюємо першим</td></tr>
+                            <tr><td>Заголовок — великими літерами</td><td><code>ПРАВА ПАНЕЛЬ — СТАНИ</code>, не <code>Aside State</code></td></tr>
+                            <tr><td>Розділювач <code>╠═══╣</code> — тільки коли є опис</td><td>Якщо після заголовку одразу <code>╚═══╝</code> — розділювач не потрібен</td></tr>
+                            <tr><td>Текст з відступом 2 пробіли від <code>║</code></td><td><code>║  Текст тут  ║</code> — два пробіли до тексту</td></tr>
+                            <tr><td>Списки через <code>├──</code> і <code>└──</code></td><td><code>├──</code> — не останній пункт, <code>└──</code> — останній</td></tr>
+                            <tr><td>Ширина рамки фіксована</td><td>74 символи <code>═</code> між кутами — всі рядки мають бути однакової ширини</td></tr>
+                            <tr><td>Коротко і по суті</td><td>Шапка пояснює що файл робить і як використовувати — не переписуй код словами</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+</body>
+</html>

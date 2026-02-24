@@ -2,7 +2,7 @@
 // Запускач для сторінки mapper.html
 
 import { initCore } from './main-core.js';
-import { initMapper } from './mapper/mapper-init.js';
+import { initMapper } from './pages/mapper/mapper-init.js';
 
 // Ініціалізація при завантаженні DOM
 document.addEventListener('DOMContentLoaded', async () => {

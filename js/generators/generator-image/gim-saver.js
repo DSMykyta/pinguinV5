@@ -17,7 +17,7 @@ import { getImageDom } from './gim-dom.js';
 import { getImageState } from './gim-state.js';
 import { renderThumbnails } from './gim-renderer.js';
 import { getPlural } from './gim-utils.js';
-import { showToast } from '../../common/ui-toast.js';
+import { showToast } from '../../components/ui-toast.js';
 
 /**
  * Зберігає зображення (з конвертацією)

@@ -2,7 +2,7 @@
 // Запускач для сторінки banned-words.html
 
 import { initCore } from './main-core.js';
-import { initBannedWords } from './banned-words/banned-words-init.js';
+import { initBannedWords } from './pages/banned-words/banned-words-init.js';
 
 // Ініціалізація при завантаженні DOM
 document.addEventListener('DOMContentLoaded', async () => {

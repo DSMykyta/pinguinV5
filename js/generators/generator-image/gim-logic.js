@@ -18,8 +18,8 @@ import { setupFileHandlers } from './gim-loader.js';
 import { updateResizeProportions, updateCanvasProportions, applyTransformation } from './gim-transformer.js';
 import { handleSave } from './gim-saver.js';
 import { updateCanvasDisplay } from './gim-renderer.js';
-import { showToast } from '../../common/ui-toast.js';
-import { initCustomSelects } from '../../common/ui-select.js';
+import { showToast } from '../../components/ui-toast.js';
+import { initCustomSelects } from '../../components/ui-select.js';
 import { debounce } from '../../utils/common-utils.js';
 
 /**

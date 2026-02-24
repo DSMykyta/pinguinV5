@@ -7,7 +7,7 @@
 
 import { registerSeoPlugin } from './gse-plugins.js';
 import { getSeoDOM } from './gse-dom.js';
-import { showToast } from '../../common/ui-toast.js';
+import { showToast } from '../../components/ui-toast.js';
 
 /**
  * Копіює текст в буфер обміну та показує візуальний фідбек.

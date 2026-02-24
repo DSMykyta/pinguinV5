@@ -1,23 +1,23 @@
 // js/main-core.js
 
-import { initNav }              from './common/nav.js';
-import { initAside }            from './aside/aside-main.js';
-import { initDropdowns }        from './common/ui-dropdown.js';
-import { initModals }           from './common/ui-modal-init.js';
-import { initAvatarSystem }     from './common/avatar/avatar-main.js';
-import { initTabs }             from './common/ui-tabs.js';
+import { initNav }              from './layout/menu-nav.js';
+import { initAside }            from './layout/aside-main.js';
+import { initDropdowns }        from './components/ui-dropdown.js';
+import { initModals }           from './components/ui-modal-init.js';
+import { initAvatarSystem }     from './components/avatar/avatar-main.js';
+import { initTabs }             from './layout/nav-tabs.js';
 import { initEventHandlers }    from './utils/event-handlers.js';
-import { initSectionNavigator } from './panel/section-navigator.js';
-import { initCustomAuth }       from './auth/custom-auth.js';
-import { initTooltips }         from './common/ui-tooltip.js';
-import { initInfoButtons }      from './common/ui-info-modal.js';
-import { initTheme }            from './common/ui-theme.js';
-import { initSearchClearCharm } from './common/charms/charm-search-clear.js';
-import { initFilterPillsCharm } from './common/charms/charm-filter-pills.js';
-import { initMorphSearchCharm } from './common/charms/charm-morph-search.js';
-import { initRefreshCharm }     from './common/charms/charm-refresh.js';
-import { initColumnsCharm }     from './common/charms/charm-columns.js';
-import { initPaginationCharm }  from './common/charms/pagination/pagination-main.js';
+import { initSectionNavigator } from './layout/nav-sections.js';
+import { initCustomAuth }       from './auth/auth-google.js';
+import { initTooltips }         from './components/ui-tooltip.js';
+import { initInfoButtons }      from './components/ui-info-modal.js';
+import { initTheme }            from './components/ui-theme.js';
+import { initSearchClearCharm } from './components/charms/charm-search-clear.js';
+import { initFilterPillsCharm } from './components/charms/charm-filter-pills.js';
+import { initMorphSearchCharm } from './components/charms/charm-morph-search.js';
+import { initRefreshCharm }     from './components/charms/charm-refresh.js';
+import { initColumnsCharm }     from './components/charms/charm-columns.js';
+import { initPaginationCharm }  from './components/charms/pagination/pagination-main.js';
 
 
 export async function initCore() {

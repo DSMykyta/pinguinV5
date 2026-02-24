@@ -16,10 +16,10 @@ function initAsideButtons() {
         addKeywordBtn.addEventListener('click', async () => {
 
             // Завантажити дані перед відкриттям модалу
-            const { loadKeywords } = await import('../../keywords/keywords-data.js');
+            const { loadKeywords } = await import('../../pages/keywords/keywords-data.js');
             await loadKeywords();
 
-            const { showAddKeywordModal } = await import('../../keywords/keywords-crud.js');
+            const { showAddKeywordModal } = await import('../../pages/keywords/keywords-crud.js');
             await showAddKeywordModal();
         });
     }

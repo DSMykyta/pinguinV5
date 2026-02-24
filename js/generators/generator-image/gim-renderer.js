@@ -18,7 +18,7 @@
 import { getImageDom } from './gim-dom.js';
 import { getImageState, resetCanvasState } from './gim-state.js';
 import { updateSaveButtonText } from './gim-saver.js';
-import { showToast } from '../../common/ui-toast.js';
+import { showToast } from '../../components/ui-toast.js';
 
 /**
  * Встановлює активне зображення (для показу в Canvas)

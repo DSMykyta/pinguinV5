@@ -1,5 +1,5 @@
 // js/generators/generator-translate/gtr-main.js
-import { registerAsideInitializer } from '../../aside/aside-main.js';
+import { registerAsideInitializer } from '../../layout/aside-main.js';
 import { initTranslateReset } from './gtr-reset.js'; // Імпортуємо нашу функцію
 
 /**

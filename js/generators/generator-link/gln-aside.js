@@ -16,10 +16,10 @@ function initAsideButtons() {
         addButton.addEventListener('click', async () => {
 
             // Завантажити дані перед відкриттям модалу
-            const { loadBrands } = await import('../../brands/brands-data.js');
+            const { loadBrands } = await import('../../pages/brands/brands-data.js');
             await loadBrands();
 
-            const { showAddBrandModal } = await import('../../brands/brands-crud.js');
+            const { showAddBrandModal } = await import('../../pages/brands/brands-crud.js');
             await showAddBrandModal();
         });
     }

@@ -21,7 +21,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { registerAsideInitializer } from '../../aside/aside-main.js';
+import { registerAsideInitializer } from '../../layout/aside-main.js';
 import { getTableDOM } from './gt-dom.js';
 import { SORTABLE_CONFIG } from './gt-config.js';
 import { setInitialized, getLoadedPlugins } from './gt-state.js';
