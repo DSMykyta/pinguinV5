@@ -295,6 +295,9 @@
         <a href="#plugins" class="m3-nav-item">
             <span class="material-symbols-outlined">extension</span>Плагіни
         </a>
+        <a href="#configs" class="m3-nav-item">
+            <span class="material-symbols-outlined">tune</span>Конфігурації
+        </a>
     </aside>
 
     <!-- MAIN -->
@@ -514,7 +517,7 @@ editor.focus();</pre>
                         <tr>
                             <td><code>check</code></td>
                             <td>Валідація: заборонені слова + HTML патерни</td>
-                            <td>потребує <code>tools</code></td>
+                            <td>без <code>tools</code> — readonly + чіпи</td>
                         </tr>
                         <tr>
                             <td><code>stats</code></td>
@@ -738,6 +741,68 @@ export function init(state) {
                 </div>
             </section>
 
+            <!-- ============================================================ -->
+            <!-- КОНФІГУРАЦІЇ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="configs">
+                <div class="m3-section-hero">
+                    <h2>Конфігурації — наочні приклади</h2>
+                    <p>Три типових варіанти: тільки перегляд з перевіркою, редагування з перевіркою, редагування зі статистикою.</p>
+                </div>
+
+                <!-- Readonly + check -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3><code>editor check</code> — readonly + валідація</h3>
+                        <p>Без <code>tools</code> — блок тільки для читання. Заборонені слова підсвічуються, чіпи показують що знайдено. Використовується в модалях перегляду.</p>
+                    </div>
+                    <div class="m3-demo-wrap">
+                        <div editor check
+                             data-editor-id="cfg-check"
+                             data-min-height="100"></div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;div editor check data-editor-id="cfg-check"&gt;&lt;/div&gt;</pre>
+                    </div>
+                </div>
+
+                <!-- tools + check -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3><code>editor tools check</code> — редагування + валідація</h3>
+                        <p>Повноцінний редактор з перевіркою заборонених слів і HTML патернів. Основний варіант для SEO-описів.</p>
+                    </div>
+                    <div class="m3-demo-wrap">
+                        <div editor tools check
+                             data-editor-id="cfg-edit"
+                             data-min-height="100"></div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;div editor tools check data-editor-id="cfg-edit"&gt;&lt;/div&gt;</pre>
+                    </div>
+                </div>
+
+                <!-- tools + stats -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3><code>editor tools stats</code> — редагування + статистика</h3>
+                        <p>Без валідації — тільки підрахунок символів, слів та часу читання. Для полів де заборонені слова не потрібні.</p>
+                    </div>
+                    <div class="m3-demo-wrap">
+                        <div editor tools stats
+                             data-editor-id="cfg-stats"
+                             data-min-height="100"></div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;div editor tools stats data-editor-id="cfg-stats"&gt;&lt;/div&gt;</pre>
+                    </div>
+                </div>
+
+            </section>
+
         </div>
     </main>
 
@@ -762,9 +827,29 @@ export function init(state) {
     <script type="module">
         import { createHighlightEditor } from '../js/components/editor/editor-main.js';
 
-        const container = document.querySelector('[data-editor-id="demo"]');
-        if (container) {
-            createHighlightEditor(container);
+        // Головний демо — всі чарми
+        const demoContainer = document.querySelector('[data-editor-id="demo"]');
+        if (demoContainer) createHighlightEditor(demoContainer);
+
+        // Конфігурація 1: readonly + check
+        const checkContainer = document.querySelector('[data-editor-id="cfg-check"]');
+        if (checkContainer) {
+            const e = createHighlightEditor(checkContainer);
+            e?.setValue('Даний препарат ефективно лікує суглобний біль та гарантовано знімає запалення. Рекомендований лікарями для щоденного застосування.');
+        }
+
+        // Конфігурація 2: tools + check
+        const editContainer = document.querySelector('[data-editor-id="cfg-edit"]');
+        if (editContainer) {
+            const e = createHighlightEditor(editContainer);
+            e?.setValue('Спробуйте відредагувати текст — заборонені слова підсвічуються автоматично після завантаження списку.');
+        }
+
+        // Конфігурація 3: tools + stats
+        const statsContainer = document.querySelector('[data-editor-id="cfg-stats"]');
+        if (statsContainer) {
+            const e = createHighlightEditor(statsContainer);
+            e?.setValue('Підрахунок символів та слів оновлюється в реальному часі при кожному введенні тексту.');
         }
     </script>
 
