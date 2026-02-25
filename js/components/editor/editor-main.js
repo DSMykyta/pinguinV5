@@ -148,6 +148,10 @@ export function createHighlightEditor(container, options = {}) {
         state.lastSavedContent = config.initialValue;
     }
 
+    // charm:refresh на батьківській секції → очистити редактор
+    container.closest('section[refresh]')
+        ?.addEventListener('charm:refresh', () => publicApi.clear());
+
     // Публічне API
     return {
         getValue: () => sanitizeHtml(state.getCleanHtml(), {

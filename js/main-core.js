@@ -15,6 +15,7 @@ import { initMorphSearchCharm } from './components/charms/charm-morph-search.js'
 import { initRefreshCharm }     from './components/charms/charm-refresh.js';
 import { initColumnsCharm }     from './components/charms/charm-columns.js';
 import { initPaginationCharm }  from './components/charms/pagination/pagination-main.js';
+import { createHighlightEditor } from './components/editor/editor-main.js';
 
 
 export async function initCore() {
@@ -37,4 +38,5 @@ export async function initCore() {
     initRefreshCharm();
     initColumnsCharm();
     initPaginationCharm();
+    document.querySelectorAll('[editor]').forEach(container => createHighlightEditor(container));
 }
