@@ -703,7 +703,7 @@ export function init(state) {
                             <tr><th>Модуль</th><th>Плагіни</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td><code>editor/</code></td><td>formatting, case, undo, validation, find, stats, paste, cleanup, enter, chip-navigation, tooltip</td></tr>
+                            <tr><td><code>editor/</code></td><td>🔌 formatting, case, undo, enter, paste &nbsp;|&nbsp; ✨ charm-find, charm-check, charm-chip-navigation, charm-tooltip, charm-stats, charm-cleanup</td></tr>
                             <tr><td><code>avatar/</code></td><td>avatar-user, avatar-ui-states, avatar-modal, avatar-selector, avatar-text</td></tr>
                             <tr><td><code>table/</code></td><td>table-sorting, table-filters, table-checkboxes, table-columns</td></tr>
                             <tr><td>Генератори</td><td>Кожен generator має власний масив PLUGINS — triggers, reset, copy, aside...</td></tr>
@@ -872,6 +872,125 @@ import { initEditor } from './components/editor/editor-main.js';
 
 // ❌ Неправильно — прямий доступ до внутрішнього плагіна
 import { init } from './components/editor/editor-formatting.js';</pre>
+                    </div>
+                </div>
+
+                <!-- Naming: page module files -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Неймінг файлів сторінкових модулів</h3>
+                        <p>Сторінкові модулі (в <code>js/pages/</code>) — не компоненти, не перевикористовуються. Кожен живе в своїй папці. Правило одне: <strong>файли всередині папки — короткий префікс папки</strong>, а не повна назва модуля. Відкрив папку — читаєш ролі, не повторюєш назву кожного разу.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Папка</th><th>Префікс</th><th>Приклад файлів</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>banned-words/</code></td><td><code>bw-</code></td><td><code>bw-main.js</code>, <code>bw-state.js</code>, <code>bw-plugin-check.js</code></td></tr>
+                            <tr><td><code>generator-table/</code></td><td><code>gt-</code></td><td><code>gt-main.js</code>, <code>gt-state.js</code>, <code>gt-plugin-batch.js</code></td></tr>
+                            <tr><td><code>generator-seo/</code></td><td><code>gse-</code></td><td><code>gse-main.js</code>, <code>gse-state.js</code>, <code>gse-plugin-*.js</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">❌ Неправильно — повторюємо назву папки</div>
+<pre>banned-words/
+├── banned-words-main.js
+├── banned-words-state.js
+├── banned-words-check.js    ← зайве слово в кожному файлі</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">✅ Правильно — короткий префікс + LEGO-структура</div>
+<pre>banned-words/
+├── bw-main.js               🔒 ЯДРО — orchestrator + public API
+├── bw-state.js              🔒 ЯДРО — bannedWordsState + кеш
+├── bw-plugin-data.js        🔌 ПЛАГІН — Google Sheets API
+├── bw-plugin-manage.js      🔌 ПЛАГІН — CRUD таблиця
+├── bw-plugin-check.js       🔌 ПЛАГІН — перевірка текстів
+├── bw-plugin-batch.js       🔌 ПЛАГІН — batch операції
+├── bw-plugin-tabs.js        🔌 ПЛАГІН — динамічні вкладки
+├── bw-plugin-aside.js       🔌 ПЛАГІН — aside панель
+├── bw-plugin-persistence.js 🔌 ПЛАГІН — localStorage
+└── bw-plugin-ui.js          🔌 ПЛАГІН — UI controls</pre>
+                    </div>
+                </div>
+
+                <!-- Naming: file role suffixes -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Три типи файлів модуля</h3>
+                        <p>Кожен файл — один з трьох типів. Тип видно з назви без відкриття файлу.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <thead>
+                            <tr><th>Тип</th><th>Інфікс</th><th>Коли активний</th><th>Приклади</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>🔒 ЯДРО</td><td>немає</td><td>Завжди — не можна видалити</td><td><code>editor-main.js</code>, <code>bw-state.js</code></td></tr>
+                            <tr><td>🔌 ПЛАГІН</td><td><code>-plugin-</code></td><td>Завжди — але можна видалити</td><td><code>editor-plugin-formatting.js</code>, <code>bw-plugin-manage.js</code></td></tr>
+                            <tr><td>✨ ШАРМ</td><td><code>-charm-</code></td><td>Тільки коли є відповідний HTML-атрибут</td><td><code>editor-charm-stats.js</code>, <code>editor-charm-check.js</code></td></tr>
+                        </tbody>
+                    </table>
+                    <table class="m3-spec" style="margin-top: 8px;">
+                        <thead>
+                            <tr><th>Суфікс ролі</th><th>Роль</th><th>Що містить</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>-main</code></td><td>Оркестратор</td><td>Фабрика, завантаження плагінів/шармів, публічний API.</td></tr>
+                            <tr><td><code>-state</code></td><td>Стан</td><td>Живий об'єкт стану, кеш, хук-шина.</td></tr>
+                            <tr><td><code>-plugin-data</code></td><td>Дані</td><td>API запити, робота з Google Sheets.</td></tr>
+                            <tr><td><code>-plugin-manage</code></td><td>CRUD</td><td>Таблиця керування, рядки/дії з записами.</td></tr>
+                            <tr><td><code>-plugin-batch</code></td><td>Пакетні дії</td><td>Масові операції над обраними рядками.</td></tr>
+                            <tr><td><code>-plugin-tabs</code></td><td>Вкладки</td><td>Динамічні таби сторінки.</td></tr>
+                            <tr><td><code>-plugin-aside</code></td><td>Aside-вміст</td><td>Реєструє <code>registerAsideInitializer()</code> всередині init(state).</td></tr>
+                            <tr><td><code>-plugin-persistence</code></td><td>Збереження</td><td>localStorage, sessionStorage.</td></tr>
+                            <tr><td><code>-plugin-ui</code></td><td>UI-контроли</td><td>Специфічні елементи інтерфейсу.</td></tr>
+                            <tr><td><code>-charm-check</code></td><td>Валідація</td><td>Підсвітка + чіпи — активна при атрибуті <code>check</code>.</td></tr>
+                            <tr><td><code>-charm-stats</code></td><td>Статистика</td><td>Символи/слова/час — активна при атрибуті <code>stats</code>.</td></tr>
+                            <tr><td><code>-charm-cleanup</code></td><td>Очистка</td><td>Тогли очистки — активна при <code>cleanup-*</code>.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Naming: plugin infix -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Плагіни vs Шарм-файли — різниця</h3>
+                        <p>Обидва типи реалізують контракт <code>export function init(state)</code>. Різниця — <strong>умова активації</strong>. Плагін завжди робить щось корисне. Шарм-файл на початку перевіряє конфіг і виходить якщо атрибут відсутній.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">🔌 Плагін — завжди активний</div>
+<pre>// editor-plugin-formatting.js
+// 🔌 ПЛАГІН — Bold, Italic, H1-H3, List
+
+export function init(state) {
+    state.dom.toolbar?.addEventListener('click', handleFormat);
+    // Якщо toolbar немає — просто нічого не відбувається
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">✨ Шарм-файл — виходить без свого атрибута</div>
+<pre>// editor-charm-stats.js
+// ✨ ШАРМ [stats] — Статистика тексту
+
+export function init(state) {
+    if (!state.config.showStats) return; // ← виходить якщо нема атрибута stats
+
+    state.registerHook('onDidInput', () => updateStats(state), { plugin: 'stats' });
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">editor-main.js — всі у спільному PLUGINS[]</div>
+<pre>const PLUGINS = [
+    // Завжди активні
+    './editor-plugin-formatting.js',
+    './editor-plugin-undo.js',
+    './editor-plugin-paste.js',
+    // Шарми (активуються за конфігом)
+    './editor-charm-find.js',      // тільки з [tools]
+    './editor-charm-check.js',     // тільки з [check]
+    './editor-charm-stats.js',     // тільки з [stats]
+    './editor-charm-cleanup.js',   // тільки з [cleanup-*]
+];</pre>
                     </div>
                 </div>
             </section>

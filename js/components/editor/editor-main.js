@@ -34,18 +34,20 @@
  * ║  ├── editor-state.js      — State екземпляра                             ║
  * ║  └── editor-mode.js       — Перемикання Text/Code                        ║
  * ║                                                                          ║
- * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
+ * ║  🔌 ПЛАГІНИ — завжди активні:                                            ║
  * ║  ├── editor-plugin-formatting.js    — Bold, Italic, H1-H3, List          ║
  * ║  ├── editor-plugin-case.js          — Зміна регістру                     ║
  * ║  ├── editor-plugin-undo.js          — Undo/Redo                          ║
- * ║  ├── editor-plugin-validation.js    — Заборонені слова                   ║
- * ║  ├── editor-plugin-find.js          — Find & Replace                     ║
- * ║  ├── editor-plugin-stats.js         — Статистика                         ║
  * ║  ├── editor-plugin-paste.js         — Обробка вставки                    ║
- * ║  ├── editor-plugin-cleanup.js       — Тогли очистки                      ║
- * ║  ├── editor-plugin-enter.js         — Обробка Enter/Shift+Enter          ║
- * ║  ├── editor-plugin-chip-navigation.js — Навігація по чіпах              ║
- * ║  └── editor-plugin-tooltip.js       — Підказки для заборонених слів      ║
+ * ║  └── editor-plugin-enter.js         — Обробка Enter/Shift+Enter          ║
+ * ║                                                                          ║
+ * ║  ✨ ШАРМИ — активуються тільки при наявності атрибута:                   ║
+ * ║  ├── editor-charm-find.js           — Find & Replace        [tools]      ║
+ * ║  ├── editor-charm-check.js          — Заборонені слова       [check]      ║
+ * ║  ├── editor-charm-chip-navigation.js — Навігація по чіпах   [check]      ║
+ * ║  ├── editor-charm-tooltip.js        — Підказки              [check]      ║
+ * ║  ├── editor-charm-stats.js          — Статистика            [stats]      ║
+ * ║  └── editor-charm-cleanup.js        — Тогли очистки         [cleanup]    ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -58,19 +60,20 @@ import { initDropdowns } from '../ui-dropdown.js';
 
 let instanceCounter = 0;
 
-// Плагіни — можна видалити будь-який
 const PLUGINS = [
+    // Завжди активні
     './editor-plugin-formatting.js',
     './editor-plugin-case.js',
     './editor-plugin-undo.js',
     './editor-plugin-enter.js',
-    './editor-plugin-validation.js',
-    './editor-plugin-find.js',
-    './editor-plugin-stats.js',
     './editor-plugin-paste.js',
-    './editor-plugin-cleanup.js',
-    './editor-plugin-chip-navigation.js',
-    './editor-plugin-tooltip.js',
+    // Шарми (активуються за конфігом)
+    './editor-charm-find.js',
+    './editor-charm-check.js',
+    './editor-charm-chip-navigation.js',
+    './editor-charm-tooltip.js',
+    './editor-charm-stats.js',
+    './editor-charm-cleanup.js',
 ];
 
 /**
