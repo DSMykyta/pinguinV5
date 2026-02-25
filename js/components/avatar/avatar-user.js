@@ -15,6 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, getCurrentUserAvatar } from './avatar-state.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 import {
     AVATAR_BASE_PATH,
     AVATAR_HD_PATH,
@@ -183,15 +184,6 @@ export function updateUserAvatar(avatarName, containerId = 'auth-user-avatar-con
 export function renderCurrentUserAvatar(options = {}) {
     const avatar = getCurrentUserAvatar();
     return renderAvatar(avatar, options);
-}
-
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // Ініціалізація викликається з avatar-main.js через init(state)

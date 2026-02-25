@@ -15,6 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, runHook } from './avatar-state.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 import {
     AVATAR_BASE_PATH,
     AVAILABLE_ANIMALS,
@@ -262,13 +263,5 @@ export function clearSelector(containerId) {
     selectorStates.delete(containerId);
 }
 
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 // Ініціалізація викликається з avatar-main.js через init(state)

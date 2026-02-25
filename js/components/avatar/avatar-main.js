@@ -30,6 +30,7 @@
 
 import { avatarState, runHook, runHookAsync, setCurrentUser } from './avatar-state.js';
 import { AVAILABLE_ANIMALS } from './avatar-config.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -135,14 +136,6 @@ export async function reloadAvatarSystem() {
     await initAvatarSystem();
 }
 
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RE-EXPORTS для зручного використання

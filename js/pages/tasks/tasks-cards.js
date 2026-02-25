@@ -16,6 +16,7 @@ import { getTasksForCurrentTab, canEditTask, canChangeStatus } from './tasks-dat
 import { registerTasksPlugin, runHook } from './tasks-plugins.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { registerActionHandlers, initActionHandlers, actionButton } from '../../components/ui-actions.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КОНСТАНТИ
@@ -254,17 +255,6 @@ function initCardClickEvents(container) {
             }
         });
     });
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// УТИЛІТИ
-// ═══════════════════════════════════════════════════════════════════════════
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 /**

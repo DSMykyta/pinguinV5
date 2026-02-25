@@ -71,9 +71,5 @@ export function normalizeDecimals(text) {
     return text.replace(/(\d),(\d{1,2})(?!\d)/g, '$1.$2');
 }
 
-/**
- * Видаляє HTML теги
- */
-export function stripHtml(text) {
-    return text.replace(/<[^>]*>/g, '');
-}
+// stripHtml — re-export з text-utils
+export { stripHtmlTags as stripHtml } from '../../utils/text-utils.js';

@@ -12,6 +12,7 @@
 import { priceState } from './price-init.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { PRICE_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { formatDate } from '../../utils/common-utils.js';
 
 const PRICE_SHEET_NAME = 'Price';
 const PRICE_START_ROW = 1; // Рядок 1 = заголовки, рядок 2+ = дані
@@ -473,16 +474,6 @@ export async function importDataToSheet(importedData) {
         console.error('❌ Помилка імпорту:', error);
         throw error;
     }
-}
-
-/**
- * Форматувати дату в дд.мм.рр
- */
-function formatDate(date) {
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(-2);
-    return `${day}.${month}.${year}`;
 }
 
 /**

@@ -17,6 +17,7 @@
  */
 
 import { markPluginLoaded } from './gt-state.js';
+import { debounce } from '../../utils/common-utils.js';
 
 export const PLUGIN_NAME = 'gt-magic-hints';
 
@@ -191,18 +192,6 @@ function renderHints(hints) {
             return `<span class="badge c-yellow">${hint.name} — EAA</span>`;
         }
     }).join('');
-}
-
-// ============================================================================
-// УТИЛІТИ
-// ============================================================================
-
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
 }
 
 // ============================================================================

@@ -32,6 +32,7 @@ import { getAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { UI_STATES_CONFIG, AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES, EMOTION_ALIASES } from '../../components/avatar/avatar-config.js';
 import { getCurrentUserAvatar } from '../../components/avatar/avatar-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ЗАВАНТАЖЕННЯ ДАНИХ ПРАЙСУ
@@ -620,18 +621,6 @@ function initStatCardNavigation(container) {
 // ═══════════════════════════════════════════════════════════════════════════
 // УТИЛІТИ
 // ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Екранування HTML
- * @param {string} text
- * @returns {string}
- */
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ПЛАГІНА

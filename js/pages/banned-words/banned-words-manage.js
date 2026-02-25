@@ -2,6 +2,7 @@
 // Управління словником заборонених слів - таблиця і CRUD операції
 
 import { bannedWordsState } from './banned-words-init.js';
+import { generateNextId } from '../../utils/common-utils.js';
 import { showModal, closeModal } from '../../components/ui-modal.js';
 import { initCustomSelects } from '../../components/ui-select.js';
 import { initDropdowns } from '../../components/ui-dropdown.js';
@@ -335,7 +336,7 @@ export async function openBannedWordModal(wordData = null) {
 
     } else {
         // Генерувати новий ID
-        const newId = generateBannedWordId();
+        const newId = generateNextId('ban-', bannedWordsState.bannedWords.map(w => w.local_id));
         if (hiddenIdField) hiddenIdField.value = newId;
         // Встановлюємо рівень за замовчуванням
         updateSeverityTrigger('high');
@@ -373,28 +374,6 @@ export async function openBannedWordModal(wordData = null) {
     }
 }
 
-/**
- * Генерувати новий ID для заборонених слів
- */
-function generateBannedWordId() {
-    // Знайти максимальний номер
-    let maxNum = 0;
-
-    bannedWordsState.bannedWords.forEach(word => {
-        if (word.local_id && word.local_id.startsWith('ban-')) {
-            const num = parseInt(word.local_id.replace('ban-', ''), 10);
-            if (!isNaN(num) && num > maxNum) {
-                maxNum = num;
-            }
-        }
-    });
-
-    // Новий номер
-    const newNum = maxNum + 1;
-
-    // Форматувати як ban-XXXXXX
-    return `ban-${String(newNum).padStart(6, '0')}`;
-}
 
 /**
 * Обробник збереження форми
