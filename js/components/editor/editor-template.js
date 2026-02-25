@@ -46,7 +46,10 @@ export function createEditorTemplate(id, config) {
 
     return `
         <div class="editor-component rich-editor-container" data-editor-id="${id}" style="--editor-min-height: ${minHeight}px;">
-            ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : ''}
+            ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : (validation ? `
+        <div class="validation-results-wrapper">
+            <div id="${id}-validation-results" class="chip-list"></div>
+        </div>` : '')}
 
             <!-- Область редактора -->
             <div class="rich-editor-body">

@@ -4,13 +4,11 @@
 import { bannedWordsState, invalidateCheckCache } from './banned-words-init.js';
 import { loadProductFullData, updateProductStatus } from './banned-words-data.js';
 import { showModal, closeModal } from '../../components/ui-modal.js';
-import { highlightText, checkTextForBannedWords } from '../../utils/text-utils.js';
 import { showToast } from '../../components/ui-toast.js';
+import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 // Поточні дані модалу
 let currentProductData = null;
-// Статистика для кожного поля: { fieldName: { wordCountsMap, totalMatches } }
-let fieldStats = {};
 
 // Дані для всіх аркушів (для перемикання між табами)
 // Структура: { sheetName: { productData, loaded } }
@@ -23,6 +21,9 @@ let activeColumn = null;
 // Всі доступні аркуші та колонки (передаються при відкритті модалу)
 let availableSheets = [];
 let availableColumns = [];
+
+// Екземпляри редакторів, ключ — назва колонки
+let editorInstances = {};
 
 /**
  * Отримати іконку для поля на основі його назви
@@ -40,7 +41,7 @@ function getFieldIcon(columnName) {
  * 1. Завантажити шаблон модалу (з порожніми контейнерами)
  * 2. ДИНАМІЧНО створити піли аркушів (якщо > 1) та піли колонок
  * 3. Завантажити повні дані товару з Google Sheets
- * 4. Заповнити панелі текстом з підсвічуванням ВСІХ заборонених слів
+ * 4. Заповнити панелі текстом через editor.setValue() — підсвічування виконує editor-plugin-validation
  * 5. Додати event listeners на динамічно створені піли
  *
  * @param {string} productId - ID товару
@@ -55,7 +56,6 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
 
         // Скинути стан
         allSheetsData = {};
-        fieldStats = {};
 
         // Фільтруємо аркуші - тільки ті де цей товар має результати
         const productResults = bannedWordsState.checkResults?.filter(r => r.id === productId) || [];
@@ -94,11 +94,8 @@ export async function showProductTextModal(productId, sheetName, rowIndex, colum
         // 2. Налаштувати таби аркушів (якщо > 1 аркуша)
         setupSheetTabs();
 
-        // 3. ДИНАМІЧНО створити піли колонок та панелі для перевірених колонок
+        // 3. ДИНАМІЧНО створити піли колонок та панелі з редакторами
         setupFieldTabs(availableColumns);
-
-        // Показати loader
-        showModalLoader();
 
         // 4. Завантажити повні дані товару для поточного аркуша
         const productData = await loadProductFullData(sheetName, rowIndex);
@@ -164,12 +161,12 @@ function setupSheetTabs() {
 }
 
 /**
- * Налаштувати таби полів - ДИНАМІЧНО створити піли та панелі для перевірених колонок
- * @param {string|string[]} columnNames - Назва колонки або масив назв (для майбутніх комплексних перевірок)
+ * Налаштувати таби полів — ДИНАМІЧНО створити піли та панелі з редакторами
+ * @param {string|string[]} columnNames - Назва колонки або масив назв
  */
 function setupFieldTabs(columnNames) {
 
-    // Нормалізувати до масиву (для сумісності з майбутніми комплексними перевірками)
+    // Нормалізувати до масиву
     const columnsArray = Array.isArray(columnNames) ? columnNames : [columnNames];
 
     const pillsContainer = document.getElementById('product-text-field-pills');
@@ -180,10 +177,10 @@ function setupFieldTabs(columnNames) {
         return;
     }
 
-    // ОЧИСТИТИ існуючий контент
+    // Очистити існуючий контент та інстанси редакторів
     pillsContainer.innerHTML = '';
     contentContainer.innerHTML = '';
-
+    editorInstances = {};
 
     // ДИНАМІЧНО створити піли та панелі для кожної колонки
     columnsArray.forEach((columnName, index) => {
@@ -193,7 +190,6 @@ function setupFieldTabs(columnNames) {
         button.dataset.field = columnName;
         if (index === 0) button.classList.add('active');
 
-        // Використовуємо технічну назву колонки безпосередньо
         button.innerHTML = `
             <span class="material-symbols-outlined">${getFieldIcon(columnName)}</span>
             <span class="btn-icon-label">${columnName}</span>
@@ -201,33 +197,21 @@ function setupFieldTabs(columnNames) {
 
         pillsContainer.appendChild(button);
 
-        // Створити панель
+        // Створити панель з редактором
         const panel = document.createElement('div');
         panel.className = 'product-text-panel';
         panel.dataset.field = columnName;
         if (index === 0) panel.classList.add('active');
 
-        panel.innerHTML = `
-            <div class="text-viewer" id="text-viewer-${columnName}">
-                <p class="text-muted">Завантаження...</p>
-            </div>
-        `;
+        panel.innerHTML = `<div editor check data-editor-id="bw-${columnName}" data-placeholder="Завантаження..."></div>`;
 
         contentContainer.appendChild(panel);
 
+        // Ініціалізувати редактор (панель вже в DOM)
+        const editorContainer = panel.querySelector('[editor]');
+        editorInstances[columnName] = createHighlightEditor(editorContainer);
     });
 
-}
-
-/**
- * Показати loader в модалі
- */
-function showModalLoader() {
-    // Панелі вже створені з текстом "Завантаження..." в setupFieldTabs()
-    // Ця функція залишена для сумісності
-    const viewers = document.querySelectorAll('.text-viewer');
-    if (viewers.length > 0) {
-    }
 }
 
 /**
@@ -266,16 +250,6 @@ function renderProductModal(productData, columnNames) {
         idElement.innerHTML = `ID: <strong>${displayId}</strong>`;
     }
 
-    // Отримати ВСІ заборонені слова (обидві мови) для підсвічування
-    const allBannedWordsRaw = bannedWordsState.bannedWords.flatMap(w =>
-        [...w.name_uk_array, ...w.name_ru_array]
-    );
-
-    // ДЕДУПЛІКАЦІЯ: одне слово може бути в кількох рядках таблиці banned, але рахуємо як одне
-    const allBannedWords = [...new Set(allBannedWordsRaw.map(w => w.toLowerCase()))];
-
-
-
     // Мапінг полів модалу до полів Google Sheets
     const fieldMapping = {
         'titleUkr': productData.titleUkr || productData.title_ukr || '',
@@ -286,116 +260,18 @@ function renderProductModal(productData, columnNames) {
         'short_descriptionRos': productData.short_descriptionRos || productData.shortDescriptionRos || ''
     };
 
-
-    // Очистити попередню статистику
-    fieldStats = {};
-
-    // Рендеримо ТІЛЬКИ ті поля що в columnsArray
+    // Передати текст в редактори — підсвічування виконає editor-plugin-validation
     columnsArray.forEach(field => {
-        // Спробувати знайти текст: спочатку в mapping, потім напряму в productData
         const text = fieldMapping[field] || productData[field] || '';
-        const viewer = document.getElementById(`text-viewer-${field}`);
+        const editor = editorInstances[field];
 
-        if (!viewer) {
-            console.warn(`⚠️ Не знайдено viewer для поля: ${field}`);
+        if (!editor) {
+            console.warn(`⚠️ Не знайдено редактор для поля: ${field}`);
             return;
         }
 
-        if (!text || !text.trim()) {
-            viewer.innerHTML = '<p class="text-muted">Немає даних</p>';
-            fieldStats[field] = { wordCountsMap: new Map(), totalMatches: 0 };
-            return;
-        }
-
-        // Перевірити текст на ВСІ заборонені слова
-        const foundWords = checkTextForBannedWords(text, allBannedWords);
-
-        // Статистика для цього конкретного поля
-        let wordCountsMap = new Map();
-        let totalMatches = 0;
-
-        if (foundWords.length > 0) {
-            // Є заборонені слова - підсвітити їх ВСІ
-            const wordsToHighlight = foundWords.map(f => f.word);
-            const highlightedText = highlightText(text, wordsToHighlight, 'highlight-banned-word');
-
-            viewer.innerHTML = highlightedText;
-
-            // Підрахувати статистику для ЦЬОГО поля
-            foundWords.forEach(f => {
-                const wordKey = f.word.toLowerCase();
-                const currentCount = wordCountsMap.get(wordKey) || 0;
-                wordCountsMap.set(wordKey, currentCount + f.count);
-                totalMatches += f.count;
-            });
-
-        } else {
-            // Немає заборонених слів - просто показати текст
-            viewer.textContent = text;
-        }
-
-        // Зберегти статистику для цього поля
-        fieldStats[field] = { wordCountsMap, totalMatches };
+        editor.setValue(text);
     });
-
-    // Показати статистику для ПЕРШОГО (активного) поля
-    const firstField = columnsArray[0];
-    updateModalStats(firstField);
-
-    // Ініціалізувати tooltip для підсвічених слів
-    initBannedWordTooltips();
-}
-
-/**
- * Оновити статистику модалу для конкретного поля
- * @param {string} fieldName - Назва поля
- */
-function updateModalStats(fieldName) {
-    const stats = fieldStats[fieldName];
-
-    if (!stats) {
-        console.warn(`⚠️ Немає статистики для поля: ${fieldName}`);
-        return;
-    }
-
-    const { wordCountsMap, totalMatches } = stats;
-    const totalBannedWords = wordCountsMap.size;
-
-
-    // Оновити статистику
-    const bannedCountEl = document.getElementById('product-modal-banned-count');
-    const matchCountEl = document.getElementById('product-modal-match-count');
-
-    if (bannedCountEl) bannedCountEl.textContent = totalBannedWords;
-    if (matchCountEl) matchCountEl.textContent = totalMatches;
-
-    // Створити chip'и для заборонених слів з кількістю входжень
-    const chipsContainer = document.getElementById('product-modal-banned-chips');
-    if (chipsContainer) {
-        chipsContainer.innerHTML = '';
-        if (wordCountsMap.size > 0) {
-            // Сортуємо за алфавітом для консистентності
-            const sortedWords = Array.from(wordCountsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-            sortedWords.forEach(([word, count]) => {
-                const chip = document.createElement('span');
-                chip.className = 'chip c-red';
-                chip.textContent = `${word} (${count})`;
-
-                // Додати tooltip обробники для кожного чіпа
-                chip.addEventListener('mouseenter', (e) => {
-                    const wordInfo = findBannedWordInfo(word);
-                    if (wordInfo) {
-                        showBannedWordTooltip(e.target, wordInfo);
-                    }
-                });
-                chip.addEventListener('mouseleave', () => {
-                    hideBannedWordTooltip();
-                });
-
-                chipsContainer.appendChild(chip);
-            });
-        }
-    }
 }
 
 /**
@@ -479,9 +355,6 @@ function initModalHandlers() {
             panels.forEach(p => p.classList.remove('active'));
             const activePanelEl = document.querySelector(`.product-text-panel[data-field="${field}"]`);
             if (activePanelEl) activePanelEl.classList.add('active');
-
-            // Оновити статистику для цього поля
-            updateModalStats(field);
         });
     });
 
@@ -543,9 +416,6 @@ async function handleSheetTabClick(button) {
 
     // Завантажити дані для нового аркуша
     try {
-        // Показати loader
-        showModalLoader();
-
         // Потрібно знайти rowIndex для цього товару в новому аркуші
         // Використовуємо productId для пошуку
         const productId = document.getElementById('product-modal-product-id').value;
@@ -652,22 +522,13 @@ async function handleModalBadgeClick() {
  * Обробник кнопки "Копіювати текст"
  */
 function handleCopyText() {
-    // Знайти активну панель
-    const activePanel = document.querySelector('.product-text-panel.active');
-    if (!activePanel) {
-        console.warn('⚠️ Немає активної панелі для копіювання');
+    const editor = editorInstances[activeColumn];
+    if (!editor) {
         showToast('Немає тексту для копіювання', 'warning');
         return;
     }
 
-    // Отримати текст з text-viewer (без HTML тегів)
-    const viewer = activePanel.querySelector('.text-viewer');
-    if (!viewer) {
-        console.warn('⚠️ Не знайдено text-viewer');
-        return;
-    }
-
-    const textToCopy = viewer.textContent || viewer.innerText;
+    const textToCopy = editor.getPlainText();
 
     if (!textToCopy || !textToCopy.trim()) {
         showToast('Немає тексту для копіювання', 'warning');
@@ -683,174 +544,4 @@ function handleCopyText() {
             console.error('❌ Помилка копіювання:', err);
             showToast('Помилка копіювання тексту', 'error');
         });
-}
-
-// ============================================
-// ІНТЕРАКТИВНІ TOOLTIP ДЛЯ ЗАБОРОНЕНИХ СЛІВ
-// ============================================
-
-// Глобальний tooltip елемент
-let tooltipElement = null;
-
-/**
- * Створити або отримати tooltip елемент
- */
-function getTooltipElement() {
-    if (!tooltipElement) {
-        tooltipElement = document.createElement('div');
-        tooltipElement.className = 'banned-word-tooltip';
-        document.body.appendChild(tooltipElement);
-    }
-    return tooltipElement;
-}
-
-/**
- * Знайти інформацію про заборонене слово за його текстом
- * @param {string} wordText - Текст забороненого слова
- * @returns {Object|null} - Об'єкт з інформацією про слово або null
- */
-function findBannedWordInfo(wordText) {
-    if (!wordText || !bannedWordsState.bannedWords) return null;
-
-    const searchWord = wordText.toLowerCase().trim();
-
-    // Шукаємо слово в усіх записах bannedWords
-    for (const bannedWord of bannedWordsState.bannedWords) {
-        // Перевірити в українських словах
-        if (bannedWord.name_uk_array?.some(w => w === searchWord)) {
-            return bannedWord;
-        }
-        // Перевірити в російських словах
-        if (bannedWord.name_ru_array?.some(w => w === searchWord)) {
-            return bannedWord;
-        }
-    }
-
-    return null;
-}
-
-/**
- * Обмежити текст до максимальної кількості слів
- * @param {string} text - Оригінальний текст
- * @param {number} maxWords - Максимальна кількість слів
- * @returns {string} Обрізаний текст з "..." якщо було обрізано
- */
-function limitWords(text, maxWords = 15) {
-    if (!text) return '';
-    const words = text.split(/[,\s]+/).filter(Boolean);
-    if (words.length <= maxWords) return text;
-    return words.slice(0, maxWords).join(', ') + '...';
-}
-
-/**
- * Показати tooltip для забороненого слова
- * @param {HTMLElement} targetElement - Елемент над яким показати tooltip
- * @param {Object} wordInfo - Інформація про заборонене слово
- */
-function showBannedWordTooltip(targetElement, wordInfo) {
-    const tooltip = getTooltipElement();
-
-    // Сформувати контент tooltip (назва + пояснення + рекомендація)
-    let content = '';
-
-    // Назва групи
-    if (wordInfo.group_name_ua) {
-        content += `<div class="tooltip-title">${wordInfo.group_name_ua}</div>`;
-    }
-
-    // Пояснення
-    if (wordInfo.banned_explaine && wordInfo.banned_explaine.trim()) {
-        content += `<div class="tooltip-description">${wordInfo.banned_explaine}</div>`;
-    }
-
-    // Рекомендація (banned_hint)
-    if (wordInfo.banned_hint && wordInfo.banned_hint.trim()) {
-        content += `<div class="tooltip-hint"><strong>Рекомендація:</strong> ${wordInfo.banned_hint}</div>`;
-    }
-
-    tooltip.innerHTML = content;
-
-    // Позиціонувати tooltip з перевіркою меж екрану
-    const rect = targetElement.getBoundingClientRect();
-
-    // Спочатку показати щоб отримати реальні розміри
-    tooltip.style.visibility = 'hidden';
-    tooltip.style.opacity = '0';
-    tooltip.style.display = 'block';
-
-    const tooltipHeight = tooltip.offsetHeight;
-    const tooltipWidth = tooltip.offsetWidth;
-
-    let top = rect.bottom + 8;
-    let left = rect.left;
-
-    // Перевірити чи tooltip не виходить за межі екрану (знизу)
-    if (top + tooltipHeight > window.innerHeight) {
-        top = rect.top - tooltipHeight - 8;
-    }
-
-    // Перевірити чи tooltip не виходить за межі екрану (справа)
-    if (left + tooltipWidth > window.innerWidth) {
-        left = window.innerWidth - tooltipWidth - 10;
-    }
-
-    // Не дозволити від'ємний left
-    if (left < 10) {
-        left = 10;
-    }
-
-    tooltip.style.top = `${top}px`;
-    tooltip.style.left = `${left}px`;
-    tooltip.style.visibility = '';
-    tooltip.style.display = '';
-    tooltip.style.opacity = '';
-    tooltip.classList.add('visible');
-}
-
-/**
- * Приховати tooltip
- */
-function hideBannedWordTooltip() {
-    const tooltip = getTooltipElement();
-    tooltip.classList.remove('visible');
-}
-
-/**
- * Ініціалізувати tooltip обробники для підсвічених слів та чіпів
- */
-function initBannedWordTooltips() {
-    // Обробники для highlight-banned-word елементів
-    const highlightedWords = document.querySelectorAll('.text-viewer .highlight-banned-word');
-    highlightedWords.forEach(element => {
-        element.addEventListener('mouseenter', (e) => {
-            const wordText = e.target.textContent;
-            const wordInfo = findBannedWordInfo(wordText);
-            if (wordInfo) {
-                showBannedWordTooltip(e.target, wordInfo);
-            }
-        });
-
-        element.addEventListener('mouseleave', () => {
-            hideBannedWordTooltip();
-        });
-    });
-
-    // Обробники для chip c-red елементів (статистика)
-    const chipErrors = document.querySelectorAll('#product-modal-banned-chips .chip.c-red');
-    chipErrors.forEach(element => {
-        element.addEventListener('mouseenter', (e) => {
-            // Витягти слово з тексту чіпа (формат: "слово (N)")
-            const chipText = e.target.textContent;
-            const wordText = chipText.replace(/\s*\(\d+\)\s*$/, '').trim();
-            const wordInfo = findBannedWordInfo(wordText);
-            if (wordInfo) {
-                showBannedWordTooltip(e.target, wordInfo);
-            }
-        });
-
-        element.addEventListener('mouseleave', () => {
-            hideBannedWordTooltip();
-        });
-    });
-
 }

@@ -1,0 +1,53 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-large">
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="group column" style="flex: 1; min-width: 0; gap: 2px;">
+                <h2 class="modal-title" id="product-modal-title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Завантаження...</h2>
+                <p id="product-modal-id" style="margin: 0; font-size: 13px; color: var(--color-on-surface-v);">ID: ...</p>
+            </div>
+            <div class="group">
+                <span class="badge c-red clickable" id="product-modal-status-badge">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
+                    <span>Ні</span>
+                </span>
+                <div class="group">
+                    <button class="btn-icon" id="product-modal-copy-btn" aria-label="Копіювати текст">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </div>
+                    </button>
+                    <button class="btn-icon" id="product-modal-open-sheets" aria-label="Відкрити в Google Sheets">
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                        </div>
+                    </button>
+                    <button class="btn-icon modal-close-btn" aria-label="Закрити" data-modal-close>
+                        <div class="state-layer">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <input type="hidden" id="product-modal-product-id">
+            <input type="hidden" id="product-modal-sheet-name">
+            <input type="hidden" id="product-modal-row-index">
+
+            <!-- Sheet tabs (hidden when only 1 sheet) -->
+            <div class="filter-pills-container u-hidden" id="product-sheet-pills"></div>
+
+            <!-- Field tabs (dynamically created) -->
+            <div class="filter-pills-container" id="product-text-field-pills"></div>
+
+            <!-- Content panels (dynamically created, each contains an editor) -->
+            <div class="product-text-content"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer"></div>
+    </div>
+</div>
