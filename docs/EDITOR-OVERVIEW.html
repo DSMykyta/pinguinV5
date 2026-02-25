@@ -801,6 +801,23 @@ export function init(state) {
                     </div>
                 </div>
 
+                <!-- editor only — readonly text -->
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3><code>editor</code> — тільки виведення тексту</h3>
+                        <p>Без жодних чармів — просто readonly блок. Ні редагування, ні перевірки, ні статистики. Для відображення готового тексту.</p>
+                    </div>
+                    <div class="m3-demo-wrap">
+                        <div editor
+                             data-editor-id="cfg-view"
+                             data-min-height="60"></div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;div editor data-editor-id="cfg-view"&gt;&lt;/div&gt;</pre>
+                    </div>
+                </div>
+
             </section>
 
         </div>
@@ -850,6 +867,13 @@ export function init(state) {
         if (statsContainer) {
             const e = createHighlightEditor(statsContainer);
             e?.setValue('Підрахунок символів та слів оновлюється в реальному часі при кожному введенні тексту.');
+        }
+
+        // Конфігурація 4: тільки виведення
+        const viewContainer = document.querySelector('[data-editor-id="cfg-view"]');
+        if (viewContainer) {
+            const e = createHighlightEditor(viewContainer);
+            e?.setValue('Це звичайний текст тільки для читання. Клікати можна, редагувати — ні.');
         }
     </script>
 
