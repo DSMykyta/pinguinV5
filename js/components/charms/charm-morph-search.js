@@ -1,24 +1,22 @@
 // js/common/charms/charm-morph-search.js
 
 /**
- * CHARM: Morph Search
- *
- * Кругла кнопка 44×44 → розгортається в інпут 360px.
- * Document-level delegation, auto-discovery.
- *
- * HTML:
- * <div class="morph-search">
- *   <button class="morph-search-btn" aria-label="Пошук">
- *     <span class="material-symbols-outlined">search</span>
- *   </button>
- *   <div class="morph-search-field">
- *     <span class="material-symbols-outlined">search</span>
- *     <input type="text" placeholder="Пошук...">
- *     <button class="morph-search-close" aria-label="Закрити">
- *       <span class="material-symbols-outlined">close</span>
- *     </button>
- *   </div>
- * </div>
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  ✨ ШАРМ — Morph Search                                                   ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Кругла кнопка 44×44 → розгортається в інпут 360px.                      ║
+ * ║  Document-level delegation, auto-discovery.                              ║
+ * ║                                                                          ║
+ * ║  HTML:                                                                   ║
+ * ║  <div class="morph-search">                                              ║
+ * ║    <button class="morph-search-btn" aria-label="Пошук">...</button>      ║
+ * ║    <div class="morph-search-field">                                      ║
+ * ║      <input type="text" placeholder="Пошук...">                          ║
+ * ║    </div>                                                                ║
+ * ║  </div>                                                                  ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 export function initMorphSearchCharm() {

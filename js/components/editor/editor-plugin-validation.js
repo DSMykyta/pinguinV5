@@ -1,10 +1,15 @@
 // js/common/editor/editor-validation.js
 
 /**
- * PLUGIN — Валідація заборонених слів + HTML патерни
- *
- * Можна видалити — редактор працюватиме без валідації.
- * Активується тільки якщо config.validation = true
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔌 ПЛАГІН — Валідація заборонених слів + HTML патерни                   ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Підсвічує заборонені слова + перевіряє HTML структуру.                  ║
+ * ║  Активується тільки якщо config.validation = true.                       ║
+ * ║  Можна видалити — редактор працюватиме без валідації.                    ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { debounce } from '../../utils/common-utils.js';
@@ -42,8 +47,8 @@ export function init(state) {
 
     async function loadBannedWordsData() {
         try {
-            const { bannedWordsState } = await import('../../banned-words/banned-words-init.js');
-            const { loadBannedWords } = await import('../../banned-words/banned-words-data.js');
+            const { bannedWordsState } = await import('../../pages/banned-words/banned-words-init.js');
+            const { loadBannedWords } = await import('../../pages/banned-words/banned-words-data.js');
             await loadBannedWords();
 
             bannedWordsData = bannedWordsState.bannedWords || [];
@@ -366,7 +371,7 @@ export function init(state) {
     // ================================================================
 
     const debouncedValidate = debounce(validate, 500);
-    state.registerHook('onValidate', debouncedValidate);
-    state.registerHook('onInput', debouncedValidate);
-    state.registerHook('onModeChange', validate);
+    state.registerHook('onValidate', debouncedValidate, { plugin: 'validation' });
+    state.registerHook('onInput', debouncedValidate, { plugin: 'validation' });
+    state.registerHook('onModeChange', validate, { plugin: 'validation' });
 }

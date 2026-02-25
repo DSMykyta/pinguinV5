@@ -1,10 +1,15 @@
 // js/common/editor/editor-find.js
 
 /**
- * 🔌 ПЛАГІН — Find & Replace
- *
- * Можна видалити — редактор працюватиме без пошуку.
- * Активується тільки якщо config.showFindReplace = true
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔌 ПЛАГІН — Find & Replace                                               ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Пошук та масова заміна тексту (в text і code режимах).                  ║
+ * ║  Активується тільки якщо config.showFindReplace = true.                  ║
+ * ║  Можна видалити — редактор працюватиме без пошуку.                       ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 export function init(state) {
@@ -35,7 +40,7 @@ function findAndReplaceAll(state) {
     const replaceText = dom.replaceInput?.value || '';
 
     // Зберегти стан для undo
-    state.runHook('onBeforeChange');
+    state.runHook('onWillChange');
 
     if (state.currentMode === 'text') {
         // Очистити підсвічування

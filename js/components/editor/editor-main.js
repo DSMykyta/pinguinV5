@@ -35,17 +35,17 @@
  * ║  └── editor-mode.js       — Перемикання Text/Code                        ║
  * ║                                                                          ║
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
- * ║  ├── editor-formatting.js — Bold, Italic, H1-H3, List                    ║
- * ║  ├── editor-case.js       — Зміна регістру                               ║
- * ║  ├── editor-undo.js       — Undo/Redo                                    ║
- * ║  ├── editor-validation.js — Заборонені слова                             ║
- * ║  ├── editor-find.js       — Find & Replace                               ║
- * ║  ├── editor-stats.js      — Статистика                                   ║
- * ║  ├── editor-paste.js      — Обробка вставки                              ║
- * ║  ├── editor-cleanup.js   — Тогли очистки (links/images/styles)           ║
- * ║  ├── editor-enter.js     — Обробка Enter/Shift+Enter                     ║
- * ║  ├── editor-chip-navigation.js — Навігація по чіпах валідації            ║
- * ║  └── editor-tooltip.js   — Підказки для заборонених слів                 ║
+ * ║  ├── editor-plugin-formatting.js    — Bold, Italic, H1-H3, List          ║
+ * ║  ├── editor-plugin-case.js          — Зміна регістру                     ║
+ * ║  ├── editor-plugin-undo.js          — Undo/Redo                          ║
+ * ║  ├── editor-plugin-validation.js    — Заборонені слова                   ║
+ * ║  ├── editor-plugin-find.js          — Find & Replace                     ║
+ * ║  ├── editor-plugin-stats.js         — Статистика                         ║
+ * ║  ├── editor-plugin-paste.js         — Обробка вставки                    ║
+ * ║  ├── editor-plugin-cleanup.js       — Тогли очистки                      ║
+ * ║  ├── editor-plugin-enter.js         — Обробка Enter/Shift+Enter          ║
+ * ║  ├── editor-plugin-chip-navigation.js — Навігація по чіпах              ║
+ * ║  └── editor-plugin-tooltip.js       — Підказки для заборонених слів      ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -60,17 +60,17 @@ let instanceCounter = 0;
 
 // Плагіни — можна видалити будь-який
 const PLUGINS = [
-    './editor-formatting.js',
-    './editor-case.js',
-    './editor-undo.js',
-    './editor-enter.js',
-    './editor-validation.js',
-    './editor-find.js',
-    './editor-stats.js',
-    './editor-paste.js',
-    './editor-cleanup.js',
-    './editor-chip-navigation.js',
-    './editor-tooltip.js',
+    './editor-plugin-formatting.js',
+    './editor-plugin-case.js',
+    './editor-plugin-undo.js',
+    './editor-plugin-enter.js',
+    './editor-plugin-validation.js',
+    './editor-plugin-find.js',
+    './editor-plugin-stats.js',
+    './editor-plugin-paste.js',
+    './editor-plugin-cleanup.js',
+    './editor-plugin-chip-navigation.js',
+    './editor-plugin-tooltip.js',
 ];
 
 /**

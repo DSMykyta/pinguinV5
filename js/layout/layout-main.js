@@ -1,12 +1,11 @@
 // js/layout/layout-main.js
 
-/*
+/**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                      LAYOUT — ГОЛОВНИЙ МОДУЛЬ                            ║
+ * ║                   LAYOUT — ОРКЕСТРАТОР + ПУБЛІЧНИЙ API                   ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
  * ║  Єдина точка входу для всієї системи лейауту.                            ║
- * ║  Збирає: nav-menu + nav-tabs + nav-sections + aside.                     ║
  * ║                                                                          ║
  * ║  ВИКОРИСТАННЯ (main-core.js):                                            ║
  * ║     import { initLayout } from './layout/layout-main.js';                ║
@@ -20,31 +19,40 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { initNav }               from './nav-menu.js';
-import { initAsideState }        from './aside-state.js';
-import { preloadAsideTemplates } from './aside-loader.js';
-import { initAsideObserver }     from './aside-observer.js';
-import { initTabs }              from './nav-tabs.js';
-import { initSectionNavigator }  from './nav-sections.js';
+import { init as initCore }    from './layout-core.js';
+import * as navMenu            from './layout-plugin-nav-menu.js';
+import * as asideLoader        from './layout-plugin-aside-loader.js';
+import * as asideObserver      from './layout-plugin-aside-observer.js';
+import * as navSections        from './layout-plugin-nav-sections.js';
+import { initTabs }            from './layout-nav-tabs.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// РЕЕКСПОРТ
+// РЕЕКСПОРТ — ПУБЛІЧНИЙ API
 // ═══════════════════════════════════════════════════════════════════════════
 
 export { registerAsideInitializer,
-         loadSingleAsideTemplate } from './aside-loader.js';
-export { setAsideState }           from './aside-state.js';
-export { initTabs }                from './nav-tabs.js';
+         loadSingleAsideTemplate,
+         showAsidePanel }         from './layout-plugin-aside-loader.js';
+export { setAsideState }          from './layout-core.js';
+export { initTabs }               from './layout-nav-tabs.js';
+export { initDynamicTabs }        from './layout-nav-tabs-dynamic.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПУБЛІЧНЕ API
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function initLayout() {
-    await initNav();
-    initAsideState();
-    await preloadAsideTemplates();
-    initAsideObserver();
+    // 1. ЯДРО — синхронний DOM setup (aside кнопки, початковий стан)
+    initCore();
+
+    // 2. Паралельно: nav меню + aside шаблони
+    await Promise.allSettled([
+        navMenu.init(),
+        asideLoader.init(),
+    ]);
+
+    // 3. Після завантаження шаблонів: observer + секції + tabs
+    asideObserver.init();
+    navSections.init();
     initTabs();
-    initSectionNavigator();
 }

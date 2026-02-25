@@ -1,9 +1,14 @@
 // js/common/editor/editor-undo.js
 
 /**
- * 🔌 ПЛАГІН — Undo/Redo (Ctrl+Z, Ctrl+Y)
- *
- * Можна видалити — редактор працюватиме без undo/redo.
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔌 ПЛАГІН — Undo/Redo                                                    ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Ctrl+Z (undo) / Ctrl+Y або Ctrl+Shift+Z (redo).                         ║
+ * ║  Можна видалити — редактор працюватиме без undo/redo.                    ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { debounce } from '../../utils/common-utils.js';
@@ -36,10 +41,10 @@ export function init(state) {
     const debouncedSave = debounce(saveState, 300);
 
     // Реєструємо хук для збереження стану
-    state.registerHook('onInput', debouncedSave);
+    state.registerHook('onInput', debouncedSave, { plugin: 'undo' });
 
     // Хук для явного збереження перед зміною
-    state.registerHook('onBeforeChange', saveState);
+    state.registerHook('onWillChange', saveState, { plugin: 'undo' });
 
     // Keyboard shortcuts
     state.registerHook('onKeydown', (e) => {
@@ -55,7 +60,7 @@ export function init(state) {
             redo();
             return;
         }
-    });
+    }, { plugin: 'undo' });
 
     function undo() {
         if (undoStack.length === 0 || state.currentMode !== 'text') return;

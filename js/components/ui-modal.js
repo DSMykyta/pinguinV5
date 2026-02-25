@@ -26,7 +26,7 @@
  * - ui-tabs.js (для ініціалізації вкладок)
  */
 
-import { initTabs } from '../layout/nav-tabs.js';
+import { initTabs } from '../layout/layout-nav-tabs.js';
 import { initDropdowns } from './ui-dropdown.js';
 import { showToast } from './ui-toast.js';
 

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Принципи Layout — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+
+        body {
+            display: flex !important;
+            flex-direction: row !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            scroll-snap-type: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            background: var(--color-surface);
+        }
+
+        section {
+            height: auto !important;
+            min-height: auto !important;
+            scroll-snap-align: none !important;
+            overflow: visible !important;
+        }
+
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        /* SIDEBAR */
+        .m3-sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: 100dvh;
+            overflow-y: auto;
+            background: var(--color-surface-c-low);
+            border-right: 1px solid var(--color-outline);
+            padding: 24px 16px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m3-sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 8px 12px 20px;
+            color: var(--color-on-surface);
+            border-bottom: 1px solid var(--color-outline);
+            margin-bottom: 12px;
+        }
+        .m3-sidebar-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--color-on-surface-v);
+            display: block;
+            margin-top: 2px;
+        }
+        .m3-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active {
+            background: var(--color-main-c);
+            color: var(--color-main);
+            font-weight: 600;
+        }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* MAIN */
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        /* HERO */
+        .m3-hero {
+            background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%);
+            border-radius: 28px;
+            padding: 48px;
+            margin-bottom: 40px;
+            color: var(--color-on-main);
+        }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        /* SECTION */
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+
+        /* SECTION HERO */
+        .m3-section-hero {
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: var(--color-on-secondary);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+        }
+        .m3-section-hero h2 {
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            color: inherit;
+        }
+        .m3-section-hero p {
+            font-size: 13px;
+            opacity: 0.88;
+            margin: 0;
+            max-width: 600px;
+            line-height: 1.55;
+            color: inherit;
+        }
+
+        /* BLOCK */
+        .m3-block {
+            margin-bottom: 32px;
+            border: 1px solid var(--color-outline);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+        .m3-block-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        /* SPEC TABLE */
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-on-surface-v);
+            background: var(--color-surface-c-low);
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-spec td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--color-outline);
+            color: var(--color-on-surface);
+        }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            background: var(--color-surface-c);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* THEME TOGGLE */
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        /* SCROLLBAR */
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb {
+            background: var(--color-outline);
+            border-radius: 4px;
+        }
+
+        /* CODE BLOCKS */
+        .m3-code {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-outline);
+            background: var(--color-surface-c-low);
+            overflow-x: auto;
+        }
+        .m3-code-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 10px;
+        }
+        .m3-code pre {
+            margin: 0;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-on-surface);
+            white-space: pre;
+        }
+
+        /* PART DIVIDERS */
+        .m3-part {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 48px 0 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .m3-part:first-of-type { margin-top: 0; }
+        .m3-part-icon { font-size: 22px; color: var(--color-main); }
+        .m3-part-title { font-size: 20px; font-weight: 600; color: var(--color-on-surface); flex: 1; }
+        .m3-part-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.03em;
+        }
+        .m3-part-badge.locked {
+            background: color-mix(in srgb, #ba1a1a 12%, transparent);
+            color: #ba1a1a;
+        }
+        .m3-part-badge.removable {
+            background: var(--color-main-c);
+            color: var(--color-main);
+        }
+        .m3-part-badge.utility {
+            background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+            color: var(--color-secondary, #7b5ea7);
+        }
+
+        /* FILE CARDS GRID */
+        .m3-file-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .m3-file-card {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--color-outline);
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-file-card:nth-child(2n) { border-right: none; }
+        .m3-file-card:last-child { border-bottom: none; }
+        .m3-file-card:nth-last-child(2):nth-child(2n+1) { border-bottom: none; }
+        .m3-file-card-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-main);
+            margin-bottom: 4px;
+        }
+        .m3-file-card-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            margin-bottom: 5px;
+        }
+        .m3-file-card-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.6; }
+
+        /* STATE PILLS */
+        .m3-states {
+            display: flex;
+            gap: 12px;
+            padding: 20px 24px;
+            flex-wrap: wrap;
+        }
+        .m3-state-pill {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--color-outline);
+            flex: 1;
+            min-width: 160px;
+        }
+        .m3-state-pill-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-main);
+        }
+        .m3-state-pill-desc {
+            font-size: 12px;
+            color: var(--color-on-surface-v);
+            line-height: 1.5;
+        }
+
+        /* FLOW */
+        .m3-flow {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        .m3-flow-step {
+            flex: 1;
+            padding: 16px 18px;
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-flow-step:last-child { border-right: none; }
+        .m3-flow-step-num {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 6px;
+        }
+        .m3-flow-step-title { font-size: 13px; font-weight: 600; color: var(--color-on-surface); margin-bottom: 4px; }
+        .m3-flow-step-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.55; }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">
+            Принципи Layout
+            <span>pinguin-v5</span>
+        </div>
+
+        <a href="#structure" class="m3-nav-item active">
+            <span class="material-symbols-outlined">folder_open</span>Структура файлів
+        </a>
+        <a href="#init" class="m3-nav-item">
+            <span class="material-symbols-outlined">play_circle</span>Запуск
+        </a>
+        <a href="#aside" class="m3-nav-item">
+            <span class="material-symbols-outlined">dock_to_right</span>Aside панель
+        </a>
+        <a href="#aside-loader" class="m3-nav-item">
+            <span class="material-symbols-outlined">download</span>Aside loader
+        </a>
+        <a href="#aside-observer" class="m3-nav-item">
+            <span class="material-symbols-outlined">visibility</span>Aside observer
+        </a>
+        <a href="#nav-menu" class="m3-nav-item">
+            <span class="material-symbols-outlined">menu</span>Nav menu
+        </a>
+        <a href="#tabs" class="m3-nav-item">
+            <span class="material-symbols-outlined">tab</span>Tabs
+        </a>
+        <a href="#sections" class="m3-nav-item">
+            <span class="material-symbols-outlined">view_agenda</span>Section navigator
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="m3-main">
+        <div class="m3-content">
+
+            <div class="m3-theme-toggle">
+                <button class="fab"
+                    onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>Принципи Layout</h1>
+                <p>ЛЕГО-система для навігації, aside-панелі та вкладок. Один виклик <code style="opacity:0.8; font-size:14px">initLayout()</code> — все інше автоматично.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- СТРУКТУРА ФАЙЛІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="structure">
+                <div class="m3-section-hero">
+                    <h2>Структура файлів</h2>
+                    <p>Папка <code>js/layout/</code> — 9 файлів. Три шари: ЯДРО (не чіпати), ПЛАГІНИ (можна видалити), УТИЛІТИ (виклик напряму).</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">lock</span>
+                        <span class="m3-part-title">ЯДРО</span>
+                        <span class="m3-part-badge locked">не видаляти</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">layout-main.js</div>
+                            <div class="m3-file-card-role">Оркестратор + публічний API</div>
+                            <div class="m3-file-card-desc">Єдина точка входу. Завантажує плагіни у правильному порядку. Всі зовнішні імпорти — тільки звідси.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">layout-state.js</div>
+                            <div class="m3-file-card-role">Чистий стан</div>
+                            <div class="m3-file-card-desc">Зберігає поточний стан aside (expanded/collapsed/closed). Без DOM, без подій, без зовнішніх імпортів.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
+                            <div class="m3-file-card-name">layout-core.js</div>
+                            <div class="m3-file-card-role">DOM aside + кнопки</div>
+                            <div class="m3-file-card-desc">Синхронізує CSS класи з aside-станом. Вішає обробники на trigger і expand-кнопки. Читає початковий стан з HTML-класу.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">&nbsp;</div>
+                            <div class="m3-file-card-role">&nbsp;</div>
+                            <div class="m3-file-card-desc">&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">extension</span>
+                        <span class="m3-part-title">ПЛАГІНИ</span>
+                        <span class="m3-part-badge removable">можна видалити</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">layout-plugin-nav-menu.js</div>
+                            <div class="m3-file-card-role">Ліве меню</div>
+                            <div class="m3-file-card-desc">Завантажує <code>templates/partials/nav.html</code> і підсвічує активну сторінку по URL.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">layout-plugin-aside-loader.js</div>
+                            <div class="m3-file-card-role">Шаблони aside</div>
+                            <div class="m3-file-card-desc">Завантажує HTML-шаблони в aside-body паралельно. Реєстр ініціалізаторів для сторінкових модулів.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
+                            <div class="m3-file-card-name">layout-plugin-aside-observer.js</div>
+                            <div class="m3-file-card-role">Scroll spy aside</div>
+                            <div class="m3-file-card-desc">IntersectionObserver за секціями. При скролі перемикає вміст aside без зміни стану панелі.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">layout-plugin-nav-sections.js</div>
+                            <div class="m3-file-card-role">Section navigator</div>
+                            <div class="m3-file-card-desc">Вертикальна панель іконок для переходу між секціями. Scroll spy підсвічує активну секцію.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">build</span>
+                        <span class="m3-part-title">УТИЛІТИ</span>
+                        <span class="m3-part-badge utility">виклик напряму</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
+                            <div class="m3-file-card-name">layout-nav-tabs.js</div>
+                            <div class="m3-file-card-role">Статичні вкладки</div>
+                            <div class="m3-file-card-desc">Перемикає фіксовані вкладки по кліку. Використовується і в layout, і з модалів через <code>initTabs(container)</code>.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">layout-nav-tabs-dynamic.js</div>
+                            <div class="m3-file-card-role">Динамічні вкладки</div>
+                            <div class="m3-file-card-desc">Фабрика для вкладок що додаються/видаляються програмно. Повертає API: <code>createTab</code>, <code>removeTab</code>, <code>switchToTab</code>.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ЗАПУСК -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="init">
+                <div class="m3-section-hero">
+                    <h2>Запуск</h2>
+                    <p>Один виклик у <code>main-core.js</code> запускає всю систему. Порядок завантаження фіксований і безпечний.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Порядок ініціалізації</h3>
+                        <p>Плагіни завантажуються у два паралельні хвилі. Друга хвиля стартує тільки після першої — бо observer потребує вже завантажені шаблони.</p>
+                    </div>
+                    <div class="m3-flow">
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 1</div>
+                            <div class="m3-flow-step-title">initCore()</div>
+                            <div class="m3-flow-step-desc">Синхронно. Знаходить aside, trigger, expandBtn. Вішає обробники кнопок. Читає початковий стан.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 2 — паралельно</div>
+                            <div class="m3-flow-step-title">navMenu + asideLoader</div>
+                            <div class="m3-flow-step-desc">Обидва завантажують HTML. Паралельно — бо незалежні одне від одного.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 3 — після крок 2</div>
+                            <div class="m3-flow-step-title">observer + sections + tabs</div>
+                            <div class="m3-flow-step-desc">Observer потребує завантажені шаблони. Sections і tabs — синхронні, запускаються одразу.</div>
+                        </div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">main-core.js</div>
+<pre>import { initLayout } from './layout/layout-main.js';
+
+await initLayout(); // один рядок — вся система готова</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Реєстрація aside до запуску</h3>
+                        <p>Сторінкові модулі реєструють ініціалізатор <em>до</em> виклику <code>initLayout()</code> — на рівні модуля, не всередині функції.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">brands-main.js</div>
+<pre>import { registerAsideInitializer } from '../../layout/layout-main.js';
+import { initBrandsAside } from './brands-aside.js';
+
+// На рівні модуля — виконується під час завантаження файлу
+registerAsideInitializer('aside-brands', () => initBrandsAside());
+
+// Далі — звичайна ініціалізація сторінки
+export async function initBrands() { /* ... */ }</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ASIDE ПАНЕЛЬ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="aside">
+                <div class="m3-section-hero">
+                    <h2>Aside панель — стани</h2>
+                    <p>Три стани, керовані класом на <code>&lt;aside&gt;</code>. JavaScript підхоплює початковий стан з HTML і далі синхронізує DOM автоматично.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Три стани</h3>
+                        <p>Початковий стан задається в HTML класом. Далі стан змінюється кнопками або програмно.</p>
+                    </div>
+                    <div class="m3-states">
+                        <div class="m3-state-pill">
+                            <div class="m3-state-pill-name">expanded</div>
+                            <div class="m3-state-pill-desc">Панель повністю відкрита — широка, весь вміст видимий</div>
+                        </div>
+                        <div class="m3-state-pill">
+                            <div class="m3-state-pill-name">collapsed</div>
+                            <div class="m3-state-pill-desc">Панель зменшена — тільки іконки, текст прихований</div>
+                        </div>
+                        <div class="m3-state-pill">
+                            <div class="m3-state-pill-name">closed</div>
+                            <div class="m3-state-pill-desc">Панель повністю схована — займає нульову ширину</div>
+                        </div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML — початковий стан</div>
+<pre>&lt;aside class="aside expanded"&gt;   &lt;!-- широка з першого рендеру --&gt;
+&lt;aside class="aside collapsed"&gt;  &lt;!-- іконки з першого рендеру --&gt;
+&lt;aside class="aside closed"&gt;     &lt;!-- схована з першого рендеру --&gt;</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>CSS класи що синхронізуються</h3>
+                        <p>При кожній зміні стану <code>layout-core.js</code> одночасно оновлює клас на <code>&lt;aside&gt;</code> і на <code>&lt;body&gt;</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>На &lt;aside&gt;</th>
+                            <th>На &lt;body&gt;</th>
+                            <th>Навіщо</th>
+                        </tr>
+                        <tr>
+                            <td><code>.expanded</code></td>
+                            <td><code>.aside-expanded</code></td>
+                            <td>CSS для самої панелі + відступи контенту</td>
+                        </tr>
+                        <tr>
+                            <td><code>.collapsed</code></td>
+                            <td><code>.aside-collapsed</code></td>
+                            <td>Панель вузька + контент підсувається</td>
+                        </tr>
+                        <tr>
+                            <td><code>.closed</code></td>
+                            <td><code>.aside-closed</code></td>
+                            <td>Панель схована + контент займає всю ширину</td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">CSS приклад</div>
+<pre>/* Ширина самої панелі */
+.aside.expanded   { width: 280px; }
+.aside.collapsed  { width: 60px; }
+.aside.closed     { width: 0; overflow: hidden; }
+
+/* Відступ для контенту поруч */
+body.aside-expanded  .content-main { margin-right: 280px; }
+body.aside-collapsed .content-main { margin-right: 60px; }
+body.aside-closed    .content-main { margin-right: 0; }</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Кнопки керування</h3>
+                        <p>Два елементи в HTML. JS знаходить їх автоматично по класу — нічого додатково підключати не треба.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Клас</th>
+                            <th>Що робить</th>
+                            <th>Клас .open</th>
+                        </tr>
+                        <tr>
+                            <td><code>.aside-trigger</code></td>
+                            <td>Перемикає <code>closed ↔ lastOpen</code></td>
+                            <td>Є коли панель НЕ closed (шарм rotate)</td>
+                        </tr>
+                        <tr>
+                            <td><code>.aside-expand</code></td>
+                            <td>Перемикає <code>expanded ↔ collapsed</code></td>
+                            <td>Є коли collapsed (шарм flip)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Програмна зміна стану</h3>
+                        <p>Якщо треба змінити стан aside з коду — використовуй публічну функцію через layout-main.js.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">JS</div>
+<pre>import { setAsideState } from './layout/layout-main.js';
+
+setAsideState('collapsed'); // expanded | collapsed | closed</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ASIDE LOADER -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="aside-loader">
+                <div class="m3-section-hero">
+                    <h2>Aside loader — шаблони панелі</h2>
+                    <p>Завантажує HTML-шаблони з <code>templates/aside/</code> і розміщує їх у правильних зонах. Кожна секція сторінки може мати свій вміст aside.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Зони шаблону</h3>
+                        <p>Aside поділений на три зони. Шаблон описує що в яку зону потрапляє.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>CSS клас в шаблоні</th>
+                            <th>Куди потрапляє</th>
+                            <th>Поведінка</th>
+                        </tr>
+                        <tr>
+                            <td><code>.panel-content-fix</code></td>
+                            <td><code>.aside-body</code></td>
+                            <td>Закріплений верх — не скролиться</td>
+                        </tr>
+                        <tr>
+                            <td><code>.panel-content-scroll</code></td>
+                            <td><code>.aside-body</code></td>
+                            <td>Основний вміст — скролиться</td>
+                        </tr>
+                        <tr>
+                            <td><code>.panel-content-footer</code></td>
+                            <td><code>.aside-fab</code></td>
+                            <td>Завжди видимий низ (FAB кнопки)</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>registerAsideInitializer</h3>
+                        <p>Реєструє функцію що буде викликана одразу після завантаження шаблону. Використовується для ініціалізації компонентів всередині aside.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Реєстрація (на рівні модуля)</div>
+<pre>import { registerAsideInitializer } from '../../layout/layout-main.js';
+
+// Виклик на рівні модуля — до initLayout()
+registerAsideInitializer('aside-table', () => {
+    initTableGenerator();
+    initTableSorting();
+});</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>loadSingleAsideTemplate</h3>
+                        <p>Для сторінок де aside має один фіксований шаблон (не залежить від скролу секцій). Завантажує і одразу показує.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">JS</div>
+<pre>import { loadSingleAsideTemplate } from './layout/layout-main.js';
+
+await loadSingleAsideTemplate('aside-keywords');</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>showAsidePanel</h3>
+                        <p>Перемикає видимий фрагмент aside вручну. Зазвичай викликається автоматично через observer, але можна і програмно.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">JS</div>
+<pre>import { showAsidePanel } from './layout/layout-main.js';
+
+showAsidePanel('aside-brands');  // показати конкретний
+showAsidePanel(null);            // сховати всі (absent)</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ASIDE OBSERVER -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="aside-observer">
+                <div class="m3-section-hero">
+                    <h2>Aside observer — автоматичне перемикання</h2>
+                    <p>Стежить за секціями сторінки через IntersectionObserver. При скролі до секції — перемикає вміст aside. Стан панелі (expanded/collapsed) не чіпає.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>HTML атрибут data-aside-template</h3>
+                        <p>Додай атрибут на будь-який елемент — секцію, таб, main. Observer автоматично знайде всі елементи з цим атрибутом.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML варіанти</div>
+<pre>&lt;!-- Вся сторінка — один aside для всього --&gt;
+&lt;main data-aside-template="aside-glossary"&gt;
+
+&lt;!-- Секція — aside змінюється при скролі --&gt;
+&lt;section data-aside-template="aside-table"&gt;
+&lt;section data-aside-template="aside-keywords"&gt;
+
+&lt;!-- Секція без aside (панель ховає вміст) --&gt;
+&lt;section data-aside-template=""&gt;
+
+&lt;!-- Таб — aside змінюється при перемиканні таба --&gt;
+&lt;div class="tab-content" data-aside-template="aside-brands"&gt;</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- NAV MENU -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="nav-menu">
+                <div class="m3-section-hero">
+                    <h2>Nav menu — ліва навігація</h2>
+                    <p>Завантажує шаблон меню і автоматично підсвічує активну сторінку по поточному URL.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Що потрібно в HTML</h3>
+                        <p>Один порожній контейнер з правильним ID. Вміст підтягується автоматично.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;nav id="main-nav"&gt;&lt;/nav&gt;
+&lt;!-- Після initLayout() сюди завантажиться templates/partials/nav.html --&gt;</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Активна сторінка — правило в шаблоні</div>
+<pre>&lt;!-- Посилання в nav.html з відносним шляхом --&gt;
+&lt;a href="brands.html" class="btn-icon"&gt;...&lt;/a&gt;
+
+&lt;!-- JS порівнює pathname.split('/').pop() з href --&gt;
+&lt;!-- Якщо збігається — додає клас .active --&gt;</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TABS -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="tabs">
+                <div class="m3-section-hero">
+                    <h2>Tabs — вкладки</h2>
+                    <p>Два режими: статичні (HTML-розмітка) і динамічні (програмне додавання). Статичні ініціалізуються в <code>initLayout()</code>, динамічні — через фабрику.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Статичні вкладки — initTabs</h3>
+                        <p>Вкладки фіксовані в HTML. Перша вкладка активується автоматично.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML структура</div>
+<pre>&lt;div data-tabs-container&gt;
+    &lt;button data-tab-target="tab-a"&gt;Вкладка A&lt;/button&gt;
+    &lt;button data-tab-target="tab-b"&gt;Вкладка B&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div data-tab-content="tab-a" class="tab-content"&gt;Вміст A&lt;/div&gt;
+&lt;div data-tab-content="tab-b" class="tab-content"&gt;Вміст B&lt;/div&gt;</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Ініціалізація вкладок у модалі</div>
+<pre>import { initTabs } from './layout/layout-main.js';
+
+// Після відкриття модалу з вкладками
+initTabs(modalElement); // передаємо контейнер</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Динамічні вкладки — initDynamicTabs</h3>
+                        <p>Вкладки створюються програмно. Повертає API для керування.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">JS</div>
+<pre>import { initDynamicTabs } from './layout/layout-main.js';
+
+const tabs = initDynamicTabs(tabsContainer, {
+    staticTabs: ['tab-main'],          // ці не можна закрити
+    onTabSwitch: (tabId) => { ... },   // callback при перемиканні
+    confirmCloseModal: 'confirm-modal' // модал підтвердження
+});
+
+// API
+await tabs.createTab('tab-new', { title: 'Новий', closeable: true });
+await tabs.removeTab('tab-new');
+tabs.switchToTab('tab-main');
+tabs.getActiveTab(); // → 'tab-main'</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SECTION NAVIGATOR -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="sections">
+                <div class="m3-section-hero">
+                    <h2>Section navigator</h2>
+                    <p>Вертикальна панель іконок для швидкого переходу між секціями. Підсвічує активну секцію через scroll spy.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>HTML структура</h3>
+                        <p>Навігатор шукає <code>#section-navigator</code> і <code>main &gt; section[id]</code>. Якщо їх немає — нічого не робить.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML</div>
+<pre>&lt;nav id="section-navigator"&gt;
+    &lt;a class="btn-icon expand" href="#intro"&gt;
+        &lt;span class="material-symbols-outlined"&gt;home&lt;/span&gt;
+    &lt;/a&gt;
+    &lt;a class="btn-icon expand" href="#table"&gt;
+        &lt;span class="material-symbols-outlined"&gt;table_chart&lt;/span&gt;
+    &lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;main&gt;
+    &lt;section id="intro"&gt;...&lt;/section&gt;
+    &lt;section id="table"&gt;...&lt;/section&gt;
+&lt;/main&gt;</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Правило scroll spy</div>
+<pre>/* Секція "активна" коли перетинає центр viewport */
+/* rootMargin: '-50% 0px -50% 0px' */
+/* Активна іконка отримує клас .active */</pre>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Підсвічування активного пункту в sidebar при скролі
+        const navItems = document.querySelectorAll('.m3-nav-item');
+        const sections = document.querySelectorAll('.m3-section');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const active = document.querySelector(`.m3-nav-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+    </script>
+
+</body>
+</html>

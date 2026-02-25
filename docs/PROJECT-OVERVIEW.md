@@ -9,6 +9,7 @@
 - [Система перед кодом](#система-перед-кодом)
 - [Ядро](#ядро)
 - [Плагіни](#плагіни)
+- [Конвенції](#конвенції)
 - [Шарми](#шарми)
 - [Правила оформлення шапок файлів](#правила-оформлення-шапок-файлів)
 
@@ -36,7 +37,7 @@
 | `-state.js` | Зберігати стан. Реалізовувати `registerHook` / `runHook`. Кешувати DOM-посилання | Завантажувати плагіни. Маніпулювати DOM. Містити обробники подій |
 | `-template.js` | Генерувати і повертати HTML-рядок на основі конфігурації | Вставляти HTML в DOM. Вішати `addEventListener`. Знати про `state` |
 | `-core.js` | Ініціалізувати базову DOM-логіку. Запускати `state.runHook()` в ключових точках | Реалізовувати окремі фічі. Знати про конкретні плагіни |
-| `plugin` | Експортувати `function init(state)`. Реагувати через `state.registerHook()` | Імпортувати інші плагіни. Зберігати дані поза `state`. Покладатися на порядок завантаження |
+| `plugin` | Експортувати `function init(state)`. Реагувати через `state.registerHook()`. Завжди передавати `{ plugin: 'name' }`. Якщо є зовнішні підписки — повертати `{ dispose() }` | Імпортувати інші плагіни. Зберігати дані поза `state`. Покладатися на порядок завантаження |
 
 ### Мінімальний новий модуль
 
@@ -61,13 +62,19 @@ export async function initMyModule() {
 ```js
 // my-state.js — стан і хуки (єдине джерело правди)
 export function createMyState() {
-    const hooks = { onUpdate: [], onRender: [] };
+    const hooks = {};
+    const filters = {};
     return {
         data: [],
-        registerHook: (name, fn) => hooks[name]?.push(fn),
-        runHook: (name, ...args) => hooks[name]?.forEach(fn => {
-            try { fn(...args) } catch (e) { console.error('[MyModule]', e) }
+        registerHook: (name, fn, opts = {}) => {
+            (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
+        },
+        runHook: (name, ...args) => hooks[name]?.forEach(({ fn, plugin }) => {
+            try { fn(...args) } catch (e) { console.error(`[${name}/${plugin}]`, e) }
         }),
+        registerFilter: (name, fn) => (filters[name] ??= []).push(fn),
+        applyFilter: (name, value, ...args) =>
+            (filters[name] ?? []).reduce((v, fn) => fn(v, ...args), value),
     };
 }
 ```
@@ -75,8 +82,8 @@ export function createMyState() {
 ```js
 // my-feature-a.js — плагін (можна видалити, система не впаде)
 export function init(state) {
-    state.registerHook('onUpdate', () => { /* реакція на подію */ });
-    state.registerHook('onRender', () => { /* реакція на рендер */ });
+    state.registerHook('onDidUpdate', () => { /* реакція на подію */ }, { plugin: 'feature-a' });
+    state.registerHook('onWillRender', () => { /* реакція на рендер */ }, { plugin: 'feature-a' });
 }
 ```
 
@@ -124,10 +131,20 @@ const state = {
     // DOM-посилання (кешуються один раз в -main.js)
     dom: { container, toolbar, editor, ... },
 
-    // Хук-шина (приватна, керується через методи)
-    registerHook(name, fn) { hooks[name]?.push(fn) },
+    // Хук-шина — реакція на події (side effects)
+    registerHook(name, fn, opts = {}) {
+        (hooks[name] ??= []).push({ fn, plugin: opts.plugin ?? '?' });
+    },
     runHook(name, ...args) {
-        hooks[name]?.forEach(fn => { try { fn(...args) } catch(e) { console.error(e) } })
+        hooks[name]?.forEach(({ fn, plugin }) => {
+            try { fn(...args) } catch(e) { console.error(`[${name}/${plugin}]`, e) }
+        });
+    },
+
+    // Фільтр-шина — трансформація даних перед рендером
+    registerFilter(name, fn) { (filters[name] ??= []).push(fn); },
+    applyFilter(name, value, ...args) {
+        return (filters[name] ?? []).reduce((v, fn) => fn(v, ...args), value);
     },
 }
 ```
@@ -149,9 +166,9 @@ const state = {
 export function init(state) {
     const { dom } = state;
 
-    // Підписуємось на події ядра
-    state.registerHook('onInput', () => updateToolbarState(state));
-    state.registerHook('onSelectionChange', () => updateToolbarState(state));
+    // Підписуємось на події ядра — завжди з { plugin: 'name' }
+    state.registerHook('onDidInput', () => updateToolbarState(state), { plugin: 'formatting' });
+    state.registerHook('onDidSelectionChange', () => updateToolbarState(state), { plugin: 'formatting' });
 
     // Реагуємо на UI-події
     dom.toolbar?.addEventListener('click', e => {
@@ -178,6 +195,133 @@ export function init(state) {
 | `avatar/` | avatar-user, avatar-ui-states, avatar-modal, avatar-selector, avatar-text |
 | `table/` | table-sorting, table-filters, table-checkboxes, table-columns |
 | Генератори | Кожен generator має власний масив PLUGINS — triggers, reset, copy, aside... |
+
+---
+
+## Конвенції
+
+Обов'язкові правила оформлення коду. Не пропозиції — стандарт. Кожен новий файл пишеться за цими правилами без виключень.
+
+### Named plugins — ім'я плагіна в кожному хуку
+
+Третій аргумент `registerHook` — завжди об'єкт з іменем плагіна. Коли щось падає — консоль одразу показує де шукати.
+
+```js
+// ❌ Без імені — незрозуміла помилка
+state.registerHook('onDidUpdate', () => recalc(state));
+// Помилка: [onDidUpdate/?] Cannot read properties of null
+// → Де шукати? Невідомо.
+
+// ✅ З іменем — помилка вказує на конкретний плагін
+state.registerHook('onDidUpdate', () => recalc(state), { plugin: 'stats' });
+// Помилка: [onDidUpdate/stats] Cannot read properties of null
+// → Одразу знаємо: editor-stats.js
+```
+
+### Назви хуків — `onWill` і `onDid`
+
+Префікс говорить чи хук спрацьовує ДО події чи ПІСЛЯ. Читаєш назву — одразу розумієш без коду.
+
+| Префікс | Коли спрацьовує | Приклади |
+|---------|----------------|---------|
+| `onWill` | Перед подією — можна ще щось підготувати | `onWillRender`, `onWillSave` |
+| `onDid` | Після події — вже відбулось, реагуємо на результат | `onDidRender`, `onDidInput`, `onDidSave` |
+
+### Viewless-позначення плагінів без UI
+
+Плагін що не маніпулює DOM позначається `(viewless)` в шапці. Відкрив файл — за секунду зрозумів його роль.
+
+```js
+// js/components/editor/editor-stats.js
+// 🔌 ПЛАГІН (viewless) — не маніпулює DOM
+
+export function init(state) {
+    state.registerHook('onDidInput', () => calcStats(state), { plugin: 'stats' });
+}
+```
+
+```js
+// js/components/editor/editor-formatting.js
+// 🔌 ПЛАГІН
+
+export function init(state) {
+    // Маніпулює DOM через state.dom.toolbar
+}
+```
+
+### Disposable — прибирання за собою
+
+Якщо плагін підписується на зовнішні події (`window`, `document`) — він повертає `{ dispose() }`. Core збирає ці об'єкти і викликає `dispose()` при знищенні модуля. Без цього старі callbacks накопичуються в пам'яті при кожній реініціалізації.
+
+```js
+// Плагін з зовнішньою підпискою — повертає dispose
+export function init(state) {
+    const onResize = () => updateLayout(state);
+    window.addEventListener('resize', onResize);
+
+    state.registerHook('onDidRender', render, { plugin: 'layout' });
+
+    return {
+        dispose() {
+            window.removeEventListener('resize', onResize);
+        }
+    };
+}
+```
+
+```js
+// -main.js — збирає disposables
+const results = await Promise.allSettled(PLUGINS.map(p => import(p)));
+const disposables = results
+    .filter(r => r.status === 'fulfilled')
+    .map(r => r.value.init?.(state))
+    .filter(Boolean);
+
+// При знищенні модуля:
+// disposables.forEach(d => d.dispose?.());
+```
+
+### Filter hooks — трансформація даних
+
+Звичайний `runHook` — оголошення події (side effects, реакція). `applyFilter` — плагін отримує значення, трансформує і повертає. Кілька плагінів можуть бути в одному ланцюзі трансформацій не знаючи один про одного.
+
+```js
+// editor-null-display.js — замінює null на прочерк
+// 🔌 ПЛАГІН (viewless)
+
+export function init(state) {
+    state.registerFilter('onRenderCell', (value) => value ?? '—');
+}
+```
+
+```js
+// В core або рендер-плагіні:
+const display = state.applyFilter('onRenderCell', rawValue);
+// null     → '—'
+// 'текст'  → 'текст'
+// 0        → 0
+```
+
+### -main.js — публічне API модуля
+
+`-main.js` виконує дві ролі одночасно: оркестратор (завантажує плагіни) і публічний API папки (експортує те, що доступне ззовні). Окремий `index.js` не потрібен — у проєкті немає bundler, тому `index.js` не дає жодної переваги і лише створює плутанину у вкладках редактора.
+
+```js
+// editor-main.js — оркестратор + публічний API
+// Публічний API + оркестратор в одному файлі.
+// Зовні імпортуємо тільки звідси.
+
+export async function initEditor(container) { /* ... */ }
+export { getEditorState } from './editor-state.js';
+```
+
+```js
+// ✅ Правильно — через -main.js
+import { initEditor } from './components/editor/editor-main.js';
+
+// ❌ Неправильно — прямий доступ до внутрішнього плагіна
+import { init } from './components/editor/editor-formatting.js';
+```
 
 ---
 

@@ -1,7 +1,15 @@
 // js/common/editor/editor-state.js
 
 /**
- * 🔒 ЯДРО — State екземпляра редактора
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔒 ЯДРО — State екземпляра редактора                                    ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Зберігає DOM-посилання, хуки та методи екземпляра редактора.            ║
+ * ║  Хуки: onInput, onSelectionChange, onValidate, onModeChange,             ║
+ * ║        onKeydown, onWillChange                                            ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 /**
@@ -15,7 +23,7 @@ export function createEditorState(id, container, config) {
         onValidate: [],
         onModeChange: [],
         onKeydown: [],
-        onBeforeChange: [],
+        onWillChange: [],
     };
 
     const state = {
@@ -48,20 +56,20 @@ export function createEditorState(id, container, config) {
         },
 
         // Реєстрація хуків
-        registerHook(hookName, callback) {
+        registerHook(hookName, callback, options = {}) {
             if (hooks[hookName]) {
-                hooks[hookName].push(callback);
+                hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
             }
         },
 
         // Виконання хуків
         runHook(hookName, ...args) {
             if (!hooks[hookName]) return;
-            hooks[hookName].forEach(cb => {
+            hooks[hookName].forEach(({ fn, plugin }) => {
                 try {
-                    cb(...args);
+                    fn(...args);
                 } catch (e) {
-                    console.error(`[Editor Hook Error] ${hookName}:`, e);
+                    console.error(`[editor:${plugin}] hook "${hookName}" failed:`, e);
                 }
             });
         },

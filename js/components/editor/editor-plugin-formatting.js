@@ -1,9 +1,14 @@
 // js/common/editor/editor-formatting.js
 
 /**
- * 🔌 ПЛАГІН — Bold, Italic, H1-H3, List
- *
- * Можна видалити — редактор працюватиме без форматування.
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔌 ПЛАГІН — Bold, Italic, H1-H3, List                                   ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Кнопки тулбара + Ctrl+B / Ctrl+I.                                       ║
+ * ║  Можна видалити — редактор працюватиме без форматування.                 ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { sanitizeStructure } from './editor-utils.js';
@@ -51,6 +56,7 @@ export function init(state) {
     state.registerHook('onKeydown', (e) => {
         if (state.currentMode !== 'text') return;
 
+
         if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'b') {
             e.preventDefault();
             wrapSelection(state, 'strong');
@@ -92,7 +98,7 @@ export function init(state) {
                     if (ul && li === ul.firstElementChild && range.startOffset === 0) {
                         // Перший li - перетворюємо на p
                         e.preventDefault();
-                        state.runHook('onBeforeChange');
+                        state.runHook('onWillChange');
 
                         const p = document.createElement('p');
                         p.innerHTML = li.innerHTML || '<br>';
@@ -117,16 +123,16 @@ export function init(state) {
                 }
             }
         }
-    });
+    }, { plugin: 'formatting' });
 
     // Update toolbar state
-    state.registerHook('onInput', () => updateToolbarState(state));
-    state.registerHook('onSelectionChange', () => updateToolbarState(state));
+    state.registerHook('onInput', () => updateToolbarState(state), { plugin: 'formatting' });
+    state.registerHook('onSelectionChange', () => updateToolbarState(state), { plugin: 'formatting' });
 }
 
 function wrapSelection(state, tagName) {
     state.dom.editor?.focus();
-    state.runHook('onBeforeChange');
+    state.runHook('onWillChange');
 
     const selection = window.getSelection();
     if (!selection.rangeCount) return;
@@ -202,7 +208,7 @@ function normalizeFormatBlock(value) {
 
 function toggleHeading(state, tag) {
     state.dom.editor?.focus();
-    state.runHook('onBeforeChange');
+    state.runHook('onWillChange');
 
     const normalizedTag = tag.toLowerCase();
 

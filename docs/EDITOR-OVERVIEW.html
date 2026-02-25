@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Принципи Editor — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+
+        body {
+            display: flex !important;
+            flex-direction: row !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            scroll-snap-type: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            background: var(--color-surface);
+        }
+
+        section {
+            height: auto !important;
+            min-height: auto !important;
+            scroll-snap-align: none !important;
+            overflow: visible !important;
+        }
+
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        /* SIDEBAR */
+        .m3-sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: 100dvh;
+            overflow-y: auto;
+            background: var(--color-surface-c-low);
+            border-right: 1px solid var(--color-outline);
+            padding: 24px 16px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m3-sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 8px 12px 20px;
+            color: var(--color-on-surface);
+            border-bottom: 1px solid var(--color-outline);
+            margin-bottom: 12px;
+        }
+        .m3-sidebar-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--color-on-surface-v);
+            display: block;
+            margin-top: 2px;
+        }
+        .m3-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active {
+            background: var(--color-main-c);
+            color: var(--color-main);
+            font-weight: 600;
+        }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* MAIN */
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        /* HERO */
+        .m3-hero {
+            background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%);
+            border-radius: 28px;
+            padding: 48px;
+            margin-bottom: 40px;
+            color: var(--color-on-main);
+        }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        /* SECTION */
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+
+        /* SECTION HERO */
+        .m3-section-hero {
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: var(--color-on-secondary);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+        }
+        .m3-section-hero h2 {
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            color: inherit;
+        }
+        .m3-section-hero p {
+            font-size: 13px;
+            opacity: 0.88;
+            margin: 0;
+            max-width: 600px;
+            line-height: 1.55;
+            color: inherit;
+        }
+
+        /* BLOCK */
+        .m3-block {
+            margin-bottom: 32px;
+            border: 1px solid var(--color-outline);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+        .m3-block-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        /* DEMO BLOCK — обгортка для редактора */
+        .m3-demo-wrap { padding: 24px; }
+
+        /* SPEC TABLE */
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-on-surface-v);
+            background: var(--color-surface-c-low);
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-spec td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--color-outline);
+            color: var(--color-on-surface);
+            vertical-align: top;
+        }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            background: var(--color-surface-c);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* THEME TOGGLE */
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        /* SCROLLBAR */
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb {
+            background: var(--color-outline);
+            border-radius: 4px;
+        }
+
+        /* CODE BLOCKS */
+        .m3-code {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-outline);
+            background: var(--color-surface-c-low);
+            overflow-x: auto;
+        }
+        .m3-code-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 10px;
+        }
+        .m3-code pre {
+            margin: 0;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-on-surface);
+            white-space: pre;
+        }
+
+        /* PART DIVIDERS */
+        .m3-part {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 48px 0 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .m3-part:first-of-type { margin-top: 0; }
+        .m3-part-icon { font-size: 22px; color: var(--color-main); }
+        .m3-part-title { font-size: 20px; font-weight: 600; color: var(--color-on-surface); flex: 1; }
+        .m3-part-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.03em;
+        }
+        .m3-part-badge.locked {
+            background: color-mix(in srgb, #ba1a1a 12%, transparent);
+            color: #ba1a1a;
+        }
+        .m3-part-badge.removable {
+            background: var(--color-main-c);
+            color: var(--color-main);
+        }
+        .m3-part-badge.utility {
+            background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+            color: var(--color-secondary, #7b5ea7);
+        }
+
+        /* FILE CARDS GRID */
+        .m3-file-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .m3-file-card {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--color-outline);
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-file-card:nth-child(2n) { border-right: none; }
+        .m3-file-card:last-child { border-bottom: none; }
+        .m3-file-card:nth-last-child(2):nth-child(2n+1) { border-bottom: none; }
+        .m3-file-card-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-main);
+            margin-bottom: 4px;
+        }
+        .m3-file-card-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            margin-bottom: 5px;
+        }
+        .m3-file-card-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.6; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">
+            Принципи Editor
+            <span>pinguin-v5</span>
+        </div>
+
+        <a href="#demo" class="m3-nav-item active">
+            <span class="material-symbols-outlined">edit_note</span>Живий редактор
+        </a>
+        <a href="#structure" class="m3-nav-item">
+            <span class="material-symbols-outlined">folder_open</span>Структура файлів
+        </a>
+        <a href="#charms" class="m3-nav-item">
+            <span class="material-symbols-outlined">auto_awesome</span>Чарми
+        </a>
+        <a href="#hooks" class="m3-nav-item">
+            <span class="material-symbols-outlined">webhook</span>Хуки
+        </a>
+        <a href="#api" class="m3-nav-item">
+            <span class="material-symbols-outlined">api</span>Публічне API
+        </a>
+        <a href="#plugins" class="m3-nav-item">
+            <span class="material-symbols-outlined">extension</span>Плагіни
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="m3-main">
+        <div class="m3-content">
+
+            <div class="m3-theme-toggle">
+                <button class="fab"
+                    onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>Принципи Editor</h1>
+                <p>ЛЕГО-система для WYSIWYG редактора. Один виклик <code style="opacity:0.8; font-size:14px">createHighlightEditor(container)</code> — решта через HTML-чарми.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ЖИВИЙ РЕДАКТОР -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="demo">
+                <div class="m3-section-hero">
+                    <h2>Живий редактор — всі чарми</h2>
+                    <p>Всі доступні функції увімкнено: toolbar, Text/Code, валідація, статистика, тогли очистки, find &amp; replace, undo/redo.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Демо</h3>
+                        <p>Спробуйте bold (Ctrl+B), italic (Ctrl+I), заголовки, зміну регістру, пошук, undo (Ctrl+Z). Вставте текст із Word або браузера — редактор автоматично очистить зайве.</p>
+                    </div>
+                    <div class="m3-demo-wrap">
+                        <div editor tools code check stats cleanup-links cleanup-styles cleanup-images
+                             data-editor-id="demo"
+                             data-placeholder="Вставте текст або почніть друкувати... Bold (Ctrl+B), Italic (Ctrl+I), заголовки H1-H3, списки, зміна регістру, find &amp; replace."
+                             data-min-height="280"></div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML — всі чарми увімкнено</div>
+<pre>&lt;div editor tools code check stats cleanup-links cleanup-styles cleanup-images
+     data-editor-id="my-editor"
+     data-placeholder="Введіть текст..."
+     data-min-height="200"&gt;&lt;/div&gt;</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">JS — ініціалізація</div>
+<pre>import { createHighlightEditor } from './components/editor/editor-main.js';
+
+const container = document.querySelector('[data-editor-id="my-editor"]');
+const editor = createHighlightEditor(container);
+
+// Публічне API
+editor.getValue();        // → чистий HTML рядок
+editor.setValue('&lt;p&gt;текст&lt;/p&gt;');
+editor.getPlainText();    // → plain text без тегів
+editor.clear();
+editor.focus();</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- СТРУКТУРА ФАЙЛІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="structure">
+                <div class="m3-section-hero">
+                    <h2>Структура файлів</h2>
+                    <p>Папка <code>js/components/editor/</code> — 16 файлів. Три шари: ЯДРО (не чіпати), ПЛАГІНИ (можна видалити), УТИЛІТИ.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">lock</span>
+                        <span class="m3-part-title">ЯДРО</span>
+                        <span class="m3-part-badge locked">не видаляти</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-main.js</div>
+                            <div class="m3-file-card-role">Фабрика + публічний API</div>
+                            <div class="m3-file-card-desc">Єдина точка входу. Читає чарми з HTML, завантажує плагіни через <code>Promise.allSettled</code>. Повертає публічне API.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-state.js</div>
+                            <div class="m3-file-card-role">State екземпляра</div>
+                            <div class="m3-file-card-desc">DOM-посилання, хуки, методи екземпляра. registerHook / runHook — механізм комунікації між плагінами.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
+                            <div class="m3-file-card-name">editor-template.js</div>
+                            <div class="m3-file-card-role">HTML шаблон</div>
+                            <div class="m3-file-card-desc">Рендерить toolbar, textarea коду, футер зі статистикою. Секції умовні — з'являються тільки якщо відповідний чарм увімкнено.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">editor-mode.js</div>
+                            <div class="m3-file-card-role">Перемикання Text/Code</div>
+                            <div class="m3-file-card-desc">Перехоплює DOM-події (input, keydown, mouseup, radio) і перенаправляє у хуки state. Керує перемиканням режимів.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">build</span>
+                        <span class="m3-part-title">УТИЛІТИ</span>
+                        <span class="m3-part-badge utility">не плагін</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">editor-utils.js</div>
+                            <div class="m3-file-card-role">Допоміжні функції</div>
+                            <div class="m3-file-card-desc">Три рівні очистки: <code>sanitizeStructure</code> (мінімум), <code>sanitizeHtml</code> (рядок), <code>sanitizeEditor</code> (DOM після paste). Також caret save/restore.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;"></div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">extension</span>
+                        <span class="m3-part-title">ПЛАГІНИ</span>
+                        <span class="m3-part-badge removable">можна видалити</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-formatting.js</div>
+                            <div class="m3-file-card-role">Bold, Italic, H1-H3, List</div>
+                            <div class="m3-file-card-desc">Кнопки toolbar + Ctrl+B / Ctrl+I. Нормалізує formatBlock крос-браузерно.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-case.js</div>
+                            <div class="m3-file-card-role">Зміна регістру</div>
+                            <div class="m3-file-card-desc">lowercase / UPPERCASE / Title Case для виділеного тексту.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-undo.js</div>
+                            <div class="m3-file-card-role">Undo / Redo</div>
+                            <div class="m3-file-card-desc">Ctrl+Z / Ctrl+Y. Стек до 50 станів. Зберігає перед кожною зміною через хук onWillChange.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-enter.js</div>
+                            <div class="m3-file-card-role">Enter / Shift+Enter</div>
+                            <div class="m3-file-card-desc">Enter → новий &lt;p&gt;, Shift+Enter → &lt;br&gt;. Без плагіна — браузерна поведінка.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-paste.js</div>
+                            <div class="m3-file-card-role">Copy &amp; Paste</div>
+                            <div class="m3-file-card-desc">Ctrl+C → HTML, Ctrl+Shift+C → plain text. Вставка автоматично sanitize-ує HTML.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-find.js</div>
+                            <div class="m3-file-card-role">Find &amp; Replace</div>
+                            <div class="m3-file-card-desc">Масова заміна в text і code режимах. Dropdown з toolbar.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-validation.js</div>
+                            <div class="m3-file-card-role">Валідація</div>
+                            <div class="m3-file-card-desc">Підсвічує заборонені слова + перевіряє HTML структуру. Червоні та жовті чіпи.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-stats.js</div>
+                            <div class="m3-file-card-role">Статистика</div>
+                            <div class="m3-file-card-desc">Символи / слова / час читання в футері. Оновлюється на кожен input.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-cleanup.js</div>
+                            <div class="m3-file-card-role">Тогли очистки</div>
+                            <div class="m3-file-card-desc">Кнопки links / images / styles в футері. Активна = видаляє при отриманні.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">editor-plugin-chip-navigation.js</div>
+                            <div class="m3-file-card-role">Навігація по чіпах</div>
+                            <div class="m3-file-card-desc">Клік на чіп → перехід до слова в редакторі. Циклічна навігація + flash-ефект.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">editor-plugin-tooltip.js</div>
+                            <div class="m3-file-card-role">Підказки</div>
+                            <div class="m3-file-card-desc">Hover на слові або чіпі → tooltip з поясненням і рекомендацією.</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ЧАРМИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="charms">
+                <div class="m3-section-hero">
+                    <h2>Чарми — HTML-атрибути</h2>
+                    <p>Конфігурація через атрибути на контейнері. Без чарму <code>tools</code> — readonly блок. Кожен чарм незалежний.</p>
+                </div>
+
+                <div class="m3-block">
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Атрибут</th>
+                            <th>Що вмикає</th>
+                            <th>Залежності</th>
+                        </tr>
+                        <tr>
+                            <td><code>editor</code></td>
+                            <td>Базовий маркер — обов'язковий для ініціалізації</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>tools</code></td>
+                            <td>Toolbar + editing + find/replace</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>code</code></td>
+                            <td>Перемикач Text / Code (HTML textarea)</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>check</code></td>
+                            <td>Валідація: заборонені слова + HTML патерни</td>
+                            <td>потребує <code>tools</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stats</code></td>
+                            <td>Футер зі статистикою (символи / слова / хв)</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-links</code></td>
+                            <td>Тогл: видаляти посилання при копіюванні</td>
+                            <td>показує кнопку в футері</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-styles</code></td>
+                            <td>Тогл: видаляти inline-стилі</td>
+                            <td>показує кнопку в футері</td>
+                        </tr>
+                        <tr>
+                            <td><code>cleanup-images</code></td>
+                            <td>Тогл: видаляти зображення</td>
+                            <td>показує кнопку в футері</td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">data-атрибути</div>
+<pre>data-editor-id="ghl"      — кастомний ID prefix (default: auto)
+data-placeholder="..."    — текст коли редактор порожній
+data-min-height="200"     — мінімальна висота в px</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ХУКИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="hooks">
+                <div class="m3-section-hero">
+                    <h2>Хуки — комунікація між плагінами</h2>
+                    <p>Плагіни не знають одне про одного. Вся комунікація — через <code>state.registerHook</code> і <code>state.runHook</code>.</p>
+                </div>
+
+                <div class="m3-block">
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Хук</th>
+                            <th>Коли спрацьовує</th>
+                            <th>Хто слухає</th>
+                        </tr>
+                        <tr>
+                            <td><code>onInput</code></td>
+                            <td>Будь-яка зміна тексту (input / keyup)</td>
+                            <td>undo (debouce), stats, validation (debounce)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onKeydown</code></td>
+                            <td>Кожне натискання клавіші</td>
+                            <td>formatting (Ctrl+B/I), undo (Ctrl+Z/Y), enter, paste (Ctrl+Shift+C)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onSelectionChange</code></td>
+                            <td>Mouseup у редакторі</td>
+                            <td>formatting (оновлення стану кнопок toolbar)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onWillChange</code></td>
+                            <td>Безпосередньо перед зміною контенту</td>
+                            <td>undo (зберегти стан перед змінами)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onValidate</code></td>
+                            <td>Після будь-якої зміни що впливає на контент</td>
+                            <td>validation, stats, undo (після undo/redo)</td>
+                        </tr>
+                        <tr>
+                            <td><code>onModeChange</code></td>
+                            <td>Перемикання text ↔ code</td>
+                            <td>validation, stats, cleanup</td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Реєстрація хука в плагіні</div>
+<pre>export function init(state) {
+    // Обов'язково { plugin: 'name' } — для зрозумілих помилок
+    state.registerHook('onInput', () => updateStats(), { plugin: 'stats' });
+    state.registerHook('onWillChange', saveState, { plugin: 'undo' });
+
+    // Викликати хук
+    state.runHook('onWillChange');
+    state.runHook('onValidate');
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ПУБЛІЧНЕ API -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="api">
+                <div class="m3-section-hero">
+                    <h2>Публічне API</h2>
+                    <p>Повертається з <code>createHighlightEditor(container)</code>. Всі зовнішні взаємодії — тільки через API.</p>
+                </div>
+
+                <div class="m3-block">
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Метод</th>
+                            <th>Що робить</th>
+                        </tr>
+                        <tr>
+                            <td><code>getValue()</code></td>
+                            <td>Повертає чистий HTML рядок (без підсвічувань, з урахуванням тоглів очистки)</td>
+                        </tr>
+                        <tr>
+                            <td><code>setValue(html)</code></td>
+                            <td>Встановлює HTML контент і запускає валідацію</td>
+                        </tr>
+                        <tr>
+                            <td><code>getPlainText()</code></td>
+                            <td>Повертає plain text без тегів</td>
+                        </tr>
+                        <tr>
+                            <td><code>getMode()</code></td>
+                            <td>Повертає поточний режим: <code>'text'</code> або <code>'code'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>setMode(mode)</code></td>
+                            <td>Перемикає режим програмно</td>
+                        </tr>
+                        <tr>
+                            <td><code>focus()</code></td>
+                            <td>Фокус на активному редакторі (text або code)</td>
+                        </tr>
+                        <tr>
+                            <td><code>clear()</code></td>
+                            <td>Очищає контент і запускає валідацію</td>
+                        </tr>
+                        <tr>
+                            <td><code>destroy()</code></td>
+                            <td>Видаляє HTML з контейнера</td>
+                        </tr>
+                        <tr>
+                            <td><code>getState()</code></td>
+                            <td>Повертає внутрішній state (для плагінів / налагодження)</td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Приклад використання</div>
+<pre>const editor = createHighlightEditor(container);
+
+// Читати значення при сабміті форми
+form.addEventListener('submit', () => {
+    const html = editor.getValue();  // чистий HTML
+    const text = editor.getPlainText();
+});
+
+// Заповнити з бекенду
+editor.setValue(dataFromServer.description);
+
+// Очистити після сабміту
+editor.clear();
+editor.focus();</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ПЛАГІНИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="plugins">
+                <div class="m3-section-hero">
+                    <h2>Написати свій плагін</h2>
+                    <p>Плагін — один файл з <code>export function init(state)</code>. Додається в масив <code>PLUGINS</code> в <code>editor-main.js</code>.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Шаблон плагіна</h3>
+                        <p>Плагін отримує <code>state</code> і може: реєструвати хуки, читати DOM, додавати поведінку. Ніяких прямих імпортів між плагінами.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">editor-plugin-my-feature.js</div>
+<pre>/**
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║  🔌 ПЛАГІН — Моя функція                                                  ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Опис що робить плагін.                                                  ║
+ * ║  Можна видалити — редактор працюватиме без цієї функції.                ║
+ * ║                                                                          ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
+
+export function init(state) {
+    // Перевірити чи потрібен плагін
+    if (!state.config.myFeature) return;
+
+    const { dom } = state;
+
+    // Підписатись на хуки
+    state.registerHook('onInput', () => {
+        // реакція на зміни тексту
+    }, { plugin: 'my-feature' });
+
+    state.registerHook('onValidate', () => {
+        // реакція після валідації
+    }, { plugin: 'my-feature' });
+
+    // Перед зміною — зберегти стан для undo
+    state.runHook('onWillChange');
+    dom.editor.innerHTML = newContent;
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">editor-main.js — додати в масив PLUGINS</div>
+<pre>const PLUGINS = [
+    './editor-plugin-formatting.js',
+    // ...
+    './editor-plugin-my-feature.js',  // ← додати сюди
+];</pre>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Підсвічування активного пункту в sidebar при скролі
+        const navItems = document.querySelectorAll('.m3-nav-item');
+        const sections = document.querySelectorAll('.m3-section');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const active = document.querySelector(`.m3-nav-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+    </script>
+
+    <script type="module">
+        import { createHighlightEditor } from '../js/components/editor/editor-main.js';
+
+        const container = document.querySelector('[data-editor-id="demo"]');
+        if (container) {
+            createHighlightEditor(container);
+        }
+    </script>
+
+</body>
+</html>
