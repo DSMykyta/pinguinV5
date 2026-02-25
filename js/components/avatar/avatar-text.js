@@ -22,7 +22,7 @@ export const PLUGIN_NAME = 'avatar-text';
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -159,5 +159,4 @@ export function createTextAvatarElement(name, options = {}) {
     return span;
 }
 
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)

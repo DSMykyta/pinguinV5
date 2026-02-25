@@ -52,10 +52,13 @@ async function loadPlugins() {
     );
 
     results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-            // Плагін успішно завантажений
-            // init() викликається автоматично в кожному плагіні
-        } else {
+        if (result.status === 'fulfilled' && result.value.init) {
+            try {
+                result.value.init(avatarState);
+            } catch (e) {
+                console.error(`[Avatar] ❌ Plugin init error: ${PLUGINS[index]}`, e);
+            }
+        } else if (result.status === 'rejected') {
             console.warn(`[Avatar] Plugin not loaded: ${PLUGINS[index]}`, result.reason?.message || '');
         }
     });

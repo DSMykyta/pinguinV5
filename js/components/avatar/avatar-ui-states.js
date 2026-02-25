@@ -29,7 +29,7 @@ export const PLUGIN_NAME = 'avatar-ui-states';
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -185,5 +185,4 @@ function getRandomFromArray(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)

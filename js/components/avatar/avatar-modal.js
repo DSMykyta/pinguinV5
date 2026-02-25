@@ -28,7 +28,7 @@ const modalAvatarRegistry = { ...MODAL_AVATAR_MAPPING };
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 
     // Слухаємо подію відкриття модалу
@@ -166,5 +166,4 @@ export function getRegisteredModals() {
     return Object.keys(modalAvatarRegistry);
 }
 
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)

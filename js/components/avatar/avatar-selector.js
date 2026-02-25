@@ -32,7 +32,7 @@ const selectorStates = new Map();
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -271,5 +271,4 @@ function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)
