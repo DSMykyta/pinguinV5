@@ -852,14 +852,14 @@ export function init(state) {
         const checkContainer = document.querySelector('[data-editor-id="cfg-check"]');
         if (checkContainer) {
             const e = createHighlightEditor(checkContainer);
-            e?.setValue('Даний препарат ефективно лікує суглобний біль та гарантовано знімає запалення. Рекомендований лікарями для щоденного застосування.');
+            e?.setValue('Засіб ефективно знімає біль та запалення. Рекомендований лікарями.');
         }
 
         // Конфігурація 2: tools + check
         const editContainer = document.querySelector('[data-editor-id="cfg-edit"]');
         if (editContainer) {
             const e = createHighlightEditor(editContainer);
-            e?.setValue('Спробуйте відредагувати текст — заборонені слова підсвічуються автоматично після завантаження списку.');
+            e?.setValue('Спробуйте відредагувати текст — заборонені слова підсвічуються автоматично після завантаження списку. Наприклад: біль.');
         }
 
         // Конфігурація 3: tools + stats
