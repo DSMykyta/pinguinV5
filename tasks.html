@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 
 <head>
@@ -15,161 +15,7 @@
 <body>
     <div class="nav column" id="main-nav"></div>
 
-    <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
     <main id="content-main" class="content-main">
-
-        <!-- НАВІГАЦІЯ СЕКЦІЙ -->
-        <nav class="nav row" id="section-navigator">
-            <a href="#section-cabinet" class="btn-icon expand" aria-label="Кабінет">
-                <span class="material-symbols-outlined">dashboard</span>
-                <span class="btn-icon-label">Кабінет</span>
-            </a>
-            <a href="#section-tasks" class="btn-icon expand" aria-label="Задачі">
-                <span class="material-symbols-outlined">task_alt</span>
-                <span class="btn-icon-label">Задачі</span>
-            </a>
-            <a href="#section-links" class="btn-icon expand" aria-label="Посилання">
-                <span class="material-symbols-outlined">link</span>
-                <span class="btn-icon-label">Посилання</span>
-            </a>
-            <a href="#section-admin" class="btn-icon expand u-hidden" id="nav-admin" aria-label="Адміністрування">
-                <span class="material-symbols-outlined">admin_panel_settings</span>
-                <span class="btn-icon-label">Адмін</span>
-            </a>
-        </nav>
-
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: КАБІНЕТ                                                    -->
-        <!-- Привітання з аватаром, статистика, закріплені записи.              -->
-        <!-- Aside: aside-cabinet.html (профіль + інструменти)                  -->
-        <!-- Рендер: tasks-cabinet.js (плагін)                                  -->
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-cabinet" data-aside-template="aside-cabinet">
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="display-l section-upper">Кабінет</h2>
-                    </div>
-                    <span class="body-s">Ваш робочий простір</span>
-                </div>
-            </div>
-
-            <div class="section-content">
-                <div id="cabinet-container">
-                    <!-- Заповнюється tasks-cabinet.js -->
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: ЗАДАЧІ -->
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-tasks" data-aside-template="aside-tasks">
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="display-l section-upper">Задачі</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <span class="body-s" id="tab-stats-my">Показано 0 з 0</span>
-                </div>
-
-                <div class="group">
-                    <div id="type-filter-pills" data-filter-group="taskType">
-                        <button class="chip c-main" data-filter-value="all">Все</button>
-                        <button class="chip" data-filter-value="task">
-                            <span class="material-symbols-outlined">task_alt</span>
-                            Задачі
-                        </button>
-                        <button class="chip" data-filter-value="info">
-                            <span class="material-symbols-outlined">lightbulb</span>
-                            Інфо
-                        </button>
-                        <button class="chip" data-filter-value="script">
-                            <span class="material-symbols-outlined">code</span>
-                            Скрипти
-                        </button>
-                        <button class="chip" data-filter-value="reference">
-                            <span class="material-symbols-outlined">link</span>
-                            Референси
-                        </button>
-                    </div>
-                    <button id="btn-add-task-header" class="btn-icon" aria-label="Додати задачу">
-                        <span class="material-symbols-outlined">add</span>
-                    </button>
-                    <button id="refresh-tasks" class="btn-icon" aria-label="Оновити">
-                        <span class="material-symbols-outlined">refresh</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="section-content section-content-full-height">
-                <!-- Cards Container - використовується tasks-cards.js -->
-                <div id="tasks-container-my" class="tasks-container">
-                    <!-- Заповнюється JavaScript -->
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: ПОСИЛАННЯ                                                  -->
-        <!-- Посилання на всі Google Sheets та інструменти.                     -->
-        <!-- Aside: aside-cabinet-links.html (пошук + категорії)                -->
-        <!-- Рендер: tasks-links.js (плагін)                                    -->
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-links" data-aside-template="aside-cabinet-links">
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="display-l section-upper">Посилання</h2>
-                    </div>
-                    <span class="body-s">Таблиці, інструменти та ресурси</span>
-                </div>
-            </div>
-
-            <div class="section-content">
-                <div id="links-container">
-                    <!-- Заповнюється tasks-links.js -->
-                </div>
-            </div>
-
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <!-- СЕКЦІЯ: АДМІНІСТРУВАННЯ (тільки для admin) -->
-        <!-- ═══════════════════════════════════════════════════════════════════ -->
-        <section id="section-admin" data-aside-template="aside-admin" class="u-hidden">
-
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="display-l section-upper">Адміністрування</h2>
-                        <button class="btn-icon" aria-label="Інформація">
-                            <span class="material-symbols-outlined">info</span>
-                        </button>
-                    </div>
-                    <span class="body-s">Управління користувачами</span>
-                </div>
-                <button id="refresh-admin" class="btn-icon reload text-disabled" aria-label="Перезавантажити">
-                    <span class="material-symbols-outlined">refresh</span>
-                </button>
-            </div>
-
-            <div class="section-content section-content-full-height">
-                <div id="admin-users-container">
-                    <!-- Заповнюється JavaScript -->
-                </div>
-            </div>
-
-        </section>
-
     </main>
 
     <!-- CONTROLS -->
@@ -192,7 +38,6 @@
 
     <div id="modal-placeholder"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script type="module" src="js/main-tasks.js"></script>
 </body>
 
