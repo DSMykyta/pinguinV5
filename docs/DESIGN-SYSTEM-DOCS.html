@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Design System — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+        body { display: flex !important; flex-direction: row !important; height: 100dvh !important; overflow: hidden !important; scroll-snap-type: none !important; padding: 0 !important; margin: 0 !important; max-width: none !important; background: var(--color-surface); }
+        section { height: auto !important; min-height: auto !important; scroll-snap-align: none !important; overflow: visible !important; }
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        .m3-sidebar { width: 260px; min-width: 260px; height: 100dvh; overflow-y: auto; background: var(--color-surface-c-low); border-right: 1px solid var(--color-outline); padding: 24px 16px; position: sticky; top: 0; display: flex; flex-direction: column; gap: 4px; }
+        .m3-sidebar-title { font-size: 22px; font-weight: 600; padding: 8px 12px 20px; color: var(--color-on-surface); border-bottom: 1px solid var(--color-outline); margin-bottom: 12px; }
+        .m3-sidebar-title span { font-size: 12px; font-weight: 400; color: var(--color-on-surface-v); display: block; margin-top: 2px; }
+        .m3-nav-group { padding: 4px 0; }
+        .m3-nav-group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-on-surface-v); padding: 12px 12px 6px; }
+        .m3-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-full); color: var(--color-on-surface); text-decoration: none; font-size: 13px; font-weight: 400; transition: all 0.15s; cursor: pointer; }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active { background: var(--color-main-c); color: var(--color-main); font-weight: 600; }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        .m3-hero { background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%); border-radius: 28px; padding: 48px; margin-bottom: 40px; color: var(--color-on-main); }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+        .m3-section-title { font-size: 28px; font-weight: 400; color: var(--color-on-surface); margin: 0 0 8px; }
+        .m3-section-desc { font-size: 14px; color: var(--color-on-surface-v); margin: 0 0 24px; line-height: 1.6; max-width: 640px; }
+
+        .m3-block { margin-bottom: 32px; border: 1px solid var(--color-outline); border-radius: 16px; overflow: hidden; background: var(--color-surface); }
+        .m3-block-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--color-outline); }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        .m3-preview { padding: 32px 24px; background: var(--color-surface-c-low); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+        .m3-preview-col { flex-direction: column; align-items: stretch; }
+
+        .m3-code { padding: 16px 24px; background: linear-gradient(138deg, var(--color-main) 45%, #1e1e1e 100%); color: #d4d4d4; font-family: "Roboto Mono", monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; white-space: pre; border-top: 1px solid var(--color-outline); }
+
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th { text-align: left; padding: 10px 16px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-on-surface-v); background: var(--color-surface-c-low); border-bottom: 1px solid var(--color-outline); }
+        .m3-spec td { padding: 10px 16px; border-bottom: 1px solid var(--color-outline); color: var(--color-on-surface); }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code { font-family: "Roboto Mono", monospace; font-size: 11px; background: var(--color-surface-c); padding: 2px 6px; border-radius: 4px; }
+
+        .m3-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+        .m3-color { border-radius: 12px; overflow: hidden; border: 1px solid var(--color-outline); }
+        .m3-color-swatch { height: 56px; }
+        .m3-color-info { padding: 8px 10px; font-size: 11px; font-family: "Roboto Mono", monospace; }
+        .m3-color-info strong { display: block; font-size: 12px; margin-bottom: 2px; }
+
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 4px; }
+
+        .m3-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .m3-tag-src { background: var(--color-info-c); color: var(--color-info); }
+        .m3-tag-use { background: var(--color-success-c); color: var(--color-success); }
+        .m3-sub { font-size: 14px; font-weight: 600; margin: 16px 0 8px; padding: 0 24px; color: var(--color-on-surface); }
+        .m3-label { font-size: 11px; font-weight: 500; color: var(--color-on-surface-v); font-family: "Roboto Mono", monospace; }
+        .m3-divider { width: 100%; height: 1px; background: var(--color-outline); margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">CSS Design System<span>pinguin-v5</span></div>
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Foundation</div>
+            <a href="#overview" class="m3-nav-item active"><span class="material-symbols-outlined">home</span>Overview</a>
+            <a href="#architecture" class="m3-nav-item"><span class="material-symbols-outlined">account_tree</span>Architecture</a>
+            <a href="#tokens" class="m3-nav-item"><span class="material-symbols-outlined">tune</span>Design Tokens</a>
+            <a href="#colors" class="m3-nav-item"><span class="material-symbols-outlined">palette</span>Colors</a>
+            <a href="#typography" class="m3-nav-item"><span class="material-symbols-outlined">text_fields</span>Typography</a>
+        </div>
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Components</div>
+            <a href="#buttons" class="m3-nav-item"><span class="material-symbols-outlined">smart_button</span>Buttons</a>
+            <a href="#forms" class="m3-nav-item"><span class="material-symbols-outlined">input</span>Forms</a>
+            <a href="#feedback" class="m3-nav-item"><span class="material-symbols-outlined">notifications</span>Feedback</a>
+            <a href="#overlays" class="m3-nav-item"><span class="material-symbols-outlined">layers</span>Overlays</a>
+            <a href="#navigation" class="m3-nav-item"><span class="material-symbols-outlined">menu</span>Navigation</a>
+            <a href="#tables" class="m3-nav-item"><span class="material-symbols-outlined">table_chart</span>Tables</a>
+        </div>
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Layout</div>
+            <a href="#layout" class="m3-nav-item"><span class="material-symbols-outlined">dashboard</span>Structure</a>
+            <a href="#grid" class="m3-nav-item"><span class="material-symbols-outlined">grid_view</span>Grid</a>
+            <a href="#utilities" class="m3-nav-item"><span class="material-symbols-outlined">handyman</span>Utilities</a>
+        </div>
+        <div class="m3-nav-group">
+            <div class="m3-nav-group-title">Guidelines</div>
+            <a href="#naming" class="m3-nav-item"><span class="material-symbols-outlined">edit_note</span>Naming</a>
+            <a href="#theming" class="m3-nav-item"><span class="material-symbols-outlined">dark_mode</span>Theming</a>
+            <a href="#a11y" class="m3-nav-item"><span class="material-symbols-outlined">accessibility</span>Accessibility</a>
+        </div>
+    </aside>
+
+    <main class="m3-main">
+        <div class="m3-content">
+            <div class="m3-theme-toggle">
+                <button class="fab" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>CSS Design System</h1>
+                <p>Complete documentation of the pinguin-v5 CSS design system. Architecture, tokens, components, conventions, and live examples. 75 CSS files, 4 layers, one consistent approach.</p>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- OVERVIEW -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="overview">
+                <h2 class="m3-section-title">Overview</h2>
+                <p class="m3-section-desc">pinguin-v5 uses a modular, file-based CSS architecture organized into 4 layers: Foundation, Layout, Components, Utilities. All values are centralized as Design Tokens in <code>root.css</code>.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>System Stats</h3>
+                        <p>Key numbers of the CSS architecture</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Metric</th><th>Value</th></tr>
+                        <tr><td>Total CSS files</td><td><strong>75</strong></td></tr>
+                        <tr><td>Architecture layers</td><td><strong>4</strong> (Foundation, Layout, Components, Utilities)</td></tr>
+                        <tr><td>Design Tokens (CSS vars)</td><td><strong>~60</strong></td></tr>
+                        <tr><td>Typography classes</td><td><strong>15</strong> (5 roles x 3 sizes)</td></tr>
+                        <tr><td>Component categories</td><td><strong>8</strong> (Buttons, Forms, Nav, Overlays, Feedback, Content, Tables, Other)</td></tr>
+                        <tr><td>Grid system</td><td><strong>12-column</strong> CSS Grid + flex weights</td></tr>
+                        <tr><td>Themes</td><td><strong>2</strong> (Light / Dark)</td></tr>
+                        <tr><td>Fonts</td><td><strong>5</strong> (Geologica, NyghtSerif, Roboto Mono, DM Sans, Playfair Display)</td></tr>
+                        <tr><td>Entry point</td><td><code>css/main.css</code></td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Principles</h3>
+                        <p>Core design system principles</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>#</th><th>Principle</th><th>Description</th></tr>
+                        <tr><td>1</td><td><strong>One File = One Component</strong></td><td>Each CSS file is responsible for exactly one component or functional area</td></tr>
+                        <tr><td>2</td><td><strong>Cascading Import Order</strong></td><td>Root -> Foundation -> Layout -> Components -> Utilities</td></tr>
+                        <tr><td>3</td><td><strong>Tokens as Single Source of Truth</strong></td><td>All values (colors, spacing, shadows) defined only in root.css</td></tr>
+                        <tr><td>4</td><td><strong>Dark Mode via Token Inversion</strong></td><td>Components never have dark-specific styles; theme switch overrides root variables</td></tr>
+                        <tr><td>5</td><td><strong>No Page-Specific CSS</strong></td><td>Components work in any context, never tied to a specific HTML page</td></tr>
+                        <tr><td>6</td><td><strong>Documentation in Every File</strong></td><td>Every CSS file starts with a JSDoc header block</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- ARCHITECTURE -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="architecture">
+                <h2 class="m3-section-title">Architecture</h2>
+                <p class="m3-section-desc">The CSS is organized as an inverted triangle: from the most generic (variables, reset) to the most specific (utilities). All imports flow through <code>main.css</code>.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Layer Structure</h3>
+                        <p>From generic to specific, low to high specificity</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Layer</th><th>Directory</th><th>Responsibility</th><th>Files</th></tr>
+                        <tr><td><strong>Root</strong></td><td><code>css/root.css</code></td><td>CSS Custom Properties (Design Tokens)</td><td>1</td></tr>
+                        <tr><td><strong>Foundation</strong></td><td><code>css/foundation/</code></td><td>Reset, Scrollbar, Selection, Typography</td><td>4</td></tr>
+                        <tr><td><strong>Layout</strong></td><td><code>css/layout/</code></td><td>Base, Nav, Aside, Header, Body, Footer</td><td>6</td></tr>
+                        <tr><td><strong>Components</strong></td><td><code>css/components/</code></td><td>Buttons, Forms, Navigation, Overlays, Feedback, Content, Tables</td><td>~55</td></tr>
+                        <tr><td><strong>Layers</strong></td><td><code>css/layers/</code></td><td>Color utility classes</td><td>1</td></tr>
+                        <tr><td><strong>Utilities</strong></td><td><code>css/utilities/</code></td><td>Helpers, Animations, Grid</td><td>3</td></tr>
+                    </table>
+                    <div class="m3-code">css/
++-- root.css              # Design Tokens
++-- main.css              # Entry point (@import)
++-- foundation/
+|   +-- reset.css         # Box-sizing, margin reset
+|   +-- scrollbar.css     # Custom scrollbar
+|   +-- selection.css     # Text selection
+|   +-- typography.css    # Font-face, type scale
++-- layout/
+|   +-- layout-base.css   # Body, content-main
+|   +-- layout-nav.css    # Left navigation
+|   +-- layout-aside.css  # Right aside panel
+|   +-- layout-header.css # Section headers
+|   +-- layout-body.css   # Section body
+|   +-- layout-footer.css # Footer
++-- components/
+|   +-- buttons/          # 9 files
+|   +-- forms/            # 8 files
+|   +-- navigation/       # 6 files
+|   +-- overlays/         # 6 files
+|   +-- feedback/         # 10 files
+|   +-- content/          # 5 files
+|   +-- tables/           # 2 files
++-- layers/
+|   +-- colors.css        # .c-main, .c-red, ...
++-- utilities/
+    +-- helpers.css       # .u-hidden, .u-flex-center
+    +-- animations.css    # @keyframes spin, stripeMove
+    +-- grid.css          # 12-column grid system</div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- DESIGN TOKENS -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="tokens">
+                <h2 class="m3-section-title">Design Tokens</h2>
+                <p class="m3-section-desc">All design values are centralized as CSS Custom Properties in <code>root.css</code>. Components reference tokens exclusively, never hardcoded values.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Spacing &amp; Radius</h3>
+                        <p>Consistent spacing and border-radius values</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+                        <tr><td><code>--space-s</code></td><td>12px</td><td>Tight padding, small gaps</td></tr>
+                        <tr><td><code>--space-m</code></td><td>16px</td><td>Standard padding, default gaps</td></tr>
+                        <tr><td><code>--space-l</code></td><td>24px</td><td>Section padding, large gaps</td></tr>
+                        <tr><td><code>--radius-s</code></td><td>8px</td><td>Buttons, inputs, small cards</td></tr>
+                        <tr><td><code>--radius-m</code></td><td>12px</td><td>Cards, modals</td></tr>
+                        <tr><td><code>--radius-l</code></td><td>16px</td><td>Large containers, hero blocks</td></tr>
+                        <tr><td><code>--radius-full</code></td><td>999px</td><td>Pills, chips, circular elements</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Shadows</h3>
+                        <p>Three elevation levels following Material Design</p>
+                    </div>
+                    <div class="m3-preview" style="gap: 32px;">
+                        <div style="width: 120px; height: 80px; border-radius: 12px; background: var(--color-surface); box-shadow: var(--shadow-1); display: flex; align-items: center; justify-content: center;"><span class="m3-label">shadow-1</span></div>
+                        <div style="width: 120px; height: 80px; border-radius: 12px; background: var(--color-surface); box-shadow: var(--shadow-2); display: flex; align-items: center; justify-content: center;"><span class="m3-label">shadow-2</span></div>
+                        <div style="width: 120px; height: 80px; border-radius: 12px; background: var(--color-surface); box-shadow: var(--shadow-3); display: flex; align-items: center; justify-content: center;"><span class="m3-label">shadow-3</span></div>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Token</th><th>Value</th></tr>
+                        <tr><td><code>--shadow-1</code></td><td>0px 1px 3px 1px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.30)</td></tr>
+                        <tr><td><code>--shadow-2</code></td><td>0px 2px 6px 2px rgba(0,0,0,0.15), 0px 1px 2px 0px rgba(0,0,0,0.30)</td></tr>
+                        <tr><td><code>--shadow-3</code></td><td>0px 4px 8px 3px rgba(0,0,0,0.15), 0px 1px 3px 0px rgba(0,0,0,0.30)</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Z-Index Layers</h3>
+                        <p>Semantic z-index management prevents stacking conflicts</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+                        <tr><td><code>--z-content</code></td><td>1</td><td>Default content</td></tr>
+                        <tr><td><code>--z-sticky</code></td><td>10</td><td>Sticky elements</td></tr>
+                        <tr><td><code>--z-fab</code></td><td>20</td><td>Floating action buttons</td></tr>
+                        <tr><td><code>--z-header</code></td><td>100</td><td>Section headers</td></tr>
+                        <tr><td><code>--z-panel</code></td><td>200</td><td>Side panels</td></tr>
+                        <tr><td><code>--z-tabs</code></td><td>300</td><td>Tab navigation</td></tr>
+                        <tr><td><code>--z-modal</code></td><td>1000</td><td>Modal dialogs</td></tr>
+                        <tr><td><code>--z-dropdown</code></td><td>10000</td><td>Dropdowns, tooltips, toasts</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Transitions</h3>
+                        <p>Unified motion tokens for consistent animation feel</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+                        <tr><td><code>--transition-speed</code></td><td>0.2s</td><td>Duration for standard transitions</td></tr>
+                        <tr><td><code>--transition-ease</code></td><td>cubic-bezier(0.2, 0, 0, 1)</td><td>Material-style easing curve</td></tr>
+                        <tr><td><code>--transition-standard</code></td><td>0.2s cubic-bezier(0.2, 0, 0, 1)</td><td>Shorthand for most transitions</td></tr>
+                    </table>
+                    <div class="m3-code">/* Usage */
+.component {
+    transition: var(--transition-standard);
+    /* or specific property: */
+    transition: background-color var(--transition-standard);
+}</div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- COLORS -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="colors">
+                <h2 class="m3-section-title">Colors</h2>
+                <p class="m3-section-desc">The color system follows Material Design 3 with Brand, Semantic, and Surface color groups. Each semantic color has 4 variants: base, container, on-base, and on-container.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Brand Colors</h3>
+                        <p>Main, Secondary, and Tertiary brand colors</p>
+                    </div>
+                    <div class="m3-preview" style="padding: 24px;">
+                        <div class="m3-colors" style="width: 100%;">
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(9, 63, 69);"></div>
+                                <div class="m3-color-info"><strong>--color-main</strong>rgb(9, 63, 69)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(255, 255, 255);"></div>
+                                <div class="m3-color-info"><strong>--color-on-main</strong>rgb(255, 255, 255)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgba(9, 63, 69, 0.08);"></div>
+                                <div class="m3-color-info"><strong>--color-main-c</strong>rgba(9, 63, 69, 0.08)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(39, 93, 99);"></div>
+                                <div class="m3-color-info"><strong>--color-secondary</strong>rgb(39, 93, 99)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(232, 110, 80);"></div>
+                                <div class="m3-color-info"><strong>--color-tertiary</strong>rgb(232, 110, 80)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Semantic Colors</h3>
+                        <p>Status colors for feedback and states</p>
+                    </div>
+                    <div class="m3-preview" style="padding: 24px;">
+                        <div class="m3-colors" style="width: 100%;">
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(239, 68, 68);"></div>
+                                <div class="m3-color-info"><strong>--color-error</strong>rgb(239, 68, 68)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(245, 158, 11);"></div>
+                                <div class="m3-color-info"><strong>--color-warning</strong>rgb(245, 158, 11)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(16, 185, 129);"></div>
+                                <div class="m3-color-info"><strong>--color-success</strong>rgb(16, 185, 129)</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: rgb(59, 130, 246);"></div>
+                                <div class="m3-color-info"><strong>--color-info</strong>rgb(59, 130, 246)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m3-code">/* Solid usage (buttons, icons) */
+background: var(--color-error);
+color: var(--color-on-error);
+
+/* Container usage (badges, alerts) */
+background: var(--color-error-c);
+color: var(--color-on-error-c);</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Surface Colors</h3>
+                        <p>Background, text, and outline colors</p>
+                    </div>
+                    <div class="m3-preview" style="padding: 24px;">
+                        <div class="m3-colors" style="width: 100%;">
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #fafafa; border-bottom: 1px solid #e5e5e5;"></div>
+                                <div class="m3-color-info"><strong>--color-surface</strong>#fafafa</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #f5f5f5;"></div>
+                                <div class="m3-color-info"><strong>--surface-c-low</strong>#f5f5f5</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #e5e5e5;"></div>
+                                <div class="m3-color-info"><strong>--surface-c</strong>#e5e5e5</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #d4d4d4;"></div>
+                                <div class="m3-color-info"><strong>--surface-c-high</strong>#d4d4d4</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #171717;"></div>
+                                <div class="m3-color-info" style="color: var(--color-on-surface);"><strong>--color-on-surface</strong>#171717</div>
+                            </div>
+                            <div class="m3-color">
+                                <div class="m3-color-swatch" style="background: #d4d4d4;"></div>
+                                <div class="m3-color-info"><strong>--color-outline</strong>#d4d4d4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- TYPOGRAPHY -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="typography">
+                <h2 class="m3-section-title">Typography</h2>
+                <p class="m3-section-desc">M3-inspired type scale: 5 roles (Display, Headline, Title, Body, Label) x 3 sizes (L, M, S) = 15 classes. Display and Headline use NyghtSerif; Title, Body, Label use Geologica.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Type Scale</h3>
+                        <p>Live preview of all 15 typography classes</p>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap: 12px;">
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">display-l / NyghtSerif / 32px</span>
+                            <div class="display-l">Display Large</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">display-m / NyghtSerif / 28px</span>
+                            <div class="display-m">Display Medium</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">display-s / NyghtSerif / 24px</span>
+                            <div class="display-s">Display Small</div>
+                        </div>
+                        <div class="m3-divider"></div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">headline-l (h1) / NyghtSerif / 32px / 700</span>
+                            <h1>Headline Large</h1>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">headline-m (h2) / NyghtSerif / 24px / 600</span>
+                            <h2>Headline Medium</h2>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">headline-s (h3) / NyghtSerif / 20px / 600</span>
+                            <h3>Headline Small</h3>
+                        </div>
+                        <div class="m3-divider"></div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">title-l (h4) / Geologica / 18px / 600</span>
+                            <h4>Title Large</h4>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">title-m / Geologica / 16px / 500</span>
+                            <div class="title-m">Title Medium</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">title-s / Geologica / 14px / 500</span>
+                            <div class="title-s">Title Small</div>
+                        </div>
+                        <div class="m3-divider"></div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">body-l / Geologica / 16px</span>
+                            <div class="body-l">Body Large text for content</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">body-m / Geologica / 14px</span>
+                            <div class="body-m">Body Medium text for content</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">body-s / Geologica / 12px</span>
+                            <div class="body-s">Body Small text for content</div>
+                        </div>
+                        <div class="m3-divider"></div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">label-l / Geologica / 13px / 500</span>
+                            <div class="label-l">Label Large</div>
+                        </div>
+                        <div style="padding: 8px 0; border-bottom: 1px solid var(--color-surface-c);">
+                            <span class="m3-label">label-m / Geologica / 12px / 500</span>
+                            <div class="label-m">Label Medium</div>
+                        </div>
+                        <div style="padding: 8px 0;">
+                            <span class="m3-label">label-s / Geologica / 11px / 500</span>
+                            <div class="label-s">Label Small</div>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;h1&gt;Headline Large&lt;/h1&gt;
+&lt;h2&gt;Headline Medium&lt;/h2&gt;
+&lt;div class="body-m"&gt;Standard body text&lt;/div&gt;
+&lt;span class="label-s"&gt;Small label&lt;/span&gt;</div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- BUTTONS -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="buttons">
+                <h2 class="m3-section-title">Buttons</h2>
+                <p class="m3-section-desc">Button system with 6 variants: Primary, Secondary, Outline, Ghost, Icon, and FAB. All share <code>button-base.css</code> foundation.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Button Variants</h3>
+                        <p>All available button styles</p>
+                    </div>
+                    <div class="m3-preview">
+                        <button class="btn-primary">Primary</button>
+                        <button class="btn-secondary">Secondary</button>
+                        <button class="btn-outline">Outline</button>
+                        <button class="btn-ghost">Ghost</button>
+                        <button class="btn-icon"><span class="material-symbols-outlined">edit</span></button>
+                        <button class="fab"><span class="material-symbols-outlined">add</span></button>
+                    </div>
+                    <div class="m3-code">&lt;button class="btn-primary"&gt;Primary&lt;/button&gt;
+&lt;button class="btn-secondary"&gt;Secondary&lt;/button&gt;
+&lt;button class="btn-outline"&gt;Outline&lt;/button&gt;
+&lt;button class="btn-ghost"&gt;Ghost&lt;/button&gt;
+&lt;button class="btn-icon"&gt;
+    &lt;span class="material-symbols-outlined"&gt;edit&lt;/span&gt;
+&lt;/button&gt;
+&lt;button class="fab"&gt;
+    &lt;span class="material-symbols-outlined"&gt;add&lt;/span&gt;
+&lt;/button&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Button with Icon</h3>
+                        <p>Buttons can include Material Symbols icons</p>
+                    </div>
+                    <div class="m3-preview">
+                        <button class="btn-primary"><span class="material-symbols-outlined">save</span>Save</button>
+                        <button class="btn-secondary"><span class="material-symbols-outlined">close</span>Cancel</button>
+                        <button class="btn-outline"><span class="material-symbols-outlined">download</span>Export</button>
+                    </div>
+                    <div class="m3-code">&lt;button class="btn-primary"&gt;
+    &lt;span class="material-symbols-outlined"&gt;save&lt;/span&gt;
+    Save
+&lt;/button&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Disabled State</h3>
+                        <p>All buttons support disabled state (opacity: 0.38)</p>
+                    </div>
+                    <div class="m3-preview">
+                        <button class="btn-primary" disabled>Disabled</button>
+                        <button class="btn-secondary" disabled>Disabled</button>
+                        <button class="btn-outline" disabled>Disabled</button>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Button Files</h3>
+                        <p>CSS architecture for buttons</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Class</th><th>Role</th></tr>
+                        <tr><td><code>button-base.css</code></td><td><code>button</code></td><td>Base styles for all buttons (flexbox, padding, radius, transition)</td></tr>
+                        <tr><td><code>button-primary.css</code></td><td><code>.btn-primary</code></td><td>Main CTA: solid main color background</td></tr>
+                        <tr><td><code>button-secondary.css</code></td><td><code>.btn-secondary</code></td><td>Supporting action: surface-c background</td></tr>
+                        <tr><td><code>button-outline.css</code></td><td><code>.btn-outline</code></td><td>Bordered button: transparent + outline</td></tr>
+                        <tr><td><code>button-ghost.css</code></td><td><code>.btn-ghost</code></td><td>Minimal: no border, transparent background</td></tr>
+                        <tr><td><code>button-icon.css</code></td><td><code>.btn-icon</code></td><td>Square icon-only button</td></tr>
+                        <tr><td><code>fab.css</code></td><td><code>.fab</code></td><td>Floating Action Button (circular)</td></tr>
+                        <tr><td><code>button-groups.css</code></td><td><code>.btn-group</code></td><td>Grouped buttons with shared borders</td></tr>
+                        <tr><td><code>button-variants.css</code></td><td>misc</td><td>Size and state variants</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- FORMS -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="forms">
+                <h2 class="m3-section-title">Forms</h2>
+                <p class="m3-section-desc">Form components: inputs, selects, checkboxes, switches, toggles, and drop zones. All share consistent styling through design tokens.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Input</h3>
+                        <p>Text input with <code>.input-main</code> class</p>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="max-width: 400px;">
+                        <div class="group column">
+                            <label class="label-l">Label</label>
+                            <input class="input-main" placeholder="Enter text...">
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;div class="group column"&gt;
+    &lt;label class="label-l"&gt;Label&lt;/label&gt;
+    &lt;input class="input-main" placeholder="Enter text..."&gt;
+&lt;/div&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Form Files</h3>
+                        <p>CSS architecture for form components</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Components</th></tr>
+                        <tr><td><code>input.css</code></td><td><code>.input-main</code>, <code>.input-ghost</code> — text inputs, textareas</td></tr>
+                        <tr><td><code>form-group.css</code></td><td><code>.group</code>, <code>.column</code>, <code>.row</code> — form field wrappers</td></tr>
+                        <tr><td><code>input-box.css</code></td><td><code>.content-line</code> — composite input boxes with label + value</td></tr>
+                        <tr><td><code>custom-select.css</code></td><td><code>.custom-select</code> — styled select dropdowns</td></tr>
+                        <tr><td><code>checkbox.css</code></td><td>Custom checkboxes</td></tr>
+                        <tr><td><code>switch.css</code></td><td>Toggle switches (on/off)</td></tr>
+                        <tr><td><code>toggle.css</code></td><td>Toggle buttons</td></tr>
+                        <tr><td><code>drop-zone.css</code></td><td>File upload drag-and-drop zones</td></tr>
+                        <tr><td><code>morph-search.css</code></td><td>Animated morphing search input</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- FEEDBACK -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="feedback">
+                <h2 class="m3-section-title">Feedback</h2>
+                <p class="m3-section-desc">Visual feedback components: badges, chips, tags, dots, counters, tooltips, loading states, and batch actions.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Inline Elements</h3>
+                        <p>Badge, Chip, Tag, Dot, Counter</p>
+                    </div>
+                    <div class="m3-preview">
+                        <span class="badge">Badge</span>
+                        <span class="chip">Chip</span>
+                        <span class="tag">Tag</span>
+                        <span class="dot" style="background: var(--color-success); width: 8px; height: 8px; border-radius: 50%; display: inline-block;"></span>
+                        <span class="counter" style="background: var(--color-error); color: white; font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600;">5</span>
+                    </div>
+                    <div class="m3-code">&lt;span class="badge"&gt;Badge&lt;/span&gt;
+&lt;span class="chip"&gt;Chip&lt;/span&gt;
+&lt;span class="tag"&gt;Tag&lt;/span&gt;
+&lt;span class="dot"&gt;&lt;/span&gt;
+&lt;span class="counter"&gt;5&lt;/span&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Feedback Files</h3>
+                        <p>All feedback component CSS files</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Component</th><th>Usage</th></tr>
+                        <tr><td><code>dot.css</code></td><td><code>.dot</code></td><td>Status indicator dots (online, offline, busy)</td></tr>
+                        <tr><td><code>badge.css</code></td><td><code>.badge</code></td><td>Text badges for labels and categories</td></tr>
+                        <tr><td><code>chip.css</code></td><td><code>.chip</code></td><td>Interactive chips (filters, selections)</td></tr>
+                        <tr><td><code>tag.css</code></td><td><code>.tag</code></td><td>Removable tags</td></tr>
+                        <tr><td><code>counter.css</code></td><td><code>.counter</code></td><td>Numeric counters on icons/buttons</td></tr>
+                        <tr><td><code>text-stats.css</code></td><td><code>.text-stats</code></td><td>Statistical text displays</td></tr>
+                        <tr><td><code>states.css</code></td><td><code>.state-*</code></td><td>Empty, error, loading states</td></tr>
+                        <tr><td><code>loading.css</code></td><td><code>.loading</code></td><td>Loading spinners and skeletons</td></tr>
+                        <tr><td><code>tooltip.css</code></td><td><code>.tooltip</code></td><td>Hover tooltips</td></tr>
+                        <tr><td><code>batch-actions.css</code></td><td><code>.batch-actions</code></td><td>Multi-select action bar</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- OVERLAYS -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="overlays">
+                <h2 class="m3-section-title">Overlays</h2>
+                <p class="m3-section-desc">Overlay components that appear above the main content: modals, dropdowns, and toasts.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Modal System</h3>
+                        <p>5 CSS files for complete modal coverage</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Responsibility</th></tr>
+                        <tr><td><code>modal.css</code></td><td>Base structure: overlay, container, header, body, footer</td></tr>
+                        <tr><td><code>modal-sizes.css</code></td><td>Size variants: small, medium, large</td></tr>
+                        <tr><td><code>modal-fullscreen.css</code></td><td>Fullscreen modal variant</td></tr>
+                        <tr><td><code>modal-avatar.css</code></td><td>Avatar/image picker modal</td></tr>
+                        <tr><td><code>modal-content.css</code></td><td>Content-rich modal styles</td></tr>
+                    </table>
+                    <div class="m3-code">&lt;div class="modal-overlay"&gt;
+    &lt;div class="modal"&gt;
+        &lt;div class="modal-header"&gt;
+            &lt;h4&gt;Modal Title&lt;/h4&gt;
+            &lt;button class="btn-icon"&gt;
+                &lt;span class="material-symbols-outlined"&gt;close&lt;/span&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-body"&gt;...&lt;/div&gt;
+        &lt;div class="modal-footer"&gt;
+            &lt;button class="btn-ghost"&gt;Cancel&lt;/button&gt;
+            &lt;button class="btn-primary"&gt;Save&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Dropdown &amp; Toast</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Component</th><th>Z-index</th></tr>
+                        <tr><td><code>dropdown.css</code></td><td><code>.dropdown</code> — contextual menus</td><td><code>var(--z-dropdown)</code></td></tr>
+                        <tr><td><code>toast.css</code></td><td><code>.toast</code> — notification messages</td><td><code>var(--z-toast)</code></td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- NAVIGATION -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="navigation">
+                <h2 class="m3-section-title">Navigation</h2>
+                <p class="m3-section-desc">Navigation components for panels, tabs, pagination, and toolbars.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Navigation Files</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Component</th><th>Usage</th></tr>
+                        <tr><td><code>panel-item.css</code></td><td><code>.panel-item</code></td><td>Sidebar navigation items</td></tr>
+                        <tr><td><code>panel-title.css</code></td><td><code>.panel-title</code></td><td>Panel section headings</td></tr>
+                        <tr><td><code>tabs.css</code></td><td><code>.tab-container</code></td><td>Tab navigation system</td></tr>
+                        <tr><td><code>tab-header.css</code></td><td><code>.tab-header</code></td><td>Tab bar with close buttons</td></tr>
+                        <tr><td><code>pagination.css</code></td><td><code>.pagination</code></td><td>Page navigation controls</td></tr>
+                        <tr><td><code>toolbar.css</code></td><td><code>.toolbar</code></td><td>Action toolbars</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- TABLES -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="tables">
+                <h2 class="m3-section-title">Tables</h2>
+                <p class="m3-section-desc">Pseudo-tables built with flexbox instead of native <code>&lt;table&gt;</code> elements. Supports sorting, selection, and inline editing.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Pseudo Table Structure</h3>
+                    </div>
+                    <div class="m3-code">&lt;div class="pseudo-table-container"&gt;
+    &lt;div class="pseudo-table-header"&gt;
+        &lt;span class="col-4"&gt;Name&lt;/span&gt;
+        &lt;span class="col-4"&gt;Type&lt;/span&gt;
+        &lt;span class="col-4"&gt;Status&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="pseudo-table-row"&gt;
+        &lt;span class="col-4"&gt;Item A&lt;/span&gt;
+        &lt;span class="col-4"&gt;Standard&lt;/span&gt;
+        &lt;span class="col-4"&gt;Active&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Responsibility</th></tr>
+                        <tr><td><code>pseudo-table.css</code></td><td>Container, header, row base styles with flex layout</td></tr>
+                        <tr><td><code>table-states.css</code></td><td>Selection, hover, active, sorted states</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- LAYOUT -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="layout">
+                <h2 class="m3-section-title">Layout</h2>
+                <p class="m3-section-desc">The page layout is a 3-column flex structure: left navigation (68px collapsed, 320px expanded), center content, and right aside panel.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Page Structure</h3>
+                    </div>
+                    <div class="m3-code">body (display: flex, height: 100dvh, overflow: hidden)
++-------+------------------------------+--------+
+|  NAV  |        CONTENT-MAIN          | ASIDE  |
+| 68px  |   (flex-grow: 1)             | 320px  |
+|       |   +------------------------+ |        |
+|       |   | SECTION (100dvh)       | |        |
+|       |   | scroll-snap-align:start| |        |
+|       |   +------------------------+ |        |
+|       |   | SECTION (100dvh)       | |        |
+|       |   +------------------------+ |        |
++-------+------------------------------+--------+</div>
+                    <table class="m3-spec">
+                        <tr><th>File</th><th>Responsibility</th></tr>
+                        <tr><td><code>layout-base.css</code></td><td>body flex container, <code>.content-main</code> with scroll-snap</td></tr>
+                        <tr><td><code>layout-nav.css</code></td><td>Left navigation panel (collapsed/expanded)</td></tr>
+                        <tr><td><code>layout-aside.css</code></td><td>Right aside panel</td></tr>
+                        <tr><td><code>layout-header.css</code></td><td>Section headers within content</td></tr>
+                        <tr><td><code>layout-body.css</code></td><td>Section body areas</td></tr>
+                        <tr><td><code>layout-footer.css</code></td><td>Footer styles</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- GRID -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="grid">
+                <h2 class="m3-section-title">Grid System</h2>
+                <p class="m3-section-desc">12-column CSS Grid for forms, modals, and cards. Columns work as <code>grid-column: span N</code> in grid context and <code>flex: N</code> in flex context (tables).</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Grid Examples</h3>
+                    </div>
+                    <div class="m3-preview m3-preview-col" style="gap: 24px;">
+                        <div>
+                            <span class="m3-label">col-6 + col-6 (50/50)</span>
+                            <div class="grid" style="margin-top: 8px;">
+                                <div class="col-6" style="background: var(--color-main-c); padding: 12px; border-radius: 8px; text-align: center;">col-6</div>
+                                <div class="col-6" style="background: var(--color-secondary-c); padding: 12px; border-radius: 8px; text-align: center;">col-6</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="m3-label">col-4 + col-4 + col-4 (33/33/33)</span>
+                            <div class="grid" style="margin-top: 8px;">
+                                <div class="col-4" style="background: var(--color-main-c); padding: 12px; border-radius: 8px; text-align: center;">col-4</div>
+                                <div class="col-4" style="background: var(--color-secondary-c); padding: 12px; border-radius: 8px; text-align: center;">col-4</div>
+                                <div class="col-4" style="background: var(--color-tertiary-c); padding: 12px; border-radius: 8px; text-align: center;">col-4</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="m3-label">col-8 + col-4 (66/33)</span>
+                            <div class="grid" style="margin-top: 8px;">
+                                <div class="col-8" style="background: var(--color-main-c); padding: 12px; border-radius: 8px; text-align: center;">col-8</div>
+                                <div class="col-4" style="background: var(--color-secondary-c); padding: 12px; border-radius: 8px; text-align: center;">col-4</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="m3-label">col-12 (full width)</span>
+                            <div class="grid" style="margin-top: 8px;">
+                                <div class="col-12" style="background: var(--color-info-c); padding: 12px; border-radius: 8px; text-align: center;">col-12</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m3-code">&lt;div class="grid"&gt;
+    &lt;div class="group column col-6"&gt;
+        &lt;label class="label-l"&gt;Name&lt;/label&gt;
+        &lt;input class="input-main"&gt;
+    &lt;/div&gt;
+    &lt;div class="group column col-6"&gt;
+        &lt;label class="label-l"&gt;Type&lt;/label&gt;
+        &lt;select class="input-main"&gt;...&lt;/select&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+/* Responsive: &lt; 768px = single column */</div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- UTILITIES -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="utilities">
+                <h2 class="m3-section-title">Utilities</h2>
+                <p class="m3-section-desc">Helper classes, animations, and separators. Utilities are the last layer and may use <code>!important</code> to override component styles.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Helper Classes</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Class</th><th>CSS</th><th>Usage</th></tr>
+                        <tr><td><code>.u-hidden</code></td><td>display: none !important</td><td>Hide any element</td></tr>
+                        <tr><td><code>.u-flex-center</code></td><td>inline-flex, align + justify center</td><td>Center icon buttons</td></tr>
+                        <tr><td><code>.u-flex-col-8</code></td><td>flex column, gap: 8px</td><td>Vertical stack with gap</td></tr>
+                        <tr><td><code>.u-p-8</code></td><td>padding: 8px</td><td>Quick 8px padding</td></tr>
+                        <tr><td><code>.u-mt-8</code></td><td>margin-top: 8px</td><td>Top margin spacer</td></tr>
+                        <tr><td><code>.u-dropdown-flex</code></td><td>flex + position: relative</td><td>Dropdown wrapper</td></tr>
+                        <tr><td><code>.text-disabled</code></td><td>color: var(--text-disabled)</td><td>Disabled text color</td></tr>
+                        <tr><td><code>.separator-h</code></td><td>1px horizontal line</td><td>Horizontal divider</td></tr>
+                        <tr><td><code>.separator-v</code></td><td>1px vertical line</td><td>Vertical divider</td></tr>
+                        <tr><td><code>.spinning</code></td><td>animation: spin 1s infinite</td><td>Loading spinner for icons</td></tr>
+                    </table>
+                    <div class="m3-code">/* Show/hide elements */
+element.classList.add('u-hidden');
+element.classList.remove('u-hidden');
+
+/* Loading spinner */
+&lt;span class="material-symbols-outlined spinning"&gt;refresh&lt;/span&gt;</div>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- NAMING -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="naming">
+                <h2 class="m3-section-title">Naming Conventions</h2>
+                <p class="m3-section-desc">Consistent naming patterns for CSS classes and custom properties ensure predictability and maintainability.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>CSS Class Patterns</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Pattern</th><th>Category</th><th>Examples</th></tr>
+                        <tr><td><code>.btn-{variant}</code></td><td>Buttons</td><td>.btn-primary, .btn-ghost, .btn-icon</td></tr>
+                        <tr><td><code>.input-{type}</code></td><td>Inputs</td><td>.input-main, .input-ghost</td></tr>
+                        <tr><td><code>.modal-{part}</code></td><td>Modals</td><td>.modal-header, .modal-body, .modal-footer</td></tr>
+                        <tr><td><code>.{role}-{size}</code></td><td>Typography</td><td>.headline-l, .body-m, .label-s</td></tr>
+                        <tr><td><code>.c-{color}</code></td><td>Color utilities</td><td>.c-main, .c-red, .c-green</td></tr>
+                        <tr><td><code>.u-{action}</code></td><td>Utilities</td><td>.u-hidden, .u-flex-center</td></tr>
+                        <tr><td><code>.col-{1-12}</code></td><td>Grid columns</td><td>.col-6, .col-4, .col-12</td></tr>
+                        <tr><td><code>.separator-{dir}</code></td><td>Dividers</td><td>.separator-h, .separator-v</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>CSS Variable Patterns</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Pattern</th><th>Category</th><th>Examples</th></tr>
+                        <tr><td><code>--color-{name}</code></td><td>Base colors</td><td>--color-main, --color-error</td></tr>
+                        <tr><td><code>--color-on-{name}</code></td><td>Text on color</td><td>--color-on-main, --color-on-error</td></tr>
+                        <tr><td><code>--color-{name}-c</code></td><td>Container bg</td><td>--color-main-c, --color-error-c</td></tr>
+                        <tr><td><code>--color-on-{name}-c</code></td><td>Text on container</td><td>--color-on-main-c</td></tr>
+                        <tr><td><code>--radius-{size}</code></td><td>Border radius</td><td>--radius-s, --radius-m, --radius-l</td></tr>
+                        <tr><td><code>--space-{size}</code></td><td>Spacing</td><td>--space-s, --space-m, --space-l</td></tr>
+                        <tr><td><code>--shadow-{level}</code></td><td>Elevation</td><td>--shadow-1, --shadow-2, --shadow-3</td></tr>
+                        <tr><td><code>--z-{layer}</code></td><td>Z-index</td><td>--z-modal, --z-dropdown, --z-toast</td></tr>
+                        <tr><td><code>--font-{role}</code></td><td>Font families</td><td>--font-body, --font-display, --font-mono</td></tr>
+                        <tr><td><code>--transition-{type}</code></td><td>Transitions</td><td>--transition-speed, --transition-ease</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- THEMING -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="theming">
+                <h2 class="m3-section-title">Theming</h2>
+                <p class="m3-section-desc">Dark mode is implemented by overriding CSS variables in <code>[data-theme="dark"]</code>. Components automatically adapt without any component-level dark styles.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>How It Works</h3>
+                    </div>
+                    <div class="m3-code">/* root.css - Light theme (default) */
+:root {
+    --color-surface: #fafafa;
+    --color-on-surface: #171717;
+    --color-main: rgb(9, 63, 69);
+}
+
+/* root.css - Dark theme override */
+[data-theme="dark"] {
+    --color-surface: #121212;
+    --color-on-surface: #e5e5e5;
+    --color-main: rgb(76, 166, 175);
+}
+
+/* Components reference tokens only */
+.card {
+    background: var(--color-surface);      /* auto light/dark */
+    color: var(--color-on-surface);        /* auto light/dark */
+    border: 1px solid var(--color-outline); /* auto light/dark */
+}
+
+/* Toggle theme via JS */
+document.documentElement.dataset.theme = 'dark';
+document.documentElement.dataset.theme = 'light';</div>
+                    <table class="m3-spec">
+                        <tr><th>Rule</th><th>Description</th></tr>
+                        <tr><td><strong>Never hardcode colors</strong></td><td>Always use var(--color-*) — never #hex or rgb() in components</td></tr>
+                        <tr><td><strong>No component dark styles</strong></td><td>Never add [data-theme="dark"] .component {} outside root.css</td></tr>
+                        <tr><td><strong>Test both themes</strong></td><td>Every component must look correct in both light and dark</td></tr>
+                        <tr><td><strong>Use semantic tokens</strong></td><td>Use --color-surface not --color-surface-c-low for backgrounds</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- ACCESSIBILITY -->
+            <!-- ============================================================= -->
+            <section class="m3-section" id="a11y">
+                <h2 class="m3-section-title">Accessibility</h2>
+                <p class="m3-section-desc">Guidelines for making the design system accessible. WCAG 2.2 AA compliance as baseline.</p>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Key Requirements</h3>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Area</th><th>Requirement</th><th>Implementation</th></tr>
+                        <tr><td><strong>Focus</strong></td><td>All interactive elements must have visible focus</td><td><code>:focus-visible { outline: 2px solid var(--color-main); }</code></td></tr>
+                        <tr><td><strong>Contrast</strong></td><td>Text: 4.5:1, Large text: 3:1, UI: 3:1</td><td>Verify with browser DevTools</td></tr>
+                        <tr><td><strong>Motion</strong></td><td>Respect reduced-motion preference</td><td><code>@media (prefers-reduced-motion: reduce)</code></td></tr>
+                        <tr><td><strong>Touch</strong></td><td>Minimum 44x44px touch targets</td><td>Buttons and links meet this by default</td></tr>
+                        <tr><td><strong>Color</strong></td><td>Never convey info by color alone</td><td>Use icons + text alongside color indicators</td></tr>
+                    </table>
+                    <div class="m3-code">/* Focus visible for keyboard users only */
+:focus-visible {
+    outline: 2px solid var(--color-main);
+    outline-offset: 2px;
+}
+
+/* Remove outline for mouse users */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}</div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Sidebar active state
+        document.querySelectorAll('.m3-nav-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.m3-nav-item').forEach(function(i) { i.classList.remove('active'); });
+                this.classList.add('active');
+            });
+        });
+
+        // Intersection Observer for active nav
+        var sections = document.querySelectorAll('.m3-section');
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var id = entry.target.id;
+                    document.querySelectorAll('.m3-nav-item').forEach(function(item) {
+                        item.classList.remove('active');
+                        if (item.getAttribute('href') === '#' + id) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(function(s) { observer.observe(s); });
+    </script>
+</body>
+</html>
