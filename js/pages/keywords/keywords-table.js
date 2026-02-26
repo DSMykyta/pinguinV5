@@ -118,12 +118,7 @@ function initKeywordsTable() {
             }
         },
 
-        preFilter: (data) => {
-            if (keywordsState.paramTypeFilter && keywordsState.paramTypeFilter !== 'all') {
-                return data.filter(e => e.param_type === keywordsState.paramTypeFilter);
-            }
-            return data;
-        },
+        preFilter: null,
 
         pageSize: null,
         checkboxPrefix: 'keywords'

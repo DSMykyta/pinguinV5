@@ -40,10 +40,6 @@ async function checkAuthAndLoadData() {
             renderKeywordsTable();
             initDropdowns();
 
-            // Фільтри типів (кнопки в header)
-            const { initParamTypeFilters } = await import('./keywords-ui.js');
-            initParamTypeFilters();
-
             initKeywordsEvents();
 
         } catch (error) {

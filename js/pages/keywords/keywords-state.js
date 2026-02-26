@@ -6,7 +6,6 @@ export const keywordsState = {
     searchQuery: '',
     searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
     visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
-    paramTypeFilter: 'all',
     columnFilters: {},       // Фільтри по колонках { columnId: ['value1', 'value2'] }
     sortKey: null,
     sortOrder: 'asc',
