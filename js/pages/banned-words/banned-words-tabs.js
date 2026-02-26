@@ -132,8 +132,9 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
 
     tabsContainer.appendChild(tabButton);
 
-    // Створити контент табу
-    const contentContainer = document.getElementById('sheet-tabs-content-container');
+    // Створити контент табу (прямо в main перед footer, як у brands.html)
+    const mainEl = document.getElementById('content-main');
+    const footerEl = mainEl.querySelector('footer.footer');
     const tabContent = document.createElement('div');
     tabContent.className = 'tab-content';
     tabContent.dataset.tabContent = tabId;
@@ -142,7 +143,7 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
     const contentHtml = contentTemplate.replace(/{{tabId}}/g, tabId);
     tabContent.innerHTML = contentHtml;
 
-    contentContainer.appendChild(tabContent);
+    mainEl.insertBefore(tabContent, footerEl);
 
     // Зберегти параметри перевірки для цього табу (одиничні для зворотної сумісності)
     tabButton.dataset.checkSheet = selectedSheet;

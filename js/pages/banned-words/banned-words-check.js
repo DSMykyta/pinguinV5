@@ -75,9 +75,6 @@ export async function performCheck(sheetName, wordId, columnName) {
             };
             initPaginationCharm(container.parentElement);
 
-            loader.updateProgress(95, 'Налаштування фільтрів...');
-            initCheckTabFilters(tabId);
-
             const totalMatchCount = cachedResults.reduce((sum, r) => sum + (r.matchCount || 0), 0);
             updateAsideStats(cachedResults.length, totalMatchCount);
 
@@ -201,9 +198,6 @@ export async function performCheck(sheetName, wordId, columnName) {
             renderFn: async () => { const mt = checkManagedTables.get(tabId); if (mt) mt.refilter(); }
         };
         initPaginationCharm(container.parentElement);
-
-        loader.updateProgress(95, 'Налаштування фільтрів...');
-        initCheckTabFilters(tabId);
 
         updateAsideStats(aggregatedResults.length, totalMatchCount);
 
@@ -583,35 +577,6 @@ export function resetCheckTableAPIs() {
     checkManagedTables.clear();
 }
 
-/**
- * Ініціалізувати фільтри для check табу
- */
-export function initCheckTabFilters(tabId) {
-    const filterButtons = document.querySelectorAll(`.btn-icon.expand[data-filter][data-tab-id="${tabId}"]`);
-    if (!filterButtons.length) return;
-
-    if (!bannedWordsState.tabFilters[tabId]) {
-        bannedWordsState.tabFilters[tabId] = 'all';
-    }
-
-    filterButtons.forEach(button => {
-        button.addEventListener('click', async () => {
-            const filter = button.dataset.filter;
-
-            bannedWordsState.tabFilters[tabId] = filter;
-
-            const { updateTabState } = await import('./banned-words-state-persistence.js');
-            updateTabState(tabId, { filter });
-
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // refilter через managed table
-            const mt = checkManagedTables.get(tabId);
-            if (mt) mt.refilter();
-        });
-    });
-}
 
 /**
  * Оновити статистику в aside
