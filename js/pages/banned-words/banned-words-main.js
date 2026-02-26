@@ -97,13 +97,10 @@ async function updateUIWithData() {
     initDropdowns();
 
     // 3. Відрендерити таблицю (createManagedTable створює колонки + пошук автоматично)
-    const { renderBannedWordsTable, initManageTabFilters } = await import('./banned-words-manage.js');
+    const { renderBannedWordsTable } = await import('./banned-words-manage.js');
     await renderBannedWordsTable();
 
-    // 4.5. Ініціалізувати фільтри для табу управління
-    initManageTabFilters();
-
-    // 5. Ініціалізувати події
+    // 4. Ініціалізувати події
     const { initBannedWordsEvents } = await import('./banned-words-events.js');
     initBannedWordsEvents();
 

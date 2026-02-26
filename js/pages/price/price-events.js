@@ -207,13 +207,6 @@ function initReserveTabsEvents() {
         });
     }
 
-    const statusTabsContainer = document.getElementById('status-filter-tabs');
-    if (statusTabsContainer) {
-        statusTabsContainer.addEventListener('charm:filter', (e) => {
-            priceState.currentStatusFilter = e.detail.value;
-            renderPriceTableRowsOnly();
-        });
-    }
 }
 
 /**

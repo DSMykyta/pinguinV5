@@ -160,7 +160,6 @@ function initPriceTable() {
         })),
 
         preFilter: (data) => {
-            // 1. Reserve filter
             const reserveFilter = priceState.currentReserveFilter || 'all';
             if (reserveFilter === 'not_posted') {
                 data = data.filter(item => !item.article || item.article.trim() === '');
@@ -169,26 +168,6 @@ function initPriceTable() {
             } else if (reserveFilter !== 'all') {
                 data = data.filter(item => (item.reserve || '').trim() === reserveFilter);
             }
-
-            // 2. Status filter
-            const statusFilter = priceState.currentStatusFilter || 'all';
-            if (statusFilter !== 'all') {
-                switch (statusFilter) {
-                    case 'reserved':
-                        data = data.filter(item => item.reserve && item.reserve.trim() !== '');
-                        break;
-                    case 'posted':
-                        data = data.filter(item => item.status === 'TRUE' || item.status === true);
-                        break;
-                    case 'checked':
-                        data = data.filter(item => item.check === 'TRUE' || item.check === true);
-                        break;
-                    case 'paid':
-                        data = data.filter(item => item.payment === 'TRUE' || item.payment === true);
-                        break;
-                }
-            }
-
             return data;
         },
 

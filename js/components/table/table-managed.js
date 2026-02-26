@@ -153,7 +153,7 @@ export function createManagedTable(config) {
     function applyFilters() {
         let data = getWorkingData();
 
-        // 0. Pre-filter (зовнішня логіка: paramTypeFilter, activeTab тощо)
+        // 0. Pre-filter (зовнішня логіка: reserveFilter, activeTab тощо)
         if (preFilter) {
             data = preFilter(data);
         }

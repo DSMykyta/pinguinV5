@@ -89,10 +89,8 @@ function createArticleHtml(item) {
             </div>
 
             <div class="section-content">
-                <div class="article-text">
-                    ${(() => {
-                        return item.text ? item.text : createEmptyStateHtml(item.id);
-                    })()}
+                <div editor data-editor-id="glossary-${item.id}">
+                    ${item.text ? item.text : createEmptyStateHtml(item.id)}
                 </div>
 
                 <div class="glossary-article-footer">

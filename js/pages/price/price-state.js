@@ -11,7 +11,6 @@ export const priceState = {
 
     // Фільтри
     currentReserveFilter: 'all', // Поточний фільтр по резерву (юзеру)
-    currentStatusFilter: 'all',  // Поточний фільтр по статусу
     columnFilters: {},           // Фільтри по колонках { columnId: ['value1', 'value2'] }
     columnFiltersAPI: null,      // API для управління фільтрами колонок
     searchQuery: '',             // Пошуковий запит

@@ -98,15 +98,7 @@ function initManagedBannedWordsTable() {
             }
         },
 
-        preFilter: (data) => {
-            const activeFilter = bannedWordsState.tabFilters['tab-manage'] || 'all';
-            if (activeFilter === 'checked') {
-                return data.filter(w => w.cheaked_line === 'TRUE' || w.cheaked_line === true);
-            } else if (activeFilter === 'unchecked') {
-                return data.filter(w => w.cheaked_line !== 'TRUE' && w.cheaked_line !== true);
-            }
-            return data;
-        },
+        preFilter: null,
 
         pageSize: null,
         checkboxPrefix: 'banned'
@@ -449,20 +441,3 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
     }
 }
 
-/**
- * Ініціалізувати фільтри для табу управління
- */
-export function initManageTabFilters() {
-    const filterGroup = document.querySelector('[data-filter-group="bwManage"]');
-    if (!filterGroup) return;
-
-    if (!bannedWordsState.tabFilters['tab-manage']) {
-        bannedWordsState.tabFilters['tab-manage'] = 'all';
-    }
-
-    // Charm filter-pills керує .c-main toggle, ми слухаємо charm:filter
-    filterGroup.addEventListener('charm:filter', (e) => {
-        bannedWordsState.tabFilters['tab-manage'] = e.detail.value;
-        renderBannedWordsTableRowsOnly();
-    });
-}
