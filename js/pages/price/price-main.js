@@ -91,8 +91,7 @@ async function updateUIWithData() {
     const { renderPriceTable } = await import('./price-table.js');
     renderPriceTable();
 
-    // 6. Ініціалізувати dropdowns
-    const { initDropdowns } = await import('../../components/forms/dropdown.js');
+    // 6. Ініціалізувати dropdowns після рендеру
     initDropdowns();
 
     // 7. Ініціалізувати події таблиці
