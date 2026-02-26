@@ -18,8 +18,8 @@ import { initPaginationCharm }  from './components/charms/pagination/pagination-
 
 
 export async function initCore() {
-    initTheme();
     await initLayout();
+    initTheme();
     initDropdowns();
 
     // ВАЖЛИВО: initModals() повинен бути ДО initCustomAuth()
