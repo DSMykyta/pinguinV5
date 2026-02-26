@@ -83,15 +83,29 @@
                         <div class="grid">
                             <div class="group column col-6">
                                 <label class="label-l" for="mapper-char-name-ua">
-                                    Назва (UA)
+                                    Назви
                                     <span class="required">*</span>
                                 </label>
-                                <input type="text" id="mapper-char-name-ua" class="input-main" placeholder="Назва українською" required>
-                            </div>
-
-                            <div class="group column col-6">
-                                <label class="label-l" for="mapper-char-name-ru">Назва (RU)</label>
-                                <input type="text" id="mapper-char-name-ru" class="input-main" placeholder="Назва російською">
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="mapper-char-name-ua" class="input-main"
+                                                    placeholder="Назва українською" required>
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="mapper-char-name-ru" class="input-main"
+                                                    placeholder="Назва російською">
+                                                <span class="tag c-main">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -105,7 +119,7 @@
 
                         <!-- Тип та налаштування -->
                         <div class="grid">
-                            <div class="group column col-6">
+                            <div class="group column col-3">
                                 <label class="label-l" for="mapper-char-block">Блок</label>
                                 <select id="mapper-char-block" data-custom-select>
                                     <option value="">— Оберіть блок —</option>
@@ -122,10 +136,10 @@
                                         <option value="9">Інше</option>
                                     </optgroup>
                                 </select>
-                                <label class="label-s">В якому блоці картки товару відображати</label>
+                                <label class="label-s">Блок картки товару</label>
                             </div>
 
-                            <div class="group column col-6">
+                            <div class="group column col-3">
                                 <label class="label-l" for="mapper-char-type">Тип</label>
                                 <select id="mapper-char-type" data-custom-select>
                                     <option value="TextInput">TextInput</option>
@@ -139,16 +153,14 @@
                                     <option value="Integer">Integer</option>
                                 </select>
                             </div>
-                        </div>
 
-                        <div class="grid u-mt-16">
-                            <div class="group column col-3">
-                                <label class="label-l" for="mapper-char-unit">Одиниця виміру</label>
-                                <input type="text" id="mapper-char-unit" class="input-main" placeholder="мг, шт, мл...">
+                            <div class="group column col-2">
+                                <label class="label-l" for="mapper-char-unit">Одиниця</label>
+                                <input type="text" id="mapper-char-unit" class="input-main" placeholder="мг, шт...">
                             </div>
 
-                            <div class="group column col-3">
-                                <label class="label-l" for="mapper-char-filter">Тип фільтра</label>
+                            <div class="group column col-2">
+                                <label class="label-l" for="mapper-char-filter">Фільтр</label>
                                 <select id="mapper-char-filter" data-custom-select>
                                     <option value="disable">Disable</option>
                                     <option value="main">Main</option>
@@ -156,14 +168,13 @@
                                 </select>
                             </div>
 
-                            <div class="group column col-3">
-                                <label class="label-l" for="mapper-char-sort-order">Сортування</label>
+                            <div class="group column col-1">
+                                <label class="label-l" for="mapper-char-sort-order">Порядок</label>
                                 <input type="number" id="mapper-char-sort-order" class="input-main" placeholder="0" min="0">
-                                <label class="label-s">Порядок в формі товару</label>
                             </div>
 
-                            <div class="group column col-3">
-                                <label class="label-l" for="mapper-char-col-size">Ширина поля</label>
+                            <div class="group column col-1">
+                                <label class="label-l" for="mapper-char-col-size">Ширина</label>
                                 <select id="mapper-char-col-size" data-custom-select>
                                     <option value="">— Авто —</option>
                                     <option value="1">Все</option>

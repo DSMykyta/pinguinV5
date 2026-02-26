@@ -525,8 +525,8 @@ function populateRelatedOptions(characteristicId) {
         container: 'char-related-options',
         columns: [
             { ...col('id', 'ID', 'tag'), searchable: true },
-            { ...col('value_ua', 'Значення', 'name'), searchable: true },
-            { ...col('value_ru', 'Назва (RU)', 'text'), searchable: true, checked: true },
+            { ...col('value_ua', 'Значення', 'name', { span: 5 }), searchable: true },
+            { ...col('value_ru', 'Назва (RU)', 'text', { span: 3 }), searchable: true, checked: true },
             {
                 id: '_unlink', label: ' ', sortable: false, span: 1,
                 render: (value, row) => actionButton({

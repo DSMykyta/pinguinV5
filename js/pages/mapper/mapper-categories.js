@@ -499,9 +499,9 @@ function populateRelatedCharacteristics(categoryId) {
     const managed = createManagedTable({
         container: 'category-related-chars',
         columns: [
-            { ...col('id', 'ID', 'tag'), searchable: true },
-            { ...col('category_ids', 'Категорія', 'binding-chip'), searchable: true, searchChecked: false },
-            { ...col('name_ua', 'Назва', 'name'), searchable: true },
+            { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
+            { ...col('category_ids', 'Категорія', 'binding-chip', { span: 2 }), searchable: true, searchChecked: false },
+            { ...col('name_ua', 'Назва', 'name', { span: 4 }), searchable: true },
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
             {
                 id: '_optCount', label: 'Опції', sortable: true,

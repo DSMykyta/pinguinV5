@@ -564,8 +564,8 @@ async function populateMpReferences(slug, marketplaceId) {
     createManagedTable({
         container: 'mp-data-ref-container',
         columns: [
-            { ...col('_category', 'Категорія', 'text'), searchable: true },
-            { ...col('name', 'Назва', 'name'), searchable: true },
+            { ...col('_category', 'Категорія', 'text', { span: 3 }), searchable: true },
+            { ...col('name', 'Назва', 'name', { span: 5 }), searchable: true },
             { ...col('_size', 'Розмір', 'code', { span: 1 }), searchable: true },
             { ...col('_date', 'Дата', 'text', { span: 1 }), searchable: true },
             {
@@ -742,7 +742,7 @@ function populateMpCharacteristics(allData, charMapping) {
             { ...col('external_id', 'ID', 'tag'), searchable: true },
             {
                 id: 'category_name', label: 'Категорія', searchable: true, checked: true,
-                span: 1, align: 'center', sortable: false, filterable: true,
+                span: 2, align: 'center', sortable: false, filterable: true,
                 render: (value) => {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
@@ -815,9 +815,9 @@ function populateMpOptions(allData, optMapping) {
         columns: [
             { ...col('external_id', 'ID', 'tag'), searchable: true },
             { ...col('_name', 'Назва', 'name'), searchable: true },
-            { ...col('_charName', 'Характ.', 'text', { filterable: true }), searchable: true },
+            { ...col('_charName', 'Характ.', 'text', { span: 3, filterable: true }), searchable: true },
             {
-                id: '_mapping', label: 'Наша опція', span: 3, sortable: false,
+                id: '_mapping', label: 'Наша опція', span: 4, sortable: false,
                 render: (value, row) => {
                     const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
