@@ -15,6 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, runHook } from './avatar-state.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 import {
     AVATAR_BASE_PATH,
     AVAILABLE_ANIMALS,
@@ -32,7 +33,7 @@ const selectorStates = new Map();
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 }
 
@@ -262,14 +263,5 @@ export function clearSelector(containerId) {
     selectorStates.delete(containerId);
 }
 
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)

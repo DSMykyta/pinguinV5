@@ -127,20 +127,27 @@ async function checkAuthAndLoadData() {
 
     if (window.isAuthorized) {
 
-        try {
-            // Завантажити бренди та лінійки паралельно
-            await Promise.all([
-                loadBrands(),
-                loadBrandLines()
-            ]);
+        // Завантажити бренди та лінійки паралельно (allSettled — одна помилка не ламає все)
+        const [brandsResult, linesResult] = await Promise.allSettled([
+            loadBrands(),
+            loadBrandLines()
+        ]);
 
-            // Запустити хук onInit для плагінів
-            await runHookAsync('onInit', brandsState.brands);
-
-        } catch (error) {
-            console.error('❌ Помилка завантаження даних:', error);
-            renderErrorState();
+        if (brandsResult.status === 'rejected') {
+            console.error('❌ Помилка завантаження брендів:', brandsResult.reason);
         }
+        if (linesResult.status === 'rejected') {
+            console.error('❌ Помилка завантаження лінійок:', linesResult.reason);
+        }
+
+        // Якщо обидва зламались — показуємо помилку
+        if (brandsResult.status === 'rejected' && linesResult.status === 'rejected') {
+            renderErrorState();
+            return;
+        }
+
+        // Запустити хук onInit для плагінів
+        await runHookAsync('onInit', brandsState.brands);
     } else {
         renderAuthRequiredState();
     }

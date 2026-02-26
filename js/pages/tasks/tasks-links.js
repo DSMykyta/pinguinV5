@@ -14,6 +14,7 @@
 
 import { registerTasksPlugin } from './tasks-plugins.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HARDCODED ПОСИЛАННЯ
@@ -198,17 +199,6 @@ function renderLinkGroup(title, groupIcon, links, category) {
             </div>
         </div>
     `;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// УТИЛІТИ
-// ═══════════════════════════════════════════════════════════════════════════
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 function escapeAttr(text) {

@@ -30,6 +30,7 @@
 
 import { avatarState, runHook, runHookAsync, setCurrentUser } from './avatar-state.js';
 import { AVAILABLE_ANIMALS } from './avatar-config.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме
@@ -52,10 +53,13 @@ async function loadPlugins() {
     );
 
     results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-            // Плагін успішно завантажений
-            // init() викликається автоматично в кожному плагіні
-        } else {
+        if (result.status === 'fulfilled' && result.value.init) {
+            try {
+                result.value.init(avatarState);
+            } catch (e) {
+                console.error(`[Avatar] ❌ Plugin init error: ${PLUGINS[index]}`, e);
+            }
+        } else if (result.status === 'rejected') {
             console.warn(`[Avatar] Plugin not loaded: ${PLUGINS[index]}`, result.reason?.message || '');
         }
     });
@@ -132,14 +136,6 @@ export async function reloadAvatarSystem() {
     await initAvatarSystem();
 }
 
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RE-EXPORTS для зручного використання

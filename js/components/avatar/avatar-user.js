@@ -15,6 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, getCurrentUserAvatar } from './avatar-state.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 import {
     AVATAR_BASE_PATH,
     AVATAR_HD_PATH,
@@ -30,7 +31,7 @@ export const PLUGIN_NAME = 'avatar-user';
 /**
  * Ініціалізація плагіна
  */
-function init() {
+export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 
     // Реєструємо хук для оновлення аватара при зміні користувача
@@ -185,14 +186,4 @@ export function renderCurrentUserAvatar(options = {}) {
     return renderAvatar(avatar, options);
 }
 
-/**
- * Капіталізує першу літеру
- * @private
- */
-function capitalizeFirst(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// Автоматична ініціалізація при завантаженні модуля
-init();
+// Ініціалізація викликається з avatar-main.js через init(state)

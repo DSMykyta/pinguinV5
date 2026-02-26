@@ -33,6 +33,7 @@
 
 import { tasksState } from './tasks-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
+import { generateNextId } from '../../utils/common-utils.js';
 
 // Конфігурація таблиці Tasks
 const SPREADSHEET_ID = '1XE9C6eByiQOoJ_3WNewlMO4QjUpSR-eXI-M6eDn20ls';
@@ -285,21 +286,6 @@ function serializeComments(comments) {
  * Генерувати новий ID для задачі
  * @returns {string} Новий ID у форматі task-XXXXXX (6 цифр)
  */
-function generateTaskId() {
-    let maxNum = 0;
-
-    tasksState.tasks.forEach(task => {
-        if (task.id && task.id.startsWith('task-')) {
-            const num = parseInt(task.id.replace('task-', ''), 10);
-            if (!isNaN(num) && num > maxNum) {
-                maxNum = num;
-            }
-        }
-    });
-
-    const newNum = maxNum + 1;
-    return `task-${String(newNum).padStart(6, '0')}`;
-}
 
 /**
  * Підготувати рядок для збереження в Google Sheets
@@ -332,7 +318,7 @@ function prepareTaskRow(task) {
  */
 export async function addTask(taskData) {
     try {
-        const newId = generateTaskId();
+        const newId = generateNextId('task-', tasksState.tasks.map(t => t.id));
         const now = new Date().toISOString();
 
         const newTask = {

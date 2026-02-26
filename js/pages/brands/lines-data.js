@@ -15,6 +15,7 @@
 
 import { brandsState } from './brands-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
+import { generateNextId } from '../../utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -102,21 +103,6 @@ export async function loadBrandLines() {
  * Генерувати новий ID для лінійки
  * @returns {string} Новий ID у форматі line-XXXXXX
  */
-function generateLineId() {
-    let maxNum = 0;
-
-    brandsState.brandLines.forEach(line => {
-        if (line.line_id && line.line_id.startsWith('line-')) {
-            const num = parseInt(line.line_id.replace('line-', ''), 10);
-            if (!isNaN(num) && num > maxNum) {
-                maxNum = num;
-            }
-        }
-    });
-
-    const newNum = maxNum + 1;
-    return `line-${String(newNum).padStart(6, '0')}`;
-}
 
 /**
  * Підготувати рядок для запису в таблицю
@@ -144,7 +130,7 @@ function prepareLineRow(line) {
 export async function addBrandLine(lineData) {
 
     try {
-        const newId = generateLineId();
+        const newId = generateNextId('line-', brandsState.brandLines.map(l => l.line_id));
 
         const newLine = {
             line_id: newId,

@@ -45,6 +45,7 @@
 import { brandsState } from './brands-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { generateNextId } from '../../utils/common-utils.js';
 
 const SHEET_NAME = 'Brands';
 const SHEET_GID = '653695455';
@@ -207,21 +208,6 @@ export function getBrandById(brandId) {
  * Генерувати новий ID для бренду
  * @returns {string} Новий ID у форматі bran-XXXXXX (6 цифр)
  */
-function generateBrandId() {
-    let maxNum = 0;
-
-    brandsState.brands.forEach(brand => {
-        if (brand.brand_id && brand.brand_id.startsWith('bran-')) {
-            const num = parseInt(brand.brand_id.replace('bran-', ''), 10);
-            if (!isNaN(num) && num > maxNum) {
-                maxNum = num;
-            }
-        }
-    });
-
-    const newNum = maxNum + 1;
-    return `bran-${String(newNum).padStart(6, '0')}`;
-}
 
 /**
  * Підготувати рядок для збереження в Google Sheets
@@ -251,7 +237,7 @@ function prepareBrandRow(brand) {
 export async function addBrand(brandData) {
 
     try {
-        const newId = generateBrandId();
+        const newId = generateNextId('bran-', brandsState.brands.map(b => b.brand_id));
 
         const newBrand = {
             brand_id: newId,

@@ -13,17 +13,7 @@
  */
 
 import { getBrandsData } from './gse-data.js';
-
-/**
- * Очищає HTML теги з тексту
- * @param {string} html - Текст з HTML тегами
- * @returns {string} Чистий текст без HTML
- */
-function stripHtml(html) {
-    const tmp = document.createElement('DIV');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-}
+import { stripHtmlTags as stripHtml } from '../../utils/text-utils.js';
 
 /**
  * Розпізнає бренд та назву продукту з тексту

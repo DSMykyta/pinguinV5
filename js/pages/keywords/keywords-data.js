@@ -12,6 +12,7 @@
 import { keywordsState } from './keywords-init.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { generateNextId } from '../../utils/common-utils.js';
 
 const SHEET_NAME = 'Glossary';
 const SHEET_GID = '90240383'; // GID для Glossary
@@ -65,30 +66,6 @@ export function getKeywords() {
     return keywordsState.keywords || [];
 }
 
-/**
- * Генерувати унікальний local_id у форматі glo + 6 цифр
- */
-function generateLocalId() {
-    const existingIds = keywordsState.keywords.map(k => k.local_id).filter(id => id && id.startsWith('glo-'));
-
-    // Знайти максимальний номер
-    let maxNum = 0;
-    existingIds.forEach(id => {
-        const num = parseInt(id.substring(4), 10); // glo-000001 -> 4 символи до числа
-        if (!isNaN(num) && num > maxNum) {
-            maxNum = num;
-        }
-    });
-
-    // Новий номер
-    const newNum = maxNum + 1;
-
-    // Форматувати з нулями на початку (6 цифр) та дефісом
-    const localId = 'glo-' + String(newNum).padStart(6, '0');
-
-    return localId;
-}
-
 export async function addKeyword(keywordData) {
 
     try {
@@ -98,7 +75,7 @@ export async function addKeyword(keywordData) {
         }
 
         // Генерувати local_id автоматично
-        const local_id = generateLocalId();
+        const local_id = generateNextId('glo-', keywordsState.keywords.map(k => k.local_id));
 
         const newRow = [
             local_id,

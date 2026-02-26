@@ -46,8 +46,7 @@ export async function loadMapperPlugins() {
 
         if (result.status === 'fulfilled' && result.value.init) {
             try {
-                // init() кожного плагіна сам викликає markPluginLoaded()
-                result.value.init();
+                result.value.init(mapperState);
             } catch (e) {
                 console.error(`[Mapper] ❌ Error initializing ${pluginPath}:`, e);
             }
