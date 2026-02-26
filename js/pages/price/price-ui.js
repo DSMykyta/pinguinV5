@@ -8,7 +8,7 @@
  * Управління UI елементами для прайсу.
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../../components/avatar/avatar-text.js';
 

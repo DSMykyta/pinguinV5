@@ -26,8 +26,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { loadHTML } from '../components/util-loader.js';
-import { initDropdowns } from '../components/ui-dropdown.js';
+import { loadHTML } from '../utils/html-loader.js';
+import { initDropdowns } from '../components/forms/dropdown.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТР ІНІЦІАЛІЗАТОРІВ

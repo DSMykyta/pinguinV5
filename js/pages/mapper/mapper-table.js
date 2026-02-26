@@ -17,8 +17,8 @@ import {
     getMpCategories, getMpCharacteristics, getMpOptions,
     getMapCategories, getMapCharacteristics, getMapOptions
 } from './mapper-data.js';
-import { getBatchBar } from '../../components/ui-batch-actions.js';
-import { createCachedFn } from '../../components/util-lazy-load.js';
+import { getBatchBar } from '../../components/actions/actions-batch.js';
+import { createCachedFn } from '../../utils/lazy-load.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
@@ -27,7 +27,7 @@ import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
+} from '../../components/actions/actions-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // КЕШОВАНІ LOOKUP MAP-И (O(1) замість O(n) для пошуку батьків)

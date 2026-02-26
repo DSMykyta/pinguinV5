@@ -14,10 +14,10 @@ import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { getBrands, getBrandById } from './brands-data.js';
 import { getBrandLineById, addBrandLine, updateBrandLine, deleteBrandLine } from './lines-data.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
-import { initCustomSelects } from '../../components/ui-select.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { initCustomSelects } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE

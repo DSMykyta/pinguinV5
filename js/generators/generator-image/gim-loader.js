@@ -16,7 +16,7 @@
 import { getImageDom } from './gim-dom.js';
 import { getImageState } from './gim-state.js';
 import { renderThumbnails, setActiveImage } from './gim-renderer.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 /**
  * Налаштовує обробники для завантаження файлів

@@ -56,7 +56,7 @@ import { createEditorTemplate } from './editor-template.js';
 import { createEditorState } from './editor-state.js';
 import { initEditorMode } from './editor-mode.js';
 import { sanitizeHtml } from './editor-utils.js';
-import { initDropdowns } from '../ui-dropdown.js';
+import { initDropdowns } from '../forms/dropdown.js';
 
 let instanceCounter = 0;
 

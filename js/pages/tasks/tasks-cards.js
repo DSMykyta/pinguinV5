@@ -15,7 +15,7 @@ import { tasksState } from './tasks-state.js';
 import { getTasksForCurrentTab, canEditTask, canChangeStatus } from './tasks-data.js';
 import { registerTasksPlugin, runHook } from './tasks-plugins.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
-import { registerActionHandlers, initActionHandlers, actionButton } from '../../components/ui-actions.js';
+import { registerActionHandlers, initActionHandlers, actionButton } from '../../components/actions/actions-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

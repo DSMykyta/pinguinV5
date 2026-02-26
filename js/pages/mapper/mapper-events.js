@@ -16,7 +16,7 @@ import {
     loadMpCategories, loadMpCharacteristics, loadMpOptions,
     loadMapCategories, loadMapCharacteristics, loadMapOptions
 } from './mapper-data.js';
-import { createBatchActionsBar, getBatchBar } from '../../components/ui-batch-actions.js';
+import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 import { resetSnapshots } from './mapper-polling.js';
 
 /**
@@ -161,17 +161,17 @@ function initMapperBatchActions() {
                     });
 
                     if (mpIds.length === 0) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть MP категорії для маппінгу', 'warning');
                         return;
                     }
 
                     if (ownIds.length === 1) {
                         const { batchCreateCategoryMapping, getCategories } = await import('./mapper-data.js');
-                        const { showToast } = await import('../../components/ui-toast.js');
-                        const { showConfirmModal } = await import('../../components/ui-modal-confirm.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
-                        const { getBatchBar } = await import('../../components/ui-batch-actions.js');
+                        const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 
                         const ownCat = getCategories().find(c => c.id === ownIds[0]);
                         const ownName = ownCat?.name_ua || ownIds[0];
@@ -197,7 +197,7 @@ function initMapperBatchActions() {
                     }
 
                     if (ownIds.length > 1) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть тільки одну власну категорію', 'warning');
                         return;
                     }
@@ -233,17 +233,17 @@ function initMapperBatchActions() {
                     });
 
                     if (mpIds.length === 0) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть MP характеристики для маппінгу', 'warning');
                         return;
                     }
 
                     if (ownIds.length === 1) {
                         const { batchCreateCharacteristicMapping, getCharacteristics } = await import('./mapper-data.js');
-                        const { showToast } = await import('../../components/ui-toast.js');
-                        const { showConfirmModal } = await import('../../components/ui-modal-confirm.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
-                        const { getBatchBar } = await import('../../components/ui-batch-actions.js');
+                        const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 
                         const ownChar = getCharacteristics().find(c => c.id === ownIds[0]);
                         const ownName = ownChar?.name_ua || ownIds[0];
@@ -269,7 +269,7 @@ function initMapperBatchActions() {
                     }
 
                     if (ownIds.length > 1) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть тільки одну власну характеристику', 'warning');
                         return;
                     }
@@ -314,17 +314,17 @@ function initMapperBatchActions() {
                     });
 
                     if (mpIds.length === 0) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть MP опції для маппінгу', 'warning');
                         return;
                     }
 
                     if (ownIds.length === 1) {
                         const { batchCreateOptionMapping, getOptions } = await import('./mapper-data.js');
-                        const { showToast } = await import('../../components/ui-toast.js');
-                        const { showConfirmModal } = await import('../../components/ui-modal-confirm.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
-                        const { getBatchBar } = await import('../../components/ui-batch-actions.js');
+                        const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 
                         const ownOpt = getOptions().find(o => o.id === ownIds[0]);
                         const ownName = ownOpt?.value_ua || ownIds[0];
@@ -350,7 +350,7 @@ function initMapperBatchActions() {
                     }
 
                     if (ownIds.length > 1) {
-                        const { showToast } = await import('../../components/ui-toast.js');
+                        const { showToast } = await import('../../components/feedback/toast.js');
                         showToast('Оберіть тільки одну власну опцію', 'warning');
                         return;
                     }

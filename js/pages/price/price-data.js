@@ -9,7 +9,7 @@
  * Використовує уніфікований api-client для всіх операцій.
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { PRICE_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { formatDate } from '../../utils/common-utils.js';

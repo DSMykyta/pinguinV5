@@ -16,7 +16,7 @@
  * - ui-modal.js (базові функції модалів)
  */
 
-import { showModal, closeModal } from './ui-modal.js';
+import { showModal, closeModal } from './modal-main.js';
 
 /**
  * Ініціалізує глобальні слухачі подій для модальних вікон

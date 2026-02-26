@@ -1,6 +1,6 @@
 // js/main-glossary.js
 import { initCore } from './main-core.js';
-import { initGlossaryPage } from './pages/glossary/glossary-init.js';
+import { initGlossaryPage } from './pages/glossary/glossary-main.js';
 
 
 async function initializeApp() {

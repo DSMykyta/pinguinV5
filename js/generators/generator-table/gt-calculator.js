@@ -15,7 +15,7 @@
 
 import { getTableDOM } from './gt-dom.js';
 import { NUTRITION_PATTERNS, SELECTORS } from './gt-config.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { markPluginLoaded } from './gt-state.js';
 
 export const PLUGIN_NAME = 'gt-calculator';

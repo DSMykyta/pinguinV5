@@ -1,6 +1,6 @@
 // js/common/table/table-filters.js
 
-import { positionPanel } from '../ui-dropdown.js';
+import { positionPanel } from '../forms/dropdown.js';
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

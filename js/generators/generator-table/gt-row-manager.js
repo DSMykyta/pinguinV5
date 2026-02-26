@@ -11,7 +11,7 @@
 
 // js/generators/generator-table/gt-row-manager.js
 
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 import { getTableDOM } from './gt-dom.js';
 import { renderNewRow } from './gt-row-renderer.js';
 import { resetRowCounter } from './gt-state.js';

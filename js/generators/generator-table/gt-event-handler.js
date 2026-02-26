@@ -15,7 +15,7 @@
 import { getTableDOM } from './gt-dom.js';
 import { createAndAppendRow, initializeEmptyRow } from './gt-row-manager.js';
 import { getNutritionFacts, getVitamins, getAminoAcids } from './gt-data-provider.js';
-import { closeModal } from '../../components/ui-modal.js';
+import { closeModal } from '../../components/modal/modal-main.js';
 import { calculatePercentages, checkForEmptyNutritionFacts, markEssentialAminoAcids } from './gt-calculator.js';
 import { generateHtmlTable } from './gt-html-builder.js';
 import { generateBrText } from './gt-br-builder.js';

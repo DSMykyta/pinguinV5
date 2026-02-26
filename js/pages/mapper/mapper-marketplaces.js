@@ -41,9 +41,9 @@ import {
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
@@ -51,7 +51,7 @@ import { initPaginationCharm } from '../../components/charms/pagination/paginati
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../../utils/api-client.js';
-import { createBatchActionsBar, getBatchBar } from '../../components/ui-batch-actions.js';
+import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
 

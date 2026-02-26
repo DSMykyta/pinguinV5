@@ -12,7 +12,7 @@ import { brandsState } from './brands-state.js';
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { renderBrandsTable } from './brands-table.js';
 import { loadBrands, getBrands } from './brands-data.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 /**
  * Ініціалізувати всі обробники подій

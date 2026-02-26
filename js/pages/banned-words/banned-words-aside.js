@@ -12,8 +12,8 @@
  * - Обробників для табу управління (пошук, додавання, оновлення)
  */
 
-import { bannedWordsState } from './banned-words-init.js';
-import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
+import { bannedWordsState } from './banned-words-state.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { populateCheckSelects } from './banned-words-ui.js';
 import { withSpinner } from '../../components/charms/charm-refresh.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
@@ -275,7 +275,7 @@ export function initRefreshButton() {
     if (!button) return;
 
     button.addEventListener('click', () => withSpinner(button, async () => {
-        const { clearAllCheckCache } = await import('./banned-words-init.js');
+        const { clearAllCheckCache } = await import('./banned-words-state.js');
         clearAllCheckCache();
 
         const { loadBannedWords } = await import('./banned-words-data.js');

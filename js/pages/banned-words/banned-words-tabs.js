@@ -12,7 +12,7 @@
  * - Закриття табів з підтвердженням
  */
 
-import { bannedWordsState } from './banned-words-init.js';
+import { bannedWordsState } from './banned-words-state.js';
 import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
@@ -169,7 +169,7 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
                 const savedWords = JSON.parse(tabButton.dataset.checkWords || '[]');
                 const savedColumns = JSON.parse(tabButton.dataset.checkColumns || '[]');
 
-                const { invalidateCheckCache } = await import('./banned-words-init.js');
+                const { invalidateCheckCache } = await import('./banned-words-state.js');
                 const sheetsKey = [...savedSheets].sort().join('-');
                 const columnsKey = [...savedColumns].sort().join('-');
                 const wordsKey = [...savedWords].sort().join('-');
@@ -256,7 +256,7 @@ export function initTabHandlers() {
 
         try {
             // Використовуємо showConfirmModal з ui-modal-confirm.js
-            const { showConfirmModal } = await import('../../components/ui-modal-confirm.js');
+            const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
             const confirmed = await showConfirmModal({
                 title: 'Закрити таб?',
                 message: 'Всі незбережені дані будуть втрачені. Продовжити?',

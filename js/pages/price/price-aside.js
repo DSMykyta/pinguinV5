@@ -9,8 +9,8 @@
  */
 
 import { registerAsideInitializer } from '../../layout/layout-main.js';
-import { showToast } from '../../components/ui-toast.js';
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 
 registerAsideInitializer('aside-price', () => {
     initAsideEvents();

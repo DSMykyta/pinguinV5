@@ -14,9 +14,9 @@
 import { tasksState } from './tasks-state.js';
 import { addTask, updateTask, deleteTask, getTaskById, getUsers } from './tasks-data.js';
 import { runHook, registerTasksPlugin, registerOptionalFunction } from './tasks-plugins.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { initCustomSelects, populateSelect } from '../../components/ui-select.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { initCustomSelects, populateSelect } from '../../components/forms/select.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 // Екземпляр редактора опису

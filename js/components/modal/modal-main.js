@@ -27,8 +27,8 @@
  */
 
 import { initTabs } from '../layout/layout-nav-tabs.js';
-import { initDropdowns } from './ui-dropdown.js';
-import { showToast } from './ui-toast.js';
+import { initDropdowns } from '../forms/dropdown.js';
+import { showToast } from '../feedback/toast.js';
 
 // Кеш завантажених шаблонів
 const modalTemplateCache = new Map();

@@ -47,7 +47,7 @@ export function init(state) {
 
     async function loadBannedWordsData() {
         try {
-            const { bannedWordsState } = await import('../../pages/banned-words/banned-words-init.js');
+            const { bannedWordsState } = await import('../../pages/banned-words/banned-words-state.js');
             const { loadBannedWords } = await import('../../pages/banned-words/banned-words-data.js');
             await loadBannedWords();
 

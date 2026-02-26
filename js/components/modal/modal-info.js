@@ -13,7 +13,7 @@
  * з id (наприклад section-table, tab-brands тощо)
  */
 
-import { showModal, closeModal } from './ui-modal.js';
+import { showModal, closeModal } from './modal-main.js';
 
 // Кеш завантажених даних
 let sectionInfoCache = null;

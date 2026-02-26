@@ -1,10 +1,10 @@
 // js/banned-words/banned-words-product-modal.js
 // Модальне вікно для перегляду повного тексту товару з підсвіченими забороненими словами
 
-import { bannedWordsState, invalidateCheckCache } from './banned-words-init.js';
+import { bannedWordsState, invalidateCheckCache } from './banned-words-state.js';
 import { loadProductFullData, updateProductStatus } from './banned-words-data.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 // Поточні дані модалу

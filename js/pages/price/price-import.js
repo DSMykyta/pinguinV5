@@ -8,10 +8,10 @@
  * Імпорт даних з XLSX файлу з підтримкою drag-drop.
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { importDataToSheet } from './price-data.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 let importInitialized = false;
 

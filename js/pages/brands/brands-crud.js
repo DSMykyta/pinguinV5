@@ -20,16 +20,16 @@ import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './brands-data.js';
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
+} from '../../components/actions/actions-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';

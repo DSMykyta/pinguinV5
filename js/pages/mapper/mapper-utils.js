@@ -9,8 +9,8 @@
  */
 
 import { escapeHtml } from '../../utils/text-utils.js';
-import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
 
 /**
  * Ініціалізувати scroll-snap навігацію для fullscreen модалок

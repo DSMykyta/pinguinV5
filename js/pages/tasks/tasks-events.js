@@ -13,7 +13,7 @@
 import { tasksState } from './tasks-state.js';
 import { loadTasks } from './tasks-data.js';
 import { registerTasksPlugin, runHook } from './tasks-plugins.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { withSpinner } from '../../components/charms/charm-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

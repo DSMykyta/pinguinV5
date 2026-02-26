@@ -1,13 +1,13 @@
 // js/main-core.js
 
 import { initLayout }           from './layout/layout-main.js';
-import { initDropdowns }        from './components/ui-dropdown.js';
-import { initModals }           from './components/ui-modal-init.js';
+import { initDropdowns }        from './components/forms/dropdown.js';
+import { initModals }           from './components/modal/modal-init.js';
 import { initAvatarSystem }     from './components/avatar/avatar-main.js';
 import { initEventHandlers }    from './utils/event-handlers.js';
 import { initCustomAuth }       from './auth/auth-google.js';
-import { initTooltips }         from './components/ui-tooltip.js';
-import { initInfoButtons }      from './components/ui-info-modal.js';
+import { initTooltips }         from './components/feedback/tooltip.js';
+import { initInfoButtons }      from './components/modal/modal-info.js';
 import { initTheme }            from './components/ui-theme.js';
 import { initSearchClearCharm } from './components/charms/charm-search-clear.js';
 import { initFilterPillsCharm } from './components/charms/charm-filter-pills.js';

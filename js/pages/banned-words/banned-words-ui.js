@@ -12,8 +12,8 @@
  * - Управління фільтрами
  */
 
-import { bannedWordsState } from './banned-words-init.js';
-import { populateSelect } from '../../components/ui-select.js';
+import { bannedWordsState } from './banned-words-state.js';
+import { populateSelect } from '../../components/forms/select.js';
 
 /**
  * Показати controls для вибраного табу

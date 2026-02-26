@@ -9,7 +9,7 @@
  */
 
 import { debounce } from '../../utils/common-utils.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 /**
  * Копіює переданий текст у буфер обміну.

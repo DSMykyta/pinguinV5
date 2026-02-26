@@ -23,7 +23,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { registerImportAdapter } from './mapper-import.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -176,7 +176,7 @@ const epicentrAdapter = {
         fileGroup.insertAdjacentElement('beforebegin', categoryUI);
 
         // Ініціалізуємо custom select
-        const { initCustomSelects } = await import('../../components/ui-select.js');
+        const { initCustomSelects } = await import('../../components/forms/select.js');
         initCustomSelects(categoryUI);
     },
 

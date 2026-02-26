@@ -2,15 +2,15 @@
 // Вибіркова перевірка текстів на заборонені слова
 // Таблиця результатів — через createManagedTable
 
-import { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalidateCheckCache } from './banned-words-init.js';
+import { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalidateCheckCache } from './banned-words-state.js';
 import { loadSheetDataForCheck, checkTextForBannedWords, updateProductStatus } from './banned-words-data.js';
-import { showLoader, showErrorDetails } from '../../components/ui-loading.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showLoader, showErrorDetails } from '../../components/feedback/loading.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
-import { registerActionHandlers, initActionHandlers, actionButton} from '../../components/ui-actions.js';
+import { registerActionHandlers, initActionHandlers, actionButton} from '../../components/actions/actions-main.js';
 
 // AbortController для скасування завантаження
 let currentAbortController = null;

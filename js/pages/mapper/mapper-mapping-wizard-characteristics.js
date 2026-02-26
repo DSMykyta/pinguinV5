@@ -16,8 +16,8 @@ import {
     getCharacteristics, getMpCharacteristics,
     createCharacteristicMapping, isMpCharacteristicMapped
 } from './mapper-data.js';
-import { showModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { renderCurrentTab } from './mapper-table.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 

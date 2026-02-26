@@ -1,19 +1,19 @@
 // js/banned-words/banned-words-manage.js
 // Управління словником заборонених слів - таблиця і CRUD операції
 
-import { bannedWordsState } from './banned-words-init.js';
+import { bannedWordsState } from './banned-words-state.js';
 import { generateNextId } from '../../utils/common-utils.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { initCustomSelects } from '../../components/ui-select.js';
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { initCustomSelects } from '../../components/forms/select.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
-import { showToast } from '../../components/ui-toast.js';
+} from '../../components/actions/actions-main.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -438,13 +438,13 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
         closeModal();
 
         // Показати toast повідомлення
-        const { showToast } = await import('../../components/ui-toast.js');
+        const { showToast } = await import('../../components/feedback/toast.js');
         showToast(isEdit ? 'Заборонене слово оновлено' : 'Заборонене слово додано', 'success');
 
 
     } catch (error) {
         console.error('❌ Помилка збереження:', error);
-        const { showToast } = await import('../../components/ui-toast.js');
+        const { showToast } = await import('../../components/feedback/toast.js');
         showToast('Помилка при збереженні: ' + error.message, 'error');
     }
 }

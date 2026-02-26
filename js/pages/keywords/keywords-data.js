@@ -9,7 +9,7 @@
  * Використовує уніфікований api-client для всіх операцій
  */
 
-import { keywordsState } from './keywords-init.js';
+import { keywordsState } from './keywords-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 import { generateNextId } from '../../utils/common-utils.js';

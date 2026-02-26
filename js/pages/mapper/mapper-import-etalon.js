@@ -22,8 +22,8 @@ import {
     addCategory, addCharacteristic, addOption,
     updateCharacteristic
 } from './mapper-data.js';
-import { showToast } from '../../components/ui-toast.js';
-import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HTML PARSER

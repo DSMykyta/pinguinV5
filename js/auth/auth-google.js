@@ -4,7 +4,7 @@
  * Сайт працює БЕЗ авторизації, авторизація тільки для доступу до Google Sheets
  */
 
-import { showModal, closeModal } from '../components/ui-modal.js';
+import { showModal, closeModal } from '../components/modal/modal-main.js';
 import { getAvatarPath } from '../components/avatar/avatar-user.js';
 import { renderAvatarState, getAvatarState } from '../components/avatar/avatar-ui-states.js';
 

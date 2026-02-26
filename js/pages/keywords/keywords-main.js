@@ -10,23 +10,12 @@ import { loadKeywords } from './keywords-data.js';
 import { renderKeywordsTable } from './keywords-table.js';
 import { initKeywordsEvents } from './keywords-events.js';
 import { showAddKeywordModal } from './keywords-crud.js';
-import { initTooltips } from '../../components/ui-tooltip.js';
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { initTooltips } from '../../components/feedback/tooltip.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
-export const keywordsState = {
-    keywords: [],
-    _dataLoaded: false,      // Прапорець: дані завантажено
-    searchQuery: '',
-    searchColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
-    visibleColumns: ['local_id', 'name_uk', 'trigers', 'keywords_ua'],
-    paramTypeFilter: 'all',
-    columnFilters: {},       // Фільтри по колонках { columnId: ['value1', 'value2'] }
-    sortKey: null,
-    sortOrder: 'asc',
-    sortAPI: null
-};
+export { keywordsState } from './keywords-state.js';
 
 export function initKeywords() {
 

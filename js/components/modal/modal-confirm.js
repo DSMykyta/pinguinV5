@@ -23,8 +23,8 @@
  * - avatar/avatar-ui-states.js (рендеринг аватарів)
  */
 
-import { showModal, closeModal } from './ui-modal.js';
-import { renderAvatarState } from './avatar/avatar-ui-states.js';
+import { showModal, closeModal } from './modal-main.js';
+import { renderAvatarState } from '../avatar/avatar-ui-states.js';
 
 /**
  * Типи кнопок з відповідними станами аватарів

@@ -224,7 +224,7 @@ async function showError(message) {
   console.error('API Error:', message);
 
   try {
-    const { showToast } = await import('../components/ui-toast.js');
+    const { showToast } = await import('../components/feedback/toast.js');
     showToast(message, 'error');
   } catch {
     alert(message);

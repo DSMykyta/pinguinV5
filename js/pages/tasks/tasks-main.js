@@ -24,7 +24,7 @@
 import { tasksState } from './tasks-state.js';
 import { loadTasks, loadUsers } from './tasks-data.js';
 import { runHook, runHookAsync } from './tasks-plugins.js';
-import { initTooltips } from '../../components/ui-tooltip.js';
+import { initTooltips } from '../../components/feedback/tooltip.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { getCurrentUserAvatar } from '../../components/avatar/avatar-state.js';
 import { AVATAR_HD_PATH, DEFAULT_ANIMAL, AVATAR_SIZES } from '../../components/avatar/avatar-config.js';

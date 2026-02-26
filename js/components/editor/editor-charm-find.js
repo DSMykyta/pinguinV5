@@ -96,6 +96,6 @@ function clearHighlights(state) {
 
 function showMessage(text) {
     // Спробувати використати toast якщо доступний
-    import('../ui-toast.js')
+    import('../feedback/toast.js')
         .then(module => module.showToast(text, 'success'))
 }

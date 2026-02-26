@@ -8,9 +8,9 @@
 
 import { addKeyword, updateKeyword, deleteKeyword, getKeywords } from './keywords-data.js';
 import { renderKeywordsTable } from './keywords-table.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
@@ -253,7 +253,7 @@ async function fillKeywordForm(keyword) {
 
     // Встановити тип параметра і оновити селект
     const paramTypeSelect = document.getElementById('keyword-param-type-select');
-    const { reinitializeCustomSelect } = await import('../../components/ui-select.js');
+    const { reinitializeCustomSelect } = await import('../../components/forms/select.js');
 
     if (paramTypeSelect && keyword.param_type) {
         paramTypeSelect.value = keyword.param_type;
@@ -371,7 +371,7 @@ async function loadEntitiesForType(type) {
     const entitySelect = document.getElementById('keyword-entity-id');
     if (!entitySelect) return;
 
-    const { reinitializeCustomSelect } = await import('../../components/ui-select.js');
+    const { reinitializeCustomSelect } = await import('../../components/forms/select.js');
 
     // Очистити попередні опції
     entitySelect.innerHTML = '';
@@ -442,7 +442,7 @@ async function loadEntitiesForType(type) {
  * Ініціалізувати всі кастомні селекти в модальному вікні
  */
 async function initModalSelects() {
-    const { reinitializeCustomSelect } = await import('../../components/ui-select.js');
+    const { reinitializeCustomSelect } = await import('../../components/forms/select.js');
 
     // Ініціалізувати селект типу параметра
     const paramTypeSelect = document.getElementById('keyword-param-type-select');

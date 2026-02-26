@@ -8,7 +8,7 @@
  * Використовує createManagedTable для таблиці + пошуку + колонок.
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';

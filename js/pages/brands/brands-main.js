@@ -56,8 +56,8 @@ import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
-import { initTooltips } from '../../components/ui-tooltip.js';
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { initTooltips } from '../../components/feedback/tooltip.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 

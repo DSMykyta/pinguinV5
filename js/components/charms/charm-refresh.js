@@ -24,7 +24,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showResetConfirm } from '../ui-modal-confirm.js';
+import { showResetConfirm } from '../modal/modal-confirm.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHARM DISCOVERY

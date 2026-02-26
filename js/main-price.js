@@ -2,7 +2,7 @@
 // Запускач для сторінки price.html
 
 import { initCore } from './main-core.js';
-import { initPrice } from './pages/price/price-init.js';
+import { initPrice } from './pages/price/price-main.js';
 
 // Ініціалізація при завантаженні DOM
 document.addEventListener('DOMContentLoaded', async () => {

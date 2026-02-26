@@ -9,13 +9,13 @@
  */
 
 import { getKeywords } from './keywords-data.js';
-import { keywordsState } from './keywords-init.js';
+import { keywordsState } from './keywords-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
+} from '../../components/actions/actions-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ

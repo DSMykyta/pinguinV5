@@ -9,10 +9,10 @@
  * Пошук, колонки, сортування, column filters — через createManagedTable (price-table.js).
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { updateItemStatus, updateItemArticle } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 let eventsInitialized = false;
 

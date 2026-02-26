@@ -37,12 +37,12 @@ import {
     batchCreateCharacteristicMapping, batchCreateOptionMapping, batchCreateCategoryMapping,
     autoMapCharacteristics, autoMapOptions
 } from './mapper-data.js';
-import { getBatchBar } from '../../components/ui-batch-actions.js';
+import { getBatchBar } from '../../components/actions/actions-batch.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showLoader, hideLoader } from '../../components/ui-loading.js';
-import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showLoader, hideLoader } from '../../components/feedback/loading.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 export const PLUGIN_NAME = 'mapper-import';

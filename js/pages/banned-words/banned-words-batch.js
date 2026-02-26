@@ -1,10 +1,10 @@
 // js/banned-words/banned-words-batch.js
 // Масові операції для banned words (використовує універсальний ui-batch-actions.js)
 
-import { bannedWordsState, invalidateCheckCache } from './banned-words-init.js';
+import { bannedWordsState, invalidateCheckCache } from './banned-words-state.js';
 import { TEXTS_SPREADSHEET_ID, BANNED_SPREADSHEET_ID } from './banned-words-data.js';
-import { showToast } from '../../components/ui-toast.js';
-import { createBatchActionsBar, getBatchBar } from '../../components/ui-batch-actions.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 import { batchUpdate } from '../../utils/google-sheets-batch.js';
 
 /**

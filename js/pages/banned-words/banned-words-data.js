@@ -9,7 +9,7 @@
  * Використовує уніфікований api-client для всіх операцій
  */
 
-import { bannedWordsState } from './banned-words-init.js';
+import { bannedWordsState } from './banned-words-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 import { checkTextForBannedWords as checkText, getTextFragment as getFragment } from '../../utils/text-utils.js';
 import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID as BANNED_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';

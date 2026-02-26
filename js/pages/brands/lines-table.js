@@ -17,7 +17,7 @@ import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
+} from '../../components/actions/actions-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ

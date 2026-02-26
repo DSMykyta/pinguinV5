@@ -5,10 +5,10 @@
  * Структура: Header (title + reserve dropdown + save + close), Body (2 columns), Footer (code + date)
  */
 
-import { priceState } from './price-init.js';
+import { priceState } from './price-state.js';
 import { updateItemStatus, updateItemArticle, reserveItem } from './price-data.js';
-import { showToast } from '../../components/ui-toast.js';
-import { initDropdowns } from '../../components/ui-dropdown.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { initDropdowns } from '../../components/forms/dropdown.js';
 import { renderAvatar, getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../../components/avatar/avatar-text.js';
 

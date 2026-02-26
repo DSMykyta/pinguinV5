@@ -13,7 +13,7 @@
  */
 
 import { sanitizeHtml, sanitizeEditor, escapeHtml } from './editor-utils.js';
-import { showToast } from '../ui-toast.js';
+import { showToast } from '../feedback/toast.js';
 
 export function init(state) {
     const { dom } = state;

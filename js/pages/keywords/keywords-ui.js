@@ -9,7 +9,7 @@
  * Тут залишається тільки initParamTypeFilters.
  */
 
-import { keywordsState } from './keywords-init.js';
+import { keywordsState } from './keywords-state.js';
 import { renderKeywordsTableRowsOnly } from './keywords-table.js';
 
 // Column selectors тепер в createManagedTable (keywords-table.js)

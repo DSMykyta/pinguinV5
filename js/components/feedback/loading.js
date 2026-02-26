@@ -11,7 +11,7 @@
  * - Progress bar (прогрес-бар з відсотками)
  */
 
-import { showToast } from './ui-toast.js';
+import { showToast } from './toast.js';
 
 /**
  * Показати loader в контейнері

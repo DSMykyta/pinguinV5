@@ -33,11 +33,11 @@ import {
     getMapCategories, getCategoryDependencies
 } from './mapper-data.js';
 import { renderCurrentTab } from './mapper-table.js';
-import { showModal, closeModal } from '../../components/ui-modal.js';
-import { showToast } from '../../components/ui-toast.js';
-import { showConfirmModal } from '../../components/ui-modal-confirm.js';
-import { initCustomSelects, reinitializeCustomSelect } from '../../components/ui-select.js';
-import { getBatchBar } from '../../components/ui-batch-actions.js';
+import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showToast } from '../../components/feedback/toast.js';
+import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { getBatchBar } from '../../components/actions/actions-batch.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import {
@@ -59,7 +59,7 @@ import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
-} from '../../components/ui-actions.js';
+} from '../../components/actions/actions-main.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
 

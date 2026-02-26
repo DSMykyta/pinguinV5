@@ -16,7 +16,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showToast } from '../../components/ui-toast.js';
+import { showToast } from '../../components/feedback/toast.js';
 import { registerImportAdapter } from './mapper-import.js';
 
 /**

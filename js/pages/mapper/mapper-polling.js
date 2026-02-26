@@ -5,7 +5,7 @@
  * Полить 3 маппінг-листи кожні 20с.
  */
 
-import { createPolling } from '../../components/polling.js';
+import { createPolling } from '../../utils/polling.js';
 import { mapperState } from './mapper-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
 

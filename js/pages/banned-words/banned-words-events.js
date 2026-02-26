@@ -1,7 +1,7 @@
 // js/banned-words/banned-words-events.js
 // Обробники подій для Banned Words
 
-import { bannedWordsState } from './banned-words-init.js';
+import { bannedWordsState } from './banned-words-state.js';
 
 /**
  * Ініціалізація всіх обробників подій
