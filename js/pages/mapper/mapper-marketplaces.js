@@ -50,6 +50,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { validateRequired } from '../../components/charms/charm-required.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 
@@ -299,18 +300,10 @@ async function showDeleteMarketplaceConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewMarketplace() {
+    const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
+    if (!validateRequired(modal)) return;
+
     const data = getMarketplaceFormData();
-
-    if (!data.name) {
-        showToast('Введіть назву маркетплейсу', 'error');
-        return;
-    }
-
-    if (!data.slug) {
-        showToast('Введіть slug маркетплейсу', 'error');
-        return;
-    }
-
     try {
         await addMarketplace(data);
         showToast('Маркетплейс додано', 'success');
@@ -322,13 +315,10 @@ async function handleSaveNewMarketplace() {
 }
 
 async function handleUpdateMarketplace(id) {
+    const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
+    if (!validateRequired(modal)) return;
+
     const data = getMarketplaceFormData();
-
-    if (!data.name) {
-        showToast('Введіть назву маркетплейсу', 'error');
-        return;
-    }
-
     try {
         await updateMarketplace(id, data);
         showToast('Маркетплейс оновлено', 'success');

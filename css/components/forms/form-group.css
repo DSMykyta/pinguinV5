@@ -27,10 +27,9 @@
  * - .group.column — вертикальний (flex column, gap 4px, margin-bottom 12px)
  * - .label-l — верхній label (13px, типографія)
  * - .label-s — підказка під полем (11px, типографія)
- * - .required - зірочка для обов'язкових полів
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-on-surface, --color-on-surface-v, --color-error)
+ * - root.css (--color-on-surface, --color-on-surface-v)
  */
 
 /* --- Base --- */
@@ -60,10 +59,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.group.column .required {
-    color: var(--color-error);
 }
 
 .group.column .custom-select-wrapper {

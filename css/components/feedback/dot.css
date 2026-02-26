@@ -6,6 +6,11 @@
     background-color: var(--color-on-surface-v);
 }
 
+.dot.small {
+    width: 6px;
+    height: 6px;
+}
+
 .dot:hover {
     filter: brightness(0.85);
 }

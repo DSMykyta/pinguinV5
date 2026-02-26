@@ -182,6 +182,15 @@
     display: none !important;
 }
 
+/* Error стан */
+.custom-select-wrapper[error] .custom-select-trigger {
+    border-color: var(--color-error);
+}
+
+.custom-select-wrapper[error].open .custom-select-trigger {
+    box-shadow: 0 0 0 1px var(--color-error);
+}
+
 /* Disabled state */
 .custom-select-wrapper.disabled .custom-select-trigger {
     opacity: 0.5;

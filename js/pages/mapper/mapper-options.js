@@ -55,6 +55,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -246,18 +247,10 @@ async function showDeleteOptionConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewOption() {
+    const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getOptionFormData();
-
-    if (!data.value_ua) {
-        showToast('Введіть значення опції', 'error');
-        return;
-    }
-
-    if (!data.characteristic_id) {
-        showToast('Оберіть характеристику', 'error');
-        return;
-    }
-
     try {
         await addOption(data);
         showToast('Опцію додано', 'success');
@@ -269,13 +262,10 @@ async function handleSaveNewOption() {
 }
 
 async function handleUpdateOption(id) {
+    const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getOptionFormData();
-
-    if (!data.value_ua) {
-        showToast('Введіть значення опції', 'error');
-        return;
-    }
-
     try {
         await updateOption(id, data);
         showToast('Опцію оновлено', 'success');

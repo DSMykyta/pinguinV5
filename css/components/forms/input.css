@@ -68,9 +68,24 @@ input::placeholder {
     border-color: transparent;
 }
 
+/* Всередині content-bloc — фокус керується контейнером */
+.content-bloc .input-main:focus {
+    outline: none;
+    border-color: transparent;
+}
+
 .input-short {
     flex: none;
     width: auto;
+}
+
+/* Error стан */
+.input-main[error] {
+    border-color: var(--color-error);
+}
+
+.input-main[error]:focus {
+    outline-color: var(--color-error);
 }
 
 .input-main:disabled {

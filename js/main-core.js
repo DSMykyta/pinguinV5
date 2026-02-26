@@ -10,10 +10,10 @@ import { initTooltips }         from './components/feedback/tooltip.js';
 import { initInfoButtons }      from './components/modal/modal-info.js';
 import { initTheme }            from './components/ui-theme.js';
 import { initSearchClearCharm } from './components/charms/charm-search-clear.js';
-import { initFilterPillsCharm } from './components/charms/charm-filter-pills.js';
 import { initMorphSearchCharm } from './components/charms/charm-morph-search.js';
 import { initRefreshCharm }     from './components/charms/charm-refresh.js';
 import { initColumnsCharm }     from './components/charms/charm-columns.js';
+import { initRequiredCharm }   from './components/charms/charm-required.js';
 import { initPaginationCharm }  from './components/charms/pagination/pagination-main.js';
 
 
@@ -32,9 +32,9 @@ export async function initCore() {
     initTooltips();
     initInfoButtons();
     initSearchClearCharm();
-    initFilterPillsCharm();
     initMorphSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
+    initRequiredCharm();
     initPaginationCharm();
 }

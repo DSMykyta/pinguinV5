@@ -55,6 +55,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -247,13 +248,10 @@ async function showDeleteCategoryConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewCategory() {
+    const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getCategoryFormData();
-
-    if (!data.name_ua) {
-        showToast('Введіть назву категорії', 'error');
-        return;
-    }
-
     try {
         await addCategory(data);
         showToast('Категорію додано', 'success');
@@ -265,13 +263,10 @@ async function handleSaveNewCategory() {
 }
 
 async function handleUpdateCategory(id) {
+    const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getCategoryFormData();
-
-    if (!data.name_ua) {
-        showToast('Введіть назву категорії', 'error');
-        return;
-    }
-
     try {
         await updateCategory(id, data);
         showToast('Категорію оновлено', 'success');

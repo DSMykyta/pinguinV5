@@ -59,6 +59,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -256,13 +257,10 @@ async function showDeleteCharacteristicConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewCharacteristic() {
+    const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getCharacteristicFormData();
-
-    if (!data.name_ua) {
-        showToast('Введіть назву характеристики', 'error');
-        return;
-    }
-
     try {
         await addCharacteristic(data);
         showToast('Характеристику додано', 'success');
@@ -274,13 +272,10 @@ async function handleSaveNewCharacteristic() {
 }
 
 async function handleUpdateCharacteristic(id) {
+    const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
+    if (!validateRequired(modal)) return;
+
     const data = getCharacteristicFormData();
-
-    if (!data.name_ua) {
-        showToast('Введіть назву характеристики', 'error');
-        return;
-    }
-
     try {
         await updateCharacteristic(id, data);
         showToast('Характеристику оновлено', 'success');
