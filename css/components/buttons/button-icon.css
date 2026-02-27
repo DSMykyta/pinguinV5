@@ -173,14 +173,6 @@
 }
 
 
-/* Чарм: danger — hover червоним для деструктивних дій */
-.btn-icon.danger:hover {
-    background-color: var(--color-error-c);
-    color: var(--color-error);
-    border-color: transparent;
-    box-shadow: none;
-}
-
 
 /* Чарм: expand — розкриття label тексту на hover */
 .btn-icon.expand {

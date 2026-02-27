@@ -77,3 +77,18 @@
     background-color: var(--color-info-c);
     backdrop-filter: var(--blur-s);
 }
+
+/* === INTERACTIVE === */
+
+.danger {
+    color: var(--color-error);
+    fill: var(--color-error);
+    background-color: var(--color-error-c);
+    backdrop-filter: var(--blur-s);
+}
+
+.danger:hover {
+    color: var(--color-on-error);
+    fill: var(--color-on-error);
+    background-color: var(--color-error);
+}
