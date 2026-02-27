@@ -17,6 +17,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { getOptions } from '../mapper/mapper-data-own.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -111,9 +112,15 @@ function initBrandsTable() {
 
         dataTransform: (data) => {
             const lines = brandsState.brandLines || [];
+            // Маппінг opt-ID → value_ua для країн
+            const options = getOptions();
+            const optMap = {};
+            options.forEach(o => { optMap[o.id] = o.value_ua || o.id; });
+
             return data.map(b => {
                 const count = lines.filter(l => l.brand_id === b.brand_id).length;
-                return { ...b, bindings: { count, tooltip: `Лінійок: ${count}` } };
+                const country = optMap[b.country_option_id] || b.country_option_id;
+                return { ...b, country_option_id: country, bindings: { count, tooltip: `Лінійок: ${count}` } };
             });
         },
         preFilter: null,

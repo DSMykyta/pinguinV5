@@ -31,6 +31,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
+import { getOptions, loadOptions } from '../mapper/mapper-data-own.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
@@ -162,6 +163,49 @@ function initModalComponents() {
     initSaveHandler();
     initSectionNavigation();
     initBrandStatusToggle();
+    populateCountrySelect();
+}
+
+/**
+ * Заповнити select країни опціями з char-000002 (Країна реєстрації бренду)
+ */
+async function populateCountrySelect() {
+    const select = document.getElementById('brand-country');
+    if (!select) return;
+
+    const COUNTRY_CHAR_ID = 'char-000002';
+
+    try {
+        // Lazy load — якщо маппер ще не завантажував опції
+        if (getOptions().length === 0) await loadOptions();
+
+        const options = getOptions().filter(o => o.characteristic_id === COUNTRY_CHAR_ID);
+
+        // Сортуємо за sort_order, потім за назвою
+        options.sort((a, b) => {
+            const orderDiff = (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0);
+            if (orderDiff !== 0) return orderDiff;
+            return (a.value_ua || '').localeCompare(b.value_ua || '', 'uk');
+        });
+
+        // Зберегти поточне значення (якщо форма вже заповнена)
+        const current = select.value;
+
+        // Очистити і додати порожній варіант
+        select.innerHTML = '<option value="">— Оберіть країну —</option>';
+
+        options.forEach(opt => {
+            const el = document.createElement('option');
+            el.value = opt.id;
+            el.textContent = opt.value_ua || opt.id;
+            select.appendChild(el);
+        });
+
+        // Відновити вибір
+        if (current) select.value = current;
+    } catch (e) {
+        console.warn('⚠️ Не вдалось завантажити опції країн:', e);
+    }
 }
 
 function initBrandStatusToggle() {
