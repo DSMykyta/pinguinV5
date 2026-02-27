@@ -5,6 +5,10 @@
  * Слухає charm:refresh на секції (кнопка створюється charm-refresh.js).
  */
 
+export function init() {
+    initTranslateReset();
+}
+
 export function initTranslateReset() {
     const section = document.getElementById('section-translate');
     const iframeContainer = section?.querySelector('.section-content');

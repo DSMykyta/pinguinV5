@@ -84,8 +84,9 @@ async function loadPlugins() {
     );
 
     results.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-        } else {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(brandsState);
+        } else if (result.status === 'rejected') {
             console.warn(`[Brands] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
         }
     });

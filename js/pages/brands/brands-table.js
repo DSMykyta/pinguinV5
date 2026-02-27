@@ -158,12 +158,14 @@ export function resetTableAPI() {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerBrandsPlugin('onInit', () => {
-    renderBrandsTable();
-});
+export function init(state) {
+    registerBrandsPlugin('onInit', () => {
+        renderBrandsTable();
+    });
 
-registerBrandsPlugin('onRender', () => {
-    if (brandsState.activeTab === 'brands' && brandsState.brandsManagedTable) {
-        brandsState.brandsManagedTable.refilter();
-    }
-});
+    registerBrandsPlugin('onRender', () => {
+        if (brandsState.activeTab === 'brands' && brandsState.brandsManagedTable) {
+            brandsState.brandsManagedTable.refilter();
+        }
+    });
+}

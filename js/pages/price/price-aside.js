@@ -17,6 +17,9 @@ registerAsideInitializer('aside-price', () => {
     initDropdowns();
 });
 
+/** Plugin init (no-op — registerAsideInitializer працює на рівні модуля) */
+export function init(state) { }
+
 /**
  * Ініціалізувати події aside панелі
  * Пошук тепер керується через createManagedTable (price-table.js)

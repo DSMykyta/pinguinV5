@@ -441,3 +441,6 @@ if (!formData.group_name_ua || !formData.name_uk || !formData.name_ru) {
     }
 }
 
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }
+

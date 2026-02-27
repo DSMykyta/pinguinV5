@@ -61,8 +61,10 @@ function initRefreshHandlers() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Реєструємо на хук onInit — ініціалізуємо обробники подій
-registerBrandsPlugin('onInit', () => {
-    initBrandsEvents();
-    // Сортування/фільтри тепер через Table LEGO плагіни (brands-table.js, lines-table.js)
-});
+export function init(state) {
+    registerBrandsPlugin('onInit', () => {
+        initBrandsEvents();
+        // Сортування/фільтри тепер через Table LEGO плагіни (brands-table.js, lines-table.js)
+    });
+}
 

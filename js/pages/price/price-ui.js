@@ -12,6 +12,9 @@ import { priceState } from './price-state.js';
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../../components/avatar/avatar-text.js';
 
+/** Plugin init */
+export function init(state) { }
+
 // Column selectors тепер в createManagedTable (price-table.js)
 export function populateSearchColumns() {}
 export function populateTableColumns() {}

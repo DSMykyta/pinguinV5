@@ -91,6 +91,7 @@ function initTriggers() {
     renderTriggerButtons();
 }
 
-// Самореєстрація плагіна
-registerSeoPlugin('onInit', initTriggers);
-registerSeoPlugin('onReset', renderTriggerButtons);
+export function init(context) {
+    registerSeoPlugin('onInit', initTriggers);
+    registerSeoPlugin('onReset', renderTriggerButtons);
+}

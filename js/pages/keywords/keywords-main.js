@@ -14,12 +14,37 @@ import { initTooltips } from '../../components/feedback/tooltip.js';
 import { initDropdowns } from '../../components/forms/dropdown.js';
 import { registerAsideInitializer } from '../../layout/layout-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
+import { keywordsState } from './keywords-state.js';
 
 export { keywordsState } from './keywords-state.js';
 
-export function initKeywords() {
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGO PLUGINS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PLUGINS = [
+    './keywords-table.js',
+    './keywords-events.js',
+    './keywords-crud.js',
+];
+
+async function loadPlugins(state) {
+    const results = await Promise.allSettled(
+        PLUGINS.map(path => import(path))
+    );
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(state);
+        } else if (result.status === 'rejected') {
+            console.warn(`[Keywords] Plugin failed: ${PLUGINS[index]}`);
+        }
+    });
+}
+
+export async function initKeywords() {
 
     initTooltips();
+    await loadPlugins(keywordsState);
     checkAuthAndLoadData();
 
     document.addEventListener('auth-state-changed', (event) => {

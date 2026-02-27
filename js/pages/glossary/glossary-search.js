@@ -6,6 +6,9 @@ import { escapeHtml } from '../../utils/text-utils.js';
 /**
  * Ініціалізує пошук по секціях глосарію
  */
+/** ЛЕГО-плагін: порожній init (main викликає функції напряму) */
+export function init() { }
+
 export function initGlossarySearch() {
     const searchInput = document.getElementById('glossary-search-input');
     if (!searchInput) {

@@ -48,7 +48,14 @@ async function loadPlugins() {
     );
 
     results.forEach((result, index) => {
-        if (result.status === 'rejected') {
+        if (result.status === 'fulfilled' && result.value.init) {
+            try {
+                result.value.init({ runCalculations });
+            } catch (e) {
+                console.error(`[SEO] Error initializing ${PLUGINS[index]}:`, e);
+            }
+        } else if (result.status === 'rejected') {
+            console.warn(`[SEO] Plugin failed: ${PLUGINS[index]}`);
         }
     });
 }

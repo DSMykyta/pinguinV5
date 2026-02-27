@@ -25,5 +25,6 @@ function initAsideButtons() {
     }
 }
 
-// Самореєстрація плагіна
-registerLinksPlugin('onInit', initAsideButtons);
+export function init(context) {
+    registerLinksPlugin('onInit', initAsideButtons);
+}

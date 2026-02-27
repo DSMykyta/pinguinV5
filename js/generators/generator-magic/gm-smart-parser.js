@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-smart-parser.js
+// js/generators/generator-magic/gm-smart-parser.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -14,9 +14,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { markPluginLoaded } from './magic-state.js';
+import { markPluginLoaded } from './gm-state.js';
 
-export const PLUGIN_NAME = 'magic-smart-parser';
+export const PLUGIN_NAME = 'gm-smart-parser';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

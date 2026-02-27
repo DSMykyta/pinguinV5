@@ -137,6 +137,9 @@ export function renderGlossaryArticles() {
     initActionHandlers(dom.contentContainer, 'glossary');
 }
 
+/** ЛЕГО-плагін: порожній init (main викликає функції напряму) */
+export function init() { }
+
 export function initGlossaryArticles() {
     renderGlossaryArticles();
 

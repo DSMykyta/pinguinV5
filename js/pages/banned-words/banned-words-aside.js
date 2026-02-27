@@ -289,3 +289,6 @@ export function initRefreshButton() {
         populateCheckSelects();
     }));
 }
+
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }

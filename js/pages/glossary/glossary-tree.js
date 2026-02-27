@@ -50,6 +50,9 @@ export function renderGlossaryTree() {
 /**
  * Ініціалізує слухачі подій для кнопок згортання/розгортання.
  */
+/** ЛЕГО-плагін: порожній init (main викликає функції напряму) */
+export function init() { }
+
 export function initTreeToggles() {
     const dom = getGlossaryDOM();
     if (!dom.treeContainer) return;

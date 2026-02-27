@@ -545,3 +545,6 @@ function handleCopyText() {
             showToast('Помилка копіювання тексту', 'error');
         });
 }
+
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }

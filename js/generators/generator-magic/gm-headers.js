@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-headers.js
+// js/generators/generator-magic/gm-headers.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -13,10 +13,10 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { markPluginLoaded } from './magic-state.js';
-import { isServingLine } from './magic-serving.js';
+import { markPluginLoaded } from './gm-state.js';
+import { isServingLine } from './gm-serving.js';
 
-export const PLUGIN_NAME = 'magic-headers';
+export const PLUGIN_NAME = 'gm-headers';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

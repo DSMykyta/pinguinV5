@@ -15,6 +15,12 @@ import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// LEGO PLUGIN INIT
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function init(state) { /* one-time setup — main orchestrates CRUD calls */ }
+
+// ═══════════════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════
 

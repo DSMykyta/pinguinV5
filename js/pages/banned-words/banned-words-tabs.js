@@ -502,3 +502,6 @@ export async function restoreSavedTabs() {
     }
 
 }
+
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }

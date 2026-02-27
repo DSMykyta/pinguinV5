@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-serving.js
+// js/generators/generator-magic/gm-serving.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -13,9 +13,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { markPluginLoaded } from './magic-state.js';
+import { markPluginLoaded } from './gm-state.js';
 
-export const PLUGIN_NAME = 'magic-serving';
+export const PLUGIN_NAME = 'gm-serving';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

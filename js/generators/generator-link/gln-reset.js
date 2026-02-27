@@ -35,5 +35,6 @@ async function handleReset(e) {
     e.detail?.waitUntil(done);
 }
 
-// Самореєстрація плагіна
-registerLinksPlugin('onInit', initLinksReset);
+export function init(context) {
+    registerLinksPlugin('onInit', initLinksReset);
+}

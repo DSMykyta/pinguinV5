@@ -14,6 +14,9 @@ import { updateItemStatus, updateItemArticle } from './price-data.js';
 import { renderPriceTable, renderPriceTableRowsOnly } from './price-table.js';
 import { showToast } from '../../components/feedback/toast.js';
 
+/** Plugin init */
+export function init(state) { }
+
 let eventsInitialized = false;
 
 /**

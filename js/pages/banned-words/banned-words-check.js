@@ -587,3 +587,6 @@ function updateAsideStats(productCount, totalOccurrences) {
         statsEl.textContent = productCount;
     }
 }
+
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }

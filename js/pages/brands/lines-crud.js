@@ -285,3 +285,5 @@ async function handleDeleteLine(lineId) {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
+export function init(state) { }
+

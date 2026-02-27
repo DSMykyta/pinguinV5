@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-main.js
+// js/generators/generator-magic/gm-main.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -21,7 +21,7 @@
  * ║                                                                          ║
  * ║  ВИКОРИСТАННЯ:                                                           ║
  * ║  ```javascript                                                           ║
- * ║  import { parseText, initMagicParser } from './magic-main.js';           ║
+ * ║  import { parseText, initMagicParser } from './gm-main.js';           ║
  * ║                                                                          ║
  * ║  await initMagicParser(); // Завантажити плагіни                         ║
  * ║  const entries = parseText(text); // Парсити текст                       ║
@@ -35,7 +35,7 @@ import {
     runHook,
     getLoadedPlugins,
     updateState
-} from './magic-state.js';
+} from './gm-state.js';
 
 // ============================================================================
 // ПЛАГІНИ
@@ -46,12 +46,12 @@ import {
  * Порядок важливий - вони виконуються послідовно!
  */
 const PLUGINS = [
-    './magic-cleanup.js',
-    './magic-normalize.js',
-    './magic-serving.js',
-    './magic-merge.js',
-    './magic-headers.js',
-    './magic-smart-parser.js',
+    './gm-cleanup.js',
+    './gm-normalize.js',
+    './gm-serving.js',
+    './gm-merge.js',
+    './gm-headers.js',
+    './gm-smart-parser.js',
 ];
 
 /** Завантажені модулі плагінів */
@@ -118,7 +118,7 @@ function getPluginFunction(pluginName, funcName) {
  * @returns {string}
  */
 export function cleanText(text) {
-    const fn = getPluginFunction('magic-cleanup', 'cleanText');
+    const fn = getPluginFunction('gm-cleanup', 'cleanText');
     if (fn) {
         runHook('onCleanup', text);
         return fn(text);
@@ -132,7 +132,7 @@ export function cleanText(text) {
  * @returns {string}
  */
 export function normalizeNutrientName(name) {
-    const fn = getPluginFunction('magic-normalize', 'normalizeNutrientName');
+    const fn = getPluginFunction('gm-normalize', 'normalizeNutrientName');
     if (fn) {
         runHook('onNormalize', name);
         return fn(name);
@@ -146,7 +146,7 @@ export function normalizeNutrientName(name) {
  * @returns {Array}
  */
 export function sortNutrients(entries) {
-    const fn = getPluginFunction('magic-normalize', 'sortNutrients');
+    const fn = getPluginFunction('gm-normalize', 'sortNutrients');
     return fn ? fn(entries) : entries;
 }
 
@@ -156,7 +156,7 @@ export function sortNutrients(entries) {
  * @returns {string}
  */
 export function extractServingSize(text) {
-    const fn = getPluginFunction('magic-serving', 'extractServingSize');
+    const fn = getPluginFunction('gm-serving', 'extractServingSize');
     return fn ? fn(text) : '';
 }
 
@@ -166,7 +166,7 @@ export function extractServingSize(text) {
  * @returns {boolean}
  */
 export function shouldSkipLine(line) {
-    const fn = getPluginFunction('magic-serving', 'shouldSkipLine');
+    const fn = getPluginFunction('gm-serving', 'shouldSkipLine');
     return fn ? fn(line) : false;
 }
 
@@ -176,7 +176,7 @@ export function shouldSkipLine(line) {
  * @returns {string[]}
  */
 export function mergeOrphanValues(lines) {
-    const fn = getPluginFunction('magic-merge', 'mergeOrphanValues');
+    const fn = getPluginFunction('gm-merge', 'mergeOrphanValues');
     return fn ? fn(lines) : lines;
 }
 
@@ -187,7 +187,7 @@ export function mergeOrphanValues(lines) {
  * @returns {Array}
  */
 export function processHeaders(entries, servingSize) {
-    const fn = getPluginFunction('magic-headers', 'processHeaders');
+    const fn = getPluginFunction('gm-headers', 'processHeaders');
     return fn ? fn(entries, servingSize) : entries;
 }
 
@@ -197,7 +197,7 @@ export function processHeaders(entries, servingSize) {
  * @returns {{left: string, right: string}}
  */
 export function smartParseLine(line) {
-    const fn = getPluginFunction('magic-smart-parser', 'smartParseLine');
+    const fn = getPluginFunction('gm-smart-parser', 'smartParseLine');
     return fn ? fn(line) : { left: line, right: '' };
 }
 
@@ -314,4 +314,4 @@ function parseLineWithTab(line) {
 // RE-EXPORTS
 // ============================================================================
 
-export { registerHook, runHook, getLoadedPlugins } from './magic-state.js';
+export { registerHook, runHook, getLoadedPlugins } from './gm-state.js';

@@ -9,6 +9,8 @@
 import { renderKeywordsTable } from './keywords-table.js';
 import { loadKeywords } from './keywords-data.js';
 
+export function init(state) { /* one-time setup — main orchestrates event binding */ }
+
 export function initKeywordsEvents() {
 
     const container = document.getElementById('keywords-table-container');

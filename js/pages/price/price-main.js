@@ -13,13 +13,44 @@ import { initTooltips } from '../../components/feedback/tooltip.js';
 import './price-aside.js';
 import { initPriceImport } from './price-import.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
+import { priceState } from './price-state.js';
 
-export { priceState } from './price-state.js';
+export { priceState };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGINS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PLUGINS = [
+    './price-aside.js',
+    './price-ui.js',
+    './price-table.js',
+    './price-events.js',
+    './price-import.js',
+    './price-edit-modal.js',
+];
+
+async function loadPlugins(state) {
+    const results = await Promise.allSettled(
+        PLUGINS.map(path => import(path))
+    );
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(state);
+        } else if (result.status === 'rejected') {
+            console.warn(`[Price] ${PLUGINS[index]} — не завантажено`);
+        }
+    });
+}
 
 /**
  * Головна функція ініціалізації модуля Price
  */
 export function initPrice() {
+    // Завантажити плагіни
+    loadPlugins(priceState);
+
     // Ініціалізувати tooltip систему
     initTooltips();
 

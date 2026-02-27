@@ -8,3 +8,5 @@
  * 🔌 ПЛАГІН — Column selectors тепер в createManagedTable (brands-table.js, lines-table.js).
  *    Цей файл збережено для можливих майбутніх UI компонентів.
  */
+
+export function init(state) { }

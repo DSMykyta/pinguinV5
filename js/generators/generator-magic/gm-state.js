@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-state.js
+// js/generators/generator-magic/gm-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-merge.js
+// js/generators/generator-magic/gm-merge.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -13,9 +13,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { markPluginLoaded } from './magic-state.js';
+import { markPluginLoaded } from './gm-state.js';
 
-export const PLUGIN_NAME = 'magic-merge';
+export const PLUGIN_NAME = 'gm-merge';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

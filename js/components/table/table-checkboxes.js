@@ -22,7 +22,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 /**
  * Плагін чекбоксів
  */
-export class CheckboxesPlugin {
+class CheckboxesPlugin {
     constructor(config = {}) {
         this.config = {
             checkboxClass: 'row-checkbox',
@@ -262,4 +262,19 @@ export class CheckboxesPlugin {
             container.removeEventListener('change', this.changeHandler);
         }
     }
+}
+
+// ==================== LEGO EXPORT ====================
+
+/**
+ * LEGO init — створює і підключає CheckboxesPlugin
+ * @param {TableCore} table
+ * @param {TableState} state
+ * @param {Object} config
+ * @returns {CheckboxesPlugin}
+ */
+export function init(table, state, config = {}) {
+    const plugin = new CheckboxesPlugin(config);
+    plugin.init(table, state);
+    return plugin;
 }

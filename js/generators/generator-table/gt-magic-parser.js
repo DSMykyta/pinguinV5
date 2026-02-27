@@ -28,9 +28,9 @@ import {
     registerHook,
     runHook,
     getLoadedPlugins
-} from '../generator-magic/magic-main.js';
+} from '../generator-magic/gm-main.js';
 
-import { isSameHeader } from '../generator-magic/magic-headers.js';
+import { isSameHeader } from '../generator-magic/gm-headers.js';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

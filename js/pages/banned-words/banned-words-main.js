@@ -3,11 +3,22 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║            BANNED WORDS - MAIN INITIALIZATION MODULE                     ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  🔒 ЯДРО (прямий імпорт):                                               ║
+ * ║  ├── banned-words-state.js           — State модуля                      ║
+ * ║                                                                          ║
+ * ║  🔌 ПЛАГІНИ (loadPlugins → Promise.allSettled):                          ║
+ * ║  ├── banned-words-aside.js           — Aside панель                      ║
+ * ║  ├── banned-words-tabs.js            — Динамічні таби                    ║
+ * ║  ├── banned-words-events.js          — Обробники подій                   ║
+ * ║  ├── banned-words-ui.js              — UI менеджмент                     ║
+ * ║  ├── banned-words-manage.js          — CRUD таблиця                      ║
+ * ║  ├── banned-words-check.js           — Перевірка текстів                 ║
+ * ║  ├── banned-words-batch.js           — Масові операції                   ║
+ * ║  └── banned-words-product-modal.js   — Модал товару                      ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Головний файл ініціалізації системи перевірки заборонених слів.
- * Відповідає тільки за координацію ініціалізації всіх модулів.
- * Уся логіка винесена в окремі модулі.
  */
 
 import { initTooltips } from '../../components/feedback/tooltip.js';
@@ -17,12 +28,47 @@ import { showAsidePanels } from './banned-words-ui.js';
 import { initTabHandlers } from './banned-words-tabs.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
+// ── Ядро (прямий імпорт) ──
+import { bannedWordsState } from './banned-words-state.js';
+
 export { bannedWordsState, getCachedCheckResults, setCachedCheckResults, invalidateCheckCache, clearAllCheckCache } from './banned-words-state.js';
+
+// ── Плагіни ──
+const PLUGINS = [
+    './banned-words-aside.js',
+    './banned-words-tabs.js',
+    './banned-words-events.js',
+    './banned-words-ui.js',
+    './banned-words-manage.js',
+    './banned-words-check.js',
+    './banned-words-batch.js',
+    './banned-words-product-modal.js',
+];
+
+/**
+ * Завантажити плагіни через Promise.allSettled
+ */
+async function loadPlugins(state) {
+    const results = await Promise.allSettled(
+        PLUGINS.map(path => import(path))
+    );
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(state);
+        } else if (result.status === 'rejected') {
+            console.warn(`[BannedWords] ⚠️ ${PLUGINS[index]} — не завантажено`);
+        }
+    });
+}
 
 /**
  * Головна функція ініціалізації модуля Banned Words
  */
 export function initBannedWords() {
+    // Завантажити плагіни
+    loadPlugins(bannedWordsState);
+
     // Ініціалізувати tooltip систему
     initTooltips();
 

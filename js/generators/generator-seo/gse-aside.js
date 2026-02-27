@@ -25,5 +25,6 @@ function initAsideButtons() {
     }
 }
 
-// Самореєстрація плагіна
-registerSeoPlugin('onInit', initAsideButtons);
+export function init(context) {
+    registerSeoPlugin('onInit', initAsideButtons);
+}

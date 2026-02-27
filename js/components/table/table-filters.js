@@ -50,7 +50,7 @@ const HOVER_HIDE_DELAY = 200;
  * Плагін фільтрів з hover dropdown
  * Поведінка ідентична до ui-table-controls.js setupHoverDropdowns()
  */
-export class FiltersPlugin {
+class FiltersPlugin {
     constructor(config = {}) {
         this.config = {
             filterColumns: [],     // Array of { id, label, filterType, labelMap }
@@ -553,6 +553,21 @@ export class FiltersPlugin {
 
         document.removeEventListener('click', this.handleOutsideClick);
     }
+}
+
+// ==================== LEGO EXPORT ====================
+
+/**
+ * LEGO init — створює і підключає FiltersPlugin
+ * @param {TableCore} table
+ * @param {TableState} state
+ * @param {Object} config
+ * @returns {FiltersPlugin}
+ */
+export function init(table, state, config = {}) {
+    const plugin = new FiltersPlugin(config);
+    plugin.init(table, state);
+    return plugin;
 }
 
 /**

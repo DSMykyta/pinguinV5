@@ -40,30 +40,32 @@
  * ║  - createTable(container, config) — Створити таблицю                     ║
  * ║  - createTableState(config) — Створити state (re-export)                 ║
  * ║  - TableCore — Клас ядра (re-export)                                     ║
- * ║  - SortingPlugin — Плагін сортування (re-export)                         ║
- * ║  - FiltersPlugin — Плагін фільтрів (re-export)                           ║
- * ║  - CheckboxesPlugin — Плагін чекбоксів (re-export)                       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 // Re-export core components
 export { createTableState } from './table-state.js';
 export { TableCore } from './table-core.js';
-export { SortingPlugin } from './table-sorting.js';
-export { FiltersPlugin, filterData } from './table-filters.js';
-export { CheckboxesPlugin } from './table-checkboxes.js';
+export { filterData } from './table-filters.js';
 export { renderBadge, renderSeverityBadge, updateTableCounter } from './table-badges.js';
 export { createColumnSelector, setupTableColumnsSelector, setupSearchColumnsSelector } from './table-columns.js';
 export { col, COLUMN_TYPES } from './table-column-types.js';
 export { createManagedTable } from './table-managed.js';
 export { renderTableState, TABLE_STATES } from './table-states.js';
 
+// LEGO Plugin Registry
+const PLUGINS = [
+    './table-sorting.js',
+    './table-filters.js',
+    './table-checkboxes.js',
+];
+
 // Import for internal use
 import { createTableState } from './table-state.js';
 import { TableCore } from './table-core.js';
-import { SortingPlugin } from './table-sorting.js';
-import { FiltersPlugin } from './table-filters.js';
-import { CheckboxesPlugin } from './table-checkboxes.js';
+import { init as initSorting } from './table-sorting.js';
+import { init as initFilters } from './table-filters.js';
+import { init as initCheckboxes } from './table-checkboxes.js';
 
 /**
  * Створити таблицю з LEGO архітектурою
@@ -132,28 +134,28 @@ export function createTable(container, config = {}) {
         ...restConfig
     }, state);
 
-    // 3. Підключаємо вбудовані плагіни
+    // 3. Підключаємо вбудовані плагіни (LEGO init pattern)
     const pluginInstances = {};
 
     // Sorting plugin
     if (plugins.sorting) {
         const sortingConfig = typeof plugins.sorting === 'object' ? plugins.sorting : {};
-        pluginInstances.sorting = new SortingPlugin(sortingConfig);
-        tableCore.use(pluginInstances.sorting);
+        pluginInstances.sorting = initSorting(tableCore, state, sortingConfig);
+        tableCore.plugins.push(pluginInstances.sorting);
     }
 
     // Filters plugin
     if (plugins.filters) {
         const filtersConfig = typeof plugins.filters === 'object' ? plugins.filters : {};
-        pluginInstances.filters = new FiltersPlugin(filtersConfig);
-        tableCore.use(pluginInstances.filters);
+        pluginInstances.filters = initFilters(tableCore, state, filtersConfig);
+        tableCore.plugins.push(pluginInstances.filters);
     }
 
     // Checkboxes plugin
     if (plugins.checkboxes) {
         const checkboxesConfig = typeof plugins.checkboxes === 'object' ? plugins.checkboxes : {};
-        pluginInstances.checkboxes = new CheckboxesPlugin(checkboxesConfig);
-        tableCore.use(pluginInstances.checkboxes);
+        pluginInstances.checkboxes = initCheckboxes(tableCore, state, checkboxesConfig);
+        tableCore.plugins.push(pluginInstances.checkboxes);
     }
 
     // 4. Підключаємо кастомні плагіни

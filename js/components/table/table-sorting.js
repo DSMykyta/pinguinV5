@@ -24,7 +24,7 @@
 /**
  * Плагін сортування
  */
-export class SortingPlugin {
+class SortingPlugin {
     constructor(config = {}) {
         this.config = {
             defaultDirection: 'asc',
@@ -355,4 +355,19 @@ export class SortingPlugin {
             container.removeEventListener('click', this.clickHandler);
         }
     }
+}
+
+// ==================== LEGO EXPORT ====================
+
+/**
+ * LEGO init — створює і підключає SortingPlugin
+ * @param {TableCore} table
+ * @param {TableState} state
+ * @param {Object} config
+ * @returns {SortingPlugin}
+ */
+export function init(table, state, config = {}) {
+    const plugin = new SortingPlugin(config);
+    plugin.init(table, state);
+    return plugin;
 }

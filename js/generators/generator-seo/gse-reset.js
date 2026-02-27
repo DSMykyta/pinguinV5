@@ -42,5 +42,6 @@ async function handleReset(e) {
     e.detail?.waitUntil(done);
 }
 
-// Самореєстрація плагіна
-registerSeoPlugin('onInit', initResetButton);
+export function init(context) {
+    registerSeoPlugin('onInit', initResetButton);
+}

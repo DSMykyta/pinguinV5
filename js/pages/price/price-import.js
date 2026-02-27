@@ -13,6 +13,9 @@ import { importDataToSheet } from './price-data.js';
 import { showConfirmModal } from '../../components/modal/modal-confirm.js';
 import { showToast } from '../../components/feedback/toast.js';
 
+/** Plugin init */
+export function init(state) { }
+
 let importInitialized = false;
 
 /**

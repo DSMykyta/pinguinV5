@@ -1038,21 +1038,23 @@ function generateBrandIdForUI() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Оновити таблицю лінійок в модалі, коли лінійку додано/оновлено/видалено
-registerBrandsPlugin('onLineAdd', () => {
-    if (currentBrandId) {
-        populateBrandLines(currentBrandId);
-    }
-});
+export function init(state) {
+    registerBrandsPlugin('onLineAdd', () => {
+        if (currentBrandId) {
+            populateBrandLines(currentBrandId);
+        }
+    });
 
-registerBrandsPlugin('onLineUpdate', () => {
-    if (currentBrandId) {
-        populateBrandLines(currentBrandId);
-    }
-});
+    registerBrandsPlugin('onLineUpdate', () => {
+        if (currentBrandId) {
+            populateBrandLines(currentBrandId);
+        }
+    });
 
-registerBrandsPlugin('onLineDelete', () => {
-    if (currentBrandId) {
-        populateBrandLines(currentBrandId);
-    }
-});
+    registerBrandsPlugin('onLineDelete', () => {
+        if (currentBrandId) {
+            populateBrandLines(currentBrandId);
+        }
+    });
+}
 

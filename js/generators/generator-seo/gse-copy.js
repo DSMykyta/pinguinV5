@@ -79,5 +79,6 @@ function initCopyListeners() {
     });
 }
 
-// Самореєстрація плагіна
-registerSeoPlugin('onInit', initCopyListeners);
+export function init(context) {
+    registerSeoPlugin('onInit', initCopyListeners);
+}

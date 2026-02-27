@@ -81,3 +81,6 @@ function updateHeaderCheckbox() {
 
 // initBannedWordsSorting та initCheckTabSorting — тепер сортування
 // обробляється через Table LEGO плагіни в banned-words-manage.js та banned-words-check.js
+
+// ── LEGO Plugin interface ──
+export function init(state) { /* orchestrated by banned-words-main.js */ }

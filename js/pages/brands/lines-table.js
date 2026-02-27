@@ -154,29 +154,31 @@ export function resetLinesTableAPI() {
 // PLUGIN REGISTRATION
 // ═══════════════════════════════════════════════════════════════════════════
 
-registerBrandsPlugin('onInit', () => {
-    if (brandsState.activeTab === 'lines') {
-        renderLinesTable();
-    }
-});
-
-registerBrandsPlugin('onRender', () => {
-    if (brandsState.activeTab === 'lines' && brandsState.linesManagedTable) {
-        brandsState.linesManagedTable.refilter();
-    }
-});
-
-registerBrandsPlugin('onTabChange', (tab) => {
-    if (tab === 'lines') {
-        brandsState.brandsManagedTable?.deactivate();
-        if (!window.isAuthorized) return;
-        if (!brandsState.linesManagedTable) {
-            initLinesTable();
+export function init(state) {
+    registerBrandsPlugin('onInit', () => {
+        if (brandsState.activeTab === 'lines') {
+            renderLinesTable();
         }
-        brandsState.linesManagedTable.activate();
-    } else {
-        brandsState.linesManagedTable?.deactivate();
-        if (!window.isAuthorized) return;
-        brandsState.brandsManagedTable?.activate();
-    }
-});
+    });
+
+    registerBrandsPlugin('onRender', () => {
+        if (brandsState.activeTab === 'lines' && brandsState.linesManagedTable) {
+            brandsState.linesManagedTable.refilter();
+        }
+    });
+
+    registerBrandsPlugin('onTabChange', (tab) => {
+        if (tab === 'lines') {
+            brandsState.brandsManagedTable?.deactivate();
+            if (!window.isAuthorized) return;
+            if (!brandsState.linesManagedTable) {
+                initLinesTable();
+            }
+            brandsState.linesManagedTable.activate();
+        } else {
+            brandsState.linesManagedTable?.deactivate();
+            if (!window.isAuthorized) return;
+            brandsState.brandsManagedTable?.activate();
+        }
+    });
+}

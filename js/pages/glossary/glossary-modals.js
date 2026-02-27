@@ -4,6 +4,9 @@
  * Ініціалізує обробники для модалів глосарію
  * ПРИМІТКА: Обробники кнопок edit/add тепер в glossary-articles.js через ui-actions
  */
+/** ЛЕГО-плагін: порожній init (main викликає функції напряму) */
+export function init() { }
+
 export function initGlossaryModals() {
     // Обробник для кнопки "Додати ключове слово" в панелі
     const addKeywordBtn = document.getElementById('btn-add-keyword-aside');

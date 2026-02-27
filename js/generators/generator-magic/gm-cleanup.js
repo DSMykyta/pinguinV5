@@ -1,4 +1,4 @@
-// js/generators/generator-magic/magic-cleanup.js
+// js/generators/generator-magic/gm-cleanup.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -13,9 +13,9 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { markPluginLoaded } from './magic-state.js';
+import { markPluginLoaded } from './gm-state.js';
 
-export const PLUGIN_NAME = 'magic-cleanup';
+export const PLUGIN_NAME = 'gm-cleanup';
 
 // ============================================================================
 // ІНІЦІАЛІЗАЦІЯ

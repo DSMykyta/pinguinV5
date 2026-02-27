@@ -12,6 +12,9 @@ import { initDropdowns } from '../../components/forms/dropdown.js';
 import { renderAvatar, getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../../components/avatar/avatar-text.js';
 
+/** Plugin init */
+export function init(state) { }
+
 let currentItem = null;
 
 /**
