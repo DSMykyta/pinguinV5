@@ -561,7 +561,7 @@ async function populateMpReferences(slug, marketplaceId) {
             {
                 id: '_actions', label: ' ', sortable: false, span: 1,
                 render: (value, row) => `
-                    <div class="mp-item-actions">
+                    <div class="group">
                         <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
                             <span class="material-symbols-outlined">download</span>
                         </a>
@@ -1247,7 +1247,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
                         ${toggleHtml}
                         <span class="tree-item-name">${escapeHtml(name)}</span>
                         ${badgeHtml}
-                        <div class="mp-item-actions">
+                        <div class="group">
                             ${downloadBtn}
                             ${uploadBtn}
                         </div>

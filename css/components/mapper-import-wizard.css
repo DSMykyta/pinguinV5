@@ -203,47 +203,4 @@
     opacity: 0.7;
 }
 
-/* MP Item Cards */
-.mp-items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
 
-.mp-item-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-m);
-    overflow: hidden;
-}
-
-.mp-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--color-surface-c);
-    border-bottom: 1px solid var(--color-outline);
-}
-
-.mp-item-id {
-    font-family: var(--font-mono);
-    color: var(--color-on-surface-v);
-}
-
-.btn-unmap {
-    color: var(--color-error);
-}
-
-.btn-unmap:hover {
-    background: var(--color-error-c);
-}
-
-.mp-item-fields {
-    padding: 16px;
-}
-
-.mp-item-actions {
-    display: flex;
-    gap: 4px;
-}

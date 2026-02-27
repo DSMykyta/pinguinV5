@@ -54,8 +54,8 @@ button {
 }
 
 /* Стани кнопки */
-button:active:not(.tab-close-btn),
-button:hover:not(.tab-close-btn),
+button:active:not(.tab-close-btn):not(.fab):not(.fab-menu-trigger):not(.fab-menu-item-btn),
+button:hover:not(.tab-close-btn):not(.fab):not(.fab-menu-trigger):not(.fab-menu-item-btn),
 .btn-icon.expand {
     transform: scale(0.98);
 }

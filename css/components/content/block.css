@@ -1,0 +1,69 @@
+/**
+ * COMPONENT: Block
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Картка з header + список key-value рядків.
+ * Використовується для відображення даних MP-сутностей (категорії, характеристики, опції).
+ *
+ * HTML ПРИКЛАД:
+ * <div class="block">
+ *     <div class="block-header">
+ *         <h3>Rozetka</h3>
+ *         <button class="btn-icon danger">...</button>
+ *     </div>
+ *     <div class="block-list">
+ *         <div class="block-line">
+ *             <label class="block-line-label">id</label>
+ *             <span class="block-line-text">273294</span>
+ *         </div>
+ *     </div>
+ * </div>
+ */
+
+.block-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.block {
+    border: 1px solid var(--color-outline);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--color-surface);
+}
+
+.block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.block-list {
+    padding: 0 12px 8px;
+}
+
+.block-line {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 8px;
+    border-bottom: 1px solid var(--color-outline);
+}
+
+.block-line:last-child {
+    border-bottom: none;
+}
+
+.block-line-label {
+    font-size: 12px;
+    color: var(--color-on-surface-v);
+    line-height: 1.5;
+}
+
+.block-line-text {
+    text-align: end;
+}

@@ -151,9 +151,9 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
             return true;
         })
         .map(([key, value]) => `
-            <div class="group column col-6">
-                <label>${escapeHtml(key)}</label>
-                <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
+            <div class="block-line">
+                <label class="block-line-label">${escapeHtml(key)}</label>
+                <span class="block-line-text">${escapeHtml(String(value))}</span>
             </div>
         `).join('');
 
@@ -172,18 +172,16 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
                     </div>
                 </div>
                 <div class="modal-body">
-                    <div class="mp-item-card">
-                        <div class="mp-item-header">
-                            <span class="mp-item-id">#${escapeHtml(externalId || '')}</span>
+                    <div class="block">
+                        <div class="block-header">
+                            <h3>#${escapeHtml(externalId || '')}</h3>
                             ${mappedToName
                                 ? `<span class="chip c-green">${escapeHtml(mappedToName)}</span>`
                                 : `<span class="chip">Не замаплено</span>`
                             }
                         </div>
-                        <div class="mp-item-fields">
-                            <div class="grid">
-                                ${fieldsHtml}
-                            </div>
+                        <div class="block-list">
+                            ${fieldsHtml}
                         </div>
                     </div>
                 </div>

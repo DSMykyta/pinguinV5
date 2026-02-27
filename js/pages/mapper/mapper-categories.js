@@ -855,10 +855,10 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
                 ? `<a href="https://drive.google.com/uc?export=download&id=${escapeHtml(fileId)}" target="_blank" class="btn-icon" title="Завантажити довідник" aria-label="Завантажити довідник"><span class="material-symbols-outlined">download</span></a>`
                 : '';
             return `
-                <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
-                    <div class="mp-item-header">
-                        <span class="mp-item-id">${escapeHtml(name)}</span>
-                        <div class="mp-item-actions">
+                <div class="block" data-mp-id="${escapeHtml(item.id)}">
+                    <div class="block-header">
+                        <h3>${escapeHtml(name)}</h3>
+                        <div class="group">
                             ${downloadBtn}
                             ${actionButton({
                                 action: 'unmap',
@@ -867,10 +867,8 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
                             })}
                         </div>
                     </div>
-                    <div class="mp-item-fields">
-                        <div class="grid">
-                            ${renderMpCategoryDataFields(data)}
-                        </div>
+                    <div class="block-list">
+                        ${renderMpCategoryDataFields(data)}
                     </div>
                 </div>
             `;
@@ -894,7 +892,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
             </div>
         </div>
         <div class="section-content">
-            <div class="mp-items-list">
+            <div class="block-group">
                 ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>
@@ -909,9 +907,9 @@ function renderMpCategoryDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="group column col-6">
-                <label>${escapeHtml(key)}</label>
-                <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
+            <div class="block-line">
+                <label class="block-line-label">${escapeHtml(key)}</label>
+                <span class="block-line-text">${escapeHtml(String(value))}</span>
             </div>
         `);
     });

@@ -612,15 +612,13 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
         return items.map(item => {
             const data = typeof item.data === 'string' ? JSON.parse(item.data) : (item.data || {});
             return `
-                <div class="mp-item-card" data-mp-id="${escapeHtml(item.id)}">
-                    <div class="mp-item-header">
-                        <span class="mp-item-id">${escapeHtml(name)}</span>
+                <div class="block" data-mp-id="${escapeHtml(item.id)}">
+                    <div class="block-header">
+                        <h3>${escapeHtml(name)}</h3>
                         ${actionButton({ action: 'unmap', rowId: item.id, data: { mappingId: item._mappingId } })}
                     </div>
-                    <div class="mp-item-fields">
-                        <div class="grid">
-                            ${renderMpDataFields(data)}
-                        </div>
+                    <div class="block-list">
+                        ${renderMpDataFields(data)}
                     </div>
                 </div>
             `;
@@ -644,7 +642,7 @@ function renderMpOptionsSectionContent(byMarketplace, totalCount) {
             </div>
         </div>
         <div class="section-content">
-            <div class="mp-items-list">
+            <div class="block-group">
                 ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>
@@ -659,9 +657,9 @@ function renderMpDataFields(data) {
         if (skipFields.includes(key)) return;
         if (value === null || value === undefined || value === '') return;
         fields.push(`
-            <div class="group column col-6">
-                <label>${escapeHtml(key)}</label>
-                <input type="text" class="input-main" value="${escapeHtml(String(value))}" readonly>
+            <div class="block-line">
+                <label class="block-line-label">${escapeHtml(key)}</label>
+                <span class="block-line-text">${escapeHtml(String(value))}</span>
             </div>
         `);
     });

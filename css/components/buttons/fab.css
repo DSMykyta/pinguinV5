@@ -28,21 +28,11 @@
 }
 
 .fab:hover {
-    box-shadow: var(--shadow-3);
-    transform: translateY(-2px);
+    transform: scale(1.02);
 }
 
 .fab:hover::before {
     opacity: 0.08;
-}
-
-.fab:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-1);
-}
-
-.fab:active::before {
-    opacity: 0.12;
 }
 
 .fab .material-symbols-outlined {
@@ -139,8 +129,7 @@
 }
 
 .fab-menu-trigger:hover {
-    box-shadow: var(--shadow-3);
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 /* Primary trigger — для основних дій сторінки */
@@ -220,7 +209,7 @@
 .fab-menu-item-btn .material-symbols-outlined { font-size: 20px; }
 
 .fab-menu-item-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.02);
     background: var(--color-main);
     color: var(--color-on-main);
 }
