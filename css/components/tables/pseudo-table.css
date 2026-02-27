@@ -217,9 +217,8 @@
 
 /* Actions cell — фіксована ширина під checkbox + btn-icon */
 .header-actions-cell,
-.pseudo-table-row > .pseudo-table-cell.col-1:first-child {
-    flex: 0 0 auto;
-    width: 80px;
+.row-actions-cell {
+    flex: 0 0 80px;
     display: flex;
     align-items: center;
     justify-content: flex-start;

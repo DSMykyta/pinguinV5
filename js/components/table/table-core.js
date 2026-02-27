@@ -140,7 +140,7 @@ export class TableCore {
         return `
             <div class="pseudo-table-header">
                 ${rowActions || rowActionsHeader != null ? `
-                    <div class="pseudo-table-cell col-1 header-actions-cell">
+                    <div class="pseudo-table-cell header-actions-cell">
                         ${rowActionsHeader || ''}
                     </div>
                 ` : ''}
@@ -176,7 +176,7 @@ export class TableCore {
         return `
             <div class="${rowClasses.join(' ')}" data-row-id="${rowId}">
                 ${rowActions ? `
-                    <div class="pseudo-table-cell col-1">
+                    <div class="pseudo-table-cell row-actions-cell">
                         ${rowActions(row)}
                     </div>
                 ` : ''}
