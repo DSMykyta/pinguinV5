@@ -107,7 +107,7 @@
 }
 
 .pseudo-table-row:last-child {
-    border-bottom: none;
+    border-bottom: 1px solid var(--color-outline);
 }
 
 /* Клікабельні рядки */
