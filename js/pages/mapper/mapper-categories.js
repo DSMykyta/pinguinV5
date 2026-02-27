@@ -131,7 +131,12 @@ export async function showAddCategoryModal() {
 
     const saveBtn = document.getElementById('save-mapper-category');
     if (saveBtn) {
-        saveBtn.onclick = handleSaveNewCategory;
+        saveBtn.onclick = () => handleSaveNewCategory(false);
+    }
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-category');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleSaveNewCategory(true);
     }
 }
 
@@ -182,7 +187,12 @@ export async function showEditCategoryModal(id) {
 
     const saveBtn = document.getElementById('save-mapper-category');
     if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateCategory(id);
+        saveBtn.onclick = () => handleUpdateCategory(id, false);
+    }
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-category');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleUpdateCategory(id, true);
     }
 }
 
@@ -247,7 +257,7 @@ async function showDeleteCategoryConfirm(id) {
 // ФОРМА
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveNewCategory() {
+async function handleSaveNewCategory(shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -255,14 +265,14 @@ async function handleSaveNewCategory() {
     try {
         await addCategory(data);
         showToast('Категорію додано', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка додавання категорії', 'error');
     }
 }
 
-async function handleUpdateCategory(id) {
+async function handleUpdateCategory(id, shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -270,7 +280,7 @@ async function handleUpdateCategory(id) {
     try {
         await updateCategory(id, data);
         showToast('Категорію оновлено', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка оновлення категорії', 'error');

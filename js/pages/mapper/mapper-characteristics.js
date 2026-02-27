@@ -142,7 +142,12 @@ export async function showAddCharacteristicModal() {
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
-        saveBtn.onclick = handleSaveNewCharacteristic;
+        saveBtn.onclick = () => handleSaveNewCharacteristic(false);
+    }
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-characteristic');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleSaveNewCharacteristic(true);
     }
 }
 
@@ -197,9 +202,13 @@ export async function showEditCharacteristicModal(id) {
 
     const saveBtn = document.getElementById('save-mapper-characteristic');
     if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateCharacteristic(id);
+        saveBtn.onclick = () => handleUpdateCharacteristic(id, false);
     }
 
+    const saveCloseBtn = document.getElementById('save-close-mapper-characteristic');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleUpdateCharacteristic(id, true);
+    }
 }
 
 async function showDeleteCharacteristicConfirm(id) {
@@ -256,7 +265,7 @@ async function showDeleteCharacteristicConfirm(id) {
 // ФОРМА
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveNewCharacteristic() {
+async function handleSaveNewCharacteristic(shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -264,14 +273,14 @@ async function handleSaveNewCharacteristic() {
     try {
         await addCharacteristic(data);
         showToast('Характеристику додано', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка додавання характеристики', 'error');
     }
 }
 
-async function handleUpdateCharacteristic(id) {
+async function handleUpdateCharacteristic(id, shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -279,7 +288,7 @@ async function handleUpdateCharacteristic(id) {
     try {
         await updateCharacteristic(id, data);
         showToast('Характеристику оновлено', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка оновлення характеристики', 'error');
