@@ -32,7 +32,9 @@ import {
 } from '../../components/actions/actions-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { getOptions, loadOptions } from '../mapper/mapper-data-own.js';
+import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
+import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
@@ -70,7 +72,7 @@ export async function showAddBrandModal() {
     clearBrandForm();
 
     // Ініціалізувати компоненти
-    initModalComponents();
+    await initModalComponents();
 
     // Згенерувати ID (для відображення)
     const newId = generateBrandIdForUI();
@@ -111,7 +113,7 @@ export async function showEditBrandModal(brandId) {
     }
 
     // Ініціалізувати компоненти
-    initModalComponents();
+    await initModalComponents();
 
     // Заповнити форму даними
     fillBrandForm(brand);
@@ -154,7 +156,7 @@ export async function showDeleteBrandConfirm(brandId) {
 /**
  * Ініціалізувати компоненти модалу
  */
-function initModalComponents() {
+async function initModalComponents() {
     initTextEditor();
     initAltNamesHandlers();
     initLinksHandlers();
@@ -163,46 +165,30 @@ function initModalComponents() {
     initSaveHandler();
     initSectionNavigation();
     initBrandStatusToggle();
-    populateCountrySelect();
+    await populateCountrySelect();
 }
 
 /**
  * Заповнити select країни опціями з char-000002 (Країна реєстрації бренду)
  */
 async function populateCountrySelect() {
-    const select = document.getElementById('brand-country');
-    if (!select) return;
-
     const COUNTRY_CHAR_ID = 'char-000002';
 
     try {
-        // Lazy load — якщо маппер ще не завантажував опції
         if (getOptions().length === 0) await loadOptions();
 
         const options = getOptions().filter(o => o.characteristic_id === COUNTRY_CHAR_ID);
 
-        // Сортуємо за sort_order, потім за назвою
         options.sort((a, b) => {
             const orderDiff = (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0);
             if (orderDiff !== 0) return orderDiff;
             return (a.value_ua || '').localeCompare(b.value_ua || '', 'uk');
         });
 
-        // Зберегти поточне значення (якщо форма вже заповнена)
-        const current = select.value;
-
-        // Очистити і додати порожній варіант
-        select.innerHTML = '<option value="">— Оберіть країну —</option>';
-
-        options.forEach(opt => {
-            const el = document.createElement('option');
-            el.value = opt.id;
-            el.textContent = opt.value_ua || opt.id;
-            select.appendChild(el);
-        });
-
-        // Відновити вибір
-        if (current) select.value = current;
+        populateSelect('brand-country',
+            options.map(o => ({ value: o.id, text: o.value_ua || o.id })),
+            { placeholder: '— Оберіть країну —' }
+        );
     } catch (e) {
         console.warn('⚠️ Не вдалось завантажити опції країн:', e);
     }
@@ -275,6 +261,7 @@ function initBrandLinesHandler() {
     const container = document.getElementById('brand-lines-container');
     if (container) {
         initPaginationCharm();
+        initSearchCharm();
         initRefreshCharm();
         initColumnsCharm();
 
@@ -345,7 +332,6 @@ function populateBrandLines(brandId) {
             })
         ],
         data: allData,
-        searchInputId: 'brand-lines-search',
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -904,7 +890,10 @@ function fillBrandForm(brand) {
 
     // Країна
     const countryField = document.getElementById('brand-country');
-    if (countryField) countryField.value = brand.country_option_id || '';
+    if (countryField) {
+        countryField.value = brand.country_option_id || '';
+        reinitializeCustomSelect(countryField);
+    }
 
     // Статус
     const statusRadio = document.querySelector(`input[name="brand-status"][value="${brand.brand_status || 'active'}"]`);

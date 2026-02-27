@@ -118,15 +118,9 @@
                                 <!-- Країна -->
                                 <div class="group column">
                                     <label for="brand-country" class="label-l">Країна</label>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <select id="brand-country">
-                                                    <option value="">— Оберіть країну —</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <select id="brand-country" data-custom-select>
+                                        <option value="">— Оберіть країну —</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -177,18 +171,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="group">
-                            <div class="input-box">
-                                <button class="btn-icon ghost" aria-label="Пошук">
-                                    <span class="material-symbols-outlined">search</span>
-                                </button>
-                                <input type="text" id="brand-lines-search" placeholder="Пошук лінійок...">
-                            </div>
-                        </div>
+                        <div class="group"></div>
                     </div>
 
                     <div id="brand-lines-container" class="pseudo-table-container"
-                         pagination refresh columns>
+                         pagination refresh columns search="Пошук лінійок...">
                         <!-- Динамічний список лінійок додається через JS -->
                     </div>
                 </section>

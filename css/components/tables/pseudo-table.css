@@ -207,6 +207,30 @@
 }
 
 /* ============================================ */
+/* PRODUCT THUMB — фото в таблиці               */
+/* ============================================ */
+
+.product-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius-s, 4px);
+    flex-shrink: 0;
+}
+
+.product-thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface-c);
+    color: var(--color-on-surface-v);
+}
+
+.product-thumb-empty .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* ============================================ */
 /* UTILITY CLASSES                              */
 /* ============================================ */
 

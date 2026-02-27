@@ -72,7 +72,6 @@ function initBrandsTable() {
         data: getBrands(),
 
         // DOM IDs
-        searchInputId: 'search-brands',
         statsId: null,
         paginationId: null,
 
