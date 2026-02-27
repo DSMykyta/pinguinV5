@@ -54,7 +54,7 @@ function setupRefresh(el) {
     btn.className = 'btn-icon';
     btn.setAttribute('aria-label', 'Оновити');
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>';
-    group.insertBefore(btn, group.firstChild);
+    group.appendChild(btn);
 
     const needsConfirm = el.hasAttribute('confirm');
     const confirmMessage = el.getAttribute('confirm') || undefined;
