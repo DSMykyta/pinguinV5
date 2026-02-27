@@ -319,7 +319,7 @@ const mapperColumnTypes = {
     parent_id: 'string',
     characteristic_id: 'string',
     grouping: 'string',
-    _nestingLevel: 'binding-chip',
+    nesting_level: 'binding-chip',
     category_ids: 'binding-chip',
     bindings: 'binding-chip'
 };
@@ -352,7 +352,7 @@ function transformCategories(data) {
 
         return {
             ...cat,
-            _nestingLevel: { count: level, tooltip: nestingTooltip },
+            nesting_level: { count: level, tooltip: nestingTooltip },
             parent_id: parentName,
             grouping,
             _editable: true
@@ -380,7 +380,7 @@ function transformCharacteristics(data) {
 
         return {
             ...char,
-            _raw_category_ids: char.category_ids || '',
+            raw_category_ids: char.category_ids || '',
             category_ids: categoryDisplay,
             is_global: isGlobal ? 'active' : 'inactive',
             _editable: true
@@ -447,7 +447,7 @@ function transformMarketplaces(data) {
 export function getCategoriesColumns() {
     return [
         { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
-        col('_nestingLevel', 'Рів.', 'binding-chip'),
+        col('nesting_level', 'Рів.', 'binding-chip'),
         { ...col('name_ua', 'Назва UA', 'name', { span: 3 }), searchable: true },
         { ...col('name_ru', 'Назва RU', 'text'), searchable: true, checked: false },
         { ...col('parent_id', 'Батьківська', 'text', { filterable: true }) },
@@ -459,16 +459,15 @@ export function getCategoriesColumns() {
 export function getCharacteristicsColumns() {
     return [
         { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
-        {
-            id: '_raw_category_ids', label: 'Категорія',
-            span: 1, align: 'center', sortable: false, filterable: true,
+        col('raw_category_ids', 'Категорія', 'binding-chip', {
+            filterable: true,
             render: (value, row) => {
                 const display = row.category_ids;
                 if (!display || display.count == null) return '';
                 const cls = (display.count === 0 || display.count === '0') ? 'chip' : 'chip c-secondary';
                 return `<span class="${cls}" data-tooltip="${escapeHtml(display.tooltip || '')}" data-tooltip-always style="cursor:pointer">${display.count}</span>`;
             }
-        },
+        }),
         { ...col('name_ua', 'Назва', 'name'), searchable: true },
         { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true },
         col('is_global', 'Глобальна', 'status-dot', { filterable: true }),
@@ -507,7 +506,7 @@ function getFilterColumnsConfig(tabName) {
             { id: 'grouping', label: 'Групуюча', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
         characteristics: [
-            { id: '_raw_category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
+            { id: 'raw_category_ids', label: 'Категорія', filterType: 'contains', labelMap: _cachedCategoryLabelMap() },
             { id: 'type', label: 'Тип', filterType: 'values' },
             { id: 'is_global', label: 'Глобальна', filterType: 'values', labelMap: { 'active': 'Так', 'inactive': 'Ні' } }
         ],
@@ -659,6 +658,7 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
             }
         },
         dataTransform: dataTransformFn,
+        preFilter: null,
         pageSize: null,
         checkboxPrefix: `mapper-${tabName}`
     });

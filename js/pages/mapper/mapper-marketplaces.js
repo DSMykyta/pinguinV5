@@ -513,9 +513,9 @@ async function populateMpReferences(slug, marketplaceId) {
         return {
             ...f,
             id: f.fileId,
-            _size: sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`,
-            _date: f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : '',
-            _category: fileIdToCat[f.fileId] || ''
+            file_size: sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`,
+            file_date: f.modifiedTime ? new Date(f.modifiedTime).toLocaleDateString('uk-UA') : '',
+            ref_category: fileIdToCat[f.fileId] || ''
         };
     });
 
@@ -560,12 +560,11 @@ async function populateMpReferences(slug, marketplaceId) {
     createManagedTable({
         container: 'mp-data-ref-container',
         columns: [
-            { ...col('_category', 'Категорія', 'text', { span: 3 }), searchable: true },
+            { ...col('ref_category', 'Категорія', 'text', { span: 3 }), searchable: true },
             { ...col('name', 'Назва', 'name', { span: 5 }), searchable: true },
-            { ...col('_size', 'Розмір', 'code', { span: 1 }), searchable: true },
-            { ...col('_date', 'Дата', 'text', { span: 1 }), searchable: true },
-            {
-                id: '_actions', label: ' ', sortable: false, span: 1,
+            { ...col('file_size', 'Розмір', 'code', { span: 1 }), searchable: true },
+            { ...col('file_date', 'Дата', 'text', { span: 1 }), searchable: true },
+            col('action', ' ', 'action', {
                 render: (value, row) => `
                     <div class="group">
                         <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">
@@ -576,18 +575,18 @@ async function populateMpReferences(slug, marketplaceId) {
                         </button>
                     </div>
                 `
-            }
+            })
         ],
         data: allData,
         searchInputId: 'mp-data-ref-search',
         statsId: null,
         paginationId: null,
-        pageSize: null,
-        checkboxPrefix: 'mp-ref',
         tableConfig: {
-            withContainer: false,
+            rowActionsHeader: ' ',
+            rowActions: () => '',
             getRowId: row => row.id,
             emptyState: { message: 'Довідники відсутні' },
+            withContainer: false,
             onAfterRender: (cont) => {
                 cont.querySelectorAll('.ref-delete-btn').forEach(btn => {
                     btn.onclick = async (e) => {
@@ -612,10 +611,13 @@ async function populateMpReferences(slug, marketplaceId) {
                 });
             },
             plugins: {
-                sorting: { columnTypes: { _category: 'string', name: 'string', _size: 'string', _date: 'string' } },
+                sorting: { columnTypes: { ref_category: 'string', name: 'string', file_size: 'string', file_date: 'string' } },
                 checkboxes: { batchBar: () => getBatchBar(BATCH_TAB) }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'mp-ref'
     });
 
     initPaginationCharm();
@@ -736,9 +738,8 @@ function populateMpCharacteristics(allData, charMapping) {
         container: 'mp-data-char-container',
         columns: [
             { ...col('external_id', 'ID', 'tag'), searchable: true },
-            {
-                id: 'category_name', label: 'Категорія', searchable: true, checked: true,
-                span: 2, align: 'center', sortable: false, filterable: true,
+            col('category_name', 'Категорія', 'binding-chip', {
+                searchable: true, checked: true, filterable: true,
                 render: (value) => {
                     const names = (value || '').split(',').map(s => s.trim()).filter(Boolean);
                     const count = names.length;
@@ -746,29 +747,30 @@ function populateMpCharacteristics(allData, charMapping) {
                     const cls = count === 0 ? 'chip' : 'chip c-secondary';
                     return `<span class="${cls}" data-tooltip="${escapeHtml(tooltip)}" data-tooltip-always style="cursor:pointer">${count}</span>`;
                 }
-            },
-            { ...col('_name', 'Назва', 'name'), searchable: true },
+            }),
+            { ...col('mp_name', 'Назва', 'name'), searchable: true },
             { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true, checked: true },
-            {
-                id: '_mapping', label: 'Наша характ.', span: 3, sortable: false,
+            col('mapping', 'Наша характ.', 'select', {
+                span: 3, sortable: false,
                 render: (value, row) => {
-                    const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
-                    return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+                    const cls = row.mapped_id ? 'custom-select-trigger mapped' : 'custom-select-trigger';
+                    return `<div class="${cls}" data-entity-type="characteristic" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row.mapped_id)}"><span class="mp-tree-mapping-label">${row.mapped_label ? escapeHtml(row.mapped_label) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
                 }
-            }
+            })
         ],
         data: allProcessed,
         searchInputId: 'mp-data-char-search',
         statsId: null,
         paginationId: null,
-        pageSize: null,
-        checkboxPrefix: 'mp-char',
         tableConfig: {
-            withContainer: false,
+            rowActionsHeader: ' ',
+            rowActions: () => '',
             getRowId: row => row.id,
+            emptyState: { message: 'Характеристики відсутні' },
+            withContainer: false,
             onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'characteristic'),
             plugins: {
-                sorting: { columnTypes: { external_id: 'string', _name: 'string', type: 'string' } },
+                sorting: { columnTypes: { external_id: 'string', mp_name: 'string', type: 'string' } },
                 filters: {
                     filterColumns: [
                         { id: 'category_name', label: 'Категорія', filterType: 'contains' },
@@ -776,7 +778,10 @@ function populateMpCharacteristics(allData, charMapping) {
                     ]
                 }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'mp-char'
     });
 
     initPaginationCharm();
@@ -785,13 +790,13 @@ function populateMpCharacteristics(allData, charMapping) {
 function preprocessCharsData(data, ownChars, charMapping) {
     return data.map(item => {
         const mapping = getCharacteristicMappingByMpId(item.id) || getCharacteristicMappingByMpId(item.external_id);
-        const mappedId = mapping?.characteristic_id || '';
-        const mappedChar = mappedId ? ownChars.find(c => c.id === mappedId) : null;
+        const mapped_id = mapping?.characteristic_id || '';
+        const mappedChar = mapped_id ? ownChars.find(c => c.id === mapped_id) : null;
         return {
             ...item,
-            _name: extractMpName(item, charMapping) || item.external_id || '-',
-            _mappedId: mappedId,
-            _mappedLabel: mappedChar ? (mappedChar.name_ua || mappedChar.id) : ''
+            mp_name: extractMpName(item, charMapping) || item.external_id || '-',
+            mapped_id: mapped_id,
+            mapped_label: mappedChar ? (mappedChar.name_ua || mappedChar.id) : ''
         };
     });
 }
@@ -810,35 +815,39 @@ function populateMpOptions(allData, optMapping) {
         container: 'mp-data-opt-container',
         columns: [
             { ...col('external_id', 'ID', 'tag'), searchable: true },
-            { ...col('_name', 'Назва', 'name'), searchable: true },
-            { ...col('_charName', 'Характ.', 'text', { span: 3, filterable: true }), searchable: true },
-            {
-                id: '_mapping', label: 'Наша опція', span: 4, sortable: false,
+            { ...col('mp_name', 'Назва', 'name'), searchable: true },
+            { ...col('char_display', 'Характ.', 'text', { span: 3, filterable: true }), searchable: true },
+            col('mapping', 'Наша опція', 'select', {
+                span: 4, sortable: false,
                 render: (value, row) => {
-                    const cls = row._mappedId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
-                    return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row._mappedId)}"><span class="mp-tree-mapping-label">${row._mappedLabel ? escapeHtml(row._mappedLabel) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
+                    const cls = row.mapped_id ? 'custom-select-trigger mapped' : 'custom-select-trigger';
+                    return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row.mapped_id)}"><span class="mp-tree-mapping-label">${row.mapped_label ? escapeHtml(row.mapped_label) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
                 }
-            }
+            })
         ],
         data: allProcessed,
         searchInputId: 'mp-data-opt-search',
         statsId: null,
         paginationId: null,
-        pageSize: null,
-        checkboxPrefix: 'mp-opt',
         tableConfig: {
-            withContainer: false,
+            rowActionsHeader: ' ',
+            rowActions: () => '',
             getRowId: row => row.id,
+            emptyState: { message: 'Опції відсутні' },
+            withContainer: false,
             onAfterRender: (cont) => initMappingTriggerDelegation(cont, 'option'),
             plugins: {
-                sorting: { columnTypes: { external_id: 'string', _name: 'string', _charName: 'string' } },
+                sorting: { columnTypes: { external_id: 'string', mp_name: 'string', char_display: 'string' } },
                 filters: {
                     filterColumns: [
-                        { id: '_charName', label: 'Характеристика', filterType: 'values' }
+                        { id: 'char_display', label: 'Характеристика', filterType: 'values' }
                     ]
                 }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'mp-opt'
     });
 
     initPaginationCharm();
@@ -847,18 +856,18 @@ function populateMpOptions(allData, optMapping) {
 function preprocessOptsData(data, ownOpts, optMapping) {
     return data.map(item => {
         const mapping = getOptionMappingByMpId(item.id) || getOptionMappingByMpId(item.external_id);
-        const mappedId = mapping?.option_id || '';
-        const mappedOpt = mappedId ? ownOpts.find(o => o.id === mappedId) : null;
+        const mapped_id = mapping?.option_id || '';
+        const mappedOpt = mapped_id ? ownOpts.find(o => o.id === mapped_id) : null;
         return {
             ...item,
-            _name: extractMpName(item, optMapping) || item.external_id || '-',
-            _charName: resolveMpField(item, 'char_name', optMapping)
+            mp_name: extractMpName(item, optMapping) || item.external_id || '-',
+            char_display: resolveMpField(item, 'char_name', optMapping)
                 || item.char_name
                 || resolveMpField(item, 'char_id', optMapping)
                 || item.char_id
                 || '-',
-            _mappedId: mappedId,
-            _mappedLabel: mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : ''
+            mapped_id: mapped_id,
+            mapped_label: mappedOpt ? (mappedOpt.value_ua || mappedOpt.id) : ''
         };
     });
 }
@@ -1234,7 +1243,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
             const mapping = findCatMapping(item);
             const mappedCatId = mapping?.category_id || '';
             const mappedCat = mappedCatId ? ownCategories.find(c => c.id === mappedCatId) : null;
-            const mappedLabel = mappedCat ? (mappedCat.name_ua || mappedCat.id) : '';
+            const mapped_label = mappedCat ? (mappedCat.name_ua || mappedCat.id) : '';
             const triggerClass = mappedCatId ? 'custom-select-trigger mapped' : 'custom-select-trigger';
 
             const fileId = item.file_id || '';
@@ -1260,7 +1269,7 @@ function renderMpCategoryTree(container, data, catMapping, slug, marketplaceId) 
                         <div class="${triggerClass}"
                              data-mp-cat-id="${escapeHtml(item.id)}"
                              data-current-cat-id="${escapeHtml(mappedCatId)}">
-                            <span class="mp-tree-mapping-label">${mappedLabel ? escapeHtml(mappedLabel) : '—'}</span>
+                            <span class="mp-tree-mapping-label">${mapped_label ? escapeHtml(mapped_label) : '—'}</span>
                             <svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
                         </div>
                     </div>

@@ -531,22 +531,21 @@ function populateRelatedOptions(characteristicId) {
             { ...col('id', 'ID', 'tag'), searchable: true },
             { ...col('value_ua', 'Значення', 'name', { span: 5 }), searchable: true },
             { ...col('value_ru', 'Назва (RU)', 'text', { span: 3 }), searchable: true, checked: true },
-            {
-                id: '_unlink', label: ' ', sortable: false, span: 1,
+            col('action', ' ', 'action', {
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.value_ua || row.id }
                 })
-            }
+            })
         ],
         data: loadData(),
         searchInputId: 'char-options-search',
         statsId: null,
         paginationId: null,
-        pageSize: null,
-        checkboxPrefix: 'char-opts',
         tableConfig: {
+            rowActionsHeader: ' ',
             rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
+            getRowId: (row) => row.id,
             emptyState: { message: 'Опції відсутні' },
             withContainer: false,
             onAfterRender: (cont) => {
@@ -556,7 +555,10 @@ function populateRelatedOptions(characteristicId) {
             plugins: {
                 sorting: { columnTypes: { id: 'id-text', value_ua: 'string' } }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'char-opts'
     });
 
     initPaginationCharm();
@@ -797,7 +799,7 @@ function renderMpCharacteristicsSectionContent(byMarketplace, totalCount) {
             </div>
         </div>
         <div class="section-content">
-            <div class="block-group">
+            <div class="block-group grid">
                 ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>

@@ -294,19 +294,16 @@ function populateBrandLines(brandId) {
         columns: [
             { ...col('line_id', 'ID', 'tag'), searchable: true, checked: true, span: 2 },
             { ...col('name_uk', 'Назва', 'name'), searchable: true, checked: true, span: 8 },
-            {
-                id: '_unlink', label: ' ', sortable: false, searchable: false, checked: true,
-                span: 1,
+            col('action', ' ', 'action', {
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.line_id, context: 'brand-crud-lines'
                 })
-            }
+            })
         ],
         data: allData,
-
         searchInputId: 'brand-lines-search',
-        checkboxPrefix: 'brand-lines',
-        pageSize: null,
+        statsId: null,
+        paginationId: null,
         tableConfig: {
             rowActionsHeader: ' ',
             rowActions: (row) => actionButton({
@@ -324,7 +321,10 @@ function populateBrandLines(brandId) {
                     columnTypes: { line_id: 'id-text', name_uk: 'string' }
                 }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'brand-lines'
     });
 }
 

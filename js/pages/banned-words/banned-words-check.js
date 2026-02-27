@@ -370,6 +370,7 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
         statsId: null,
         paginationId: null,
         tableConfig: {
+            rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
             rowActions: (row) => {
                 const selectedSet = bannedWordsState.selectedProducts[tabId] || new Set();
                 const isChecked = selectedSet.has(row.id);
@@ -378,7 +379,6 @@ function initCheckManagedTable(tabId, container, data, selectedSheets, selectedC
                     ${actionButton({ action: 'view', rowId: row.id, context: `banned-words-check-${tabId}`, data: { rowIndex: row._rowIndex }, title: 'Переглянути повний текст' })}
                 `;
             },
-            rowActionsHeader: '<input type="checkbox" class="select-all-checkbox">',
             getRowId: (row) => row.id,
             emptyState: { message: 'Заборонене слово не знайдено в цій колонці' },
             withContainer: false,

@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблична система — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+
+        body {
+            display: flex !important;
+            flex-direction: row !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            scroll-snap-type: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            background: var(--color-surface);
+        }
+
+        section {
+            height: auto !important;
+            min-height: auto !important;
+            scroll-snap-align: none !important;
+            overflow: visible !important;
+        }
+
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        /* SIDEBAR */
+        .m3-sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: 100dvh;
+            overflow-y: auto;
+            background: var(--color-surface-c-low);
+            border-right: 1px solid var(--color-outline);
+            padding: 24px 16px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m3-sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 8px 12px 20px;
+            color: var(--color-on-surface);
+            border-bottom: 1px solid var(--color-outline);
+            margin-bottom: 12px;
+        }
+        .m3-sidebar-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--color-on-surface-v);
+            display: block;
+            margin-top: 2px;
+        }
+        .m3-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active {
+            background: var(--color-main-c);
+            color: var(--color-main);
+            font-weight: 600;
+        }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* MAIN */
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        /* HERO */
+        .m3-hero {
+            background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%);
+            border-radius: 28px;
+            padding: 48px;
+            margin-bottom: 40px;
+            color: var(--color-on-main);
+        }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        /* SECTION */
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+
+        /* SECTION HERO */
+        .m3-section-hero {
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: var(--color-on-secondary);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+        }
+        .m3-section-hero h2 {
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            color: inherit;
+        }
+        .m3-section-hero p {
+            font-size: 13px;
+            opacity: 0.88;
+            margin: 0;
+            max-width: 600px;
+            line-height: 1.55;
+            color: inherit;
+        }
+
+        /* BLOCK */
+        .m3-block {
+            margin-bottom: 32px;
+            border: 1px solid var(--color-outline);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+        .m3-block-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        /* SPEC TABLE */
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-on-surface-v);
+            background: var(--color-surface-c-low);
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-spec td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--color-outline);
+            color: var(--color-on-surface);
+        }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            background: var(--color-surface-c);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* THEME TOGGLE */
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        /* SCROLLBAR */
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb {
+            background: var(--color-outline);
+            border-radius: 4px;
+        }
+
+        /* CODE BLOCKS */
+        .m3-code {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-outline);
+            background: var(--color-surface-c-low);
+            overflow-x: auto;
+        }
+        .m3-code-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 10px;
+        }
+        .m3-code pre {
+            margin: 0;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-on-surface);
+            white-space: pre;
+        }
+
+        /* PART DIVIDERS */
+        .m3-part {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 48px 0 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .m3-part:first-of-type { margin-top: 0; }
+        .m3-part-icon { font-size: 22px; color: var(--color-main); }
+        .m3-part-title { font-size: 20px; font-weight: 600; color: var(--color-on-surface); flex: 1; }
+        .m3-part-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.03em;
+        }
+        .m3-part-badge.locked {
+            background: color-mix(in srgb, #ba1a1a 12%, transparent);
+            color: #ba1a1a;
+        }
+        .m3-part-badge.removable {
+            background: var(--color-main-c);
+            color: var(--color-main);
+        }
+        .m3-part-badge.utility {
+            background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+            color: var(--color-secondary, #7b5ea7);
+        }
+
+        /* FILE CARDS GRID */
+        .m3-file-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .m3-file-card {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--color-outline);
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-file-card:nth-child(2n) { border-right: none; }
+        .m3-file-card:last-child { border-bottom: none; }
+        .m3-file-card:nth-last-child(2):nth-child(2n+1) { border-bottom: none; }
+        .m3-file-card-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-main);
+            margin-bottom: 4px;
+        }
+        .m3-file-card-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            margin-bottom: 5px;
+        }
+        .m3-file-card-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.6; }
+
+        /* STATE PILLS */
+        .m3-states {
+            display: flex;
+            gap: 12px;
+            padding: 20px 24px;
+            flex-wrap: wrap;
+        }
+        .m3-state-pill {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--color-outline);
+            flex: 1;
+            min-width: 160px;
+        }
+        .m3-state-pill-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-main);
+        }
+        .m3-state-pill-desc {
+            font-size: 12px;
+            color: var(--color-on-surface-v);
+            line-height: 1.5;
+        }
+
+        /* FLOW */
+        .m3-flow {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        .m3-flow-step {
+            flex: 1;
+            padding: 16px 18px;
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-flow-step:last-child { border-right: none; }
+        .m3-flow-step-num {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 6px;
+        }
+        .m3-flow-step-title { font-size: 13px; font-weight: 600; color: var(--color-on-surface); margin-bottom: 4px; }
+        .m3-flow-step-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.55; }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">
+            Таблична система
+            <span>pinguin-v5</span>
+        </div>
+
+        <a href="#structure" class="m3-nav-item active">
+            <span class="material-symbols-outlined">folder_open</span>Структура файлів
+        </a>
+        <a href="#column-types" class="m3-nav-item">
+            <span class="material-symbols-outlined">view_column</span>Типи колонок
+        </a>
+        <a href="#col-factory" class="m3-nav-item">
+            <span class="material-symbols-outlined">factory</span>Фабрика col()
+        </a>
+        <a href="#managed-table" class="m3-nav-item">
+            <span class="material-symbols-outlined">table_chart</span>createManagedTable
+        </a>
+        <a href="#config-standard" class="m3-nav-item">
+            <span class="material-symbols-outlined">rule</span>Стандарт конфігу
+        </a>
+        <a href="#charms" class="m3-nav-item">
+            <span class="material-symbols-outlined">auto_awesome</span>Шарми (charms)
+        </a>
+        <a href="#data-transforms" class="m3-nav-item">
+            <span class="material-symbols-outlined">transform</span>Дані і трансформи
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="m3-main">
+        <div class="m3-content">
+
+            <div class="m3-theme-toggle">
+                <button class="fab"
+                    onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>Таблична система</h1>
+                <p>LEGO Table — єдина система для всіх таблиць проєкту. Один виклик <code style="opacity:0.8; font-size:14px">createManagedTable()</code> — пошук, пагінація, фільтри, видимість колонок.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- СТРУКТУРА ФАЙЛІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="structure">
+                <div class="m3-section-hero">
+                    <h2>Структура файлів</h2>
+                    <p>Папка <code>js/components/table/</code> — 9 файлів. Ядро рендеру, типи колонок, обгортка managed table і плагіни.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">lock</span>
+                        <span class="m3-part-title">ЯДРО</span>
+                        <span class="m3-part-badge locked">не видаляти</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-core.js</div>
+                            <div class="m3-file-card-role">Рендер таблиці</div>
+                            <div class="m3-file-card-desc">Рендер заголовків, рядків, комірок. Базова функція <code>renderTable()</code> яка будує DOM таблиці з конфігу.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-column-types.js</div>
+                            <div class="m3-file-card-role">16 типів колонок + col() фабрика</div>
+                            <div class="m3-file-card-desc">Реєстр стандартних типів з готовими render-функціями. Фабрика <code>col()</code> для декларативного опису колонок.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-managed.js</div>
+                            <div class="m3-file-card-role">Обгортка managed table</div>
+                            <div class="m3-file-card-desc">З'єднує таблицю, пошук, пагінацію, видимість колонок, фільтри. Функція <code>createManagedTable()</code>.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-main.js</div>
+                            <div class="m3-file-card-role">Публічний API, реекспорт</div>
+                            <div class="m3-file-card-desc">Єдина точка входу для зовнішніх модулів. Реекспортує все потрібне з інших файлів таблиці.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">extension</span>
+                        <span class="m3-part-title">ПЛАГІНИ</span>
+                        <span class="m3-part-badge removable">можна видалити</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-sorting.js</div>
+                            <div class="m3-file-card-role">Плагін сортування</div>
+                            <div class="m3-file-card-desc">Сортування по колонках з <code>sortable: true</code>. Підключається через масив <code>plugins</code> в tableConfig.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-filters.js</div>
+                            <div class="m3-file-card-role">Плагін фільтрів</div>
+                            <div class="m3-file-card-desc">Фільтрація по колонках. Dropdown фільтри для кожної колонки з <code>filterable: true</code>.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-checkboxes.js</div>
+                            <div class="m3-file-card-role">Плагін чекбоксів + batch actions</div>
+                            <div class="m3-file-card-desc">Чекбокси в рядках, "вибрати всі", batch-панель масових дій. Потребує <code>checkboxPrefix</code> в конфігу.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-badges.js</div>
+                            <div class="m3-file-card-role">Рендер badge/severity компонентів</div>
+                            <div class="m3-file-card-desc">Функції <code>renderBadge()</code> і <code>renderSeverityBadge()</code> для типів badge-toggle і severity.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">build</span>
+                        <span class="m3-part-title">СТАНИ</span>
+                        <span class="m3-part-badge utility">виклик напряму</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
+                            <div class="m3-file-card-name">table-states.js</div>
+                            <div class="m3-file-card-role">Стани таблиці</div>
+                            <div class="m3-file-card-desc">Рендер станів: loading (скелетон), empty (порожня таблиця), error (помилка), auth (потрібна авторизація).</div>
+                        </div>
+                        <div class="m3-file-card" style="border-bottom: none;">
+                            <div class="m3-file-card-name">table-states.css</div>
+                            <div class="m3-file-card-role">CSS станів</div>
+                            <div class="m3-file-card-desc">Стилі для скелетонів, порожніх станів, анімацій завантаження. Файл: <code>css/components/tables/</code>.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ТИПИ КОЛОНОК -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="column-types">
+                <div class="m3-section-hero">
+                    <h2>Типи колонок</h2>
+                    <p>16 стандартних типів. Кожен тип задає <code>span</code>, <code>align</code>, <code>sortable</code>, <code>searchable</code> і <code>render</code>. Override render ЗАБОРОНЕНО.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Реєстр COLUMN_TYPES</h3>
+                        <p>Значення <code>span</code> визначає пропорційну ширину колонки (flex-система <code>.col-N</code>). Клас <code>u-max-80</code> обмежує колонку до 80px.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Тип</th>
+                            <th>span</th>
+                            <th>align</th>
+                            <th>class</th>
+                            <th>sortable</th>
+                            <th>searchable</th>
+                            <th>Render</th>
+                        </tr>
+                        <tr>
+                            <td><code>tag</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>true</td>
+                            <td>true</td>
+                            <td><code>&lt;span class="tag c-blue"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>3</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>true</td>
+                            <td>true</td>
+                            <td><code>&lt;strong&gt;</code> bold текст</td>
+                        </tr>
+                        <tr>
+                            <td><code>text</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>true</td>
+                            <td>true</td>
+                            <td>escaped string</td>
+                        </tr>
+                        <tr>
+                            <td><code>status-dot</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>true</td>
+                            <td>--</td>
+                            <td><code>&lt;span class="dot c-*"&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>badge-toggle</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>true</td>
+                            <td>--</td>
+                            <td>clickable badge (renderBadge)</td>
+                        </tr>
+                        <tr>
+                            <td><code>severity</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>true</td>
+                            <td>--</td>
+                            <td>renderSeverityBadge</td>
+                        </tr>
+                        <tr>
+                            <td><code>counter</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>true</td>
+                            <td>--</td>
+                            <td><code>&lt;span class="counter"&gt;N&times;&lt;/span&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>words-list</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>false</td>
+                            <td>--</td>
+                            <td>first tag + <code>+N</code> counter</td>
+                        </tr>
+                        <tr>
+                            <td><code>photo</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td>--</td>
+                            <td>false</td>
+                            <td>--</td>
+                            <td><code>&lt;img&gt;</code> або placeholder icon</td>
+                        </tr>
+                        <tr>
+                            <td><code>input</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>false</td>
+                            <td>--</td>
+                            <td>текст або <code>&lt;input&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>binding-chip</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>false</td>
+                            <td>--</td>
+                            <td><code>&lt;span class="chip"&gt;</code> + tooltip</td>
+                        </tr>
+                        <tr>
+                            <td><code>code</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>true</td>
+                            <td>true</td>
+                            <td><code>&lt;code&gt;</code> моноширинний</td>
+                        </tr>
+                        <tr>
+                            <td><code>select</code></td>
+                            <td>2</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>false</td>
+                            <td>--</td>
+                            <td><code>&lt;select data-custom-select&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>links</code></td>
+                            <td>1</td>
+                            <td>start</td>
+                            <td>--</td>
+                            <td>false</td>
+                            <td>false</td>
+                            <td><code>&lt;a class="btn-icon"&gt;</code> іконки</td>
+                        </tr>
+                        <tr>
+                            <td><code>reserve</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td>--</td>
+                            <td>true</td>
+                            <td>--</td>
+                            <td>badge N/D або avatar</td>
+                        </tr>
+                        <tr>
+                            <td><code>action</code></td>
+                            <td>1</td>
+                            <td>center</td>
+                            <td><code>u-max-80</code></td>
+                            <td>false</td>
+                            <td>false</td>
+                            <td>render через rowActions</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Кольори статусу (DOT_COLOR)</h3>
+                        <p>Маппінг значень на CSS-класи кольорів для типу <code>status-dot</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Значення</th>
+                            <th>CSS клас</th>
+                        </tr>
+                        <tr>
+                            <td><code>active</code>, <code>true</code></td>
+                            <td><code>c-green</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>draft</code></td>
+                            <td><code>c-yellow</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>hidden</code>, <code>inactive</code>, <code>false</code></td>
+                            <td><code>c-red</code></td>
+                        </tr>
+                        <tr>
+                            <td>Все інше</td>
+                            <td><code>c-grey</code></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ФАБРИКА col() -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="col-factory">
+                <div class="m3-section-hero">
+                    <h2>Фабрика col()</h2>
+                    <p>Декларативний спосіб описати колонку. Бере базові значення з типу і дозволяє перевизначити структурні поля (span, sortable, filterable).</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Сигнатура</h3>
+                        <p>Повертає об'єкт конфігу колонки для <code>createTable</code> / <code>createManagedTable</code>.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Сигнатура</div>
+<pre>col(id, label, type, overrides?)
+
+// id        — ключ в даних (snake_case)
+// label     — відображувана назва в заголовку
+// type      — тип з COLUMN_TYPES (16 типів)
+// overrides — перевизначення: span, align, sortable, filterable, class тощо
+//             Override render ЗАБОРОНЕНО — render береться ТІЛЬКИ з типу</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Результат</div>
+<pre>col('brand_id', 'ID', 'tag')
+// → { id: 'brand_id', label: 'ID', type: 'tag',
+//     span: 2, sortable: true, searchable: true,
+//     render: (value) => '&lt;span class="tag c-blue"&gt;...' }</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Приклади використання</h3>
+                        <p>Типові декларації колонок для сторінки brands.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Декларація колонок</div>
+<pre>import { col } from '../../components/table/table-column-types.js';
+
+const columns = [
+    col('brand_id',     'ID',        'tag'),
+    col('name_uk',      'Назва',     'name'),
+    col('country',      'Країна',    'text',       { span: 1, filterable: true }),
+    col('status',       'Статус',    'status-dot'),
+    col('is_exclusive', 'Ексклюзив', 'badge-toggle'),
+    col('severity',     'Пріоритет', 'severity'),
+    col('lines_count',  'Лінійки',   'counter'),
+    col('words',        'Слова',     'words-list'),
+    col('slug',         'Slug',      'code'),
+    col('links',        'URL',       'links'),
+];</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- createManagedTable -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="managed-table">
+                <div class="m3-section-hero">
+                    <h2>createManagedTable</h2>
+                    <p>Головна функція що з'єднує Table LEGO + пошук + пагінацію + фільтри + видимість колонок. Один виклик — таблиця повністю функціональна.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Стандартний конфіг</h3>
+                        <p>Порядок ключів ФІКСОВАНИЙ і ОДНАКОВИЙ на всіх сторінках. Не міняти порядок, не додавати зайвих ключів.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Повний конфіг з коментарями</div>
+<pre>const table = createManagedTable({
+    // ── Контейнер і дані ──
+    container:     'brands-table',       // ID або HTMLElement
+    columns:       columns,              // масив col() декларацій
+    data:          brandsData,           // [{field: value}, ...]
+
+    // ── Зовнішні DOM елементи ──
+    searchInputId: 'brands-search',      // ID інпута пошуку
+    statsId:       'brands-stats',       // ID елемента "Показано X з Y"
+    paginationId:  'brands-pagination',  // ID контейнера пагінації
+
+    // ── Конфігурація таблиці ──
+    tableConfig: {
+        rowActionsHeader: 'Дії',         // заголовок колонки дій
+        rowActions:  (row) => '...',     // HTML кнопок дій для рядка
+        getRowId:    (row) => row.id,    // унікальний ID рядка
+        emptyState:  'brands',           // тип порожнього стану
+        withContainer: true,             // обгортка .pseudo-table-container
+        onAfterRender: () => { ... },    // callback після рендеру
+        plugins:     [sortingPlugin],    // масив плагінів
+    },
+
+    // ── Трансформація і фільтрація ──
+    dataTransform: (data) => data,       // трансформація ПЕРЕД фільтрацією
+    preFilter:     (data) => data,       // додатковий фільтр ПІСЛЯ пошуку
+
+    // ── Пагінація і чекбокси ──
+    pageSize:        25,                 // рядків на сторінку
+    checkboxPrefix:  'brands',           // префікс для чекбоксів
+});</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>API об'єкта managed table</h3>
+                        <p>Функція повертає об'єкт з методами для керування таблицею після створення.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Основні методи</div>
+<pre>// Оновити дані (повний перерендер)
+table.updateData(newData);
+
+// Перефільтрувати без перерендеру (пошук, фільтри)
+table.refilter();
+
+// Знищити таблицю (cleanup DOM, listeners)
+table.destroy();
+
+// Activate/deactivate для табів зі спільним пошуком
+table.activate();
+table.deactivate();</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Патерни використання</h3>
+                        <p>Три стандартних патерни що МУСЯТЬ бути ідентичними на всіх сторінках.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Render патерн</div>
+<pre>// Якщо контейнер не в DOM — ініціалізація, return
+// Інакше — updateData
+function renderBrandsTable(data) {
+    const container = document.getElementById('brands-table');
+    if (!container) return;
+
+    if (!brandsTable) {
+        brandsTable = createManagedTable({ ... });
+        return;
+    }
+    brandsTable.updateData(data);
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">rowsOnly патерн</div>
+<pre>// rowsOnly: true → refilter, інакше → повний renderTable
+if (rowsOnly) {
+    brandsTable.refilter();
+} else {
+    renderBrandsTable(data);
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Reset патерн</div>
+<pre>// Знищити → null → очистити стан
+brandsTable.destroy();
+brandsTable = null;
+// очистка state.brands = [] тощо</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- СТАНДАРТ КОНФІГУ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="config-standard">
+                <div class="m3-section-hero">
+                    <h2>Стандарт конфігу</h2>
+                    <p>Правила що забезпечують однаковість коду на всіх сторінках. Порушення правил — технічний борг.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Обов'язкові правила</h3>
+                        <p>Кожна таблиця в проєкті МУСИТЬ дотримуватись цих правил без виключень.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Правило</th>
+                            <th>Пояснення</th>
+                        </tr>
+                        <tr>
+                            <td>ВСІ колонки через <code>col()</code></td>
+                            <td>Ніколи не створювати об'єкт колонки вручну. Тільки фабрика <code>col(id, label, type, overrides)</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>Без underscore префіксів в ID</td>
+                            <td>ID колонки = ключ в даних. Пишемо <code>brand_id</code>, не <code>_brand_id</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>Порядок ключів конфігу ФІКСОВАНИЙ</td>
+                            <td><code>container &rarr; columns &rarr; data &rarr; searchInputId &rarr; statsId &rarr; paginationId &rarr; tableConfig &rarr; dataTransform &rarr; preFilter &rarr; pageSize &rarr; checkboxPrefix</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>rowActionsHeader</code> + <code>rowActions</code> в парі</td>
+                            <td>Якщо є дії в рядку — обидва ключі обов'язкові. Якщо немає — обидва відсутні.</td>
+                        </tr>
+                        <tr>
+                            <td><code>emptyState</code>, <code>getRowId</code>, <code>withContainer</code> обов'язкові</td>
+                            <td>Кожна таблиця повинна мати ці три ключі в <code>tableConfig</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>pageSize</code> і <code>checkboxPrefix</code> завжди ПІСЛЯ tableConfig</td>
+                            <td>Ці ключі йдуть в самому кінці конфігу, після <code>dataTransform</code> і <code>preFilter</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>snake_case для ключів даних</td>
+                            <td>Дані з API приходять у <code>snake_case</code>. ID колонок повинні відповідати ключам даних.</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Патерн visibleCols / searchCols</h3>
+                        <p>Однаковий на всіх сторінках. Порожній масив truthy в JS — тому використовуємо <code>.length &gt; 0</code> тернарний оператор.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Стандартний патерн</div>
+<pre>// Правильно — .length > 0 тернарний
+visibleCols = state.brands.length > 0 ? state.brands : [defaults]
+searchCols  = state.brands.length > 0 ? state.brands : [defaults]
+
+// НЕПРАВИЛЬНО — || не працює з порожнім масивом ([] truthy!)
+visibleCols = state.brands || [defaults]  // BUG!
+
+// Searchable колонки
+searchable: searchCols.includes(c.id) || c.searchable === true</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ШАРМИ (CHARMS) -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="charms">
+                <div class="m3-section-hero">
+                    <h2>Шарми (charms)</h2>
+                    <p>HTML-атрибути на <code>.pseudo-table-container</code> що автоматично додають UI-функціональність. Декларативний підхід — нуль JS для підключення.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Доступні шарми</h3>
+                        <p>Додай атрибут на контейнер таблиці — і функціональність з'явиться автоматично.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Атрибут</th>
+                            <th>Що робить</th>
+                            <th>Приклад</th>
+                        </tr>
+                        <tr>
+                            <td><code>pagination</code></td>
+                            <td>Додає пагінацію під таблицею</td>
+                            <td><code>&lt;div class="pseudo-table-container" pagination&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>refresh</code></td>
+                            <td>Додає кнопку оновлення даних</td>
+                            <td><code>&lt;div class="pseudo-table-container" refresh&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>columns</code></td>
+                            <td>Додає dropdown для вибору видимих колонок</td>
+                            <td><code>&lt;div class="pseudo-table-container" columns&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>compact</code></td>
+                            <td>Зменшує padding комірок (компактний режим)</td>
+                            <td><code>&lt;div class="pseudo-table-container" compact&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>striped</code></td>
+                            <td>Чергування кольору рядків (зебра)</td>
+                            <td><code>&lt;div class="pseudo-table-container" striped&gt;</code></td>
+                        </tr>
+                    </table>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML з кількома шармами</div>
+<pre>&lt;div id="brands-table"
+     class="pseudo-table-container"
+     pagination
+     columns
+     compact
+     striped&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ДАНІ І ТРАНСФОРМИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="data-transforms">
+                <div class="m3-section-hero">
+                    <h2>Дані і трансформи</h2>
+                    <p>Два механізми обробки даних: <code>dataTransform</code> для перетворення структури і <code>preFilter</code> для додаткової фільтрації.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>dataTransform vs preFilter</h3>
+                        <p>Обидва приймають масив даних і повертають масив. Різниця — в моменті застосування і призначенні.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Властивість</th>
+                            <th>dataTransform</th>
+                            <th>preFilter</th>
+                        </tr>
+                        <tr>
+                            <td>Коли</td>
+                            <td>ПЕРЕД будь-якою фільтрацією</td>
+                            <td>ПІСЛЯ пошуку і column filters</td>
+                        </tr>
+                        <tr>
+                            <td>Призначення</td>
+                            <td>Змінити структуру даних (додати поля, перетворити формат)</td>
+                            <td>Додатково відфільтрувати результат (зовнішні критерії)</td>
+                        </tr>
+                        <tr>
+                            <td>Типовий випадок</td>
+                            <td>Обчислити <code>lines_count</code> з масиву, зібрати <code>words</code> в рядок</td>
+                            <td>Показати тільки <code>status === 'active'</code></td>
+                        </tr>
+                        <tr>
+                            <td>Змінює кількість</td>
+                            <td>Ні — ті самі рядки, інші поля</td>
+                            <td>Так — менше рядків на виході</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Порядок обробки даних</h3>
+                        <p>Повний ланцюг від сирих даних до відображення в таблиці.</p>
+                    </div>
+                    <div class="m3-flow">
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 1</div>
+                            <div class="m3-flow-step-title">dataTransform</div>
+                            <div class="m3-flow-step-desc">Перетворення структури. Додає обчислювані поля, нормалізує формат.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 2</div>
+                            <div class="m3-flow-step-title">Текстовий пошук</div>
+                            <div class="m3-flow-step-desc">Фільтрація по searchable колонках. Враховує visibleCols.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 3</div>
+                            <div class="m3-flow-step-title">Column filters</div>
+                            <div class="m3-flow-step-desc">Dropdown фільтри по окремих колонках з <code>filterable: true</code>.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 4</div>
+                            <div class="m3-flow-step-title">preFilter</div>
+                            <div class="m3-flow-step-desc">Зовнішній фільтр. Додаткове звуження результатів.</div>
+                        </div>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Приклад dataTransform</div>
+<pre>dataTransform: (data) => data.map(brand => ({
+    ...brand,
+    lines_count: brand.lines?.length || 0,
+    words: (brand.keywords || []).join(', '),
+}))</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Приклад preFilter</div>
+<pre>preFilter: (data) => data.filter(row =>
+    row.status === 'active' || row.status === 'draft'
+)</pre>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Формат даних</h3>
+                        <p>Всі таблиці споживають однаковий формат — масив об'єктів з <code>snake_case</code> ключами.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Стандартний формат</div>
+<pre>// Дані з API — завжди [{field: value}, ...]
+const data = [
+    { brand_id: 'bran-A1B2C3', name_uk: 'Бренд', country: 'UA', status: 'active' },
+    { brand_id: 'bran-D4E5F6', name_uk: 'Інший',  country: 'DE', status: 'draft'  },
+];
+
+// ID формат: prefix-XXXXXX
+// bran-, line-, ban-, glo-, cat-, char-, opt-</pre>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Підсвічування активного пункту в sidebar при скролі
+        const navItems = document.querySelectorAll('.m3-nav-item');
+        const sections = document.querySelectorAll('.m3-section');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const active = document.querySelector(`.m3-nav-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+    </script>
+
+</body>
+</html>

@@ -39,17 +39,17 @@ let _actionCleanup = null;
 export function getLinesColumns() {
     return [
         col('line_id', 'ID', 'tag'),
-        col('_brandName', 'Бренд', 'text', { span: 3 }),
+        col('brand_name', 'Бренд', 'text', { span: 3 }),
         col('name_uk', 'Назва лінійки', 'name', { span: 5 }),
-        col('_hasLogo', 'Логотип', 'status-dot')
+        col('has_logo', 'Логотип', 'status-dot')
     ];
 }
 
 function enrichLinesData(lines) {
     return lines.map(l => ({
         ...l,
-        _brandName: getBrandById(l.brand_id)?.name_uk || l.brand_id || '—',
-        _hasLogo: l.line_logo_url ? 'active' : 'inactive'
+        brand_name: getBrandById(l.brand_id)?.name_uk || l.brand_id || '—',
+        has_logo: l.line_logo_url ? 'active' : 'inactive'
     }));
 }
 
@@ -60,11 +60,11 @@ function enrichLinesData(lines) {
 function initLinesTable() {
     const visibleCols = brandsState.linesVisibleColumns.length > 0
         ? brandsState.linesVisibleColumns
-        : ['line_id', '_brandName', 'name_uk'];
+        : ['line_id', 'brand_name', 'name_uk'];
 
     const searchCols = brandsState.linesSearchColumns.length > 0
         ? brandsState.linesSearchColumns
-        : ['line_id', 'name_uk', '_brandName'];
+        : ['line_id', 'name_uk', 'brand_name'];
 
     brandsState.linesManagedTable = createManagedTable({
         container: 'lines-table-container',
@@ -98,7 +98,7 @@ function initLinesTable() {
                 sorting: {
                     columnTypes: {
                         line_id: 'id-text',
-                        _brandName: 'string',
+                        brand_name: 'string',
                         name_uk: 'string'
                     }
                 }
@@ -106,7 +106,7 @@ function initLinesTable() {
         },
 
         dataTransform: (data) => enrichLinesData(data),
-
+        preFilter: null,
         pageSize: null,
         checkboxPrefix: 'lines'
     });

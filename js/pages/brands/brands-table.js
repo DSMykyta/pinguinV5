@@ -116,7 +116,7 @@ function initBrandsTable() {
                 return { ...b, bindings: { count, tooltip: `Лінійок: ${count}` } };
             });
         },
-
+        preFilter: null,
         pageSize: null,
         checkboxPrefix: 'brands'
     });

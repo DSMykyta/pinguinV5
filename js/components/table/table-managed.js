@@ -99,7 +99,7 @@ export function createManagedTable(config) {
 
     // Columns always visible (action columns excluded from visibility selector)
     const alwaysVisibleIds = columns
-        .filter(c => c.id === '_unlink' || c.id === '_actions' || !c.label?.trim())
+        .filter(c => c.type === 'action' || !c.label?.trim())
         .map(c => c.id);
 
     const tableAPI = renderTable(container, {
@@ -132,7 +132,7 @@ export function createManagedTable(config) {
     // ── 2. Column visibility selector ──
     if (effectiveColumnsListId) {
         const visibilityColumns = columns
-            .filter(c => c.id !== '_unlink' && c.id !== '_actions' && c.label?.trim())
+            .filter(c => c.type !== 'action' && c.label?.trim())
             .map(c => ({
                 id: c.id,
                 label: c.label,

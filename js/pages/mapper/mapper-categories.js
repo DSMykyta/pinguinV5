@@ -508,31 +508,29 @@ function populateRelatedCharacteristics(categoryId) {
             { ...col('category_ids', 'Категорія', 'binding-chip', { span: 2 }), searchable: true, searchChecked: false },
             { ...col('name_ua', 'Назва', 'name', { span: 4 }), searchable: true },
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
-            {
-                id: '_optCount', label: 'Опції', sortable: true,
-                span: 1, align: 'center',
+            col('optCount', 'Опції', 'counter', {
+                sortable: true,
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
                     const cls = count === 0 ? 'chip' : 'chip c-secondary';
                     return `<span class="${cls}">${count}</span>`;
                 }
-            },
-            {
-                id: '_unlink', label: ' ', sortable: false, span: 1,
+            }),
+            col('action', ' ', 'action', {
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.name_ua || row.id }
                 })
-            }
+            })
         ],
         data: loadData(),
         searchInputId: 'category-chars-search',
         statsId: null,
         paginationId: null,
-        pageSize: null,
-        checkboxPrefix: 'cat-chars',
         tableConfig: {
+            rowActionsHeader: ' ',
             rowActions: (row) => actionButton({ action: 'edit', rowId: row.id }),
+            getRowId: (row) => row.id,
             emptyState: { message: 'Характеристики відсутні' },
             withContainer: false,
             onAfterRender: (cont) => {
@@ -542,7 +540,10 @@ function populateRelatedCharacteristics(categoryId) {
             plugins: {
                 sorting: { columnTypes: { id: 'id-text', name_ua: 'string' } }
             }
-        }
+        },
+        preFilter: null,
+        pageSize: null,
+        checkboxPrefix: 'cat-chars'
     });
 
     initPaginationCharm();
@@ -902,7 +903,7 @@ function renderMpCategoriesSectionContent(byMarketplace, totalCount) {
             </div>
         </div>
         <div class="section-content">
-            <div class="block-group">
+            <div class="block-group grid">
                 ${cardsHtml || renderAvatarState('empty', { message: "Немає прив'язок", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true })}
             </div>
         </div>

@@ -227,6 +227,16 @@ export const COLUMN_TYPES = {
             }
             return `<span data-tooltip="${escapeHtml(name)}">${escapeHtml(name)}</span>`;
         }
+    },
+
+    // 16. Action — колонка дій (render завжди через override)
+    action: {
+        span: 1,
+        align: 'center',
+        class: 'u-max-80',
+        sortable: false,
+        searchable: false,
+        render: () => ''
     }
 };
 
