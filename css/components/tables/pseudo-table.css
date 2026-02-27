@@ -47,9 +47,20 @@
  */
 
 /* ============================================ */
-/* КОНТЕЙНЕР */
+/* КОНТЕЙНЕР — card-rows variant                */
 /* ============================================ */
 
+.pseudo-table-container {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: transparent;
+}
+
+/* ---- OLD (border-box) ----
 .pseudo-table-container {
     height: 100%;
     overflow-y: auto;
@@ -58,11 +69,33 @@
     border-radius: var(--radius-m);
     background-color: var(--color-surface-c-low);
 }
+---- /OLD ---- */
 
 /* ============================================ */
-/* ШАПКА ТАБЛИЦІ */
+/* ШАПКА ТАБЛИЦІ — card-rows variant            */
 /* ============================================ */
 
+.pseudo-table-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    background: transparent;
+    color: var(--color-on-surface-v);
+    border-bottom: none;
+}
+
+.pseudo-table-header .pseudo-table-cell {
+    background: transparent;
+    padding: 8px 16px;
+    overflow: visible;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* ---- OLD (solid header) ----
 .pseudo-table-header {
     position: sticky;
     top: 0;
@@ -72,29 +105,32 @@
     color: var(--color-on-surface);
     border-bottom: 1px solid var(--color-outline-v);
 }
-
 .pseudo-table-header .pseudo-table-cell {
     background: var(--color-surface);
     padding: 12px 16px;
     overflow: visible;
 }
+---- /OLD ---- */
 
 /* ============================================ */
-/* РЯДКИ */
+/* РЯДКИ — card-rows variant                    */
 /* ============================================ */
 
 .pseudo-table-row {
     display: flex;
-    border-bottom: 1px solid var(--color-outline-v);
-    transition: background-color 150ms ease;
+    background: var(--color-surface);
+    border: 1px solid var(--color-outline);
+    border-radius: var(--radius-s);
+    transition: box-shadow 150ms ease, border-color 150ms ease;
 }
 
 .pseudo-table-row:hover {
-    background-color: var(--color-surface-c);
+    box-shadow: var(--shadow-1);
+    border-color: var(--color-outline-v);
 }
 
 .pseudo-table-row:last-child {
-    border-bottom: none;
+    border-radius: var(--radius-s);
 }
 
 /* Клікабельні рядки (відкривають модал) */
@@ -103,9 +139,30 @@
 }
 
 .pseudo-table-row.clickable-row:hover {
+    box-shadow: var(--shadow-1);
+    border-color: var(--color-outline-v);
+}
+
+/* ---- OLD (bordered rows) ----
+.pseudo-table-row {
+    display: flex;
+    border-bottom: 1px solid var(--color-outline-v);
+    transition: background-color 150ms ease;
+}
+.pseudo-table-row:hover {
+    background-color: var(--color-surface-c);
+}
+.pseudo-table-row:last-child {
+    border-bottom: none;
+}
+.pseudo-table-row.clickable-row {
+    cursor: pointer;
+}
+.pseudo-table-row.clickable-row:hover {
     background-color: var(--color-surface-c);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+---- /OLD ---- */
 
 /* ============================================ */
 /* КЛІТИНКИ                                     */
@@ -148,7 +205,7 @@
 }
 
 .sortable-header:hover {
-    background: var(--color-surface-c-high);
+    background: var(--color-surface-c);
 }
 
 .sort-indicator {

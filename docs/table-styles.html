@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Table Styles — Вісто, Спокійно, Зрозуміло</title>
+    <!-- Тільки потрібні CSS компоненти (без layout) -->
+    <link rel="stylesheet" href="../css/root.css">
+    <link rel="stylesheet" href="../css/foundation/reset.css">
+    <link rel="stylesheet" href="../css/foundation/typography.css">
+    <link rel="stylesheet" href="../css/components/tables/pseudo-table.css">
+    <link rel="stylesheet" href="../css/components/forms/checkbox.css">
+    <link rel="stylesheet" href="../css/components/buttons/button-base.css">
+    <link rel="stylesheet" href="../css/components/buttons/button-icon.css">
+    <link rel="stylesheet" href="../css/components/feedback/dot.css">
+    <link rel="stylesheet" href="../css/components/feedback/chip.css">
+    <link rel="stylesheet" href="../css/components/feedback/tag.css">
+    <link rel="stylesheet" href="../css/components/feedback/counter.css">
+    <link rel="stylesheet" href="../css/components/feedback/badge.css">
+    <link rel="stylesheet" href="../css/layers/colors.css">
+    <link rel="stylesheet" href="../css/utilities/grid.css">
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;450;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <style>
+        body {
+            font-family: var(--font-body);
+            background: var(--color-surface-c-low);
+            color: var(--color-on-surface);
+            padding: 40px;
+            transition: background 300ms, color 300ms;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .page-header h1 { font-family: var(--font-body); font-size: 20px; font-weight: 500; }
+        .page-header .subtitle { font-size: 13px; color: var(--color-on-surface-v); margin-top: 2px; }
+
+        .theme-switch {
+            display: flex;
+            gap: 4px;
+            background: var(--color-surface-c);
+            border-radius: var(--radius-full);
+            padding: 4px;
+        }
+        .theme-switch button {
+            border: none;
+            background: transparent;
+            color: var(--color-on-surface-v);
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 13px;
+            transition: all 150ms;
+        }
+        .theme-switch button.active {
+            background: var(--color-surface);
+            color: var(--color-on-surface);
+            box-shadow: var(--shadow-1);
+        }
+
+        .pseudo-table-container {
+            max-height: 420px;
+        }
+
+        /* ===== DEMO LAYOUT ===== */
+        .variant-section {
+            margin-top: 48px;
+        }
+        .variant-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--color-on-surface-v);
+            margin-bottom: 4px;
+        }
+        .variant-desc {
+            font-size: 13px;
+            color: var(--color-on-surface-v);
+            margin-bottom: 16px;
+        }
+
+        /* ============================================ */
+        /* VARIANT A — «Відкрита»                       */
+        /* Без рамки контейнера. Тільки лінія під       */
+        /* хедером і найтонші сепаратори між рядками.   */
+        /* ============================================ */
+        .v-open .pseudo-table-container {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+        }
+        .v-open .pseudo-table-header {
+            background: transparent;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .v-open .pseudo-table-header .pseudo-table-cell {
+            background: transparent;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .v-open .pseudo-table-row {
+            border-bottom: 1px solid color-mix(in srgb, var(--color-outline) 50%, transparent);
+        }
+        .v-open .pseudo-table-row:last-child { border-bottom: none; }
+        .v-open .pseudo-table-row:hover {
+            background: color-mix(in srgb, var(--color-main) 4%, transparent);
+        }
+
+        /* ============================================ */
+        /* VARIANT B — «Зебра»                          */
+        /* М'який контейнер, без ліній між рядками,     */
+        /* фон чергується (парні — підсвітка).          */
+        /* ============================================ */
+        .v-zebra .pseudo-table-container {
+            border: none;
+            border-radius: var(--radius-m);
+            background: var(--color-surface);
+            box-shadow: var(--shadow-1);
+        }
+        .v-zebra .pseudo-table-header {
+            background: transparent;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .v-zebra .pseudo-table-header .pseudo-table-cell {
+            background: transparent;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .v-zebra .pseudo-table-row {
+            border-bottom: none;
+        }
+        .v-zebra .pseudo-table-row:nth-child(even) {
+            background: var(--color-surface-c-low);
+        }
+        .v-zebra .pseudo-table-row:hover {
+            background: var(--color-surface-c);
+        }
+
+        /* ============================================ */
+        /* VARIANT C — «Рядки-картки»                   */
+        /* Кожен рядок — окрема картка з gap.           */
+        /* Повітря між елементами.                      */
+        /* ============================================ */
+        .v-cards .pseudo-table-container {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .v-cards .pseudo-table-header {
+            background: transparent;
+            border-bottom: none;
+            padding: 0 8px;
+        }
+        .v-cards .pseudo-table-header .pseudo-table-cell {
+            background: transparent;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 8px 16px;
+        }
+        .v-cards .pseudo-table-row {
+            border-bottom: none;
+            background: var(--color-surface);
+            border-radius: var(--radius-s);
+            border: 1px solid var(--color-outline);
+        }
+        .v-cards .pseudo-table-row:hover {
+            background: var(--color-surface);
+            box-shadow: var(--shadow-1);
+            border-color: var(--color-outline-v);
+        }
+
+        /* ============================================ */
+        /* VARIANT D — «Повітря»                        */
+        /* Мінімум деталей. Жодних ліній між рядками.   */
+        /* Тільки hover підсвітка. Максимум простору.   */
+        /* ============================================ */
+        .v-air .pseudo-table-container {
+            border: 1px solid var(--color-outline);
+            border-radius: var(--radius-l);
+            background: var(--color-surface);
+        }
+        .v-air .pseudo-table-header {
+            background: transparent;
+            border-bottom: none;
+        }
+        .v-air .pseudo-table-header .pseudo-table-cell {
+            background: transparent;
+            color: var(--color-on-surface-v);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 16px 16px 8px;
+        }
+        .v-air .pseudo-table-row {
+            border-bottom: none;
+            border-radius: var(--radius-s);
+            margin: 0 6px;
+        }
+        .v-air .pseudo-table-row:hover {
+            background: var(--color-surface-c-low);
+        }
+        .v-air .pseudo-table-cell {
+            padding: 14px 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div>
+        <h1>Таблиці — новий стиль</h1>
+        <div class="subtitle">Вісто. Спокійно. Зрозуміло.</div>
+    </div>
+    <div class="theme-switch">
+        <button class="active" onclick="setTheme('light')">Light</button>
+        <button onclick="setTheme('dark')">Dark</button>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ТАБЛИЦЯ: ХАРАКТЕРИСТИКИ (1:1 з mapper.html)  -->
+<!-- ============================================ -->
+
+<div class="pseudo-table-container">
+
+    <!-- HEADER -->
+    <div class="pseudo-table-header">
+        <!-- rowActions: checkbox + edit -->
+        <div class="pseudo-table-cell col-1 header-actions-cell">
+            <input type="checkbox" class="select-all-checkbox">
+        </div>
+        <!-- ID (tag, span 1) -->
+        <div class="pseudo-table-cell col-1 sortable-header sorted-asc" data-column="id">
+            <span>ID</span>
+            <span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span>
+        </div>
+        <!-- Категорія (chip, span 1, center) -->
+        <div class="pseudo-table-cell col-1 cell-align-center" data-column="_raw_category_ids">
+            <span>Категорія</span>
+        </div>
+        <!-- Назва (name, span 3) -->
+        <div class="pseudo-table-cell col-3 sortable-header" data-column="name_ua">
+            <span>Назва</span>
+            <span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span>
+        </div>
+        <!-- Тип (code, span 2) -->
+        <div class="pseudo-table-cell col-2 sortable-header" data-column="type">
+            <span>Тип</span>
+            <span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span>
+        </div>
+        <!-- Глобальна (status-dot, span 1, center) -->
+        <div class="pseudo-table-cell col-1 sortable-header cell-align-center" data-column="is_global">
+            <span>Глобальна</span>
+            <span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span>
+        </div>
+        <!-- Одиниця (text, span 2) -->
+        <div class="pseudo-table-cell col-2 sortable-header" data-column="unit">
+            <span>Одиниця</span>
+            <span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span>
+        </div>
+        <!-- Прів'язки (chip, span 1, center) -->
+        <div class="pseudo-table-cell col-1 cell-align-center" data-column="bindings">
+            <span>Прів.</span>
+        </div>
+    </div>
+
+    <!-- ROW 1 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000001</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Колір</strong></div>
+        <div class="pseudo-table-cell col-2"><code>string</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">12</span></div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000002</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Розмір</strong></div>
+        <div class="pseudo-table-cell col-2"><code>list</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">см</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">8</span></div>
+    </div>
+
+    <!-- ROW 3 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000003</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Матеріал</strong></div>
+        <div class="pseudo-table-cell col-2"><code>string</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">15</span></div>
+    </div>
+
+    <!-- ROW 4 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000004</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Вага</strong></div>
+        <div class="pseudo-table-cell col-2"><code>number</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red" title="inactive"></span></div>
+        <div class="pseudo-table-cell col-2">кг</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+    </div>
+
+    <!-- ROW 5 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000005</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Країна виробництва</strong></div>
+        <div class="pseudo-table-cell col-2"><code>string</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+    </div>
+
+    <!-- ROW 6 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000006</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">2</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Об'єм</strong></div>
+        <div class="pseudo-table-cell col-2"><code>number</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">мл</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+    </div>
+
+    <!-- ROW 7 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000007</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Стать</strong></div>
+        <div class="pseudo-table-cell col-2"><code>list</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">7</span></div>
+    </div>
+
+    <!-- ROW 8 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000008</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Гарантія</strong></div>
+        <div class="pseudo-table-cell col-2"><code>number</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red" title="inactive"></span></div>
+        <div class="pseudo-table-cell col-2">міс</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+    </div>
+
+    <!-- ROW 9 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000009</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Бренд</strong></div>
+        <div class="pseudo-table-cell col-2"><code>string</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">20</span></div>
+    </div>
+
+    <!-- ROW 10 -->
+    <div class="pseudo-table-row clickable-row">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" class="row-checkbox">
+            <button class="btn-icon" data-action="edit"><span class="material-symbols-outlined">edit</span></button>
+        </div>
+        <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000010</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+        <div class="pseudo-table-cell col-3"><strong>Сезон</strong></div>
+        <div class="pseudo-table-cell col-2"><code>list</code></div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green" title="active"></span></div>
+        <div class="pseudo-table-cell col-2">—</div>
+        <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">4</span></div>
+    </div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- VARIANT A — «Відкрита»                       -->
+<!-- ============================================ -->
+<div class="variant-section v-open">
+    <div class="variant-label">A — Відкрита</div>
+    <div class="variant-desc">Без рамки. Тонкі сепаратори. Хедер — лінія знизу.</div>
+    <div class="pseudo-table-container">
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell col-1 header-actions-cell"><input type="checkbox"></div>
+            <div class="pseudo-table-cell col-1 sortable-header sorted-asc"><span>ID</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Категорія</span></div>
+            <div class="pseudo-table-cell col-3 sortable-header"><span>Назва</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Тип</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 sortable-header cell-align-center"><span>Глобальна</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Одиниця</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Прів.</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000001</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Колір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">12</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000002</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Розмір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>list</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">см</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">8</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000003</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Матеріал</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">15</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000004</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Вага</strong></div>
+            <div class="pseudo-table-cell col-2"><code>number</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red"></span></div>
+            <div class="pseudo-table-cell col-2">кг</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000005</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Країна виробництва</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- VARIANT B — «Зебра»                          -->
+<!-- ============================================ -->
+<div class="variant-section v-zebra">
+    <div class="variant-label">B — Зебра</div>
+    <div class="variant-desc">Картка з тінню. Без ліній — чергування фону рядків.</div>
+    <div class="pseudo-table-container">
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell col-1 header-actions-cell"><input type="checkbox"></div>
+            <div class="pseudo-table-cell col-1 sortable-header sorted-asc"><span>ID</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Категорія</span></div>
+            <div class="pseudo-table-cell col-3 sortable-header"><span>Назва</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Тип</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 sortable-header cell-align-center"><span>Глобальна</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Одиниця</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Прів.</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000001</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Колір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">12</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000002</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Розмір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>list</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">см</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">8</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000003</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Матеріал</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">15</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000004</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Вага</strong></div>
+            <div class="pseudo-table-cell col-2"><code>number</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red"></span></div>
+            <div class="pseudo-table-cell col-2">кг</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000005</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Країна виробництва</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- VARIANT C — «Рядки-картки»                   -->
+<!-- ============================================ -->
+<div class="variant-section v-cards">
+    <div class="variant-label">C — Рядки-картки</div>
+    <div class="variant-desc">Кожен рядок — окрема картка з рамкою та gap між ними.</div>
+    <div class="pseudo-table-container">
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell col-1 header-actions-cell"><input type="checkbox"></div>
+            <div class="pseudo-table-cell col-1 sortable-header sorted-asc"><span>ID</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Категорія</span></div>
+            <div class="pseudo-table-cell col-3 sortable-header"><span>Назва</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Тип</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 sortable-header cell-align-center"><span>Глобальна</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Одиниця</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Прів.</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000001</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Колір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">12</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000002</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Розмір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>list</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">см</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">8</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000003</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Матеріал</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">15</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000004</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Вага</strong></div>
+            <div class="pseudo-table-cell col-2"><code>number</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red"></span></div>
+            <div class="pseudo-table-cell col-2">кг</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000005</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Країна виробництва</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- VARIANT D — «Повітря»                        -->
+<!-- ============================================ -->
+<div class="variant-section v-air">
+    <div class="variant-label">D — Повітря</div>
+    <div class="variant-desc">Один контейнер, без ліній, без зебри. Тільки hover. Максимум простору.</div>
+    <div class="pseudo-table-container">
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell col-1 header-actions-cell"><input type="checkbox"></div>
+            <div class="pseudo-table-cell col-1 sortable-header sorted-asc"><span>ID</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Категорія</span></div>
+            <div class="pseudo-table-cell col-3 sortable-header"><span>Назва</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Тип</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 sortable-header cell-align-center"><span>Глобальна</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-2 sortable-header"><span>Одиниця</span><span class="sort-indicator"><span class="material-symbols-outlined">arrow_upward</span></span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span>Прів.</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000001</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Колір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">12</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000002</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">3</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Розмір</strong></div>
+            <div class="pseudo-table-cell col-2"><code>list</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">см</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">8</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000003</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Матеріал</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">15</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000004</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Вага</strong></div>
+            <div class="pseudo-table-cell col-2"><code>number</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-red"></span></div>
+            <div class="pseudo-table-cell col-2">кг</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip" style="cursor:pointer">0</span></div>
+        </div>
+        <div class="pseudo-table-row clickable-row">
+            <div class="pseudo-table-cell col-1"><input type="checkbox"><button class="btn-icon"><span class="material-symbols-outlined">edit</span></button></div>
+            <div class="pseudo-table-cell col-1"><span class="tag c-blue">char-000005</span></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">∞</span></div>
+            <div class="pseudo-table-cell col-3"><strong>Країна виробництва</strong></div>
+            <div class="pseudo-table-cell col-2"><code>string</code></div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="dot c-green"></span></div>
+            <div class="pseudo-table-cell col-2">—</div>
+            <div class="pseudo-table-cell col-1 cell-align-center"><span class="chip c-main" style="cursor:pointer">5</span></div>
+        </div>
+    </div>
+</div>
+
+<div style="height: 80px;"></div>
+
+<script>
+    function setTheme(theme) {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+        document.querySelectorAll('.theme-switch button').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === theme);
+        });
+    }
+</script>
+
+</body>
+</html>
