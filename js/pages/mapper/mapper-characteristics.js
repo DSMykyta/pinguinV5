@@ -57,6 +57,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
+import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { validateRequired } from '../../components/charms/charm-required.js';
@@ -479,11 +480,11 @@ let relatedOptionsTableAPI = null;
 
 function clearRelatedOptions() {
     const container = document.getElementById('char-related-options');
-    const searchInput = document.getElementById('char-options-search');
     if (!container) return;
 
     relatedOptionsTableAPI = null;
     container.innerHTML = renderAvatarState('empty', { message: "Опції з'являться після збереження", size: 'medium', containerClass: 'empty-state', avatarClass: 'empty-state-avatar', messageClass: 'avatar-state-message', showMessage: true });
+    const searchInput = container._charmSearchInput;
     if (searchInput) searchInput.value = '';
 }
 
@@ -539,7 +540,6 @@ function populateRelatedOptions(characteristicId) {
             })
         ],
         data: loadData(),
-        searchInputId: 'char-options-search',
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -562,6 +562,7 @@ function populateRelatedOptions(characteristicId) {
     });
 
     initPaginationCharm();
+    initSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
 

@@ -48,6 +48,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
+import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { validateRequired } from '../../components/charms/charm-required.js';
@@ -189,6 +190,7 @@ export async function showEditMarketplaceModal(id) {
     populateMpReferences(marketplace.slug, id);
 
     // Ініціалізувати charms для модальних таблиць
+    initSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
 
@@ -578,7 +580,6 @@ async function populateMpReferences(slug, marketplaceId) {
             })
         ],
         data: allData,
-        searchInputId: 'mp-data-ref-search',
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -759,7 +760,6 @@ function populateMpCharacteristics(allData, charMapping) {
             })
         ],
         data: allProcessed,
-        searchInputId: 'mp-data-char-search',
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -826,7 +826,6 @@ function populateMpOptions(allData, optMapping) {
             })
         ],
         data: allProcessed,
-        searchInputId: 'mp-data-opt-search',
         statsId: null,
         paginationId: null,
         tableConfig: {

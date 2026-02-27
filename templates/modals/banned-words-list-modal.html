@@ -35,13 +35,6 @@
                 </div>
 
                 <div class="group">
-                    <!-- Пошук -->
-                    <div class="search-field">
-                        <span class="material-symbols-outlined search-icon">search</span>
-                        <input type="text" id="modal-banned-words-search" class="search-input" placeholder="Пошук...">
-                    </div>
-
-                    <!-- Додати -->
                     <button id="modal-add-banned-word" class="btn-icon" aria-label="Додати слово">
                         <span class="material-symbols-outlined">add</span>
                     </button>
@@ -50,7 +43,7 @@
 
             <!-- Table Container -->
             <div id="modal-banned-words-table-container" class="pseudo-table-container"
-                 pagination refresh columns>
+                 pagination refresh columns search="Пошук...">
                 <!-- Заповнюється JavaScript -->
             </div>
         </div>

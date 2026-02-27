@@ -53,6 +53,7 @@ import {
 } from './mapper-utils.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
+import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { validateRequired } from '../../components/charms/charm-required.js';
@@ -524,7 +525,6 @@ function populateRelatedCharacteristics(categoryId) {
             })
         ],
         data: loadData(),
-        searchInputId: 'category-chars-search',
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -547,6 +547,7 @@ function populateRelatedCharacteristics(categoryId) {
     });
 
     initPaginationCharm();
+    initSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
 

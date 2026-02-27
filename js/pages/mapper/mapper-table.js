@@ -7,7 +7,7 @@
  *
  * Рендеринг таблиць для Marketplace Mapper.
  * Використовує createManagedTable для всіх 4 табів.
- * Спільний пошук (#search-mapper) + спільна пагінація (footer) —
+ * Пошук через charm на контейнері + спільна пагінація (footer) —
  * через activate()/deactivate().
  */
 
@@ -629,7 +629,6 @@ function createMapperManagedTable(tabName, rawData, columnsGetter, dataTransform
         container: `mapper-${tabName}-table-container`,
         columns: columns,
         data: rawData,
-        searchInputId: isActive ? 'search-mapper' : null,
         statsId: null,
         paginationId: null,
         tableConfig: {

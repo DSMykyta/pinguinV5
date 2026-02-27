@@ -113,7 +113,6 @@ function initPriceTable() {
         data: priceState.priceItems,
 
         // DOM IDs
-        searchInputId: 'search-price',
         statsId: null,
         paginationId: null,
 

@@ -26,7 +26,6 @@ import { filterData as applyColumnFilters } from './table-filters.js';
  * @param {Array} config.columns
  * @param {Array} config.data
  * @param {string} [config.columnsListId]
- * @param {string} [config.searchInputId]
  * @param {string} [config.statsId]
  * @param {Object} [config.tableConfig]
  * @param {number|null} [config.pageSize=25]
@@ -41,7 +40,6 @@ export function createManagedTable(config) {
         columns,
         data = [],
         columnsListId,
-        searchInputId,
         statsId,
         tableConfig = {},
         pageSize = 25,
@@ -72,12 +70,9 @@ export function createManagedTable(config) {
     let searchHandler = null;
     let debounceTimer = null;
 
-    // ── Shared search config ID (saved for activate/deactivate) ──
-    const _searchInputId = searchInputId;
-
     // ── DOM refs ──
     const statsEl = statsId ? document.getElementById(statsId) : null;
-    let searchInput = _searchInputId ? document.getElementById(_searchInputId) : null;
+    let searchInput = containerEl?._charmSearchInput || null;
 
     // ── Filter columns config (from plugins.filters) ──
     const filterColumnsConfig = tableConfig.plugins?.filters?.filterColumns || [];
@@ -195,8 +190,7 @@ export function createManagedTable(config) {
     }
 
     function bindSearchInput() {
-        if (!_searchInputId) return;
-        searchInput = document.getElementById(_searchInputId);
+        searchInput = containerEl?._charmSearchInput || null;
         if (!searchInput) return;
 
         // Remove old handler if exists

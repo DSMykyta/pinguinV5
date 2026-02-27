@@ -75,8 +75,7 @@ function initLinesTable() {
         })),
         data: enrichLinesData(getBrandLines()),
 
-        // DOM IDs — спільний search input з brands
-        searchInputId: 'search-brands',
+        // DOM IDs
         statsId: null,
         paginationId: null,
 

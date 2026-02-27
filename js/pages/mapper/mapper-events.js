@@ -61,7 +61,7 @@ function initBindingChipClicks() {
 }
 
 // initColumnSelectors — видалено, createManagedTable керує колонками через columnsListId
-// initMapperSearch — видалено, createManagedTable керує пошуком через searchInputId
+// initMapperSearch — видалено, search charm на контейнері керує пошуком автоматично
 
 /**
  * Обробники charm:refresh на контейнерах

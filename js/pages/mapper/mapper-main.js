@@ -118,13 +118,6 @@ function initTabSwitching() {
 
             mapperState.activeTab = newTab;
 
-            // Очистити пошуковий інпут
-            const searchInput = document.getElementById('search-mapper');
-            if (searchInput && searchInput.value) {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
             // Charm pagination — deactivate/activate при tab switch
             const oldContainer = document.getElementById(`mapper-${oldTab}-table-container`);
             const newContainer = document.getElementById(`mapper-${newTab}-table-container`);

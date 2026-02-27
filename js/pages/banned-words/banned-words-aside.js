@@ -236,23 +236,6 @@ export function initManageTabEvents() {
         });
     }
 
-    // Пошук: для tab-manage керується через createManagedTable
-    // Для check табів — ручна фільтрація через renderFn
-    const searchInput = document.getElementById('search-banned-words');
-    if (searchInput) {
-        searchInput.addEventListener('input', async (e) => {
-            const activeTab = document.querySelector('.tab-content.active');
-            if (activeTab) {
-                const tabId = activeTab.dataset.tabContent;
-                if (tabId !== 'tab-manage') {
-                    bannedWordsState.searchQuery = e.target.value.toLowerCase();
-                    const tabPagination = bannedWordsState.tabPaginations[tabId];
-                    if (tabPagination?.renderFn) await tabPagination.renderFn();
-                }
-            }
-        });
-    }
-
     // charm:refresh на контейнері (кнопка генерується table-controls charm)
     const manageContainer = document.getElementById('banned-words-table-container');
     if (manageContainer) {

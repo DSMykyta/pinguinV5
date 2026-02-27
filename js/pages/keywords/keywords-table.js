@@ -86,7 +86,6 @@ function initKeywordsTable() {
         data: getKeywords(),
 
         // DOM IDs
-        searchInputId: 'search-keywords',
         statsId: null,
         paginationId: null,
 

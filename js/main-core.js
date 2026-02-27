@@ -13,6 +13,7 @@ import { initSearchClearCharm } from './components/charms/charm-search-clear.js'
 import { initMorphSearchCharm } from './components/charms/charm-morph-search.js';
 import { initRefreshCharm }     from './components/charms/charm-refresh.js';
 import { initColumnsCharm }     from './components/charms/charm-columns.js';
+import { initSearchCharm }     from './components/charms/charm-search.js';
 import { initRequiredCharm }   from './components/charms/charm-required.js';
 import { initPaginationCharm }  from './components/charms/pagination/pagination-main.js';
 
@@ -33,6 +34,7 @@ export async function initCore() {
     initInfoButtons();
     initSearchClearCharm();
     initMorphSearchCharm();
+    initSearchCharm();
     initRefreshCharm();
     initColumnsCharm();
     initRequiredCharm();

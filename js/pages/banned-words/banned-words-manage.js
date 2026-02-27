@@ -67,7 +67,6 @@ function initManagedBannedWordsTable() {
         data: bannedWordsState.bannedWords,
 
         // DOM IDs
-        searchInputId: 'search-banned-words',
         statsId: null,
         paginationId: null,
 
