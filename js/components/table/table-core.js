@@ -140,12 +140,12 @@ export class TableCore {
         return `
             <div class="pseudo-table-header">
                 ${rowActions || rowActionsHeader != null ? `
-                    <div class="pseudo-table-cell header-actions-cell">
+                    <div class="pseudo-table-cell col-auto header-actions-cell">
                         ${rowActionsHeader || ''}
                     </div>
                 ` : ''}
                 ${columns.map(col => {
-                    const colClass = col.span ? `col-${col.span}` : '';
+                    const colClass = col.span ? `col-${col.span}` : 'col-auto';
                     const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
                     const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
                     const filterableClass = col.filterable ? ' filterable' : '';
@@ -176,13 +176,13 @@ export class TableCore {
         return `
             <div class="${rowClasses.join(' ')}" data-row-id="${rowId}">
                 ${rowActions ? `
-                    <div class="pseudo-table-cell">
+                    <div class="pseudo-table-cell col-auto">
                         ${rowActions(row)}
                     </div>
                 ` : ''}
                 ${columns.map(col => {
                     const value = row[col.id];
-                    const colClass = col.span ? `col-${col.span}` : '';
+                    const colClass = col.span ? `col-${col.span}` : 'col-auto';
                     const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
                     const tooltipAttr = col.tooltip !== false && value ?
                         `data-tooltip="${escapeHtml(String(value))}"` : '';
