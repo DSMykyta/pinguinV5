@@ -513,7 +513,7 @@ function populateRelatedCharacteristics(categoryId) {
                 span: 0, align: 'center',
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
-                    const cls = count === 0 ? 'chip' : 'chip c-main';
+                    const cls = count === 0 ? 'chip' : 'chip c-secondary';
                     return `<span class="${cls}">${count}</span>`;
                 }
             },

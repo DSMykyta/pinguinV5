@@ -162,7 +162,7 @@ export const COLUMN_TYPES = {
         sortable: false,
         render: (value) => {
             if (!value || value.count == null) return '';
-            const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip c-main';
+            const cls = (value.count === 0 || value.count === '0') ? 'chip' : 'chip c-secondary';
             return `<span class="${cls}" data-tooltip="${escapeHtml(value.tooltip || '')}" data-tooltip-always style="cursor:pointer">${value.count}</span>`;
         }
     },
