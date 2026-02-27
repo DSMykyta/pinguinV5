@@ -532,7 +532,7 @@ function populateRelatedOptions(characteristicId) {
             { ...col('value_ua', 'Значення', 'name', { span: 5 }), searchable: true },
             { ...col('value_ru', 'Назва (RU)', 'text', { span: 3 }), searchable: true, checked: true },
             {
-                id: '_unlink', label: ' ', sortable: false, span: 1,
+                id: '_unlink', label: ' ', sortable: false, span: 0,
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.value_ua || row.id }

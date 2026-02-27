@@ -9,8 +9,9 @@
  * ║  Render-функція береться ТІЛЬКИ з типу — override render заборонено.    ║
  * ║                                                                          ║
  * ║  РОЗКЛАДКА:                                                              ║
- * ║  Кожен тип задає span (1-12) — пропорційну вагу колонки у рядку.       ║
- * ║  span використовується як .col-N клас (grid.css flex-система).         ║
+ * ║  span (0-12) — пропорційна вага колонки у рядку.                       ║
+ * ║  span > 0 → .col-N клас (grid.css flex-система).                      ║
+ * ║  span = 0 → auto-size (flex: 0 1 auto), стискається до контенту.      ║
  * ║  align задає вирівнювання вмісту: 'start' | 'center' | 'end'.         ║
  * ║                                                                          ║
  * ║  КОЛЬОРИ: через шар colors.css (.c-red, .c-green, .c-yellow, .c-blue) ║
@@ -78,7 +79,7 @@ export const COLUMN_TYPES = {
 
     // 4. Status-dot → dot з c-* класом
     'status-dot': {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: true,
         render: (value) => {
@@ -92,7 +93,7 @@ export const COLUMN_TYPES = {
 
     // 5. Badge-toggle — перемикач (clickable badge Так/Ні)
     'badge-toggle': {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: true,
         render: (value, row) => renderBadge(value, 'checked', {
@@ -103,7 +104,7 @@ export const COLUMN_TYPES = {
 
     // 6. Severity — іконка рівня важливості (badge)
     severity: {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: true,
         render: (value) => renderSeverityBadge(value)
@@ -111,7 +112,7 @@ export const COLUMN_TYPES = {
 
     // 7. Counter — число з badge (0×, 1×, 2×)
     counter: {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: true,
         render: (value) => (value != null && value !== '') ? `<span class="counter">${value}×</span>` : ''
@@ -136,7 +137,7 @@ export const COLUMN_TYPES = {
 
     // 9. Photo — зображення або placeholder
     photo: {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: false,
         render: (value, row) => value
@@ -156,7 +157,7 @@ export const COLUMN_TYPES = {
 
     // 11. Binding-chip — чіп з кількістю прив'язок + tooltip
     'binding-chip': {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: false,
         render: (value) => {
@@ -192,7 +193,7 @@ export const COLUMN_TYPES = {
 
     // 14. Links — масив посилань [{name, url}] → іконки btn-icon
     links: {
-        span: 1,
+        span: 0,
         sortable: false,
         searchable: false,
         render: (value) => {
@@ -207,7 +208,7 @@ export const COLUMN_TYPES = {
 
     // 15. Reserve — badge N/D → avatar (resolveAvatar callback для аватарки)
     reserve: {
-        span: 1,
+        span: 0,
         align: 'center',
         sortable: true,
         render: (value, row, col) => {

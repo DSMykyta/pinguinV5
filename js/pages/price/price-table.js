@@ -23,7 +23,7 @@ export function init(state) { }
 
 export function getColumns() {
     return [
-        col('code', 'Код', 'tag', { span: 1 }),
+        col('code', 'Код', 'tag', { span: 0 }),
         col('article', 'Артикул', 'input', { span: 1, sortable: true, searchable: true }),
         col('product', 'Товар', 'name', { sortKey: 'product' }),
         col('shiping_date', 'Відправка', 'tag', { span: 1, searchable: false, filterable: true }),
