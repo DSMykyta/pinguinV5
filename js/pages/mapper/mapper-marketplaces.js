@@ -262,7 +262,7 @@ async function showDeleteMarketplaceConfirm(id) {
         message: `Ви впевнені, що хочете видалити маркетплейс "${marketplace.name}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete',
+        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 
@@ -534,7 +534,7 @@ async function populateMpReferences(slug, marketplaceId) {
                     const confirmed = await showConfirmModal({
                         title: 'Видалити довідники?',
                         message: `Видалити ${selectedIds.length} файлів з Google Drive?`,
-                        confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'btn-delete'
+                        confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'danger'
                     });
                     if (!confirmed) return;
                     try {
@@ -591,7 +591,7 @@ async function populateMpReferences(slug, marketplaceId) {
                         const confirmed = await showConfirmModal({
                             title: 'Видалити довідник?',
                             message: `Видалити файл "${fileName}" з Google Drive?`,
-                            confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'btn-delete'
+                            confirmText: 'Видалити', cancelText: 'Скасувати', confirmClass: 'danger'
                         });
                         if (!confirmed) return;
                         try {

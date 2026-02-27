@@ -263,7 +263,7 @@ export function initTabHandlers() {
                 message: 'Всі незбережені дані будуть втрачені. Продовжити?',
                 confirmText: 'Закрити',
                 cancelText: 'Скасувати',
-                confirmClass: 'btn-delete'
+                confirmClass: 'danger'
             });
 
             if (confirmed) {

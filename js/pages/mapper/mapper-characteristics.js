@@ -224,7 +224,7 @@ async function showDeleteCharacteristicConfirm(id) {
         message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete',
+        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 

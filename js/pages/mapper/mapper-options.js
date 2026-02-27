@@ -214,7 +214,7 @@ async function showDeleteOptionConfirm(id) {
         message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete',
+        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 

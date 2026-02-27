@@ -132,7 +132,7 @@ export async function showDeleteLineConfirm(lineId) {
         message: `Ви впевнені, що хочете видалити лінійку "${line.name_uk}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'danger'
     });
 
     if (confirmed) {

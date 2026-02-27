@@ -135,7 +135,7 @@ export async function showDeleteKeywordConfirm(localId) {
         message: `Ви впевнені, що хочете видалити "${keyword.name_uk}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-delete'
+        confirmClass: 'danger'
     });
 
     if (confirmed) {
