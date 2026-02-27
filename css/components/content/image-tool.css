@@ -63,7 +63,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px;
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface);
     border: 1px solid var(--color-outline-v);
     border-radius: 8px;
     cursor: pointer;

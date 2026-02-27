@@ -17,7 +17,7 @@
  *
  * ЗАЛЕЖНОСТІ:
  * - button-base.css (базові стилі для <button>)
- * - root.css (--color-on-surface, --color-main-c, --color-main, --color-main-t-2)
+ * - root.css (--color-on-surface, --color-main-c, --color-main)
  *
  * ЗАСТОСУВАННЯ:
  * - Batch actions bar (допоміжні дії, скасувати вибір)
@@ -36,5 +36,5 @@
 }
 
 .btn-ghost:active:not(:disabled) {
-    background: var(--color-main-t-2);
+    background: color-mix(in srgb, var(--color-main) 20%, transparent);
 }

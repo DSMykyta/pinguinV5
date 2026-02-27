@@ -655,7 +655,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
     const content = nav?.closest('.modal-fullscreen-container')?.querySelector('.modal-fullscreen-content');
     if (!nav || !content) return;
 
-    nav.querySelectorAll('.sidebar-nav-item.mp-nav-item').forEach(el => el.remove());
+    nav.querySelectorAll('.btn-icon.expand.touch.mp-nav-item').forEach(el => el.remove());
     content.querySelectorAll('section.mp-section').forEach(el => el.remove());
 
     const mappedMpChars = getMappedMpCharacteristics(ownCharId);
@@ -674,15 +674,15 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         byMarketplace[mpId].items.push(mpChar);
     });
 
-    const navMain = nav.querySelector('.sidebar-nav-main');
+    const navMain = nav.querySelector('.nav-main');
     const navTarget = navMain || nav;
     const navItem = document.createElement('a');
     navItem.href = '#section-mp-characteristics';
-    navItem.className = 'sidebar-nav-item mp-nav-item';
+    navItem.className = 'btn-icon expand touch mp-nav-item';
     navItem.setAttribute('aria-label', 'Маркетплейси');
     navItem.innerHTML = `
         <span class="material-symbols-outlined">hexagon</span>
-        <span class="sidebar-nav-label">Маркетплейси${mappedMpChars.length ? ` (${mappedMpChars.length})` : ''}</span>
+        ${mappedMpChars.length ? `<span>${mappedMpChars.length}</span>` : ''}
     `;
     navTarget.appendChild(navItem);
 

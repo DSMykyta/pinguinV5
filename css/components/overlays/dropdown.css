@@ -74,7 +74,7 @@
 }
 
 .dropdown-option:active {
-    background-color: var(--color-main-c-high);
+    background-color: color-mix(in srgb, var(--color-main) 20%, transparent);
 }
 
 .dropdown-option.active {
@@ -104,7 +104,7 @@
 
 .dropdown-header {
     padding: 8px 12px;
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface-v);
     text-transform: uppercase;
 }
 

@@ -9,8 +9,15 @@
     background-color: transparent;
     color: inherit;
     border-radius: 12px;
+    cursor: default;
+    transition: all 0.2s;
 }
 
 .badge:hover {
-    filter: brightness(0.85);
+    transform: scale(1.02);
+    box-shadow: var(--shadow-1);
+}
+
+.badge:active {
+    transform: scale(0.98);
 }

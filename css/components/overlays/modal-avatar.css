@@ -77,8 +77,8 @@
 .auth-login-error {
     width: 100%;
     padding: 12px;
-    background: var(--color-error-container);
-    color: var(--color-on-error-container);
+    background: var(--color-error-c);
+    color: var(--color-on-error-c);
     border-radius: 8px;
     text-align: center;
 }

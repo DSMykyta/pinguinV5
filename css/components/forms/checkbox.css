@@ -18,7 +18,7 @@ input[type="checkbox"] {
 
     /* Initial state - rounded square with border */
     background-color: transparent;
-    border: 2px solid var(--color-outline);
+    border: 1px solid var(--color-outline);
     border-radius: 4px;
 
     /* Smooth morphing animation */
@@ -50,8 +50,8 @@ input[type="checkbox"]:checked {
 
 /* Focus state for accessibility */
 input[type="checkbox"]:focus-visible {
-    outline: 2px solid var(--color-main);
-    outline-offset: 2px;
+    outline: 1px solid var(--color-main);
+    outline-offset: 1px;
 }
 
 /* Disabled state */

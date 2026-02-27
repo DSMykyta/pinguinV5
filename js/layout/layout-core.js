@@ -9,31 +9,30 @@
  * ║  Стан зберігається в layout-state.js.                                    ║
  * ║                                                                          ║
  * ║  📋 CSS КЛАСИ (синхронізуються автоматично):                             ║
- * ║  ├── .aside.expanded   / .collapsed / .closed                            ║
- * ║  ├── body.aside-expanded / .aside-collapsed / .aside-closed              ║
- * ║  ├── .aside-trigger.open  (rotate шарм, є коли панель відкрита)          ║
- * ║  └── .aside-expand.open   (flip шарм, є коли collapsed)                  ║
+ * ║  ├── .aside.expanded / .closed                                           ║
+ * ║  ├── body.aside-expanded / .aside-closed                                 ║
+ * ║  └── .aside-trigger.open  (rotate шарм, є коли панель відкрита)          ║
  * ║                                                                          ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
  * ║  🎯 ВИКОРИСТАННЯ:                                                        ║
  * ║  HTML — початковий стан через клас на aside:                             ║
- * ║     <aside class="aside expanded">   ← або collapsed / closed            ║
+ * ║     <aside class="aside expanded">   ← або closed                        ║
  * ║                                                                          ║
  * ║  JS — змінити стан програмно:                                            ║
  * ║     import { setAsideState } from './layout/layout-main.js';             ║
- * ║     setAsideState('collapsed');                                          ║
+ * ║     setAsideState('closed');                                             ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { ASIDE_STATES, getAsideState, getLastOpen, updateAsideState } from './layout-state.js';
+import { ASIDE_STATES, getAsideState, updateAsideState } from './layout-state.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНІЙ СТАН
 // ═══════════════════════════════════════════════════════════════════════════
 
-let _aside, _trigger, _expandBtn;
+let _aside, _trigger;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНЯ ЛОГІКА
@@ -51,10 +50,6 @@ function applyDOM(state) {
     document.body.classList.add('aside-' + state);
 
     _trigger.classList.toggle('open', state !== 'closed');
-
-    if (_expandBtn) {
-        _expandBtn.classList.toggle('open', state === 'collapsed');
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -80,20 +75,10 @@ export function init() {
 
     if (!_aside || !_trigger) return;
 
-    _expandBtn = document.querySelector('.aside-expand');
-
-    // Toggle: closed ↔ lastOpen
+    // Toggle: closed ↔ expanded
     _trigger.addEventListener('click', () => {
-        const current = getAsideState();
-        setAsideState(current === 'closed' ? getLastOpen() : 'closed');
+        setAsideState(getAsideState() === 'closed' ? 'expanded' : 'closed');
     });
-
-    // Expand: expanded ↔ collapsed
-    if (_expandBtn) {
-        _expandBtn.addEventListener('click', () => {
-            setAsideState(getAsideState() === 'expanded' ? 'collapsed' : 'expanded');
-        });
-    }
 
     // Початковий стан з HTML-класу
     const initial = ASIDE_STATES.find(s => _aside.classList.contains(s)) || 'expanded';

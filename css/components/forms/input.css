@@ -63,8 +63,8 @@ input::placeholder {
 }
 
 .input-main:focus {
-    outline: 2px solid var(--color-main);
-    outline-offset: -2px;
+    outline: 1px solid var(--color-main);
+    outline-offset: -1px;
     border-color: transparent;
 }
 
@@ -112,5 +112,6 @@ input::placeholder {
 }
 
 .banned-word-highlight:hover {
-    background-color: var(--color-error-h);
+    background-color: var(--color-error-c);
+    filter: brightness(0.85);
 }

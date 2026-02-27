@@ -203,7 +203,7 @@
 | `--z-{layer}` | Z-index шари | `--z-modal`, `--z-dropdown`, `--z-toast` |
 | `--font-{role}` | Шрифти | `--font-body`, `--font-display`, `--font-mono` |
 | `--transition-{type}` | Переходи | `--transition-speed`, `--transition-ease` |
-| `--panel-width-{state}` | Ширина панелей | `--panel-width-collapsed` |
+| `--panel-width-{state}` | Ширина панелей | `--panel-width-expanded`, `--panel-width-collapsed` |
 
 ### 2.3 Суфікси розмірів
 

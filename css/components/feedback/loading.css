@@ -30,14 +30,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgba(var(--color-surface-rgb), 0.9);
-    backdrop-filter: blur(4px);
+    background-color: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    backdrop-filter: var(--blur-s);
     z-index: 10;
     gap: 16px;
 }
 
 .loading-message {
-    color: var(--color-on-surface-variant);
+    color: var(--color-on-surface-v);
     margin: 0;
     animation: pulse 2s ease-in-out infinite;
 }

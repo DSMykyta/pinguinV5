@@ -16,8 +16,8 @@
  *       <div class="modal-fullscreen-header-right">...</div>
  *     </header>
  *     <div class="modal-body-with-sidebar">
- *       <nav class="sidebar-navigator">
- *         <a class="sidebar-nav-item active">...</a>
+ *       <nav class="nav column">
+ *         <a class="btn-icon expand touch active">...</a>
  *       </nav>
  *       <main class="modal-fullscreen-content">...</main>
  *     </div>
@@ -61,7 +61,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 24px;
+    padding: 12px;
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-outline);
     flex-shrink: 0;
@@ -98,69 +98,17 @@
 
 .modal-body-with-sidebar {
     display: flex;
+    position: relative;
     flex: 1;
     overflow: hidden;
 }
 
-/* ============================================
-   SIDEBAR NAVIGATOR
-   ============================================ */
-
-.sidebar-navigator {
-    display: flex;
-    flex-direction: column;
-    padding: 16px 12px;
-    background: var(--color-surface-c-low);
-    border-right: 1px solid var(--color-outline);
-    width: 180px;
-    min-width: 180px;
-    overflow-y: auto;
-}
-
-.sidebar-nav-main {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-}
-
-.sidebar-nav-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-outline);
-}
-
-.sidebar-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: var(--radius-m);
-    color: var(--color-on-surface-v);
-    text-decoration: none;
-    transition: all 150ms ease;
-    cursor: pointer;
-}
-
-.sidebar-nav-item:hover {
-    background: var(--color-surface-c);
-    color: var(--color-on-surface);
-}
-
-.sidebar-nav-item.active {
-    background: var(--color-main-c);
-    color: var(--color-main);
-}
-
-.sidebar-nav-item .material-symbols-outlined {
-    font-size: 20px;
-}
-
-.sidebar-nav-label {
-    white-space: nowrap;
+/* Nav column всередині модалки — absolute замість fixed */
+.modal-body-with-sidebar .nav.column {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    height: auto;
 }
 
 /* ============================================
@@ -174,14 +122,13 @@
     scroll-snap-type: y mandatory;
 }
 
-/* Content width when used with sidebar */
+/* Відступ під nav column */
 .modal-body-with-sidebar .modal-fullscreen-content {
-    flex: 1;
-    max-width: calc(100% - 180px);
+    padding-left: calc(var(--panel-width-collapsed) + 12px);
 }
 
 /* Legacy: centered section navigator inside fullscreen */
-.modal-fullscreen-container .section-navigator:not(.sidebar-navigator) {
+.modal-fullscreen-container .section-navigator:not(.nav) {
     position: sticky;
     top: 8px;
     z-index: 200;
@@ -281,7 +228,7 @@
 
 .modal-fullscreen .group.column select:focus {
     border-color: var(--color-main);
-    border-width: 2px;
+    border-width: 1px;
     outline: none;
     padding: 7px 15px;
     padding-right: 39px;

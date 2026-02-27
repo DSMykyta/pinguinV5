@@ -4,7 +4,7 @@
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon" data-modal-close title="Закрити">
+                <button class="btn-icon touch" data-modal-close title="Закрити">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div class="modal-fullscreen-title">
@@ -30,22 +30,21 @@
         <div class="modal-body-with-sidebar">
 
             <!-- SIDEBAR NAVIGATOR -->
-            <nav class="sidebar-navigator" id="char-section-navigator">
-                <div class="sidebar-nav-main">
-                    <a href="#section-char-main" class="sidebar-nav-item active" aria-label="Основні дані">
+            <nav class="nav column" id="char-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-char-main" class="btn-icon expand touch active" aria-label="Основні дані">
                         <span class="material-symbols-outlined">edit</span>
-                        <span class="sidebar-nav-label">Основні дані</span>
+                        <span class="btn-icon-label">Основні дані</span>
                     </a>
-                    <a href="#section-char-options" class="sidebar-nav-item" aria-label="Опції">
+                    <a href="#section-char-options" class="btn-icon expand touch" aria-label="Опції">
                         <span class="material-symbols-outlined">circle</span>
-                        <span class="sidebar-nav-label">Опції</span>
+                        <span class="btn-icon-label">Опції</span>
                     </a>
                     <!-- Секції маркетплейсів додаються динамічно через JS -->
                 </div>
-                <div class="sidebar-nav-footer">
+                <div class="nav-footer">
                     <button type="button" class="btn-delete u-hidden" id="delete-mapper-characteristic" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
-                        <span class="sidebar-nav-label">Видалити</span>
                     </button>
                 </div>
             </nav>

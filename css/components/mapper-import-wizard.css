@@ -44,7 +44,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px 16px;
-    border: 2px solid var(--color-outline);
+    border: 1px solid var(--color-outline);
     border-radius: var(--radius-m);
     background: var(--color-surface);
     cursor: pointer;
@@ -59,7 +59,7 @@
 .mp-select-card.selected {
     border-color: var(--color-main);
     background: var(--color-main-c);
-    box-shadow: 0 0 0 2px var(--color-main-c-high);
+    box-shadow: var(--shadow-1);
 }
 
 .mp-select-card .mp-name {

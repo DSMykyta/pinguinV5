@@ -261,7 +261,7 @@
 
 .modal-warning {
     padding: 16px;
-    background: var(--color-warning-container);
+    background: var(--color-warning-c);
     border: 1px solid var(--color-warning);
     border-radius: var(--radius-m);
     margin: 16px 0;
@@ -315,7 +315,7 @@
 }
 
 .modal-body-split-right {
-    background: var(--color-surface-c-lowest);
+    background: var(--color-surface);
 }
 
 .modal-split-section-title {
@@ -330,7 +330,7 @@
 
 .modal-split-section-title .material-symbols-outlined {
     font-size: 18px;
-    color: var(--color-primary);
+    color: var(--color-main);
 }
 
 /* ============================================
@@ -491,7 +491,7 @@
     font-family: var(--font-mono);
     background: var(--color-surface-c-high);
     border-radius: var(--radius-xs);
-    color: var(--color-primary);
+    color: var(--color-main);
 }
 
 .article-content em {

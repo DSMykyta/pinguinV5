@@ -196,4 +196,4 @@ async function loadPlugins(state) {
     });
 }
 
-export default createHighlightEditor;
+

@@ -62,15 +62,3 @@
     overflow: hidden;
 }
 
-/* ============================================ */
-/* SIDEBAR NAV: tree-node-count в навігації     */
-/* ============================================ */
-
-.sidebar-navigator .tree-node-count {
-    margin-left: auto;
-}
-
-.sidebar-nav-item.active .tree-node-count {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--color-main);
-}

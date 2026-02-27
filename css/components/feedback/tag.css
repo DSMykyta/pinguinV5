@@ -8,10 +8,7 @@
     border-radius: 8px;
     flex-shrink: 0;
     white-space: nowrap;
-}
-
-.tag:hover {
-    filter: brightness(0.85);
+    cursor: default;
 }
 
 .tag__remove {

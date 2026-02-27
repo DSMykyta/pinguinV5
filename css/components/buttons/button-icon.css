@@ -33,7 +33,7 @@
  * - .expand - розкриття label тексту на hover (max-width трік)
  *
  * ЗАЛЕЖНОСТІ:
- * - root.css (--color-main-t-2, --color-main, --color-on-surface-v, --color-surface-c-high, --transition-speed)
+ * - root.css (--color-main, --color-on-surface-v, --color-surface-c-high, --transition-speed)
  * - Material Symbols (для іконок)
  *
  * ЗАСТОСУВАННЯ:
@@ -64,13 +64,13 @@
 
     color: inherit;
 
-    backdrop-filter: blur(8px);
+    backdrop-filter: var(--blur-m);
     transition: background-color var(--transition-speed);
 }
 
 .btn-icon:hover,
 .btn-icon.active {
-    background-color: var(--color-main-t-2);
+    background-color: color-mix(in srgb, var(--color-main) 20%, transparent);
     border-color: var(--color-main);
     color: var(--color-main);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -186,6 +186,7 @@
 .btn-icon.expand {
     justify-content: start;
     padding: 8px;
+    gap: 4px;
     max-width: 32px;
     overflow: hidden;
     border-radius: var(--radius-full);
@@ -234,7 +235,6 @@
 
 .btn-icon.expand:hover .btn-icon-label {
     max-width: 200px;
-    margin-left: 4px;
     opacity: 1;
     transition: opacity 0.2s ease 0.1s,
                 max-width 0.55s ease,

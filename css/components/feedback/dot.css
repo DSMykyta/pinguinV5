@@ -11,10 +11,6 @@
     height: 6px;
 }
 
-.dot:hover {
-    filter: brightness(0.85);
-}
-
 /* dot — суцільний кружок, фон = color з c-* утиліти.
    c-* задає background-color контейнерний (блідий) —
    для dot перевизначаємо на яскравий color. */

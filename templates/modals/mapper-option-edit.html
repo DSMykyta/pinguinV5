@@ -4,7 +4,7 @@
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon" data-modal-close title="Закрити">
+                <button class="btn-icon touch" data-modal-close title="Закрити">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div class="modal-fullscreen-title">
@@ -23,23 +23,22 @@
         <div class="modal-body-with-sidebar">
 
             <!-- SIDEBAR NAVIGATOR -->
-            <nav class="sidebar-navigator" id="option-section-navigator">
-                <div class="sidebar-nav-main">
-                    <a href="#section-option-main" class="sidebar-nav-item active" aria-label="Основні дані">
+            <nav class="nav column" id="option-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-option-main" class="btn-icon expand touch active" aria-label="Основні дані">
                         <span class="material-symbols-outlined">edit</span>
-                        <span class="sidebar-nav-label">Основні дані</span>
+                        <span class="btn-icon-label">Основні дані</span>
                     </a>
-                    <a href="#section-option-dependent" class="sidebar-nav-item u-hidden" id="nav-option-dependent"
+                    <a href="#section-option-dependent" class="btn-icon expand touch u-hidden" id="nav-option-dependent"
                         aria-label="Дочірні опції">
                         <span class="material-symbols-outlined">account_tree</span>
-                        <span class="sidebar-nav-label">Дочірні опції</span>
+                        <span class="btn-icon-label">Дочірні опції</span>
                     </a>
                     <!-- Секції маркетплейсів додаються динамічно через JS -->
                 </div>
-                <div class="sidebar-nav-footer">
+                <div class="nav-footer">
                     <button type="button" class="btn-delete u-hidden" id="delete-mapper-option" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
-                        <span class="sidebar-nav-label">Видалити</span>
                     </button>
                 </div>
             </nav>

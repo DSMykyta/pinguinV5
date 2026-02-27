@@ -391,12 +391,12 @@
                         <div class="m3-file-card">
                             <div class="m3-file-card-name">layout-state.js</div>
                             <div class="m3-file-card-role">Чистий стан</div>
-                            <div class="m3-file-card-desc">Зберігає поточний стан aside (expanded/collapsed/closed). Без DOM, без подій, без зовнішніх імпортів.</div>
+                            <div class="m3-file-card-desc">Зберігає поточний стан aside (expanded/closed). Без DOM, без подій, без зовнішніх імпортів.</div>
                         </div>
                         <div class="m3-file-card" style="border-bottom: none; border-right: 1px solid var(--color-outline);">
                             <div class="m3-file-card-name">layout-core.js</div>
                             <div class="m3-file-card-role">DOM aside + кнопки</div>
-                            <div class="m3-file-card-desc">Синхронізує CSS класи з aside-станом. Вішає обробники на trigger і expand-кнопки. Читає початковий стан з HTML-класу.</div>
+                            <div class="m3-file-card-desc">Синхронізує CSS класи з aside-станом. Вішає обробник на trigger-кнопку. Читає початковий стан з HTML-класу.</div>
                         </div>
                         <div class="m3-file-card" style="border-bottom: none;">
                             <div class="m3-file-card-name">&nbsp;</div>
@@ -475,7 +475,7 @@
                         <div class="m3-flow-step">
                             <div class="m3-flow-step-num">Крок 1</div>
                             <div class="m3-flow-step-title">initCore()</div>
-                            <div class="m3-flow-step-desc">Синхронно. Знаходить aside, trigger, expandBtn. Вішає обробники кнопок. Читає початковий стан.</div>
+                            <div class="m3-flow-step-desc">Синхронно. Знаходить aside і trigger. Вішає обробник кнопки. Читає початковий стан.</div>
                         </div>
                         <div class="m3-flow-step">
                             <div class="m3-flow-step-num">Крок 2 — паралельно</div>
@@ -521,13 +521,13 @@ export async function initBrands() { /* ... */ }</pre>
             <section class="m3-section" id="aside">
                 <div class="m3-section-hero">
                     <h2>Aside панель — стани</h2>
-                    <p>Три стани, керовані класом на <code>&lt;aside&gt;</code>. JavaScript підхоплює початковий стан з HTML і далі синхронізує DOM автоматично.</p>
+                    <p>Два стани, керовані класом на <code>&lt;aside&gt;</code>. JavaScript підхоплює початковий стан з HTML і далі синхронізує DOM автоматично.</p>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Три стани</h3>
-                        <p>Початковий стан задається в HTML класом. Далі стан змінюється кнопками або програмно.</p>
+                        <h3>Два стани</h3>
+                        <p>Початковий стан задається в HTML класом. Далі стан змінюється кнопкою або програмно.</p>
                     </div>
                     <div class="m3-states">
                         <div class="m3-state-pill">
@@ -535,18 +535,13 @@ export async function initBrands() { /* ... */ }</pre>
                             <div class="m3-state-pill-desc">Панель повністю відкрита — широка, весь вміст видимий</div>
                         </div>
                         <div class="m3-state-pill">
-                            <div class="m3-state-pill-name">collapsed</div>
-                            <div class="m3-state-pill-desc">Панель зменшена — тільки іконки, текст прихований</div>
-                        </div>
-                        <div class="m3-state-pill">
                             <div class="m3-state-pill-name">closed</div>
-                            <div class="m3-state-pill-desc">Панель повністю схована — займає нульову ширину</div>
+                            <div class="m3-state-pill-desc">Панель повністю схована за екраном</div>
                         </div>
                     </div>
                     <div class="m3-code">
                         <div class="m3-code-label">HTML — початковий стан</div>
-<pre>&lt;aside class="aside expanded"&gt;   &lt;!-- широка з першого рендеру --&gt;
-&lt;aside class="aside collapsed"&gt;  &lt;!-- іконки з першого рендеру --&gt;
+<pre>&lt;aside class="aside expanded"&gt;   &lt;!-- відкрита з першого рендеру --&gt;
 &lt;aside class="aside closed"&gt;     &lt;!-- схована з першого рендеру --&gt;</pre>
                     </div>
                 </div>
@@ -568,11 +563,6 @@ export async function initBrands() { /* ... */ }</pre>
                             <td>CSS для самої панелі + відступи контенту</td>
                         </tr>
                         <tr>
-                            <td><code>.collapsed</code></td>
-                            <td><code>.aside-collapsed</code></td>
-                            <td>Панель вузька + контент підсувається</td>
-                        </tr>
-                        <tr>
                             <td><code>.closed</code></td>
                             <td><code>.aside-closed</code></td>
                             <td>Панель схована + контент займає всю ширину</td>
@@ -581,21 +571,19 @@ export async function initBrands() { /* ... */ }</pre>
                     <div class="m3-code">
                         <div class="m3-code-label">CSS приклад</div>
 <pre>/* Ширина самої панелі */
-.aside.expanded   { width: 280px; }
-.aside.collapsed  { width: 60px; }
-.aside.closed     { width: 0; overflow: hidden; }
+.aside.expanded   { width: var(--panel-width-expanded); }
+.aside.closed     { transform: translateX(100%); }
 
 /* Відступ для контенту поруч */
-body.aside-expanded  .content-main { margin-right: 280px; }
-body.aside-collapsed .content-main { margin-right: 60px; }
-body.aside-closed    .content-main { margin-right: 0; }</pre>
+body.aside-expanded .content-main { margin-right: var(--panel-width-expanded); }
+body.aside-closed   .content-main { margin-right: var(--panel-width-collapsed); }</pre>
                     </div>
                 </div>
 
                 <div class="m3-block">
                     <div class="m3-block-header">
-                        <h3>Кнопки керування</h3>
-                        <p>Два елементи в HTML. JS знаходить їх автоматично по класу — нічого додатково підключати не треба.</p>
+                        <h3>Кнопка керування</h3>
+                        <p>Один елемент в HTML. JS знаходить його автоматично по класу — нічого додатково підключати не треба.</p>
                     </div>
                     <table class="m3-spec">
                         <tr>
@@ -605,13 +593,8 @@ body.aside-closed    .content-main { margin-right: 0; }</pre>
                         </tr>
                         <tr>
                             <td><code>.aside-trigger</code></td>
-                            <td>Перемикає <code>closed ↔ lastOpen</code></td>
+                            <td>Перемикає <code>closed ↔ expanded</code></td>
                             <td>Є коли панель НЕ closed (шарм rotate)</td>
-                        </tr>
-                        <tr>
-                            <td><code>.aside-expand</code></td>
-                            <td>Перемикає <code>expanded ↔ collapsed</code></td>
-                            <td>Є коли collapsed (шарм flip)</td>
                         </tr>
                     </table>
                 </div>
@@ -625,7 +608,7 @@ body.aside-closed    .content-main { margin-right: 0; }</pre>
                         <div class="m3-code-label">JS</div>
 <pre>import { setAsideState } from './layout/layout-main.js';
 
-setAsideState('collapsed'); // expanded | collapsed | closed</pre>
+setAsideState('closed'); // expanded | closed</pre>
                     </div>
                 </div>
             </section>
@@ -719,7 +702,7 @@ showAsidePanel(null);            // сховати всі (absent)</pre>
             <section class="m3-section" id="aside-observer">
                 <div class="m3-section-hero">
                     <h2>Aside observer — автоматичне перемикання</h2>
-                    <p>Стежить за секціями сторінки через IntersectionObserver. При скролі до секції — перемикає вміст aside. Стан панелі (expanded/collapsed) не чіпає.</p>
+                    <p>Стежить за секціями сторінки через IntersectionObserver. При скролі до секції — перемикає вміст aside. Стан панелі (expanded/closed) не чіпає.</p>
                 </div>
 
                 <div class="m3-block">

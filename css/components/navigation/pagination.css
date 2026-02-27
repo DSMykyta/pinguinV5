@@ -14,7 +14,7 @@
 .pagination-nav {
     display: flex;
     align-items: center;
-    background-color: var(--color-surface-c-lowest);
+    background-color: var(--color-surface);
     border-radius: var(--radius-full);
     padding: 4px;
     gap: 4px;

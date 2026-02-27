@@ -103,7 +103,7 @@
 
 .shortcuts-tooltip .tooltip-title {
     margin-bottom: 12px;
-    color: var(--color-primary);
+    color: var(--color-main);
 }
 
 .shortcuts-list {

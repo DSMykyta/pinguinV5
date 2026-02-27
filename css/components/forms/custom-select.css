@@ -22,12 +22,12 @@
 }
 
 .custom-select-trigger:hover {
-    border-color: var(--primary);
+    border-color: var(--color-main);
 }
 
 .custom-select-wrapper.open .custom-select-trigger {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 1px var(--primary);
+    border-color: var(--color-main);
+    box-shadow: none;
 }
 
 .custom-select-value-container {

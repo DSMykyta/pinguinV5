@@ -65,7 +65,7 @@
 }
 
 .panel-box:active {
-    background-color: var(--color-main-t-2);
+    background-color: color-mix(in srgb, var(--color-main) 20%, transparent);
     color: var(--color-main);
     transform: scale(0.98);
 }

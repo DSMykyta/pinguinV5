@@ -24,7 +24,7 @@ import * as navMenu            from './layout-plugin-nav-menu.js';
 import * as asideLoader        from './layout-plugin-aside-loader.js';
 import * as asideObserver      from './layout-plugin-aside-observer.js';
 import * as navSections        from './layout-plugin-nav-sections.js';
-import { initTabs }            from './layout-nav-tabs.js';
+import { initTabs }            from './layout-plugin-nav-tabs.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЕКСПОРТ — ПУБЛІЧНИЙ API
@@ -34,8 +34,8 @@ export { registerAsideInitializer,
          loadSingleAsideTemplate,
          showAsidePanel }         from './layout-plugin-aside-loader.js';
 export { setAsideState }          from './layout-core.js';
-export { initTabs }               from './layout-nav-tabs.js';
-export { initDynamicTabs }        from './layout-nav-tabs-dynamic.js';
+export { initTabs }               from './layout-plugin-nav-tabs.js';
+export { initDynamicTabs }        from './layout-plugin-nav-tabs-dynamic.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПУБЛІЧНЕ API

@@ -61,8 +61,8 @@ body.modal-open {
     opacity: 1;
     visibility: visible;
     transition-delay: 0s;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: var(--blur-s);
+    -webkit-backdrop-filter: var(--blur-s);
 }
 
 /* ============================================

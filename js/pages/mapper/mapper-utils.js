@@ -25,7 +25,7 @@ export function initSectionNavigation(navId) {
     const content = modalContainer?.querySelector('.modal-fullscreen-content');
     if (!content) return;
 
-    const navItems = nav.querySelectorAll('.sidebar-nav-item');
+    const navItems = nav.querySelectorAll('.btn-icon.expand.touch');
 
     // Клік по меню - прокрутка до секції
     navItems.forEach(item => {

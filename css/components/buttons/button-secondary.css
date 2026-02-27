@@ -28,5 +28,4 @@
 
 .btn-secondary:hover:not(:disabled) {
     background: var(--color-surface-c);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

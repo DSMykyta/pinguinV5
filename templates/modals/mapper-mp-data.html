@@ -4,7 +4,7 @@
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon" data-modal-close title="Закрити">
+                <button class="btn-icon touch" data-modal-close title="Закрити">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div class="modal-fullscreen-title">
@@ -30,41 +30,40 @@
         <div class="modal-body-with-sidebar">
 
             <!-- SIDEBAR NAVIGATOR -->
-            <nav class="sidebar-navigator" id="mp-data-section-navigator">
-                <div class="sidebar-nav-main">
-                    <a href="#section-mp-info" class="sidebar-nav-item active">
+            <nav class="nav column" id="mp-data-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-mp-info" class="btn-icon expand touch active">
                         <span class="material-symbols-outlined">edit</span>
-                        <span class="sidebar-nav-label">Основні дані</span>
+                        <span class="btn-icon-label">Основні дані</span>
                     </a>
-                    <a href="#section-mp-references" class="sidebar-nav-item">
+                    <a href="#section-mp-references" class="btn-icon expand touch">
                         <span class="material-symbols-outlined">folder_open</span>
-                        <span class="sidebar-nav-label">Довідники</span>
-                        <span class="tree-node-count" id="mp-data-ref-count">0</span>
+                        <span class="btn-icon-label">Довідники</span>
+                        <span id="mp-data-ref-count">0</span>
                     </a>
-                    <a href="#section-mp-normalization" class="sidebar-nav-item">
+                    <a href="#section-mp-normalization" class="btn-icon expand touch">
                         <span class="material-symbols-outlined">tune</span>
-                        <span class="sidebar-nav-label">Нормалізація</span>
+                        <span class="btn-icon-label">Нормалізація</span>
                     </a>
-                    <a href="#section-mp-data-categories" class="sidebar-nav-item">
+                    <a href="#section-mp-data-categories" class="btn-icon expand touch">
                         <span class="material-symbols-outlined">square</span>
-                        <span class="sidebar-nav-label">Категорії</span>
-                        <span class="tree-node-count" id="mp-data-cat-count">0</span>
+                        <span class="btn-icon-label">Категорії</span>
+                        <span id="mp-data-cat-count">0</span>
                     </a>
-                    <a href="#section-mp-data-chars" class="sidebar-nav-item">
+                    <a href="#section-mp-data-chars" class="btn-icon expand touch">
                         <span class="material-symbols-outlined">change_history</span>
-                        <span class="sidebar-nav-label">Характеристики</span>
-                        <span class="tree-node-count" id="mp-data-char-count">0</span>
+                        <span class="btn-icon-label">Характеристики</span>
+                        <span id="mp-data-char-count">0</span>
                     </a>
-                    <a href="#section-mp-data-options" class="sidebar-nav-item">
+                    <a href="#section-mp-data-options" class="btn-icon expand touch">
                         <span class="material-symbols-outlined">circle</span>
-                        <span class="sidebar-nav-label">Опції</span>
-                        <span class="tree-node-count" id="mp-data-opt-count">0</span>
+                        <span class="btn-icon-label">Опції</span>
+                        <span id="mp-data-opt-count">0</span>
                     </a>
                 </div>
-                <div class="sidebar-nav-footer">
+                <div class="nav-footer">
                     <button type="button" class="btn-delete u-hidden" id="delete-mapper-marketplace" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
-                        <span class="sidebar-nav-label">Видалити</span>
                     </button>
                 </div>
             </nav>

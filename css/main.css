@@ -97,12 +97,9 @@
 /* glossary-article.css — видалено, стилі в section-misc.css */
 @import url('components/content/section-misc.css');
 @import url('components/content/image-tool.css');
-@import url('components/content/content-card.css');
-
 
 /* === COMPONENTS - OTHER === */
 @import url('components/rich-editor.css');
-@import url('components/statistics.css');
 @import url('components/mapper-bindings.css');
 
 /* === UTILITIES === */

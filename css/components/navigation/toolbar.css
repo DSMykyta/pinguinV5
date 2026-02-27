@@ -84,11 +84,11 @@
 }
 
 .toolbar-button:hover .state-layer {
-    background: rgba(0, 0, 0, 0.08);
+    background: color-mix(in srgb, var(--color-on-surface) 8%, transparent);
 }
 
 .toolbar-button:active .state-layer {
-    background: rgba(0, 0, 0, 0.12);
+    background: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
 }
 
 .toolbar-button .material-symbols-outlined {
@@ -146,7 +146,7 @@
 }
 
 .header-controls .btn-outline:hover {
-    background: rgba(0, 106, 99, 0.08);
+    background: var(--color-main-c);
 }
 
 .header-controls .btn-primary {
@@ -156,7 +156,7 @@
 }
 
 .header-controls .btn-primary:hover {
-    background: var(--color-secondary);
+    filter: brightness(0.85);
 }
 
 .header-controls .btn-secondary {

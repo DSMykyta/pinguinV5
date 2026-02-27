@@ -10,7 +10,7 @@
     min-height: 300px;
     margin: 16px 0;
     padding: 48px 32px;
-    border: 2px dashed var(--color-outline);
+    border: 1px dashed var(--color-outline);
     border-radius: 16px;
     background-color: var(--color-surface);
     cursor: pointer;
@@ -162,8 +162,8 @@
 }
 
 .mapping-row.mapping-row-missing {
-    background: rgba(255, 152, 0, 0.08);
-    border-left: 3px solid var(--color-warning, #ff9800);
+    background: var(--color-warning-c);
+    border-left: 3px solid var(--color-warning);
 }
 
 .mapping-label {

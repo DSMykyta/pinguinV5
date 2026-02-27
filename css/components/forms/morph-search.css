@@ -28,7 +28,7 @@
 }
 
 .morph-search-btn:hover {
-    background: var(--color-main-t);
+    background: color-mix(in srgb, var(--color-main) 10%, transparent);
     color: var(--color-main);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .morph-search-close:hover {
-    background: var(--color-on-surface-t);
+    background: color-mix(in srgb, var(--color-on-surface) 10%, transparent);
 }
 
 /* ── Відкритий стан ── */

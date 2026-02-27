@@ -346,7 +346,7 @@ function initSectionNavigation() {
     const contentArea = document.querySelector('.modal-fullscreen-content');
     if (!nav || !contentArea) return;
 
-    const navLinks = nav.querySelectorAll('.sidebar-nav-item');
+    const navLinks = nav.querySelectorAll('.btn-icon.expand.touch');
     const sections = contentArea.querySelectorAll('section[id]');
 
     // Клік по навігації

@@ -1,4 +1,4 @@
-// js/layout/layout-nav-tabs.js
+// js/layout/layout-plugin-nav-tabs.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

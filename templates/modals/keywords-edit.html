@@ -4,7 +4,7 @@
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon" data-modal-close title="Закрити">
+                <button class="btn-icon touch" data-modal-close title="Закрити">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div class="modal-fullscreen-title">
@@ -23,25 +23,24 @@
         <div class="modal-body-with-sidebar">
 
             <!-- SIDEBAR NAVIGATOR -->
-            <nav class="sidebar-navigator" id="keyword-section-navigator">
-                <div class="sidebar-nav-main">
-                    <a href="#section-keyword-main" class="sidebar-nav-item active" aria-label="Основні дані">
+            <nav class="nav column" id="keyword-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-keyword-main" class="btn-icon expand touch active" aria-label="Основні дані">
                         <span class="material-symbols-outlined">tune</span>
-                        <span class="sidebar-nav-label">Основні дані</span>
+                        <span class="btn-icon-label">Основні дані</span>
                     </a>
-                    <a href="#section-keyword-keywords" class="sidebar-nav-item" aria-label="Ключові слова">
+                    <a href="#section-keyword-keywords" class="btn-icon expand touch" aria-label="Ключові слова">
                         <span class="material-symbols-outlined">label</span>
-                        <span class="sidebar-nav-label">Ключові слова</span>
+                        <span class="btn-icon-label">Ключові слова</span>
                     </a>
-                    <a href="#section-keyword-glossary" class="sidebar-nav-item" aria-label="Глосарій">
+                    <a href="#section-keyword-glossary" class="btn-icon expand touch" aria-label="Глосарій">
                         <span class="material-symbols-outlined">menu_book</span>
-                        <span class="sidebar-nav-label">Глосарій</span>
+                        <span class="btn-icon-label">Глосарій</span>
                     </a>
                 </div>
-                <div class="sidebar-nav-footer">
+                <div class="nav-footer">
                     <button type="button" class="btn-delete u-hidden" id="delete-keyword" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
-                        <span class="sidebar-nav-label">Видалити</span>
                     </button>
                 </div>
             </nav>

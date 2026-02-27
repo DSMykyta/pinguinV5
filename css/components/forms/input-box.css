@@ -129,14 +129,14 @@
 
 /* Hover/focus для НЕ-.spaced контейнерів — на весь блок цілком */
 .content-bloc-container:not(.spaced):focus-within {
-    outline: 2px solid var(--color-main);
+    outline: 1px solid var(--color-main);
     outline-offset: -1px;
     border-radius: 8px;
 }
 
 /* Error стан — червоний outline на весь блок */
 .content-bloc-container[error] {
-    outline: 2px solid var(--color-error);
+    outline: 1px solid var(--color-error);
     outline-offset: -1px;
     border-radius: 8px;
 }
@@ -169,7 +169,7 @@
 
 /* Скопійовано — акцентний фон */
 .content-line.panel.copied {
-    background: var(--color-main-t-2);
+    background: color-mix(in srgb, var(--color-main) 20%, transparent);
 }
 
 /* Іконка всередині .panel */
@@ -342,7 +342,7 @@
 
 .content-bloc.added input,
 .content-bloc.added textarea {
-    color: var(--color-accent);
+    color: var(--color-main);
 }
 
 /* ============================================ */

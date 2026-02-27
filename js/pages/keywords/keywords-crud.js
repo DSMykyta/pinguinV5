@@ -492,7 +492,7 @@ function resetModalScroll() {
     // Активувати перший пункт навігації
     const nav = document.getElementById('keyword-section-navigator');
     if (nav) {
-        const navLinks = nav.querySelectorAll('.sidebar-nav-item[href]');
+        const navLinks = nav.querySelectorAll('.btn-icon.expand.touch[href]');
         navLinks.forEach((link, index) => {
             link.classList.toggle('active', index === 0);
         });
@@ -507,7 +507,7 @@ function initSectionNavigation() {
     const contentArea = document.querySelector('.modal-fullscreen-content');
     if (!nav || !contentArea) return;
 
-    const navLinks = nav.querySelectorAll('.sidebar-nav-item[href]');
+    const navLinks = nav.querySelectorAll('.btn-icon.expand.touch[href]');
     const sections = contentArea.querySelectorAll('section[id]');
 
     // Клік по навігації

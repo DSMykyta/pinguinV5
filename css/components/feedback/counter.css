@@ -7,8 +7,5 @@
     background-color: transparent;
     border-radius: 12px;
     white-space: nowrap;
-}
-
-.counter:hover {
-    filter: brightness(0.85);
+    cursor: default;
 }
