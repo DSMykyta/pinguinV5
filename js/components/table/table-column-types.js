@@ -80,6 +80,7 @@ export const COLUMN_TYPES = {
     'status-dot': {
         span: 1,
         align: 'center',
+        class: 'u-max-80',
         sortable: true,
         render: (value) => {
             const val = (typeof value === 'boolean')
@@ -94,6 +95,7 @@ export const COLUMN_TYPES = {
     'badge-toggle': {
         span: 1,
         align: 'center',
+        class: 'u-max-80',
         sortable: true,
         render: (value, row) => renderBadge(value, 'checked', {
             clickable: true,
@@ -105,6 +107,7 @@ export const COLUMN_TYPES = {
     severity: {
         span: 1,
         align: 'center',
+        class: 'u-max-80',
         sortable: true,
         render: (value) => renderSeverityBadge(value)
     },
@@ -113,6 +116,7 @@ export const COLUMN_TYPES = {
     counter: {
         span: 1,
         align: 'center',
+        class: 'u-max-80',
         sortable: true,
         render: (value) => (value != null && value !== '') ? `<span class="counter">${value}×</span>` : ''
     },
@@ -158,6 +162,7 @@ export const COLUMN_TYPES = {
     'binding-chip': {
         span: 1,
         align: 'center',
+        class: 'u-max-80',
         sortable: false,
         render: (value) => {
             if (!value || value.count == null) return '';

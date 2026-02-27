@@ -108,6 +108,17 @@
     margin-top: 8px;
 }
 
+/**
+ * Max-width 80px
+ * Обмежує ширину елемента до 80px (текст обрізається ellipsis)
+ */
+.u-max-80 {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ============================================ */
 /* SEPARATORS                                  */
 /* ============================================ */

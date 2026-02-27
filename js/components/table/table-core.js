@@ -147,12 +147,13 @@ export class TableCore {
                 ${columns.map(col => {
                     const colClass = `col-${col.span || 2}`;
                     const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
+                    const charmClass = col.class ? ` ${col.class}` : '';
                     const sortableClass = !noHeaderSort && col.sortable ? ' sortable-header' : '';
                     const filterableClass = col.filterable ? ' filterable' : '';
                     const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
 
                     return `
-                        <div class="pseudo-table-cell ${colClass}${alignClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
+                        <div class="pseudo-table-cell ${colClass}${alignClass}${charmClass}${sortableClass}${filterableClass}${this.hiddenClass(col.id)}"
                              ${!noHeaderSort && col.sortable ? `data-sort-key="${col.sortKey || col.id}"` : ''}
                              data-column="${col.id}"${colTypeAttr}>
                             <span>${col.label || col.id}</span>
@@ -184,6 +185,7 @@ export class TableCore {
                     const value = row[col.id];
                     const colClass = `col-${col.span || 2}`;
                     const alignClass = col.align && col.align !== 'start' ? ` cell-align-${col.align}` : '';
+                    const charmClass = col.class ? ` ${col.class}` : '';
                     const tooltipAttr = col.tooltip !== false && value ?
                         `data-tooltip="${escapeHtml(String(value))}"` : '';
 
@@ -197,7 +199,7 @@ export class TableCore {
                     const colTypeAttr = col.type ? ` data-col-type="${col.type}"` : '';
 
                     return `
-                        <div class="pseudo-table-cell ${colClass}${alignClass}${this.hiddenClass(col.id)}"
+                        <div class="pseudo-table-cell ${colClass}${alignClass}${charmClass}${this.hiddenClass(col.id)}"
                              data-column="${col.id}"${colTypeAttr}
                              ${tooltipAttr}>
                             ${cellContent}
