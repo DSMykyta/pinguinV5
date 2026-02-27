@@ -535,6 +535,7 @@ function renderMappedMpOptionsSections(ownOptionId) {
     navItem.setAttribute('aria-label', 'Маркетплейси');
     navItem.innerHTML = `
         <span class="material-symbols-outlined">hexagon</span>
+        <span class="btn-icon-label">Маркетплейси</span>
         ${mappedMpOpts.length ? `<span>${mappedMpOpts.length}</span>` : ''}
     `;
     navTarget.appendChild(navItem);

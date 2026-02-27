@@ -186,7 +186,7 @@
 .btn-icon.expand {
     justify-content: start;
     padding: 8px;
-    gap: 4px;
+    gap: 8px;
     max-width: 32px;
     overflow: hidden;
     border-radius: var(--radius-full);
@@ -239,4 +239,16 @@
     transition: opacity 0.2s ease 0.1s,
                 max-width 0.55s ease,
                 margin 0.55s ease;
+}
+
+/* Лічильники всередині expand — менші та блякліші */
+.btn-icon.expand > span:not(.material-symbols-outlined):not(.btn-icon-label) {
+    font-size: 11px;
+    opacity: 0.5;
+    transition: font-size 0.3s ease, opacity 0.3s ease;
+}
+
+.btn-icon.expand:hover > span:not(.material-symbols-outlined):not(.btn-icon-label) {
+    font-size: 14px;
+    opacity: 1;
 }

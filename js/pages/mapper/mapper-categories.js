@@ -777,6 +777,7 @@ function renderMappedMpCategoriesSections(ownCatId) {
     navItem.setAttribute('aria-label', 'Маркетплейси');
     navItem.innerHTML = `
         <span class="material-symbols-outlined">hexagon</span>
+        <span class="btn-icon-label">Маркетплейси</span>
         ${mappedMpCats.length ? `<span>${mappedMpCats.length}</span>` : ''}
     `;
     navTarget.appendChild(navItem);
