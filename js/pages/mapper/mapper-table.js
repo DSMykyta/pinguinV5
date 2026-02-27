@@ -446,7 +446,7 @@ function transformMarketplaces(data) {
 
 export function getCategoriesColumns() {
     return [
-        { ...col('id', 'ID', 'tag', { span: 0 }), searchable: true },
+        { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
         col('_nestingLevel', 'Рів.', 'binding-chip'),
         { ...col('name_ua', 'Назва UA', 'name', { span: 3 }), searchable: true },
         { ...col('name_ru', 'Назва RU', 'text'), searchable: true, checked: false },
@@ -458,10 +458,10 @@ export function getCategoriesColumns() {
 
 export function getCharacteristicsColumns() {
     return [
-        { ...col('id', 'ID', 'tag', { span: 0 }), searchable: true },
+        { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
         {
             id: '_raw_category_ids', label: 'Категорія',
-            span: 0, align: 'center', sortable: false, filterable: true,
+            span: 1, align: 'center', sortable: false, filterable: true,
             render: (value, row) => {
                 const display = row.category_ids;
                 if (!display || display.count == null) return '';

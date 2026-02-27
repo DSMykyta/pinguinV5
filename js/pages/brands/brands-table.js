@@ -38,7 +38,7 @@ let _actionCleanup = null;
 export function getColumns() {
     return [
         col('brand_logo_url', ' ', 'photo'),
-        col('brand_id', 'ID', 'tag', { span: 0 }),
+        col('brand_id', 'ID', 'tag', { span: 1 }),
         col('name_uk', 'Назва', 'name'),
         col('names_alt', 'Альтернативні назви', 'words-list', { searchable: true }),
         col('country_option_id', 'Країна', 'text', { span: 1, filterable: true }),

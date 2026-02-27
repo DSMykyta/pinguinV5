@@ -504,13 +504,13 @@ function populateRelatedCharacteristics(categoryId) {
     const managed = createManagedTable({
         container: 'category-related-chars',
         columns: [
-            { ...col('id', 'ID', 'tag', { span: 0 }), searchable: true },
+            { ...col('id', 'ID', 'tag', { span: 1 }), searchable: true },
             { ...col('category_ids', 'Категорія', 'binding-chip', { span: 2 }), searchable: true, searchChecked: false },
             { ...col('name_ua', 'Назва', 'name', { span: 4 }), searchable: true },
             { ...col('type', 'Тип', 'code'), searchable: true, searchChecked: false },
             {
                 id: '_optCount', label: 'Опції', sortable: true,
-                span: 0, align: 'center',
+                span: 1, align: 'center',
                 render: (value, row) => {
                     const count = allOptions.filter(o => o.characteristic_id === row.id).length;
                     const cls = count === 0 ? 'chip' : 'chip c-secondary';
@@ -518,7 +518,7 @@ function populateRelatedCharacteristics(categoryId) {
                 }
             },
             {
-                id: '_unlink', label: ' ', sortable: false, span: 0,
+                id: '_unlink', label: ' ', sortable: false, span: 1,
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.id,
                     data: { name: row.name_ua || row.id }

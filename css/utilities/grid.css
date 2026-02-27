@@ -10,7 +10,6 @@
  * 2. flex-контейнери (таблиці) — .col-N = flex: N, пропорційна вага.
  *
  * КОЛОНКИ:
- * .col-auto → flex 0.5 (дрібні елементи: dot, chip, кнопки)
  * .col-1  → span 1  (1/12)
  * .col-2  → span 2  (шоста)
  * .col-3  → span 3  (чверть)
@@ -72,7 +71,6 @@
    В flex контексті (таблиці): flex: N (пропорційна вага)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.col-auto { flex: 0.5; min-width: 0; }
 .col-1  { flex: 1;  min-width: 0; grid-column: span 1; }
 .col-2  { flex: 2;  min-width: 0; grid-column: span 2; }
 .col-3  { flex: 3;  min-width: 0; grid-column: span 3; }

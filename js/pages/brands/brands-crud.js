@@ -296,7 +296,7 @@ function populateBrandLines(brandId) {
             { ...col('name_uk', 'Назва', 'name'), searchable: true, checked: true, span: 8 },
             {
                 id: '_unlink', label: ' ', sortable: false, searchable: false, checked: true,
-                span: 0,
+                span: 1,
                 render: (value, row) => actionButton({
                     action: 'unlink', rowId: row.line_id, context: 'brand-crud-lines'
                 })

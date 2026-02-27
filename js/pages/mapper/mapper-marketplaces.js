@@ -565,7 +565,7 @@ async function populateMpReferences(slug, marketplaceId) {
             { ...col('_size', 'Розмір', 'code', { span: 1 }), searchable: true },
             { ...col('_date', 'Дата', 'text', { span: 1 }), searchable: true },
             {
-                id: '_actions', label: ' ', sortable: false, span: 0,
+                id: '_actions', label: ' ', sortable: false, span: 1,
                 render: (value, row) => `
                     <div class="group">
                         <a href="${escapeHtml(row.downloadUrl)}" target="_blank" class="btn-icon" title="Завантажити" aria-label="Завантажити">

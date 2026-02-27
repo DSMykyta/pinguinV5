@@ -215,11 +215,15 @@
     display: none !important;
 }
 
-/* Header actions cell */
-.header-actions-cell {
+/* Actions cell — фіксована ширина під checkbox + btn-icon */
+.header-actions-cell,
+.pseudo-table-row > .pseudo-table-cell.col-1:first-child {
+    flex: 0 0 auto;
+    width: 80px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    gap: 4px;
     padding: 8px;
 }
 
