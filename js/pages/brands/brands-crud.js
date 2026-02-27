@@ -333,9 +333,10 @@ function populateBrandLines(brandId) {
  */
 function initSaveHandler() {
     const saveBtn = document.getElementById('btn-save-brand');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveBrand;
-    }
+    if (saveBtn) saveBtn.onclick = () => handleSaveBrand(false);
+
+    const saveCloseBtn = document.getElementById('save-close-brand');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveBrand(true);
 }
 
 /**
@@ -958,7 +959,7 @@ function clearBrandForm() {
 /**
  * Обробник збереження бренду
  */
-async function handleSaveBrand() {
+async function handleSaveBrand(shouldClose = true) {
 
     const brandData = getBrandFormData();
 
@@ -981,7 +982,7 @@ async function handleSaveBrand() {
             runHook('onBrandAdd', newBrand);
         }
 
-        closeModal();
+        if (shouldClose) closeModal();
         runHook('onModalClose');
         runHook('onRender');
     } catch (error) {

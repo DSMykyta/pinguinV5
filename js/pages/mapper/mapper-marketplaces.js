@@ -105,7 +105,10 @@ export async function showAddMarketplaceModal() {
     initMpStatusToggle();
 
     const saveBtn = document.getElementById('save-mapper-marketplace');
-    if (saveBtn) saveBtn.onclick = handleSaveNewMarketplace;
+    if (saveBtn) saveBtn.onclick = () => handleSaveNewMarketplace(false);
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-marketplace');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveNewMarketplace(true);
 
     initSectionNavigation('mp-data-section-navigator');
 }
@@ -142,9 +145,12 @@ export async function showEditMarketplaceModal(id) {
     fillMarketplaceForm(marketplace);
     initMpStatusToggle();
 
-    // Кнопка збереження
+    // Кнопки збереження
     const saveBtn = document.getElementById('save-mapper-marketplace');
-    if (saveBtn) saveBtn.onclick = () => handleUpdateMarketplace(id);
+    if (saveBtn) saveBtn.onclick = () => handleUpdateMarketplace(id, false);
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-marketplace');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleUpdateMarketplace(id, true);
 
     // Завантажити MP дані + маппінги (lazy — тільки якщо ще не завантажені)
     if (getMpCategories().length === 0) await loadMpCategories();
@@ -299,7 +305,7 @@ async function showDeleteMarketplaceConfirm(id) {
 // ФОРМА
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveNewMarketplace() {
+async function handleSaveNewMarketplace(shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
     if (!validateRequired(modal)) return;
 
@@ -307,14 +313,14 @@ async function handleSaveNewMarketplace() {
     try {
         await addMarketplace(data);
         showToast('Маркетплейс додано', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка додавання маркетплейсу', 'error');
     }
 }
 
-async function handleUpdateMarketplace(id) {
+async function handleUpdateMarketplace(id, shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
     if (!validateRequired(modal)) return;
 
@@ -322,7 +328,7 @@ async function handleUpdateMarketplace(id) {
     try {
         await updateMarketplace(id, data);
         showToast('Маркетплейс оновлено', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка оновлення маркетплейсу', 'error');

@@ -155,12 +155,6 @@
     display: none;
 }
 
-/* Multiselect tags — контекстні стилі для .tag всередині селекту */
-.custom-select-value-container .tag {
-    max-width: 150px;
-    overflow: hidden;
-}
-
 /* Overflow Chips (в панелі) */
 .custom-select-overflow-chips {
     padding: 10px 12px;

@@ -19,9 +19,9 @@
 /* === BRAND === */
 
 .c-main {
-    color: var(--color-main);
-    fill: var(--color-main);
-    background-color: var(--color-main-c);
+    color: var(--color-on-main);
+    fill: var(--color-on-main);
+    background-color: var(--color-main);
     backdrop-filter: var(--blur-s);
 }
 

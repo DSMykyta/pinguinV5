@@ -356,7 +356,7 @@ export function actionButton(options) {
         tooltip = ACTION_LABELS[action] || action,
         context = null,
         data = {},
-        className = ''
+        className = ACTION_CLASSES[action] || ''
     } = options;
 
     // Формуємо data-атрибути
@@ -438,6 +438,16 @@ export const ACTION_ICONS = {
     close: 'close',
     check: 'check',
     cancel: 'cancel'
+};
+
+/**
+ * Стандартні CSS класи для дій (шарми)
+ */
+export const ACTION_CLASSES = {
+    delete: 'danger',
+    remove: 'danger',
+    unlink: 'danger',
+    unmap: 'danger'
 };
 
 /**

@@ -137,7 +137,12 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
 
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {
-        saveBtn.onclick = handleSaveNewOption;
+        saveBtn.onclick = () => handleSaveNewOption(false);
+    }
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-option');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleSaveNewOption(true);
     }
 }
 
@@ -188,7 +193,12 @@ export async function showEditOptionModal(id) {
 
     const saveBtn = document.getElementById('save-mapper-option');
     if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateOption(id);
+        saveBtn.onclick = () => handleUpdateOption(id, false);
+    }
+
+    const saveCloseBtn = document.getElementById('save-close-mapper-option');
+    if (saveCloseBtn) {
+        saveCloseBtn.onclick = () => handleUpdateOption(id, true);
     }
 }
 
@@ -246,7 +256,7 @@ async function showDeleteOptionConfirm(id) {
 // ФОРМА
 // ═══════════════════════════════════════════════════════════════════════════
 
-async function handleSaveNewOption() {
+async function handleSaveNewOption(shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -254,14 +264,14 @@ async function handleSaveNewOption() {
     try {
         await addOption(data);
         showToast('Опцію додано', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка додавання опції', 'error');
     }
 }
 
-async function handleUpdateOption(id) {
+async function handleUpdateOption(id, shouldClose = true) {
     const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
     if (!validateRequired(modal)) return;
 
@@ -269,7 +279,7 @@ async function handleUpdateOption(id) {
     try {
         await updateOption(id, data);
         showToast('Опцію оновлено', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderCurrentTab();
     } catch (error) {
         showToast('Помилка оновлення опції', 'error');

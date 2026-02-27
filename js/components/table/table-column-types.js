@@ -57,7 +57,7 @@ export const COLUMN_TYPES = {
         span: 2,
         sortable: true,
         searchable: true,
-        render: (value) => `<span class="tag">${escapeHtml(value ?? '')}</span>`
+        render: (value) => `<span class="tag c-blue">${escapeHtml(value ?? '')}</span>`
     },
 
     // 2. Name — головна назва (bold)

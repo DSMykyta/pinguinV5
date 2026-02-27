@@ -60,9 +60,10 @@ export async function showAddKeywordModal() {
     });
 
     const saveBtn = document.getElementById('save-keyword');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveNewKeyword;
-    }
+    if (saveBtn) saveBtn.onclick = () => handleSaveNewKeyword(false);
+
+    const saveCloseBtn = document.getElementById('save-close-keyword');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveNewKeyword(true);
 }
 
 export async function showEditKeywordModal(localId) {
@@ -115,9 +116,10 @@ export async function showEditKeywordModal(localId) {
     });
 
     const saveBtn = document.getElementById('save-keyword');
-    if (saveBtn) {
-        saveBtn.onclick = () => handleUpdateKeyword(localId);
-    }
+    if (saveBtn) saveBtn.onclick = () => handleUpdateKeyword(localId, false);
+
+    const saveCloseBtn = document.getElementById('save-close-keyword');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleUpdateKeyword(localId, true);
 }
 
 export async function showDeleteKeywordConfirm(localId) {
@@ -175,7 +177,7 @@ export async function showGlossaryModal(localId) {
     }
 }
 
-async function handleSaveNewKeyword() {
+async function handleSaveNewKeyword(shouldClose = true) {
     try {
         const keywordData = getFormData();
 
@@ -187,7 +189,7 @@ async function handleSaveNewKeyword() {
         await addKeyword(keywordData);
 
         showToast('Ключове слово додано', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderKeywordsTable();
     } catch (error) {
         console.error('❌ Помилка додавання:', error);
@@ -195,7 +197,7 @@ async function handleSaveNewKeyword() {
     }
 }
 
-async function handleUpdateKeyword(localId) {
+async function handleUpdateKeyword(localId, shouldClose = true) {
     try {
         const keywordData = getFormData();
 
@@ -207,7 +209,7 @@ async function handleUpdateKeyword(localId) {
         await updateKeyword(localId, keywordData);
 
         showToast('Ключове слово оновлено', 'success');
-        closeModal();
+        if (shouldClose) closeModal();
         renderKeywordsTable();
     } catch (error) {
         console.error('❌ Помилка оновлення:', error);

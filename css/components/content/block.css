@@ -38,6 +38,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px;
+    background: linear-gradient(135deg, var(--color-surface-c-low) 0%, var(--color-surface-c-high) 100%);
     border-bottom: 1px solid var(--color-outline);
 }
 
@@ -66,4 +67,16 @@
 
 .block-line-text {
     text-align: end;
+}
+
+/* Masonry grid — колонки зверху вниз, без пусток */
+.block-group.grid {
+    display: block;
+    columns: 3;
+    column-gap: 16px;
+}
+
+.block-group.grid > * {
+    break-inside: avoid;
+    margin-bottom: 16px;
 }
