@@ -47,32 +47,24 @@
  */
 
 /* ============================================ */
-/* КОНТЕЙНЕР — card-rows variant                */
+/* КОНТЕЙНЕР — «повітря»                        */
+/* Без рамок. Фон surface. Округлений.          */
 /* ============================================ */
 
 .pseudo-table-container {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    background: transparent;
+    border-radius: var(--radius-l);
+    background: var(--color-surface);
 }
 
-/* ---- OLD (border-box) ----
-.pseudo-table-container {
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border: 1px solid var(--color-outline-v);
-    border-radius: var(--radius-m);
-    background-color: var(--color-surface-c-low);
-}
+/* ---- OLD ----
+.pseudo-table-container { border: 1px solid var(--color-outline-v); border-radius: var(--radius-m); background-color: var(--color-surface-c-low); }
 ---- /OLD ---- */
 
 /* ============================================ */
-/* ШАПКА ТАБЛИЦІ — card-rows variant            */
+/* ШАПКА — фон, без бордера                     */
 /* ============================================ */
 
 .pseudo-table-header {
@@ -80,14 +72,14 @@
     top: 0;
     z-index: 10;
     display: flex;
-    background: transparent;
+    background: var(--color-surface);
     color: var(--color-on-surface-v);
     border-bottom: none;
 }
 
 .pseudo-table-header .pseudo-table-cell {
     background: transparent;
-    padding: 8px 16px;
+    padding: 16px 16px 8px;
     overflow: visible;
     font-size: 12px;
     font-weight: 500;
@@ -95,73 +87,43 @@
     text-transform: uppercase;
 }
 
-/* ---- OLD (solid header) ----
-.pseudo-table-header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    background-color: var(--color-surface-c-low);
-    color: var(--color-on-surface);
-    border-bottom: 1px solid var(--color-outline-v);
-}
-.pseudo-table-header .pseudo-table-cell {
-    background: var(--color-surface);
-    padding: 12px 16px;
-    overflow: visible;
-}
+/* ---- OLD ----
+.pseudo-table-header { background-color: var(--color-surface-c-low); border-bottom: 1px solid var(--color-outline-v); }
+.pseudo-table-header .pseudo-table-cell { background: var(--color-surface); padding: 12px 16px; }
 ---- /OLD ---- */
 
 /* ============================================ */
-/* РЯДКИ — card-rows variant                    */
+/* РЯДКИ — без бордерів, тільки hover           */
 /* ============================================ */
 
 .pseudo-table-row {
     display: flex;
-    background: var(--color-surface);
-    border: 1px solid var(--color-outline);
     border-radius: var(--radius-s);
-    transition: box-shadow 150ms ease, border-color 150ms ease;
-}
-
-.pseudo-table-row:hover {
-    box-shadow: var(--shadow-1);
-    border-color: var(--color-outline-v);
-}
-
-.pseudo-table-row:last-child {
-    border-radius: var(--radius-s);
-}
-
-/* Клікабельні рядки (відкривають модал) */
-.pseudo-table-row.clickable-row {
-    cursor: pointer;
-}
-
-.pseudo-table-row.clickable-row:hover {
-    box-shadow: var(--shadow-1);
-    border-color: var(--color-outline-v);
-}
-
-/* ---- OLD (bordered rows) ----
-.pseudo-table-row {
-    display: flex;
-    border-bottom: 1px solid var(--color-outline-v);
+    margin: 0 6px;
     transition: background-color 150ms ease;
 }
+
 .pseudo-table-row:hover {
-    background-color: var(--color-surface-c);
+    background-color: var(--color-surface-c-low);
 }
+
 .pseudo-table-row:last-child {
-    border-bottom: none;
+    border-radius: var(--radius-s);
 }
+
+/* Клікабельні рядки */
 .pseudo-table-row.clickable-row {
     cursor: pointer;
 }
+
 .pseudo-table-row.clickable-row:hover {
-    background-color: var(--color-surface-c);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: var(--color-surface-c-low);
 }
+
+/* ---- OLD ----
+.pseudo-table-row { border-bottom: 1px solid var(--color-outline-v); }
+.pseudo-table-row:hover { background-color: var(--color-surface-c); }
+.pseudo-table-row.clickable-row:hover { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 ---- /OLD ---- */
 
 /* ============================================ */
