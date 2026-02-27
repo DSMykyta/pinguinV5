@@ -199,12 +199,34 @@ async function verifyToken(token) {
  * Оновлення UI в залежності від стану авторизації
  * ВАЖЛИВО: НЕ ховаємо контент сайту, тільки управляємо кнопками!
  */
-function updateAuthUI(isAuthorized) {
+async function updateAuthUI(isAuthorized) {
   // Кнопки в панелі
   const loginTriggerButton = document.getElementById('auth-login-trigger-btn');
   const userInfo = document.getElementById('auth-user-info');
   const usernameDisplay = document.getElementById('auth-username-display');
   const userRoleDisplay = document.getElementById('auth-user-role-display');
+
+  // Навігація — додаємо/видаляємо з DOM
+  const nav = document.getElementById('main-nav');
+  const existingNavMain = nav?.querySelector('.nav-main');
+  if (isAuthorized && !existingNavMain && nav) {
+    // Login: завантажуємо nav.html в тимчасовий контейнер і вставляємо тільки .nav-main
+    const tmp = document.createElement('div');
+    const { loadHTML } = await import('../utils/html-loader.js');
+    await loadHTML('templates/partials/nav.html', tmp);
+    const navMainEl = tmp.querySelector('.nav-main');
+    if (navMainEl) {
+      const footer = nav.querySelector('.nav-footer');
+      nav.insertBefore(navMainEl, footer);
+      // Підсвітити активну сторінку
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      navMainEl.querySelectorAll('a.btn-icon').forEach(link => {
+        if (link.getAttribute('href') === currentPage) link.classList.add('active');
+      });
+    }
+  } else if (!isAuthorized && existingNavMain) {
+    existingNavMain.remove();
+  }
 
   if (isAuthorized) {
     // Показуємо інфо про користувача (logout кнопка всередині)

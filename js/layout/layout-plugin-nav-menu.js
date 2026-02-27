@@ -43,5 +43,12 @@ export async function init() {
     if (!nav) return;
 
     await loadHTML('templates/partials/nav.html', nav);
-    setActiveLink(nav);
+
+    // Для неавторизованих — видаляємо nav-main з DOM (не display:none)
+    if (!window.isAuthorized) {
+        const navMain = nav.querySelector('.nav-main');
+        if (navMain) navMain.remove();
+    } else {
+        setActiveLink(nav);
+    }
 }
