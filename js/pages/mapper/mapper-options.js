@@ -223,7 +223,6 @@ async function showDeleteOptionConfirm(id) {
         message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 
@@ -433,7 +432,6 @@ function populateRelatedChildOptions(optionId) {
                 message: `Ви впевнені, що хочете відв'язати опцію "${data.name}" від батьківської?`,
                 confirmText: 'Відв\'язати',
                 cancelText: 'Скасувати',
-                confirmClass: 'btn-warning'
             });
 
             if (confirmed) {

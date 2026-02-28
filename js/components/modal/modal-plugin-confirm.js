@@ -13,6 +13,9 @@
 ║                                                                          ║
 ║  🎯 Функції викликаються напряму, init() — noop.                        ║
 ║                                                                          ║
+║  Кнопки: cancel = btn-ghost, confirm = danger (з HTML шаблону).          ║
+║  JS змінює тільки текст кнопок, заголовок, повідомлення та аватар.       ║
+║                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 */
 
@@ -24,29 +27,18 @@ import { renderAvatarState } from '../avatar/avatar-ui-states.js';
  */
 export function init() {}
 
-/**
- * Типи кнопок → стани аватарів
- */
-const BUTTON_TO_AVATAR_STATE = {
-    'danger': 'confirmDelete',
-    'btn-warning': 'confirmReset',
-    'btn-primary': 'confirmClose',
-    'btn-secondary': 'confirmClose'
-};
-
 const DEFAULT_AVATAR_STATE = 'confirmClose';
+
 
 /**
  * Показати діалог підтвердження
  *
  * @param {Object} options
- * @param {string} options.title — заголовок (за замовч. 'Підтвердження')
- * @param {string} options.message — текст повідомлення
+ * @param {string} options.title — заголовок
+ * @param {string} options.message — текст повідомлення (підтримує HTML)
  * @param {string} options.confirmText — текст кнопки підтвердження
  * @param {string} options.cancelText — текст кнопки скасування
- * @param {string} options.confirmClass — CSS клас кнопки ('danger', 'btn-warning', 'btn-primary')
- * @param {string} options.details — HTML каскадних попереджень
- * @param {string|false|null} options.avatarState — тип аватара або false для вимкнення
+ * @param {string|false} options.avatarState — стан аватара або false
  * @param {string} options.avatarSize — 'sm' | 'md' | 'lg'
  * @returns {Promise<boolean>}
  */
@@ -56,10 +48,8 @@ export async function showConfirmModal(options = {}) {
         message = 'Ви впевнені?',
         confirmText = 'Так',
         cancelText = 'Ні',
-        confirmClass = 'danger',
-        avatarState = null,
+        avatarState = DEFAULT_AVATAR_STATE,
         avatarSize = 'lg',
-        details = ''
     } = options;
 
     return new Promise(async (resolve) => {
@@ -70,36 +60,19 @@ export async function showConfirmModal(options = {}) {
 
         await showModal('modal-confirm', triggerElement);
 
-        // Оновлюємо контент
-        const modalTitle = document.querySelector('.modal-title');
+        const modalEl = document.getElementById('modal-modal-confirm');
+        const modalTitle = modalEl?.querySelector('.modal-header h2');
         const messageElement = document.getElementById('modal-confirm-message-text');
         const avatarContainer = document.getElementById('modal-confirm-avatar-container');
         const cancelBtn = document.getElementById('modal-confirm-cancel-btn');
         const confirmBtn = document.getElementById('modal-confirm-confirm-btn');
 
         if (modalTitle) modalTitle.textContent = title;
-        if (messageElement) messageElement.textContent = message;
-
-        // Деталі наслідків
-        const detailsEl = document.getElementById('modal-confirm-details');
-        if (detailsEl) {
-            if (details) {
-                detailsEl.innerHTML = details;
-                detailsEl.classList.remove('u-hidden');
-            } else {
-                detailsEl.innerHTML = '';
-                detailsEl.classList.add('u-hidden');
-            }
-        }
+        if (messageElement) messageElement.innerHTML = message;
 
         // Аватар
-        let effectiveAvatarState = avatarState;
-        if (avatarState === null) {
-            effectiveAvatarState = BUTTON_TO_AVATAR_STATE[confirmClass] || DEFAULT_AVATAR_STATE;
-        }
-
-        if (avatarContainer && effectiveAvatarState !== false) {
-            avatarContainer.innerHTML = renderAvatarState(effectiveAvatarState, {
+        if (avatarContainer && avatarState !== false) {
+            avatarContainer.innerHTML = renderAvatarState(avatarState, {
                 size: avatarSize,
                 containerClass: 'modal-confirm-avatar',
                 avatarClass: 'modal-confirm-avatar-image',
@@ -109,11 +82,7 @@ export async function showConfirmModal(options = {}) {
         }
 
         if (cancelBtn) cancelBtn.textContent = cancelText;
-        if (confirmBtn) {
-            confirmBtn.textContent = confirmText;
-            confirmBtn.className = `btn ${confirmClass}`;
-            confirmBtn.dataset.confirmAction = 'confirm';
-        }
+        if (confirmBtn) confirmBtn.textContent = confirmText;
 
         // Обробник кліків
         const handleClick = (e) => {
@@ -164,7 +133,6 @@ export async function showDeleteConfirm(options = {}) {
         message: message || 'Ця дія незворотна. Ви впевнені?',
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'danger',
         avatarState: 'confirmDelete',
     });
 }
@@ -179,7 +147,6 @@ export async function showResetConfirm(options = {}) {
         message,
         confirmText: 'Скинути',
         cancelText: 'Скасувати',
-        confirmClass: 'btn-warning',
         avatarState: 'confirmReset',
     });
 }
@@ -194,7 +161,6 @@ export async function showCloseConfirm(options = {}) {
         message,
         confirmText: 'Закрити',
         cancelText: 'Залишити',
-        confirmClass: 'danger',
         avatarState: 'confirmClose',
     });
 }

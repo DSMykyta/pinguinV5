@@ -140,7 +140,6 @@ export async function showDeleteBrandConfirm(brandId) {
         message: `Ви впевнені, що хочете видалити бренд "${brand.name_uk}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'danger'
     });
 
     if (confirmed) {
@@ -302,7 +301,6 @@ function populateBrandLines(brandId) {
                 message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
                 confirmText: 'Відв\'язати',
                 cancelText: 'Скасувати',
-                confirmClass: 'btn-warning'
             });
 
             if (confirmed) {
@@ -576,7 +574,6 @@ function addLinkRow(link = { name: '', url: '' }) {
             message: `Ви впевнені, що хочете видалити "${linkName}"?`,
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            confirmClass: 'danger'
         });
 
         if (confirmed) {

@@ -232,7 +232,6 @@ async function showDeleteCharacteristicConfirm(id) {
         message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 
@@ -500,7 +499,6 @@ function populateRelatedOptions(characteristicId) {
                 message: `Ви впевнені, що хочете відв'язати опцію "${optionName}" від цієї характеристики?`,
                 confirmText: 'Відв\'язати',
                 cancelText: 'Скасувати',
-                confirmClass: 'btn-warning'
             });
 
             if (confirmed) {

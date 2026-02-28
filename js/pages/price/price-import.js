@@ -148,7 +148,6 @@ async function handleFile(file) {
             message: `Імпортувати ${data.length} рядків з файлу "${file.name}"?`,
             confirmText: 'Імпортувати',
             cancelText: 'Скасувати',
-            confirmClass: 'btn-primary'
         });
 
         if (!confirmed) {

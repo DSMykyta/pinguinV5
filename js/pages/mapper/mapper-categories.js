@@ -222,7 +222,6 @@ async function showDeleteCategoryConfirm(id) {
         message: `Ви впевнені, що хочете видалити категорію "${category.name_ua}"?`,
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
-        confirmClass: 'danger',
         details: buildCascadeDetails(items)
     });
 
@@ -559,7 +558,6 @@ function populateRelatedCharacteristics(categoryId) {
             message: `Ви впевнені, що хочете відв'язати характеристику "${charName}" від цієї категорії?`,
             confirmText: 'Відв\'язати',
             cancelText: 'Скасувати',
-            confirmClass: 'btn-warning',
             avatarState: 'confirmClose',
             avatarSize: 'small'
         });
