@@ -12,11 +12,11 @@
  * ║                                                                          ║
  * ║  USAGE:                                                                  ║
  * ║  <section refresh>                                — кнопка + event      ║
- * ║  <section refresh confirm>                        — з підтвердженням    ║
- * ║  <section refresh confirm="Текст...">             — кастомне повідомл.  ║
+ * ║  <section refresh-confirm>                        — з підтвердженням    ║
+ * ║  <section refresh-confirm="Текст...">             — кастомне повідомл.  ║
  * ║  <section refresh aside data-panel-template="id"> — + aside panel       ║
  * ║  <div class="pseudo-table-container" refresh>     — для таблиць         ║
- * ║  <div class="modal-fullscreen-container" refresh confirm> — модалі      ║
+ * ║  <div class="modal-fullscreen-container" refresh-confirm> — модалі      ║
  * ║                                                                          ║
  * ║  EVENT:                                                                  ║
  * ║  charm:refresh — на елементі, detail.waitUntil(promise)                 ║
@@ -38,8 +38,10 @@ let _observing = false;
  * Запускає MutationObserver для авто-discovery динамічного контенту.
  * @param {HTMLElement|Document} scope
  */
+const REFRESH_SELECTOR = '[refresh], [refresh-confirm]';
+
 export function initRefreshCharm(scope = document) {
-    scope.querySelectorAll('[refresh]').forEach(el => {
+    scope.querySelectorAll(REFRESH_SELECTOR).forEach(el => {
         if (el._refreshCharmInit) return;
         el._refreshCharmInit = true;
         setupRefresh(el);
@@ -70,16 +72,16 @@ function startObserver() {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['refresh']
+        attributeFilter: ['refresh', 'refresh-confirm']
     });
 }
 
 function discoverRefresh(node) {
-    if (node.hasAttribute?.('refresh') && !node._refreshCharmInit) {
+    if ((node.hasAttribute?.('refresh') || node.hasAttribute?.('refresh-confirm')) && !node._refreshCharmInit) {
         node._refreshCharmInit = true;
         setupRefresh(node);
     }
-    node.querySelectorAll?.('[refresh]').forEach(el => {
+    node.querySelectorAll?.(REFRESH_SELECTOR).forEach(el => {
         if (el._refreshCharmInit) return;
         el._refreshCharmInit = true;
         setupRefresh(el);
@@ -100,8 +102,8 @@ function setupRefresh(el) {
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>';
 
     // Прокинути [confirm] на створену кнопку → charm-confirm перехопить click
-    if (el.hasAttribute('confirm')) {
-        const val = el.getAttribute('confirm');
+    if (el.hasAttribute('refresh-confirm')) {
+        const val = el.getAttribute('refresh-confirm');
         btn.setAttribute('confirm', val || '');
         btn.setAttribute('confirm-type', 'reset');
     }
