@@ -87,9 +87,13 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
-/* CONTENT SYNC — margin-left для content-main                          */
+/* CONTENT SYNC — зсув контенту при expanded nav                        */
 /* ═══════════════════════════════════════════════════════════════════════ */
 
 body.nav-expanded .content-main {
     margin-left: var(--nav-width-expanded);
+}
+
+.modal-body-with-sidebar .nav.column.expanded ~ .modal-fullscreen-content {
+    padding-left: var(--nav-width-expanded);
 }

@@ -123,7 +123,8 @@
 
 /* Відступ під nav column */
 .modal-body-with-sidebar .modal-fullscreen-content {
-    padding-left: calc(var(--panel-width-collapsed) + 12px);
+    padding-left: var(--panel-width-collapsed);
+    transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Legacy: centered section navigator inside fullscreen */
