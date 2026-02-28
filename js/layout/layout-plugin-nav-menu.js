@@ -45,10 +45,16 @@ function initNavToggle() {
         if (!nav) return;
 
         nav.classList.toggle('expanded');
+        const isExpanded = nav.classList.contains('expanded');
+
+        // Оновлюємо тултіп
+        const label = isExpanded ? 'Згорнути меню' : 'Розгорнути меню';
+        toggle.dataset.tooltip = label;
+        toggle.setAttribute('aria-label', label);
 
         // Синхронізуємо body клас для #main-nav (CSS margin-left на content-main)
         if (nav.id === 'main-nav') {
-            document.body.classList.toggle('nav-expanded', nav.classList.contains('expanded'));
+            document.body.classList.toggle('nav-expanded', isExpanded);
         }
     });
 }

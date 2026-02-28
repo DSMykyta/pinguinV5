@@ -73,7 +73,7 @@
     display: flex;
     background: var(--color-surface);
     color: var(--color-on-surface-v);
-    border-bottom: none;
+    border-bottom: 1px solid var(--color-outline);
 }
 
 .pseudo-table-header .pseudo-table-cell {
@@ -373,4 +373,4 @@
 
 /* ============================================ */
 /* WORD CHIPS IN TABLE CELLS */
-/* cell-words-list, tag — визначено в feedback/chip.css */
+/* group, tag — визначено в feedback/chip.css */
