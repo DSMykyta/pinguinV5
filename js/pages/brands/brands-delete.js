@@ -10,7 +10,7 @@
 
 import { getBrandById, deleteBrand } from './brands-data.js';
 import { runHook } from './brands-plugins.js';
-import { showConfirmModal } from '../../components/modal/modal-main.js';
+import { showCascadeConfirm } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -24,9 +24,14 @@ export async function showDeleteBrandConfirm(brandId) {
         return;
     }
 
-    const confirmed = await showConfirmModal({
-        title: 'Видалити бренд?',
-        message: `Ви впевнені, що хочете видалити бренд "${brand.name_uk}"?`,
+    const confirmed = await showCascadeConfirm({
+        title: `Видалити "${brand.name_uk}"?`,
+        message: 'Це каскадне видалення:',
+        details: [
+            'Всі лінійки цього бренду буде видалено',
+            'Всі альтернативні назви буде видалено',
+            'Всі посилання буде видалено',
+        ],
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
     });
