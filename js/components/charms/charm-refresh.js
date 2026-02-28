@@ -12,11 +12,9 @@
  * ║                                                                          ║
  * ║  USAGE:                                                                  ║
  * ║  <section refresh>                                — кнопка + event      ║
- * ║  <section refresh-confirm>                        — з підтвердженням    ║
- * ║  <section refresh-confirm="Текст...">             — кастомне повідомл.  ║
- * ║  <section refresh aside data-panel-template="id"> — + aside panel       ║
+ * ║  <section refresh data-aside-template="id">      — + aside auto        ║
  * ║  <div class="pseudo-table-container" refresh>     — для таблиць         ║
- * ║  <div class="modal-fullscreen-container" refresh-confirm> — модалі      ║
+ * ║  <div class="modal-fullscreen-container" refresh> — модалі              ║
  * ║                                                                          ║
  * ║  EVENT:                                                                  ║
  * ║  charm:refresh — на елементі, detail.waitUntil(promise)                 ║
@@ -38,7 +36,7 @@ let _observing = false;
  * Запускає MutationObserver для авто-discovery динамічного контенту.
  * @param {HTMLElement|Document} scope
  */
-const REFRESH_SELECTOR = '[refresh], [refresh-confirm]';
+const REFRESH_SELECTOR = '[refresh]';
 
 export function initRefreshCharm(scope = document) {
     scope.querySelectorAll(REFRESH_SELECTOR).forEach(el => {
@@ -72,12 +70,12 @@ function startObserver() {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['refresh', 'refresh-confirm']
+        attributeFilter: ['refresh']
     });
 }
 
 function discoverRefresh(node) {
-    if ((node.hasAttribute?.('refresh') || node.hasAttribute?.('refresh-confirm')) && !node._refreshCharmInit) {
+    if (node.hasAttribute?.('refresh') && !node._refreshCharmInit) {
         node._refreshCharmInit = true;
         setupRefresh(node);
     }
@@ -101,13 +99,6 @@ function setupRefresh(el) {
     btn.setAttribute('aria-label', 'Оновити');
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>';
 
-    // Прокинути [confirm] на створену кнопку → charm-confirm перехопить click
-    if (el.hasAttribute('refresh-confirm')) {
-        const val = el.getAttribute('refresh-confirm');
-        btn.setAttribute('confirm', val || '');
-        btn.setAttribute('confirm-type', 'reset');
-    }
-
     // В модалях: вставити перед save кнопками. Інакше: append
     const firstSave = group.querySelector('button[id*="save"]');
     if (firstSave) {
@@ -116,11 +107,10 @@ function setupRefresh(el) {
         group.appendChild(btn);
     }
 
-    const hasAside = el.hasAttribute('aside');
-    btn.addEventListener('click', () => handleRefreshClick(btn, el, hasAside));
+    btn.addEventListener('click', () => handleRefreshClick(btn, el));
 }
 
-async function handleRefreshClick(btn, el, hasAside) {
+async function handleRefreshClick(btn, el) {
     await withSpinner(btn, async () => {
         const promises = [];
 
@@ -130,16 +120,14 @@ async function handleRefreshClick(btn, el, hasAside) {
             detail: { waitUntil: (p) => promises.push(p) }
         }));
 
-        // Aside panel
-        if (hasAside) {
-            const templateName = el.dataset?.panelTemplate;
-            const aside = templateName && document.getElementById(templateName);
-            if (aside) {
-                aside.dispatchEvent(new CustomEvent('charm:refresh', {
-                    bubbles: true,
-                    detail: { waitUntil: (p) => promises.push(p) }
-                }));
-            }
+        // Aside panel — автоматично по data-aside-template
+        const templateName = el.dataset?.asideTemplate;
+        const aside = templateName && document.getElementById(templateName);
+        if (aside) {
+            aside.dispatchEvent(new CustomEvent('charm:refresh', {
+                bubbles: true,
+                detail: { waitUntil: (p) => promises.push(p) }
+            }));
         }
 
         await Promise.allSettled(promises);
