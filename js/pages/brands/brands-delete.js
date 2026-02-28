@@ -47,7 +47,7 @@ export async function showDeleteBrandConfirm(brandId) {
 
     const result = await showCascadeConfirm({
         title: `Видалити "${brand.name_uk}"?`,
-        message: `Видалення бренду <span class="tag c-red">${brand.name_uk}</span>`,
+        message: `Ви впевнені, що хочете видалити <span class="tag c-red">${brand.name_uk}</span>? Ця дія незворотна.`,
         children: {
             count: lines.length,
             countLabel: pluralLines(lines.length),

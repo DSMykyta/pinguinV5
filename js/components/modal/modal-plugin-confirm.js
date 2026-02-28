@@ -21,6 +21,7 @@
 
 import { showModal, closeModal } from './modal-core.js';
 import { renderAvatarState } from '../avatar/avatar-ui-states.js';
+import { initCustomSelects } from '../forms/select.js';
 
 /**
  * Плагін init — noop (confirm не потребує глобальної ініціалізації)
@@ -289,6 +290,7 @@ export async function showCascadeConfirm(options = {}) {
                     option.textContent = opt.text;
                     moveSelect.appendChild(option);
                 });
+                initCustomSelects(moveSection);
             }
 
             // Toggle move section on checkbox change
