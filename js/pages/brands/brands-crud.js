@@ -87,10 +87,7 @@ export async function showEditBrandModal(brandId) {
     const deleteBtn = document.getElementById('btn-delete-brand');
     if (deleteBtn) {
         deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => {
-            closeModal();
-            showDeleteBrandConfirm(brandId);
-        };
+        deleteBtn.onclick = () => showDeleteBrandConfirm(brandId);
     }
 
     await initModalComponents();
