@@ -1,4 +1,4 @@
-// js/layout/layout-nav-menu.js
+// js/layout/layout-plugin-nav-menu.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -9,7 +9,8 @@
  * ║                                                                          ║
  * ║  📋 ЩО РОБИТЬ:                                                           ║
  * ║  ├── Завантажує templates/partials/nav.html у #main-nav                  ║
- * ║  └── Додає клас .active на посилання поточної сторінки                   ║
+ * ║  ├── Додає клас .active на посилання поточної сторінки                   ║
+ * ║  └── Click-toggle expanded/collapsed для .nav.column                    ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -28,6 +29,22 @@ function setActiveLink(nav) {
         if (link.getAttribute('href') === currentPage) {
             link.classList.add('active');
         }
+    });
+}
+
+/**
+ * Делегований click-toggle для всіх .nav-toggle кнопок.
+ * Працює і для сторінкової навігації, і для модальних.
+ */
+function initNavToggle() {
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('.nav-toggle');
+        if (!toggle) return;
+
+        const nav = toggle.closest('.nav.column');
+        if (!nav) return;
+
+        nav.classList.toggle('expanded');
     });
 }
 
@@ -51,4 +68,7 @@ export async function init() {
     } else {
         setActiveLink(nav);
     }
+
+    // Toggle expanded/collapsed для nav.column
+    initNavToggle();
 }
