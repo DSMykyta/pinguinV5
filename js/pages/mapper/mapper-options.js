@@ -61,11 +61,8 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
-import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-options';
-
-let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -75,15 +72,6 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'options' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'options' });
-
-    registerModalRefresh('mapper-option-edit', async () => {
-        const { loadOptions } = await import('./mapper-data-own.js');
-        await loadOptions();
-        if (currentEditId) {
-            const option = getOptions().find(o => o.id === currentEditId);
-            if (option) fillOptionForm(option);
-        }
-    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -112,7 +100,6 @@ function handleDataLoaded() {
  * Показати модальне вікно для додавання опції
  */
 export async function showAddOptionModal(preselectedCharacteristicId = null) {
-    currentEditId = null;
 
     await showModal('mapper-option-edit', null);
 
@@ -163,7 +150,6 @@ export async function showAddOptionModal(preselectedCharacteristicId = null) {
  * Показати модальне вікно для редагування опції
  */
 export async function showEditOptionModal(id) {
-    currentEditId = id;
 
     const options = getOptions();
     const option = options.find(o => o.id === id);

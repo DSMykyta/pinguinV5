@@ -103,7 +103,6 @@ function handleDataLoaded() {
  * Показати модальне вікно для додавання категорії
  */
 export async function showAddCategoryModal() {
-    currentEditId = null;
 
     await showModal('mapper-category-edit', null);
 
@@ -146,7 +145,6 @@ export async function showAddCategoryModal() {
  * Показати модальне вікно для редагування категорії
  */
 export async function showEditCategoryModal(id) {
-    currentEditId = id;
 
     const categories = getCategories();
     const category = categories.find(c => c.id === id);

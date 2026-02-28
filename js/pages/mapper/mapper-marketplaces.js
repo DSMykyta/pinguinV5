@@ -53,11 +53,8 @@ import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
-import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-marketplaces';
-
-let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -67,15 +64,6 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'marketplaces' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'marketplaces' });
-
-    registerModalRefresh('mapper-mp-data', async () => {
-        const { loadMarketplaces } = await import('./mapper-data-own.js');
-        await loadMarketplaces();
-        if (currentEditId) {
-            const mp = getMarketplaces().find(m => m.id === currentEditId);
-            if (mp) fillMarketplaceForm(mp);
-        }
-    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -104,7 +92,6 @@ function handleDataLoaded() {
  * Показати модалку для додавання маркетплейсу
  */
 export async function showAddMarketplaceModal() {
-    currentEditId = null;
     await showModal('mapper-mp-data', null);
     await new Promise(resolve => requestAnimationFrame(resolve));
 
@@ -130,7 +117,6 @@ export async function showAddMarketplaceModal() {
  * Показати модалку для редагування / перегляду маркетплейсу
  */
 export async function showEditMarketplaceModal(id) {
-    currentEditId = id;
     const marketplaces = getMarketplaces();
     const marketplace = marketplaces.find(m => m.id === id);
 

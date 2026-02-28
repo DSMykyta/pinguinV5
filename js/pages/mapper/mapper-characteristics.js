@@ -113,7 +113,6 @@ function handleDataLoaded() {
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
-    currentEditId = null;
 
     await showModal('mapper-characteristic-edit', null);
 
@@ -156,7 +155,6 @@ export async function showAddCharacteristicModal() {
  * Показати модальне вікно для редагування характеристики
  */
 export async function showEditCharacteristicModal(id) {
-    currentEditId = id;
 
     const characteristics = getCharacteristics();
     const characteristic = characteristics.find(c => c.id === id);

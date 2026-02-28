@@ -12,27 +12,25 @@
  * ║    <span class="material-symbols-outlined">refresh</span>               ║
  * ║  </button>                                                               ║
  * ║                                                                          ║
- * ║  РЕЄСТРАЦІЯ (сторінковий код):                                          ║
- * ║  registerModalRefresh('brand-edit', async () => {                       ║
- * ║      await loadBrands();                                                ║
- * ║      fillBrandForm(getBrandById(currentBrandId));                       ║
- * ║  });                                                                     ║
+ * ║  Конфігурація REFRESH_MAP визначає data-модуль та load-функцію          ║
+ * ║  для кожного modal-id. CRUD файли не імпортують цей модуль.            ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { withSpinner } from '../charms/charm-refresh.js';
-
-/** @type {Map<string, Function>} modalId → async refreshFn */
-const refreshHandlers = new Map();
+import { showToast } from '../feedback/toast.js';
 
 /**
- * Зареєструвати refresh-handler для модала.
- * @param {string} modalId — data-modal-id модала (напр. 'brand-edit')
- * @param {Function} fn — async callback для оновлення даних
+ * modal-id → async () => завантажити дані з сервера
  */
-export function registerModalRefresh(modalId, fn) {
-    refreshHandlers.set(modalId, fn);
-}
+const REFRESH_MAP = {
+    'brand-edit':                 () => import('../../pages/brands/brands-data.js').then(m => m.loadBrands()),
+    'keywords-edit':              () => import('../../pages/keywords/keywords-data.js').then(m => m.loadKeywords()),
+    'mapper-category-edit':       () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadCategories()),
+    'mapper-characteristic-edit': () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadCharacteristics()),
+    'mapper-option-edit':         () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadOptions()),
+    'mapper-mp-data':             () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadMarketplaces()),
+};
 
 /**
  * Ініціалізація — глобальна делегація click
@@ -49,13 +47,16 @@ export function initModalRefresh() {
         if (!overlay) return;
 
         const modalId = overlay.dataset.modalId;
-        const handler = refreshHandlers.get(modalId);
-        if (!handler) return;
+        const loader = REFRESH_MAP[modalId];
+        if (!loader) return;
 
-        handleRefresh(btn, handler);
+        handleRefresh(btn, loader);
     });
 }
 
-async function handleRefresh(btn, handler) {
-    await withSpinner(btn, handler);
+async function handleRefresh(btn, loader) {
+    await withSpinner(btn, async () => {
+        await loader();
+        showToast('Дані оновлено', 'success');
+    });
 }
