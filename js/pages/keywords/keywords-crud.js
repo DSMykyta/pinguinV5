@@ -13,12 +13,22 @@ import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal } from '../../components/modal/modal-confirm.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
+import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LEGO PLUGIN INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function init(state) { /* one-time setup — main orchestrates CRUD calls */ }
+export function init(state) {
+    registerModalRefresh('keywords-edit', async () => {
+        const { loadKeywords } = await import('./keywords-data.js');
+        await loadKeywords();
+        if (currentEditId) {
+            const keyword = getKeywords().find(k => k.local_id === currentEditId);
+            if (keyword) await fillKeywordForm(keyword);
+        }
+    });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -26,8 +36,10 @@ export function init(state) { /* one-time setup — main orchestrates CRUD calls
 
 let glossaryEditor = null; // UI Editor instance для глосарію
 let mapperDataCache = null; // Кеш даних Mapper
+let currentEditId = null; // local_id записи, що редагується
 
 export async function showAddKeywordModal() {
+    currentEditId = null;
 
     await showModal('keywords-edit', null);
 
@@ -67,6 +79,7 @@ export async function showAddKeywordModal() {
 }
 
 export async function showEditKeywordModal(localId) {
+    currentEditId = localId;
 
     const keywords = getKeywords();
     const keyword = keywords.find(k => k.local_id === localId);

@@ -4,27 +4,39 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    MODAL REFRESH — ПЛАГІН                               ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔌 ПЛАГІН — Глобальна делегація click для кнопок оновлення            ║
- * ║  в хедері модалів. Можна видалити — система продовжує працювати.       ║
+ * ║  Глобальна делегація click для кнопок оновлення                        ║
+ * ║  в хедері fullscreen модалів.                                          ║
  * ║                                                                          ║
  * ║  HTML:                                                                   ║
  * ║  <button class="btn-icon" id="refresh-brand" title="Оновити">          ║
  * ║    <span class="material-symbols-outlined">refresh</span>               ║
  * ║  </button>                                                               ║
  * ║                                                                          ║
- * ║  EVENT:                                                                  ║
- * ║  modal:refresh — на .modal-fullscreen-container,                        ║
- * ║                  detail.waitUntil(promise)                               ║
- * ║                                                                          ║
- * ║  JS (сторінковий обробник):                                             ║
- * ║  modal.addEventListener('modal:refresh', (e) => {                       ║
- * ║      e.detail.waitUntil(fetchAndPopulate());                            ║
+ * ║  РЕЄСТРАЦІЯ (сторінковий код):                                          ║
+ * ║  registerModalRefresh('brand-edit', async () => {                       ║
+ * ║      await loadBrands();                                                ║
+ * ║      fillBrandForm(getBrandById(currentBrandId));                       ║
  * ║  });                                                                     ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 import { withSpinner } from '../charms/charm-refresh.js';
 
+/** @type {Map<string, Function>} modalId → async refreshFn */
+const refreshHandlers = new Map();
+
+/**
+ * Зареєструвати refresh-handler для модала.
+ * @param {string} modalId — data-modal-id модала (напр. 'brand-edit')
+ * @param {Function} fn — async callback для оновлення даних
+ */
+export function registerModalRefresh(modalId, fn) {
+    refreshHandlers.set(modalId, fn);
+}
+
+/**
+ * Ініціалізація — глобальна делегація click
+ */
 export function initModalRefresh() {
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('[id^="refresh-"]');
@@ -33,22 +45,17 @@ export function initModalRefresh() {
         const header = btn.closest('.modal-fullscreen-header');
         if (!header) return;
 
-        const modal = btn.closest('.modal-fullscreen-container');
-        if (!modal) return;
+        const overlay = btn.closest('[data-modal-id]');
+        if (!overlay) return;
 
-        handleRefresh(btn, modal);
+        const modalId = overlay.dataset.modalId;
+        const handler = refreshHandlers.get(modalId);
+        if (!handler) return;
+
+        handleRefresh(btn, handler);
     });
 }
 
-async function handleRefresh(btn, modal) {
-    await withSpinner(btn, async () => {
-        const promises = [];
-
-        modal.dispatchEvent(new CustomEvent('modal:refresh', {
-            bubbles: true,
-            detail: { waitUntil: (p) => promises.push(p) }
-        }));
-
-        await Promise.allSettled(promises);
-    });
+async function handleRefresh(btn, handler) {
+    await withSpinner(btn, handler);
 }

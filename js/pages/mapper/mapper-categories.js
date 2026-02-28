@@ -62,8 +62,11 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
+
+let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -73,6 +76,15 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'categories' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'categories' });
+
+    registerModalRefresh('mapper-category-edit', async () => {
+        const { loadCategories } = await import('./mapper-data-own.js');
+        await loadCategories();
+        if (currentEditId) {
+            const category = getCategories().find(c => c.id === currentEditId);
+            if (category) fillCategoryForm(category);
+        }
+    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -104,6 +116,7 @@ function handleDataLoaded() {
  * Показати модальне вікно для додавання категорії
  */
 export async function showAddCategoryModal() {
+    currentEditId = null;
 
     await showModal('mapper-category-edit', null);
 
@@ -139,12 +152,14 @@ export async function showAddCategoryModal() {
     if (saveCloseBtn) {
         saveCloseBtn.onclick = () => handleSaveNewCategory(true);
     }
+
 }
 
 /**
  * Показати модальне вікно для редагування категорії
  */
 export async function showEditCategoryModal(id) {
+    currentEditId = id;
 
     const categories = getCategories();
     const category = categories.find(c => c.id === id);
@@ -195,6 +210,7 @@ export async function showEditCategoryModal(id) {
     if (saveCloseBtn) {
         saveCloseBtn.onclick = () => handleUpdateCategory(id, true);
     }
+
 }
 
 /**

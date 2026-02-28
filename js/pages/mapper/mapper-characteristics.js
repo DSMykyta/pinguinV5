@@ -75,8 +75,11 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-characteristics';
+
+let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -86,6 +89,15 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'characteristics' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'characteristics' });
+
+    registerModalRefresh('mapper-characteristic-edit', async () => {
+        const { loadCharacteristics } = await import('./mapper-data-own.js');
+        await loadCharacteristics();
+        if (currentEditId) {
+            const char = getCharacteristics().find(c => c.id === currentEditId);
+            if (char) fillCharacteristicForm(char);
+        }
+    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -114,6 +126,7 @@ function handleDataLoaded() {
  * Показати модальне вікно для додавання характеристики
  */
 export async function showAddCharacteristicModal() {
+    currentEditId = null;
 
     await showModal('mapper-characteristic-edit', null);
 
@@ -156,6 +169,7 @@ export async function showAddCharacteristicModal() {
  * Показати модальне вікно для редагування характеристики
  */
 export async function showEditCharacteristicModal(id) {
+    currentEditId = id;
 
     const characteristics = getCharacteristics();
     const characteristic = characteristics.find(c => c.id === id);
