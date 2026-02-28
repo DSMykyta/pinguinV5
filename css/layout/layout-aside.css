@@ -173,12 +173,6 @@
     overflow: visible;
 }
 
-.panel-separator {
-    height: 1px;
-    background-color: var(--color-outline);
-    margin: 4px 0;
-}
-
 .panel-info-text {
     color: var(--text-secondary);
     padding: 8px 12px;
