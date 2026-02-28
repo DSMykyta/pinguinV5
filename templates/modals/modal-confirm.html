@@ -2,16 +2,7 @@
     <div class="modal-container modal-small">
         <!-- Header -->
         <div class="modal-header">
-            <h2 class="modal-title">Підтвердження</h2>
-            <div class="group">
-                <div class="group">
-                    <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
-                </div>
-            </div>
+            <h2>Підтвердження</h2>
         </div>
 
         <!-- Body -->
@@ -20,16 +11,13 @@
                 <!-- Avatar container -->
                 <div id="modal-confirm-avatar-container"></div>
 
-                <p class="modal-confirm-message" id="modal-confirm-message-text">
-                    <!-- Message inserted by JS -->
-                </p>
-                <div id="modal-confirm-details" class="modal-confirm-details u-hidden"></div>
+                <div class="speech-bubble body-s" id="modal-confirm-message-text"></div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="modal-footer">
-            <button class="btn-secondary" data-confirm-action="cancel" id="modal-confirm-cancel-btn">Скасувати</button>
+            <button class="btn-ghost" data-confirm-action="cancel" id="modal-confirm-cancel-btn">Скасувати</button>
             <button class="danger" data-confirm-action="confirm" id="modal-confirm-confirm-btn">Підтвердити</button>
         </div>
     </div>

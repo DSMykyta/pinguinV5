@@ -272,11 +272,6 @@ export const UI_STATES_CONFIG = {
  * Використовується для автоматичного рендерингу аватарів в модалах
  */
 export const MODAL_AVATAR_MAPPING = {
-    'confirm-delete-modal': {
-        stateType: 'confirmDelete',
-        avatarContainerId: 'confirm-delete-avatar-container',
-        messageContainerId: 'confirm-delete-avatar-message'
-    },
     'auth-login-modal': {
         stateType: 'authLogin',
         avatarContainerId: 'auth-login-avatar-container',

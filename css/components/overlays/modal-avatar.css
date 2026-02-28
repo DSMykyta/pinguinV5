@@ -14,56 +14,12 @@
  * - modal.css (структура модалів)
  */
 
-/* ============================================================================
-   КОНТЕЙНЕР МОДАЛУ З АВАТАРОМ
-   ============================================================================ */
-
-/**
- * Основний контейнер для модалів з аватарами
- * Використовується в confirm-delete, confirm-clear, auth-login тощо
- */
-.modal-avatar-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-    gap: 16px;
-}
-
-/* Старі назви класів (для зворотної сумісності) */
-.confirm-modal-container,
 .auth-login-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px;
     gap: 16px;
-}
-
-/* ============================================================================
-   КОНТЕЙНЕР АВАТАРА
-   ============================================================================ */
-
-/**
- * Контейнер для зображення аватара в модалі
- */
-.modal-avatar,
-.confirm-modal-avatar,
-.auth-login-avatar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-avatar img,
-.confirm-modal-avatar img,
-.auth-login-avatar img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    opacity: 0.9;
 }
 
 /* ============================================================================
@@ -90,7 +46,6 @@
 /**
  * Форма всередині модалу з аватаром
  */
-.modal-avatar-form,
 .auth-login-form {
     width: 100%;
     display: flex;
@@ -98,26 +53,3 @@
     gap: 16px;
 }
 
-/* ============================================================================
-   КНОПКИ ДІЙ (СТАРИЙ СТИЛЬ - ДЛЯ ЗВОРОТНОЇ СУМІСНОСТІ)
-   ============================================================================ */
-
-/**
- * ВАЖЛИВО: Ці стилі для старого стилю кнопок
- * Нові модали мають використовувати .btn-group
- * Ці стилі залишені для зворотної сумісності
- */
-.modal-avatar-actions,
-.confirm-modal-actions,
-.auth-login-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.modal-avatar-actions button,
-.confirm-modal-actions button,
-.auth-login-actions button {
-    min-width: 100px;
-}

@@ -736,29 +736,33 @@ const columns = [
     data:          brandsData,           // [{field: value}, ...]
 
     // ── Зовнішні DOM елементи ──
-    searchInputId: 'brands-search',      // ID інпута пошуку
+    columnsListId: 'brands-columns',     // ID дропдауну видимості колонок (або auto-detect через charm [columns])
     statsId:       'brands-stats',       // ID елемента "Показано X з Y"
-    paginationId:  'brands-pagination',  // ID контейнера пагінації
 
     // ── Конфігурація таблиці ──
     tableConfig: {
         rowActionsHeader: 'Дії',         // заголовок колонки дій
-        rowActions:  (row) => '...',     // HTML кнопок дій для рядка
-        getRowId:    (row) => row.id,    // унікальний ID рядка
+        rowActions:  (row) =&gt; '...',     // HTML кнопок дій для рядка
+        getRowId:    (row) =&gt; row.id,    // унікальний ID рядка
         emptyState:  'brands',           // тип порожнього стану
         withContainer: true,             // обгортка .pseudo-table-container
-        onAfterRender: () => { ... },    // callback після рендеру
+        onAfterRender: () =&gt; { ... },    // callback після рендеру
         plugins:     [sortingPlugin],    // масив плагінів
     },
-
-    // ── Трансформація і фільтрація ──
-    dataTransform: (data) => data,       // трансформація ПЕРЕД фільтрацією
-    preFilter:     (data) => data,       // додатковий фільтр ПІСЛЯ пошуку
 
     // ── Пагінація і чекбокси ──
     pageSize:        25,                 // рядків на сторінку
     checkboxPrefix:  'brands',           // префікс для чекбоксів
-});</pre>
+
+    // ── Трансформація і фільтрація ──
+    dataTransform: (data) =&gt; data,       // трансформація ПЕРЕД фільтрацією
+    preFilter:     (data) =&gt; data,       // додатковий фільтр ПІСЛЯ пошуку
+});
+
+// ── Charm auto-detection ──
+// Пошук: charm [search] на контейнері створює інпут, managed table підхоплює через container._charmSearchInput
+// Пагінація: charm [pagination] на контейнері — managed table не слайсить дані, пагінація працює через charm
+// Колонки: charm [columns] на контейнері — auto-detect через container._charmColumnsListId</pre>
                     </div>
                 </div>
 
@@ -852,7 +856,7 @@ brandsTable = null;
                         </tr>
                         <tr>
                             <td>Порядок ключів конфігу ФІКСОВАНИЙ</td>
-                            <td><code>container &rarr; columns &rarr; data &rarr; searchInputId &rarr; statsId &rarr; paginationId &rarr; tableConfig &rarr; dataTransform &rarr; preFilter &rarr; pageSize &rarr; checkboxPrefix</code></td>
+                            <td><code>container &rarr; columns &rarr; data &rarr; columnsListId &rarr; statsId &rarr; tableConfig &rarr; pageSize &rarr; checkboxPrefix &rarr; dataTransform &rarr; preFilter</code></td>
                         </tr>
                         <tr>
                             <td><code>rowActionsHeader</code> + <code>rowActions</code> в парі</td>
@@ -864,7 +868,7 @@ brandsTable = null;
                         </tr>
                         <tr>
                             <td><code>pageSize</code> і <code>checkboxPrefix</code> завжди ПІСЛЯ tableConfig</td>
-                            <td>Ці ключі йдуть в самому кінці конфігу, після <code>dataTransform</code> і <code>preFilter</code>.</td>
+                            <td>Ці ключі йдуть після <code>tableConfig</code>, перед <code>dataTransform</code> і <code>preFilter</code>.</td>
                         </tr>
                         <tr>
                             <td>snake_case для ключів даних</td>

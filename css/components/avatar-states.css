@@ -144,22 +144,21 @@
    МОДАЛЬНІ ВІКНА З АВАТАРАМИ
    ============================================================================ */
 
-/* Аватар в модалі підтвердження */
+/* Блок аватара з булькою (confirm, auth-login тощо) */
+.modal-confirm-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .modal-confirm-avatar {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
 }
 
 .modal-confirm-avatar-image {
     object-fit: contain;
     opacity: 0.9;
-}
-
-.modal-confirm-avatar-message {
-    color: var(--color-on-surface);
-    text-align: center;
-    margin: 0;
 }

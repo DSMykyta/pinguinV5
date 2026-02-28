@@ -46,7 +46,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 const DOT_COLOR = { active: 'c-green', draft: 'c-yellow', hidden: 'c-red', inactive: 'c-red', true: 'c-green', false: 'c-red' };
 
 /**
- * Стандартні типи колонок (15 типів).
+ * Стандартні типи колонок (16 типів).
  * Кожен тип задає: span, align, sortable, searchable, render.
  * Override render ЗАБОРОНЕНО — тільки структурні overrides (span, sortable, filterable тощо).
  */

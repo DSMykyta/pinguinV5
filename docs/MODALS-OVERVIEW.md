@@ -85,4 +85,6 @@
 | `modal-init.js` | Глобальна делегація click (open/close/ESC) |
 | `modal-confirm.js` | Confirm діалоги |
 | `modal-info.js` | Info модалі |
-| `modal-plugin-refresh.js` | Refresh кнопка в хедері (плагін) |
+| `charm-refresh.js` | Refresh кнопка — атрибут `[refresh]` на контейнері, dispatch `charm:refresh` event |
+| `charm-required.js` | Валідація `[required]` полів — dot, error state, блок save |
+| `charm-confirm.js` | Підтвердження дій — атрибут `[confirm]` на кнопках |

@@ -30,6 +30,7 @@ input[type="search"],
 input[type="url"],
 input[type="email"],
 input[type="number"],
+input[type="password"],
 input:not([type])) {
     border: none;
     background: transparent;

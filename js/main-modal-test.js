@@ -52,6 +52,243 @@ function initModalTestButtons() {
         const result = await showCloseConfirm();
         console.log('[test] showCloseConfirm result:', result);
     });
+
+    // ── Brands ──
+
+    document.getElementById('btn-test-delete-brand')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити бренд?',
+            message: 'Ви впевнені, що хочете видалити бренд "Optimum Nutrition"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete brand:', r);
+    });
+
+    document.getElementById('btn-test-unlink-line')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати лінійку?',
+            message: 'Ви впевнені, що хочете відв\'язати лінійку "Gold Standard 100% Whey" від цього бренду?',
+            confirmText: 'Відв\'язати',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] unlink line:', r);
+    });
+
+    document.getElementById('btn-test-delete-link')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити посилання?',
+            message: 'Ви впевнені, що хочете видалити "optimumnutrition.com"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete link:', r);
+    });
+
+    document.getElementById('btn-test-replace-logo')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Замінити логотип?',
+            message: 'Поточний логотип буде замінено новим.',
+            confirmText: 'Так',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] replace logo:', r);
+    });
+
+    document.getElementById('btn-test-delete-line')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити лінійку?',
+            message: 'Ви впевнені, що хочете видалити лінійку "Gold Standard 100% Whey"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete line:', r);
+    });
+
+    // ── Keywords ──
+
+    document.getElementById('btn-test-delete-keyword')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити ключове слово?',
+            message: 'Ви впевнені, що хочете видалити "Протеїн"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete keyword:', r);
+    });
+
+    // ── Mapper: Categories ──
+
+    document.getElementById('btn-test-delete-category')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити категорію?',
+            message: 'Ви впевнені, що хочете видалити категорію "Спортивне харчування"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>3</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">change_history</span> <strong>5</strong> характеристик буде відв\'язано</span></div>'
+        });
+        console.log('[test] delete category:', r);
+    });
+
+    document.getElementById('btn-test-unlink-char-from-cat')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати характеристику?',
+            message: 'Ви впевнені, що хочете відв\'язати характеристику "Вага нетто" від цієї категорії?',
+            confirmText: 'Відв\'язати',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] unlink char from cat:', r);
+    });
+
+    document.getElementById('btn-test-unmap-category')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати категорію',
+            message: 'Зняти прив\'язку з маркетплейсу?',
+        });
+        console.log('[test] unmap category:', r);
+    });
+
+    // ── Mapper: Characteristics ──
+
+    document.getElementById('btn-test-delete-characteristic')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити характеристику?',
+            message: 'Ви впевнені, що хочете видалити характеристику "Вага нетто"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>2</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>8</strong> опцій буде відв\'язано</span></div>'
+        });
+        console.log('[test] delete characteristic:', r);
+    });
+
+    document.getElementById('btn-test-unlink-opt-from-char')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати опцію?',
+            message: 'Ви впевнені, що хочете відв\'язати опцію "Шоколад" від цієї характеристики?',
+            confirmText: 'Відв\'язати',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] unlink opt from char:', r);
+    });
+
+    document.getElementById('btn-test-unmap-characteristic')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати характеристику',
+            message: 'Зняти прив\'язку з маркетплейсу?',
+        });
+        console.log('[test] unmap characteristic:', r);
+    });
+
+    // ── Mapper: Options ──
+
+    document.getElementById('btn-test-delete-option')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити опцію?',
+            message: 'Ви впевнені, що хочете видалити опцію "Шоколад"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>1</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>3</strong> дочірніх опцій буде відв\'язано</span></div>'
+        });
+        console.log('[test] delete option:', r);
+    });
+
+    document.getElementById('btn-test-unlink-child-option')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати дочірню опцію?',
+            message: 'Ви впевнені, що хочете відв\'язати опцію "Молочний шоколад" від батьківської?',
+            confirmText: 'Відв\'язати',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] unlink child option:', r);
+    });
+
+    document.getElementById('btn-test-unmap-option')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Відв\'язати опцію',
+            message: 'Зняти прив\'язку з маркетплейсу?',
+        });
+        console.log('[test] unmap option:', r);
+    });
+
+    // ── Mapper: Marketplaces ──
+
+    document.getElementById('btn-test-delete-marketplace')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити маркетплейс?',
+            message: 'Ви впевнені, що хочете видалити маркетплейс "Rozetka"?',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">square</span> <strong>1247</strong> категорій МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">change_history</span> <strong>856</strong> характеристик МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>12430</strong> опцій МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>342</strong> прив\'язок буде видалено</span></div>'
+        });
+        console.log('[test] delete marketplace:', r);
+    });
+
+    document.getElementById('btn-test-delete-mp-refs-all')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити довідники?',
+            message: 'Всі довідники маркетплейсу "Rozetka" буде видалено.',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete mp refs all:', r);
+    });
+
+    document.getElementById('btn-test-delete-mp-ref')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Видалити довідник?',
+            message: 'Довідник "Категорії" маркетплейсу "Rozetka" буде видалено.',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] delete mp ref:', r);
+    });
+
+    document.getElementById('btn-test-confirm-map')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Замапити?',
+            message: 'Прив\'язати "Спортивне харчування" → "Rozetka: Спортивне харчування"?',
+            confirmText: 'Замапити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] confirm map:', r);
+    });
+
+    // ── Banned Words ──
+
+    document.getElementById('btn-test-close-tab-banned')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Закрити таб?',
+            message: 'Таб буде закрито. Продовжити?',
+            confirmText: 'Закрити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] close tab banned:', r);
+    });
+
+    // ── Price ──
+
+    document.getElementById('btn-test-confirm-price-import')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Імпорт прайсу',
+            message: 'Імпортувати прайс-лист? Існуючі дані буде оновлено.',
+            confirmText: 'Імпортувати',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] price import:', r);
+    });
+
+    // ── Layout ──
+
+    document.getElementById('btn-test-close-tab-layout')?.addEventListener('click', async () => {
+        const r = await showConfirmModal({
+            title: 'Закрити таб?',
+            message: 'Незбережені зміни буде втрачено.',
+            confirmText: 'Закрити',
+            cancelText: 'Залишити',
+            avatarState: 'confirmClose',
+        });
+        console.log('[test] close tab layout:', r);
+    });
 }
 
 // ── Заповнення фейковими даними після відкриття модалу ──

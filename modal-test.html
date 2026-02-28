@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Test Page</title>
+    <link rel="icon" type="image/png" href="icon/dy_Dark_Pinguin.png">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <script src="js/theme-init.js"></script>
+    <style>
+        .modal-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .modal-card {
+            border: 1px solid var(--color-outline-v);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--color-surface-container);
+            transition: border-color 0.2s;
+        }
+
+        .modal-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .modal-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-card-header .material-symbols-outlined {
+            color: var(--color-primary);
+            font-size: 20px;
+        }
+
+        .modal-card-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--color-on-surface);
+        }
+
+        .modal-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--color-on-surface-v);
+            line-height: 1.5;
+        }
+
+        .modal-card-meta strong {
+            color: var(--color-on-surface);
+            font-weight: 500;
+        }
+
+        .modal-card-btn {
+            margin-top: auto;
+        }
+
+        .group-title {
+            padding: 24px 24px 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-title .material-symbols-outlined {
+            font-size: 24px;
+            color: var(--color-primary);
+        }
+
+        .group-subtitle {
+            padding: 4px 24px 0;
+            font-size: 13px;
+            color: var(--color-on-surface-v);
+        }
+
+        .group-divider {
+            margin: 16px 24px 0;
+            border: none;
+            border-top: 1px solid var(--color-outline-v);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav column" id="main-nav"></div>
+
+    <main id="content-main" class="content-main" data-aside-template="aside-brands">
+
+        <!-- HEADER -->
+        <div class="section-header" style="padding: 24px 24px 0;">
+            <div class="section-name-block">
+                <div class="section-name">
+                    <h2 class="display-l section-upper">Modal Test Page</h2>
+                </div>
+                <span class="body-s">Всі модалі проекту PinguinV5 — з описом, джерелом та фейк-даними</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 1: СИСТЕМНІ МОДАЛІ -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">settings</span>
+            Системні модалі
+        </h3>
+        <p class="group-subtitle">Глобальні — використовуються на всіх сторінках</p>
+
+        <div class="modal-cards">
+
+            <!-- Confirm Modal (unified) -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">help</span>
+                    <span class="modal-card-title">Confirm Modal</span>
+                    <span class="badge c-blue">Promise</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/modal-confirm.html</span>
+                    <span><strong>JS:</strong> modal-plugin-confirm.js</span>
+                    <span><strong>API:</strong> showConfirmModal() / showDeleteConfirm() / showResetConfirm() / showCloseConfirm()</span>
+                    <span><strong>Хто:</strong> brands-crud, mapper-*, banned-words-tabs, charm-confirm, price-import</span>
+                    <span><strong>Навіщо:</strong> Один Promise-based діалог з аватаром + speech-bubble. 4 шорткати змінюють title/message/avatar</span>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:auto;">
+                    <button class="btn-primary" id="btn-test-confirm">Confirm</button>
+                    <button class="btn-primary danger" id="btn-test-delete-confirm">Delete</button>
+                    <button class="btn-primary warning" id="btn-test-reset-confirm">Reset</button>
+                    <button class="btn-ghost" id="btn-test-close-confirm">Close</button>
+                </div>
+            </div>
+
+            <!-- Info Modal -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="modal-card-title">Info Modal</span>
+                    <span class="badge c-blue">Plugin</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/info-modal.html</span>
+                    <span><strong>JS:</strong> modal-plugin-info.js → initInfoButtons()</span>
+                    <span><strong>Хто:</strong> Кнопки aria-label="Інформація" на всіх section-header</span>
+                    <span><strong>Навіщо:</strong> Контекстна довідка, завантажує з /DATA/SectionInfo.html</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="info-modal">Відкрити</button>
+            </div>
+
+            <!-- Auth Login -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">login</span>
+                    <span class="modal-card-title">Auth Login</span>
+                    <span class="badge c-green">Auth</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/auth-login-modal.html</span>
+                    <span><strong>JS:</strong> auth-google.js → handleModalOpened()</span>
+                    <span><strong>Хто:</strong> Всі сторінки коли авторизація невдала</span>
+                    <span><strong>Навіщо:</strong> Форма логін/пароль для кастомної автентифікації</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="auth-login-modal">Відкрити</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 2: BRANDS -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            Brands (Бренди)
+        </h3>
+        <p class="group-subtitle">Сторінка: brands.html → js/pages/brands/</p>
+
+        <div class="modal-cards">
+
+            <!-- Brand Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="modal-card-title">Brand Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/brand-edit.html</span>
+                    <span><strong>JS:</strong> brands-crud.js → showAddBrandModal() / showEditBrandModal(id)</span>
+                    <span><strong>Хто:</strong> Таблиця брендів → кнопка "+" або клік на рядок</span>
+                    <span><strong>Навіщо:</strong> CRUD бренду: інфо, лінійки, посилання, маркетплейси, опис (editor)</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (5 секцій)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="brand-edit">Відкрити</button>
+            </div>
+
+            <!-- Line Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">category</span>
+                    <span class="modal-card-title">Line Edit</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/line-edit.html</span>
+                    <span><strong>JS:</strong> lines-crud.js → showAddLineModal() / showEditLineModal(brandId, lineId)</span>
+                    <span><strong>Хто:</strong> Секція "Лінійки" всередині brand-edit модалу</span>
+                    <span><strong>Навіщо:</strong> Додавання/редагування лінійки бренду (назва, бренд, лого)</span>
+                    <span><strong>Тип:</strong> modal-medium</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="line-edit">Відкрити</button>
+            </div>
+
+            <!-- Видалити бренд -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити бренд</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> brands-crud.js:138 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в brand-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Підтвердження видалення бренду</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-brand">Видалити бренд</button>
+            </div>
+
+            <!-- Відв'язати лінійку -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати лінійку</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> brands-crud.js:299 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unlink в таблиці лінійок brand-edit</span>
+                    <span><strong>Навіщо:</strong> Відв'язування лінійки від бренду</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-line">Відв'язати лінійку</button>
+            </div>
+
+            <!-- Видалити посилання -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити посилання</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> brands-crud.js:572 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка ✕ біля посилання в brand-edit</span>
+                    <span><strong>Навіщо:</strong> Підтвердження видалення посилання бренду</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-link">Видалити посилання</button>
+            </div>
+
+            <!-- Замінити логотип -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">swap_horiz</span>
+                    <span class="modal-card-title">Замінити логотип</span>
+                    <span class="badge c-yellow">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> brands-crud.js:823 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Upload логотипу коли вже є існуючий</span>
+                    <span><strong>Навіщо:</strong> Підтвердження заміни логотипу</span>
+                </div>
+                <button class="btn-primary warning modal-card-btn" id="btn-test-replace-logo">Замінити логотип</button>
+            </div>
+
+            <!-- Видалити лінійку -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити лінійку</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> lines-crud.js:130 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в line-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Підтвердження видалення лінійки</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-line">Видалити лінійку</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 3: BANNED WORDS -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">block</span>
+            Banned Words (Заборонені слова)
+        </h3>
+        <p class="group-subtitle">Сторінка: banned-words.html → js/pages/banned-words/</p>
+
+        <div class="modal-cards">
+
+            <!-- Banned Word Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="modal-card-title">Banned Word Edit</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/banned-word-edit.html</span>
+                    <span><strong>JS:</strong> banned-words-manage.js → showAddBannedWordModal() / showEditBannedWordModal(id)</span>
+                    <span><strong>Хто:</strong> Таблиця заборонених слів або banned-words-list-modal</span>
+                    <span><strong>Навіщо:</strong> Група, тип порушення, UA/RU слова, пояснення, підказка</span>
+                    <span><strong>Тип:</strong> modal-medium, dropdown severity</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="banned-word-edit">Відкрити</button>
+            </div>
+
+            <!-- Banned Words List -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">list</span>
+                    <span class="modal-card-title">Banned Words List</span>
+                    <span class="badge c-green">Table</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/banned-words-list-modal.html</span>
+                    <span><strong>JS:</strong> banned-words-manage.js</span>
+                    <span><strong>Хто:</strong> Сторінка banned-words → таб "Перевірка"</span>
+                    <span><strong>Навіщо:</strong> Повний список слів з фільтрами: всі/неперевірені/перевірені + таблиця</span>
+                    <span><strong>Тип:</strong> modal-large з табами та таблицею</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="banned-words-list-modal">Відкрити</button>
+            </div>
+
+            <!-- Product Text View -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="modal-card-title">Product Text View</span>
+                    <span class="badge c-yellow">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/product-text-view.html</span>
+                    <span><strong>JS:</strong> banned-words-product-modal.js → showProductTextModal()</span>
+                    <span><strong>Хто:</strong> Таблиця продуктів на сторінці banned-words</span>
+                    <span><strong>Навіщо:</strong> Перегляд тексту продукту з підсвіткою заборонених слів, табами sheet/field</span>
+                    <span><strong>Тип:</strong> modal-large, dynamic editor instances</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="product-text-view">Відкрити</button>
+            </div>
+
+            <!-- Закрити таб banned-words -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">tab_close</span>
+                    <span class="modal-card-title">Закрити таб</span>
+                    <span class="badge c-yellow">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> banned-words-tabs.js:261 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка ✕ на табі перевірки</span>
+                    <span><strong>Навіщо:</strong> Підтвердження закриття табу з даними</span>
+                </div>
+                <button class="btn-ghost modal-card-btn" id="btn-test-close-tab-banned">Закрити таб</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 4: KEYWORDS -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">label</span>
+            Keywords (Ключові слова)
+        </h3>
+        <p class="group-subtitle">Сторінка: keywords.html → js/pages/keywords/</p>
+
+        <div class="modal-cards">
+
+            <!-- Keywords Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="modal-card-title">Keywords Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/keywords-edit.html</span>
+                    <span><strong>JS:</strong> keywords-crud.js → showAddKeywordModal() / showEditKeywordModal(id)</span>
+                    <span><strong>Хто:</strong> Таблиця keywords → "+" або клік на рядок</span>
+                    <span><strong>Навіщо:</strong> Назви (UA/RU/EN/LAT), тип параметра, тригери, ключові слова, глосарій (editor)</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (3 секції)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="keywords-edit">Відкрити</button>
+            </div>
+
+            <!-- Видалити ключове слово -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити ключове слово</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> keywords-crud.js:134 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в keywords-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Підтвердження видалення ключового слова</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-keyword">Видалити</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 5: MAPPER -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">hub</span>
+            Mapper (Маппер)
+        </h3>
+        <p class="group-subtitle">Сторінка: mapper.html → js/pages/mapper/</p>
+
+        <div class="modal-cards">
+
+            <!-- Category Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">square</span>
+                    <span class="modal-card-title">Category Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-category-edit.html</span>
+                    <span><strong>JS:</strong> mapper-categories.js → showAddCategoryModal() / showEditCategoryModal(id)</span>
+                    <span><strong>Хто:</strong> Таб "Категорії" на mapper.html</span>
+                    <span><strong>Навіщо:</strong> Категорія: батьківська, назви UA/RU, характеристики, секції МП</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (2+ секцій, МП динамічно)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-category-edit">Відкрити</button>
+            </div>
+
+            <!-- Characteristic Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">change_history</span>
+                    <span class="modal-card-title">Characteristic Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-characteristic-edit.html</span>
+                    <span><strong>JS:</strong> mapper-characteristics.js → showAddCharacteristicModal() / showEditCharacteristicModal(id)</span>
+                    <span><strong>Хто:</strong> Таб "Характеристики" на mapper.html</span>
+                    <span><strong>Навіщо:</strong> Категорії, назви, блок, тип, одиниця, фільтр, порядок, опції</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar + switch Категорійна/Глобальна</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-characteristic-edit">Відкрити</button>
+            </div>
+
+            <!-- Option Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">circle</span>
+                    <span class="modal-card-title">Option Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-option-edit.html</span>
+                    <span><strong>JS:</strong> mapper-options.js → showAddOptionModal() / showEditOptionModal(id)</span>
+                    <span><strong>Хто:</strong> Таб "Опції" на mapper.html або зсередини characteristic-edit</span>
+                    <span><strong>Навіщо:</strong> Характеристика, батьківська опція, значення UA/RU, порядок, дочірні</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (2+ секцій)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-option-edit">Відкрити</button>
+            </div>
+
+            <!-- Marketplace Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">storefront</span>
+                    <span class="modal-card-title">Marketplace Edit</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-marketplace-edit.html</span>
+                    <span><strong>JS:</strong> mapper-marketplaces.js → showAddMarketplaceModal() / showEditMarketplaceModal(id)</span>
+                    <span><strong>Хто:</strong> Таб "Маркетплейси" на mapper.html</span>
+                    <span><strong>Навіщо:</strong> Назва, slug, статус, нормалізація полів (категорії/характеристики/опції)</span>
+                    <span><strong>Тип:</strong> modal-large</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-marketplace-edit">Відкрити</button>
+            </div>
+
+            <!-- MP Data -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">database</span>
+                    <span class="modal-card-title">MP Data (Fullscreen)</span>
+                    <span class="badge c-green">Data</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-mp-data.html</span>
+                    <span><strong>JS:</strong> mapper-marketplaces.js</span>
+                    <span><strong>Хто:</strong> Клік на маркетплейс у таблиці</span>
+                    <span><strong>Навіщо:</strong> Дані МП: основні, довідники, нормалізація, категорії/характеристики/опції</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (6 секцій з лічильниками)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-mp-data">Відкрити</button>
+            </div>
+
+            <!-- Mapper Import -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <span class="modal-card-title">Mapper Import</span>
+                    <span class="badge c-yellow">Import</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-import.html</span>
+                    <span><strong>JS:</strong> mapper-import.js → showImportModal()</span>
+                    <span><strong>Хто:</strong> Кнопка "Імпорт" на mapper.html</span>
+                    <span><strong>Навіщо:</strong> Вибір МП + drop-zone для CSV/XLSX/XLS файлу</span>
+                    <span><strong>Тип:</strong> modal-large</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-import">Відкрити</button>
+            </div>
+
+            <!-- Import Wizard -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">auto_fix_high</span>
+                    <span class="modal-card-title">Import Wizard</span>
+                    <span class="badge c-yellow">Wizard</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-import-wizard.html</span>
+                    <span><strong>JS:</strong> mapper-import-wizard.js</span>
+                    <span><strong>Хто:</strong> Після імпорту довідника → пропозиція імпортувати як власний</span>
+                    <span><strong>Навіщо:</strong> Покроковий візард імпорту довідника з динамічним контентом</span>
+                    <span><strong>Тип:</strong> modal-large, dynamic wizard steps</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-import-wizard">Відкрити</button>
+            </div>
+
+            <!-- Mapping Wizard -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">swap_horiz</span>
+                    <span class="modal-card-title">Mapping Wizard</span>
+                    <span class="badge c-yellow">Wizard</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-mapping-wizard.html</span>
+                    <span><strong>JS:</strong> mapper-mapping-wizard.js → startMappingWizard()</span>
+                    <span><strong>Хто:</strong> Кнопка "Автомаппінг" на mapper.html</span>
+                    <span><strong>Навіщо:</strong> Інтерактивний wizrd маппінгу: категорії → МП, з картками, прогресом, skip/apply</span>
+                    <span><strong>Тип:</strong> modal-large, multi-step</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-mapping-wizard">Відкрити</button>
+            </div>
+
+            <!-- Bindings -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link</span>
+                    <span class="modal-card-title">Bindings</span>
+                    <span class="badge c-green">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-bindings.html</span>
+                    <span><strong>JS:</strong> mapper-categories.js</span>
+                    <span><strong>Хто:</strong> Кнопка "Прив'язки" в рядку таблиці категорій</span>
+                    <span><strong>Навіщо:</strong> Показує прив'язки категорії до маркетплейсів</span>
+                    <span><strong>Тип:</strong> modal-medium</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-bindings">Відкрити</button>
+            </div>
+
+            <!-- Map to MP -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">add_link</span>
+                    <span class="modal-card-title">Map to MP</span>
+                    <span class="badge c-green">Action</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/mapper-map-to-mp.html</span>
+                    <span><strong>JS:</strong> mapper-utils.js → showMapToMpModal()</span>
+                    <span><strong>Хто:</strong> Кнопка "Замапити" в рядках таблиць категорій/характеристик/опцій</span>
+                    <span><strong>Навіщо:</strong> Швидке прив'язування сутності до маркетплейсу (2 select)</span>
+                    <span><strong>Тип:</strong> modal-small</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-map-to-mp">Відкрити</button>
+            </div>
+
+            <!-- Видалити категорію -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити категорію</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-categories.js:220 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в category-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка характеристик</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-category">Видалити категорію</button>
+            </div>
+
+            <!-- Відв'язати характеристику від категорії -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати характеристику</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-categories.js:556 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unlink в таблиці характеристик category-edit</span>
+                    <span><strong>Навіщо:</strong> Відв'язування характеристики від категорії</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-char-from-cat">Відв'язати</button>
+            </div>
+
+            <!-- Відв'язати категорію МП -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати категорію МП</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-categories.js:822 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unmap в секції МП category-edit</span>
+                    <span><strong>Навіщо:</strong> Зняття прив'язки категорії з маркетплейсу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-category">Відв'язати МП</button>
+            </div>
+
+            <!-- Видалити характеристику -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити характеристику</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-characteristics.js:230 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в characteristic-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка опцій</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-characteristic">Видалити характеристику</button>
+            </div>
+
+            <!-- Відв'язати опцію від характеристики -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати опцію</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-characteristics.js:497 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unlink в таблиці опцій characteristic-edit</span>
+                    <span><strong>Навіщо:</strong> Відв'язування опції від характеристики</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-opt-from-char">Відв'язати</button>
+            </div>
+
+            <!-- Відв'язати характеристику МП -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати характеристику МП</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-characteristics.js:723 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unmap в секції МП characteristic-edit</span>
+                    <span><strong>Навіщо:</strong> Зняття прив'язки характеристики з маркетплейсу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-characteristic">Відв'язати МП</button>
+            </div>
+
+            <!-- Видалити опцію -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити опцію</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-options.js:221 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в option-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка дочірніх</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-option">Видалити опцію</button>
+            </div>
+
+            <!-- Відв'язати дочірню опцію -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати дочірню опцію</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-options.js:430 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unlink в таблиці дочірніх option-edit</span>
+                    <span><strong>Навіщо:</strong> Відв'язування дочірньої опції від батьківської</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-child-option">Відв'язати</button>
+            </div>
+
+            <!-- Відв'язати опцію МП -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">link_off</span>
+                    <span class="modal-card-title">Відв'язати опцію МП</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-options.js:578 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка unmap в секції МП option-edit</span>
+                    <span><strong>Навіщо:</strong> Зняття прив'язки опції з маркетплейсу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-option">Відв'язати МП</button>
+            </div>
+
+            <!-- Видалити маркетплейс -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити маркетплейс</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-marketplaces.js:265 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в marketplace-edit модалі</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення: всі МП дані + маппінги</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-marketplace">Видалити маркетплейс</button>
+            </div>
+
+            <!-- Видалити довідники МП -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete_sweep</span>
+                    <span class="modal-card-title">Видалити довідники</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-marketplaces.js:532 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка "Видалити всі" в mp-data модалі</span>
+                    <span><strong>Навіщо:</strong> Видалення всіх довідників маркетплейсу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-mp-refs-all">Видалити довідники</button>
+            </div>
+
+            <!-- Видалити довідник МП -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити довідник</span>
+                    <span class="badge c-red">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-marketplaces.js:587 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 біля довідника в mp-data модалі</span>
+                    <span><strong>Навіщо:</strong> Видалення одного довідника маркетплейсу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-mp-ref">Видалити довідник</button>
+            </div>
+
+            <!-- Замапити (events) -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">add_link</span>
+                    <span class="modal-card-title">Замапити (підтвердження)</span>
+                    <span class="badge c-yellow">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> mapper-events.js:199/271/352 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Drag-n-drop маппінг в таблицях</span>
+                    <span><strong>Навіщо:</strong> Підтвердження створення прив'язки</span>
+                </div>
+                <button class="btn-primary warning modal-card-btn" id="btn-test-confirm-map">Замапити</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА 6: ЗАГАЛЬНІ / УТИЛІТАРНІ -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">widgets</span>
+            Загальні / Утилітарні
+        </h3>
+        <p class="group-subtitle">Використовуються різними сторінками</p>
+
+        <div class="modal-cards">
+
+            <!-- Glossary View -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">menu_book</span>
+                    <span class="modal-card-title">Glossary View</span>
+                    <span class="badge c-green">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/glossary-view.html</span>
+                    <span><strong>JS:</strong> glossary page</span>
+                    <span><strong>Хто:</strong> Сторінка glossary.html → клік на статтю</span>
+                    <span><strong>Навіщо:</strong> Відображення статті глосарію з rich HTML контентом</span>
+                    <span><strong>Тип:</strong> modal-medium</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="glossary-view">Відкрити</button>
+            </div>
+
+            <!-- Preview Modal -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">visibility</span>
+                    <span class="modal-card-title">Preview (Generic)</span>
+                    <span class="badge c-green">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/preview-modal.html</span>
+                    <span><strong>JS:</strong> generators</span>
+                    <span><strong>Хто:</strong> Генератори контенту → "Попередній перегляд"</span>
+                    <span><strong>Навіщо:</strong> Загальний preview з target #preview-content-target</span>
+                    <span><strong>Тип:</strong> modal-medium</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="preview-modal">Відкрити</button>
+            </div>
+
+            <!-- Preview Table -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">table_chart</span>
+                    <span class="modal-card-title">Preview Table</span>
+                    <span class="badge c-green">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/preview-modal-table.html</span>
+                    <span><strong>JS:</strong> generators</span>
+                    <span><strong>Хто:</strong> Генератори → preview таблиці</span>
+                    <span><strong>Навіщо:</strong> Preview згенерованої таблиці (target #preview-content-target-table)</span>
+                    <span><strong>Тип:</strong> modal-large</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="preview-modal-table">Відкрити</button>
+            </div>
+
+            <!-- Preview Text -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">text_snippet</span>
+                    <span class="modal-card-title">Preview Text</span>
+                    <span class="badge c-green">View</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/preview-modal-text.html</span>
+                    <span><strong>JS:</strong> generators</span>
+                    <span><strong>Хто:</strong> Генератори → preview тексту</span>
+                    <span><strong>Навіщо:</strong> Preview згенерованого тексту (target #preview-content-target-text)</span>
+                    <span><strong>Тип:</strong> modal-medium</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="preview-modal-text">Відкрити</button>
+            </div>
+
+            <!-- Magic Modal -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">auto_fix</span>
+                    <span class="modal-card-title">Magic Parsing</span>
+                    <span class="badge c-yellow">Tool</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/magic-modal.html</span>
+                    <span><strong>JS:</strong> price page / generators</span>
+                    <span><strong>Хто:</strong> Кнопка "Магічний парсинг" при роботі зі складом продукту</span>
+                    <span><strong>Навіщо:</strong> Textarea для вставки тексту складу → AI парсинг → розділення назва/значення</span>
+                    <span><strong>Тип:</strong> modal-medium + sidebar hints</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="magic-modal">Відкрити</button>
+            </div>
+
+            <!-- Імпорт прайсу -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">upload</span>
+                    <span class="modal-card-title">Імпорт прайсу</span>
+                    <span class="badge c-yellow">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> price-import.js:146 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка імпорту на price.html</span>
+                    <span><strong>Навіщо:</strong> Підтвердження запуску імпорту прайсу</span>
+                </div>
+                <button class="btn-primary warning modal-card-btn" id="btn-test-confirm-price-import">Імпортувати</button>
+            </div>
+
+            <!-- Закрити таб (layout) -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">tab_close</span>
+                    <span class="modal-card-title">Закрити таб (layout)</span>
+                    <span class="badge c-yellow">Confirm</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> layout-plugin-nav-tabs-dynamic.js:286 → showConfirmModal()</span>
+                    <span><strong>Хто:</strong> Кнопка ✕ на динамічному табі навігації</span>
+                    <span><strong>Навіщо:</strong> Підтвердження закриття табу з незбереженими даними</span>
+                </div>
+                <button class="btn-ghost modal-card-btn" id="btn-test-close-tab-layout">Закрити таб</button>
+            </div>
+
+        </div>
+
+        <div style="height: 48px;"></div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="footer-left"></div>
+            <div class="footer-right"></div>
+        </footer>
+
+    </main>
+
+    <!-- CONTROLS -->
+    <div class="aside-controls">
+        <button class="btn-icon large rotate aside-trigger" aria-label="Toggle aside">
+            <span class="material-symbols-outlined">apps</span>
+        </button>
+    </div>
+
+    <!-- ASIDE -->
+    <aside class="aside closed">
+        <div class="aside-body"></div>
+    </aside>
+
+    <!-- FAB -->
+    <div class="aside-fab"></div>
+
+    <div id="modal-placeholder"></div>
+
+    <script type="module" src="js/main-modal-test.js"></script>
+</body>
+
+</html>

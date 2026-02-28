@@ -85,8 +85,8 @@ export function renderModalAvatar(modalId, modalElement, config = null) {
     const avatarHtml = renderAvatarState(stateType, {
         size: 'lg',
         showMessage: false,
-        containerClass: 'modal-avatar-container',
-        avatarClass: 'modal-avatar-image'
+        containerClass: 'modal-confirm-avatar',
+        avatarClass: 'modal-confirm-avatar-image'
     });
 
     avatarContainer.innerHTML = avatarHtml;

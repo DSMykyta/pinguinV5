@@ -4,7 +4,7 @@
     <div class="modal-container modal-small">
         <!-- Header -->
         <div class="modal-header">
-            <h2 class="modal-title">Вхід</h2>
+            <h2>Вхід</h2>
             <div class="group">
                 <div class="group">
                     <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
@@ -19,11 +19,11 @@
         <!-- Body -->
         <div class="modal-body">
             <div class="auth-login-container">
-                <!-- Avatar container -->
-                <div id="auth-login-avatar-container" class="auth-login-avatar"></div>
-
-                <!-- Випадковий текст від аватара -->
-                <p id="auth-login-avatar-message" class="avatar-state-title"></p>
+                <!-- Пінгвін з булькою -->
+                <div class="modal-confirm-body">
+                    <div id="auth-login-avatar-container"></div>
+                    <div class="speech-bubble body-s" id="auth-login-avatar-message"></div>
+                </div>
 
                 <!-- Повідомлення про помилку -->
                 <div id="auth-login-error" class="auth-login-error u-hidden"></div>
