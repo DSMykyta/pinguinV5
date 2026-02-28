@@ -31,29 +31,28 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: max-content;
-    max-width: var(--panel-width-collapsed);
+    width: var(--panel-width-collapsed);
     height: 100dvh;
     z-index: 200;
     flex-direction: column;
     align-items: flex-start;
     padding: 12px;
     overflow: visible;
-    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Стан expanded — панель розкрита, всі лейбли видимі */
 .nav.column.expanded {
-    max-width: 400px;
+    width: max-content;
 }
 
 .nav.column.expanded .btn-icon.expand {
-    max-width: 400px;
+    max-width: none;
     padding-right: 16px;
 }
 
 .nav.column.expanded .btn-icon.expand.touch {
-    max-width: 400px;
+    max-width: none;
     padding-right: 16px;
     gap: 12px;
 }
