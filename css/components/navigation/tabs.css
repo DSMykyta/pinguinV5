@@ -73,7 +73,9 @@
 }
 
 /* Hover стан самої кнопки */
-.tab-close-btn:hover {
+.tab-close-btn:hover,
+.tab-close-btn:active {
+    transform: translateY(-50%);
     background-color: var(--color-on-main);
 }
 

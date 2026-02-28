@@ -295,7 +295,7 @@ class CustomSelect {
 
         // Якщо нічого не влазить - показати тільки кількість
         if (fittingCount === 0) {
-            const summaryChip = this._createElement('div', { class: 'tag' });
+            const summaryChip = this._createElement('div', { class: 'tag c-secondary' });
             summaryChip.textContent = totalChips;
             this.valueContainer.appendChild(summaryChip);
 
@@ -325,7 +325,7 @@ class CustomSelect {
         // Додаємо лічильник якщо є більше чіпів
         const hiddenCount = totalChips - fittingCount;
         if (hiddenCount > 0) {
-            const counterChip = this._createElement('div', { class: 'tag' });
+            const counterChip = this._createElement('div', { class: 'tag c-secondary' });
             counterChip.textContent = `+${hiddenCount}`;
             this.valueContainer.appendChild(counterChip);
 
@@ -339,7 +339,7 @@ class CustomSelect {
     }
 
     _createChip(option) {
-        const tag = this._createElement('div', { class: 'tag' });
+        const tag = this._createElement('div', { class: 'tag c-secondary' });
 
         // Логіка відображення з підтримкою ієрархії
         const shortName = option.dataset.name;
@@ -351,7 +351,7 @@ class CustomSelect {
             tag.textContent = option.textContent;
         }
 
-        const removeBtn = this._createElement('button', { type: 'button', class: 'tag__remove' });
+        const removeBtn = this._createElement('button', { type: 'button', class: 'tag-remove' });
         removeBtn.innerHTML = '&times;';
 
         removeBtn.addEventListener('click', (e) => {

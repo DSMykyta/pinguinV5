@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Select — Preview</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        body {
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            color: var(--color-on-surface);
+        }
+        h1 { margin-bottom: 32px; }
+        h2 { margin: 32px 0 16px; }
+        .demo-block {
+            margin-bottom: 40px;
+        }
+        /* Примусово відкриті панелі для превью */
+        .force-open .custom-select-wrapper {
+            z-index: 1;
+        }
+        .force-open .custom-select-panel {
+            position: relative !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            top: 4px !important;
+            bottom: auto !important;
+            left: auto !important;
+            width: 100% !important;
+            max-height: 250px !important;
+        }
+        .force-open .custom-select-wrapper .custom-select-arrow {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+
+<h1>Custom Select — Preview</h1>
+
+<!-- ===== SINGLE SELECT ===== -->
+<div class="demo-block">
+    <h2>Single Select (звичайний)</h2>
+    <div class="group column">
+        <label class="label-l">Характеристика</label>
+        <select id="demo-single" data-custom-select placeholder="Оберіть характеристику">
+            <option value="">-- Оберіть характеристику --</option>
+            <option value="color">Колір</option>
+            <option value="size">Розмір</option>
+            <option value="material">Матеріал</option>
+            <option value="brand">Бренд</option>
+            <option value="weight">Вага</option>
+            <option value="country">Країна виробництва</option>
+            <option value="style">Стиль</option>
+            <option value="season">Сезон</option>
+        </select>
+        <label class="label-s">Оберіть одну характеристику зі списку</label>
+    </div>
+</div>
+
+<!-- ===== SINGLE SELECT (розкритий) ===== -->
+<div class="demo-block force-open">
+    <h2>Single Select — розкритий</h2>
+    <div class="group column">
+        <label class="label-l">Характеристика (розкритий)</label>
+        <select id="demo-single-open" data-custom-select placeholder="Оберіть характеристику">
+            <option value="">-- Оберіть характеристику --</option>
+            <option value="color">Колір</option>
+            <option value="size">Розмір</option>
+            <option value="material">Матеріал</option>
+            <option value="brand">Бренд</option>
+            <option value="weight">Вага</option>
+            <option value="country">Країна виробництва</option>
+            <option value="style">Стиль</option>
+            <option value="season">Сезон</option>
+        </select>
+    </div>
+</div>
+
+<!-- ===== MULTI SELECT ===== -->
+<div class="demo-block">
+    <h2>Multi Select (мультиселект)</h2>
+    <div class="group column">
+        <label class="label-l">Маркетплейси</label>
+        <select id="demo-multi" data-custom-select data-select-all multiple placeholder="Оберіть маркетплейси">
+            <option value="rozetka">Rozetka</option>
+            <option value="prom">Prom.ua</option>
+            <option value="epicentr">Епіцентр</option>
+            <option value="allo">Алло</option>
+            <option value="hotline">Hotline</option>
+            <option value="amazon">Amazon</option>
+        </select>
+        <label class="label-s">Можна обрати кілька</label>
+    </div>
+</div>
+
+<!-- ===== MULTI SELECT (розкритий з вибраними) ===== -->
+<div class="demo-block force-open">
+    <h2>Multi Select — розкритий з вибраними</h2>
+    <div class="group column">
+        <label class="label-l">Маркетплейси (розкритий)</label>
+        <select id="demo-multi-open" data-custom-select data-select-all multiple placeholder="Оберіть маркетплейси">
+            <option value="rozetka" selected>Rozetka</option>
+            <option value="prom" selected>Prom.ua</option>
+            <option value="epicentr">Епіцентр</option>
+            <option value="allo" selected>Алло</option>
+            <option value="hotline">Hotline</option>
+            <option value="amazon">Amazon</option>
+        </select>
+    </div>
+</div>
+
+<!-- ===== TAGS PREVIEW ===== -->
+<div class="demo-block">
+    <h2>Tags (чіпи)</h2>
+    <div class="group wrap" style="gap: 8px;">
+        <div class="tag c-secondary">Rozetka<button type="button" class="tag-remove">&times;</button></div>
+        <div class="tag c-secondary">Prom.ua<button type="button" class="tag-remove">&times;</button></div>
+        <div class="tag c-secondary">Алло<button type="button" class="tag-remove">&times;</button></div>
+        <div class="tag c-main">UA</div>
+        <div class="tag">+2</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initCustomSelects } from '../js/components/forms/select.js';
+    initCustomSelects();
+
+    // Примусово відкрити панелі в .force-open блоках
+    setTimeout(() => {
+        document.querySelectorAll('.force-open .custom-select-wrapper').forEach(wrapper => {
+            wrapper.classList.add('open');
+            const panel = wrapper.querySelector('.custom-select-panel');
+            if (panel) panel.classList.add('open');
+        });
+    }, 100);
+</script>
+
+</body>
+</html>

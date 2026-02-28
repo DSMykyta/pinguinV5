@@ -11,7 +11,7 @@
     cursor: default;
 }
 
-.tag__remove {
+.tag-remove {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -26,6 +26,8 @@
     transition: opacity 150ms ease-in-out;
 }
 
-.tag__remove:hover {
+.tag-remove:hover,
+.tag-remove:active {
     opacity: 1;
+    transform: none;
 }
