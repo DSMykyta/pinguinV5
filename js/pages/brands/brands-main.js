@@ -55,6 +55,7 @@
 import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
+import { loadOptions, getOptions } from '../mapper/mapper-data-own.js';
 import { runHook, runHookAsync } from './brands-plugins.js';
 import { initTooltips } from '../../components/feedback/tooltip.js';
 import { initDropdowns } from '../../components/forms/dropdown.js';
@@ -128,10 +129,11 @@ async function checkAuthAndLoadData() {
 
     if (window.isAuthorized) {
 
-        // Завантажити бренди та лінійки паралельно (allSettled — одна помилка не ламає все)
-        const [brandsResult, linesResult] = await Promise.allSettled([
+        // Завантажити бренди, лінійки та опції маппера паралельно
+        const [brandsResult, linesResult, optionsResult] = await Promise.allSettled([
             loadBrands(),
-            loadBrandLines()
+            loadBrandLines(),
+            getOptions().length === 0 ? loadOptions() : Promise.resolve()
         ]);
 
         if (brandsResult.status === 'rejected') {
