@@ -1,4 +1,4 @@
-// js/common/avatar/avatar-modal.js
+// js/components/avatar/avatar-modal.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

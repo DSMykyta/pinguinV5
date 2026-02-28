@@ -1,4 +1,4 @@
-// js/common/ui-modal-init.js
+// js/components/modal/modal-init.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/common/ui-actions.js
+// js/components/actions/actions-main.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,14 +1,11 @@
-/**
+// js/utils/api-client.js
+
+/*
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    API CLIENT - UNIFIED DATA LAYER                       ║
+ * ║                   API CLIENT — UNIFIED DATA LAYER                       ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Єдина точка для всіх операцій з Google Sheets та Drive       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Єдина точка для всіх операцій з Google Sheets.
- * Всі модулі (keywords, brands, banned-words, glossary) використовують цей клієнт.
- *
- * Використання:
- *   import { callSheetsAPI } from '../utils/api-client.js';
- *   await callSheetsAPI('get', { range: 'Sheet!A:Z', spreadsheetType: 'main' });
  */
 
 const API_BASE = window.location.origin;

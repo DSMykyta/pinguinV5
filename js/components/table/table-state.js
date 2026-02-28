@@ -1,4 +1,4 @@
-// js/common/table/table-state.js
+// js/components/table/table-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -75,11 +75,11 @@ export function createTableState(config = {}) {
     /**
      * Зареєструвати hook
      */
-    function registerHook(hookName, callback) {
+    function registerHook(hookName, callback, options = {}) {
         if (hooks[hookName] && typeof callback === 'function') {
-            hooks[hookName].push(callback);
+            hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
             return () => {
-                const index = hooks[hookName].indexOf(callback);
+                const index = hooks[hookName].findIndex(h => h.fn === callback);
                 if (index > -1) hooks[hookName].splice(index, 1);
             };
         }
@@ -92,11 +92,11 @@ export function createTableState(config = {}) {
      */
     function runHook(hookName, ...args) {
         if (hooks[hookName]) {
-            hooks[hookName].forEach(callback => {
+            hooks[hookName].forEach(({ fn, plugin }) => {
                 try {
-                    callback(...args);
+                    fn(...args);
                 } catch (e) {
-                    console.error(`[TableState] Hook ${hookName} error:`, e);
+                    console.error(`[TableState:${plugin}] Hook ${hookName} error:`, e);
                 }
             });
         }

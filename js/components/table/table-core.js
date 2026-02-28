@@ -1,4 +1,4 @@
-// js/common/table/table-core.js
+// js/components/table/table-core.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -86,7 +86,7 @@ export class TableCore {
         };
 
         // Ініціалізуємо hooks
-        this.state.registerHook('onDataChange', () => this.render());
+        this.state.registerHook('onDataChange', () => this.render(), { plugin: 'core' });
     }
 
     /**

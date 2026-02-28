@@ -34,7 +34,7 @@ export function init() {
     markPluginLoaded(PLUGIN_NAME);
 
     // Підписуємось на хук очищення таблиці
-    registerHook('onTableReset', clearSession);
+    registerHook('onTableReset', clearSession, { plugin: 'session-manager' });
 }
 
 // ============================================================================

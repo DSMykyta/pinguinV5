@@ -1,4 +1,4 @@
-// js/common/editor/editor-undo.js
+// js/components/editor/editor-plugin-undo.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

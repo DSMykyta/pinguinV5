@@ -1,4 +1,4 @@
-// js/common/table/table-managed.js
+// js/components/table/table-managed.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

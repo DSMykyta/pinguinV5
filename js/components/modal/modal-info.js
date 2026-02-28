@@ -1,4 +1,4 @@
-// js/common/ui-info-modal.js
+// js/components/modal/modal-info.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

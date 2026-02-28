@@ -1,4 +1,4 @@
-// js/mapper/mapper-import-etalon.js
+// js/pages/mapper/mapper-import-etalon.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/layout/layout-nav-sections.js
+// js/layout/layout-plugin-nav-sections.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/keywords/keywords-crud.js
+// js/pages/keywords/keywords-crud.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

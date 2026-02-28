@@ -1,4 +1,4 @@
-// js/common/avatar/avatar-config.js
+// js/components/avatar/avatar-config.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

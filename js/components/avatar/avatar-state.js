@@ -1,4 +1,4 @@
-// js/common/avatar/avatar-state.js
+// js/components/avatar/avatar-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -86,7 +86,7 @@ const hooks = {
  *     console.log('User changed:', user);
  * });
  */
-export function registerHook(hookName, callback) {
+export function registerHook(hookName, callback, options = {}) {
     if (!hooks[hookName]) {
         console.warn(`[Avatar] Unknown hook: ${hookName}`);
         return;
@@ -97,7 +97,7 @@ export function registerHook(hookName, callback) {
         return;
     }
 
-    hooks[hookName].push(callback);
+    hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
 }
 
 /**
@@ -114,11 +114,11 @@ export function runHook(hookName, ...args) {
         return;
     }
 
-    hooks[hookName].forEach(callback => {
+    hooks[hookName].forEach(({ fn, plugin }) => {
         try {
-            callback(...args);
+            fn(...args);
         } catch (error) {
-            console.error(`[Avatar] Hook error (${hookName}):`, error);
+            console.error(`[Avatar:${plugin}] hook "${hookName}" error:`, error);
         }
     });
 }

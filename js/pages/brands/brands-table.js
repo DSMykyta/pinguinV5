@@ -1,4 +1,4 @@
-// js/brands/brands-table.js
+// js/pages/brands/brands-table.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

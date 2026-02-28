@@ -1,4 +1,4 @@
-// js/common/table/table-filters.js
+// js/components/table/table-filters.js
 
 import { positionPanel } from '../forms/dropdown.js';
 
@@ -95,10 +95,10 @@ class FiltersPlugin {
         }
 
         // Налаштовуємо hover після кожного рендеру
-        this.state.registerHook('onRender', () => this.setupHoverDropdowns());
+        this.state.registerHook('onRender', () => this.setupHoverDropdowns(), { plugin: 'filters' });
 
         // Закриваємо dropdown при зміні даних
-        this.state.registerHook('onDataChange', () => this.hideHoverDropdown(true));
+        this.state.registerHook('onDataChange', () => this.hideHoverDropdown(true), { plugin: 'filters' });
     }
 
     // ==================== UNIQUE VALUES ====================

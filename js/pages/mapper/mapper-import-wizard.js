@@ -1,4 +1,4 @@
-// js/mapper/mapper-import-wizard.js
+// js/pages/mapper/mapper-import-wizard.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -69,7 +69,7 @@ const wizardState = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init() {
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'import-wizard' });
     markPluginLoaded(PLUGIN_NAME);
 }
 

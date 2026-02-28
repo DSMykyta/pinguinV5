@@ -1,4 +1,4 @@
-// js/mapper/mapper-utils.js
+// js/pages/mapper/mapper-utils.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

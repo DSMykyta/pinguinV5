@@ -1,4 +1,4 @@
-// js/mapper/mapper-marketplaces.js
+// js/pages/mapper/mapper-marketplaces.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -63,8 +63,8 @@ export const PLUGIN_NAME = 'mapper-marketplaces';
  */
 export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
-    registerHook('onTabChange', handleTabChange);
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange, { plugin: 'marketplaces' });
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'marketplaces' });
 
     markPluginLoaded(PLUGIN_NAME);
 }

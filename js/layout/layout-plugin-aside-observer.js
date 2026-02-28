@@ -1,4 +1,4 @@
-// js/layout/layout-aside-observer.js
+// js/layout/layout-plugin-aside-observer.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

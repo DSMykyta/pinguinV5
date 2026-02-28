@@ -1,4 +1,4 @@
-// js/mapper/mapper-options.js
+// js/pages/mapper/mapper-options.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -71,8 +71,8 @@ export const PLUGIN_NAME = 'mapper-options';
  */
 export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
-    registerHook('onTabChange', handleTabChange);
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange, { plugin: 'options' });
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'options' });
 
     markPluginLoaded(PLUGIN_NAME);
 }

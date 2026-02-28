@@ -1,4 +1,12 @@
-// js/common/polling.js
+// js/utils/polling.js
+
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                         POLLING                                         ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Універсальний polling-движок з fingerprint-порівнянням та pause/resume  ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
 
 /**
  * Generic Polling Engine.
@@ -60,7 +68,8 @@ export function createPolling(config) {
 
         polling = true;
         try {
-            const results = await Promise.all(sources.map(src => src.fetch()));
+            const settled = await Promise.allSettled(sources.map(src => src.fetch()));
+            const results = settled.map(r => r.status === 'fulfilled' ? r.value : null);
 
             let changed = false;
             for (let i = 0; i < sources.length; i++) {

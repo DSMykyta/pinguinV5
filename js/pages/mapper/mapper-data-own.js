@@ -29,7 +29,7 @@ import {
  */
 export async function loadMapperData() {
     try {
-        await Promise.all([
+        await Promise.allSettled([
             loadMarketplaces(),
             loadCategories(),
             loadCharacteristics(),

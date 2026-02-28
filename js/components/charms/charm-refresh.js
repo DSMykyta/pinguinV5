@@ -1,4 +1,4 @@
-// js/common/charms/charm-refresh.js
+// js/components/charms/charm-refresh.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -90,7 +90,7 @@ async function handleRefreshClick(btn, el, needsConfirm, confirmMessage, hasAsid
             }
         }
 
-        await Promise.all(promises);
+        await Promise.allSettled(promises);
     });
 }
 

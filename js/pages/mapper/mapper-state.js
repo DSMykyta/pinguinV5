@@ -1,4 +1,4 @@
-// js/mapper/mapper-state.js
+// js/pages/mapper/mapper-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -115,9 +115,9 @@ export const mapperState = {
 /**
  * Реєстрація хука
  */
-export function registerHook(hookName, callback) {
+export function registerHook(hookName, callback, options = {}) {
     if (hooks[hookName]) {
-        hooks[hookName].push(callback);
+        hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
     } else {
         console.warn(`[Mapper] Unknown hook: ${hookName}`);
     }
@@ -128,11 +128,11 @@ export function registerHook(hookName, callback) {
  */
 export function runHook(hookName, ...args) {
     if (!hooks[hookName]) return;
-    hooks[hookName].forEach(cb => {
+    hooks[hookName].forEach(({ fn, plugin }) => {
         try {
-            cb(...args);
+            fn(...args);
         } catch (e) {
-            console.error(`[Mapper Hook Error] ${hookName}:`, e);
+            console.error(`[Mapper:${plugin}] hook "${hookName}" error:`, e);
         }
     });
 }

@@ -1,4 +1,4 @@
-// js/common/editor/editor-formatting.js
+// js/components/editor/editor-plugin-formatting.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

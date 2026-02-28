@@ -1,4 +1,4 @@
-// js/common/table/table-columns.js
+// js/components/table/table-columns.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/brands/brands-state.js
+// js/pages/brands/brands-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

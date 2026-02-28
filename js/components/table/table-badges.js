@@ -1,4 +1,4 @@
-// js/common/table/table-badges.js
+// js/components/table/table-badges.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

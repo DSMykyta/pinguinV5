@@ -1,4 +1,4 @@
-// js/common/ui-loading.js
+// js/components/feedback/loading.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

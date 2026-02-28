@@ -1,4 +1,4 @@
-// js/mapper/mapper-import.js
+// js/pages/mapper/mapper-import.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -85,7 +85,7 @@ function normalizeIsGlobal(value) {
  */
 export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'import' });
 
     markPluginLoaded(PLUGIN_NAME);
 }

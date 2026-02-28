@@ -1,6 +1,12 @@
 // js/utils/google-sheets-batch.js
-// Універсальна утиліта для пакетних операцій з Google Sheets API
-// ОНОВЛЕНО: використовує api-client.js замість прямих викликів gapi
+
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                   GOOGLE SHEETS BATCH                                   ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  Пакетні операції з Google Sheets API (batchUpdate, batchGet)            ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
 
 import { TEXTS_SPREADSHEET_ID, MAIN_SPREADSHEET_ID, getSpreadsheetType } from '../config/spreadsheet-config.js';
 

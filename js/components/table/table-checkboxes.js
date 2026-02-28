@@ -1,4 +1,4 @@
-// js/common/table/table-checkboxes.js
+// js/components/table/table-checkboxes.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -51,7 +51,7 @@ class CheckboxesPlugin {
         this.state.registerHook('onRender', (container, data) => {
             this.attachHandlers(container, data);
             this.syncCheckboxStates(data);
-        });
+        }, { plugin: 'checkboxes' });
 
         // Синхронізуємо з batch bar при зміні вибору
         this.state.registerHook('onSelect', (selectedIds) => {
@@ -59,7 +59,7 @@ class CheckboxesPlugin {
             if (this.config.onSelect) {
                 this.config.onSelect(selectedIds);
             }
-        });
+        }, { plugin: 'checkboxes' });
     }
 
     /**

@@ -1,4 +1,4 @@
-// js/brands/brands-events.js
+// js/pages/brands/brands-events.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,13 +1,11 @@
-/**
- * Загальні утиліти для всіх модулів
- *
- * @module common-utils
- * @description Центральне сховище багаторазово використовуваних функцій
- *
- * @exports debounce
- * @exports generateNextId
- * @exports capitalizeFirst
- * @exports formatDate
+// js/utils/common-utils.js
+
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                    COMMON UTILS — ЗАГАЛЬНІ УТИЛІТИ                      ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🛠️ УТИЛІТА — debounce, generateNextId, capitalizeFirst, formatDate     ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
 /**

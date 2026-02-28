@@ -1,4 +1,4 @@
-// js/common/editor/editor-utils.js
+// js/components/editor/editor-utils.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

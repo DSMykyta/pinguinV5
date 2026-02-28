@@ -1,4 +1,4 @@
-// js/common/table/table-column-types.js
+// js/components/table/table-column-types.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/mapper/mapper-categories.js
+// js/pages/mapper/mapper-categories.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -71,8 +71,8 @@ export const PLUGIN_NAME = 'mapper-categories';
  */
 export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
-    registerHook('onTabChange', handleTabChange);
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange, { plugin: 'categories' });
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'categories' });
 
     markPluginLoaded(PLUGIN_NAME);
 }

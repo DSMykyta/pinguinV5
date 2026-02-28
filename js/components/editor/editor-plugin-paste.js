@@ -1,4 +1,4 @@
-// js/common/editor/editor-paste.js
+// js/components/editor/editor-plugin-paste.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -60,7 +60,7 @@ export function init(state) {
                 });
             }
         }
-    });
+    }, { plugin: 'paste' });
 
     // Paste handler
     dom.editor.addEventListener('paste', (e) => {

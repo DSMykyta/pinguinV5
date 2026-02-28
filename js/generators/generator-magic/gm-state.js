@@ -39,11 +39,11 @@ export const state = {
  * @param {Function} callback - Callback функція
  * @returns {Function} - Функція для видалення хука
  */
-export function registerHook(hookName, callback) {
+export function registerHook(hookName, callback, options = {}) {
     if (hooks[hookName] && typeof callback === 'function') {
-        hooks[hookName].push(callback);
+        hooks[hookName].push({ fn: callback, plugin: options.plugin || 'anonymous' });
         return () => {
-            const index = hooks[hookName].indexOf(callback);
+            const index = hooks[hookName].findIndex(h => h.fn === callback);
             if (index > -1) hooks[hookName].splice(index, 1);
         };
     }
@@ -58,11 +58,11 @@ export function registerHook(hookName, callback) {
  */
 export function runHook(hookName, ...args) {
     if (!hooks[hookName]) return;
-    hooks[hookName].forEach(callback => {
+    hooks[hookName].forEach(({ fn, plugin }) => {
         try {
-            callback(...args);
+            fn(...args);
         } catch (e) {
-            console.error(`[MagicState] Hook ${hookName} error:`, e);
+            console.error(`[MagicState:${plugin}] hook "${hookName}" error:`, e);
         }
     });
 }

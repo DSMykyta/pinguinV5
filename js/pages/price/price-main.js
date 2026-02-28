@@ -75,7 +75,7 @@ async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
         // Завантажити дані прайсу та користувачів паралельно
         const { loadPriceData, loadUsersData } = await import('./price-data.js');
-        await Promise.all([
+        await Promise.allSettled([
             loadPriceData(),
             loadUsersData()
         ]);

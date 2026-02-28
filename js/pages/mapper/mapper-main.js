@@ -153,13 +153,13 @@ function createTabLoaders() {
 
     lazyCharacteristics = createLazyLoader(async () => {
         const { loadMpCharacteristics, loadMapCharacteristics } = await dataModule;
-        await Promise.all([loadMpCharacteristics(), loadMapCharacteristics()]);
+        await Promise.allSettled([loadMpCharacteristics(), loadMapCharacteristics()]);
         invalidateLookupCaches();
     });
 
     lazyOptions = createLazyLoader(async () => {
         const { loadMpOptions, loadMapOptions } = await dataModule;
-        await Promise.all([loadMpOptions(), loadMapOptions()]);
+        await Promise.allSettled([loadMpOptions(), loadMapOptions()]);
         invalidateLookupCaches();
     });
 }
@@ -183,7 +183,7 @@ async function checkAuthAndLoadData() {
             await loadMapperData();
 
             const { loadMpCategories, loadMapCategories } = await import('./mapper-data.js');
-            await Promise.all([loadMpCategories(), loadMapCategories()]);
+            await Promise.allSettled([loadMpCategories(), loadMapCategories()]);
 
             createTabLoaders();
 

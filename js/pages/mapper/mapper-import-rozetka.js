@@ -1,4 +1,4 @@
-// js/mapper/mapper-import-rozetka.js
+// js/pages/mapper/mapper-import-rozetka.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

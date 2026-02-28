@@ -1,4 +1,4 @@
-// js/mapper/mapper-characteristics.js
+// js/pages/mapper/mapper-characteristics.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -84,8 +84,8 @@ export const PLUGIN_NAME = 'mapper-characteristics';
  */
 export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
-    registerHook('onTabChange', handleTabChange);
-    registerHook('onDataLoaded', handleDataLoaded);
+    registerHook('onTabChange', handleTabChange, { plugin: 'characteristics' });
+    registerHook('onDataLoaded', handleDataLoaded, { plugin: 'characteristics' });
 
     markPluginLoaded(PLUGIN_NAME);
 }

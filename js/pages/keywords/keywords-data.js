@@ -1,4 +1,4 @@
-// js/keywords/keywords-data.js
+// js/pages/keywords/keywords-data.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

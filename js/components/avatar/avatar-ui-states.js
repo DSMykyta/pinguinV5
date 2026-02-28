@@ -1,4 +1,4 @@
-// js/common/avatar/avatar-ui-states.js
+// js/components/avatar/avatar-ui-states.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

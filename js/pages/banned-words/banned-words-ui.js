@@ -1,4 +1,4 @@
-// js/banned-words/banned-words-ui.js
+// js/pages/banned-words/banned-words-ui.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

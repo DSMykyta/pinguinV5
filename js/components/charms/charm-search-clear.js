@@ -1,4 +1,4 @@
-// js/common/charms/charm-search-clear.js
+// js/components/charms/charm-search-clear.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

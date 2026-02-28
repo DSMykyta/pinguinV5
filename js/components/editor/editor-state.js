@@ -1,4 +1,4 @@
-// js/common/editor/editor-state.js
+// js/components/editor/editor-state.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

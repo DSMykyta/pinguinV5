@@ -1,4 +1,4 @@
-// js/common/charms/charm-columns.js
+// js/components/charms/charm-columns.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/common/ui-tooltip.js
+// js/components/feedback/tooltip.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

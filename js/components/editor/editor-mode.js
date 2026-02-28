@@ -1,4 +1,4 @@
-// js/common/editor/editor-mode.js
+// js/components/editor/editor-mode.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

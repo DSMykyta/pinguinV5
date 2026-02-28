@@ -1,4 +1,4 @@
-// js/common/table/table-states.js
+// js/components/table/table-states.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

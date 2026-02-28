@@ -1,4 +1,4 @@
-// js/common/table/table-main.js
+// js/components/table/table-main.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

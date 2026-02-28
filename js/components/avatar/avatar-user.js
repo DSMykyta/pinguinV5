@@ -1,4 +1,4 @@
-// js/common/avatar/avatar-user.js
+// js/components/avatar/avatar-user.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -35,7 +35,7 @@ export function init(state) {
     markPluginLoaded(PLUGIN_NAME);
 
     // Реєструємо хук для оновлення аватара при зміні користувача
-    registerHook('onUserChange', handleUserChange);
+    registerHook('onUserChange', handleUserChange, { plugin: 'avatar-user' });
 }
 
 /**

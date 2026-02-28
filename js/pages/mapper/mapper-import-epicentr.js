@@ -1,4 +1,4 @@
-// js/mapper/mapper-import-epicentr.js
+// js/pages/mapper/mapper-import-epicentr.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

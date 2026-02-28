@@ -1,4 +1,4 @@
-// js/common/editor/editor-enter.js
+// js/components/editor/editor-plugin-enter.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

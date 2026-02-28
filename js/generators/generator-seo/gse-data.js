@@ -1,4 +1,11 @@
 // js/generators/generator-seo/gse-data.js
+/*
+ * ╔══════════════════════════════════════════════════════════════════════════╗
+ * ║                     GENERATOR SEO - DATA                                ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║  🔒 ЯДРО — Завантаження даних брендів та тригерів                       ║
+ * ╚══════════════════════════════════════════════════════════════════════════╝
+ */
 
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
@@ -18,19 +25,27 @@ export async function fetchData() {
     const brandsSheetUrl = `https://docs.google.com/spreadsheets/d/${MAIN_SPREADSHEET_ID}/export?format=csv&gid=653695455`;
 
     try {
-        const [triggersResponse, brandsResponse] = await Promise.all([
+        const settled1 = await Promise.allSettled([
             fetch(triggersSheetUrl),
             fetch(brandsSheetUrl)
         ]);
+        const [triggersResponse, brandsResponse] = settled1.map(r => {
+            if (r.status === 'fulfilled') return r.value;
+            throw r.reason;
+        });
 
         if (!triggersResponse.ok || !brandsResponse.ok) {
             throw new Error('Помилка завантаження однієї з CSV таблиць');
         }
 
-        const [triggersCsv, brandsCsv] = await Promise.all([
+        const settled2 = await Promise.allSettled([
             triggersResponse.text(),
             brandsResponse.text()
         ]);
+        const [triggersCsv, brandsCsv] = settled2.map(r => {
+            if (r.status === 'fulfilled') return r.value;
+            throw r.reason;
+        });
 
         const parsedBrands = Papa.parse(brandsCsv, { header: true, skipEmptyLines: true }).data;
 

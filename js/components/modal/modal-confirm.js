@@ -1,4 +1,4 @@
-// js/common/ui-modal-confirm.js
+// js/components/modal/modal-confirm.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

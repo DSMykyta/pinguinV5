@@ -1,4 +1,4 @@
-// js/mapper/mapper-events.js
+// js/pages/mapper/mapper-events.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -74,7 +74,7 @@ function initRefreshHandlers() {
         if (container) {
             container.addEventListener('charm:refresh', (e) => {
                 e.detail.waitUntil((async () => {
-                    await Promise.all([
+                    await Promise.allSettled([
                         loadMapperData(),
                         loadMpCategories(),
                         loadMpCharacteristics(),

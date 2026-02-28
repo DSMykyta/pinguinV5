@@ -1,4 +1,4 @@
-// js/common/table/table-sorting.js
+// js/components/table/table-sorting.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -51,12 +51,12 @@ class SortingPlugin {
         }
 
         // Додаємо обробник після рендерингу
-        this.state.registerHook('onRender', () => this.attachHandlers());
+        this.state.registerHook('onRender', () => this.attachHandlers(), { plugin: 'sorting' });
 
         // Оновлюємо індикатори при зміні сортування
         this.state.registerHook('onSort', (column, direction) => {
             this.updateIndicators(column, direction);
-        });
+        }, { plugin: 'sorting' });
     }
 
     /**

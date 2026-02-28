@@ -1,4 +1,4 @@
-// js/brands/brands-plugins.js
+// js/pages/brands/brands-plugins.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/common/charms/pagination/pagination-main.js
+// js/components/charms/pagination/pagination-main.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

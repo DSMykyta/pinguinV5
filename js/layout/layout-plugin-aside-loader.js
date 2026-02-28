@@ -1,4 +1,4 @@
-// js/layout/layout-aside-loader.js
+// js/layout/layout-plugin-aside-loader.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
@@ -102,7 +102,7 @@ export async function init() {
         if (name) templateNames.add(name);
     });
 
-    await Promise.all(
+    await Promise.allSettled(
         Array.from(templateNames).map(name => loadTemplate(name, body, fab))
     );
 

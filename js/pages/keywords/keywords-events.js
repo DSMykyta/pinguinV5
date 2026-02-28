@@ -1,4 +1,4 @@
-// js/keywords/keywords-events.js
+// js/pages/keywords/keywords-events.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

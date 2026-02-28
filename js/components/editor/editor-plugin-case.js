@@ -1,4 +1,4 @@
-// js/common/editor/editor-case.js
+// js/components/editor/editor-plugin-case.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

@@ -1,4 +1,4 @@
-// js/common/editor/editor-template.js
+// js/components/editor/editor-template.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

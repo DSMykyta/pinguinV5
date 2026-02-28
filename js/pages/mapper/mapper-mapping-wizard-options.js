@@ -1,4 +1,4 @@
-// js/mapper/mapper-mapping-wizard-options.js
+// js/pages/mapper/mapper-mapping-wizard-options.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗

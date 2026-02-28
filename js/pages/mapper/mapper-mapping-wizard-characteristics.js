@@ -1,4 +1,4 @@
-// js/mapper/mapper-mapping-wizard-characteristics.js
+// js/pages/mapper/mapper-mapping-wizard-characteristics.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
