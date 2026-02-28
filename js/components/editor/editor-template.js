@@ -49,7 +49,7 @@ export function createEditorTemplate(id, config) {
             ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : (validation ? `
         <div class="toolbar-wrapper">
             <div class="validation-results-wrapper">
-                <div id="${id}-validation-results" class="chip-list"></div>
+                <div id="${id}-validation-results" class="group u-p-8"></div>
             </div>
         </div>` : '')}
 
@@ -119,7 +119,7 @@ function renderToolbar(id, { showEditing, showCode, validation, showFindReplace 
                 </div>
                 ${validation ? `
                 <div class="validation-results-wrapper">
-                    <div id="${id}-validation-results" class="chip-list"></div>
+                    <div id="${id}-validation-results" class="group u-p-8"></div>
                 </div>
                 ` : ''}
             </div>`;
