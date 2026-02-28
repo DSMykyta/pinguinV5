@@ -45,11 +45,6 @@ function initNavToggle() {
         if (!nav) return;
 
         nav.classList.toggle('expanded');
-
-        // Для сторінкової навігації — зсув контенту
-        if (nav.id === 'main-nav') {
-            document.body.classList.toggle('nav-expanded', nav.classList.contains('expanded'));
-        }
     });
 }
 

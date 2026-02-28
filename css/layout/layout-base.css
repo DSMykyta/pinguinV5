@@ -50,10 +50,6 @@ body {
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body.nav-expanded .content-main {
-    margin-left: var(--nav-width-expanded, 220px);
-}
-
 .content-main::-webkit-scrollbar {
     display: none;
 }
