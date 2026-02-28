@@ -16,6 +16,7 @@
  */
 
 import { loadHTML } from '../utils/html-loader.js';
+import { hideTooltip } from '../components/feedback/tooltip.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНЯ ЛОГІКА
@@ -51,6 +52,9 @@ function initNavToggle() {
         const label = isExpanded ? 'Згорнути меню' : 'Розгорнути меню';
         toggle.dataset.tooltip = label;
         toggle.setAttribute('aria-label', label);
+
+        // Прибрати видимий тултіп (якщо був показаний до кліку)
+        hideTooltip();
 
         // Синхронізуємо body клас для #main-nav (CSS margin-left на content-main)
         if (nav.id === 'main-nav') {
