@@ -237,4 +237,10 @@
 .btn-icon.expand > span:not(.material-symbols-outlined):not(.btn-icon-label) {
     font-size: 11px;
     opacity: 0.5;
+    transition: font-size 0.3s ease, opacity 0.3s ease;
+}
+
+.btn-icon.expand:hover > span:not(.material-symbols-outlined):not(.btn-icon-label) {
+    font-size: 14px;
+    opacity: 1;
 }
