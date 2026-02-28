@@ -61,6 +61,11 @@ function initModalTestButtons() {
             message: 'Ви впевнені, що хочете видалити бренд "Optimum Nutrition"?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
+            details: [
+                '3 лінійки буде видалено',
+                '2 посилання буде видалено',
+                '1 прив\'язка до МП буде видалено',
+            ],
         });
         console.log('[test] delete brand:', r);
     });
@@ -125,7 +130,10 @@ function initModalTestButtons() {
             message: 'Ви впевнені, що хочете видалити категорію "Спортивне харчування"?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>3</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">change_history</span> <strong>5</strong> характеристик буде відв\'язано</span></div>'
+            details: [
+                '3 прив\'язок до МП буде видалено',
+                '5 характеристик буде відв\'язано',
+            ],
         });
         console.log('[test] delete category:', r);
     });
@@ -156,7 +164,10 @@ function initModalTestButtons() {
             message: 'Ви впевнені, що хочете видалити характеристику "Вага нетто"?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>2</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>8</strong> опцій буде відв\'язано</span></div>'
+            details: [
+                '2 прив\'язок до МП буде видалено',
+                '8 опцій буде відв\'язано',
+            ],
         });
         console.log('[test] delete characteristic:', r);
     });
@@ -187,7 +198,10 @@ function initModalTestButtons() {
             message: 'Ви впевнені, що хочете видалити опцію "Шоколад"?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>1</strong> прив\'язок до МП буде видалено</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>3</strong> дочірніх опцій буде відв\'язано</span></div>'
+            details: [
+                '1 прив\'язка до МП буде видалено',
+                '3 дочірніх опцій буде відв\'язано',
+            ],
         });
         console.log('[test] delete option:', r);
     });
@@ -218,7 +232,12 @@ function initModalTestButtons() {
             message: 'Ви впевнені, що хочете видалити маркетплейс "Rozetka"?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">square</span> <strong>1247</strong> категорій МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">change_history</span> <strong>856</strong> характеристик МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">circle</span> <strong>12430</strong> опцій МП</span><span><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">link_off</span> <strong>342</strong> прив\'язок буде видалено</span></div>'
+            details: [
+                '1247 категорій МП',
+                '856 характеристик МП',
+                '12430 опцій МП',
+                '342 прив\'язок буде видалено',
+            ],
         });
         console.log('[test] delete marketplace:', r);
     });

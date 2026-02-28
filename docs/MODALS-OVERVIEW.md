@@ -48,14 +48,13 @@
 
 ---
 
-## Utility — системні (4)
+## Utility — системні (3)
 
 | Шаблон | Призначення | JS |
 |---|---|---|
 | `auth-login-modal` | Авторизація | `auth-google.js` |
-| `modal-confirm` | Підтвердження дії | `modal-confirm.js` |
-| `confirm-delete-modal` | Підтвердження видалення | — |
-| `info-modal` | Інфо-підказка | `modal-info.js` |
+| `modal-confirm` | Підтвердження дії | `modal-plugin-confirm.js` |
+| `info-modal` | Інфо-підказка | `modal-plugin-info.js` |
 
 ---
 
@@ -71,7 +70,7 @@
 
 ## Статистика
 
-- **Всього**: 25 модалів
+- **Всього**: 24 модалі
 - **Fullscreen з sidebar**: 6
 - **З refresh кнопкою**: 6 (всі fullscreen)
 - **З save кнопками**: 15
@@ -81,10 +80,10 @@
 
 | Файл | Роль |
 |---|---|
-| `modal-main.js` | showModal/closeModal, кеш шаблонів, стек |
-| `modal-init.js` | Глобальна делегація click (open/close/ESC) |
-| `modal-confirm.js` | Confirm діалоги |
-| `modal-info.js` | Info модалі |
+| `modal-main.js` | Оркестратор + re-export публічного API |
+| `modal-state.js` | Стек, кеш, хуки (registerHook/runHook) |
+| `modal-core.js` | DOM: showModal/closeModal + глобальна делегація event |
+| `modal-plugin-confirm.js` | showConfirmModal, showDeleteConfirm, showResetConfirm, showCloseConfirm |
+| `modal-plugin-info.js` | Info модалі (initInfoButtons) |
 | `charm-refresh.js` | Refresh кнопка — атрибут `[refresh]` на контейнері, dispatch `charm:refresh` event |
 | `charm-required.js` | Валідація `[required]` полів — dot, error state, блок save |
-| `charm-confirm.js` | Підтвердження дій — атрибут `[confirm]` на кнопках |

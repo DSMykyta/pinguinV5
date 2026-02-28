@@ -36,6 +36,7 @@ const DEFAULT_AVATAR_STATE = 'confirmClose';
  * @param {Object} options
  * @param {string} options.title — заголовок
  * @param {string} options.message — текст повідомлення (підтримує HTML)
+ * @param {string[]} options.details — масив каскадних наслідків (опціонально)
  * @param {string} options.confirmText — текст кнопки підтвердження
  * @param {string} options.cancelText — текст кнопки скасування
  * @param {string|false} options.avatarState — стан аватара або false
@@ -46,6 +47,7 @@ export async function showConfirmModal(options = {}) {
     const {
         title = 'Підтвердження',
         message = 'Ви впевнені?',
+        details = [],
         confirmText = 'Так',
         cancelText = 'Ні',
         avatarState = DEFAULT_AVATAR_STATE,
@@ -68,7 +70,16 @@ export async function showConfirmModal(options = {}) {
         const confirmBtn = document.getElementById('modal-confirm-confirm-btn');
 
         if (modalTitle) modalTitle.textContent = title;
-        if (messageElement) messageElement.innerHTML = message;
+
+        // Повідомлення + каскадні деталі
+        let fullMessage = message;
+        if (Array.isArray(details) && details.length > 0) {
+            const items = details.map(d => `<li>${d}</li>`).join('');
+            fullMessage += `<ul class="confirm-details">${items}</ul>`;
+        } else if (typeof details === 'string' && details) {
+            fullMessage += details;
+        }
+        if (messageElement) messageElement.innerHTML = fullMessage;
 
         // Аватар
         if (avatarContainer && avatarState !== false) {

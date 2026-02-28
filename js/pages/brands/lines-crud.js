@@ -7,16 +7,17 @@
  *
  * 🔌 ПЛАГІН — можна видалити, система працюватиме без модалів редагування.
  *
- * Модальні вікна для додавання, редагування та видалення лінійок брендів.
+ * Модальні вікна для додавання та редагування лінійок брендів.
+ * Видалення — в lines-delete.js.
  */
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
 import { brandsState } from './brands-state.js';
 import { getBrands, getBrandById } from './brands-data.js';
-import { getBrandLineById, addBrandLine, updateBrandLine, deleteBrandLine } from './lines-data.js';
+import { getBrandLineById, addBrandLine, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-main.js';
+import { showDeleteLineConfirm } from './lines-delete.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -112,30 +113,6 @@ export async function showEditLineModal(lineId) {
     const saveBtn = document.getElementById('save-line');
     if (saveBtn) {
         saveBtn.onclick = handleSaveLine;
-    }
-}
-
-/**
- * Показати підтвердження видалення лінійки
- * @param {string} lineId - ID лінійки
- */
-export async function showDeleteLineConfirm(lineId) {
-
-    const line = getBrandLineById(lineId);
-    if (!line) {
-        showToast('Лінійку не знайдено', 'error');
-        return;
-    }
-
-    const confirmed = await showConfirmModal({
-        title: 'Видалити лінійку?',
-        message: `Ви впевнені, що хочете видалити лінійку "${line.name_uk}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
-    });
-
-    if (confirmed) {
-        await handleDeleteLine(lineId);
     }
 }
 
@@ -260,23 +237,6 @@ async function handleSaveLine() {
     } catch (error) {
         console.error('❌ Помилка збереження лінійки:', error);
         showToast('Помилка збереження лінійки', 'error');
-    }
-}
-
-/**
- * Обробник видалення лінійки
- * @param {string} lineId - ID лінійки
- */
-async function handleDeleteLine(lineId) {
-
-    try {
-        await deleteBrandLine(lineId);
-        showToast('Лінійку успішно видалено', 'success');
-        runHook('onLineDelete', lineId);
-        runHook('onRender');
-    } catch (error) {
-        console.error('❌ Помилка видалення лінійки:', error);
-        showToast('Помилка видалення лінійки', 'error');
     }
 }
 
