@@ -62,7 +62,7 @@ function setupSearch(container) {
     // search icon button (ghost — без фону)
     const iconBtn = document.createElement('button');
     iconBtn.type = 'button';
-    iconBtn.className = 'btn-icon ghost';
+    iconBtn.className = 'btn-icon';
     iconBtn.setAttribute('aria-label', 'Пошук');
     iconBtn.innerHTML = '<span class="material-symbols-outlined">search</span>';
 
@@ -75,7 +75,9 @@ function setupSearch(container) {
     // clear button (data-clear-for — підхоплюється charm-search-clear.js)
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
-    clearBtn.className = 'btn-icon u-hidden';
+    clearBtn.className = 'btn-icon';
+    clearBtn.style.visibility = 'hidden';
+    clearBtn.style.pointerEvents = 'none';
     clearBtn.setAttribute('data-clear-for', inputId);
     clearBtn.setAttribute('aria-label', 'Очистити пошук');
     clearBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
@@ -85,4 +87,5 @@ function setupSearch(container) {
 
     // Store reference for table-managed.js auto-detection
     container._charmSearchInput = input;
+    container.dispatchEvent(new CustomEvent('charm:search-ready'));
 }

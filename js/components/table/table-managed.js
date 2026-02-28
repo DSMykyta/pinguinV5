@@ -221,6 +221,11 @@ export function createManagedTable(config) {
     // Initial bind
     bindSearchInput();
 
+    // Late bind — якщо charm-search ініціалізується після createManagedTable
+    if (!searchInput && containerEl) {
+        containerEl.addEventListener('charm:search-ready', () => bindSearchInput(), { once: true });
+    }
+
     // ── 4. Render ──
     function renderPage() {
         let pageData;
