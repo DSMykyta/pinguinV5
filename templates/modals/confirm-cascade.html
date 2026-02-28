@@ -15,25 +15,25 @@
             </div>
 
             <!-- Children section (hidden by default, JS shows when needed) -->
-            <div id="cascade-children-section" class="u-hidden" style="display:none">
+            <div id="cascade-children-section" class="u-hidden">
                 <!-- Badge with count -->
                 <div id="cascade-children-count"></div>
 
                 <!-- Checkbox: delete children -->
-                <label class="checkbox-label" style="margin-top: 8px;">
+                <label class="checkbox-label">
                     <input type="checkbox" id="cascade-delete-children" checked>
                     <span id="cascade-checkbox-label">Видалити дітей</span>
                 </label>
 
                 <!-- Select: move children to (hidden when checkbox checked) -->
-                <div id="cascade-move-section" class="group column u-hidden" style="display:none; margin-top: 8px;">
+                <div id="cascade-move-section" class="group column u-hidden">
                     <label class="label-l" id="cascade-move-label">Оберіть куди перенести</label>
                     <select id="cascade-move-target" data-custom-select></select>
-                    <span class="label-s" id="cascade-orphan-label" style="color: var(--color-on-surface-v)"></span>
+                    <span class="label-s" id="cascade-orphan-label"></span>
                 </div>
             </div>
 
-            <!-- Cascade details (legacy list) -->
+            <!-- Cascade details -->
             <ul class="confirm-details" id="cascade-details-list"></ul>
         </div>
 

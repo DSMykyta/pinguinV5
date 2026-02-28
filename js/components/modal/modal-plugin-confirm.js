@@ -259,7 +259,6 @@ export async function showCascadeConfirm(options = {}) {
 
         if (children && childrenSection) {
             childrenSection.classList.remove('u-hidden');
-            childrenSection.style.display = '';
 
             // Count badge
             const countEl = document.getElementById('cascade-children-count');
@@ -297,7 +296,6 @@ export async function showCascadeConfirm(options = {}) {
                 const checked = checkbox.checked;
                 if (moveSection) {
                     moveSection.classList.toggle('u-hidden', checked);
-                    moveSection.style.display = checked ? 'none' : '';
                 }
             };
             if (checkbox) checkbox.addEventListener('change', handleCheckboxChange);
