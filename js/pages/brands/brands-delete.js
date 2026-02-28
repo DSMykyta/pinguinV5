@@ -10,7 +10,7 @@
 
 import { getBrandById, deleteBrand } from './brands-data.js';
 import { runHook } from './brands-plugins.js';
-import { showCascadeConfirm } from '../../components/modal/modal-main.js';
+import { showCascadeConfirm, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -38,6 +38,7 @@ export async function showDeleteBrandConfirm(brandId) {
 
     if (confirmed) {
         try {
+            closeModal();
             await deleteBrand(brandId);
             showToast('Бренд успішно видалено', 'success');
             runHook('onBrandDelete', brandId);
