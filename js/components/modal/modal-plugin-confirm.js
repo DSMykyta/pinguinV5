@@ -284,14 +284,18 @@ export async function showCascadeConfirm(options = {}) {
                     option.textContent = opt.text;
                     moveSelect.appendChild(option);
                 });
-                initCustomSelects(moveSection);
             }
 
             // Toggle move section on checkbox change
+            let selectInited = false;
             const handleCheckboxChange = () => {
                 const checked = checkbox.checked;
                 if (moveSection) {
                     moveSection.classList.toggle('u-hidden', checked);
+                    if (!checked && !selectInited) {
+                        initCustomSelects(moveSection);
+                        selectInited = true;
+                    }
                 }
             };
             if (checkbox) checkbox.addEventListener('change', handleCheckboxChange);
