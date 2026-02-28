@@ -10,7 +10,7 @@
 
 import { getBrandLineById, deleteBrandLine } from './lines-data.js';
 import { runHook } from './brands-plugins.js';
-import { showCascadeConfirm } from '../../components/modal/modal-main.js';
+import { showCascadeConfirm, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -27,12 +27,16 @@ export async function showDeleteLineConfirm(lineId) {
     const confirmed = await showCascadeConfirm({
         title: `Видалити "${line.name_uk}"?`,
         message: 'Ця дія незворотна.',
+        details: [
+            'Лінійку буде відв\'язано від бренду',
+        ],
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
     });
 
     if (confirmed) {
         try {
+            closeModal();
             await deleteBrandLine(lineId);
             showToast('Лінійку успішно видалено', 'success');
             runHook('onLineDelete', lineId);
