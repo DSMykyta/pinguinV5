@@ -47,20 +47,6 @@ export function initTooltips() {
     document.addEventListener('mousemove', handleMouseMove);
 }
 
-/**
- * Примусово сховати поточний тултіп (для кнопок що змінюють стан при кліку)
- */
-export function hideTooltip() {
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = null;
-    }
-    if (tooltipElement) {
-        tooltipElement.remove();
-        tooltipElement = null;
-    }
-}
-
 function handleMouseOver(event) {
     // Auto-convert native title → data-tooltip (universal fallback)
     const titled = event.target.closest('[title]');

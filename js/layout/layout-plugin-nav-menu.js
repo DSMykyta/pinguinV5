@@ -16,7 +16,6 @@
  */
 
 import { loadHTML } from '../utils/html-loader.js';
-import { hideTooltip } from '../components/feedback/tooltip.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНЯ ЛОГІКА
@@ -53,8 +52,9 @@ function initNavToggle() {
         toggle.dataset.tooltip = label;
         toggle.setAttribute('aria-label', label);
 
-        // Прибрати видимий тултіп (якщо був показаний до кліку)
-        hideTooltip();
+        // Оновити активний tooltip якщо він зараз видимий
+        const activeTooltip = document.querySelector('.custom-tooltip');
+        if (activeTooltip) activeTooltip.textContent = label;
 
         // Синхронізуємо body клас для #main-nav (CSS margin-left на content-main)
         if (nav.id === 'main-nav') {
