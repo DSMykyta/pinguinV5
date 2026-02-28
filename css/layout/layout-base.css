@@ -47,11 +47,6 @@ body {
     margin-left: var(--panel-width-collapsed);
     padding: 12px;
     scrollbar-width: none;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-body.nav-expanded .content-main {
-    margin-left: var(--panel-width-expanded);
 }
 
 .content-main::-webkit-scrollbar {
