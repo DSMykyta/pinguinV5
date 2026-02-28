@@ -46,6 +46,13 @@
     flex-wrap: wrap;
 }
 
+/* --- Чарм: scroll --- */
+
+.group.scroll {
+    overflow-y: auto;
+    max-height: 100%;
+}
+
 /* --- Чарм: column --- */
 
 .group.column {
