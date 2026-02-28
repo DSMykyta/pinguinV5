@@ -17,13 +17,15 @@
             <!-- Children section (hidden by default, JS shows when needed) -->
             <div id="cascade-children-section" class="u-hidden">
                 <!-- Checkbox: delete children -->
-                <label class="checkbox-label">
-                    <input type="checkbox" id="cascade-delete-children" checked>
-                    <span id="cascade-checkbox-label">Видалити дітей</span>
-                </label>
+                <div class="group column">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="cascade-delete-children" checked>
+                        <span id="cascade-checkbox-label">Видалити дітей</span>
+                    </label>
+                </div>
 
                 <!-- Select: move children to (hidden when checkbox checked) -->
-                <div id="cascade-move-section" class="u-hidden">
+                <div id="cascade-move-section" class="group column u-hidden">
                     <label class="label-l" id="cascade-move-label">Оберіть куди перенести</label>
                     <select id="cascade-move-target" data-custom-select></select>
                     <span class="label-s" id="cascade-orphan-label"></span>
