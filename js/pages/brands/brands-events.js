@@ -38,6 +38,18 @@ function initRefreshHandlers() {
         });
     }
 
+    // Modal-level — refresh даних бренду
+    const brandModal = document.querySelector('[data-modal-id="brand-edit-modal"] > .modal-fullscreen-container');
+    if (brandModal) {
+        brandModal.addEventListener('charm:refresh', (e) => {
+            e.detail.waitUntil((async () => {
+                await loadBrands();
+                renderBrandsTable();
+                showToast('Дані оновлено', 'success');
+            })());
+        });
+    }
+
     const linesContainer = document.getElementById('lines-table-container');
     if (linesContainer) {
         linesContainer.addEventListener('charm:refresh', (e) => {

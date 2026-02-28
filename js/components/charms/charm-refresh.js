@@ -21,29 +21,11 @@
  * ║  EVENT:                                                                  ║
  * ║  charm:refresh — на елементі, detail.waitUntil(promise)                 ║
  * ║                                                                          ║
- * ║  MODAL REFRESH:                                                          ║
- * ║  Для модалів з REFRESH_MAP — автоматично завантажує дані з сервера.     ║
- * ║                                                                          ║
  * ║  UTILITY:                                                                ║
  * ║  withSpinner(btn, asyncFn) — spinner + disabled на час виконання         ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
-
-import { showToast } from '../feedback/toast.js';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MODAL REFRESH MAP — data-modal-id → async loader
-// ═══════════════════════════════════════════════════════════════════════════
-
-const REFRESH_MAP = {
-    'brand-edit-modal':           () => import('../../pages/brands/brands-data.js').then(m => m.loadBrands()),
-    'keywords-edit':              () => import('../../pages/keywords/keywords-data.js').then(m => m.loadKeywords()),
-    'mapper-category-edit':       () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadCategories()),
-    'mapper-characteristic-edit': () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadCharacteristics()),
-    'mapper-option-edit':         () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadOptions()),
-    'mapper-mp-data':             () => import('../../pages/mapper/mapper-data-own.js').then(m => m.loadMarketplaces()),
-};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHARM DISCOVERY + AUTO-OBSERVER
@@ -140,17 +122,11 @@ async function handleRefreshClick(btn, el, hasAside) {
     await withSpinner(btn, async () => {
         const promises = [];
 
-        // Стандартний charm:refresh event
+        // charm:refresh event — хто слухає, той реагує
         el.dispatchEvent(new CustomEvent('charm:refresh', {
             bubbles: true,
             detail: { waitUntil: (p) => promises.push(p) }
         }));
-
-        // Модалі: REFRESH_MAP loader
-        const overlay = el.closest('[data-modal-id]');
-        const modalId = overlay?.dataset.modalId;
-        const loader = REFRESH_MAP[modalId];
-        if (loader) promises.push(loader());
 
         // Aside panel
         if (hasAside) {
@@ -165,8 +141,6 @@ async function handleRefreshClick(btn, el, hasAside) {
         }
 
         await Promise.allSettled(promises);
-
-        if (loader) showToast('Дані оновлено', 'success');
     });
 }
 
