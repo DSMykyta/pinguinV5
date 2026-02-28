@@ -10,7 +10,7 @@
  * ║                                                                          ║
  * ║  📋 ЩО РОБИТЬ:                                                           ║
  * ║  ├── Сторінка: .content-main         → margin-left  = nav.offsetWidth   ║
- * ║  └── Модалки:  .modal-fullscreen-content → padding-left = nav.offsetWidth + 12║
+ * ║  └── Модалки:  .modal-fullscreen-content → padding-left = nav.offsetWidth    ║
  * ║                                                                          ║
  * ║  Transition не потрібен на контенті — плавність забезпечує               ║
  * ║  nav.column transition: max-width + покадрове оновлення.                 ║
@@ -26,18 +26,18 @@ const observed = new WeakSet();
 
 /**
  * Знаходить контент-контейнер для даного nav.
- * Повертає { el, prop, gap } або null.
+ * Повертає { el, prop } або null.
  */
 function getContentTarget(nav) {
     if (nav.id === 'main-nav') {
         const main = document.querySelector('.content-main');
-        return main ? { el: main, prop: 'margin-left', gap: 0 } : null;
+        return main ? { el: main, prop: 'margin-left' } : null;
     }
 
     const parent = nav.closest('.modal-body-with-sidebar');
     if (parent) {
         const content = parent.querySelector('.modal-fullscreen-content');
-        return content ? { el: content, prop: 'padding-left', gap: 12 } : null;
+        return content ? { el: content, prop: 'padding-left' } : null;
     }
 
     return null;
@@ -50,7 +50,7 @@ function getContentTarget(nav) {
 function syncShift(nav) {
     const target = getContentTarget(nav);
     if (!target) return;
-    target.el.style.setProperty(target.prop, (nav.offsetWidth + target.gap) + 'px');
+    target.el.style.setProperty(target.prop, nav.offsetWidth + 'px');
 }
 
 const resizeObserver = new ResizeObserver(entries => {
