@@ -186,13 +186,21 @@ export async function showCloseConfirm(options = {}) {
  * @param {string} options.confirmText — текст кнопки
  * @param {string} options.cancelText — текст кнопки скасування
  * @param {string|false} options.avatarState — стан аватара
- * @returns {Promise<boolean>}
+ * @param {Object} [options.children] — секція дітей (каскад)
+ * @param {number} options.children.count — кількість дітей
+ * @param {string} options.children.countLabel — текст біля кількості (напр. "лінійок")
+ * @param {string} options.children.checkboxLabel — текст чекбоксу
+ * @param {string} options.children.moveLabel — лейбл селекта переносу
+ * @param {Array<{value: string, text: string}>} options.children.moveOptions — варіанти переносу
+ * @param {string} options.children.orphanLabel — лейбл-попередження про сиріт
+ * @returns {Promise<false|{confirmed: true, deleteChildren: boolean, moveTargetId: string}>}
  */
 export async function showCascadeConfirm(options = {}) {
     const {
         title = 'Видалити?',
         message = 'Ви впевнені?',
         details = [],
+        children = null,
         confirmText = 'Видалити',
         cancelText = 'Скасувати',
         avatarState = 'confirmDelete',
@@ -243,6 +251,74 @@ export async function showCascadeConfirm(options = {}) {
         if (cancelBtn) cancelBtn.textContent = cancelText;
         if (confirmBtn) confirmBtn.textContent = confirmText;
 
+        // ── Children section ──
+        const childrenSection = document.getElementById('cascade-children-section');
+        const checkbox = document.getElementById('cascade-delete-children');
+        const moveSection = document.getElementById('cascade-move-section');
+        let childrenCleanup = null;
+
+        if (children && childrenSection) {
+            childrenSection.classList.remove('u-hidden');
+            childrenSection.style.display = '';
+
+            // Count badge
+            const countEl = document.getElementById('cascade-children-count');
+            if (countEl) {
+                countEl.innerHTML = `<span class="tag c-red">${children.count} ${children.countLabel || ''}</span>`;
+            }
+
+            // Checkbox label
+            const checkboxLabelEl = document.getElementById('cascade-checkbox-label');
+            if (checkboxLabelEl) checkboxLabelEl.textContent = children.checkboxLabel || 'Видалити дітей';
+            if (checkbox) checkbox.checked = true;
+
+            // Move label
+            const moveLabelEl = document.getElementById('cascade-move-label');
+            if (moveLabelEl) moveLabelEl.textContent = children.moveLabel || 'Оберіть куди перенести';
+
+            // Orphan label
+            const orphanLabelEl = document.getElementById('cascade-orphan-label');
+            if (orphanLabelEl) orphanLabelEl.textContent = children.orphanLabel || '';
+
+            // Populate move select
+            const moveSelect = document.getElementById('cascade-move-target');
+            if (moveSelect && Array.isArray(children.moveOptions)) {
+                moveSelect.innerHTML = '<option value="">— Не переносити —</option>';
+                children.moveOptions.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    moveSelect.appendChild(option);
+                });
+            }
+
+            // Toggle move section on checkbox change
+            const handleCheckboxChange = () => {
+                const checked = checkbox.checked;
+                if (moveSection) {
+                    moveSection.classList.toggle('u-hidden', checked);
+                    moveSection.style.display = checked ? 'none' : '';
+                }
+            };
+            if (checkbox) checkbox.addEventListener('change', handleCheckboxChange);
+            handleCheckboxChange();
+
+            childrenCleanup = () => {
+                if (checkbox) checkbox.removeEventListener('change', handleCheckboxChange);
+            };
+        }
+
+        const getResult = () => {
+            if (!children) return true;
+            return {
+                confirmed: true,
+                deleteChildren: checkbox ? checkbox.checked : true,
+                moveTargetId: (!checkbox || !checkbox.checked)
+                    ? (document.getElementById('cascade-move-target')?.value || '')
+                    : '',
+            };
+        };
+
         const handleClick = (e) => {
             const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
             if (action === 'confirm') {
@@ -250,9 +326,10 @@ export async function showCascadeConfirm(options = {}) {
                 e.preventDefault();
                 if (resolved) return;
                 resolved = true;
+                const result = getResult();
                 cleanup();
                 closeModal();
-                resolve(true);
+                resolve(result);
             } else if (action === 'cancel') {
                 e.stopPropagation();
                 e.preventDefault();
@@ -274,6 +351,7 @@ export async function showCascadeConfirm(options = {}) {
         const cleanup = () => {
             document.removeEventListener('click', handleClick);
             document.removeEventListener('modal-closed', handleModalClose);
+            if (childrenCleanup) childrenCleanup();
         };
 
         document.addEventListener('click', handleClick);
