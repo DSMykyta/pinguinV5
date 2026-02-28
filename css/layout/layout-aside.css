@@ -188,10 +188,6 @@
 /* BODY SYNC — margin-right для content-main                             */
 /* ═══════════════════════════════════════════════════════════════════════ */
 
-.content-main {
-    transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 body.aside-expanded .content-main {
     margin-right: var(--panel-width-expanded);
 }

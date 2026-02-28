@@ -45,6 +45,11 @@ function initNavToggle() {
         if (!nav) return;
 
         nav.classList.toggle('expanded');
+
+        // Синхронізуємо body клас для #main-nav (CSS margin-left на content-main)
+        if (nav.id === 'main-nav') {
+            document.body.classList.toggle('nav-expanded', nav.classList.contains('expanded'));
+        }
     });
 }
 

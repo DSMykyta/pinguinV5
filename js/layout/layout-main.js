@@ -23,7 +23,6 @@ import { init as initCore }    from './layout-core.js';
 import * as navMenu            from './layout-plugin-nav-menu.js';
 import * as asideLoader        from './layout-plugin-aside-loader.js';
 import * as asideObserver      from './layout-plugin-aside-observer.js';
-import * as navShift           from './layout-plugin-nav-shift.js';
 import * as navSections        from './layout-plugin-nav-sections.js';
 import { initTabs }            from './layout-plugin-nav-tabs.js';
 
@@ -52,9 +51,8 @@ export async function initLayout() {
         asideLoader.init(),
     ]);
 
-    // 3. Після завантаження шаблонів: observer + секції + tabs + nav shift
+    // 3. Після завантаження шаблонів: observer + секції + tabs
     asideObserver.init();
-    navShift.init();
     navSections.init();
     initTabs();
 }
