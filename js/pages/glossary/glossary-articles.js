@@ -103,13 +103,13 @@ function createArticleHtml(item) {
                 <div class="glossary-article-footer">
                     <div class="footer-column">
                         <strong>Тригери:</strong>
-                        <div class="cell-words-list">
+                        <div class="group">
                             ${triggersHtml}
                         </div>
                     </div>
                     <div class="footer-column">
                         <strong>Keywords UA:</strong>
-                        <div class="cell-words-list">
+                        <div class="group">
                             ${keywordsUaHtml}
                         </div>
                     </div>

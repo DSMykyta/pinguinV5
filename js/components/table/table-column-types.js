@@ -131,10 +131,10 @@ export const COLUMN_TYPES = {
                 .map(s => String(s).trim()).filter(Boolean);
             if (!words.length) return '<span class="text-muted">—</span>';
             const first = `<span class="tag c-main">${escapeHtml(words[0])}</span>`;
-            if (words.length <= 1) return `<div class="cell-words-list">${first}</div>`;
+            if (words.length <= 1) return `<div class="group">${first}</div>`;
             const allNames = words.slice(1).map(w => escapeHtml(w)).join('\n');
             const rest = ` <span class="tag c-secondary" data-tooltip="${allNames}" data-tooltip-always>${escapeHtml('+' + (words.length - 1))}</span>`;
-            return `<div class="cell-words-list">${first}${rest}</div>`;
+            return `<div class="group">${first}${rest}</div>`;
         }
     },
 
