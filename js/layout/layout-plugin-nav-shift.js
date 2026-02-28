@@ -5,15 +5,13 @@
  * ║            ЗСУВ КОНТЕНТУ ПРИ РОЗКРИТТІ NAV (NAV SHIFT)                  ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
- * ║  ResizeObserver стежить за шириною .nav.column.                          ║
- * ║  При зміні ширини — синхронізує margin/padding контенту покадрово.       ║
+ * ║  Слухає transitionend на nav.column (max-width).                         ║
+ * ║  Після завершення анімації — виставляє margin/padding контенту.          ║
+ * ║  Nav position: fixed — hover не впливає на контент.                      ║
  * ║                                                                          ║
  * ║  📋 ЩО РОБИТЬ:                                                           ║
  * ║  ├── Сторінка: .content-main         → margin-left  = nav.offsetWidth   ║
- * ║  └── Модалки:  .modal-fullscreen-content → padding-left = nav.offsetWidth    ║
- * ║                                                                          ║
- * ║  Transition не потрібен на контенті — плавність забезпечує               ║
- * ║  nav.column transition: max-width + покадрове оновлення.                 ║
+ * ║  └── Модалки:  .modal-fullscreen-content → padding-left = nav.offsetWidth║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -21,8 +19,6 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНЯ ЛОГІКА
 // ═══════════════════════════════════════════════════════════════════════════
-
-const observed = new WeakSet();
 
 /**
  * Знаходить контент-контейнер для даного nav.
@@ -43,49 +39,27 @@ function getContentTarget(nav) {
     return null;
 }
 
-/**
- * Синхронізує відступ контенту з поточною шириною nav.
- * Викликається ResizeObserver покадрово під час transition.
- */
-function syncShift(nav) {
-    const target = getContentTarget(nav);
-    if (!target) return;
-    target.el.style.setProperty(target.prop, nav.offsetWidth + 'px');
-}
-
-const resizeObserver = new ResizeObserver(entries => {
-    for (const entry of entries) {
-        syncShift(entry.target);
-    }
-});
-
 // ═══════════════════════════════════════════════════════════════════════════
 // ПУБЛІЧНЕ API
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * 🔌 ПЛАГІН — ResizeObserver на nav.column, покадрова синхронізація.
+ * 🔌 ПЛАГІН — зсув контенту після завершення nav max-width transition.
  */
 export function init() {
-    // Сторінкова навігація — спостерігаємо одразу
-    const pageNav = document.getElementById('main-nav');
-    if (pageNav) {
-        resizeObserver.observe(pageNav);
-        observed.add(pageNav);
-    }
+    document.addEventListener('transitionend', (e) => {
+        if (e.propertyName !== 'max-width') return;
 
-    // Модальні навігації — спостерігаємо лінево при першому toggle
-    document.addEventListener('click', (e) => {
-        const toggle = e.target.closest('.nav-toggle');
-        if (!toggle) return;
+        const nav = e.target.closest('.nav.column');
+        if (!nav) return;
 
-        const nav = toggle.closest('.nav.column');
-        if (!nav || observed.has(nav)) return;
+        const target = getContentTarget(nav);
+        if (!target) return;
 
-        resizeObserver.observe(nav);
-        observed.add(nav);
-
-        // Перший кадр — ResizeObserver ще не встиг, синхронізуємо вручну
-        requestAnimationFrame(() => syncShift(nav));
+        if (nav.classList.contains('expanded')) {
+            target.el.style.setProperty(target.prop, nav.offsetWidth + 'px');
+        } else {
+            target.el.style.removeProperty(target.prop);
+        }
     });
 }
