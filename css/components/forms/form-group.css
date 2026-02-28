@@ -40,6 +40,12 @@
     align-items: center;
 }
 
+/* --- Чарм: wrap --- */
+
+.group.wrap {
+    flex-wrap: wrap;
+}
+
 /* --- Чарм: column --- */
 
 .group.column {
