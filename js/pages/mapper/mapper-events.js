@@ -18,6 +18,7 @@ import {
 } from './mapper-data.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 import { resetSnapshots } from './mapper-polling.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 /**
  * Ініціалізувати всі обробники подій
@@ -69,6 +70,25 @@ function initBindingChipClicks() {
 function initRefreshHandlers() {
     const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
 
+    // Modal-level charm:refresh — кожен модал перезавантажує свої дані
+    [
+        ['mapper-category-edit',       () => import('./mapper-data-own.js').then(m => m.loadCategories())],
+        ['mapper-characteristic-edit', () => import('./mapper-data-own.js').then(m => m.loadCharacteristics())],
+        ['mapper-option-edit',         () => import('./mapper-data-own.js').then(m => m.loadOptions())],
+        ['mapper-mp-data',             () => import('./mapper-data-own.js').then(m => m.loadMarketplaces())],
+    ].forEach(([modalId, loader]) => {
+        const container = document.querySelector(`[data-modal-id="${modalId}"] > .modal-fullscreen-container`);
+        if (container) {
+            container.addEventListener('charm:refresh', (e) => {
+                e.detail.waitUntil((async () => {
+                    await loader();
+                    showToast('Дані оновлено', 'success');
+                })());
+            });
+        }
+    });
+
+    // Tab-level charm:refresh
     tabs.forEach(tab => {
         const container = document.getElementById(`mapper-${tab}-table-container`);
         if (container) {

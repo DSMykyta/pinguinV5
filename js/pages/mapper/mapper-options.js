@@ -54,7 +54,6 @@ import {
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initSearchCharm } from '../../components/charms/charm-search.js';
-import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import {
     registerActionHandlers,
@@ -491,7 +490,6 @@ function populateRelatedChildOptions(optionId) {
 
     initPaginationCharm();
     initSearchCharm();
-    initRefreshCharm();
     initColumnsCharm();
 
     // charm:refresh — оновити таблицю дочірніх опцій

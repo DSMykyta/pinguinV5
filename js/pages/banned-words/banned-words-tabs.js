@@ -17,7 +17,6 @@ import { showTabControls } from './banned-words-ui.js';
 import { addTabToState, removeTabFromState, setActiveTab } from './banned-words-state-persistence.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initSearchCharm } from '../../components/charms/charm-search.js';
-import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 /**
@@ -157,7 +156,6 @@ export async function createCheckResultsTab(skipAutoActivate = false) {
 
     // Ініціалізувати charms для динамічного контенту
     initSearchCharm(tabContent);
-    initRefreshCharm(tabContent);
     initColumnsCharm(tabContent);
 
     // charm:refresh на контейнері check табу

@@ -49,7 +49,6 @@ import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initSearchCharm } from '../../components/charms/charm-search.js';
-import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
@@ -190,7 +189,6 @@ export async function showEditMarketplaceModal(id) {
 
     // Ініціалізувати charms для модальних таблиць
     initSearchCharm();
-    initRefreshCharm();
     initColumnsCharm();
 
     // charm:refresh listeners

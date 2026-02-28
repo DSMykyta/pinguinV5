@@ -35,7 +35,6 @@ import { getOptions, loadOptions } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';
 import { initSearchCharm } from '../../components/charms/charm-search.js';
-import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/api-client.js';
@@ -262,7 +261,6 @@ function initBrandLinesHandler() {
     if (container) {
         initPaginationCharm();
         initSearchCharm();
-        initRefreshCharm();
         initColumnsCharm();
 
         container.addEventListener('charm:refresh', (e) => {

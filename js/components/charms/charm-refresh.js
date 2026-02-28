@@ -6,14 +6,17 @@
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
  * ║  Декларативне авто-створення refresh кнопки на основі HTML атрибутів.    ║
- * ║  Працює на будь-якому елементі: section, .pseudo-table-container, div.   ║
+ * ║  Працює на будь-якому елементі: section, container, modal.              ║
+ * ║  Auto-discovery через MutationObserver — динамічний контент             ║
+ * ║  підхоплюється автоматично без ручного виклику initRefreshCharm().      ║
  * ║                                                                          ║
  * ║  USAGE:                                                                  ║
- * ║  <section refresh>                    — кнопка + charm:refresh           ║
- * ║  <section refresh confirm>            — підтвердження перед refresh      ║
- * ║  <section refresh confirm="Текст..."> — кастомне повідомлення           ║
- * ║  <section refresh aside>              — також refresh aside panel       ║
- * ║  <div class="pseudo-table-container" refresh>  — для таблиць            ║
+ * ║  <section refresh>                                — кнопка + event      ║
+ * ║  <section refresh confirm>                        — з підтвердженням    ║
+ * ║  <section refresh confirm="Текст...">             — кастомне повідомл.  ║
+ * ║  <section refresh aside data-panel-template="id"> — + aside panel       ║
+ * ║  <div class="pseudo-table-container" refresh>     — для таблиць         ║
+ * ║  <div class="modal-fullscreen-container" refresh confirm> — модалі      ║
  * ║                                                                          ║
  * ║  EVENT:                                                                  ║
  * ║  charm:refresh — на елементі, detail.waitUntil(promise)                 ║
@@ -24,18 +27,59 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showResetConfirm } from '../modal/modal-confirm.js';
+// ═══════════════════════════════════════════════════════════════════════════
+// CHARM DISCOVERY + AUTO-OBSERVER
+// ═══════════════════════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CHARM DISCOVERY
-// ═══════════════════════════════════════════════════════════════════════════
+let _observing = false;
 
 /**
- * Знайти всі [refresh] елементи в scope та ініціалізувати charm
+ * Знайти всі [refresh] елементи в scope та ініціалізувати charm.
+ * Запускає MutationObserver для авто-discovery динамічного контенту.
  * @param {HTMLElement|Document} scope
  */
 export function initRefreshCharm(scope = document) {
     scope.querySelectorAll('[refresh]').forEach(el => {
+        if (el._refreshCharmInit) return;
+        el._refreshCharmInit = true;
+        setupRefresh(el);
+    });
+
+    if (!_observing) {
+        _observing = true;
+        startObserver();
+    }
+}
+
+function startObserver() {
+    const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+            if (m.type === 'childList') {
+                for (const node of m.addedNodes) {
+                    if (node.nodeType !== 1) continue;
+                    discoverRefresh(node);
+                }
+            }
+            if (m.type === 'attributes') {
+                discoverRefresh(m.target);
+            }
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['refresh']
+    });
+}
+
+function discoverRefresh(node) {
+    if (node.hasAttribute?.('refresh') && !node._refreshCharmInit) {
+        node._refreshCharmInit = true;
+        setupRefresh(node);
+    }
+    node.querySelectorAll?.('[refresh]').forEach(el => {
         if (el._refreshCharmInit) return;
         el._refreshCharmInit = true;
         setupRefresh(el);
@@ -54,31 +98,37 @@ function setupRefresh(el) {
     btn.className = 'btn-icon';
     btn.setAttribute('aria-label', 'Оновити');
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>';
-    group.appendChild(btn);
 
-    const needsConfirm = el.hasAttribute('confirm');
-    const confirmMessage = el.getAttribute('confirm') || undefined;
-    const hasAside = el.hasAttribute('aside');
-
-    btn.addEventListener('click', () => handleRefreshClick(btn, el, needsConfirm, confirmMessage, hasAside));
-}
-
-async function handleRefreshClick(btn, el, needsConfirm, confirmMessage, hasAside) {
-    if (needsConfirm) {
-        const confirmed = await showResetConfirm({
-            message: confirmMessage
-        });
-        if (!confirmed) return;
+    // Прокинути [confirm] на створену кнопку → charm-confirm перехопить click
+    if (el.hasAttribute('confirm')) {
+        const val = el.getAttribute('confirm');
+        btn.setAttribute('confirm', val || '');
+        btn.setAttribute('confirm-type', 'reset');
     }
 
+    // В модалях: вставити перед save кнопками. Інакше: append
+    const firstSave = group.querySelector('button[id*="save"]');
+    if (firstSave) {
+        group.insertBefore(btn, firstSave);
+    } else {
+        group.appendChild(btn);
+    }
+
+    const hasAside = el.hasAttribute('aside');
+    btn.addEventListener('click', () => handleRefreshClick(btn, el, hasAside));
+}
+
+async function handleRefreshClick(btn, el, hasAside) {
     await withSpinner(btn, async () => {
         const promises = [];
 
+        // charm:refresh event — хто слухає, той реагує
         el.dispatchEvent(new CustomEvent('charm:refresh', {
             bubbles: true,
             detail: { waitUntil: (p) => promises.push(p) }
         }));
 
+        // Aside panel
         if (hasAside) {
             const templateName = el.dataset?.panelTemplate;
             const aside = templateName && document.getElementById(templateName);
@@ -99,16 +149,21 @@ async function handleRefreshClick(btn, el, needsConfirm, confirmMessage, hasAsid
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Знайти .group в .section-header для елемента.
- * Case A: <section> — header є direct child (шукаємо ВНИЗ)
- * Case B: container — header є вище по DOM (шукаємо ВГОРУ)
+ * Знайти .group для елемента.
+ * Case A: modal container → .modal-fullscreen-header > .group
+ * Case B: <section>       → .section-header > .group (ВНИЗ)
+ * Case C: container       → .section-header > .group (ВГОРУ)
  */
 export function findToolbarGroup(el) {
-    // Case A: section — шукати ВНИЗ
+    // Case A: modal container
+    const modalHeader = el.querySelector(':scope > .modal-fullscreen-header');
+    if (modalHeader) return ensureGroup(modalHeader);
+
+    // Case B: section — шукати ВНИЗ
     const headerDown = el.querySelector(':scope > .section-header');
     if (headerDown) return ensureGroup(headerDown);
 
-    // Case B: container — шукати ВГОРУ
+    // Case C: container — шукати ВГОРУ
     const parent = el.closest('.tab-content') || el.parentElement;
     const headerUp = parent?.querySelector('.section-header');
     if (headerUp) return ensureGroup(headerUp);
