@@ -64,6 +64,20 @@
     text-overflow: ellipsis;
 }
 
+/* Синхронізація transition кнопок з контейнером */
+.nav.column .btn-icon.expand {
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.5s ease,
+                color 0.5s ease;
+}
+
+.nav.column .btn-icon-label {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Контейнери всередині column */
 .nav-main {
     display: flex;
