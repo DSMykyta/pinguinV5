@@ -63,14 +63,13 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    z-index: 9999; /* Високий z-index для fixed позиціонування */
-    background-color: var(--color-surface-c-high);
-    border-radius: var(--radius-m, 8px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: var(--z-dropdown);
+    background-color: var(--color-surface-c-low);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-3);
     opacity: 0;
     pointer-events: none;
     transition: opacity 150ms ease-in-out;
-    max-height: 250px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -118,7 +117,7 @@
     padding: 4px 0;
     margin: 0;
     overflow-y: auto;
-    flex: 1;
+    max-height: 200px;
 }
 
 .custom-select-option {

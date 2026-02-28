@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html lang="uk" data-theme="dark">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Select — Preview</title>
     <link rel="stylesheet" href="../css/main.css">
     <style>
+        html, body {
+            display: block !important;
+            overflow: auto !important;
+            height: auto !important;
+        }
         body {
             padding: 40px;
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             background: var(--color-surface);
             color: var(--color-on-surface);
@@ -16,6 +21,7 @@
         h1 { margin-bottom: 32px; }
         h2 { margin: 32px 0 16px; }
         .demo-block {
+            display: block;
             margin-bottom: 40px;
         }
         /* Примусово відкриті панелі для превью */
@@ -109,6 +115,10 @@
             <option value="allo" selected>Алло</option>
             <option value="hotline">Hotline</option>
             <option value="amazon">Amazon</option>
+            <option value="ebay">eBay</option>
+            <option value="etsy">Etsy</option>
+            <option value="wish">Wish</option>
+            <option value="aliexpress">AliExpress</option>
         </select>
     </div>
 </div>
@@ -120,8 +130,7 @@
         <div class="tag c-secondary">Rozetka<button type="button" class="tag-remove">&times;</button></div>
         <div class="tag c-secondary">Prom.ua<button type="button" class="tag-remove">&times;</button></div>
         <div class="tag c-secondary">Алло<button type="button" class="tag-remove">&times;</button></div>
-        <div class="tag c-main">UA</div>
-        <div class="tag">+2</div>
+        <div class="tag c-secondary">+2</div>
     </div>
 </div>
 

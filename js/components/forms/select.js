@@ -597,7 +597,7 @@ class CustomSelect {
         this.panel.style.position = 'fixed';
         this.panel.style.left = `${triggerRect.left}px`;
         this.panel.style.width = `${panelWidth}px`;
-        this.panel.style.maxHeight = `${Math.min(250, openUpward ? spaceAbove : spaceBelow)}px`;
+        // maxHeight не потрібен — скрол на .custom-select-options (max-height: 200px)
 
         if (openUpward) {
             this.panel.style.top = 'auto';
