@@ -128,17 +128,15 @@
 }
 
 /* Hover/focus для НЕ-.spaced контейнерів — на весь блок цілком */
-.content-bloc-container:not(.spaced):focus-within {
+.content-bloc-container:not(.spaced) .content-line:focus-within {
     outline: 1px solid var(--color-main);
     outline-offset: -1px;
-    border-radius: 8px;
 }
 
 /* Error стан — червоний outline на весь блок */
-.content-bloc-container[error] {
+.content-bloc-container[error] .content-line {
     outline: 1px solid var(--color-error);
     outline-offset: -1px;
-    border-radius: 8px;
 }
 
 /* Drag-and-drop стан */

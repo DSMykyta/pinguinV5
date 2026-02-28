@@ -72,7 +72,6 @@
     transition: opacity 150ms ease-in-out;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .custom-select-wrapper.open .custom-select-panel,
