@@ -21,7 +21,8 @@
  * ║  ERROR TARGET (пріоритет):                                             ║
  * ║    1. .content-bloc-container — для UA/RU блоків                       ║
  * ║    2. .custom-select-wrapper  — для кастомних селектів                 ║
- * ║    3. .input-main             — для одиноких інпутів                   ║
+ * ║    3. .content-line           — для одиноких рядків                    ║
+ * ║    4. .input-main             — для одиноких інпутів                   ║
  * ║                                                                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -105,7 +106,11 @@ function findErrorTarget(el) {
     const selectWrapper = el.closest('.custom-select-wrapper');
     if (selectWrapper) return selectWrapper;
 
-    // 3. input-main (одинокий інпут з власним бордером)
+    // 3. content-line (одинокий рядок без content-bloc-container)
+    const line = el.closest('.content-line');
+    if (line) return line;
+
+    // 4. input-main (одинокий інпут з власним бордером)
     if (el.classList.contains('input-main')) return el;
 
     return null;

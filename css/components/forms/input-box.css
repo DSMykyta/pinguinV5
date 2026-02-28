@@ -134,7 +134,8 @@
 }
 
 /* Error стан — червоний outline на весь блок */
-.content-bloc-container[error] .content-line {
+.content-bloc-container[error] .content-line,
+.content-line[error] {
     outline: 1px solid var(--color-error);
     outline-offset: -1px;
 }
