@@ -12,6 +12,7 @@ import { initCore } from './main-core.js';
 import {
     showModal,
     showConfirmModal,
+    showCascadeConfirm,
     showDeleteConfirm,
     showResetConfirm,
     showCloseConfirm,
@@ -68,6 +69,21 @@ function initModalTestButtons() {
             ],
         });
         console.log('[test] delete brand:', r);
+    });
+
+    document.getElementById('btn-test-cascade-brand')?.addEventListener('click', async () => {
+        const r = await showCascadeConfirm({
+            title: 'Видалити бренд?',
+            message: 'Ви впевнені, що хочете видалити бренд "Optimum Nutrition"?',
+            details: [
+                '3 лінійки буде видалено',
+                '2 посилання буде видалено',
+                '1 прив\'язка до МП буде видалено',
+            ],
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
+        });
+        console.log('[test] cascade delete brand:', r);
     });
 
     document.getElementById('btn-test-unlink-line')?.addEventListener('click', async () => {

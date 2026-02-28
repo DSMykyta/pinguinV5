@@ -175,3 +175,108 @@ export async function showCloseConfirm(options = {}) {
         avatarState: 'confirmClose',
     });
 }
+
+/**
+ * Каскадне видалення — окремий шаблон confirm-cascade.html
+ *
+ * @param {Object} options
+ * @param {string} options.title — заголовок
+ * @param {string} options.message — текст повідомлення
+ * @param {string[]} options.details — масив каскадних наслідків
+ * @param {string} options.confirmText — текст кнопки
+ * @param {string} options.cancelText — текст кнопки скасування
+ * @param {string|false} options.avatarState — стан аватара
+ * @returns {Promise<boolean>}
+ */
+export async function showCascadeConfirm(options = {}) {
+    const {
+        title = 'Видалити?',
+        message = 'Ви впевнені?',
+        details = [],
+        confirmText = 'Видалити',
+        cancelText = 'Скасувати',
+        avatarState = 'confirmDelete',
+        avatarSize = 'lg',
+    } = options;
+
+    return new Promise(async (resolve) => {
+        let resolved = false;
+
+        const triggerElement = document.createElement('div');
+        triggerElement.dataset.modalSize = 'small';
+
+        await showModal('confirm-cascade', triggerElement);
+
+        const modalTitle = document.getElementById('cascade-title');
+        const messageEl = document.getElementById('cascade-message');
+        const detailsList = document.getElementById('cascade-details-list');
+        const avatarContainer = document.getElementById('cascade-avatar-container');
+        const cancelBtn = document.getElementById('cascade-cancel-btn');
+        const confirmBtn = document.getElementById('cascade-confirm-btn');
+
+        if (modalTitle) modalTitle.textContent = title;
+        if (messageEl) messageEl.innerHTML = message;
+
+        // Каскадні деталі
+        if (detailsList) {
+            detailsList.innerHTML = '';
+            if (Array.isArray(details) && details.length > 0) {
+                details.forEach(d => {
+                    const li = document.createElement('li');
+                    li.innerHTML = d;
+                    detailsList.appendChild(li);
+                });
+            }
+        }
+
+        // Аватар
+        if (avatarContainer && avatarState !== false) {
+            avatarContainer.innerHTML = renderAvatarState(avatarState, {
+                size: avatarSize,
+                containerClass: 'modal-confirm-avatar',
+                avatarClass: 'modal-confirm-avatar-image',
+                messageClass: 'modal-confirm-avatar-message',
+                showMessage: false,
+            });
+        }
+
+        if (cancelBtn) cancelBtn.textContent = cancelText;
+        if (confirmBtn) confirmBtn.textContent = confirmText;
+
+        const handleClick = (e) => {
+            const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
+            if (action === 'confirm') {
+                e.stopPropagation();
+                e.preventDefault();
+                if (resolved) return;
+                resolved = true;
+                cleanup();
+                closeModal();
+                resolve(true);
+            } else if (action === 'cancel') {
+                e.stopPropagation();
+                e.preventDefault();
+                if (resolved) return;
+                resolved = true;
+                cleanup();
+                closeModal();
+                resolve(false);
+            }
+        };
+
+        const handleModalClose = () => {
+            if (resolved) return;
+            resolved = true;
+            cleanup();
+            resolve(false);
+        };
+
+        const cleanup = () => {
+            document.removeEventListener('click', handleClick);
+            document.removeEventListener('modal-closed', handleModalClose);
+        };
+
+        document.addEventListener('click', handleClick);
+        document.addEventListener('modal-closed', handleModalClose);
+    });
+}

@@ -60,6 +60,7 @@ export { registerHook } from './modal-state.js';
 
 export {
     showConfirmModal,
+    showCascadeConfirm,
     showDeleteConfirm,
     showResetConfirm,
     showCloseConfirm,
