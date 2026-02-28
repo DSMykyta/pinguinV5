@@ -43,7 +43,7 @@ import { renderCurrentTab } from './mapper-table.js';
 import { initSectionNavigation, buildCascadeDetails } from './mapper-utils.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';

@@ -189,7 +189,7 @@ function initMapperBatchActions() {
                     if (ownIds.length === 1) {
                         const { batchCreateCategoryMapping, getCategories } = await import('./mapper-data.js');
                         const { showToast } = await import('../../components/feedback/toast.js');
-                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-main.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
                         const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 
@@ -261,7 +261,7 @@ function initMapperBatchActions() {
                     if (ownIds.length === 1) {
                         const { batchCreateCharacteristicMapping, getCharacteristics } = await import('./mapper-data.js');
                         const { showToast } = await import('../../components/feedback/toast.js');
-                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-main.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
                         const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 
@@ -342,7 +342,7 @@ function initMapperBatchActions() {
                     if (ownIds.length === 1) {
                         const { batchCreateOptionMapping, getOptions } = await import('./mapper-data.js');
                         const { showToast } = await import('../../components/feedback/toast.js');
-                        const { showConfirmModal } = await import('../../components/modal/modal-confirm.js');
+                        const { showConfirmModal } = await import('../../components/modal/modal-main.js');
                         const { renderCurrentTab } = await import('./mapper-table.js');
                         const { getBatchBar } = await import('../../components/actions/actions-batch.js');
 

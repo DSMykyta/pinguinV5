@@ -20,7 +20,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showConfirmModal, showResetConfirm, showDeleteConfirm } from '../modal/modal-confirm.js';
+import { showConfirmModal, showResetConfirm, showDeleteConfirm } from '../modal/modal-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT — одноразова глобальна делегація (capture phase)

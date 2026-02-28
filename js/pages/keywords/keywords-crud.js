@@ -10,7 +10,7 @@ import { addKeyword, updateKeyword, deleteKeyword, getKeywords } from './keyword
 import { renderKeywordsTable } from './keywords-table.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 

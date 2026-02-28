@@ -16,7 +16,7 @@ import { getBrands, getBrandById } from './brands-data.js';
 import { getBrandLineById, addBrandLine, updateBrandLine, deleteBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

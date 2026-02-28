@@ -22,7 +22,7 @@ import { addBrand, updateBrand, deleteBrand, getBrands, getBrandById } from './b
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {

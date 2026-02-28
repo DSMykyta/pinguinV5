@@ -10,7 +10,7 @@
 
 import { priceState } from './price-state.js';
 import { importDataToSheet } from './price-data.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /** Plugin init */

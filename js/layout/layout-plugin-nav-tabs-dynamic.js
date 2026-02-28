@@ -29,7 +29,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { showConfirmModal } from '../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../components/modal/modal-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПУБЛІЧНЕ API

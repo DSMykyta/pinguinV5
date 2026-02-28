@@ -10,12 +10,11 @@
 
 import { initLayout }           from './layout/layout-main.js';
 import { initDropdowns }        from './components/forms/dropdown.js';
-import { initModals }           from './components/modal/modal-init.js';
+import { initModals }           from './components/modal/modal-main.js';
 import { initAvatarSystem }     from './components/avatar/avatar-main.js';
 import { initEventHandlers }    from './utils/event-handlers.js';
 import { initCustomAuth }       from './auth/auth-google.js';
 import { initTooltips }         from './components/feedback/tooltip.js';
-import { initInfoButtons }      from './components/modal/modal-info.js';
 import { initTheme }            from './components/ui-theme.js';
 import { initSearchClearCharm } from './components/charms/charm-search-clear.js';
 import { initMorphSearchCharm } from './components/charms/charm-morph-search.js';
@@ -34,14 +33,13 @@ export async function initCore() {
 
     // ВАЖЛИВО: initModals() повинен бути ДО initCustomAuth()
     // щоб modal system був готовий коли auth спробує відкрити модал
-    initModals();
+    await initModals();
     initConfirmCharm();
 
     initAvatarSystem();
     initEventHandlers();
     initCustomAuth();
     initTooltips();
-    initInfoButtons();
     initSearchClearCharm();
     initMorphSearchCharm();
     initSearchCharm();

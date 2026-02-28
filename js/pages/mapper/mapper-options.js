@@ -37,7 +37,7 @@ import {
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-confirm.js';
+import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { getBatchBar } from '../../components/actions/actions-batch.js';
 import { escapeHtml } from '../../utils/text-utils.js';
