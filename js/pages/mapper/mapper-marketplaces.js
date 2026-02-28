@@ -51,7 +51,6 @@ import { initPaginationCharm } from '../../components/charms/pagination/paginati
 import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { validateRequired } from '../../components/charms/charm-required.js';
 import { listReferenceFiles, deleteReferenceFile, uploadReferenceFile, callSheetsAPI } from '../../utils/api-client.js';
 import { createBatchActionsBar, getBatchBar } from '../../components/actions/actions-batch.js';
 import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
@@ -322,9 +321,6 @@ async function showDeleteMarketplaceConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewMarketplace(shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
-    if (!validateRequired(modal)) return;
-
     const data = getMarketplaceFormData();
     try {
         await addMarketplace(data);
@@ -337,9 +333,6 @@ async function handleSaveNewMarketplace(shouldClose = true) {
 }
 
 async function handleUpdateMarketplace(id, shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-mp-data"]');
-    if (!validateRequired(modal)) return;
-
     const data = getMarketplaceFormData();
     try {
         await updateMarketplace(id, data);

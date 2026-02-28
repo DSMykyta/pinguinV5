@@ -60,7 +60,6 @@ import { initPaginationCharm } from '../../components/charms/pagination/paginati
 import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     initSectionNavigation,
     createModalOverlay,
@@ -75,11 +74,8 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
-import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-characteristics';
-
-let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -89,15 +85,6 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'characteristics' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'characteristics' });
-
-    registerModalRefresh('mapper-characteristic-edit', async () => {
-        const { loadCharacteristics } = await import('./mapper-data-own.js');
-        await loadCharacteristics();
-        if (currentEditId) {
-            const char = getCharacteristics().find(c => c.id === currentEditId);
-            if (char) fillCharacteristicForm(char);
-        }
-    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -281,9 +268,6 @@ async function showDeleteCharacteristicConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewCharacteristic(shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getCharacteristicFormData();
     try {
         await addCharacteristic(data);
@@ -296,9 +280,6 @@ async function handleSaveNewCharacteristic(shouldClose = true) {
 }
 
 async function handleUpdateCharacteristic(id, shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-characteristic-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getCharacteristicFormData();
     try {
         await updateCharacteristic(id, data);

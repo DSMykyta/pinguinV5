@@ -39,7 +39,6 @@ import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/api-client.js';
-import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -997,12 +996,6 @@ async function handleSaveBrand(shouldClose = true) {
 
     const brandData = getBrandFormData();
 
-    // Валідація
-    if (!brandData.name_uk) {
-        showToast('Введіть назву бренду', 'error');
-        return;
-    }
-
     try {
         if (currentBrandId) {
             // Оновлення
@@ -1074,18 +1067,6 @@ function generateBrandIdForUI() {
 
 // Оновити таблицю лінійок в модалі, коли лінійку додано/оновлено/видалено
 export function init(state) {
-    registerModalRefresh('brand-edit', async () => {
-        const { loadBrands } = await import('./brands-data.js');
-        await loadBrands();
-        if (currentBrandId) {
-            const brand = getBrandById(currentBrandId);
-            if (brand) {
-                fillBrandForm(brand);
-                populateBrandLines(currentBrandId);
-            }
-        }
-    });
-
     registerBrandsPlugin('onLineAdd', () => {
         if (currentBrandId) {
             populateBrandLines(currentBrandId);

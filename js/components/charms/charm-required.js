@@ -5,18 +5,18 @@
  * ║                    REQUIRED CHARM                                      ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                        ║
- * ║  Декларативна валідація обов'язкових полів на основі HTML [required].   ║
- * ║  Автоматично знімає [error] при введенні/зміні значення.               ║
+ * ║  Генерік система валідації обов'язкових полів.                          ║
+ * ║  Сторінковий код НЕ знає про required — все автоматично.               ║
  * ║                                                                        ║
- * ║  USAGE:                                                                ║
- * ║  <input required>                         — обов'язковий інпут         ║
- * ║  <select required data-custom-select>     — обов'язковий селект        ║
+ * ║  HTML:                                                                 ║
+ * ║  <input required>  — і все, решта автоматично                          ║
  * ║                                                                        ║
- * ║  API:                                                                  ║
- * ║  validateRequired(container) → boolean                                 ║
- * ║    Перевіряє всі [required] в container.                               ║
- * ║    Ставить [error] на візуальний контейнер порожніх полів.              ║
- * ║    Повертає true якщо все заповнено, false якщо є помилки.             ║
+ * ║  ЩО РОБИТЬ:                                                            ║
+ * ║  1. Додає червону dot до label кожного [required] поля                 ║
+ * ║  2. Автозняття [error] при введенні/зміні                              ║
+ * ║  3. Перехоплює save-кнопки в модалах (capture phase)                   ║
+ * ║     → валідує → [error] + тост + скрол → блокує збереження             ║
+ * ║  4. Перехоплює submit на формах з [required]                           ║
  * ║                                                                        ║
  * ║  ERROR TARGET (пріоритет):                                             ║
  * ║    1. .content-bloc-container — для UA/RU блоків                       ║
@@ -24,21 +24,68 @@
  * ║    3. .content-line           — для одиноких рядків                    ║
  * ║    4. .input-main             — для одиноких інпутів                   ║
  * ║                                                                        ║
+ * ║  ЗАЛЕЖНОСТІ:                                                           ║
+ * ║  - feedback/toast.js (showToast)                                       ║
+ * ║                                                                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+import { showToast } from '../feedback/toast.js';
+
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CHARM INIT — авто-зняття [error] при введенні
+// INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function initRequiredCharm(scope = document) {
+    // Dots + auto-clean для всіх [required]
     scope.querySelectorAll('[required]').forEach(el => {
         if (el._requiredCharmInit) return;
         el._requiredCharmInit = true;
+        addDotToLabel(el);
         setupAutoClean(el);
     });
+
+    // Перехоплення save-кнопок в модалах (capture phase — до onclick)
+    if (!document._requiredSaveGuard) {
+        document._requiredSaveGuard = true;
+        document.addEventListener('click', handleSaveClick, true);
+        document.addEventListener('submit', handleFormSubmit, true);
+    }
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DOT — автоматична червона крапка в label
+// ═══════════════════════════════════════════════════════════════════════════
+
+function addDotToLabel(el) {
+    const id = el.id;
+    if (!id) return;
+
+    // Шукаємо label[for="id"]
+    let label = document.querySelector(`label[for="${id}"]`);
+
+    // Якщо нема — шукаємо найближчий label вгору
+    if (!label) {
+        const group = el.closest('.group');
+        if (group) label = group.querySelector('label.label-l');
+    }
+
+    if (!label) return;
+
+    // Не дублювати
+    if (label.querySelector('.dot')) return;
+
+    const dot = document.createElement('span');
+    dot.className = 'dot c-red small';
+    label.appendChild(dot);
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTO-CLEAN — зняття [error] при введенні
+// ═══════════════════════════════════════════════════════════════════════════
 
 function setupAutoClean(el) {
     const events = el.tagName === 'SELECT' ? ['change'] : ['input'];
@@ -53,14 +100,48 @@ function setupAutoClean(el) {
 
 
 // ═══════════════════════════════════════════════════════════════════════════
-// VALIDATE — перевірка всіх [required] в контейнері
+// SAVE GUARD — перехоплення кнопок збереження
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * @param {HTMLElement} container — модалка, форма, секція
- * @returns {boolean} true = все заповнено, false = є помилки
- */
-export function validateRequired(container) {
+function handleSaveClick(e) {
+    const btn = e.target.closest('[id*="save"]');
+    if (!btn) return;
+
+    // Тільки в модалах
+    const modal = btn.closest('.modal-overlay');
+    if (!modal) return;
+
+    // Є [required] поля?
+    if (!modal.querySelector('[required]')) return;
+
+    // Валідація
+    if (!validate(modal)) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+    }
+}
+
+function handleFormSubmit(e) {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+
+    if (!form.querySelector('[required]')) return;
+
+    // Шукаємо контейнер для валідації (модал або сама форма)
+    const container = form.closest('.modal-overlay') || form;
+
+    if (!validate(container)) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VALIDATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function validate(container) {
     const fields = container.querySelectorAll('[required]');
     let valid = true;
 
@@ -76,8 +157,8 @@ export function validateRequired(container) {
         }
     });
 
-    // Скрол до першої помилки
     if (!valid) {
+        showToast('Заповніть обов\'язкові поля', 'error');
         const first = container.querySelector('[error]');
         first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }

@@ -56,7 +56,6 @@ import { initPaginationCharm } from '../../components/charms/pagination/paginati
 import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     registerActionHandlers,
     initActionHandlers,
@@ -272,9 +271,6 @@ async function showDeleteOptionConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewOption(shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getOptionFormData();
     try {
         await addOption(data);
@@ -287,9 +283,6 @@ async function handleSaveNewOption(shouldClose = true) {
 }
 
 async function handleUpdateOption(id, shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-option-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getOptionFormData();
     try {
         await updateOption(id, data);

@@ -56,17 +56,13 @@ import { initPaginationCharm } from '../../components/charms/pagination/paginati
 import { initSearchCharm } from '../../components/charms/charm-search.js';
 import { initRefreshCharm } from '../../components/charms/charm-refresh.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
-import { validateRequired } from '../../components/charms/charm-required.js';
 import {
     registerActionHandlers,
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
-import { registerModalRefresh } from '../../components/modal/modal-plugin-refresh.js';
 
 export const PLUGIN_NAME = 'mapper-categories';
-
-let currentEditId = null;
 
 /**
  * Ініціалізація плагіна
@@ -76,15 +72,6 @@ export function init() {
     // Реєструємо hooks для комунікації з іншими модулями
     registerHook('onTabChange', handleTabChange, { plugin: 'categories' });
     registerHook('onDataLoaded', handleDataLoaded, { plugin: 'categories' });
-
-    registerModalRefresh('mapper-category-edit', async () => {
-        const { loadCategories } = await import('./mapper-data-own.js');
-        await loadCategories();
-        if (currentEditId) {
-            const category = getCategories().find(c => c.id === currentEditId);
-            if (category) fillCategoryForm(category);
-        }
-    });
 
     markPluginLoaded(PLUGIN_NAME);
 }
@@ -275,9 +262,6 @@ async function showDeleteCategoryConfirm(id) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleSaveNewCategory(shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getCategoryFormData();
     try {
         await addCategory(data);
@@ -290,9 +274,6 @@ async function handleSaveNewCategory(shouldClose = true) {
 }
 
 async function handleUpdateCategory(id, shouldClose = true) {
-    const modal = document.querySelector('[data-modal-id="mapper-category-edit"]');
-    if (!validateRequired(modal)) return;
-
     const data = getCategoryFormData();
     try {
         await updateCategory(id, data);
