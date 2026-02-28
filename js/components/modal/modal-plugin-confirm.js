@@ -261,12 +261,6 @@ export async function showCascadeConfirm(options = {}) {
         if (children && childrenSection) {
             childrenSection.classList.remove('u-hidden');
 
-            // Count badge
-            const countEl = document.getElementById('cascade-children-count');
-            if (countEl) {
-                countEl.innerHTML = `<span class="tag c-red">${children.count} ${children.countLabel || ''}</span>`;
-            }
-
             // Checkbox label
             const checkboxLabelEl = document.getElementById('cascade-checkbox-label');
             if (checkboxLabelEl) checkboxLabelEl.textContent = children.checkboxLabel || 'Видалити дітей';
