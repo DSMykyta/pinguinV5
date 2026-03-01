@@ -231,14 +231,28 @@ export function setLineLogoPreview(thumbnailUrl, fileName, fileSize) {
 }
 
 /**
- * Видалити логотип (очистити preview)
+ * Видалити логотип з можливістю відмінити через toast
  */
 export function handleRemoveLineLogo() {
     const hiddenInput = document.getElementById('line-logo-url');
-    if (hiddenInput) hiddenInput.value = '';
-
     const preview = document.getElementById('line-logo-preview');
+
+    const savedUrl = hiddenInput?.value || '';
+    if (!savedUrl) return;
+
+    if (hiddenInput) hiddenInput.value = '';
     if (preview) preview.classList.add('u-hidden');
+
+    showToast('Логотип видалено', 'info', {
+        duration: 5000,
+        action: {
+            label: 'Відмінити',
+            onClick: () => {
+                if (hiddenInput) hiddenInput.value = savedUrl;
+                if (preview) preview.classList.remove('u-hidden');
+            },
+        },
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

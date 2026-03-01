@@ -231,14 +231,28 @@ export function setLogoPreview(thumbnailUrl, fileName, fileSize) {
 }
 
 /**
- * Видалити логотип (очистити preview)
+ * Видалити логотип з можливістю відмінити через toast
  */
 export function handleRemoveLogo() {
     const hiddenInput = document.getElementById('brand-logo-url');
-    if (hiddenInput) hiddenInput.value = '';
-
     const preview = document.getElementById('brand-logo-preview');
+
+    const savedUrl = hiddenInput?.value || '';
+    if (!savedUrl) return;
+
+    if (hiddenInput) hiddenInput.value = '';
     if (preview) preview.classList.add('u-hidden');
+
+    showToast('Логотип видалено', 'info', {
+        duration: 5000,
+        action: {
+            label: 'Відмінити',
+            onClick: () => {
+                if (hiddenInput) hiddenInput.value = savedUrl;
+                if (preview) preview.classList.remove('u-hidden');
+            },
+        },
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
