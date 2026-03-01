@@ -3,15 +3,19 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    BRANDS CRUD — ЛІНІЙКИ В МОДАЛІ                       ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                          ║
+ * ║  Таблиця лінійок всередині модала бренду.                               ║
+ * ║  Всі зміни — чернетки до натискання "Зберегти".                         ║
+ * ║  Використовує createDraftManager для локального стейту.                  ║
+ * ║                                                                          ║
+ * ║  НЕ плутати з lines-table.js (таблиця на сторінці).                     ║
+ * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Таблиця лінійок всередині модала бренду.
- * Всі зміни — чернетки до натискання "Зберегти".
- *
- * НЕ плутати з lines-table.js (таблиця на сторінці).
  */
 
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
+import { createDraftManager } from '../../utils/draft-manager.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
@@ -32,10 +36,10 @@ let _brandLinesCleanup = null;
 let _brandLinesManagedTable = null;
 let _getCurrentBrandId = null;
 
-// Чернетки: лінійки що відображаються в модалі (локальна копія)
-let _draftLines = [];
-// ID лінійок що були від'язані (pending unlink)
-let _pendingUnlinks = [];
+const draft = createDraftManager({
+    getId: (item) => item.line_id,
+    commitRemove: (id) => updateBrandLine(id, { brand_id: '' }),
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -77,22 +81,19 @@ export function initBrandLinesSection(getCurrentBrandId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Заповнити секцію лінійок бренду (створює локальну чернетку)
+ * Заповнити секцію лінійок бренду (створює чернетку)
  * @param {string} brandId - ID бренду
  */
 export function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
     if (!container) return;
 
-    // Створити свіжу чернетку з реальних даних
-    _draftLines = (getBrandLinesByBrandId(brandId) || []).map(l => ({ ...l }));
-    _pendingUnlinks = [];
-
+    draft.init(getBrandLinesByBrandId(brandId) || []);
     _renderLinesTable(brandId);
 }
 
 /**
- * Внутрішній рендер таблиці з _draftLines
+ * Внутрішній рендер таблиці з draft
  */
 function _renderLinesTable(brandId) {
     registerActionHandlers('brand-crud-lines', {
@@ -103,7 +104,7 @@ function _renderLinesTable(brandId) {
         unlink: async (rowId) => {
             if (!rowId) return;
 
-            const line = _draftLines.find(l => l.line_id === rowId);
+            const line = draft.getDraft().find(l => l.line_id === rowId);
             const lineName = line?.name_uk || rowId;
 
             const confirmed = await showConfirmModal({
@@ -113,9 +114,7 @@ function _renderLinesTable(brandId) {
             });
 
             if (confirmed) {
-                // Чернетка: тільки локально прибрати + запам'ятати
-                _pendingUnlinks.push(rowId);
-                _draftLines = _draftLines.filter(l => l.line_id !== rowId);
+                draft.remove(rowId);
                 _renderLinesTable(brandId);
                 showToast('Лінійку буде від\'язано після збереження', 'info');
             }
@@ -133,7 +132,7 @@ function _renderLinesTable(brandId) {
                 })
             })
         ],
-        data: _draftLines,
+        data: draft.getDraft(),
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -161,35 +160,9 @@ function _renderLinesTable(brandId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COMMIT / DISCARD
+// RE-EXPORT DRAFT API
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Зберегти всі pending зміни лінійок в API
- * Викликається з handleSaveBrand()
- */
-export async function commitPendingLineChanges() {
-    if (_pendingUnlinks.length === 0) return;
-
-    const promises = _pendingUnlinks.map(lineId =>
-        updateBrandLine(lineId, { brand_id: '' })
-    );
-
-    await Promise.allSettled(promises);
-    _pendingUnlinks = [];
-}
-
-/**
- * Скинути всі pending зміни (при закритті без збереження)
- */
-export function discardPendingLineChanges() {
-    _pendingUnlinks = [];
-    _draftLines = [];
-}
-
-/**
- * Чи є незбережені зміни лінійок
- */
-export function hasPendingLineChanges() {
-    return _pendingUnlinks.length > 0;
-}
+export const commitPendingLineChanges = () => draft.commit();
+export const discardPendingLineChanges = () => draft.discard();
+export const hasPendingLineChanges = () => draft.hasPending();
