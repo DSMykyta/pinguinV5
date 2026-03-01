@@ -91,10 +91,9 @@ export function populateBrandLines(brandId) {
             const lineName = line?.name_uk || rowId;
 
             const confirmed = await showConfirmModal({
-                title: 'Від\'язати лінійку?',
-                message: `Ви впевнені, що хочете від'язати лінійку <span class="tag c-red">${lineName}</span> від цього бренду?`,
-                confirmText: 'Від\'язати',
-                cancelText: 'Скасувати',
+                action: 'від\'язати',
+                entity: 'лінійку',
+                name: lineName,
             });
 
             if (confirmed) {

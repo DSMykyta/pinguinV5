@@ -25,30 +25,27 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-confirm')?.addEventListener('click', async () => {
         const result = await showConfirmModal({
-            title: 'Підтвердити дію?',
-            message: 'Ви збираєтесь змінити статус <span class="tag c-red">12</span> товарів на <span class="tag c-red">Активний</span>. Продовжити?',
-            confirmText: 'Так, змінити',
-            cancelText: 'Скасувати',
+            action: 'змінити',
+            entity: 'статус',
+            name: '12 товарів',
         });
         console.log('[test] confirm result:', result);
     });
 
     document.getElementById('btn-test-delete-confirm')?.addEventListener('click', async () => {
         const result = await showConfirmModal({
-            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
-            message: 'Ця дія незворотна.',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'бренд',
+            name: 'Optimum Nutrition',
         });
         console.log('[test] delete confirm result:', result);
     });
 
     document.getElementById('btn-test-reset-confirm')?.addEventListener('click', async () => {
         const result = await showConfirmModal({
-            title: 'Скинути зміни?',
+            title: 'Скинути?',
             message: 'Всі незбережені зміни буде втрачено.',
             confirmText: 'Скинути',
-            cancelText: 'Скасувати',
             avatarState: 'confirmReset',
         });
         console.log('[test] reset confirm result:', result);
@@ -56,7 +53,7 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-close-confirm')?.addEventListener('click', async () => {
         const result = await showConfirmModal({
-            title: 'Закрити без збереження?',
+            title: 'Закрити?',
             message: 'Всі незбережені зміни буде втрачено.',
             confirmText: 'Закрити',
             cancelText: 'Залишити',
@@ -69,20 +66,20 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-brand')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
-            message: 'Ця дія незворотна.',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'бренд',
+            name: 'Optimum Nutrition',
         });
         console.log('[test] delete brand:', r);
     });
 
     document.getElementById('btn-test-cascade-brand')?.addEventListener('click', async () => {
         const r = await showCascadeConfirm({
-            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
-            message: 'Це незворотня дія. З брендом буде видалено <span class="tag c-red">3</span> його лінійки',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'бренд',
+            name: 'Optimum Nutrition',
+            count: 3,
+            countEntity: 'лінійки',
             children: {
                 switchLabel: 'Видалити лінійки з брендом',
                 moveLabel: 'Перенести лінійки до',
@@ -99,40 +96,35 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-unlink-line')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати лінійку?',
-            message: 'Ви впевнені, що хочете від\'язати лінійку <span class="tag c-red">Gold Standard 100% Whey</span> від цього бренду?',
-            confirmText: 'Відв\'язати',
-            cancelText: 'Скасувати',
+            action: 'від\'язати',
+            entity: 'лінійку',
+            name: 'Gold Standard 100% Whey',
         });
         console.log('[test] unlink line:', r);
     });
 
     document.getElementById('btn-test-delete-link')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити посилання?',
-            message: 'Ви впевнені, що хочете видалити <span class="tag c-red">optimumnutrition.com</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'посилання',
+            name: 'optimumnutrition.com',
         });
         console.log('[test] delete link:', r);
     });
 
     document.getElementById('btn-test-replace-logo')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Замінити логотип?',
+            title: 'Замінити?',
             message: 'Поточний логотип буде замінено новим.',
-            confirmText: 'Так',
-            cancelText: 'Скасувати',
         });
         console.log('[test] replace logo:', r);
     });
 
     document.getElementById('btn-test-delete-line')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити лінійку?',
-            message: 'Ви впевнені, що хочете видалити лінійку <span class="tag c-red">Gold Standard 100% Whey</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'лінійку',
+            name: 'Gold Standard 100% Whey',
         });
         console.log('[test] delete line:', r);
     });
@@ -141,10 +133,9 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-keyword')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити ключове слово?',
-            message: 'Ви впевнені, що хочете видалити <span class="tag c-red">Протеїн</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'ключове слово',
+            name: 'Протеїн',
         });
         console.log('[test] delete keyword:', r);
     });
@@ -153,28 +144,27 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-category')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити категорію?',
-            message: 'Ви впевнені, що хочете видалити категорію <span class="tag c-red">Спортивне харчування</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'категорію',
+            name: 'Спортивне харчування',
         });
         console.log('[test] delete category:', r);
     });
 
     document.getElementById('btn-test-unlink-char-from-cat')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати характеристику?',
-            message: 'Ви впевнені, що хочете від\'язати характеристику <span class="tag c-red">Вага нетто</span> від цієї категорії?',
-            confirmText: 'Відв\'язати',
-            cancelText: 'Скасувати',
+            action: 'від\'язати',
+            entity: 'характеристику',
+            name: 'Вага нетто',
         });
         console.log('[test] unlink char from cat:', r);
     });
 
     document.getElementById('btn-test-unmap-category')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати категорію',
-            message: 'Зняти прив\'язку з маркетплейсу?',
+            action: 'від\'язати',
+            entity: 'категорію',
+            name: 'Спортивне харчування',
         });
         console.log('[test] unmap category:', r);
     });
@@ -183,28 +173,27 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-characteristic')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити характеристику?',
-            message: 'Ви впевнені, що хочете видалити характеристику <span class="tag c-red">Вага нетто</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'характеристику',
+            name: 'Вага нетто',
         });
         console.log('[test] delete characteristic:', r);
     });
 
     document.getElementById('btn-test-unlink-opt-from-char')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати опцію?',
-            message: 'Ви впевнені, що хочете від\'язати опцію <span class="tag c-red">Шоколад</span> від цієї характеристики?',
-            confirmText: 'Відв\'язати',
-            cancelText: 'Скасувати',
+            action: 'від\'язати',
+            entity: 'опцію',
+            name: 'Шоколад',
         });
         console.log('[test] unlink opt from char:', r);
     });
 
     document.getElementById('btn-test-unmap-characteristic')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати характеристику',
-            message: 'Зняти прив\'язку з маркетплейсу?',
+            action: 'від\'язати',
+            entity: 'характеристику',
+            name: 'Вага нетто',
         });
         console.log('[test] unmap characteristic:', r);
     });
@@ -213,28 +202,27 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-option')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити опцію?',
-            message: 'Ви впевнені, що хочете видалити опцію <span class="tag c-red">Шоколад</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'опцію',
+            name: 'Шоколад',
         });
         console.log('[test] delete option:', r);
     });
 
     document.getElementById('btn-test-unlink-child-option')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати дочірню опцію?',
-            message: 'Ви впевнені, що хочете від\'язати опцію <span class="tag c-red">Молочний шоколад</span> від батьківської?',
-            confirmText: 'Відв\'язати',
-            cancelText: 'Скасувати',
+            action: 'від\'язати',
+            entity: 'опцію',
+            name: 'Молочний шоколад',
         });
         console.log('[test] unlink child option:', r);
     });
 
     document.getElementById('btn-test-unmap-option')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Відв\'язати опцію',
-            message: 'Зняти прив\'язку з маркетплейсу?',
+            action: 'від\'язати',
+            entity: 'опцію',
+            name: 'Шоколад',
         });
         console.log('[test] unmap option:', r);
     });
@@ -243,40 +231,36 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-delete-marketplace')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити маркетплейс?',
-            message: 'Ви впевнені, що хочете видалити маркетплейс <span class="tag c-red">Rozetka</span>?',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'маркетплейс',
+            name: 'Rozetka',
         });
         console.log('[test] delete marketplace:', r);
     });
 
     document.getElementById('btn-test-delete-mp-refs-all')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити довідники?',
-            message: 'Всі довідники маркетплейсу <span class="tag c-red">Rozetka</span> буде видалено.',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'довідники',
+            name: '5 файлів',
         });
         console.log('[test] delete mp refs all:', r);
     });
 
     document.getElementById('btn-test-delete-mp-ref')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити довідник?',
-            message: 'Довідник <span class="tag c-red">Категорії</span> маркетплейсу <span class="tag c-red">Rozetka</span> буде видалено.',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'довідник',
+            name: 'Категорії',
         });
         console.log('[test] delete mp ref:', r);
     });
 
     document.getElementById('btn-test-confirm-map')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Замапити?',
-            message: 'Прив\'язати <span class="tag c-red">Спортивне харчування</span> → <span class="tag c-red">Rozetka: Спортивне харчування</span>?',
-            confirmText: 'Замапити',
-            cancelText: 'Скасувати',
+            action: 'замапити',
+            entity: '3 MP категорій до',
+            name: 'Спортивне харчування',
         });
         console.log('[test] confirm map:', r);
     });
@@ -285,10 +269,9 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-close-tab-banned')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Закрити таб?',
-            message: 'Таб буде закрито. Продовжити?',
+            title: 'Закрити?',
+            message: 'Всі незбережені дані будуть втрачені. Продовжити?',
             confirmText: 'Закрити',
-            cancelText: 'Скасувати',
         });
         console.log('[test] close tab banned:', r);
     });
@@ -297,10 +280,9 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-confirm-price-import')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Імпорт прайсу',
-            message: 'Імпортувати прайс-лист? Існуючі дані буде оновлено.',
-            confirmText: 'Імпортувати',
-            cancelText: 'Скасувати',
+            action: 'імпортувати',
+            entity: '150 рядків з файлу',
+            name: 'price.xlsx',
         });
         console.log('[test] price import:', r);
     });
@@ -309,10 +291,9 @@ function initModalTestButtons() {
 
     document.getElementById('btn-test-close-tab-layout')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Закрити таб?',
-            message: 'Незбережені зміни буде втрачено.',
-            confirmText: 'Закрити',
-            cancelText: 'Залишити',
+            action: 'закрити',
+            entity: 'таб',
+            name: 'Brands',
             avatarState: 'confirmClose',
         });
         console.log('[test] close tab layout:', r);

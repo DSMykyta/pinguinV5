@@ -27,7 +27,7 @@ import { populateSelect, reinitializeCustomSelect } from '../../components/forms
 // Секції модала
 import { initAltNamesHandlers, getAltNames, setAltNames } from './brands-crud-alt-names.js';
 import { initLinksHandlers, getLinks, setLinks } from './brands-crud-links.js';
-import { initLogoHandlers, setLogoPreview, handleRemoveLogo } from './brands-crud-logo.js';
+import { initLogoHandlers, setLogoPreview, handleRemoveLogo, normalizeName } from './brands-crud-logo.js';
 import { initBrandLinesSection, populateBrandLines } from './brands-crud-lines.js';
 import { showDeleteBrandConfirm } from './brands-delete.js';
 
@@ -288,7 +288,8 @@ function fillBrandForm(brand) {
     if (logoUrlField) logoUrlField.value = brand.brand_logo_url || '';
 
     if (brand.brand_logo_url) {
-        setLogoPreview(brand.brand_logo_url);
+        const logoFileName = `${normalizeName(brand.name_uk || 'brand')}.webp`;
+        setLogoPreview(brand.brand_logo_url, logoFileName);
     } else {
         handleRemoveLogo();
     }

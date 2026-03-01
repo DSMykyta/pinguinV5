@@ -219,10 +219,9 @@ async function showDeleteOptionConfirm(id) {
         items.push({ icon: 'circle', text: `<strong>${deps.children}</strong> дочірніх опцій буде відв'язано` });
 
     const confirmed = await showConfirmModal({
-        title: 'Видалити опцію?',
-        message: `Ви впевнені, що хочете видалити опцію "${option.value_ua}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'опцію',
+        name: option.value_ua,
         details: buildCascadeDetails(items)
     });
 
@@ -428,10 +427,9 @@ function populateRelatedChildOptions(optionId) {
         },
         unlink: async (rowId, data) => {
             const confirmed = await showConfirmModal({
-                title: 'Відв\'язати дочірню опцію?',
-                message: `Ви впевнені, що хочете відв'язати опцію "${data.name}" від батьківської?`,
-                confirmText: 'Відв\'язати',
-                cancelText: 'Скасувати',
+                action: 'від\'язати',
+                entity: 'дочірню опцію',
+                name: data.name,
             });
 
             if (confirmed) {
@@ -576,8 +574,8 @@ function renderMappedMpOptionsSections(ownOptionId) {
             const mappingId = data.mappingId;
             if (mappingId) {
                 const confirmed = await showConfirmModal({
-                    title: 'Відв\'язати опцію',
-                    message: 'Зняти прив\'язку з маркетплейсу?'
+                    title: 'Від\'язати?',
+                    message: 'Зняти прив\'язку з маркетплейсу?',
                 });
                 if (!confirmed) return;
                 try {

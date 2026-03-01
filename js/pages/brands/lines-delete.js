@@ -25,10 +25,9 @@ export async function showDeleteLineConfirm(lineId) {
     }
 
     const confirmed = await showConfirmModal({
-        title: `Видалити <span class="tag c-red">${line.name_uk}</span>?`,
-        message: 'Ця дія незворотна.',
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'лінійку',
+        name: line.name_uk,
     });
 
     if (confirmed) {

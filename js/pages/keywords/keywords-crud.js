@@ -132,10 +132,9 @@ export async function showDeleteKeywordConfirm(localId) {
     }
 
     const confirmed = await showConfirmModal({
-        title: 'Видалити ключове слово?',
-        message: `Ви впевнені, що хочете видалити "${keyword.name_uk}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'ключове слово',
+        name: keyword.name_uk,
     });
 
     if (confirmed) {

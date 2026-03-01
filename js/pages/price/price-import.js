@@ -144,10 +144,9 @@ async function handleFile(file) {
 
         // Підтвердження імпорту
         const confirmed = await showConfirmModal({
-            title: 'Імпорт прайсу',
-            message: `Імпортувати ${data.length} рядків з файлу "${file.name}"?`,
-            confirmText: 'Імпортувати',
-            cancelText: 'Скасувати',
+            action: 'імпортувати',
+            entity: `${data.length} рядків з файлу`,
+            name: file.name,
         });
 
         if (!confirmed) {

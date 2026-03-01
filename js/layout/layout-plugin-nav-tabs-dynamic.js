@@ -284,12 +284,10 @@ export function initDynamicTabs(tabsContainer, options = {}) {
         const tabLabel = tabButton?.querySelector('.label')?.textContent || tabId;
 
         return showConfirmModal({
-            title: 'Закрити таб?',
-            message: `Ви впевнені, що хочете закрити "${tabLabel}"?`,
-            confirmText: 'Закрити',
-            cancelText: 'Скасувати',
+            action: 'закрити',
+            entity: 'таб',
+            name: tabLabel,
             avatarState: 'confirmClose',
-            avatarSize: 'small'
         });
     }
 

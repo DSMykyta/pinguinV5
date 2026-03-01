@@ -259,10 +259,9 @@ export function initTabHandlers() {
             // Використовуємо showConfirmModal з ui-modal-confirm.js
             const { showConfirmModal } = await import('../../components/modal/modal-main.js');
             const confirmed = await showConfirmModal({
-                title: 'Закрити таб?',
+                title: 'Закрити?',
                 message: 'Всі незбережені дані будуть втрачені. Продовжити?',
                 confirmText: 'Закрити',
-                cancelText: 'Скасувати',
             });
 
             if (confirmed) {

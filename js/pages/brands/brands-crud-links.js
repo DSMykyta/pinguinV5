@@ -74,10 +74,9 @@ function addLinkRow(link = { name: '', url: '' }) {
     row.querySelector('.ci-remove').onclick = async () => {
         const linkName = row.querySelector('input[type="text"]').value.trim() || 'це посилання';
         const confirmed = await showConfirmModal({
-            title: 'Видалити посилання?',
-            message: `Ви впевнені, що хочете видалити <span class="tag c-red">${escapeHtml(linkName)}</span>?`,
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'посилання',
+            name: escapeHtml(linkName),
         });
 
         if (confirmed) {

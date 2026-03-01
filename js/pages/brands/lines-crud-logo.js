@@ -198,10 +198,8 @@ function hasExistingLogo() {
 async function uploadLogoWithConfirm(uploadFn) {
     if (hasExistingLogo()) {
         const confirmed = await showConfirmModal({
-            title: 'Замінити логотип?',
+            title: 'Замінити?',
             message: 'Поточний логотип буде замінено новим.',
-            confirmText: 'Замінити',
-            cancelText: 'Скасувати',
         });
         if (!confirmed) return;
     }
@@ -247,7 +245,7 @@ export function handleRemoveLineLogo() {
 // UTILS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function normalizeName(name) {
+export function normalizeName(name) {
     return name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
 }
 

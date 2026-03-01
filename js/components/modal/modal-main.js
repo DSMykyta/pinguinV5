@@ -15,7 +15,8 @@
 ║  └── modal-core.js       — DOM логіка: show/close + event delegation    ║
 ║                                                                          ║
 ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
-║  ├── modal-plugin-confirm.js  — Діалоги підтвердження                   ║
+║  ├── modal-plugin-confirm.js  — Простий діалог підтвердження            ║
+║  ├── modal-plugin-cascade.js  — Каскадне підтвердження (switch + move) ║
 ║  └── modal-plugin-info.js     — Info модалі                              ║
 ║                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════╝
@@ -25,6 +26,7 @@ import { initModalCore } from './modal-core.js';
 
 const PLUGINS = [
     './modal-plugin-confirm.js',
+    './modal-plugin-cascade.js',
     './modal-plugin-info.js',
 ];
 
@@ -58,9 +60,7 @@ export { registerHook } from './modal-state.js';
 
 // ── Re-export: Plugin API ──
 
-export {
-    showConfirmModal,
-    showCascadeConfirm,
-} from './modal-plugin-confirm.js';
+export { showConfirmModal } from './modal-plugin-confirm.js';
+export { showCascadeConfirm } from './modal-plugin-cascade.js';
 
 export { initInfoButtons, clearInfoCache } from './modal-plugin-info.js';

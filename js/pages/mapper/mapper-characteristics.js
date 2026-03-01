@@ -228,10 +228,9 @@ async function showDeleteCharacteristicConfirm(id) {
         items.push({ icon: 'circle', text: `<strong>${deps.options}</strong> опцій буде відв'язано` });
 
     const confirmed = await showConfirmModal({
-        title: 'Видалити характеристику?',
-        message: `Ви впевнені, що хочете видалити характеристику "${characteristic.name_ua}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'характеристику',
+        name: characteristic.name_ua,
         details: buildCascadeDetails(items)
     });
 
@@ -495,10 +494,9 @@ function populateRelatedOptions(characteristicId) {
             const optionName = option?.value_ua || rowId;
 
             const confirmed = await showConfirmModal({
-                title: 'Відв\'язати опцію?',
-                message: `Ви впевнені, що хочете відв'язати опцію "${optionName}" від цієї характеристики?`,
-                confirmText: 'Відв\'язати',
-                cancelText: 'Скасувати',
+                action: 'від\'язати',
+                entity: 'опцію',
+                name: optionName,
             });
 
             if (confirmed) {
@@ -721,8 +719,8 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
         unmap: async (rowId, data) => {
             if (data.mappingId) {
                 const confirmed = await showConfirmModal({
-                    title: 'Відв\'язати характеристику',
-                    message: 'Зняти прив\'язку з маркетплейсу?'
+                    title: 'Від\'язати?',
+                    message: 'Зняти прив\'язку з маркетплейсу?',
                 });
                 if (!confirmed) return;
                 const mapping = getMapCharacteristics().find(m => m.id === data.mappingId);

@@ -197,10 +197,9 @@ function initMapperBatchActions() {
                         const ownName = ownCat?.name_ua || ownIds[0];
 
                         const confirmed = await showConfirmModal({
-                            title: 'Замапити?',
-                            message: `Прив'язати ${mpIds.length} MP категорій до "${ownName}"?`,
-                            confirmText: 'Замапити',
-                            cancelText: 'Скасувати'
+                            action: 'замапити',
+                            entity: `${mpIds.length} MP категорій до`,
+                            name: ownName,
                         });
 
                         if (!confirmed) return;
@@ -269,10 +268,9 @@ function initMapperBatchActions() {
                         const ownName = ownChar?.name_ua || ownIds[0];
 
                         const confirmed = await showConfirmModal({
-                            title: 'Замапити?',
-                            message: `Прив'язати ${mpIds.length} MP характеристик до "${ownName}"?`,
-                            confirmText: 'Замапити',
-                            cancelText: 'Скасувати'
+                            action: 'замапити',
+                            entity: `${mpIds.length} MP характеристик до`,
+                            name: ownName,
                         });
 
                         if (!confirmed) return;
@@ -350,10 +348,9 @@ function initMapperBatchActions() {
                         const ownName = ownOpt?.value_ua || ownIds[0];
 
                         const confirmed = await showConfirmModal({
-                            title: 'Замапити?',
-                            message: `Прив'язати ${mpIds.length} MP опцій до "${ownName}"?`,
-                            confirmText: 'Замапити',
-                            cancelText: 'Скасувати'
+                            action: 'замапити',
+                            entity: `${mpIds.length} MP опцій до`,
+                            name: ownName,
                         });
 
                         if (!confirmed) return;

@@ -32,10 +32,9 @@ export async function showDeleteBrandConfirm(brandId) {
     // Без дітей — просте підтвердження
     if (lines.length === 0) {
         const confirmed = await showConfirmModal({
-            title: `Видалити <span class="tag c-red">${brand.name_uk}</span>?`,
-            message: 'Ця дія незворотна.',
-            confirmText: 'Видалити',
-            cancelText: 'Скасувати',
+            action: 'видалити',
+            entity: 'бренд',
+            name: brand.name_uk,
         });
         if (confirmed) await executeBrandDelete(brandId);
         return;
@@ -47,10 +46,11 @@ export async function showDeleteBrandConfirm(brandId) {
         .map(b => ({ value: b.brand_id, text: b.name_uk }));
 
     const result = await showCascadeConfirm({
-        title: `Видалити <span class="tag c-red">${brand.name_uk}</span>?`,
-        message: `Це незворотня дія. З брендом буде видалено <span class="tag c-red">${lines.length}</span> його ${pluralLines(lines.length)}`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'бренд',
+        name: brand.name_uk,
+        count: lines.length,
+        countEntity: pluralLines(lines.length),
         children: {
             switchLabel: 'Видалити лінійки з брендом',
             moveLabel: 'Перенести лінійки до',

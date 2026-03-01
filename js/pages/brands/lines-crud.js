@@ -18,7 +18,7 @@ import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showDeleteLineConfirm } from './lines-delete.js';
 import { populateSelect, initCustomSelects } from '../../components/forms/select.js';
-import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo } from './lines-crud-logo.js';
+import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo, normalizeName } from './lines-crud-logo.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -148,7 +148,11 @@ function fillLineForm(line) {
     if (nameField) nameField.value = line.name_uk || '';
 
     if (line.line_logo_url) {
-        setLineLogoPreview(line.line_logo_url);
+        const brand = getBrands().find(b => b.brand_id === line.brand_id);
+        const brandPart = normalizeName(brand?.name_uk || 'brand');
+        const linePart = normalizeName(line.name_uk || 'line');
+        const logoFileName = `${brandPart}-${linePart}.webp`;
+        setLineLogoPreview(line.line_logo_url, logoFileName);
     } else {
         handleRemoveLineLogo();
     }

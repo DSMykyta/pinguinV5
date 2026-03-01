@@ -263,10 +263,9 @@ async function showDeleteMarketplaceConfirm(id) {
         items.push({ icon: 'link_off', text: `<strong>${deps.totalMappings}</strong> прив'язок буде видалено` });
 
     const confirmed = await showConfirmModal({
-        title: 'Видалити маркетплейс?',
-        message: `Ви впевнені, що хочете видалити маркетплейс "${marketplace.name}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'маркетплейс',
+        name: marketplace.name,
         details: buildCascadeDetails(items)
     });
 
@@ -530,9 +529,9 @@ async function populateMpReferences(slug, marketplaceId) {
                 label: 'Видалити', icon: 'delete',
                 handler: async (selectedIds) => {
                     const confirmed = await showConfirmModal({
-                        title: 'Видалити довідники?',
-                        message: `Видалити ${selectedIds.length} файлів з Google Drive?`,
-                        confirmText: 'Видалити', cancelText: 'Скасувати'
+                        action: 'видалити',
+                        entity: 'довідники',
+                        name: `${selectedIds.length} файлів`,
                     });
                     if (!confirmed) return;
                     try {
@@ -585,9 +584,9 @@ async function populateMpReferences(slug, marketplaceId) {
                         const fileId = btn.dataset.fileId;
                         const fileName = btn.dataset.fileName;
                         const confirmed = await showConfirmModal({
-                            title: 'Видалити довідник?',
-                            message: `Видалити файл "${fileName}" з Google Drive?`,
-                            confirmText: 'Видалити', cancelText: 'Скасувати'
+                            action: 'видалити',
+                            entity: 'довідник',
+                            name: fileName,
                         });
                         if (!confirmed) return;
                         try {

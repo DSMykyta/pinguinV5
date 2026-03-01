@@ -218,10 +218,9 @@ async function showDeleteCategoryConfirm(id) {
         items.push({ icon: 'change_history', text: `<strong>${deps.characteristics}</strong> характеристик буде відв'язано` });
 
     const confirmed = await showConfirmModal({
-        title: 'Видалити категорію?',
-        message: `Ви впевнені, що хочете видалити категорію "${category.name_ua}"?`,
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
+        action: 'видалити',
+        entity: 'категорію',
+        name: category.name_ua,
         details: buildCascadeDetails(items)
     });
 
@@ -554,12 +553,9 @@ function populateRelatedCharacteristics(categoryId) {
     // Обробник відв'язування
     const handleUnlinkCharacteristic = async (charId, charName, catId) => {
         const confirmed = await showConfirmModal({
-            title: 'Відв\'язати характеристику?',
-            message: `Ви впевнені, що хочете відв'язати характеристику "${charName}" від цієї категорії?`,
-            confirmText: 'Відв\'язати',
-            cancelText: 'Скасувати',
-            avatarState: 'confirmClose',
-            avatarSize: 'small'
+            action: 'від\'язати',
+            entity: 'характеристику',
+            name: charName,
         });
 
         if (confirmed) {
@@ -820,8 +816,8 @@ function renderMappedMpCategoriesSections(ownCatId) {
         unmap: async (rowId, data) => {
             if (data.mappingId) {
                 const confirmed = await showConfirmModal({
-                    title: 'Відв\'язати категорію',
-                    message: 'Зняти прив\'язку з маркетплейсу?'
+                    title: 'Від\'язати?',
+                    message: 'Зняти прив\'язку з маркетплейсу?',
                 });
                 if (!confirmed) return;
                 const mapping = getMapCategories().find(m => m.id === data.mappingId);
