@@ -70,22 +70,26 @@ function initBindingChipClicks() {
 function initRefreshHandlers() {
     const tabs = ['categories', 'characteristics', 'options', 'marketplaces'];
 
-    // Modal-level charm:refresh — кожен модал перезавантажує свої дані
-    [
-        ['mapper-category-edit',       () => import('./mapper-data-own.js').then(m => m.loadCategories())],
-        ['mapper-characteristic-edit', () => import('./mapper-data-own.js').then(m => m.loadCharacteristics())],
-        ['mapper-option-edit',         () => import('./mapper-data-own.js').then(m => m.loadOptions())],
-        ['mapper-mp-data',             () => import('./mapper-data-own.js').then(m => m.loadMarketplaces())],
-    ].forEach(([modalId, loader]) => {
-        const container = document.querySelector(`[data-modal-id="${modalId}"] > .modal-fullscreen-container`);
-        if (container) {
-            container.addEventListener('charm:refresh', (e) => {
-                e.detail.waitUntil((async () => {
-                    await loader();
-                    showToast('Дані оновлено', 'success');
-                })());
-            });
-        }
+    // Modal-level charm:refresh — модали завантажуються при відкритті,
+    // тому вішаємо listener через modal-opened event
+    const modalLoaders = {
+        'mapper-category-edit':       () => import('./mapper-data-own.js').then(m => m.loadCategories()),
+        'mapper-characteristic-edit': () => import('./mapper-data-own.js').then(m => m.loadCharacteristics()),
+        'mapper-option-edit':         () => import('./mapper-data-own.js').then(m => m.loadOptions()),
+        'mapper-mp-data':             () => import('./mapper-data-own.js').then(m => m.loadMarketplaces()),
+    };
+    document.addEventListener('modal-opened', (e) => {
+        const loader = modalLoaders[e.detail.modalId];
+        if (!loader) return;
+        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        if (!container || container._mapperRefreshInit) return;
+        container._mapperRefreshInit = true;
+        container.addEventListener('charm:refresh', (ev) => {
+            ev.detail.waitUntil((async () => {
+                await loader();
+                showToast('Дані оновлено', 'success');
+            })());
+        });
     });
 
     // Tab-level charm:refresh

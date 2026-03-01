@@ -33,18 +33,8 @@ function initRefreshHandlers() {
             e.detail.waitUntil((async () => {
                 await loadBrands();
                 renderBrandsTable();
-                showToast('Дані оновлено', 'success');
-            })());
-        });
-    }
-
-    // Modal-level — refresh даних бренду
-    const brandModal = document.querySelector('[data-modal-id="brand-edit-modal"] > .modal-fullscreen-container');
-    if (brandModal) {
-        brandModal.addEventListener('charm:refresh', (e) => {
-            e.detail.waitUntil((async () => {
-                await loadBrands();
-                renderBrandsTable();
+                const { resetSnapshots } = await import('./brands-polling.js');
+                resetSnapshots();
                 showToast('Дані оновлено', 'success');
             })());
         });
@@ -56,11 +46,31 @@ function initRefreshHandlers() {
             e.detail.waitUntil((async () => {
                 const { loadBrandLines } = await import('./lines-data.js');
                 await loadBrandLines();
+                const { resetSnapshots } = await import('./brands-polling.js');
+                resetSnapshots();
                 runHook('onRender');
                 showToast('Дані оновлено', 'success');
             })());
         });
     }
+
+    // Modal-level — модал завантажується лише при відкритті,
+    // тому вішаємо listener через modal-opened event
+    document.addEventListener('modal-opened', (e) => {
+        if (e.detail.modalId !== 'brand-edit-modal') return;
+        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        if (!container || container._brandsRefreshInit) return;
+        container._brandsRefreshInit = true;
+        container.addEventListener('charm:refresh', (ev) => {
+            ev.detail.waitUntil((async () => {
+                await loadBrands();
+                renderBrandsTable();
+                const { resetSnapshots } = await import('./brands-polling.js');
+                resetSnapshots();
+                showToast('Дані оновлено', 'success');
+            })());
+        });
+    });
 }
 
 // initLinesSorting — тепер сортування лінійок

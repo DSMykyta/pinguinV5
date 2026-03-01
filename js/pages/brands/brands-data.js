@@ -235,6 +235,8 @@ function prepareBrandRow(brand) {
  * @returns {Promise<Object>} Доданий бренд
  */
 export async function addBrand(brandData) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const newId = generateNextId('bran-', brandsState.brands.map(b => b.brand_id));
@@ -266,6 +268,8 @@ export async function addBrand(brandData) {
     } catch (error) {
         console.error('❌ Помилка додавання бренду:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -276,6 +280,8 @@ export async function addBrand(brandData) {
  * @returns {Promise<Object>} Оновлений бренд
  */
 export async function updateBrand(brandId, updates) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const brand = brandsState.brands.find(b => b.brand_id === brandId);
@@ -312,6 +318,8 @@ export async function updateBrand(brandId, updates) {
     } catch (error) {
         console.error('❌ Помилка оновлення бренду:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -321,6 +329,8 @@ export async function updateBrand(brandId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrand(brandId) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const brandIndex = brandsState.brands.findIndex(b => b.brand_id === brandId);
@@ -351,5 +361,7 @@ export async function deleteBrand(brandId) {
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }

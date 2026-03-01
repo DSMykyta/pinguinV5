@@ -128,6 +128,8 @@ function prepareLineRow(line) {
  * @returns {Promise<Object>} Додана лінійка
  */
 export async function addBrandLine(lineData) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const newId = generateNextId('line-', brandsState.brandLines.map(l => l.line_id));
@@ -154,6 +156,8 @@ export async function addBrandLine(lineData) {
     } catch (error) {
         console.error('❌ Помилка додавання лінійки:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -164,6 +168,8 @@ export async function addBrandLine(lineData) {
  * @returns {Promise<Object>} Оновлена лінійка
  */
 export async function updateBrandLine(lineId, updates) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const line = brandsState.brandLines.find(l => l.line_id === lineId);
@@ -195,6 +201,8 @@ export async function updateBrandLine(lineId, updates) {
     } catch (error) {
         console.error('❌ Помилка оновлення лінійки:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }
 
@@ -204,6 +212,8 @@ export async function updateBrandLine(lineId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrandLine(lineId) {
+    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    pausePolling();
 
     try {
         const lineIndex = brandsState.brandLines.findIndex(l => l.line_id === lineId);
@@ -234,5 +244,7 @@ export async function deleteBrandLine(lineId) {
     } catch (error) {
         console.error('❌ Помилка видалення лінійки:', error);
         throw error;
+    } finally {
+        resumePolling();
     }
 }

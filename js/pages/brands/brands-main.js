@@ -157,6 +157,10 @@ async function checkAuthAndLoadData() {
 
         // Запустити хук onInit для плагінів
         await runHookAsync('onInit', brandsState.brands);
+
+        // Запустити polling для виявлення змін іншими користувачами
+        const { startPolling } = await import('./brands-polling.js');
+        startPolling();
     } else {
         renderAuthRequiredState();
     }

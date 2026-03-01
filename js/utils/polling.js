@@ -37,7 +37,7 @@
 /**
  * @param {Object} config
  * @param {number} config.interval - Інтервал полінгу в ms
- * @param {Array<{name: string, fetch: Function, getState: Function, setState: Function}>} config.sources
+ * @param {Array<{name: string, fetch: Function, getState: Function, setState: Function, fingerprint?: Function}>} config.sources
  * @param {Function} config.onChanged - Callback при виявленні змін
  * @returns {{ start, stop, pause, resume, resetSnapshots }}
  */
@@ -51,13 +51,17 @@ export function createPolling(config) {
 
     // ── Fingerprint ──
 
-    function fingerprint(items) {
+    function defaultFingerprint(items) {
         return items.map(m => m.id).sort().join(',');
+    }
+
+    function fp(src, items) {
+        return (src.fingerprint || defaultFingerprint)(items);
     }
 
     function resetSnapshots() {
         for (const src of sources) {
-            snapshots[src.name] = fingerprint(src.getState());
+            snapshots[src.name] = fp(src, src.getState());
         }
     }
 
@@ -73,10 +77,10 @@ export function createPolling(config) {
 
             let changed = false;
             for (let i = 0; i < sources.length; i++) {
-                const fp = fingerprint(results[i]);
-                if (fp !== snapshots[sources[i].name]) {
+                const hash = fp(sources[i], results[i]);
+                if (hash !== snapshots[sources[i].name]) {
                     sources[i].setState(results[i]);
-                    snapshots[sources[i].name] = fp;
+                    snapshots[sources[i].name] = hash;
                     changed = true;
                 }
             }

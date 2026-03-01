@@ -14,17 +14,21 @@ export function init(state) { /* one-time setup — main orchestrates event bind
 
 export function initKeywordsEvents() {
 
-    // Modal-level — refresh даних ключових слів
-    const keywordsModal = document.querySelector('[data-modal-id="keywords-edit"] > .modal-fullscreen-container');
-    if (keywordsModal) {
-        keywordsModal.addEventListener('charm:refresh', (e) => {
-            e.detail.waitUntil((async () => {
+    // Modal-level — модал завантажується при відкритті,
+    // тому вішаємо listener через modal-opened event
+    document.addEventListener('modal-opened', (e) => {
+        if (e.detail.modalId !== 'keywords-edit') return;
+        const modal = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        if (!modal || modal._keywordsRefreshInit) return;
+        modal._keywordsRefreshInit = true;
+        modal.addEventListener('charm:refresh', (ev) => {
+            ev.detail.waitUntil((async () => {
                 await loadKeywords();
                 renderKeywordsTable();
                 showToast('Дані оновлено', 'success');
             })());
         });
-    }
+    });
 
     const container = document.getElementById('keywords-table-container');
     if (container) {
