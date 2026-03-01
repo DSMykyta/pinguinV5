@@ -68,7 +68,7 @@ export async function showConfirmModal(options = {}) {
     // Auto-generate message: "Ви впевнені, що хочете [action] [entity] <tag>[name]</tag>?"
     const resolvedMessage = message
         || ((action && entity && name)
-            ? `Ви впевнені, що хочете ${action} ${entity} <span class="tag c-red">${name}</span>?`
+            ? `Ви впевнені, що хочете ${action} ${entity} <span class="c-red">${name}</span>?`
             : 'Ви впевнені?');
 
     // Auto-generate button text from action

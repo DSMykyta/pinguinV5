@@ -77,9 +77,9 @@ export async function showCascadeConfirm(options = {}) {
     // Auto-generate message
     let resolvedMessage = message;
     if (!resolvedMessage && action && entity && name) {
-        resolvedMessage = `Ви впевнені, що хочете ${action} ${entity} <span class="tag c-red">${name}</span>?`;
+        resolvedMessage = `Ви впевнені, що хочете ${action} ${entity} <span class="c-red">${name}</span>?`;
         if (count && countEntity) {
-            resolvedMessage += ` Буде видалено <span class="tag c-red">${count}</span> його ${countEntity}`;
+            resolvedMessage += ` Буде видалено <span class="c-red">${count}</span> його ${countEntity}`;
         }
     }
     resolvedMessage = resolvedMessage || 'Ви впевнені?';
