@@ -65,6 +65,7 @@ function createInstance(el) {
     const instance = {
         el,
         state: { currentPage: 1, pageSize, totalItems: 0 },
+        paginationContainer: null,
         navContainer: null,
         fab: null,
         statsEl: null,
@@ -132,63 +133,48 @@ function setupControls(instance) {
     const el = instance.el;
 
     // Знайти footer з pagination controls
-    const footer = findFooter(el);
+    let footer = findFooter(el);
 
-    if (footer) {
-        // Переиспользовувати існуючий .pagination-container в footer
-        let paginationContainer = footer.querySelector('.pagination-container');
-        if (!paginationContainer) {
-            paginationContainer = document.createElement('div');
-            paginationContainer.className = 'pagination-container';
-            footer.appendChild(paginationContainer);
-        }
+    // Знайти або створити footer
+    if (!footer) {
+        footer = document.createElement('div');
+        footer.className = 'footer';
+        el.after(footer);
+    }
 
-        instance.navContainer =
-            paginationContainer.querySelector('.pagination-nav') ||
-            paginationContainer.querySelector('#pagination-nav-container');
+    // Знайти або створити pagination-container в footer
+    let paginationContainer = footer.querySelector('.pagination-container');
+    if (!paginationContainer) {
+        paginationContainer = document.createElement('div');
+        paginationContainer.className = 'pagination-container';
+        footer.appendChild(paginationContainer);
+    }
 
-        if (!instance.navContainer) {
-            instance.navContainer = document.createElement('div');
-            instance.navContainer.className = 'pagination-nav';
-            paginationContainer.insertBefore(instance.navContainer, paginationContainer.firstChild);
-        }
+    instance.paginationContainer = paginationContainer;
 
-        // FAB plugin — підключитись до існуючого або створити
-        // Guard: multi-tab — тільки активний charm реагує на FAB
-        instance.fab = initFabMenu(paginationContainer, {
-            items: PAGE_SIZES,
-            value: instance.state.pageSize,
-            onChange: (newSize) => {
-                if (!instance._active) return;
-                instance.state.pageSize = newSize;
-                instance.state.currentPage = 1;
-                applyPage(instance);
-            },
-            formatLabel: formatPageSize
-        });
-    } else {
-        // Створити нові controls після елемента
-        const container = document.createElement('div');
-        container.className = 'pagination-container';
+    instance.navContainer =
+        paginationContainer.querySelector('.pagination-nav') ||
+        paginationContainer.querySelector('#pagination-nav-container');
 
+    if (!instance.navContainer) {
         instance.navContainer = document.createElement('div');
         instance.navContainer.className = 'pagination-nav';
-        container.appendChild(instance.navContainer);
-
-        instance.fab = initFabMenu(container, {
-            items: PAGE_SIZES,
-            value: instance.state.pageSize,
-            onChange: (newSize) => {
-                if (!instance._active) return;
-                instance.state.pageSize = newSize;
-                instance.state.currentPage = 1;
-                applyPage(instance);
-            },
-            formatLabel: formatPageSize
-        });
-
-        el.after(container);
+        paginationContainer.insertBefore(instance.navContainer, paginationContainer.firstChild);
     }
+
+    // FAB plugin — підключитись до існуючого або створити
+    // Guard: multi-tab — тільки активний charm реагує на FAB
+    instance.fab = initFabMenu(paginationContainer, {
+        items: PAGE_SIZES,
+        value: instance.state.pageSize,
+        onChange: (newSize) => {
+            if (!instance._active) return;
+            instance.state.pageSize = newSize;
+            instance.state.currentPage = 1;
+            applyPage(instance);
+        },
+        formatLabel: formatPageSize
+    });
 
     // Click delegation на nav — ідемпотентний (один listener, масив callbacks)
     setupNavClickHandler(instance.navContainer, instance);
@@ -291,6 +277,15 @@ function applyPage(instance) {
     });
 
     instance.state.totalItems = totalItems;
+
+    // Hide/show pagination controls
+    if (instance.paginationContainer) {
+        if (totalPages <= 1) {
+            instance.paginationContainer.classList.add('u-hidden');
+        } else {
+            instance.paginationContainer.classList.remove('u-hidden');
+        }
+    }
 
     // Update nav
     if (instance.navContainer) {

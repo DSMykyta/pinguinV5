@@ -2,40 +2,21 @@
  * LAYOUT: Footer
  *
  * ПРИЗНАЧЕННЯ:
- * Фіксований підвал сторінки для сторінок з пагінацією та діями (entities, banned-words).
- * Залишається видимим внизу при скролі контенту.
- *
- * ВИКОРИСТАННЯ:
- * Використовується на сторінках де потрібна пагінація або дії над вибраними елементами.
- * Містить пагінацію зліва та кнопки дій справа.
+ * Підвал сторінки/секції для пагінації.
+ * Pagination charm автоматично вставляє .pagination-container в .footer.
  *
  * HTML ПРИКЛАД:
- * <main class="content-main entities-main-content">
- *   <header class="entity-header">...</header>
- *   <div class="entity-content">...</div>
- *   <footer class="entity-footer">
- *     <div class="footer-left">...</div>
- *     <div class="footer-right">...</div>
- *   </footer>
- * </main>
+ * <footer class="entity-footer">
+ *   <!-- pagination charm вставляє .pagination-container сюди -->
+ * </footer>
  *
  * КЛАСИ:
- * - .entity-footer - фіксований footer (sticky bottom: 0)
- * - .footer-left - ліва частина (зазвичай пагінація)
- * - .footer-right - права частина (кнопки дій, статистика)
+ * - .entity-footer — фіксований footer сторінки (sticky bottom: 0)
+ * - .footer — універсальний footer (таби, модалки, секції)
  *
  * ЗАЛЕЖНОСТІ:
  * - root.css (--color-surface, --color-outline-v, spacing)
- * - components/navigation/pagination.css (для пагінації)
- *
- * ЗАСТОСУВАННЯ:
- * - entities.html
- * - banned-words.html
- * - Інші сторінки з пагінацією
- *
- * ПРИМІТКА:
- * Працює разом з .entities-main-content (flexbox контейнер) та .entity-header.
- * Footer має flex-shrink: 0 щоб не стискатися при скролі.
+ * - components/navigation/pagination.css
  */
 
 .entity-footer {
@@ -43,7 +24,7 @@
     bottom: 0;
     z-index: 100;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     background: var(--color-surface);
     border-top: 1px solid var(--color-outline-v);
@@ -51,21 +32,10 @@
     flex-shrink: 0;
 }
 
-.footer-left {
-    display: flex;
-    gap: 8px;
-}
-
-.footer-right {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
 /* Універсальний footer (таби, модалки, секції) */
 .footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     gap: 16px;
     flex-shrink: 0;
