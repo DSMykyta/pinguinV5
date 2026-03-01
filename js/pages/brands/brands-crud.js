@@ -375,11 +375,9 @@ async function handleSaveBrand(shouldClose = true) {
 // REFRESH MODAL (для polling / BroadcastChannel)
 // ═══════════════════════════════════════════════════════════════════════════
 
-let _pendingRefreshBrand = null;
-
 /**
  * Оновити форму модала свіжими даними зі стейту.
- * Focus-aware: якщо поле в фокусі — чекає blur, потім оновлює + undo тост.
+ * Оновлює одразу + показує undo тост.
  */
 export function refreshBrandModal() {
     if (!currentBrandId) return;
@@ -389,25 +387,7 @@ export function refreshBrandModal() {
     // Зберегти snapshot для undo
     const snapshot = getBrandFormData();
 
-    // Знайти активне поле
-    const activeEl = document.activeElement;
-    const modal = document.querySelector('[data-modal-id="brand-edit"]');
-    const isFieldFocused = modal && modal.contains(activeEl) &&
-        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable);
-
-    if (isFieldFocused) {
-        // Очистити попередній pending
-        if (_pendingRefreshBrand) {
-            activeEl.removeEventListener('blur', _pendingRefreshBrand);
-        }
-        _pendingRefreshBrand = () => {
-            _pendingRefreshBrand = null;
-            _applyRefresh(brand, snapshot);
-        };
-        activeEl.addEventListener('blur', _pendingRefreshBrand, { once: true });
-    } else {
-        _applyRefresh(brand, snapshot);
-    }
+    _applyRefresh(brand, snapshot);
 }
 
 function _applyRefresh(brand, snapshot) {
@@ -523,10 +503,6 @@ function cleanupBrandModal() {
     if (textEditor) {
         textEditor.destroy();
         textEditor = null;
-    }
-
-    if (_pendingRefreshBrand) {
-        _pendingRefreshBrand = null;
     }
 
     discardPendingLineChanges();
