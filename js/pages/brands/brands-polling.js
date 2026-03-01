@@ -94,11 +94,11 @@ async function handleExternalChange() {
     const { renderBrandsTable } = await import('./brands-table.js');
     const { runHook } = await import('./brands-plugins.js');
     const { showToast } = await import('../../components/feedback/toast.js');
+    const { refreshBrandModal } = await import('./brands-crud.js');
 
     renderBrandsTable();
     runHook('onRender');
-    // НЕ викликаємо refreshBrandModal() — не затираємо незбережені зміни в модалі.
-    // Модал оновиться коли користувач натисне charm:refresh або закриє/відкриє його.
+    refreshBrandModal();
     showToast('Дані оновлено іншим користувачем', 'info');
 }
 
