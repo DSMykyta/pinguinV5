@@ -331,7 +331,7 @@ export async function updateBrand(brandId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrand(brandId) {
-    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyDelete } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -359,7 +359,7 @@ export async function deleteBrand(brandId) {
 
         brandsState.brands.splice(brandIndex, 1);
         brandsState.brands.forEach(b => { if (b._rowIndex > rowIndex) b._rowIndex--; });
-        notifyChange(brandId);
+        notifyDelete(brandId);
 
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);

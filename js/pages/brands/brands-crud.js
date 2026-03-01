@@ -37,6 +37,7 @@ import { showDeleteBrandConfirm } from './brands-delete.js';
 
 let textEditor = null;
 let currentBrandId = null;
+let _sectionObserver = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -212,7 +213,9 @@ function initSectionNavigation() {
         threshold: 0
     };
 
-    const observer = new IntersectionObserver((entries) => {
+    if (_sectionObserver) _sectionObserver.disconnect();
+
+    _sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const sectionId = entry.target.id;
@@ -223,7 +226,7 @@ function initSectionNavigation() {
         });
     }, observerOptions);
 
-    sections.forEach(section => observer.observe(section));
+    sections.forEach(section => _sectionObserver.observe(section));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -372,16 +375,80 @@ async function handleSaveBrand(shouldClose = true) {
 // REFRESH MODAL (для polling / BroadcastChannel)
 // ═══════════════════════════════════════════════════════════════════════════
 
+let _pendingRefreshBrand = null;
+
 /**
  * Оновити форму модала свіжими даними зі стейту.
- * Якщо модал не відкритий або бренд не знайдено — нічого не робить.
+ * Focus-aware: якщо поле в фокусі — чекає blur, потім оновлює + undo тост.
  */
 export function refreshBrandModal() {
     if (!currentBrandId) return;
     const brand = getBrandById(currentBrandId);
     if (!brand) return;
+
+    // Зберегти snapshot для undo
+    const snapshot = getBrandFormData();
+
+    // Знайти активне поле
+    const activeEl = document.activeElement;
+    const modal = document.querySelector('[data-modal-id="brand-edit"]');
+    const isFieldFocused = modal && modal.contains(activeEl) &&
+        (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT' || activeEl.isContentEditable);
+
+    if (isFieldFocused) {
+        // Очистити попередній pending
+        if (_pendingRefreshBrand) {
+            activeEl.removeEventListener('blur', _pendingRefreshBrand);
+        }
+        _pendingRefreshBrand = () => {
+            _pendingRefreshBrand = null;
+            _applyRefresh(brand, snapshot);
+        };
+        activeEl.addEventListener('blur', _pendingRefreshBrand, { once: true });
+    } else {
+        _applyRefresh(brand, snapshot);
+    }
+}
+
+function _applyRefresh(brand, snapshot) {
     fillBrandForm(brand);
     populateBrandLines(currentBrandId);
+
+    showToast('Дані оновлено іншим користувачем', 'info', {
+        duration: 8000,
+        action: {
+            label: 'Відмінити',
+            onClick: () => {
+                _restoreSnapshot(snapshot);
+            },
+        },
+    });
+}
+
+function _restoreSnapshot(snapshot) {
+    const nameField = document.getElementById('brand-name-uk');
+    if (nameField) nameField.value = snapshot.name_uk;
+
+    setAltNames(snapshot.names_alt);
+
+    const countryField = document.getElementById('brand-country');
+    if (countryField) {
+        countryField.value = snapshot.country_option_id;
+        reinitializeCustomSelect(countryField);
+    }
+
+    const statusRadio = document.querySelector(`input[name="brand-status"][value="${snapshot.brand_status || 'active'}"]`);
+    if (statusRadio) statusRadio.checked = true;
+
+    setLinks(snapshot.brand_links);
+
+    if (textEditor) textEditor.setValue(snapshot.brand_text || '');
+
+    const mapperIdField = document.getElementById('brand-mapper-option-id');
+    if (mapperIdField) mapperIdField.value = snapshot.mapper_option_id;
+
+    const logoUrlField = document.getElementById('brand-logo-url');
+    if (logoUrlField) logoUrlField.value = snapshot.brand_logo_url;
 }
 
 export function getCurrentBrandId() {
@@ -434,4 +501,33 @@ export function init(state) {
             populateBrandLines(currentBrandId);
         }
     });
+
+    // Очистка при закритті модалу
+    document.addEventListener('modal-closed', (e) => {
+        if (e.detail?.modalId !== 'brand-edit') return;
+        cleanupBrandModal();
+    });
+}
+
+/**
+ * Очистити всі ресурси модалу бренду
+ */
+function cleanupBrandModal() {
+    currentBrandId = null;
+
+    if (_sectionObserver) {
+        _sectionObserver.disconnect();
+        _sectionObserver = null;
+    }
+
+    if (textEditor) {
+        textEditor.destroy();
+        textEditor = null;
+    }
+
+    if (_pendingRefreshBrand) {
+        _pendingRefreshBrand = null;
+    }
+
+    discardPendingLineChanges();
 }

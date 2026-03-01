@@ -106,7 +106,25 @@ async function refreshData() {
 const channel = new BroadcastChannel('brands-changes');
 
 channel.onmessage = async (event) => {
-    if (event.data?.type !== 'brands-changed') return;
+    const type = event.data?.type;
+
+    // Видалення бренду — закрити модал якщо відкритий
+    if (type === 'brand-deleted') {
+        await refreshData();
+        const { getCurrentBrandId } = await import('./brands-crud.js');
+        const { closeModal } = await import('../../components/modal/modal-main.js');
+        const { showToast } = await import('../../components/feedback/toast.js');
+        const openBrandId = getCurrentBrandId();
+        if (openBrandId && openBrandId === event.data.brandId) {
+            closeModal();
+            showToast('Бренд видалено іншим користувачем', 'info');
+        }
+        polling.resetSnapshots();
+        return;
+    }
+
+    // Оновлення бренду
+    if (type !== 'brands-changed') return;
     console.log('📡 BroadcastChannel: отримано сповіщення про зміни');
     await refreshData();
 
@@ -114,11 +132,10 @@ channel.onmessage = async (event) => {
     const changedBrandId = event.data.brandId;
     const openBrandId = getCurrentBrandId();
 
-    // Оновити модал + тост тільки якщо відкритий той самий бренд
+    // Оновити модал тільки якщо відкритий той самий бренд
+    // (тост + undo показується всередині refreshBrandModal)
     if (openBrandId && changedBrandId && openBrandId === changedBrandId) {
-        const { showToast } = await import('../../components/feedback/toast.js');
         refreshBrandModal();
-        showToast('Дані оновлено іншим користувачем', 'info');
     }
 
     polling.resetSnapshots();
@@ -130,6 +147,14 @@ channel.onmessage = async (event) => {
  */
 export function notifyChange(brandId) {
     channel.postMessage({ type: 'brands-changed', brandId, timestamp: Date.now() });
+}
+
+/**
+ * Сповістити інші вкладки про видалення бренду
+ * @param {string} brandId — ID видаленого бренду
+ */
+export function notifyDelete(brandId) {
+    channel.postMessage({ type: 'brand-deleted', brandId, timestamp: Date.now() });
 }
 
 // ── Polling instance ──
