@@ -71,10 +71,16 @@ async function fetchLines() {
 // Серіалізує всі поля запису в один рядок для порівняння.
 // Працює і з raw strings (з fetch), і з парсеними масивами (зі стейту).
 
+function normalizeJson(val) {
+    if (Array.isArray(val)) return JSON.stringify(val);
+    if (typeof val === 'string' && val.trim().startsWith('[')) {
+        try { return JSON.stringify(JSON.parse(val)); } catch { /* ignore */ }
+    }
+    return val || '';
+}
+
 function brandFp(b) {
-    const alt = Array.isArray(b.names_alt) ? JSON.stringify(b.names_alt) : (b.names_alt || '');
-    const links = Array.isArray(b.brand_links) ? JSON.stringify(b.brand_links) : (b.brand_links || '');
-    return `${b.brand_id}|${b.name_uk}|${alt}|${b.country_option_id}|${b.brand_status}|${links}|${b.brand_logo_url}`;
+    return `${b.brand_id}|${b.name_uk}|${normalizeJson(b.names_alt)}|${b.country_option_id}|${b.brand_status}|${normalizeJson(b.brand_links)}|${b.brand_logo_url}`;
 }
 
 function lineFp(l) {
