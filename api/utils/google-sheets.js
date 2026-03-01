@@ -29,6 +29,7 @@
 // - 'texts': таблиця текстів (SPREADSHEET_ID_TEXTS)
 // - 'users': таблиця користувачів (SPREADSHEET_ID_USERS)
 // - 'price': таблиця прайсу/чекліста (SPREADSHEET_ID_PRICE)
+// - 'products': таблиця товарів (SPREADSHEET_ID_PRODUCTS)
 //
 // ФОРМАТИ ДІАПАЗОНІВ:
 // - "Sheet1!A1:B10" - конкретний діапазон
@@ -45,6 +46,7 @@ const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SPREADSHEET_ID_TEXTS = process.env.SPREADSHEET_ID_TEXTS;
 const SPREADSHEET_ID_USERS = process.env.SPREADSHEET_ID_USERS;
 const SPREADSHEET_ID_PRICE = process.env.SPREADSHEET_ID_PRICE;
+const SPREADSHEET_ID_PRODUCTS = process.env.SPREADSHEET_ID_PRODUCTS;
 
 // =========================================================================
 // ІНІЦІАЛІЗАЦІЯ КЛІЄНТА
@@ -85,6 +87,9 @@ function getSpreadsheetId(type = 'main') {
   }
   if (type === 'price') {
     return SPREADSHEET_ID_PRICE;
+  }
+  if (type === 'products') {
+    return SPREADSHEET_ID_PRODUCTS;
   }
   return SPREADSHEET_ID;
 }
