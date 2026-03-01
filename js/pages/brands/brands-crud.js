@@ -367,6 +367,22 @@ async function handleSaveBrand(shouldClose = true) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// REFRESH MODAL (для polling / BroadcastChannel)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Оновити форму модала свіжими даними зі стейту.
+ * Якщо модал не відкритий або бренд не знайдено — нічого не робить.
+ */
+export function refreshBrandModal() {
+    if (!currentBrandId) return;
+    const brand = getBrandById(currentBrandId);
+    if (!brand) return;
+    fillBrandForm(brand);
+    populateBrandLines(currentBrandId);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 

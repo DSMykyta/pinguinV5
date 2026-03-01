@@ -85,6 +85,41 @@ function contentFingerprint(items, itemFp) {
     return items.map(itemFp).sort().join('\n');
 }
 
+// ── Shared refresh logic ──
+// Використовується і polling'ом, і BroadcastChannel
+
+async function handleExternalChange() {
+    await Promise.allSettled([loadBrands(), loadBrandLines()]);
+
+    const { renderBrandsTable } = await import('./brands-table.js');
+    const { runHook } = await import('./brands-plugins.js');
+    const { showToast } = await import('../../components/feedback/toast.js');
+    const { refreshBrandModal } = await import('./brands-crud.js');
+
+    renderBrandsTable();
+    runHook('onRender');
+    refreshBrandModal();
+    showToast('Дані оновлено іншим користувачем', 'info');
+}
+
+// ── BroadcastChannel — миттєве сповіщення інших вкладок ──
+
+const channel = new BroadcastChannel('brands-changes');
+
+channel.onmessage = async (event) => {
+    if (event.data?.type !== 'brands-changed') return;
+    console.log('📡 BroadcastChannel: отримано сповіщення про зміни');
+    await handleExternalChange();
+    polling.resetSnapshots();
+};
+
+/**
+ * Сповістити інші вкладки про збереження
+ */
+export function notifyChange() {
+    channel.postMessage({ type: 'brands-changed', timestamp: Date.now() });
+}
+
 // ── Polling instance ──
 
 const polling = createPolling({
@@ -107,17 +142,7 @@ const polling = createPolling({
     ],
     async onChanged() {
         console.log('🔄 Polling: виявлено зміни в брендах/лінійках');
-
-        // Перезавантажити з правильним парсингом JSON полів
-        await Promise.allSettled([loadBrands(), loadBrandLines()]);
-
-        const { renderBrandsTable } = await import('./brands-table.js');
-        const { runHook } = await import('./brands-plugins.js');
-        const { showToast } = await import('../../components/feedback/toast.js');
-
-        renderBrandsTable();
-        runHook('onRender');
-        showToast('Дані оновлено іншим користувачем', 'info');
+        await handleExternalChange();
     },
 });
 

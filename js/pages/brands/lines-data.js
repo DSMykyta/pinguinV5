@@ -128,7 +128,7 @@ function prepareLineRow(line) {
  * @returns {Promise<Object>} Додана лінійка
  */
 export async function addBrandLine(lineData) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -151,6 +151,7 @@ export async function addBrandLine(lineData) {
         });
 
         brandsState.brandLines.push(newLine);
+        notifyChange();
 
         return newLine;
     } catch (error) {
@@ -168,7 +169,7 @@ export async function addBrandLine(lineData) {
  * @returns {Promise<Object>} Оновлена лінійка
  */
 export async function updateBrandLine(lineId, updates) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -196,6 +197,7 @@ export async function updateBrandLine(lineId, updates) {
 
         // Оновити state
         Object.assign(line, updatedLine);
+        notifyChange();
 
         return line;
     } catch (error) {
@@ -212,7 +214,7 @@ export async function updateBrandLine(lineId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrandLine(lineId) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -240,6 +242,7 @@ export async function deleteBrandLine(lineId) {
 
         brandsState.brandLines.splice(lineIndex, 1);
         brandsState.brandLines.forEach(l => { if (l._rowIndex > rowIndex) l._rowIndex--; });
+        notifyChange();
 
     } catch (error) {
         console.error('❌ Помилка видалення лінійки:', error);

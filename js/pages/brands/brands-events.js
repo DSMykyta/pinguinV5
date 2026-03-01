@@ -66,7 +66,9 @@ function initRefreshHandlers() {
                 await loadBrands();
                 renderBrandsTable();
                 const { resetSnapshots } = await import('./brands-polling.js');
+                const { refreshBrandModal } = await import('./brands-crud.js');
                 resetSnapshots();
+                refreshBrandModal();
                 showToast('Дані оновлено', 'success');
             })());
         });

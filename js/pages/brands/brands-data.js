@@ -235,7 +235,7 @@ function prepareBrandRow(brand) {
  * @returns {Promise<Object>} Доданий бренд
  */
 export async function addBrand(brandData) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -263,6 +263,7 @@ export async function addBrand(brandData) {
         });
 
         brandsState.brands.push(newBrand);
+        notifyChange();
 
         return newBrand;
     } catch (error) {
@@ -280,7 +281,7 @@ export async function addBrand(brandData) {
  * @returns {Promise<Object>} Оновлений бренд
  */
 export async function updateBrand(brandId, updates) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -313,6 +314,7 @@ export async function updateBrand(brandId, updates) {
 
         // Оновити state
         Object.assign(brand, updatedBrand);
+        notifyChange();
 
         return brand;
     } catch (error) {
@@ -329,7 +331,7 @@ export async function updateBrand(brandId, updates) {
  * @returns {Promise<void>}
  */
 export async function deleteBrand(brandId) {
-    const { pausePolling, resumePolling } = await import('./brands-polling.js');
+    const { pausePolling, resumePolling, notifyChange } = await import('./brands-polling.js');
     pausePolling();
 
     try {
@@ -357,6 +359,7 @@ export async function deleteBrand(brandId) {
 
         brandsState.brands.splice(brandIndex, 1);
         brandsState.brands.forEach(b => { if (b._rowIndex > rowIndex) b._rowIndex--; });
+        notifyChange();
 
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);
