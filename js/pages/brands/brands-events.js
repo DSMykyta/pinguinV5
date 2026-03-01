@@ -57,7 +57,7 @@ function initRefreshHandlers() {
     // Modal-level — модал завантажується лише при відкритті,
     // тому вішаємо listener через modal-opened event
     document.addEventListener('modal-opened', (e) => {
-        if (e.detail.modalId !== 'brand-edit-modal') return;
+        if (e.detail.modalId !== 'brand-edit') return;
         const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
         if (!container || container._brandsRefreshInit) return;
         container._brandsRefreshInit = true;

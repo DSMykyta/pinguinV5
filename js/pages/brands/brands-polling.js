@@ -67,6 +67,24 @@ async function fetchLines() {
     }));
 }
 
+// ── Fingerprint helpers ──
+// Серіалізує всі поля запису в один рядок для порівняння.
+// Працює і з raw strings (з fetch), і з парсеними масивами (зі стейту).
+
+function brandFp(b) {
+    const alt = Array.isArray(b.names_alt) ? JSON.stringify(b.names_alt) : (b.names_alt || '');
+    const links = Array.isArray(b.brand_links) ? JSON.stringify(b.brand_links) : (b.brand_links || '');
+    return `${b.brand_id}|${b.name_uk}|${alt}|${b.country_option_id}|${b.brand_status}|${links}|${b.brand_logo_url}`;
+}
+
+function lineFp(l) {
+    return `${l.line_id}|${l.brand_id}|${l.name_uk}|${l.line_logo_url}`;
+}
+
+function contentFingerprint(items, itemFp) {
+    return items.map(itemFp).sort().join('\n');
+}
+
 // ── Polling instance ──
 
 const polling = createPolling({
@@ -77,14 +95,14 @@ const polling = createPolling({
             fetch: fetchBrands,
             getState: () => brandsState.brands,
             setState: () => { /* onChanged робить loadBrands() з правильним парсингом */ },
-            fingerprint: (items) => items.map(b => b.brand_id).sort().join(','),
+            fingerprint: (items) => contentFingerprint(items, brandFp),
         },
         {
             name: 'brandLines',
             fetch: fetchLines,
             getState: () => brandsState.brandLines,
             setState: () => { /* onChanged робить loadBrandLines() з правильним парсингом */ },
-            fingerprint: (items) => items.map(l => l.line_id).sort().join(','),
+            fingerprint: (items) => contentFingerprint(items, lineFp),
         },
     ],
     async onChanged() {
