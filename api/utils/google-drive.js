@@ -335,10 +335,91 @@ async function deleteFile(fileId) {
   await drive.files.delete({ fileId });
 }
 
+/**
+ * Рекурсивно створити вкладені папки по шляху.
+ * Наприклад: "товари/optimum_nutrition/gold_standard" створить 3 рівні.
+ *
+ * @param {Object} drive - Google Drive client
+ * @param {string} rootParentId - ID кореневої батьківської папки
+ * @param {string} folderPath - Шлях через "/" (наприклад "товари/brand/product")
+ * @returns {Promise<string>} ID фінальної підпапки
+ */
+async function getOrCreateDeepFolder(drive, rootParentId, folderPath) {
+  const parts = folderPath.split('/').filter(Boolean);
+  let currentParentId = rootParentId;
+
+  for (const folderName of parts) {
+    currentParentId = await getOrCreateNestedFolder(drive, currentParentId, folderName);
+  }
+
+  return currentParentId;
+}
+
+/**
+ * Завантажити фото товару в папку товари/{brand}/{product}/ на Google Drive.
+ * Якщо файл з такою назвою вже існує — оновлює його.
+ *
+ * @param {Buffer} fileBuffer - Вміст файлу
+ * @param {string} fileName - Ім'я файлу (наприклад "gold_standard_1.webp")
+ * @param {string} mimeType - MIME тип
+ * @param {string} folderPath - Шлях до папки (наприклад "товари/optimum_nutrition/gold_standard")
+ * @returns {Promise<{fileId: string, thumbnailUrl: string}>}
+ */
+async function uploadProductPhoto(fileBuffer, fileName, mimeType, folderPath) {
+  const drive = getDriveClient();
+  const folderId = await getOrCreateDeepFolder(drive, ROOT_FOLDER_ID, folderPath);
+
+  // Шукаємо існуючий файл
+  const escapedName = fileName.replace(/'/g, "\\'");
+  const existing = await drive.files.list({
+    q: `name='${escapedName}' and '${folderId}' in parents and trashed=false`,
+    fields: 'files(id, name)',
+  });
+
+  let fileId;
+
+  if (existing.data.files && existing.data.files.length > 0) {
+    fileId = existing.data.files[0].id;
+    await drive.files.update({
+      fileId,
+      media: {
+        mimeType,
+        body: Readable.from(fileBuffer),
+      },
+    });
+  } else {
+    const response = await drive.files.create({
+      requestBody: {
+        name: fileName,
+        parents: [folderId],
+      },
+      media: {
+        mimeType,
+        body: Readable.from(fileBuffer),
+      },
+      fields: 'id',
+    });
+    fileId = response.data.id;
+
+    await drive.permissions.create({
+      fileId,
+      requestBody: {
+        role: 'reader',
+        type: 'anyone',
+      },
+    });
+  }
+
+  const thumbnailUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+  return { fileId, thumbnailUrl };
+}
+
 module.exports = {
   uploadBrandLogo,
   deleteBrandLogo,
   uploadFile,
   listFiles,
   deleteFile,
+  uploadProductPhoto,
+  getOrCreateDeepFolder,
 };

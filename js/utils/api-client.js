@@ -448,6 +448,35 @@ async function deleteReferenceFile(fileId) {
   return data;
 }
 
+// ============= Google Drive Product Photos API =============
+
+const API_DRIVE_PRODUCT_PHOTO = `${API_BASE}/api/drive/upload-product-photo`;
+
+/**
+ * Завантажити фото товару на Google Drive.
+ * @param {File} file - File об'єкт зображення
+ * @param {string} brandName - Назва бренду
+ * @param {string} productName - Назва товару
+ * @param {number} photoIndex - Індекс фото (1-10)
+ * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
+ */
+async function uploadProductPhotoFile(file, brandName, productName, photoIndex) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('brandName', brandName);
+  formData.append('productName', productName);
+  formData.append('photoIndex', String(photoIndex));
+
+  const response = await fetch(API_DRIVE_PRODUCT_PHOTO, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Upload failed');
+  return data;
+}
+
 // ============= Експорт =============
 
 // ES6 модульні експорти
@@ -466,7 +495,8 @@ export {
   uploadBrandLogoUrl,
   uploadReferenceFile,
   listReferenceFiles,
-  deleteReferenceFile
+  deleteReferenceFile,
+  uploadProductPhotoFile
 };
 
 // Глобальний об'єкт для доступу до API
@@ -501,6 +531,7 @@ window.apiClient = {
     uploadReferenceFile,
     listReferenceFiles,
     deleteReferenceFile,
+    uploadProductPhotoFile,
   },
 
   // Утиліти

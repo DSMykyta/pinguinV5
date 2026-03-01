@@ -1,0 +1,160 @@
+<div class="modal-overlay">
+    <div class="modal-container modal-medium">
+        <!-- Header -->
+        <div class="modal-header">
+            <h2><span id="variant-modal-title">Новий варіант</span></h2>
+            <div class="group">
+                <button class="btn-icon" id="btn-save-variant" aria-label="Зберегти">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">save</span>
+                    </div>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-variant" aria-label="Зберегти і закрити">
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">check</span>
+                    </div>
+                </button>
+                <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
+                    <div class="state-layer">
+                        <span class="material-symbols-outlined">close</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <input type="hidden" id="variant-id">
+            <input type="hidden" id="variant-product-id">
+
+            <div class="grid">
+                <!-- Назва варіанту (двомовний блок) -->
+                <div class="group column col-6">
+                    <label class="label-l">Назва варіанту</label>
+                    <div class="content-bloc-container">
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="text" id="variant-name-ua"
+                                        placeholder="Назва українською" required>
+                                    <span class="tag c-main">UA</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-bloc">
+                            <div class="content-line">
+                                <div class="input-box">
+                                    <input type="text" id="variant-name-ru"
+                                        placeholder="Назва російською">
+                                    <span class="tag c-tertiary">RU</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SKU -->
+                <div class="group column col-3">
+                    <label class="label-l" for="variant-sku">SKU</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="variant-sku"
+                                    placeholder="Артикул">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Статус -->
+                <div class="group column col-3">
+                    <label class="label-l">Статус</label>
+                    <div class="switch switch-fit" id="variant-status-switch">
+                        <input type="radio" id="variant-status-inactive" name="variant-status" value="inactive">
+                        <label for="variant-status-inactive" class="switch-label">Неактивний</label>
+                        <input type="radio" id="variant-status-active" name="variant-status" value="active" checked>
+                        <label for="variant-status-active" class="switch-label">Активний</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <!-- Ціна -->
+                <div class="group column col-3">
+                    <label class="label-l" for="variant-price">Ціна</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="number" step="0.01" id="variant-price"
+                                    placeholder="0.00">
+                                <span class="tag c-tertiary">грн</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Штрихкод -->
+                <div class="group column col-3">
+                    <label class="label-l" for="variant-barcode">Штрихкод</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="variant-barcode"
+                                    placeholder="EAN / UPC">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вага -->
+                <div class="group column col-3">
+                    <label class="label-l" for="variant-weight">Вага</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="variant-weight"
+                                    placeholder="Наприклад: 2.27 кг">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Залишок -->
+                <div class="group column col-3">
+                    <label class="label-l" for="variant-stock">Залишок</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="number" step="1" id="variant-stock"
+                                    placeholder="0">
+                                <span class="tag c-tertiary">шт</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Фото варіанту -->
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="variant-image-url-field">Фото варіанту</label>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="url" id="variant-image-url-field"
+                                    placeholder="URL зображення">
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="variant-image-url">
+                </div>
+            </div>
+
+            <!-- Динамічні характеристики (блок 8) -->
+            <div id="variant-characteristics-container"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer"></div>
+    </div>
+</div>

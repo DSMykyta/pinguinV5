@@ -16,10 +16,16 @@
     <div class="nav column" id="main-nav"></div>
 
     <!-- ЦЕНТРАЛЬНИЙ БЛОК -->
-    <main id="content-main" class="content-main" data-aside-template="aside-products">
+    <main id="content-main" class="content-main tabbed-page" data-aside-template="aside-products">
+
+        <!-- TAB NAVIGATOR -->
+        <nav class="nav row" data-tabs-container id="section-navigator">
+            <button data-tab-target="tab-products" class="btn-icon expand active">Товари</button>
+            <button data-tab-target="tab-variants" class="btn-icon expand">Варіанти</button>
+        </nav>
 
         <!-- TAB: ТОВАРИ -->
-        <div id="tab-products">
+        <div class="tab-content active" data-tab-content="tab-products" id="tab-products">
 
             <div class="section-header">
                 <div class="section-name-block">
@@ -37,6 +43,31 @@
             <!-- Table Container -->
             <div id="products-table-container" class="pseudo-table-container"
                  search="Пошук товарів..."
+                 pagination
+                 refresh columns>
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
+
+        <!-- TAB: ВАРІАНТИ -->
+        <div class="tab-content" data-tab-content="tab-variants" id="tab-variants">
+
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Варіанти</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="group"></div>
+            </div>
+
+            <!-- Table Container -->
+            <div id="variants-table-container" class="pseudo-table-container"
+                 search="Пошук варіантів..."
                  pagination
                  refresh columns>
                 <!-- Заповнюється JavaScript -->

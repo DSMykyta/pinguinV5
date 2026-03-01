@@ -39,29 +39,35 @@
                     <span class="material-symbols-outlined">menu</span>
                 </button>
                 <div class="nav-main">
-                    <a href="#section-product-info" class="btn-icon expand touch active" aria-label="Інформація">
+                    <!-- Фіксовані секції -->
+                    <a href="#section-product-info" class="btn-icon expand touch active" aria-label="Основне">
                         <span class="material-symbols-outlined">info</span>
-                        <span class="btn-icon-label">Інформація</span>
+                        <span class="btn-icon-label">Основне</span>
                     </a>
-                    <a href="#section-product-characteristics" class="btn-icon expand touch" aria-label="Характеристики">
-                        <span class="material-symbols-outlined">tune</span>
-                        <span class="btn-icon-label">Характеристики</span>
+                    <a href="#section-product-photos" class="btn-icon expand touch" aria-label="Фото">
+                        <span class="material-symbols-outlined">photo_library</span>
+                        <span class="btn-icon-label">Фото</span>
                     </a>
                     <a href="#section-product-variants" class="btn-icon expand touch" aria-label="Варіанти">
                         <span class="material-symbols-outlined">style</span>
                         <span class="btn-icon-label">Варіанти</span>
                     </a>
+                    <a href="#section-product-composition" class="btn-icon expand touch" aria-label="Склад">
+                        <span class="material-symbols-outlined">science</span>
+                        <span class="btn-icon-label">Склад</span>
+                    </a>
+                    <a href="#section-product-description" class="btn-icon expand touch" aria-label="Опис">
+                        <span class="material-symbols-outlined">article</span>
+                        <span class="btn-icon-label">Опис</span>
+                    </a>
+
+                    <!-- Динамічні секції характеристик — додаються через JS -->
+                    <div id="product-nav-characteristics"></div>
+
+                    <!-- SEO завжди останній -->
                     <a href="#section-product-seo" class="btn-icon expand touch" aria-label="SEO">
                         <span class="material-symbols-outlined">travel_explore</span>
                         <span class="btn-icon-label">SEO</span>
-                    </a>
-                    <a href="#section-product-text-ua" class="btn-icon expand touch" aria-label="Текст UA">
-                        <span class="material-symbols-outlined">article</span>
-                        <span class="btn-icon-label">Текст UA</span>
-                    </a>
-                    <a href="#section-product-text-ru" class="btn-icon expand touch" aria-label="Текст RU">
-                        <span class="material-symbols-outlined">translate</span>
-                        <span class="btn-icon-label">Текст RU</span>
                     </a>
                 </div>
 
@@ -79,44 +85,40 @@
                 <input type="hidden" id="product-id">
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 1: ІНФОРМАЦІЯ -->
+                <!-- СЕКЦІЯ: ОСНОВНЕ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-product-info">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Інформація</h2>
+                                <h2 class="section-upper">Основне</h2>
                             </div>
                             <span class="body-s">Основні дані про товар</span>
                         </div>
                     </div>
 
                     <div class="section-content">
-
                         <div class="grid">
-                            <!-- Назва UA -->
+                            <!-- Назва товару (двомовний блок) -->
                             <div class="group column col-6">
-                                <label for="product-name-ua" class="label-l">Назва UA</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-name-ua"
-                                                placeholder="Назва товару українською" required>
-                                            <span class="tag c-main">UA</span>
+                                <label class="label-l">Назва товару</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-name-ua"
+                                                    placeholder="Назва українською" required>
+                                                <span class="tag c-main">UA</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Назва RU -->
-                            <div class="group column col-6">
-                                <label for="product-name-ru" class="label-l">Назва RU</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-name-ru"
-                                                placeholder="Назва товару російською">
-                                            <span class="tag c-tertiary">RU</span>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-name-ru"
+                                                    placeholder="Назва російською">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -144,100 +146,42 @@
                                 <select id="product-category" data-custom-select>
                                     <option value="">— Оберіть категорію —</option>
                                 </select>
-                            </div>
-
-                            <!-- Зображення -->
-                            <div class="group column col-4">
-                                <label class="label-l">Зображення</label>
-
-                                <div class="content-bloc" id="product-logo-dropzone">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="url" id="product-logo-url-field"
-                                                placeholder="URL або перетягніть файл...">
-                                        </div>
-                                        <button type="button" class="btn-icon ci-action" id="btn-upload-product-from-url"
-                                            data-tooltip="Завантажити">
-                                            <span class="material-symbols-outlined">upload</span>
-                                        </button>
-                                    </div>
-                                    <input type="file" id="product-logo-file-input" accept="image/*" hidden>
-                                </div>
-
-                                <input type="hidden" id="product-image-url">
-
-                                <!-- Preview -->
-                                <div class="content-bloc u-hidden" id="product-logo-preview">
-                                    <div class="content-line">
-                                        <div class="content-line-photo">
-                                            <img id="product-logo-preview-img" src="" alt="" show>
-                                        </div>
-                                        <div class="content-line-info">
-                                            <span class="content-line-name" id="product-logo-filename"></span>
-                                            <span class="content-line-label" id="product-logo-filesize"></span>
-                                        </div>
-                                        <span class="tag c-tertiary" id="product-logo-format"></span>
-                                        <button type="button" class="btn-icon ci-remove" id="btn-remove-product-logo"
-                                            data-tooltip="Видалити">
-                                            <span class="material-symbols-outlined">close</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Склад UA -->
-                            <div class="group column col-4">
-                                <label for="product-composition-ua" class="label-l">Склад UA</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <textarea id="product-composition-ua" rows="3"
-                                                placeholder="Склад товару українською..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Склад RU -->
-                            <div class="group column col-4">
-                                <label for="product-composition-ru" class="label-l">Склад RU</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <textarea id="product-composition-ru" rows="3"
-                                                placeholder="Склад товару російською..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
+                                <label class="label-s">Визначає набір характеристик товару</label>
                             </div>
                         </div>
-
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 2: ХАРАКТЕРИСТИКИ -->
+                <!-- СЕКЦІЯ: ФОТО -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-product-characteristics">
+                <section id="section-product-photos">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Характеристики</h2>
+                                <h2 class="section-upper">Фото</h2>
                             </div>
-                            <span class="body-s">Характеристики залежать від обраної категорії</span>
+                            <span class="body-s">До 10 зображень товару</span>
+                        </div>
+                        <div class="group">
+                            <button class="btn-icon" id="btn-add-product-photo" aria-label="Додати фото">
+                                <span class="material-symbols-outlined">add_photo_alternate</span>
+                            </button>
                         </div>
                     </div>
 
                     <div class="section-content">
-                        <div id="product-characteristics-container">
-                            <!-- Динамічно заповнюється через JS на основі категорії -->
+                        <div id="product-photos-grid" class="grid">
+                            <!-- Динамічно: грід карток з фото -->
                         </div>
-                        <div id="product-characteristics-empty"></div>
+                        <div id="product-photos-empty"></div>
+                        <input type="file" id="product-photo-file-input" accept="image/*" multiple hidden>
+                        <input type="hidden" id="product-image-url">
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 3: ВАРІАНТИ -->
+                <!-- СЕКЦІЯ: ВАРІАНТИ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-product-variants">
                     <div class="section-header">
@@ -255,12 +199,97 @@
 
                     <div id="product-variants-container" class="pseudo-table-container"
                          pagination columns search="Пошук варіантів...">
-                        <!-- Динамічний список варіантів додається через JS -->
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 4: SEO -->
+                <!-- СЕКЦІЯ: СКЛАД -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-product-composition">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Склад</h2>
+                            </div>
+                            <span class="body-s">Склад продукту</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <!-- Склад (двомовний блок) -->
+                            <div class="group column col-6">
+                                <label class="label-l">Склад</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <textarea id="product-composition-ua" rows="4"
+                                                    placeholder="Склад товару українською..."></textarea>
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <textarea id="product-composition-ru" rows="4"
+                                                    placeholder="Склад товару російською..."></textarea>
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ОПИС (обидва редактори в одній секції) -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-product-description">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Опис</h2>
+                            </div>
+                            <span class="body-s">Детальний опис товару</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l">Опис UA</label>
+                                <div id="product-text-ua-editor-container" class="section-content-full-height"
+                                     editor tools code stats cleanup-links="allow"
+                                     data-placeholder="Введіть опис товару українською..."
+                                     data-min-height="300">
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Опис RU</label>
+                                <div id="product-text-ru-editor-container" class="section-content-full-height"
+                                     editor tools code stats cleanup-links="allow"
+                                     data-placeholder="Введіть опис товару російською..."
+                                     data-min-height="300">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- ДИНАМІЧНІ СЕКЦІЇ ХАРАКТЕРИСТИК -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <div id="product-characteristics-sections">
+                    <!-- Заповнюється динамічно через JS на основі категорії -->
+                </div>
+                <div id="product-characteristics-empty"></div>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: SEO -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-product-seo">
                     <div class="section-header">
@@ -274,128 +303,81 @@
 
                     <div class="section-content">
                         <div class="grid">
-                            <!-- SEO Title UA -->
+                            <!-- SEO Title (двомовний) -->
                             <div class="group column col-6">
-                                <label for="product-seo-title-ua" class="label-l">SEO Title UA</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-seo-title-ua"
-                                                placeholder="SEO заголовок українською">
-                                            <span class="tag c-main">UA</span>
+                                <label class="label-l">SEO Title</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-seo-title-ua"
+                                                    placeholder="SEO заголовок українською">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-seo-title-ru"
+                                                    placeholder="SEO заголовок російською">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SEO Title RU -->
+                            <!-- SEO Description (двомовний) -->
                             <div class="group column col-6">
-                                <label for="product-seo-title-ru" class="label-l">SEO Title RU</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-seo-title-ru"
-                                                placeholder="SEO заголовок російською">
-                                            <span class="tag c-tertiary">RU</span>
+                                <label class="label-l">SEO Description</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <textarea id="product-seo-desc-ua" rows="3"
+                                                    placeholder="Мета-опис українською..."></textarea>
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <textarea id="product-seo-desc-ru" rows="3"
+                                                    placeholder="Мета-опис російською..."></textarea>
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- SEO Description UA -->
+                            <!-- SEO Keywords (двомовний) -->
                             <div class="group column col-6">
-                                <label for="product-seo-desc-ua" class="label-l">SEO Description UA</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <textarea id="product-seo-desc-ua" rows="3"
-                                                placeholder="Мета-опис українською..."></textarea>
+                                <label class="label-l">SEO Keywords</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-seo-keywords-ua"
+                                                    placeholder="Ключові слова через кому">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- SEO Description RU -->
-                            <div class="group column col-6">
-                                <label for="product-seo-desc-ru" class="label-l">SEO Description RU</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <textarea id="product-seo-desc-ru" rows="3"
-                                                placeholder="Мета-опис російською..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- SEO Keywords UA -->
-                            <div class="group column col-6">
-                                <label for="product-seo-keywords-ua" class="label-l">SEO Keywords UA</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-seo-keywords-ua"
-                                                placeholder="Ключові слова через кому">
-                                            <span class="tag c-main">UA</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- SEO Keywords RU -->
-                            <div class="group column col-6">
-                                <label for="product-seo-keywords-ru" class="label-l">SEO Keywords RU</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-seo-keywords-ru"
-                                                placeholder="Ключевые слова через запятую">
-                                            <span class="tag c-tertiary">RU</span>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-seo-keywords-ru"
+                                                    placeholder="Ключевые слова через запятую">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 5: ТЕКСТ UA -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-product-text-ua">
-                    <div class="section-header">
-                        <div class="section-name-block">
-                            <div class="section-name">
-                                <h2 class="section-upper">Текст UA</h2>
-                            </div>
-                            <span class="body-s">Опис товару українською</span>
-                        </div>
-                    </div>
-
-                    <div id="product-text-ua-editor-container" class="section-content-full-height"
-                         editor tools code stats cleanup-links="allow"
-                         data-placeholder="Введіть опис товару українською..."
-                         data-min-height="300">
-                    </div>
-                </section>
-
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ 6: ТЕКСТ RU -->
-                <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-product-text-ru">
-                    <div class="section-header">
-                        <div class="section-name-block">
-                            <div class="section-name">
-                                <h2 class="section-upper">Текст RU</h2>
-                            </div>
-                            <span class="body-s">Опис товару російською</span>
-                        </div>
-                    </div>
-
-                    <div id="product-text-ru-editor-container" class="section-content-full-height"
-                         editor tools code stats cleanup-links="allow"
-                         data-placeholder="Введіть опис товару російською..."
-                         data-min-height="300">
                     </div>
                 </section>
 

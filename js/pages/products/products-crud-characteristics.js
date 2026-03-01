@@ -7,7 +7,18 @@
  *
  * Секція характеристик у модалі товару.
  * Завантажує характеристики з маппера за обраною категорією,
- * групує по block_number, рендерить поля за типом.
+ * групує по block_number, рендерить КОЖЕН блок як окрему <section>.
+ *
+ * Типи полів (з маппера):
+ *   TextInput → input[text]
+ *   MultiText → input[text] (comma-separated)
+ *   Integer   → input[number] step=1
+ *   Decimal   → input[number] step=0.01
+ *   TextArea  → textarea
+ *   List      → select (з options)
+ *   ComboBox  → select (з options)
+ *   ListValues→ select (з options)
+ *   CheckBoxGroup → група switch-ів (кожна option = switch)
  */
 
 import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from '../mapper/mapper-data-own.js';
@@ -16,19 +27,28 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// BLOCK NAMES
+// BLOCK NAMES (з маппера — mapper-characteristic-edit.html:128-139)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const BLOCK_NAMES = {
-    '1': 'Загальні',
-    '2': 'Склад та форма',
-    '3': 'Дозування',
-    '4': 'Додатково',
-    '5': 'Упаковка',
-    '6': 'Застосування',
-    '7': 'Попередження',
-    '8': 'Варіанти',
+export const BLOCK_NAMES = {
+    '1': 'Скільки там?',
+    '2': 'Який він?',
+    '3': 'Кому це?',
+    '4': 'Навіщо це?',
+    '5': 'Звідки це?',
+    '6': 'Куди відправляти?',
+    '8': 'Варіант',
     '9': 'Інше',
+};
+
+const BLOCK_ICONS = {
+    '1': 'scale',
+    '2': 'category',
+    '3': 'group',
+    '4': 'target',
+    '5': 'public',
+    '6': 'local_shipping',
+    '9': 'more_horiz',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -36,14 +56,17 @@ const BLOCK_NAMES = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Рендерити характеристики для обраної категорії
+ * Рендерити характеристики для обраної категорії.
+ * Кожен блок = окрема <section id="section-product-block-{N}">
+ *
  * @param {string} categoryId - ID категорії
  * @param {Object} savedValues - Збережені значення характеристик { char_id: value }
+ * @returns {string[]} Масив номерів блоків що були відрендерені (для sidebar nav)
  */
 export async function renderCharacteristicsForCategory(categoryId, savedValues = {}) {
-    const container = document.getElementById('product-characteristics-container');
+    const container = document.getElementById('product-characteristics-sections');
     const emptyState = document.getElementById('product-characteristics-empty');
-    if (!container) return;
+    if (!container) return [];
 
     if (!categoryId) {
         container.innerHTML = '';
@@ -58,7 +81,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
             });
             emptyState.classList.remove('u-hidden');
         }
-        return;
+        return [];
     }
 
     // Завантажити дані якщо ще не завантажені
@@ -94,7 +117,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
             });
             emptyState.classList.remove('u-hidden');
         }
-        return;
+        return [];
     }
 
     if (emptyState) emptyState.classList.add('u-hidden');
@@ -108,7 +131,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
 
     const blocks = {};
     relevant.forEach(c => {
-        // Блок 8 (Варіанти) — пропускаємо, це для variant_chars
+        // Блок 8 (Варіант) — пропускаємо, це для variant_chars
         if (c.block_number === '8') return;
 
         const blockNum = c.block_number || '9';
@@ -116,23 +139,26 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
         blocks[blockNum].push(c);
     });
 
-    // Рендер
+    // Рендер — кожен блок як окрема <section>
     let html = '';
+    const renderedBlocks = [];
 
     Object.keys(blocks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(blockNum => {
         const blockChars = blocks[blockNum];
         const blockName = BLOCK_NAMES[blockNum] || `Блок ${blockNum}`;
+        renderedBlocks.push(blockNum);
 
         html += `
-            <div class="section-header">
-                <div class="section-name-block">
-                    <div class="section-name">
-                        <h2 class="body-l">${escapeHtml(blockName)}</h2>
+            <section id="section-product-block-${blockNum}">
+                <div class="section-header">
+                    <div class="section-name-block">
+                        <div class="section-name">
+                            <h2 class="section-upper">${escapeHtml(blockName)}</h2>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="section-content">
-                <div class="grid">
+                <div class="section-content">
+                    <div class="grid">
         `;
 
         blockChars.forEach(c => {
@@ -146,19 +172,23 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
         });
 
         html += `
+                    </div>
                 </div>
-            </div>
+            </section>
         `;
     });
 
     container.innerHTML = html;
 
-    // Прив'язати getCharacteristicsData до контейнера
-    container._getCharacteristicsData = () => getCharacteristicsData();
-
     // Ініціалізувати custom selects
     initCustomSelects(container);
+
+    return renderedBlocks;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FIELD RENDERING — ALL 9 TYPES
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Рендерити поле характеристики за типом
@@ -166,12 +196,16 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
 function renderCharField(char, options, savedValue, colSize) {
     const id = `product-char-${char.id}`;
     const label = escapeHtml(char.name_ua || char.id);
-    const hint = char.hint ? `<span class="body-s">${escapeHtml(char.hint)}</span>` : '';
+    const hint = char.hint ? `<label class="label-s">${escapeHtml(char.hint)}</label>` : '';
     const unit = char.unit ? `<span class="tag c-tertiary">${escapeHtml(char.unit)}</span>` : '';
 
     let fieldHtml = '';
 
     switch (char.type) {
+        // ── Типи з options (select) ──────────────────────────────────────
+        case 'List':
+        case 'ComboBox':
+        case 'ListValues':
         case 'Select':
             fieldHtml = `
                 <select id="${id}" data-custom-select data-char-id="${char.id}">
@@ -181,6 +215,27 @@ function renderCharField(char, options, savedValue, colSize) {
             `;
             break;
 
+        // ── Група чекбоксів (кожна option = switch) ─────────────────────
+        case 'CheckBoxGroup': {
+            const savedArr = parseSavedArray(savedValue);
+            fieldHtml = `<div class="group column" data-char-id="${char.id}" data-char-type="checkboxgroup">`;
+            options.forEach(o => {
+                const optId = `${id}-opt-${o.id}`;
+                const isChecked = savedArr.includes(o.id);
+                fieldHtml += `
+                    <div class="switch switch-fit">
+                        <input type="radio" id="${optId}-no" name="${optId}" value="" ${!isChecked ? 'checked' : ''}>
+                        <label for="${optId}-no" class="switch-label">Ні</label>
+                        <input type="radio" id="${optId}-yes" name="${optId}" value="${escapeHtml(o.id)}" ${isChecked ? 'checked' : ''}>
+                        <label for="${optId}-yes" class="switch-label">${escapeHtml(o.value_ua || o.id)}</label>
+                    </div>
+                `;
+            });
+            fieldHtml += `</div>`;
+            break;
+        }
+
+        // ── Checkbox (bool — Так/Ні) ────────────────────────────────────
         case 'Checkbox':
             fieldHtml = `
                 <div class="switch switch-fit" data-char-id="${char.id}">
@@ -192,7 +247,55 @@ function renderCharField(char, options, savedValue, colSize) {
             `;
             break;
 
+        // ── Integer ─────────────────────────────────────────────────────
+        case 'Integer':
+            fieldHtml = `
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="number" step="1" id="${id}" data-char-id="${char.id}"
+                                value="${escapeHtml(savedValue)}"
+                                placeholder="${escapeHtml(char.name_ua || '')}">
+                            ${unit}
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        // ── Decimal ─────────────────────────────────────────────────────
+        case 'Decimal':
+            fieldHtml = `
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="number" step="0.01" id="${id}" data-char-id="${char.id}"
+                                value="${escapeHtml(savedValue)}"
+                                placeholder="${escapeHtml(char.name_ua || '')}">
+                            ${unit}
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        // ── TextArea ────────────────────────────────────────────────────
+        case 'TextArea':
+            fieldHtml = `
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <textarea id="${id}" data-char-id="${char.id}" rows="3"
+                                placeholder="${escapeHtml(char.name_ua || '')}">${escapeHtml(savedValue)}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        // ── TextInput / MultiText / default ─────────────────────────────
         case 'TextInput':
+        case 'MultiText':
         default:
             fieldHtml = `
                 <div class="content-bloc">
@@ -212,10 +315,30 @@ function renderCharField(char, options, savedValue, colSize) {
     return `
         <div class="group column col-${colSize}">
             <label for="${id}" class="label-l">${label}</label>
-            ${hint}
             ${fieldHtml}
+            ${hint}
         </div>
     `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Парсити збережене значення як масив (для CheckBoxGroup)
+ */
+function parseSavedArray(val) {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+        try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) return parsed;
+        } catch { /* ignore */ }
+        return val.split(',').map(v => v.trim()).filter(Boolean);
+    }
+    return [];
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -227,30 +350,47 @@ function renderCharField(char, options, savedValue, colSize) {
  * @returns {Object} { char_id: value }
  */
 export function getCharacteristicsData() {
-    const container = document.getElementById('product-characteristics-container');
+    const container = document.getElementById('product-characteristics-sections');
     if (!container) return {};
 
     const data = {};
 
-    // TextInput fields
+    // TextInput / Integer / Decimal / MultiText fields
     container.querySelectorAll('input[data-char-id]').forEach(input => {
         const charId = input.dataset.charId;
         const val = input.value.trim();
         if (val) data[charId] = val;
     });
 
-    // Select fields
+    // TextArea fields
+    container.querySelectorAll('textarea[data-char-id]').forEach(textarea => {
+        const charId = textarea.dataset.charId;
+        const val = textarea.value.trim();
+        if (val) data[charId] = val;
+    });
+
+    // Select fields (List, ComboBox, ListValues)
     container.querySelectorAll('select[data-char-id]').forEach(select => {
         const charId = select.dataset.charId;
         const val = select.value;
         if (val) data[charId] = val;
     });
 
-    // Checkbox (switch) fields
+    // Checkbox (switch) fields — single bool
     container.querySelectorAll('.switch[data-char-id]').forEach(switchEl => {
         const charId = switchEl.dataset.charId;
         const checked = switchEl.querySelector('input:checked');
         if (checked && checked.value) data[charId] = checked.value;
+    });
+
+    // CheckBoxGroup — multiple selected options → JSON array
+    container.querySelectorAll('[data-char-type="checkboxgroup"]').forEach(groupEl => {
+        const charId = groupEl.dataset.charId;
+        const selected = [];
+        groupEl.querySelectorAll('.switch input[type="radio"]:checked').forEach(radio => {
+            if (radio.value) selected.push(radio.value);
+        });
+        if (selected.length > 0) data[charId] = JSON.stringify(selected);
     });
 
     return data;

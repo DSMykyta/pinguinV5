@@ -17,9 +17,11 @@
  * ║  ├── products-crud.js           — Модал товару (open/fill/save)         ║
  * ║  ├── products-crud-characteristics.js — Характеристики                  ║
  * ║  ├── products-crud-variants.js  — Варіанти в модалі                     ║
- * ║  ├── products-crud-logo.js      — Зображення товару                     ║
+ * ║  ├── products-crud-photos.js    — Фото товару (до 10, Google Drive)     ║
  * ║  ├── products-delete.js         — Delete товару (confirm + API)         ║
- * ║  └── products-events.js         — Обробники подій (refresh)             ║
+ * ║  ├── products-events.js         — Обробники подій (refresh)             ║
+ * ║  ├── variants-table.js          — Таблиця варіантів (сторінка)          ║
+ * ║  └── variants-events.js         — Обробники подій варіантів             ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -42,6 +44,8 @@ const PLUGINS = [
     './products-table.js',
     './products-crud.js',
     './products-events.js',
+    './variants-table.js',
+    './variants-events.js',
 ];
 
 /**
@@ -75,6 +79,9 @@ export async function initProducts() {
 
     // Завантажити плагіни
     await loadPlugins();
+
+    // Ініціалізувати перемикання табів
+    initTabSwitching();
 
     // Перевірити авторизацію та завантажити дані
     await checkAuthAndLoadData();
@@ -129,6 +136,62 @@ async function checkAuthAndLoadData() {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Ініціалізувати перемикання табів
+ */
+function initTabSwitching() {
+    const tabButtons = document.querySelectorAll('[data-tab-target]');
+    const tabContents = document.querySelectorAll('[data-tab-content]');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.dataset.tabTarget;
+
+            // Оновити активну кнопку
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Оновити видимий контент
+            tabContents.forEach(content => {
+                if (content.dataset.tabContent === targetTab) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            // Оновити стан
+            const tabName = targetTab.replace('tab-', '');
+            productsState.activeTab = tabName;
+
+            // Charm pagination — deactivate/activate при tab switch
+            const productsContainer = document.getElementById('products-table-container');
+            const variantsContainer = document.getElementById('variants-table-container');
+
+            if (tabName === 'variants') {
+                productsContainer?._paginationCharm?.deactivate();
+                variantsContainer?._paginationCharm?.activate();
+
+                // Lazy init — рендерити таблицю варіантів при першому перемиканні
+                import('./variants-table.js').then(({ renderVariantsTable }) => {
+                    renderVariantsTable();
+                }).catch(() => {});
+            } else {
+                variantsContainer?._paginationCharm?.deactivate();
+                productsContainer?._paginationCharm?.activate();
+            }
+
+            // Запустити хук
+            runHook('onTabChange', tabName);
+            runHook('onRender');
+        });
+    });
+}
+
 /**
  * Відрендерити стан "Потрібна авторизація"
  */
@@ -180,6 +243,9 @@ registerAsideInitializer('aside-products', () => {
         if (item.id === 'btn-add-product-aside') {
             const { showAddProductModal } = await import('./products-crud.js');
             showAddProductModal();
+        } else if (item.id === 'btn-wizard-product-aside') {
+            const { showProductWizard } = await import('./products-wizard.js');
+            showProductWizard();
         }
     });
 

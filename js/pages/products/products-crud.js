@@ -10,7 +10,7 @@
  * Секції модала винесені в окремі файли:
  *   products-crud-characteristics.js — характеристики (за категорією)
  *   products-crud-variants.js        — варіанти товару
- *   products-crud-logo.js            — зображення товару
+ *   products-crud-photos.js          — фото товару
  *   products-delete.js               — видалення товару
  */
 
@@ -88,15 +88,26 @@ export async function showEditProductModal(productId) {
     await initModalComponents();
     fillProductForm(product);
 
-    // Завантажити характеристики і варіанти
+    // Завантажити характеристики
     try {
         const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
-        renderCharacteristicsForCategory(product.category_id, product.characteristics);
+        const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
+        updateCharacteristicsNav(blocks);
+        reinitSectionObserver();
     } catch { /* ignore if not loaded */ }
 
+    // Завантажити варіанти
     try {
         const { populateProductVariants } = await import('./products-crud-variants.js');
         populateProductVariants(productId);
+    } catch { /* ignore if not loaded */ }
+
+    // Завантажити фото
+    try {
+        const { initPhotoSection, setPhotoUrls } = await import('./products-crud-photos.js');
+        initPhotoSection();
+        const urls = safeJsonParseArray(product.image_url);
+        setPhotoUrls(urls);
     } catch { /* ignore if not loaded */ }
 
     runHook('onModalOpen', product);
@@ -117,8 +128,8 @@ async function initModalComponents() {
     initBrandChangeHandler();
 
     try {
-        const { initLogoHandlers } = await import('./products-crud-logo.js');
-        initLogoHandlers();
+        const { initPhotoSection } = await import('./products-crud-photos.js');
+        initPhotoSection();
     } catch { /* ignore */ }
 
     try {
@@ -209,7 +220,9 @@ function initCategoryChangeHandler() {
     catSelect.addEventListener('change', async () => {
         try {
             const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
-            renderCharacteristicsForCategory(catSelect.value, {});
+            const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
+            updateCharacteristicsNav(blocks);
+            reinitSectionObserver();
         } catch { /* ignore */ }
     });
 
@@ -269,6 +282,10 @@ function initSaveHandler() {
     if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveProduct(true);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION NAVIGATION — фіксовані + динамічні
+// ═══════════════════════════════════════════════════════════════════════════
+
 /**
  * Ініціалізувати навігацію по секціях
  */
@@ -277,30 +294,77 @@ function initSectionNavigation() {
     const contentArea = document.querySelector('.modal-fullscreen-content');
     if (!nav || !contentArea) return;
 
-    const navLinks = nav.querySelectorAll('.btn-icon.expand.touch');
-    const sections = contentArea.querySelectorAll('section[id]');
+    // Делегований обробник кліків на навігації
+    if (!nav.dataset.navInited) {
+        nav.addEventListener('click', (e) => {
+            const link = e.target.closest('a.btn-icon.expand.touch');
+            if (!link) return;
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
             e.preventDefault();
-            navLinks.forEach(l => l.classList.remove('active'));
+            nav.querySelectorAll('a.btn-icon.expand.touch').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
 
-            const targetId = link.getAttribute('href').substring(1);
+            const targetId = link.getAttribute('href')?.substring(1);
             const target = document.getElementById(targetId);
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
-    });
+        nav.dataset.navInited = '1';
+    }
+
+    reinitSectionObserver();
+}
+
+/**
+ * Оновити sidebar nav — додати/видалити посилання на блоки характеристик
+ * @param {string[]} blockNumbers - масив номерів блоків
+ */
+function updateCharacteristicsNav(blockNumbers) {
+    const navContainer = document.getElementById('product-nav-characteristics');
+    if (!navContainer) return;
+
+    // Імпортуємо назви блоків
+    import('./products-crud-characteristics.js').then(({ BLOCK_NAMES }) => {
+        const icons = {
+            '1': 'scale', '2': 'category', '3': 'group',
+            '4': 'target', '5': 'public', '6': 'local_shipping', '9': 'more_horiz',
+        };
+
+        let html = '';
+        (blockNumbers || []).forEach(blockNum => {
+            const name = BLOCK_NAMES[blockNum] || `Блок ${blockNum}`;
+            const icon = icons[blockNum] || 'tune';
+            html += `
+                <a href="#section-product-block-${blockNum}" class="btn-icon expand touch" aria-label="${name}">
+                    <span class="material-symbols-outlined">${icon}</span>
+                    <span class="btn-icon-label">${name}</span>
+                </a>
+            `;
+        });
+
+        navContainer.innerHTML = html;
+    }).catch(() => {});
+}
+
+/**
+ * Re-init IntersectionObserver для всіх секцій (фіксованих + динамічних)
+ */
+function reinitSectionObserver() {
+    const nav = document.getElementById('product-section-navigator');
+    const contentArea = document.querySelector('.modal-fullscreen-content');
+    if (!nav || !contentArea) return;
+
+    if (_sectionObserver) _sectionObserver.disconnect();
+
+    const navLinks = nav.querySelectorAll('a.btn-icon.expand.touch');
+    const sections = contentArea.querySelectorAll('section[id]');
 
     const observerOptions = {
         root: contentArea,
         rootMargin: '-20% 0px -70% 0px',
         threshold: 0
     };
-
-    if (_sectionObserver) _sectionObserver.disconnect();
 
     _sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -326,12 +390,52 @@ function initSectionNavigation() {
 function getProductFormData() {
     let characteristics = {};
     try {
-        // Lazy import — може бути не завантажено
-        const charsContainer = document.getElementById('product-characteristics-container');
-        if (charsContainer && charsContainer._getCharacteristicsData) {
-            characteristics = charsContainer._getCharacteristicsData();
+        // Збираємо характеристики напряму з DOM (синхронно)
+        const container = document.getElementById('product-characteristics-sections');
+        if (container) {
+            // Text / number inputs
+            container.querySelectorAll('input[data-char-id]').forEach(input => {
+                const val = input.value.trim();
+                if (val) characteristics[input.dataset.charId] = val;
+            });
+            // TextArea
+            container.querySelectorAll('textarea[data-char-id]').forEach(textarea => {
+                const val = textarea.value.trim();
+                if (val) characteristics[textarea.dataset.charId] = val;
+            });
+            // Select
+            container.querySelectorAll('select[data-char-id]').forEach(select => {
+                if (select.value) characteristics[select.dataset.charId] = select.value;
+            });
+            // Checkbox (switch)
+            container.querySelectorAll('.switch[data-char-id]').forEach(switchEl => {
+                const checked = switchEl.querySelector('input:checked');
+                if (checked?.value) characteristics[switchEl.dataset.charId] = checked.value;
+            });
+            // CheckBoxGroup
+            container.querySelectorAll('[data-char-type="checkboxgroup"]').forEach(groupEl => {
+                const selected = [];
+                groupEl.querySelectorAll('.switch input[type="radio"]:checked').forEach(radio => {
+                    if (radio.value) selected.push(radio.value);
+                });
+                if (selected.length > 0) characteristics[groupEl.dataset.charId] = JSON.stringify(selected);
+            });
         }
     } catch { /* ignore */ }
+
+    // Фото — JSON array
+    let imageUrl = '';
+    try {
+        const photosGrid = document.getElementById('product-photos-grid');
+        if (photosGrid && photosGrid._getPhotoUrls) {
+            const urls = photosGrid._getPhotoUrls();
+            imageUrl = urls.length > 0 ? JSON.stringify(urls) : '';
+        } else {
+            imageUrl = document.getElementById('product-image-url')?.value.trim() || '';
+        }
+    } catch {
+        imageUrl = document.getElementById('product-image-url')?.value.trim() || '';
+    }
 
     return {
         name_ua: document.getElementById('product-name-ua')?.value.trim() || '',
@@ -344,7 +448,7 @@ function getProductFormData() {
         product_text_ua: textEditorUa ? textEditorUa.getValue() : '',
         product_text_ru: textEditorRu ? textEditorRu.getValue() : '',
         characteristics,
-        image_url: document.getElementById('product-image-url')?.value.trim() || '',
+        image_url: imageUrl,
         seo_title_ua: document.getElementById('product-seo-title-ua')?.value.trim() || '',
         seo_title_ru: document.getElementById('product-seo-title-ru')?.value.trim() || '',
         seo_description_ua: document.getElementById('product-seo-desc-ua')?.value.trim() || '',
@@ -437,20 +541,9 @@ function fillProductForm(product) {
     const seoKeywordsRu = document.getElementById('product-seo-keywords-ru');
     if (seoKeywordsRu) seoKeywordsRu.value = product.seo_keywords_ru || '';
 
-    // Зображення
+    // Зображення (hidden field для backward compat)
     const imageUrlField = document.getElementById('product-image-url');
     if (imageUrlField) imageUrlField.value = product.image_url || '';
-
-    if (product.image_url) {
-        import('./products-crud-logo.js').then(({ setLogoPreview, normalizeName }) => {
-            const logoFileName = `${normalizeName(product.name_ua || 'product')}.webp`;
-            setLogoPreview(product.image_url, logoFileName);
-        }).catch(() => {});
-    } else {
-        import('./products-crud-logo.js').then(({ handleRemoveLogo }) => {
-            handleRemoveLogo();
-        }).catch(() => {});
-    }
 
     // Тексти
     if (textEditorUa) textEditorUa.setValue(product.product_text_ua || '');
@@ -500,15 +593,40 @@ function clearProductForm() {
     if (textEditorUa) textEditorUa.setValue('');
     if (textEditorRu) textEditorRu.setValue('');
 
-    const charsContainer = document.getElementById('product-characteristics-container');
-    if (charsContainer) charsContainer.innerHTML = '';
+    // Очистити характеристики
+    const charsSections = document.getElementById('product-characteristics-sections');
+    if (charsSections) charsSections.innerHTML = '';
 
     const charsEmpty = document.getElementById('product-characteristics-empty');
     if (charsEmpty) charsEmpty.classList.remove('u-hidden');
 
-    import('./products-crud-logo.js').then(({ handleRemoveLogo }) => {
-        handleRemoveLogo();
-    }).catch(() => {});
+    // Очистити nav характеристик
+    updateCharacteristicsNav([]);
+
+    // Очистити фото
+    try {
+        import('./products-crud-photos.js').then(({ clearPhotos }) => {
+            clearPhotos();
+        }).catch(() => {});
+    } catch { /* ignore */ }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function safeJsonParseArray(val) {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed.startsWith('[')) {
+            try { return JSON.parse(trimmed); } catch { /* ignore */ }
+        }
+        // Одне URL — як масив з одного елемента
+        if (trimmed.startsWith('http')) return [trimmed];
+    }
+    return [];
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -535,6 +653,7 @@ async function handleSaveProduct(shouldClose = true) {
             runHook('onProductUpdate', currentProductId, productData);
         } else {
             const newProduct = await addProduct(productData);
+            currentProductId = newProduct?.product_id || null;
             showToast('Товар успішно додано', 'success');
             runHook('onProductAdd', newProduct);
         }
