@@ -5,7 +5,7 @@
  * ║                    BRANDS CRUD — ПОСИЛАННЯ                              ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 Секція посилань у модалі бренду.
+ * Секція посилань у модалі бренду.
  */
 
 import { escapeHtml } from '../../utils/text-utils.js';
@@ -75,7 +75,7 @@ function addLinkRow(link = { name: '', url: '' }) {
         const linkName = row.querySelector('input[type="text"]').value.trim() || 'це посилання';
         const confirmed = await showConfirmModal({
             title: 'Видалити посилання?',
-            message: `Ви впевнені, що хочете видалити "${linkName}"?`,
+            message: `Ви впевнені, що хочете видалити <span class="tag c-red">${escapeHtml(linkName)}</span>?`,
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });

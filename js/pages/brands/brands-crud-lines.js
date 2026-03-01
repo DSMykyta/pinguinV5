@@ -5,8 +5,8 @@
  * ║                    BRANDS CRUD — ЛІНІЙКИ В МОДАЛІ                       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 Таблиця лінійок всередині модала бренду.
- *    НЕ плутати з lines-table.js (таблиця на сторінці).
+ * Таблиця лінійок всередині модала бренду.
+ * НЕ плутати з lines-table.js (таблиця на сторінці).
  */
 
 import { getBrandLinesByBrandId, updateBrandLine } from './lines-data.js';
@@ -91,9 +91,9 @@ export function populateBrandLines(brandId) {
             const lineName = line?.name_uk || rowId;
 
             const confirmed = await showConfirmModal({
-                title: 'Відв\'язати лінійку?',
-                message: `Ви впевнені, що хочете відв'язати лінійку "${lineName}" від цього бренду?`,
-                confirmText: 'Відв\'язати',
+                title: 'Від\'язати лінійку?',
+                message: `Ви впевнені, що хочете від'язати лінійку <span class="tag c-red">${lineName}</span> від цього бренду?`,
+                confirmText: 'Від\'язати',
                 cancelText: 'Скасувати',
             });
 
@@ -103,7 +103,7 @@ export function populateBrandLines(brandId) {
                     showToast('Лінійку відв\'язано від бренду', 'success');
                     populateBrandLines(brandId);
                 } catch (error) {
-                    console.error('❌ Помилка відв\'язування лінійки:', error);
+                    console.error('Помилка відв\'язування лінійки:', error);
                     showToast('Помилка відв\'язування лінійки', 'error');
                 }
             }

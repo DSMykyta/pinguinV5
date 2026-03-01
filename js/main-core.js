@@ -15,6 +15,7 @@ import { initAvatarSystem }     from './components/avatar/avatar-main.js';
 import { initEventHandlers }    from './utils/event-handlers.js';
 import { initCustomAuth }       from './auth/auth-google.js';
 import { initTooltips }         from './components/feedback/tooltip.js';
+import { initImageShow }       from './components/feedback/image-show.js';
 import { initTheme }            from './components/ui-theme.js';
 import { initSearchClearCharm } from './components/charms/charm-search-clear.js';
 import { initMorphSearchCharm } from './components/charms/charm-morph-search.js';
@@ -38,6 +39,7 @@ export async function initCore() {
     initEventHandlers();
     initCustomAuth();
     initTooltips();
+    initImageShow();
     initSearchClearCharm();
     initMorphSearchCharm();
     initSearchCharm();

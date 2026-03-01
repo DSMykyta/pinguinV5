@@ -2,19 +2,15 @@
 
 /*
 ╔══════════════════════════════════════════════════════════════════════════╗
-║  🔌 ПЛАГІН — ДІАЛОГИ ПІДТВЕРДЖЕННЯ                                      ║
+║  ПЛАГІН — ДІАЛОГИ ПІДТВЕРДЖЕННЯ                                        ║
 ╠══════════════════════════════════════════════════════════════════════════╣
 ║                                                                          ║
 ║  Promise-based confirm діалоги з аватарами.                              ║
-║  ├── showConfirmModal(options) — загальний діалог                        ║
-║  ├── showDeleteConfirm(options) — видалення                              ║
-║  ├── showResetConfirm(options) — скидання                                ║
-║  └── showCloseConfirm(options) — закриття без збереження                 ║
+║  ├── showConfirmModal(options) — простий діалог (modal-confirm)         ║
+║  └── showCascadeConfirm(options) — каскадний діалог (confirm-cascade)  ║
 ║                                                                          ║
-║  🎯 Функції викликаються напряму, init() — noop.                        ║
-║                                                                          ║
-║  Кнопки: cancel = btn-ghost, confirm = danger (з HTML шаблону).          ║
-║  JS змінює тільки текст кнопок, заголовок, повідомлення та аватар.       ║
+║  Сторінки передають тексти і дані, плагін керує UI.                    ║
+║  title/message підтримують HTML (innerHTML).                           ║
 ║                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 */
@@ -23,25 +19,21 @@ import { showModal, closeModal } from './modal-core.js';
 import { renderAvatarState } from '../avatar/avatar-ui-states.js';
 import { initCustomSelects } from '../forms/select.js';
 
-/**
- * Плагін init — noop (confirm не потребує глобальної ініціалізації)
- */
 export function init() {}
 
-const DEFAULT_AVATAR_STATE = 'confirmClose';
 
+// ══════════════════════════════════════════════════════════════════════════
+// showConfirmModal — простий діалог підтвердження
+// ══════════════════════════════════════════════════════════════════════════
 
 /**
- * Показати діалог підтвердження
- *
  * @param {Object} options
- * @param {string} options.title — заголовок
- * @param {string} options.message — текст повідомлення (підтримує HTML)
- * @param {string[]} options.details — масив каскадних наслідків (опціонально)
+ * @param {string} options.title — заголовок (HTML)
+ * @param {string} options.message — повідомлення (HTML)
+ * @param {string[]} options.details — каскадні наслідки (опціонально)
  * @param {string} options.confirmText — текст кнопки підтвердження
  * @param {string} options.cancelText — текст кнопки скасування
- * @param {string|false} options.avatarState — стан аватара або false
- * @param {string} options.avatarSize — 'sm' | 'md' | 'lg'
+ * @param {string|false} options.avatarState — стан аватара
  * @returns {Promise<boolean>}
  */
 export async function showConfirmModal(options = {}) {
@@ -51,41 +43,33 @@ export async function showConfirmModal(options = {}) {
         details = [],
         confirmText = 'Так',
         cancelText = 'Ні',
-        avatarState = DEFAULT_AVATAR_STATE,
-        avatarSize = 'lg',
+        avatarState = 'confirmDelete',
     } = options;
 
     return new Promise(async (resolve) => {
         let resolved = false;
 
-        const triggerElement = document.createElement('div');
-        triggerElement.dataset.modalSize = 'small';
-
-        await showModal('modal-confirm', triggerElement);
+        await showModal('modal-confirm');
 
         const modalEl = document.getElementById('modal-modal-confirm');
-        const modalTitle = modalEl?.querySelector('.modal-header h2');
-        const messageElement = document.getElementById('modal-confirm-message-text');
+        const titleEl = modalEl?.querySelector('.modal-header h2');
+        const messageEl = document.getElementById('modal-confirm-message-text');
         const avatarContainer = document.getElementById('modal-confirm-avatar-container');
         const cancelBtn = document.getElementById('modal-confirm-cancel-btn');
         const confirmBtn = document.getElementById('modal-confirm-confirm-btn');
 
-        if (modalTitle) modalTitle.textContent = title;
+        if (titleEl) titleEl.innerHTML = title;
 
-        // Повідомлення + каскадні деталі
         let fullMessage = message;
         if (Array.isArray(details) && details.length > 0) {
             const items = details.map(d => `<li>${d}</li>`).join('');
             fullMessage += `<ul class="confirm-details">${items}</ul>`;
-        } else if (typeof details === 'string' && details) {
-            fullMessage += details;
         }
-        if (messageElement) messageElement.innerHTML = fullMessage;
+        if (messageEl) messageEl.innerHTML = fullMessage;
 
-        // Аватар
         if (avatarContainer && avatarState !== false) {
             avatarContainer.innerHTML = renderAvatarState(avatarState, {
-                size: avatarSize,
+                size: 'lg',
                 containerClass: 'modal-confirm-avatar',
                 avatarClass: 'modal-confirm-avatar-image',
                 messageClass: 'modal-confirm-avatar-message',
@@ -96,26 +80,15 @@ export async function showConfirmModal(options = {}) {
         if (cancelBtn) cancelBtn.textContent = cancelText;
         if (confirmBtn) confirmBtn.textContent = confirmText;
 
-        // Обробник кліків
         const handleClick = (e) => {
             const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
-            if (action === 'confirm') {
-                e.stopPropagation();
-                e.preventDefault();
-                if (resolved) return;
-                resolved = true;
-                cleanup();
-                closeModal();
-                resolve(true);
-            } else if (action === 'cancel') {
-                e.stopPropagation();
-                e.preventDefault();
-                if (resolved) return;
-                resolved = true;
-                cleanup();
-                closeModal();
-                resolve(false);
-            }
+            if (!action || resolved) return;
+            e.stopPropagation();
+            e.preventDefault();
+            resolved = true;
+            cleanup();
+            closeModal();
+            resolve(action === 'confirm');
         };
 
         const handleModalClose = () => {
@@ -135,66 +108,25 @@ export async function showConfirmModal(options = {}) {
     });
 }
 
-/**
- * Shortcut: підтвердження видалення
- */
-export async function showDeleteConfirm(options = {}) {
-    const { itemName = '', title = null, message = null } = options;
-    return showConfirmModal({
-        title: title || `Видалити${itemName ? ` "${itemName}"` : ''}?`,
-        message: message || 'Ця дія незворотна. Ви впевнені?',
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
-        avatarState: 'confirmDelete',
-    });
-}
+
+// ══════════════════════════════════════════════════════════════════════════
+// showCascadeConfirm — каскадний діалог (switch + move)
+// ══════════════════════════════════════════════════════════════════════════
 
 /**
- * Shortcut: підтвердження скидання
- */
-export async function showResetConfirm(options = {}) {
-    const { title = 'Скинути зміни?', message = 'Всі незбережені зміни буде втрачено.' } = options;
-    return showConfirmModal({
-        title,
-        message,
-        confirmText: 'Скинути',
-        cancelText: 'Скасувати',
-        avatarState: 'confirmReset',
-    });
-}
-
-/**
- * Shortcut: підтвердження закриття
- */
-export async function showCloseConfirm(options = {}) {
-    const { title = 'Закрити без збереження?', message = 'Всі незбережені зміни буде втрачено.' } = options;
-    return showConfirmModal({
-        title,
-        message,
-        confirmText: 'Закрити',
-        cancelText: 'Залишити',
-        avatarState: 'confirmClose',
-    });
-}
-
-/**
- * Каскадне видалення — окремий шаблон confirm-cascade.html
- *
  * @param {Object} options
- * @param {string} options.title — заголовок
- * @param {string} options.message — текст повідомлення
- * @param {string[]} options.details — масив каскадних наслідків
- * @param {string} options.confirmText — текст кнопки
+ * @param {string} options.title — заголовок (HTML)
+ * @param {string} options.message — повідомлення (HTML)
+ * @param {string[]} options.details — каскадні наслідки (опціонально)
+ * @param {string} options.confirmText — текст кнопки підтвердження
  * @param {string} options.cancelText — текст кнопки скасування
  * @param {string|false} options.avatarState — стан аватара
- * @param {Object} [options.children] — секція дітей (каскад)
- * @param {number} options.children.count — кількість дітей
- * @param {string} options.children.countLabel — текст біля кількості (напр. "лінійок")
- * @param {string} options.children.checkboxLabel — текст чекбоксу
- * @param {string} options.children.moveLabel — лейбл селекта переносу
- * @param {Array<{value: string, text: string}>} options.children.moveOptions — варіанти переносу
- * @param {string} options.children.orphanLabel — лейбл-попередження про сиріт
- * @returns {Promise<false|{confirmed: true, deleteChildren: boolean, moveTargetId: string}>}
+ * @param {Object} options.children — конфіг дітей (switch + move)
+ * @param {string} options.children.switchLabel — лейбл свіча
+ * @param {string} options.children.moveLabel — лейбл селекту
+ * @param {Array<{value: string, text: string}>} options.children.moveOptions — опції селекту
+ * @param {string} options.children.orphanLabel — підказка під селектом
+ * @returns {Promise<false|{deleteChildren: boolean, moveTargetId: string}>}
  */
 export async function showCascadeConfirm(options = {}) {
     const {
@@ -205,28 +137,23 @@ export async function showCascadeConfirm(options = {}) {
         confirmText = 'Видалити',
         cancelText = 'Скасувати',
         avatarState = 'confirmDelete',
-        avatarSize = 'lg',
     } = options;
 
     return new Promise(async (resolve) => {
         let resolved = false;
 
-        const triggerElement = document.createElement('div');
-        triggerElement.dataset.modalSize = 'small';
+        await showModal('confirm-cascade');
 
-        await showModal('confirm-cascade', triggerElement);
-
-        const modalTitle = document.getElementById('cascade-title');
+        const titleEl = document.getElementById('cascade-title');
         const messageEl = document.getElementById('cascade-message');
-        const detailsList = document.getElementById('cascade-details-list');
         const avatarContainer = document.getElementById('cascade-avatar-container');
-        const cancelBtn = document.getElementById('cascade-cancel-btn');
-        const confirmBtn = document.getElementById('cascade-confirm-btn');
+        const detailsList = document.getElementById('cascade-details-list');
+        const childrenSection = document.getElementById('cascade-children-section');
 
-        if (modalTitle) modalTitle.textContent = title;
+        if (titleEl) titleEl.innerHTML = title;
         if (messageEl) messageEl.innerHTML = message;
 
-        // Каскадні деталі
+        // Details
         if (detailsList) {
             detailsList.innerHTML = '';
             if (Array.isArray(details) && details.length > 0) {
@@ -238,10 +165,10 @@ export async function showCascadeConfirm(options = {}) {
             }
         }
 
-        // Аватар
+        // Avatar
         if (avatarContainer && avatarState !== false) {
             avatarContainer.innerHTML = renderAvatarState(avatarState, {
-                size: avatarSize,
+                size: 'lg',
                 containerClass: 'modal-confirm-avatar',
                 avatarClass: 'modal-confirm-avatar-image',
                 messageClass: 'modal-confirm-avatar-message',
@@ -249,94 +176,79 @@ export async function showCascadeConfirm(options = {}) {
             });
         }
 
-        if (cancelBtn) cancelBtn.textContent = cancelText;
-        if (confirmBtn) confirmBtn.textContent = confirmText;
-
-        // ── Children section ──
-        const childrenSection = document.getElementById('cascade-children-section');
-        const checkbox = document.getElementById('cascade-delete-children');
-        const moveSection = document.getElementById('cascade-move-section');
-        let childrenCleanup = null;
+        // Children section — switch + move
+        const cleanups = [];
 
         if (children && childrenSection) {
             childrenSection.classList.remove('u-hidden');
 
-            // Checkbox label
-            const checkboxLabelEl = document.getElementById('cascade-checkbox-label');
-            if (checkboxLabelEl) checkboxLabelEl.textContent = children.checkboxLabel || 'Видалити дітей';
-            if (checkbox) checkbox.checked = true;
+            const optionsHTML = (children.moveOptions || [])
+                .map(o => `<option value="${o.value}">${o.text}</option>`)
+                .join('');
 
-            // Move label
-            const moveLabelEl = document.getElementById('cascade-move-label');
-            if (moveLabelEl) moveLabelEl.textContent = children.moveLabel || 'Оберіть куди перенести';
+            childrenSection.innerHTML = `
+                <div class="group column">
+                    <label class="label-l">${children.switchLabel}</label>
+                    <div class="switch switch-outline">
+                        <input type="radio" id="cascade-switch-yes" name="cascade-delete-switch" value="yes" checked>
+                        <label for="cascade-switch-yes" class="switch-label">Так</label>
+                        <input type="radio" id="cascade-switch-no" name="cascade-delete-switch" value="no">
+                        <label for="cascade-switch-no" class="switch-label">Ні</label>
+                    </div>
+                </div>
+                <div class="u-reveal" id="cascade-move-section">
+                    <div class="group column">
+                        <label class="label-l">${children.moveLabel}</label>
+                        <select data-custom-select id="cascade-move-target">
+                            <option value="">— Не переносити —</option>
+                            ${optionsHTML}
+                        </select>
+                        <label class="label-s">${children.orphanLabel || ''}</label>
+                    </div>
+                </div>`;
 
-            // Orphan label
-            const orphanLabelEl = document.getElementById('cascade-orphan-label');
-            if (orphanLabelEl) orphanLabelEl.textContent = children.orphanLabel || '';
-
-            // Populate move select
-            const moveSelect = document.getElementById('cascade-move-target');
-            if (moveSelect && Array.isArray(children.moveOptions)) {
-                moveSelect.innerHTML = '<option value="">— Не переносити —</option>';
-                children.moveOptions.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.value;
-                    option.textContent = opt.text;
-                    moveSelect.appendChild(option);
-                });
-            }
-
-            // Toggle move section on checkbox change
+            // Switch logic
+            const switchInputs = childrenSection.querySelectorAll('input[name="cascade-delete-switch"]');
+            const moveSection = document.getElementById('cascade-move-section');
             let selectInited = false;
-            const handleCheckboxChange = () => {
-                const checked = checkbox.checked;
+
+            const handleSwitch = () => {
+                const deleteChildren = document.getElementById('cascade-switch-yes')?.checked;
                 if (moveSection) {
-                    moveSection.classList.toggle('u-hidden', checked);
-                    if (!checked && !selectInited) {
+                    moveSection.classList.toggle('is-open', !deleteChildren);
+                    if (!deleteChildren && !selectInited) {
                         initCustomSelects(moveSection);
                         selectInited = true;
                     }
                 }
             };
-            if (checkbox) checkbox.addEventListener('change', handleCheckboxChange);
-            handleCheckboxChange();
 
-            childrenCleanup = () => {
-                if (checkbox) checkbox.removeEventListener('change', handleCheckboxChange);
-            };
+            switchInputs.forEach(input => input.addEventListener('change', handleSwitch));
+            cleanups.push(() => switchInputs.forEach(input => input.removeEventListener('change', handleSwitch)));
         }
 
+        // Result
         const getResult = () => {
             if (!children) return true;
+            const deleteChildren = document.getElementById('cascade-switch-yes')?.checked;
+            const moveTarget = document.getElementById('cascade-move-target');
             return {
-                confirmed: true,
-                deleteChildren: checkbox ? checkbox.checked : true,
-                moveTargetId: (!checkbox || !checkbox.checked)
-                    ? (document.getElementById('cascade-move-target')?.value || '')
-                    : '',
+                deleteChildren,
+                moveTargetId: !deleteChildren ? (moveTarget?.value || '') : '',
             };
         };
 
+        // Handlers
         const handleClick = (e) => {
             const action = e.target.closest('[data-confirm-action]')?.dataset.confirmAction;
-            if (action === 'confirm') {
-                e.stopPropagation();
-                e.preventDefault();
-                if (resolved) return;
-                resolved = true;
-                const result = getResult();
-                cleanup();
-                closeModal();
-                resolve(result);
-            } else if (action === 'cancel') {
-                e.stopPropagation();
-                e.preventDefault();
-                if (resolved) return;
-                resolved = true;
-                cleanup();
-                closeModal();
-                resolve(false);
-            }
+            if (!action || resolved) return;
+            e.stopPropagation();
+            e.preventDefault();
+            resolved = true;
+            const result = action === 'confirm' ? getResult() : false;
+            cleanup();
+            closeModal();
+            resolve(result);
         };
 
         const handleModalClose = () => {
@@ -349,7 +261,7 @@ export async function showCascadeConfirm(options = {}) {
         const cleanup = () => {
             document.removeEventListener('click', handleClick);
             document.removeEventListener('modal-closed', handleModalClose);
-            if (childrenCleanup) childrenCleanup();
+            cleanups.forEach(fn => fn());
         };
 
         document.addEventListener('click', handleClick);

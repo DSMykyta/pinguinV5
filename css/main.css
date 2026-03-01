@@ -88,6 +88,7 @@
 @import url('components/feedback/states.css');
 @import url('components/feedback/loading.css');
 @import url('components/feedback/tooltip.css');
+@import url('components/feedback/image-show.css');
 @import url('components/feedback/batch-actions.css');
 
 /* === COMPONENTS - CONTENT === */

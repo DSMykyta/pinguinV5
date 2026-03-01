@@ -1,12 +1,13 @@
-// js/pages/brands/brands-crud-logo.js
+// js/pages/brands/lines-crud-logo.js
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    BRANDS CRUD — ЛОГОТИП                                ║
+ * ║                    LINES CRUD — ЛОГОТИП                                ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 Секція логотипу у модалі бренду.
- *    File upload, URL upload, drag-and-drop, preview.
+ * Секція логотипу у модалі лінійки.
+ * File upload, URL upload, drag-and-drop, preview.
+ * Ідентичний до brands-crud-logo.js за принципом.
  */
 
 import { showConfirmModal } from '../../components/modal/modal-main.js';
@@ -18,18 +19,14 @@ import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/api-client.
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Ініціалізувати обробники завантаження логотипу:
- * - Drop zone drag-and-drop
- * - Drop zone click → file input
- * - URL input + кнопка завантаження
- * - Кнопка видалення логотипу
+ * Ініціалізувати обробники завантаження логотипу лінійки
  */
-export function initLogoHandlers() {
-    const dropzone = document.getElementById('brand-logo-dropzone');
-    const fileInput = document.getElementById('brand-logo-file-input');
-    const urlField = document.getElementById('brand-logo-url-field');
-    const urlBtn = document.getElementById('btn-upload-from-url');
-    const removeBtn = document.getElementById('btn-remove-brand-logo');
+export function initLineLogoHandlers() {
+    const dropzone = document.getElementById('line-logo-dropzone');
+    const fileInput = document.getElementById('line-logo-file-input');
+    const urlField = document.getElementById('line-logo-url-field');
+    const urlBtn = document.getElementById('btn-upload-line-logo');
+    const removeBtn = document.getElementById('btn-remove-line-logo');
     const btnIcon = urlBtn?.querySelector('.material-symbols-outlined');
 
     if (!dropzone || !urlField) return;
@@ -92,7 +89,7 @@ export function initLogoHandlers() {
     });
 
     // Видалення логотипу
-    removeBtn?.addEventListener('click', handleRemoveLogo);
+    removeBtn?.addEventListener('click', handleRemoveLineLogo);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -100,10 +97,13 @@ export function initLogoHandlers() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Отримати назву бренду з форми (для іменування файлу)
+ * Отримати назву для файлу логотипу: [бренд]-[лінійка]
  */
-function getCurrentBrandName() {
-    return document.getElementById('brand-name-uk')?.value.trim() || 'brand';
+function getLogoFileName() {
+    const brandSelect = document.getElementById('line-brand-id');
+    const brandName = brandSelect?.selectedOptions[0]?.textContent.trim() || 'brand';
+    const lineName = document.getElementById('line-name-uk')?.value.trim() || 'line';
+    return `${brandName}-${lineName}`;
 }
 
 /**
@@ -111,7 +111,7 @@ function getCurrentBrandName() {
  * @param {File} file
  */
 async function handleLogoFileUpload(file) {
-    const dropzone = document.getElementById('brand-logo-dropzone');
+    const dropzone = document.getElementById('line-logo-dropzone');
     if (!dropzone) return;
 
     if (!file.type.startsWith('image/')) {
@@ -127,15 +127,15 @@ async function handleLogoFileUpload(file) {
     dropzone.classList.add('loading');
 
     try {
-        const brandName = getCurrentBrandName();
-        const result = await uploadBrandLogoFile(file, brandName);
+        const fileName = getLogoFileName();
+        const result = await uploadBrandLogoFile(file, fileName);
 
         dropzone.classList.remove('loading');
         dropzone.classList.add('is-success');
         setTimeout(() => dropzone.classList.remove('is-success'), 2000);
 
-        const fileName = `${normalizeName(getCurrentBrandName())}.webp`;
-        setLogoPreview(result.thumbnailUrl, fileName, formatFileSize(file.size));
+        const displayName = `${normalizeName(getLogoFileName())}.webp`;
+        setLineLogoPreview(result.thumbnailUrl, displayName, formatFileSize(file.size));
         showToast('Логотип завантажено', 'success');
     } catch (error) {
         console.error('Помилка завантаження логотипу:', error);
@@ -151,28 +151,28 @@ async function handleLogoFileUpload(file) {
  * @param {string} url
  */
 async function handleLogoUrlUpload(url) {
-    const dropzone = document.getElementById('brand-logo-dropzone');
+    const dropzone = document.getElementById('line-logo-dropzone');
     if (!dropzone) return;
 
     dropzone.classList.add('loading');
 
     try {
-        const brandName = getCurrentBrandName();
-        const result = await uploadBrandLogoUrl(url, brandName);
+        const logoName = getLogoFileName();
+        const result = await uploadBrandLogoUrl(url, logoName);
 
         dropzone.classList.remove('loading');
         dropzone.classList.add('is-success');
         setTimeout(() => dropzone.classList.remove('is-success'), 2000);
 
-        const fileName = `${normalizeName(brandName)}.webp`;
-        setLogoPreview(result.thumbnailUrl, fileName);
+        const displayName = `${normalizeName(logoName)}.webp`;
+        setLineLogoPreview(result.thumbnailUrl, displayName);
 
-        const urlField = document.getElementById('brand-logo-url-field');
+        const urlField = document.getElementById('line-logo-url-field');
         if (urlField) urlField.value = '';
 
         showToast('Логотип завантажено з URL', 'success');
     } catch (error) {
-        console.error('❌ Помилка завантаження з URL:', error);
+        console.error('Помилка завантаження з URL:', error);
         dropzone.classList.remove('loading');
         dropzone.classList.add('is-error');
         setTimeout(() => dropzone.classList.remove('is-error'), 2000);
@@ -188,7 +188,7 @@ async function handleLogoUrlUpload(url) {
  * Перевірити чи є вже логотип
  */
 function hasExistingLogo() {
-    return !!document.getElementById('brand-logo-url')?.value.trim();
+    return !!document.getElementById('line-logo-url')?.value.trim();
 }
 
 /**
@@ -214,13 +214,13 @@ async function uploadLogoWithConfirm(uploadFn) {
  * @param {string} [fileName] - Ім'я файлу
  * @param {string} [fileSize] - Розмір файлу (форматований)
  */
-export function setLogoPreview(thumbnailUrl, fileName, fileSize) {
-    const hiddenInput = document.getElementById('brand-logo-url');
-    const preview = document.getElementById('brand-logo-preview');
-    const previewImg = document.getElementById('brand-logo-preview-img');
-    const nameEl = document.getElementById('brand-logo-filename');
-    const sizeEl = document.getElementById('brand-logo-filesize');
-    const formatEl = document.getElementById('brand-logo-format');
+export function setLineLogoPreview(thumbnailUrl, fileName, fileSize) {
+    const hiddenInput = document.getElementById('line-logo-url');
+    const preview = document.getElementById('line-logo-preview');
+    const previewImg = document.getElementById('line-logo-preview-img');
+    const nameEl = document.getElementById('line-logo-filename');
+    const sizeEl = document.getElementById('line-logo-filesize');
+    const formatEl = document.getElementById('line-logo-format');
 
     const name = fileName || extractFileName(thumbnailUrl);
 
@@ -235,11 +235,11 @@ export function setLogoPreview(thumbnailUrl, fileName, fileSize) {
 /**
  * Видалити логотип (очистити preview)
  */
-export function handleRemoveLogo() {
-    const hiddenInput = document.getElementById('brand-logo-url');
+export function handleRemoveLineLogo() {
+    const hiddenInput = document.getElementById('line-logo-url');
     if (hiddenInput) hiddenInput.value = '';
 
-    const preview = document.getElementById('brand-logo-preview');
+    const preview = document.getElementById('line-logo-preview');
     if (preview) preview.classList.add('u-hidden');
 }
 
@@ -247,25 +247,16 @@ export function handleRemoveLogo() {
 // UTILS
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Нормалізувати назву для імені файлу
- */
 function normalizeName(name) {
     return name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
 }
 
-/**
- * Форматувати розмір файлу
- */
 function formatFileSize(bytes) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/**
- * Витягти ім'я файлу з URL
- */
 function extractFileName(url) {
     try {
         const pathname = new URL(url).pathname;
@@ -275,9 +266,6 @@ function extractFileName(url) {
     }
 }
 
-/**
- * Витягти розширення з імені файлу
- */
 function extractExtension(name) {
     const dot = name.lastIndexOf('.');
     return dot > 0 ? name.slice(dot + 1).toUpperCase() : '';

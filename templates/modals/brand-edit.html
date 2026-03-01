@@ -59,15 +59,6 @@
                     </a>
                 </div>
 
-                <!-- Preview: видимий коли є лого -->
-                <div id="brand-logo-preview" class="content-bloc u-hidden">
-                    <img id="brand-logo-preview-img" src="" alt="Логотип бренду">
-                    <button type="button" class="btn-icon" id="btn-remove-brand-logo"
-                        data-tooltip="Видалити логотип">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>
-
                 <div class="nav-footer">
                     <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-brand" aria-label="Видалити">
                         <span class="material-symbols-outlined">delete</span>
@@ -113,21 +104,21 @@
                                     </div>
                                 </div>
 
-                                <!-- Країна -->
+                                <!-- Альтернативні назви -->
                                 <div class="group column">
-                                    <label for="brand-country" class="label-l">Країна</label>
-                                    <select id="brand-country" data-custom-select>
-                                        <option value="">— Оберіть країну —</option>
-                                    </select>
+                                    <label class="label-l">Альтернативні назви</label>
+                                    <div id="brand-names-alt-container" class="content-bloc-container">
+                                        <!-- Динамічні інпути додаються через JS -->
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Альтернативні назви -->
+                            <!-- Країна -->
                             <div class="group column col-4">
-                                <label class="label-l">Альтернативні назви</label>
-                                <div id="brand-names-alt-container" class="content-bloc-container">
-                                    <!-- Динамічні інпути додаються через JS -->
-                                </div>
+                                <label for="brand-country" class="label-l">Країна</label>
+                                <select id="brand-country" data-custom-select>
+                                    <option value="">— Оберіть країну —</option>
+                                </select>
                             </div>
 
                             <!-- Логотип -->
@@ -149,6 +140,24 @@
                                 </div>
 
                                 <input type="hidden" id="brand-logo-url">
+
+                                <!-- Preview: інлайн прев'ю завантаженого логотипу -->
+                                <div class="content-bloc u-hidden" id="brand-logo-preview">
+                                    <div class="content-line">
+                                        <div class="content-line-photo">
+                                            <img id="brand-logo-preview-img" src="" alt="" show>
+                                        </div>
+                                        <div class="content-line-info">
+                                            <span class="content-line-name" id="brand-logo-filename"></span>
+                                            <span class="content-line-label" id="brand-logo-filesize"></span>
+                                        </div>
+                                        <span class="tag c-tertiary" id="brand-logo-format"></span>
+                                        <button type="button" class="btn-icon ci-remove" id="btn-remove-brand-logo"
+                                            data-tooltip="Видалити">
+                                            <span class="material-symbols-outlined">close</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

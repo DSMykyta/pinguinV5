@@ -132,10 +132,9 @@
                 </div>
                 <div class="modal-card-meta">
                     <span><strong>Шаблон:</strong> templates/modals/modal-confirm.html</span>
-                    <span><strong>JS:</strong> modal-plugin-confirm.js</span>
-                    <span><strong>API:</strong> showConfirmModal() / showDeleteConfirm() / showResetConfirm() / showCloseConfirm()</span>
-                    <span><strong>Хто:</strong> brands-crud, mapper-*, banned-words-tabs, charm-confirm, price-import</span>
-                    <span><strong>Навіщо:</strong> Один Promise-based діалог з аватаром + speech-bubble. 4 шорткати змінюють title/message/avatar</span>
+                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
+                    <span><strong>Хто:</strong> brands-delete, lines-delete, mapper-*, banned-words-tabs, price-import</span>
+                    <span><strong>Навіщо:</strong> Promise-based діалог з аватаром + speech-bubble. Кожна сторінка сама заповнює title/message</span>
                 </div>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:auto;">
                     <button class="btn-primary" id="btn-test-confirm">Confirm</button>
@@ -217,10 +216,10 @@
                 </div>
                 <div class="modal-card-meta">
                     <span><strong>Шаблон:</strong> templates/modals/line-edit.html</span>
-                    <span><strong>JS:</strong> lines-crud.js → showAddLineModal() / showEditLineModal(brandId, lineId)</span>
-                    <span><strong>Хто:</strong> Секція "Лінійки" всередині brand-edit модалу</span>
-                    <span><strong>Навіщо:</strong> Додавання/редагування лінійки бренду (назва, бренд, лого)</span>
-                    <span><strong>Тип:</strong> modal-medium</span>
+                    <span><strong>JS:</strong> lines-crud.js → showAddLineModal() / showEditLineModal(lineId)</span>
+                    <span><strong>Хто:</strong> Секція "Лінійки" всередині brand-edit модалу або таблиця лінійок</span>
+                    <span><strong>Навіщо:</strong> CRUD лінійки: бренд, назва, логотип (Google Drive upload)</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar</span>
                 </div>
                 <button class="btn-primary modal-card-btn" data-modal-trigger="line-edit">Відкрити</button>
             </div>
@@ -233,9 +232,9 @@
                     <span class="badge c-red">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-crud.js:138 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в brand-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Підтвердження видалення бренду</span>
+                    <span><strong>JS:</strong> brands-delete.js → showModal('modal-confirm')</span>
+                    <span><strong>Хто:</strong> Кнопка 🗑 в brand-edit модалі (бренд без лінійок)</span>
+                    <span><strong>Навіщо:</strong> Просте підтвердження видалення бренду</span>
                 </div>
                 <button class="btn-primary danger modal-card-btn" id="btn-test-delete-brand">Видалити бренд</button>
             </div>
@@ -248,9 +247,9 @@
                     <span class="badge c-red">Cascade</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> showCascadeConfirm()</span>
+                    <span><strong>JS:</strong> brands-delete.js → showModal('confirm-cascade')</span>
                     <span><strong>Шаблон:</strong> confirm-cascade.html</span>
-                    <span><strong>Навіщо:</strong> Показує наслідки видалення</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення бренду з лінійками (switch + перенос)</span>
                 </div>
                 <button class="btn-primary danger modal-card-btn" id="btn-test-cascade-brand">Каскадне видалення</button>
             </div>
@@ -263,7 +262,7 @@
                     <span class="badge c-red">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-crud.js:299 → showConfirmModal()</span>
+                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
                     <span><strong>Хто:</strong> Кнопка unlink в таблиці лінійок brand-edit</span>
                     <span><strong>Навіщо:</strong> Відв'язування лінійки від бренду</span>
                 </div>
@@ -278,7 +277,7 @@
                     <span class="badge c-red">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-crud.js:572 → showConfirmModal()</span>
+                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
                     <span><strong>Хто:</strong> Кнопка ✕ біля посилання в brand-edit</span>
                     <span><strong>Навіщо:</strong> Підтвердження видалення посилання бренду</span>
                 </div>
@@ -293,7 +292,7 @@
                     <span class="badge c-yellow">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-crud.js:823 → showConfirmModal()</span>
+                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
                     <span><strong>Хто:</strong> Upload логотипу коли вже є існуючий</span>
                     <span><strong>Навіщо:</strong> Підтвердження заміни логотипу</span>
                 </div>
@@ -308,7 +307,7 @@
                     <span class="badge c-red">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> lines-crud.js:130 → showConfirmModal()</span>
+                    <span><strong>JS:</strong> lines-delete.js → showModal('modal-confirm')</span>
                     <span><strong>Хто:</strong> Кнопка 🗑 в line-edit модалі</span>
                     <span><strong>Навіщо:</strong> Підтвердження видалення лінійки</span>
                 </div>

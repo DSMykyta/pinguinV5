@@ -52,55 +52,53 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <fieldset class="form-fieldset">
-                <input type="hidden" id="banned-word-local-id">
-                <input type="hidden" id="banned-word-severity" value="high">
+            <input type="hidden" id="banned-word-local-id">
+            <input type="hidden" id="banned-word-severity" value="high">
 
-                <div class="grid">
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-group-name">
-                            Назва Групи                        </label>
-                        <input type="text" id="banned-word-group-name" class="input-main" placeholder="Наприклад: Лікує" required>
-                    </div>
-
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-type">Тип порушення</label>
-                        <select id="banned-word-type" data-custom-select placeholder="Оберіть тип...">
-                            <option value="">-- Оберіть тип --</option>
-                        </select>
-                    </div>
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-group-name">
+                        Назва Групи                        </label>
+                    <input type="text" id="banned-word-group-name" class="input-main" placeholder="Наприклад: Лікує" required>
                 </div>
 
-                <div class="grid">
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-name-uk">
-                            Українське слово (ключові слова)                        </label>
-                        <input type="text" id="banned-word-name-uk" class="input-main"
-                            placeholder="Введіть заборонене слово українською (можна через кому)" required>
-                    </div>
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-type">Тип порушення</label>
+                    <select id="banned-word-type" data-custom-select placeholder="Оберіть тип...">
+                        <option value="">-- Оберіть тип --</option>
+                    </select>
+                </div>
+            </div>
 
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-name-ru">
-                            Російське слово (ключові слова)                        </label>
-                        <input type="text" id="banned-word-name-ru" class="input-main"
-                            placeholder="Введіть заборонене слово російською (можна через кому)" required>
-                    </div>
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-name-uk">
+                        Українське слово (ключові слова)                        </label>
+                    <input type="text" id="banned-word-name-uk" class="input-main"
+                        placeholder="Введіть заборонене слово українською (можна через кому)" required>
                 </div>
 
-                <div class="grid">
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-explaine">Пояснення порушення</label>
-                        <textarea id="banned-word-explaine" class="input-main textarea-tall"
-                            placeholder="Опишіть чому це слово заборонене..."></textarea>
-                    </div>
-
-                    <div class="group column col-6">
-                        <label class="label-l" for="banned-word-hint">Підказка для заміни</label>
-                        <textarea id="banned-word-hint" class="input-main textarea-tall"
-                            placeholder="Запропонуйте альтернативне формулювання..."></textarea>
-                    </div>
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-name-ru">
+                        Російське слово (ключові слова)                        </label>
+                    <input type="text" id="banned-word-name-ru" class="input-main"
+                        placeholder="Введіть заборонене слово російською (можна через кому)" required>
                 </div>
-            </fieldset>
+            </div>
+
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-explaine">Пояснення порушення</label>
+                    <textarea id="banned-word-explaine" class="input-main textarea-tall"
+                        placeholder="Опишіть чому це слово заборонене..."></textarea>
+                </div>
+
+                <div class="group column col-6">
+                    <label class="label-l" for="banned-word-hint">Підказка для заміни</label>
+                    <textarea id="banned-word-hint" class="input-main textarea-tall"
+                        placeholder="Запропонуйте альтернативне формулювання..."></textarea>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->

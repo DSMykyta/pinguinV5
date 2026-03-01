@@ -13,7 +13,7 @@
 import { getBrandById, getBrands, deleteBrand } from './brands-data.js';
 import { getBrandLinesByBrandId, deleteBrandLine, updateBrandLine } from './lines-data.js';
 import { runHook } from './brands-plugins.js';
-import { showCascadeConfirm, showDeleteConfirm, closeModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, showCascadeConfirm, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -31,59 +31,54 @@ export async function showDeleteBrandConfirm(brandId) {
 
     // Без дітей — просте підтвердження
     if (lines.length === 0) {
-        const confirmed = await showDeleteConfirm({
-            itemName: brand.name_uk,
+        const confirmed = await showConfirmModal({
+            title: `Видалити <span class="tag c-red">${brand.name_uk}</span>?`,
+            message: 'Ця дія незворотна.',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
         });
-        if (confirmed) {
-            await executeBrandDelete(brandId);
-        }
+        if (confirmed) await executeBrandDelete(brandId);
         return;
     }
 
     // Є діти — каскадний діалог
     const otherBrands = getBrands()
-        .filter(b => b.brand_id !== brandId)
+        .filter(b => b.brand_id !== brand.brand_id)
         .map(b => ({ value: b.brand_id, text: b.name_uk }));
 
     const result = await showCascadeConfirm({
-        title: `Видалити "${brand.name_uk}"?`,
-        message: `Ви впевнені, що хочете видалити <span class="tag c-red">${brand.name_uk}</span> і всіх його <span class="tag c-red">${lines.length} ${pluralLines(lines.length)}</span>? Ця дія незворотна.`,
+        title: `Видалити <span class="tag c-red">${brand.name_uk}</span>?`,
+        message: `Це незворотня дія. З брендом буде видалено <span class="tag c-red">${lines.length}</span> його ${pluralLines(lines.length)}`,
+        confirmText: 'Видалити',
+        cancelText: 'Скасувати',
         children: {
-            count: lines.length,
-            countLabel: pluralLines(lines.length),
-            checkboxLabel: `Видалити лінійки разом з брендом`,
-            moveLabel: `Оберіть куди перенести лінійки "${brand.name_uk}"`,
+            switchLabel: 'Видалити лінійки з брендом',
+            moveLabel: 'Перенести лінійки до',
             moveOptions: otherBrands,
             orphanLabel: 'Якщо не обрати — лінійки лишаться без бренду',
         },
-        confirmText: 'Видалити',
-        cancelText: 'Скасувати',
     });
 
     if (!result) return;
 
     if (result.deleteChildren) {
-        // Видалити всі лінійки
         await executeBrandDelete(brandId, lines);
     } else if (result.moveTargetId) {
-        // Перенести лінійки до іншого бренду
         await moveLinesToBrand(lines, result.moveTargetId);
         await executeBrandDelete(brandId);
     } else {
-        // Зробити лінійки сиротами (brand_id = '')
         await orphanLines(lines);
         await executeBrandDelete(brandId);
     }
 }
 
-/**
- * Виконати видалення бренду (+ опціонально лінійок)
- */
+
+// ── Виконання ──
+
 async function executeBrandDelete(brandId, linesToDelete = []) {
     try {
         closeModal();
 
-        // Видалити лінійки (якщо є)
         for (const line of linesToDelete) {
             await deleteBrandLine(line.line_id);
         }
@@ -98,31 +93,22 @@ async function executeBrandDelete(brandId, linesToDelete = []) {
     }
 }
 
-/**
- * Перенести лінійки до іншого бренду
- */
 async function moveLinesToBrand(lines, targetBrandId) {
     for (const line of lines) {
         await updateBrandLine(line.line_id, { brand_id: targetBrandId });
     }
 }
 
-/**
- * Зробити лінійки сиротами (очистити brand_id)
- */
 async function orphanLines(lines) {
     for (const line of lines) {
         await updateBrandLine(line.line_id, { brand_id: '' });
     }
 }
 
-/**
- * Відмінювання "лінійка" українською
- */
 function pluralLines(n) {
     const mod10 = n % 10;
     const mod100 = n % 100;
-    if (mod10 === 1 && mod100 !== 11) return 'лінійка';
+    if (mod10 === 1 && mod100 !== 11) return 'лінійку';
     if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'лінійки';
     return 'лінійок';
 }

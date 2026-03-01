@@ -46,6 +46,25 @@
     display: none !important;
 }
 
+/**
+ * Плавне розкриття блоку (висота 0 → auto через CSS grid)
+ * JS: element.classList.toggle('is-open', true/false)
+ * HTML: <div class="u-reveal"><div>...content...</div></div>
+ */
+.u-reveal {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.u-reveal.is-open {
+    grid-template-rows: 1fr;
+}
+
+.u-reveal > * {
+    overflow: hidden;
+}
+
 /* ============================================ */
 /* TEXT COLOR */
 /* ============================================ */
@@ -74,12 +93,6 @@
 /* ============================================ */
 
 /* .group — перенесено в css/components/forms/form-group.css */
-
-.u-flex-col-8 {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
 
 /**
  * Inline flex з центруванням контенту

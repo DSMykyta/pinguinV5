@@ -38,6 +38,7 @@
     display: flex;
     gap: 8px;
     align-items: center;
+    margin-bottom: 12px;
 }
 
 /* --- Чарм: wrap --- */
@@ -59,7 +60,6 @@
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
-    margin-bottom: 12px;
 }
 
 .group.column label:not(.switch-label) {
@@ -95,34 +95,6 @@
 
 
 
-
-/* --- Загальні елементи форм --- */
-
-.form-fieldset {
-    border: 1px solid var(--color-outline-v);
-    border-radius: var(--radius-m);
-    padding: var(--space-m);
-    margin-bottom: var(--space-m);
-}
-
-.form-fieldset legend {
-    padding: 0 8px;
-    color: var(--color-on-surface);
-}
-
-.form-fieldset {
-    min-width: 0;
-    box-sizing: border-box;
-    max-width: 100%;
-}
-
-.form-fieldset input[type="text"],
-.form-fieldset input[type="number"],
-.form-fieldset select {
-    width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
-}
 
 /* Checkbox label — обгортка для checkbox + текст */
 .checkbox-label {

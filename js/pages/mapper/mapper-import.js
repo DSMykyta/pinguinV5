@@ -1400,7 +1400,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
+                    <fieldset disabled>
                         <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
@@ -1435,7 +1435,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
                         </div>
                     </fieldset>
 
-                    <div class="form-fieldset u-mt-16">
+                    <div class="u-mt-16">
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
@@ -1531,7 +1531,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
+                    <fieldset disabled>
                         <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
@@ -1552,7 +1552,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
                         </div>
                     </fieldset>
 
-                    <div class="form-fieldset u-mt-16">
+                    <div class="u-mt-16">
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName
@@ -1789,7 +1789,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                     </div>
                 </div>
                 <div class="modal-body">
-                    <fieldset class="form-fieldset" disabled>
+                    <fieldset disabled>
                         <div class="group column">
                             <label>Джерело</label>
                             <input type="text" class="input-main" value="${escapeHtml(mpName)}" readonly>
@@ -1816,7 +1816,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
                         ` : ''}
                     </fieldset>
 
-                    <div class="form-fieldset u-mt-16">
+                    <div class="u-mt-16">
                         <div class="group column">
                             <label>Замаплено до</label>
                             ${mappedToName

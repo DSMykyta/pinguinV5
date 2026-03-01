@@ -1,0 +1,41 @@
+/**
+ * COMPONENT: Image Show
+ *
+ * ПРИЗНАЧЕННЯ:
+ * Велике preview зображення при наведенні на img[show].
+ * Показується через 1 сек, слідує за курсором, поверх всього.
+ * Дозволяє правий клік → "Відкрити зображення в новому табі".
+ *
+ * ВИКОРИСТАННЯ:
+ * <img src="..." alt="" show>
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - js/components/feedback/image-show.js (ініціалізація)
+ * - root.css (--shadow-3)
+ */
+
+.image-show-popup {
+    position: fixed;
+    z-index: 10000;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    background: var(--color-surface);
+
+    /* Анімація появи */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.image-show-popup.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.image-show-popup img {
+    display: block;
+    max-width: 1000px;
+    max-height: 1000px;
+    object-fit: contain;
+}

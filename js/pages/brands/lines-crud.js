@@ -7,24 +7,24 @@
  *
  * 🔌 ПЛАГІН — можна видалити, система працюватиме без модалів редагування.
  *
- * Модальні вікна для додавання та редагування лінійок брендів.
+ * Повноекранний модал для додавання та редагування лінійок брендів.
  * Видалення — в lines-delete.js.
  */
 
 import { registerBrandsPlugin, runHook } from './brands-plugins.js';
-import { brandsState } from './brands-state.js';
-import { getBrands, getBrandById } from './brands-data.js';
+import { getBrands } from './brands-data.js';
 import { getBrandLineById, addBrandLine, updateBrandLine } from './lines-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showDeleteLineConfirm } from './lines-delete.js';
-import { initCustomSelects } from '../../components/forms/select.js';
+import { populateSelect, initCustomSelects } from '../../components/forms/select.js';
+import { initLineLogoHandlers, setLineLogoPreview, handleRemoveLineLogo } from './lines-crud-logo.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════════════
 
-let currentLineId = null; // ID лінійки, що редагується (null = нова)
+let currentLineId = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -35,36 +35,19 @@ let currentLineId = null; // ID лінійки, що редагується (nul
  * @param {string} [preselectedBrandId] - Попередньо обраний бренд (опціонально)
  */
 export async function showAddLineModal(preselectedBrandId = null) {
-
     currentLineId = null;
 
     await showModal('line-edit', null);
 
-    // Заголовок
     const title = document.getElementById('line-modal-title');
     if (title) title.textContent = 'Нова лінійка';
 
-    // Приховати кнопку видалення
-    const deleteBtn = document.getElementById('delete-line');
+    const deleteBtn = document.getElementById('btn-delete-line');
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
-    // Очистити форму
     clearLineForm();
-
-    // Заповнити select брендів
+    initModalComponents();
     populateBrandSelect(preselectedBrandId);
-
-    // Ініціалізувати custom select
-    const modalEl = document.querySelector('[data-modal-id="line-edit"]') || document.querySelector('.modal-overlay');
-    if (modalEl) {
-        initCustomSelects(modalEl);
-    }
-
-    // Обробник збереження
-    const saveBtn = document.getElementById('save-line');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveLine;
-    }
 }
 
 /**
@@ -72,7 +55,6 @@ export async function showAddLineModal(preselectedBrandId = null) {
  * @param {string} lineId - ID лінійки
  */
 export async function showEditLineModal(lineId) {
-
     const line = getBrandLineById(lineId);
     if (!line) {
         showToast('Лінійку не знайдено', 'error');
@@ -83,37 +65,41 @@ export async function showEditLineModal(lineId) {
 
     await showModal('line-edit', null);
 
-    // Заголовок
     const title = document.getElementById('line-modal-title');
     if (title) title.textContent = `Редагувати: ${line.name_uk}`;
 
-    // Показати кнопку видалення
-    const deleteBtn = document.getElementById('delete-line');
+    const deleteBtn = document.getElementById('btn-delete-line');
     if (deleteBtn) {
         deleteBtn.classList.remove('u-hidden');
-        deleteBtn.onclick = () => {
-            closeModal();
-            showDeleteLineConfirm(lineId);
-        };
+        deleteBtn.onclick = () => showDeleteLineConfirm(lineId);
     }
 
-    // Заповнити select брендів
+    initModalComponents();
     populateBrandSelect(line.brand_id);
-
-    // Ініціалізувати custom select
-    const modalEl = document.querySelector('[data-modal-id="line-edit"]') || document.querySelector('.modal-overlay');
-    if (modalEl) {
-        initCustomSelects(modalEl);
-    }
-
-    // Заповнити форму даними
     fillLineForm(line);
+}
 
-    // Обробник збереження
-    const saveBtn = document.getElementById('save-line');
-    if (saveBtn) {
-        saveBtn.onclick = handleSaveLine;
-    }
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL COMPONENTS INITIALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initModalComponents() {
+    initSaveHandler();
+    initLineLogoHandlers();
+
+    const modalEl = document.querySelector('[data-modal-id="line-edit-modal"]');
+    if (modalEl) initCustomSelects(modalEl);
+}
+
+/**
+ * Ініціалізувати обробники збереження
+ */
+function initSaveHandler() {
+    const saveBtn = document.getElementById('btn-save-line');
+    if (saveBtn) saveBtn.onclick = () => handleSaveLine(false);
+
+    const saveCloseBtn = document.getElementById('save-close-line');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveLine(true);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -125,27 +111,17 @@ export async function showEditLineModal(lineId) {
  * @param {string} [selectedBrandId] - ID обраного бренду
  */
 function populateBrandSelect(selectedBrandId = null) {
-    const select = document.getElementById('line-brand-id');
-    if (!select) return;
-
-    const brands = getBrands();
-
-    // Очистити options окрім першого
-    select.innerHTML = '<option value="">-- Оберіть бренд --</option>';
-
-    // Додати бренди (тільки активні)
-    brands
+    const brands = getBrands()
         .filter(b => b.brand_status !== 'inactive')
-        .sort((a, b) => (a.name_uk || '').localeCompare(b.name_uk || ''))
-        .forEach(brand => {
-            const option = document.createElement('option');
-            option.value = brand.brand_id;
-            option.textContent = brand.name_uk;
-            if (selectedBrandId && brand.brand_id === selectedBrandId) {
-                option.selected = true;
-            }
-            select.appendChild(option);
-        });
+        .sort((a, b) => (a.name_uk || '').localeCompare(b.name_uk || ''));
+
+    populateSelect('line-brand-id',
+        brands.map(b => ({ value: b.brand_id, text: b.name_uk })),
+        {
+            placeholder: '— Оберіть бренд —',
+            selectedValue: selectedBrandId
+        }
+    );
 }
 
 /**
@@ -165,19 +141,17 @@ function getLineFormData() {
  * @param {Object} line - Лінійка
  */
 function fillLineForm(line) {
-    // ID (прихований)
     const idField = document.getElementById('line-id');
     if (idField) idField.value = line.line_id || '';
 
-    // Бренд - вже встановлено в populateBrandSelect
-
-    // Назва
     const nameField = document.getElementById('line-name-uk');
     if (nameField) nameField.value = line.name_uk || '';
 
-    // Logo URL
-    const logoField = document.getElementById('line-logo-url');
-    if (logoField) logoField.value = line.line_logo_url || '';
+    if (line.line_logo_url) {
+        setLineLogoPreview(line.line_logo_url);
+    } else {
+        handleRemoveLineLogo();
+    }
 }
 
 /**
@@ -193,8 +167,7 @@ function clearLineForm() {
     const nameField = document.getElementById('line-name-uk');
     if (nameField) nameField.value = '';
 
-    const logoField = document.getElementById('line-logo-url');
-    if (logoField) logoField.value = '';
+    handleRemoveLineLogo();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -203,12 +176,11 @@ function clearLineForm() {
 
 /**
  * Обробник збереження лінійки
+ * @param {boolean} shouldClose - Закрити після збереження
  */
-async function handleSaveLine() {
-
+async function handleSaveLine(shouldClose = true) {
     const lineData = getLineFormData();
 
-    // Валідація
     if (!lineData.brand_id) {
         showToast('Оберіть бренд', 'error');
         return;
@@ -221,21 +193,19 @@ async function handleSaveLine() {
 
     try {
         if (currentLineId) {
-            // Оновлення
             await updateBrandLine(currentLineId, lineData);
             showToast('Лінійку успішно оновлено', 'success');
             runHook('onLineUpdate', currentLineId, lineData);
         } else {
-            // Створення
             const newLine = await addBrandLine(lineData);
             showToast('Лінійку успішно додано', 'success');
             runHook('onLineAdd', newLine);
         }
 
-        closeModal();
+        if (shouldClose) closeModal();
         runHook('onRender');
     } catch (error) {
-        console.error('❌ Помилка збереження лінійки:', error);
+        console.error('Помилка збереження лінійки:', error);
         showToast('Помилка збереження лінійки', 'error');
     }
 }
@@ -245,4 +215,3 @@ async function handleSaveLine() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function init(state) { }
-

@@ -61,9 +61,6 @@ export { registerHook } from './modal-state.js';
 export {
     showConfirmModal,
     showCascadeConfirm,
-    showDeleteConfirm,
-    showResetConfirm,
-    showCloseConfirm,
 } from './modal-plugin-confirm.js';
 
 export { initInfoButtons, clearInfoCache } from './modal-plugin-info.js';

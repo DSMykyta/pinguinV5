@@ -5,12 +5,12 @@
  * ║                    LINES — DELETE                                       ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
- * 🔌 Підтвердження + видалення лінійки.
+ * Підтвердження + видалення лінійки.
  */
 
 import { getBrandLineById, deleteBrandLine } from './lines-data.js';
 import { runHook } from './brands-plugins.js';
-import { showCascadeConfirm, closeModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 /**
@@ -24,12 +24,9 @@ export async function showDeleteLineConfirm(lineId) {
         return;
     }
 
-    const confirmed = await showCascadeConfirm({
-        title: `Видалити "${line.name_uk}"?`,
+    const confirmed = await showConfirmModal({
+        title: `Видалити <span class="tag c-red">${line.name_uk}</span>?`,
         message: 'Ця дія незворотна.',
-        details: [
-            'Лінійку буде відв\'язано від бренду',
-        ],
         confirmText: 'Видалити',
         cancelText: 'Скасувати',
     });
@@ -42,7 +39,7 @@ export async function showDeleteLineConfirm(lineId) {
             runHook('onLineDelete', lineId);
             runHook('onRender');
         } catch (error) {
-            console.error('❌ Помилка видалення лінійки:', error);
+            console.error('Помилка видалення лінійки:', error);
             showToast('Помилка видалення лінійки', 'error');
         }
     }

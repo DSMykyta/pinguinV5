@@ -9,14 +9,7 @@
  */
 
 import { initCore } from './main-core.js';
-import {
-    showModal,
-    showConfirmModal,
-    showCascadeConfirm,
-    showDeleteConfirm,
-    showResetConfirm,
-    showCloseConfirm,
-} from './components/modal/modal-main.js';
+import { showConfirmModal, showCascadeConfirm } from './components/modal/modal-main.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     await initCore();
@@ -24,64 +17,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     initFakeDataFillers();
 });
 
-// ── Кнопки для JS-генерованих модалів (confirm/delete/reset/close) ──
+// ── Кнопки тестів ──
 
 function initModalTestButtons() {
+
+    // ── Системні confirm тести ──
+
     document.getElementById('btn-test-confirm')?.addEventListener('click', async () => {
         const result = await showConfirmModal({
             title: 'Підтвердити дію?',
-            message: 'Ви збираєтесь змінити статус <span class="tag c-red">12</span> товарів на "Активний". Продовжити?',
+            message: 'Ви збираєтесь змінити статус <span class="tag c-red">12</span> товарів на <span class="tag c-red">Активний</span>. Продовжити?',
             confirmText: 'Так, змінити',
             cancelText: 'Скасувати',
         });
-        console.log('[test] showConfirmModal result:', result);
+        console.log('[test] confirm result:', result);
     });
 
     document.getElementById('btn-test-delete-confirm')?.addEventListener('click', async () => {
-        const result = await showDeleteConfirm({
-            itemName: 'Optimum Nutrition',
+        const result = await showConfirmModal({
+            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
+            message: 'Ця дія незворотна.',
+            confirmText: 'Видалити',
+            cancelText: 'Скасувати',
         });
-        console.log('[test] showDeleteConfirm result:', result);
+        console.log('[test] delete confirm result:', result);
     });
 
     document.getElementById('btn-test-reset-confirm')?.addEventListener('click', async () => {
-        const result = await showResetConfirm();
-        console.log('[test] showResetConfirm result:', result);
+        const result = await showConfirmModal({
+            title: 'Скинути зміни?',
+            message: 'Всі незбережені зміни буде втрачено.',
+            confirmText: 'Скинути',
+            cancelText: 'Скасувати',
+            avatarState: 'confirmReset',
+        });
+        console.log('[test] reset confirm result:', result);
     });
 
     document.getElementById('btn-test-close-confirm')?.addEventListener('click', async () => {
-        const result = await showCloseConfirm();
-        console.log('[test] showCloseConfirm result:', result);
+        const result = await showConfirmModal({
+            title: 'Закрити без збереження?',
+            message: 'Всі незбережені зміни буде втрачено.',
+            confirmText: 'Закрити',
+            cancelText: 'Залишити',
+            avatarState: 'confirmClose',
+        });
+        console.log('[test] close confirm result:', result);
     });
 
     // ── Brands ──
 
     document.getElementById('btn-test-delete-brand')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
-            title: 'Видалити бренд?',
-            message: 'Ви впевнені, що хочете видалити бренд "Optimum Nutrition"?',
+            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
+            message: 'Ця дія незворотна.',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: [
-                '3 лінійки буде видалено',
-                '2 посилання буде видалено',
-                '1 прив\'язка до МП буде видалено',
-            ],
         });
         console.log('[test] delete brand:', r);
     });
 
     document.getElementById('btn-test-cascade-brand')?.addEventListener('click', async () => {
         const r = await showCascadeConfirm({
-            title: 'Видалити бренд?',
-            message: 'Ви впевнені, що хочете видалити бренд "Optimum Nutrition"?',
-            details: [
-                '3 лінійки буде видалено',
-                '2 посилання буде видалено',
-                '1 прив\'язка до МП буде видалено',
-            ],
+            title: 'Видалити <span class="tag c-red">Optimum Nutrition</span>?',
+            message: 'Це незворотня дія. З брендом буде видалено <span class="tag c-red">3</span> його лінійки',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
+            children: {
+                switchLabel: 'Видалити лінійки з брендом',
+                moveLabel: 'Перенести лінійки до',
+                moveOptions: [
+                    { value: 'bran-D4E5F6', text: 'MuscleTech' },
+                    { value: 'bran-G7H8I9', text: 'BSN' },
+                    { value: 'bran-J1K2L3', text: 'Dymatize' },
+                ],
+                orphanLabel: 'Якщо не обрати — лінійки лишаться без бренду',
+            },
         });
         console.log('[test] cascade delete brand:', r);
     });
@@ -89,7 +100,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-unlink-line')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Відв\'язати лінійку?',
-            message: 'Ви впевнені, що хочете відв\'язати лінійку "Gold Standard 100% Whey" від цього бренду?',
+            message: 'Ви впевнені, що хочете від\'язати лінійку <span class="tag c-red">Gold Standard 100% Whey</span> від цього бренду?',
             confirmText: 'Відв\'язати',
             cancelText: 'Скасувати',
         });
@@ -99,7 +110,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-link')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити посилання?',
-            message: 'Ви впевнені, що хочете видалити "optimumnutrition.com"?',
+            message: 'Ви впевнені, що хочете видалити <span class="tag c-red">optimumnutrition.com</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });
@@ -119,7 +130,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-line')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити лінійку?',
-            message: 'Ви впевнені, що хочете видалити лінійку "Gold Standard 100% Whey"?',
+            message: 'Ви впевнені, що хочете видалити лінійку <span class="tag c-red">Gold Standard 100% Whey</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });
@@ -131,7 +142,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-keyword')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити ключове слово?',
-            message: 'Ви впевнені, що хочете видалити "Протеїн"?',
+            message: 'Ви впевнені, що хочете видалити <span class="tag c-red">Протеїн</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });
@@ -143,13 +154,9 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-category')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити категорію?',
-            message: 'Ви впевнені, що хочете видалити категорію "Спортивне харчування"?',
+            message: 'Ви впевнені, що хочете видалити категорію <span class="tag c-red">Спортивне харчування</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: [
-                '3 прив\'язок до МП буде видалено',
-                '5 характеристик буде відв\'язано',
-            ],
         });
         console.log('[test] delete category:', r);
     });
@@ -157,7 +164,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-unlink-char-from-cat')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Відв\'язати характеристику?',
-            message: 'Ви впевнені, що хочете відв\'язати характеристику "Вага нетто" від цієї категорії?',
+            message: 'Ви впевнені, що хочете від\'язати характеристику <span class="tag c-red">Вага нетто</span> від цієї категорії?',
             confirmText: 'Відв\'язати',
             cancelText: 'Скасувати',
         });
@@ -177,13 +184,9 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-characteristic')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити характеристику?',
-            message: 'Ви впевнені, що хочете видалити характеристику "Вага нетто"?',
+            message: 'Ви впевнені, що хочете видалити характеристику <span class="tag c-red">Вага нетто</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: [
-                '2 прив\'язок до МП буде видалено',
-                '8 опцій буде відв\'язано',
-            ],
         });
         console.log('[test] delete characteristic:', r);
     });
@@ -191,7 +194,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-unlink-opt-from-char')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Відв\'язати опцію?',
-            message: 'Ви впевнені, що хочете відв\'язати опцію "Шоколад" від цієї характеристики?',
+            message: 'Ви впевнені, що хочете від\'язати опцію <span class="tag c-red">Шоколад</span> від цієї характеристики?',
             confirmText: 'Відв\'язати',
             cancelText: 'Скасувати',
         });
@@ -211,13 +214,9 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-option')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити опцію?',
-            message: 'Ви впевнені, що хочете видалити опцію "Шоколад"?',
+            message: 'Ви впевнені, що хочете видалити опцію <span class="tag c-red">Шоколад</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: [
-                '1 прив\'язка до МП буде видалено',
-                '3 дочірніх опцій буде відв\'язано',
-            ],
         });
         console.log('[test] delete option:', r);
     });
@@ -225,7 +224,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-unlink-child-option')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Відв\'язати дочірню опцію?',
-            message: 'Ви впевнені, що хочете відв\'язати опцію "Молочний шоколад" від батьківської?',
+            message: 'Ви впевнені, що хочете від\'язати опцію <span class="tag c-red">Молочний шоколад</span> від батьківської?',
             confirmText: 'Відв\'язати',
             cancelText: 'Скасувати',
         });
@@ -245,15 +244,9 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-marketplace')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити маркетплейс?',
-            message: 'Ви впевнені, що хочете видалити маркетплейс "Rozetka"?',
+            message: 'Ви впевнені, що хочете видалити маркетплейс <span class="tag c-red">Rozetka</span>?',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
-            details: [
-                '1247 категорій МП',
-                '856 характеристик МП',
-                '12430 опцій МП',
-                '342 прив\'язок буде видалено',
-            ],
         });
         console.log('[test] delete marketplace:', r);
     });
@@ -261,7 +254,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-mp-refs-all')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити довідники?',
-            message: 'Всі довідники маркетплейсу "Rozetka" буде видалено.',
+            message: 'Всі довідники маркетплейсу <span class="tag c-red">Rozetka</span> буде видалено.',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });
@@ -271,7 +264,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-delete-mp-ref')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Видалити довідник?',
-            message: 'Довідник "Категорії" маркетплейсу "Rozetka" буде видалено.',
+            message: 'Довідник <span class="tag c-red">Категорії</span> маркетплейсу <span class="tag c-red">Rozetka</span> буде видалено.',
             confirmText: 'Видалити',
             cancelText: 'Скасувати',
         });
@@ -281,7 +274,7 @@ function initModalTestButtons() {
     document.getElementById('btn-test-confirm-map')?.addEventListener('click', async () => {
         const r = await showConfirmModal({
             title: 'Замапити?',
-            message: 'Прив\'язати "Спортивне харчування" → "Rozetka: Спортивне харчування"?',
+            message: 'Прив\'язати <span class="tag c-red">Спортивне харчування</span> → <span class="tag c-red">Rozetka: Спортивне харчування</span>?',
             confirmText: 'Замапити',
             cancelText: 'Скасувати',
         });
@@ -371,30 +364,52 @@ const FAKE_DATA_FILLERS = {
             `;
         }
 
-        // Alt names
+        // Alt names — реальна структура з ci-remove кнопками + порожній інпут в кінці
         const altContainer = el.querySelector('#brand-names-alt-container');
         if (altContainer) {
             altContainer.innerHTML = `
                 <div class="content-bloc">
                     <div class="content-line">
                         <div class="input-box">
-                            <input type="text" value="ON">
+                            <input type="text" value="ON" placeholder="Альтернативна назва">
                         </div>
+                        <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
                     </div>
                 </div>
                 <div class="content-bloc">
                     <div class="content-line">
                         <div class="input-box">
-                            <input type="text" value="Оптимум Нутрішн">
+                            <input type="text" value="Оптимум Нутрішн" placeholder="Альтернативна назва">
+                        </div>
+                        <button type="button" class="btn-icon ci-remove" data-tooltip="Видалити">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="content-bloc" data-empty="true">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="text" value="" placeholder="Альтернативна назва">
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Logo URL
-        setValue(el, '#brand-logo-url', 'https://example.com/logos/on-logo.png');
-        setValue(el, '#brand-logo-url-field', 'https://example.com/logos/on-logo.png');
+        // Logo URL + inline preview
+        const brandLogoUrl = 'https://lh3.googleusercontent.com/d/1BPIHZPK2EtNuxcH7ibAJHXwmqQsL7He5';
+        setValue(el, '#brand-logo-url', brandLogoUrl);
+        const brandPreview = el.querySelector('#brand-logo-preview');
+        const brandPreviewImg = el.querySelector('#brand-logo-preview-img');
+        if (brandPreview && brandPreviewImg) {
+            brandPreviewImg.src = brandLogoUrl;
+            setText(el, '#brand-logo-filename', 'optimum_nutrition.webp');
+            setText(el, '#brand-logo-filesize', '124 KB');
+            setText(el, '#brand-logo-format', 'WEBP');
+            brandPreview.classList.remove('u-hidden');
+        }
 
         // Show delete button
         const deleteBtn = el.querySelector('#btn-delete-brand');
@@ -426,19 +441,33 @@ const FAKE_DATA_FILLERS = {
         setText(el, '#line-modal-title', 'Gold Standard 100% Whey');
         setValue(el, '#line-id', 'line-X1Y2Z3');
         setValue(el, '#line-name-uk', 'Gold Standard 100% Whey');
-        setValue(el, '#line-logo-url', 'https://example.com/logos/gs-whey.png');
 
+        // Logo — hidden input + inline preview
+        const lineLogoUrl = 'https://lh3.googleusercontent.com/d/1BPIHZPK2EtNuxcH7ibAJHXwmqQsL7He5';
+        setValue(el, '#line-logo-url', lineLogoUrl);
+        const linePreview = el.querySelector('#line-logo-preview');
+        const linePreviewImg = el.querySelector('#line-logo-preview-img');
+        if (linePreview && linePreviewImg) {
+            linePreviewImg.src = lineLogoUrl;
+            setText(el, '#line-logo-filename', 'optimum_nutrition-gold_standard_100_whey.webp');
+            setText(el, '#line-logo-filesize', '98 KB');
+            setText(el, '#line-logo-format', 'WEBP');
+            linePreview.classList.remove('u-hidden');
+        }
+
+        // Brand select
         const brandSelect = el.querySelector('#line-brand-id');
         if (brandSelect) {
             brandSelect.innerHTML = `
-                <option value="">-- Оберіть бренд --</option>
+                <option value="">— Оберіть бренд —</option>
                 <option value="bran-A1B2C3" selected>Optimum Nutrition</option>
                 <option value="bran-D4E5F6">MuscleTech</option>
                 <option value="bran-G7H8I9">BSN</option>
             `;
         }
 
-        const deleteBtn = el.querySelector('#delete-line');
+        // Show delete button
+        const deleteBtn = el.querySelector('#btn-delete-line');
         if (deleteBtn) deleteBtn.classList.remove('u-hidden');
     },
 
@@ -481,7 +510,6 @@ const FAKE_DATA_FILLERS = {
     },
 
     'banned-words-list-modal': (el) => {
-        // Just set empty state, table would need JS init
         const container = el.querySelector('#modal-banned-words-table-container');
         if (container) {
             container.innerHTML = `
@@ -506,7 +534,6 @@ const FAKE_DATA_FILLERS = {
             `;
         }
 
-        // Field pills
         const fieldPills = el.querySelector('#product-text-field-pills');
         if (fieldPills) {
             fieldPills.innerHTML = `
@@ -516,7 +543,6 @@ const FAKE_DATA_FILLERS = {
             `;
         }
 
-        // Content
         const content = el.querySelector('.product-text-content');
         if (content) {
             content.innerHTML = `
@@ -543,14 +569,12 @@ const FAKE_DATA_FILLERS = {
         setValue(el, '#keyword-keywords-ua', 'протеїн, сироватковий, казеїновий, ізолят, концентрат, гідролізат');
         setValue(el, '#keyword-keywords-ru', 'протеин, сывороточный, казеиновый, изолят, концентрат, гидролизат');
 
-        // Param type
         const paramType = el.querySelector('#keyword-param-type-select');
         if (paramType) {
             const opt = paramType.querySelector('option[value="category"]');
             if (opt) opt.selected = true;
         }
 
-        // Show delete button
         const deleteBtn = el.querySelector('#delete-keyword');
         if (deleteBtn) deleteBtn.classList.remove('u-hidden');
     },
@@ -594,14 +618,12 @@ const FAKE_DATA_FILLERS = {
         setValue(el, '#mapper-char-unit', 'г');
         setValue(el, '#mapper-char-sort-order', '5');
 
-        // Block select
         const blockSelect = el.querySelector('#mapper-char-block');
         if (blockSelect) {
             const opt = blockSelect.querySelector('option[value="1"]');
             if (opt) opt.selected = true;
         }
 
-        // Type select
         const typeSelect = el.querySelector('#mapper-char-type');
         if (typeSelect) {
             const opt = typeSelect.querySelector('option[value="Decimal"]');
@@ -646,11 +668,9 @@ const FAKE_DATA_FILLERS = {
         setValue(el, '#mapper-mp-name', 'Rozetka');
         setValue(el, '#mapper-mp-slug', 'rozetka');
 
-        // Active switch
         const activeRadio = el.querySelector('#mapper-mp-active-yes');
         if (activeRadio) activeRadio.checked = true;
 
-        // Normalization fields
         setValue(el, '#mapper-mp-cm-cat-name', 'nameUa');
         setValue(el, '#mapper-mp-cm-cat-parent', 'parentId');
         setValue(el, '#mapper-mp-cm-char-name', 'title');
@@ -669,14 +689,12 @@ const FAKE_DATA_FILLERS = {
         setValue(el, '#mapper-mp-name', 'Rozetka');
         setValue(el, '#mapper-mp-slug', 'rozetka');
 
-        // Counts
         setText(el, '#mp-data-ref-count', '3');
         setText(el, '#mp-data-cat-count', '1247');
         setText(el, '#mp-data-char-count', '856');
         setText(el, '#mp-data-opt-count', '12430');
         setText(el, '#mp-data-cat-stats', 'Показано 50 з 1247');
 
-        // Normalization
         setValue(el, '#mapper-mp-cm-cat-name', 'nameUa');
         setValue(el, '#mapper-mp-cm-cat-parent', 'parentId');
         setValue(el, '#mapper-mp-cm-char-name', 'title');
@@ -697,7 +715,6 @@ const FAKE_DATA_FILLERS = {
             `;
         }
 
-        // Show file input
         const fileGroup = el.querySelector('#import-file-group');
         if (fileGroup) fileGroup.classList.remove('u-hidden');
 
@@ -933,7 +950,6 @@ BCAA 5.5 г
 Глютамін 4 г`;
         }
 
-        // Hints sidebar
         const sidebar = el.querySelector('#magic-hints-sidebar');
         if (sidebar) {
             sidebar.innerHTML = `
@@ -947,13 +963,11 @@ BCAA 5.5 г
         }
     },
 
-    // Auth login — заповнюємо фейк credentials
     'auth-login-modal': (el) => {
         setValue(el, '#auth-username', 'admin');
         setValue(el, '#auth-password', 'demo1234');
     },
 
-    // Info modal — заповнюємо контент
     'info-modal': (el) => {
         setText(el, '#modal-title', 'Про розділ "Бренди"');
         const content = el.querySelector('#info-content');

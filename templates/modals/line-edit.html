@@ -1,58 +1,137 @@
-<div class="modal-overlay">
-    <div class="modal-container modal-medium">
-        <!-- Header -->
-        <div class="modal-header">
-            <h2><span id="line-modal-title">Нова лінійка</span></h2>
-            <div class="group">
-                <div class="group">
-                    <button id="save-line" class="btn-icon" aria-label="Зберегти">
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">save</span>
-                        </div>
-                    </button>
-                    <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
+<div class="modal-overlay modal-fullscreen" data-modal-id="line-edit-modal">
+    <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+
+        <!-- HEADER -->
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <button class="btn-icon touch" data-modal-close title="Закрити">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="modal-fullscreen-title">
+                    <h1 id="line-modal-title">Нова лінійка</h1>
                 </div>
             </div>
-        </div>
+            <div class="group">
+                <button class="btn-icon" id="btn-save-line" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-line" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
+        </header>
 
-        <!-- Body -->
-        <div class="modal-body">
-            <fieldset class="form-fieldset">
+        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <div class="modal-body-with-sidebar">
+
+            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
+            <nav class="nav column" id="line-section-navigator">
+                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div class="nav-main">
+                    <a href="#section-line-info" class="btn-icon expand touch active" aria-label="Інформація">
+                        <span class="material-symbols-outlined">info</span>
+                        <span class="btn-icon-label">Інформація</span>
+                    </a>
+                </div>
+
+                <div class="nav-footer">
+                    <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-line" aria-label="Видалити">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- КОНТЕНТ - секції -->
+            <main class="modal-fullscreen-content">
+
+                <!-- Hidden fields -->
                 <input type="hidden" id="line-id">
 
-                <div class="group column">
-                    <label class="label-l" for="line-brand-id">
-                        Бренд                    </label>
-                    <select id="line-brand-id" data-custom-select placeholder="Оберіть бренд..." required>
-                        <option value="">-- Оберіть бренд --</option>
-                        <!-- Динамічно заповнюється через JS -->
-                    </select>
-                </div>
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ІНФОРМАЦІЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-line-info">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Інформація</h2>
+                            </div>
+                            <span class="body-s">Основні дані про лінійку</span>
+                        </div>
+                    </div>
 
-                <div class="group column">
-                    <label class="label-l" for="line-name-uk">
-                        Назва лінійки                    </label>
-                    <input type="text" id="line-name-uk" class="input-main" placeholder="Наприклад: Gold Standard" required>
-                </div>
+                    <div class="section-content">
+                        <div class="grid">
 
-                <div class="group column">
-                    <label class="label-l" for="line-logo-url">URL логотипу</label>
-                    <input type="url" id="line-logo-url" class="input-main" placeholder="https://...">
-                    <label class="label-s">Опціонально. URL зображення логотипу лінійки</label>
-                </div>
-            </fieldset>
+                            <!-- Колонка 1: Бренд -->
+                            <div class="group column col-4">
+                                <label class="label-l" for="line-brand-id">Бренд</label>
+                                <select id="line-brand-id" data-custom-select required>
+                                    <option value="">— Оберіть бренд —</option>
+                                </select>
+                            </div>
+
+                            <!-- Колонка 2: Назва лінійки -->
+                            <div class="group column col-4">
+                                <label class="label-l" for="line-name-uk">Назва лінійки</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="line-name-uk"
+                                                placeholder="Наприклад: Gold Standard" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Колонка 3: Логотип -->
+                            <div class="group column col-4">
+                                <label class="label-l">Логотип</label>
+
+                                <div class="content-bloc" id="line-logo-dropzone">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="url" id="line-logo-url-field"
+                                                placeholder="URL або перетягніть файл...">
+                                        </div>
+                                        <button type="button" class="btn-icon ci-action" id="btn-upload-line-logo"
+                                            data-tooltip="Завантажити">
+                                            <span class="material-symbols-outlined">upload</span>
+                                        </button>
+                                    </div>
+                                    <input type="file" id="line-logo-file-input" accept="image/*" hidden>
+                                </div>
+
+                                <input type="hidden" id="line-logo-url">
+
+                                <!-- Preview: інлайн прев'ю завантаженого логотипу -->
+                                <div class="content-bloc u-hidden" id="line-logo-preview">
+                                    <div class="content-line">
+                                        <div class="content-line-photo">
+                                            <img id="line-logo-preview-img" src="" alt="" show>
+                                        </div>
+                                        <div class="content-line-info">
+                                            <span class="content-line-name" id="line-logo-filename"></span>
+                                            <span class="content-line-label" id="line-logo-filesize"></span>
+                                        </div>
+                                        <span class="tag c-tertiary" id="line-logo-format"></span>
+                                        <button type="button" class="btn-icon ci-remove" id="btn-remove-line-logo"
+                                            data-tooltip="Видалити">
+                                            <span class="material-symbols-outlined">close</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
         </div>
 
-        <!-- Footer -->
-        <div class="modal-footer">
-            <button id="delete-line" class="btn-outline danger u-hidden">
-                <span class="material-symbols-outlined">delete</span>
-                <span>Видалити</span>
-            </button>
-        </div>
     </div>
 </div>

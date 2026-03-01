@@ -21,36 +21,33 @@
 
         <!-- Body -->
         <div class="modal-body">
-            <fieldset class="form-fieldset">
-                <div class="grid">
-                    <div class="group column col-6">
-                        <label class="label-l" for="mapper-mp-name">
-                            Назва                        </label>
-                        <input type="text" id="mapper-mp-name" class="input-main" placeholder="Наприклад: Rozetka" required>
-                    </div>
-
-                    <div class="group column col-6">
-                        <label class="label-l" for="mapper-mp-slug">
-                            Slug                        </label>
-                        <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
-                        <label class="label-s">Унікальний код (латиницею, без пробілів)</label>
-                    </div>
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="mapper-mp-name">
+                        Назва                        </label>
+                    <input type="text" id="mapper-mp-name" class="input-main" placeholder="Наприклад: Rozetka" required>
                 </div>
 
-                <div class="group column">
-                    <label class="label-l">Статус</label>
-                    <div class="switch switch-fit" id="mapper-mp-active-switch">
-                        <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
-                        <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
-                        <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
-                        <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
-                    </div>
-                    <label class="label-s">Неактивні маркетплейси не відображаються в списках вибору</label>
+                <div class="group column col-6">
+                    <label class="label-l" for="mapper-mp-slug">
+                        Slug                        </label>
+                    <input type="text" id="mapper-mp-slug" class="input-main" placeholder="rozetka" required>
+                    <label class="label-s">Унікальний код (латиницею, без пробілів)</label>
                 </div>
-            </fieldset>
+            </div>
 
-            <fieldset class="form-fieldset" id="mapper-mp-normalization">
-                <legend>Нормалізація полів</legend>
+            <div class="group column">
+                <label class="label-l">Статус</label>
+                <div class="switch switch-fit" id="mapper-mp-active-switch">
+                    <input type="radio" id="mapper-mp-active-no" name="mapper-mp-active" value="false">
+                    <label for="mapper-mp-active-no" class="switch-label">Неактивний</label>
+                    <input type="radio" id="mapper-mp-active-yes" name="mapper-mp-active" value="true" checked>
+                    <label for="mapper-mp-active-yes" class="switch-label">Активний</label>
+                </div>
+                <label class="label-s">Неактивні маркетплейси не відображаються в списках вибору</label>
+            </div>
+
+            <div id="mapper-mp-normalization">
                 <small class="body-s u-mb-12" style="display:block">
                     Вкажіть назви полів JSON, які використовує цей маркетплейс.
                     Якщо порожнє — система шукатиме автоматично.
@@ -108,7 +105,7 @@
                     </div>
                     <div class="group column col-6"></div>
                 </div>
-            </fieldset>
+            </div>
         </div>
 
         <!-- Footer -->
