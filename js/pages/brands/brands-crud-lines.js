@@ -6,6 +6,8 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Таблиця лінійок всередині модала бренду.
+ * Всі зміни — чернетки до натискання "Зберегти".
+ *
  * НЕ плутати з lines-table.js (таблиця на сторінці).
  */
 
@@ -29,6 +31,11 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 let _brandLinesCleanup = null;
 let _brandLinesManagedTable = null;
 let _getCurrentBrandId = null;
+
+// Чернетки: лінійки що відображаються в модалі (локальна копія)
+let _draftLines = [];
+// ID лінійок що були від'язані (pending unlink)
+let _pendingUnlinks = [];
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -70,15 +77,24 @@ export function initBrandLinesSection(getCurrentBrandId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Заповнити секцію лінійок бренду
+ * Заповнити секцію лінійок бренду (створює локальну чернетку)
  * @param {string} brandId - ID бренду
  */
 export function populateBrandLines(brandId) {
     const container = document.getElementById('brand-lines-container');
     if (!container) return;
 
-    const allData = getBrandLinesByBrandId(brandId) || [];
+    // Створити свіжу чернетку з реальних даних
+    _draftLines = (getBrandLinesByBrandId(brandId) || []).map(l => ({ ...l }));
+    _pendingUnlinks = [];
 
+    _renderLinesTable(brandId);
+}
+
+/**
+ * Внутрішній рендер таблиці з _draftLines
+ */
+function _renderLinesTable(brandId) {
     registerActionHandlers('brand-crud-lines', {
         edit: async (rowId) => {
             const { showEditLineModal } = await import('./lines-crud.js');
@@ -87,7 +103,7 @@ export function populateBrandLines(brandId) {
         unlink: async (rowId) => {
             if (!rowId) return;
 
-            const line = _brandLinesManagedTable?.getFilteredData().find(l => l.line_id === rowId);
+            const line = _draftLines.find(l => l.line_id === rowId);
             const lineName = line?.name_uk || rowId;
 
             const confirmed = await showConfirmModal({
@@ -97,14 +113,11 @@ export function populateBrandLines(brandId) {
             });
 
             if (confirmed) {
-                try {
-                    await updateBrandLine(rowId, { brand_id: '' });
-                    showToast('Лінійку відв\'язано від бренду', 'success');
-                    populateBrandLines(brandId);
-                } catch (error) {
-                    console.error('Помилка відв\'язування лінійки:', error);
-                    showToast('Помилка відв\'язування лінійки', 'error');
-                }
+                // Чернетка: тільки локально прибрати + запам'ятати
+                _pendingUnlinks.push(rowId);
+                _draftLines = _draftLines.filter(l => l.line_id !== rowId);
+                _renderLinesTable(brandId);
+                showToast('Лінійку буде від\'язано після збереження', 'info');
             }
         }
     });
@@ -120,7 +133,7 @@ export function populateBrandLines(brandId) {
                 })
             })
         ],
-        data: allData,
+        data: _draftLines,
         statsId: null,
         paginationId: null,
         tableConfig: {
@@ -145,4 +158,38 @@ export function populateBrandLines(brandId) {
         pageSize: null,
         checkboxPrefix: 'brand-lines'
     });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMIT / DISCARD
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Зберегти всі pending зміни лінійок в API
+ * Викликається з handleSaveBrand()
+ */
+export async function commitPendingLineChanges() {
+    if (_pendingUnlinks.length === 0) return;
+
+    const promises = _pendingUnlinks.map(lineId =>
+        updateBrandLine(lineId, { brand_id: '' })
+    );
+
+    await Promise.allSettled(promises);
+    _pendingUnlinks = [];
+}
+
+/**
+ * Скинути всі pending зміни (при закритті без збереження)
+ */
+export function discardPendingLineChanges() {
+    _pendingUnlinks = [];
+    _draftLines = [];
+}
+
+/**
+ * Чи є незбережені зміни лінійок
+ */
+export function hasPendingLineChanges() {
+    return _pendingUnlinks.length > 0;
 }

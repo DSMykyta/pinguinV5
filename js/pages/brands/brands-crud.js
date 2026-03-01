@@ -28,7 +28,7 @@ import { populateSelect, reinitializeCustomSelect } from '../../components/forms
 import { initAltNamesHandlers, getAltNames, setAltNames } from './brands-crud-alt-names.js';
 import { initLinksHandlers, getLinks, setLinks } from './brands-crud-links.js';
 import { initLogoHandlers, setLogoPreview, handleRemoveLogo, normalizeName } from './brands-crud-logo.js';
-import { initBrandLinesSection, populateBrandLines } from './brands-crud-lines.js';
+import { initBrandLinesSection, populateBrandLines, commitPendingLineChanges, discardPendingLineChanges } from './brands-crud-lines.js';
 import { showDeleteBrandConfirm } from './brands-delete.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -349,6 +349,8 @@ async function handleSaveBrand(shouldClose = true) {
     try {
         if (currentBrandId) {
             await updateBrand(currentBrandId, brandData);
+            // Зберегти pending зміни лінійок (unlink і т.д.)
+            await commitPendingLineChanges();
             showToast('Бренд успішно оновлено', 'success');
             runHook('onBrandUpdate', currentBrandId, brandData);
         } else {
