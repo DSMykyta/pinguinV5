@@ -10,6 +10,7 @@
 
 import { initCore } from './main-core.js';
 import { showConfirmModal, showCascadeConfirm } from './components/modal/modal-main.js';
+import { showToast } from './components/feedback/toast.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     await initCore();
@@ -103,13 +104,26 @@ function initModalTestButtons() {
         console.log('[test] unlink line:', r);
     });
 
-    document.getElementById('btn-test-delete-link')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'посилання',
-            name: 'optimumnutrition.com',
+    document.getElementById('btn-test-delete-link')?.addEventListener('click', () => {
+        showToast('Посилання optimumnutrition.com видалено', 'info', {
+            duration: 5000,
+            action: {
+                label: 'Відмінити',
+                onClick: () => console.log('[test] link deletion undone'),
+            },
         });
-        console.log('[test] delete link:', r);
+        console.log('[test] delete link: toast shown');
+    });
+
+    document.getElementById('btn-test-remove-logo')?.addEventListener('click', () => {
+        showToast('Логотип видалено', 'info', {
+            duration: 5000,
+            action: {
+                label: 'Відмінити',
+                onClick: () => console.log('[test] logo removal undone'),
+            },
+        });
+        console.log('[test] remove logo: toast shown');
     });
 
     document.getElementById('btn-test-replace-logo')?.addEventListener('click', async () => {

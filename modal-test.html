@@ -274,14 +274,29 @@
                 <div class="modal-card-header">
                     <span class="material-symbols-outlined">delete</span>
                     <span class="modal-card-title">Видалити посилання</span>
-                    <span class="badge c-red">Confirm</span>
+                    <span class="badge c-blue">Toast</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
+                    <span><strong>JS:</strong> showToast з undo action</span>
                     <span><strong>Хто:</strong> Кнопка ✕ біля посилання в brand-edit</span>
-                    <span><strong>Навіщо:</strong> Підтвердження видалення посилання бренду</span>
+                    <span><strong>Навіщо:</strong> Видалення з можливістю відмінити</span>
                 </div>
                 <button class="btn-primary danger modal-card-btn" id="btn-test-delete-link">Видалити посилання</button>
+            </div>
+
+            <!-- Видалити логотип -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span class="modal-card-title">Видалити логотип</span>
+                    <span class="badge c-blue">Toast</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>JS:</strong> showToast з undo action</span>
+                    <span><strong>Хто:</strong> Кнопка видалення логотипу в brand-edit / line-edit</span>
+                    <span><strong>Навіщо:</strong> Видалення з можливістю відмінити</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-remove-logo">Видалити логотип</button>
             </div>
 
             <!-- Замінити логотип -->
@@ -292,7 +307,7 @@
                     <span class="badge c-yellow">Confirm</span>
                 </div>
                 <div class="modal-card-meta">
-                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
+                    <span><strong>JS:</strong> showConfirmModal</span>
                     <span><strong>Хто:</strong> Upload логотипу коли вже є існуючий</span>
                     <span><strong>Навіщо:</strong> Підтвердження заміни логотипу</span>
                 </div>
