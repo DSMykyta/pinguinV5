@@ -198,8 +198,8 @@ function hasExistingLogo() {
 async function uploadLogoWithConfirm(uploadFn) {
     if (hasExistingLogo()) {
         const confirmed = await showConfirmModal({
-            title: 'Замінити?',
-            message: 'Поточний логотип буде замінено новим.',
+            action: 'замінити',
+            entity: 'логотип',
         });
         if (!confirmed) return;
     }

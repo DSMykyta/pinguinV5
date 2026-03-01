@@ -22,59 +22,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function initModalTestButtons() {
 
-    // ── Системні confirm тести ──
+    // ── Системні ──
 
-    document.getElementById('btn-test-confirm')?.addEventListener('click', async () => {
-        const result = await showConfirmModal({
-            action: 'змінити',
-            entity: 'статус',
-            name: '12 товарів',
-        });
-        console.log('[test] confirm result:', result);
-    });
-
-    document.getElementById('btn-test-delete-confirm')?.addEventListener('click', async () => {
-        const result = await showConfirmModal({
-            action: 'видалити',
-            entity: 'бренд',
-            name: 'Optimum Nutrition',
-        });
-        console.log('[test] delete confirm result:', result);
-    });
-
-    document.getElementById('btn-test-reset-confirm')?.addEventListener('click', async () => {
-        const result = await showConfirmModal({
-            title: 'Скинути?',
-            message: 'Всі незбережені зміни буде втрачено.',
-            confirmText: 'Скинути',
-            avatarState: 'confirmReset',
-        });
-        console.log('[test] reset confirm result:', result);
-    });
-
-    document.getElementById('btn-test-close-confirm')?.addEventListener('click', async () => {
-        const result = await showConfirmModal({
-            title: 'Закрити?',
-            message: 'Всі незбережені зміни буде втрачено.',
-            confirmText: 'Закрити',
-            cancelText: 'Залишити',
-            avatarState: 'confirmClose',
-        });
-        console.log('[test] close confirm result:', result);
-    });
-
-    // ── Brands ──
-
-    document.getElementById('btn-test-delete-brand')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'бренд',
-            name: 'Optimum Nutrition',
-        });
-        console.log('[test] delete brand:', r);
-    });
-
-    document.getElementById('btn-test-cascade-brand')?.addEventListener('click', async () => {
+    document.getElementById('btn-test-cascade')?.addEventListener('click', async () => {
         const r = await showCascadeConfirm({
             action: 'видалити',
             entity: 'бренд',
@@ -126,82 +76,6 @@ function initModalTestButtons() {
         console.log('[test] remove logo: toast shown');
     });
 
-    document.getElementById('btn-test-replace-logo')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            title: 'Замінити?',
-            message: 'Поточний логотип буде замінено новим.',
-        });
-        console.log('[test] replace logo:', r);
-    });
-
-    document.getElementById('btn-test-delete-line')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'лінійку',
-            name: 'Gold Standard 100% Whey',
-        });
-        console.log('[test] delete line:', r);
-    });
-
-    // ── Keywords ──
-
-    document.getElementById('btn-test-delete-keyword')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'ключове слово',
-            name: 'Протеїн',
-        });
-        console.log('[test] delete keyword:', r);
-    });
-
-    // ── Mapper: Categories ──
-
-    document.getElementById('btn-test-delete-category')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'категорію',
-            name: 'Спортивне харчування',
-        });
-        console.log('[test] delete category:', r);
-    });
-
-    document.getElementById('btn-test-unlink-char-from-cat')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'від\'язати',
-            entity: 'характеристику',
-            name: 'Вага нетто',
-        });
-        console.log('[test] unlink char from cat:', r);
-    });
-
-    document.getElementById('btn-test-unmap-category')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'від\'язати',
-            entity: 'категорію',
-            name: 'Спортивне харчування',
-        });
-        console.log('[test] unmap category:', r);
-    });
-
-    // ── Mapper: Characteristics ──
-
-    document.getElementById('btn-test-delete-characteristic')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'видалити',
-            entity: 'характеристику',
-            name: 'Вага нетто',
-        });
-        console.log('[test] delete characteristic:', r);
-    });
-
-    document.getElementById('btn-test-unlink-opt-from-char')?.addEventListener('click', async () => {
-        const r = await showConfirmModal({
-            action: 'від\'язати',
-            entity: 'опцію',
-            name: 'Шоколад',
-        });
-        console.log('[test] unlink opt from char:', r);
-    });
 
     document.getElementById('btn-test-unmap-characteristic')?.addEventListener('click', async () => {
         const r = await showConfirmModal({

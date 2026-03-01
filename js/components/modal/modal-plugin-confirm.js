@@ -10,12 +10,13 @@
 ║  📋 API:                                                                 ║
 ║  showConfirmModal({ action, entity, name })                              ║
 ║  ├── action   — дія: "видалити", "від'язати", "замінити"                ║
-║  ├── entity   — сутність: "бренд", "лінійку", "посилання"              ║
-║  └── name     — назва сутності (виділяється червоним тегом)             ║
+║  ├── entity   — сутність: "бренд", "лінійку", "логотип"                ║
+║  └── name     — назва (опціонально, виділяється червоним тегом)         ║
 ║                                                                          ║
 ║  Плагін сам формує:                                                      ║
 ║  ├── Title:   "Видалити?"                                                ║
-║  └── Message: "Ви впевнені, що хочете видалити бренд <tag>NAME</tag>?" ║
+║  ├── З name:  "Ви впевнені, що хочете видалити бренд <tag>NAME</tag>?" ║
+║  └── Без name: "Ви впевнені, що хочете замінити логотип?"              ║
 ║                                                                          ║
 ║  confirmText / cancelText теж автоматичні (з action),                   ║
 ║  але можна перевизначити.                                                ║
@@ -69,7 +70,9 @@ export async function showConfirmModal(options = {}) {
     const resolvedMessage = message
         || ((action && entity && name)
             ? `Ви впевнені, що хочете ${action} ${entity} <span class="c-red">${name}</span>?`
-            : 'Ви впевнені?');
+            : (action && entity)
+                ? `Ви впевнені, що хочете ${action} ${entity}?`
+                : 'Ви впевнені?');
 
     // Auto-generate button text from action
     const resolvedConfirmText = confirmText || (action ? capitalize(action) : 'Так');

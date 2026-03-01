@@ -2,23 +2,31 @@
     <div class="modal-container modal-small">
         <!-- Header -->
         <div class="modal-header">
-            <h2>Підтвердження</h2>
+            <h2>[Дія]?</h2>
         </div>
 
         <!-- Body -->
         <div class="modal-body">
             <div class="modal-confirm-body">
                 <!-- Avatar container -->
-                <div id="modal-confirm-avatar-container"></div>
+                <div id="modal-confirm-avatar-container">
+                    <div class="modal-confirm-avatar">
+                        <img src="resources/avatars/1056/penguin-angry.png"
+                             alt="penguin angry"
+                             class="modal-confirm-avatar-image"
+                             width="80" height="80"
+                             onerror="this.onerror=null; this.src='resources/avatars/1056/penguin-angry.png'">
+                    </div>
+                </div>
 
-                <div class="speech-bubble body-s" id="modal-confirm-message-text"></div>
+                <div class="speech-bubble body-s" id="modal-confirm-message-text">Ви впевнені, що хочете [дія] [сутність] <span class="c-red">[назва]</span>?</div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="modal-footer">
             <button class="btn-ghost" data-confirm-action="cancel" id="modal-confirm-cancel-btn">Скасувати</button>
-            <button class="danger" data-confirm-action="confirm" id="modal-confirm-confirm-btn">Підтвердити</button>
+            <button class="danger" data-confirm-action="confirm" id="modal-confirm-confirm-btn">[Дія]</button>
         </div>
     </div>
 </div>

@@ -123,7 +123,7 @@
 
         <div class="modal-cards">
 
-            <!-- Confirm Modal (unified) -->
+            <!-- Confirm Modal -->
             <div class="modal-card">
                 <div class="modal-card-header">
                     <span class="material-symbols-outlined">help</span>
@@ -132,16 +132,27 @@
                 </div>
                 <div class="modal-card-meta">
                     <span><strong>Шаблон:</strong> templates/modals/modal-confirm.html</span>
-                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
-                    <span><strong>Хто:</strong> brands-delete, lines-delete, mapper-*, banned-words-tabs, price-import</span>
-                    <span><strong>Навіщо:</strong> Promise-based діалог з аватаром + speech-bubble. Кожна сторінка сама заповнює title/message</span>
+                    <span><strong>JS:</strong> modal-plugin-confirm.js → showConfirmModal({ action, entity, name })</span>
+                    <span><strong>Хто:</strong> brands-delete, lines-delete, mapper-*, price-import, layout-tabs</span>
+                    <span><strong>Навіщо:</strong> Promise-based підтвердження з аватаром. [Дія]? + Ви впевнені, що хочете [дія] [сутність] [назва]?</span>
                 </div>
-                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:auto;">
-                    <button class="btn-primary" id="btn-test-confirm">Confirm</button>
-                    <button class="btn-primary danger" id="btn-test-delete-confirm">Delete</button>
-                    <button class="btn-primary warning" id="btn-test-reset-confirm">Reset</button>
-                    <button class="btn-ghost" id="btn-test-close-confirm">Close</button>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="modal-confirm">Відкрити</button>
+            </div>
+
+            <!-- Cascade Confirm -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">account_tree</span>
+                    <span class="modal-card-title">Cascade Confirm</span>
+                    <span class="badge c-red">Promise</span>
                 </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/confirm-cascade.html</span>
+                    <span><strong>JS:</strong> modal-plugin-confirm.js → showCascadeConfirm({ action, entity, name, count, children })</span>
+                    <span><strong>Хто:</strong> brands-delete (бренд з лінійками)</span>
+                    <span><strong>Навіщо:</strong> Каскадне видалення з switch (видалити/перенести дочірні) + select переносу</span>
+                </div>
+                <button class="btn-primary danger modal-card-btn" id="btn-test-cascade">Відкрити</button>
             </div>
 
             <!-- Info Modal -->
@@ -224,51 +235,6 @@
                 <button class="btn-primary modal-card-btn" data-modal-trigger="line-edit">Відкрити</button>
             </div>
 
-            <!-- Видалити бренд -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити бренд</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-delete.js → showModal('modal-confirm')</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в brand-edit модалі (бренд без лінійок)</span>
-                    <span><strong>Навіщо:</strong> Просте підтвердження видалення бренду</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-brand">Видалити бренд</button>
-            </div>
-
-            <!-- Каскадне видалення бренду -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">account_tree</span>
-                    <span class="modal-card-title">Каскадне видалення бренду</span>
-                    <span class="badge c-red">Cascade</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> brands-delete.js → showModal('confirm-cascade')</span>
-                    <span><strong>Шаблон:</strong> confirm-cascade.html</span>
-                    <span><strong>Навіщо:</strong> Каскадне видалення бренду з лінійками (switch + перенос)</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-cascade-brand">Каскадне видалення</button>
-            </div>
-
-            <!-- Відв'язати лінійку -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати лінійку</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> showModal('modal-confirm') напряму</span>
-                    <span><strong>Хто:</strong> Кнопка unlink в таблиці лінійок brand-edit</span>
-                    <span><strong>Навіщо:</strong> Відв'язування лінійки від бренду</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-line">Відв'язати лінійку</button>
-            </div>
-
             <!-- Видалити посилання -->
             <div class="modal-card">
                 <div class="modal-card-header">
@@ -297,36 +263,6 @@
                     <span><strong>Навіщо:</strong> Видалення з можливістю відмінити</span>
                 </div>
                 <button class="btn-primary danger modal-card-btn" id="btn-test-remove-logo">Видалити логотип</button>
-            </div>
-
-            <!-- Замінити логотип -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">swap_horiz</span>
-                    <span class="modal-card-title">Замінити логотип</span>
-                    <span class="badge c-yellow">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> showConfirmModal</span>
-                    <span><strong>Хто:</strong> Upload логотипу коли вже є існуючий</span>
-                    <span><strong>Навіщо:</strong> Підтвердження заміни логотипу</span>
-                </div>
-                <button class="btn-primary warning modal-card-btn" id="btn-test-replace-logo">Замінити логотип</button>
-            </div>
-
-            <!-- Видалити лінійку -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити лінійку</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> lines-delete.js → showModal('modal-confirm')</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в line-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Підтвердження видалення лінійки</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-line">Видалити лінійку</button>
             </div>
 
         </div>
@@ -394,21 +330,6 @@
                 <button class="btn-primary modal-card-btn" data-modal-trigger="product-text-view">Відкрити</button>
             </div>
 
-            <!-- Закрити таб banned-words -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">tab_close</span>
-                    <span class="modal-card-title">Закрити таб</span>
-                    <span class="badge c-yellow">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> banned-words-tabs.js:261 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка ✕ на табі перевірки</span>
-                    <span><strong>Навіщо:</strong> Підтвердження закриття табу з даними</span>
-                </div>
-                <button class="btn-ghost modal-card-btn" id="btn-test-close-tab-banned">Закрити таб</button>
-            </div>
-
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -438,21 +359,6 @@
                     <span><strong>Тип:</strong> modal-fullscreen + sidebar (3 секції)</span>
                 </div>
                 <button class="btn-primary modal-card-btn" data-modal-trigger="keywords-edit">Відкрити</button>
-            </div>
-
-            <!-- Видалити ключове слово -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити ключове слово</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> keywords-crud.js:134 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в keywords-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Підтвердження видалення ключового слова</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-keyword">Видалити</button>
             </div>
 
         </div>
@@ -639,201 +545,6 @@
                 <button class="btn-primary modal-card-btn" data-modal-trigger="mapper-map-to-mp">Відкрити</button>
             </div>
 
-            <!-- Видалити категорію -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити категорію</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-categories.js:220 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в category-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка характеристик</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-category">Видалити категорію</button>
-            </div>
-
-            <!-- Відв'язати характеристику від категорії -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати характеристику</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-categories.js:556 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unlink в таблиці характеристик category-edit</span>
-                    <span><strong>Навіщо:</strong> Відв'язування характеристики від категорії</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-char-from-cat">Відв'язати</button>
-            </div>
-
-            <!-- Відв'язати категорію МП -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати категорію МП</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-categories.js:822 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unmap в секції МП category-edit</span>
-                    <span><strong>Навіщо:</strong> Зняття прив'язки категорії з маркетплейсу</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-category">Відв'язати МП</button>
-            </div>
-
-            <!-- Видалити характеристику -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити характеристику</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-characteristics.js:230 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в characteristic-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка опцій</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-characteristic">Видалити характеристику</button>
-            </div>
-
-            <!-- Відв'язати опцію від характеристики -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати опцію</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-characteristics.js:497 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unlink в таблиці опцій characteristic-edit</span>
-                    <span><strong>Навіщо:</strong> Відв'язування опції від характеристики</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-opt-from-char">Відв'язати</button>
-            </div>
-
-            <!-- Відв'язати характеристику МП -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати характеристику МП</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-characteristics.js:723 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unmap в секції МП characteristic-edit</span>
-                    <span><strong>Навіщо:</strong> Зняття прив'язки характеристики з маркетплейсу</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-characteristic">Відв'язати МП</button>
-            </div>
-
-            <!-- Видалити опцію -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити опцію</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-options.js:221 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в option-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Каскадне видалення: маппінги + відв'язка дочірніх</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-option">Видалити опцію</button>
-            </div>
-
-            <!-- Відв'язати дочірню опцію -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати дочірню опцію</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-options.js:430 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unlink в таблиці дочірніх option-edit</span>
-                    <span><strong>Навіщо:</strong> Відв'язування дочірньої опції від батьківської</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unlink-child-option">Відв'язати</button>
-            </div>
-
-            <!-- Відв'язати опцію МП -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">link_off</span>
-                    <span class="modal-card-title">Відв'язати опцію МП</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-options.js:578 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка unmap в секції МП option-edit</span>
-                    <span><strong>Навіщо:</strong> Зняття прив'язки опції з маркетплейсу</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-unmap-option">Відв'язати МП</button>
-            </div>
-
-            <!-- Видалити маркетплейс -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити маркетплейс</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-marketplaces.js:265 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 в marketplace-edit модалі</span>
-                    <span><strong>Навіщо:</strong> Каскадне видалення: всі МП дані + маппінги</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-marketplace">Видалити маркетплейс</button>
-            </div>
-
-            <!-- Видалити довідники МП -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete_sweep</span>
-                    <span class="modal-card-title">Видалити довідники</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-marketplaces.js:532 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка "Видалити всі" в mp-data модалі</span>
-                    <span><strong>Навіщо:</strong> Видалення всіх довідників маркетплейсу</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-mp-refs-all">Видалити довідники</button>
-            </div>
-
-            <!-- Видалити довідник МП -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="modal-card-title">Видалити довідник</span>
-                    <span class="badge c-red">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-marketplaces.js:587 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка 🗑 біля довідника в mp-data модалі</span>
-                    <span><strong>Навіщо:</strong> Видалення одного довідника маркетплейсу</span>
-                </div>
-                <button class="btn-primary danger modal-card-btn" id="btn-test-delete-mp-ref">Видалити довідник</button>
-            </div>
-
-            <!-- Замапити (events) -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">add_link</span>
-                    <span class="modal-card-title">Замапити (підтвердження)</span>
-                    <span class="badge c-yellow">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> mapper-events.js:199/271/352 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Drag-n-drop маппінг в таблицях</span>
-                    <span><strong>Навіщо:</strong> Підтвердження створення прив'язки</span>
-                </div>
-                <button class="btn-primary warning modal-card-btn" id="btn-test-confirm-map">Замапити</button>
-            </div>
-
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -931,36 +642,6 @@
                     <span><strong>Тип:</strong> modal-medium + sidebar hints</span>
                 </div>
                 <button class="btn-primary modal-card-btn" data-modal-trigger="magic-modal">Відкрити</button>
-            </div>
-
-            <!-- Імпорт прайсу -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">upload</span>
-                    <span class="modal-card-title">Імпорт прайсу</span>
-                    <span class="badge c-yellow">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> price-import.js:146 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка імпорту на price.html</span>
-                    <span><strong>Навіщо:</strong> Підтвердження запуску імпорту прайсу</span>
-                </div>
-                <button class="btn-primary warning modal-card-btn" id="btn-test-confirm-price-import">Імпортувати</button>
-            </div>
-
-            <!-- Закрити таб (layout) -->
-            <div class="modal-card">
-                <div class="modal-card-header">
-                    <span class="material-symbols-outlined">tab_close</span>
-                    <span class="modal-card-title">Закрити таб (layout)</span>
-                    <span class="badge c-yellow">Confirm</span>
-                </div>
-                <div class="modal-card-meta">
-                    <span><strong>JS:</strong> layout-plugin-nav-tabs-dynamic.js:286 → showConfirmModal()</span>
-                    <span><strong>Хто:</strong> Кнопка ✕ на динамічному табі навігації</span>
-                    <span><strong>Навіщо:</strong> Підтвердження закриття табу з незбереженими даними</span>
-                </div>
-                <button class="btn-ghost modal-card-btn" id="btn-test-close-tab-layout">Закрити таб</button>
             </div>
 
         </div>
