@@ -68,10 +68,12 @@ export async function showModal(modalId, triggerElement = null) {
         modalElement.dataset.modalId = modalId;
         document.body.appendChild(modalElement);
 
-        // Закриття при кліку на overlay
-        modalElement.addEventListener('click', (e) => {
-            if (e.target === modalElement) closeModal(modalId);
-        });
+        // Закриття при кліку на overlay (не для fullscreen)
+        if (!modalElement.classList.contains('modal-fullscreen')) {
+            modalElement.addEventListener('click', (e) => {
+                if (e.target === modalElement) closeModal(modalId);
+            });
+        }
 
         // Показуємо модал
         document.body.classList.add('modal-open');

@@ -34,11 +34,12 @@
    ============================================ */
 
 .modal-fullscreen {
-    background: var(--color-surface);
+    background: var(--color-modal-overlay);
 }
 
 .modal-fullscreen.open {
-    backdrop-filter: none;
+    backdrop-filter: var(--blur-s);
+    -webkit-backdrop-filter: var(--blur-s);
 }
 
 /* ============================================
@@ -46,11 +47,14 @@
    ============================================ */
 
 .modal-fullscreen-container {
-    width: 100vw;
-    height: 100dvh;
+    width: 95vw;
+    height: 95dvh;
     display: flex;
     flex-direction: column;
     background: var(--color-surface);
+    border-radius: 28px;
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
 }
 
 /* ============================================
@@ -61,7 +65,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px;
+    padding: 12px 16px;
     background: var(--color-surface);
     flex-shrink: 0;
     z-index: var(--z-header);
@@ -71,6 +75,10 @@
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.modal-fullscreen-header .group {
+    margin-bottom: 0;
 }
 
 
@@ -92,7 +100,6 @@
 .modal-with-sidebar {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .modal-body-with-sidebar {
