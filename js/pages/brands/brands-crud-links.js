@@ -9,7 +9,6 @@
  */
 
 import { escapeHtml } from '../../utils/text-utils.js';
-import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
@@ -71,18 +70,26 @@ function addLinkRow(link = { name: '', url: '' }) {
         }
     };
 
-    row.querySelector('.ci-remove').onclick = async () => {
-        const linkName = row.querySelector('input[type="text"]').value.trim() || 'це посилання';
-        const confirmed = await showConfirmModal({
-            action: 'видалити',
-            entity: 'посилання',
-            name: escapeHtml(linkName),
-        });
+    row.querySelector('.ci-remove').onclick = () => {
+        const container = document.getElementById('brand-links-container');
+        const linkName = row.querySelector('input[type="text"]').value.trim() || 'посилання';
+        const nextSibling = row.nextSibling;
 
-        if (confirmed) {
-            row.remove();
-            updateLinksEmptyState();
-        }
+        row.remove();
+        updateLinksEmptyState();
+
+        showToast(`Посилання ${linkName} видалено`, 'info', {
+            duration: 5000,
+            action: {
+                label: 'Відмінити',
+                onClick: () => {
+                    if (container) {
+                        container.insertBefore(row, nextSibling);
+                        updateLinksEmptyState();
+                    }
+                },
+            },
+        });
     };
 
     container.appendChild(row);
