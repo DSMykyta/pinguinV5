@@ -151,7 +151,7 @@ export async function addBrandLine(lineData) {
         });
 
         brandsState.brandLines.push(newLine);
-        notifyChange();
+        notifyChange(newLine.brand_id);
 
         return newLine;
     } catch (error) {
@@ -197,7 +197,7 @@ export async function updateBrandLine(lineId, updates) {
 
         // Оновити state
         Object.assign(line, updatedLine);
-        notifyChange();
+        notifyChange(line.brand_id);
 
         return line;
     } catch (error) {
@@ -242,7 +242,7 @@ export async function deleteBrandLine(lineId) {
 
         brandsState.brandLines.splice(lineIndex, 1);
         brandsState.brandLines.forEach(l => { if (l._rowIndex > rowIndex) l._rowIndex--; });
-        notifyChange();
+        notifyChange(line.brand_id);
 
     } catch (error) {
         console.error('❌ Помилка видалення лінійки:', error);

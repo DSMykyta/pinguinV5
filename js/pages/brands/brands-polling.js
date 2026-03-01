@@ -109,18 +109,27 @@ channel.onmessage = async (event) => {
     if (event.data?.type !== 'brands-changed') return;
     console.log('📡 BroadcastChannel: отримано сповіщення про зміни');
     await refreshData();
-    const { refreshBrandModal } = await import('./brands-crud.js');
-    const { showToast } = await import('../../components/feedback/toast.js');
-    refreshBrandModal();
-    showToast('Дані оновлено іншим користувачем', 'info');
+
+    const { refreshBrandModal, getCurrentBrandId } = await import('./brands-crud.js');
+    const changedBrandId = event.data.brandId;
+    const openBrandId = getCurrentBrandId();
+
+    // Оновити модал + тост тільки якщо відкритий той самий бренд
+    if (openBrandId && changedBrandId && openBrandId === changedBrandId) {
+        const { showToast } = await import('../../components/feedback/toast.js');
+        refreshBrandModal();
+        showToast('Дані оновлено іншим користувачем', 'info');
+    }
+
     polling.resetSnapshots();
 };
 
 /**
  * Сповістити інші вкладки про збереження
+ * @param {string} [brandId] — ID бренду що змінився
  */
-export function notifyChange() {
-    channel.postMessage({ type: 'brands-changed', timestamp: Date.now() });
+export function notifyChange(brandId) {
+    channel.postMessage({ type: 'brands-changed', brandId, timestamp: Date.now() });
 }
 
 // ── Polling instance ──

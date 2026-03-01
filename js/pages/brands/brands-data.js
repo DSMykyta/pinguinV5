@@ -263,7 +263,7 @@ export async function addBrand(brandData) {
         });
 
         brandsState.brands.push(newBrand);
-        notifyChange();
+        notifyChange(newId);
 
         return newBrand;
     } catch (error) {
@@ -314,7 +314,7 @@ export async function updateBrand(brandId, updates) {
 
         // Оновити state
         Object.assign(brand, updatedBrand);
-        notifyChange();
+        notifyChange(brandId);
 
         return brand;
     } catch (error) {
@@ -359,7 +359,7 @@ export async function deleteBrand(brandId) {
 
         brandsState.brands.splice(brandIndex, 1);
         brandsState.brands.forEach(b => { if (b._rowIndex > rowIndex) b._rowIndex--; });
-        notifyChange();
+        notifyChange(brandId);
 
     } catch (error) {
         console.error('❌ Помилка видалення бренду:', error);

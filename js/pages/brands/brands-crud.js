@@ -382,6 +382,10 @@ export function refreshBrandModal() {
     populateBrandLines(currentBrandId);
 }
 
+export function getCurrentBrandId() {
+    return currentBrandId;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
