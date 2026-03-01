@@ -75,6 +75,8 @@
     display: flex;
     align-items: center;
     gap: 16px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .modal-fullscreen-header .group {
@@ -86,11 +88,16 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .modal-fullscreen-title h1 {
     margin: 0;
     color: var(--color-on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ============================================
