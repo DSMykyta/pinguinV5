@@ -239,3 +239,31 @@
         display: flex;
     }
 }
+
+/* ============================================================================
+   FOCUS-SPLIT: Editors expand/shrink on focus
+   ============================================================================ */
+
+.editor-focus-split {
+    grid-template-columns: 1fr 1fr !important;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.editor-focus-split > .group {
+    grid-column: auto !important;
+}
+
+/* Focus on first editor → 2fr 1fr */
+.editor-focus-split:has(.group:first-child :focus-within) {
+    grid-template-columns: 2fr 1fr !important;
+}
+
+/* Focus on second editor → 1fr 2fr */
+.editor-focus-split:has(.group:last-child :focus-within) {
+    grid-template-columns: 1fr 2fr !important;
+}
+
+/* Unfocused editor: hide toolbar actions, keep only tag + validation */
+.editor-focus-split:has(:focus-within) .rich-editor-container:not(:focus-within) .format-toolbar > :not(.tag) {
+    display: none;
+}
