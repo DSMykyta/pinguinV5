@@ -16,10 +16,29 @@
  */
 
 import { loadHTML } from '../utils/html-loader.js';
+import { getUserData } from '../auth/auth-google.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ВНУТРІШНЯ ЛОГІКА
 // ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Чи має юзер налаштування menu=true (nav expanded по дефолту)
+ */
+function isMenuExpanded() {
+    const user = getUserData();
+    return user?.menu === true;
+}
+
+/**
+ * Застосувати expanded стан до nav.column
+ */
+function applyNavExpanded(nav) {
+    nav.classList.add('expanded');
+    if (nav.id === 'main-nav') {
+        document.body.classList.add('nav-expanded');
+    }
+}
 
 function setActiveLink(nav) {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -82,8 +101,19 @@ export async function init() {
         if (navMain) navMain.remove();
     } else {
         setActiveLink(nav);
+        // Якщо user.menu === true — розгортаємо nav по дефолту
+        if (isMenuExpanded()) applyNavExpanded(nav);
     }
 
     // Toggle expanded/collapsed для nav.column
     initNavToggle();
+
+    // Модальні nav — розгортаємо при відкритті модалу якщо menu=true
+    if (isMenuExpanded()) {
+        document.addEventListener('modal-opened', (e) => {
+            const { bodyTarget } = e.detail;
+            if (!bodyTarget) return;
+            bodyTarget.querySelectorAll('.nav.column').forEach(applyNavExpanded);
+        });
+    }
 }
