@@ -241,7 +241,3 @@
     grid-template-columns: 1fr 2fr !important;
 }
 
-/* Unfocused editor: hide toolbar actions, keep only tag + validation */
-.editor-focus-split:has(:focus-within) .rich-editor-container:not(:focus-within) .format-toolbar > :not(.tag) {
-    display: none;
-}

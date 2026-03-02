@@ -88,8 +88,25 @@ function sanitizeBrPaste(html) {
         while (el.attributes.length > 0) el.removeAttribute(el.attributes[0].name);
     });
 
-    // Прибираємо подвійні <br> підряд
-    temp.querySelectorAll('br + br').forEach(br => br.remove());
+    // Прибираємо 3+ <br> підряд → залишаємо 2 (порожній рядок)
+    const brs = temp.querySelectorAll('br');
+    brs.forEach(br => {
+        let count = 1;
+        let next = br.nextSibling;
+        while (next && next.nodeName === 'BR') {
+            count++;
+            next = next.nextSibling;
+        }
+        if (count > 2) {
+            let toRemove = br.nextSibling;
+            while (toRemove && toRemove.nodeName === 'BR' && count > 2) {
+                const rm = toRemove;
+                toRemove = toRemove.nextSibling;
+                rm.remove();
+                count--;
+            }
+        }
+    });
 
     return temp.innerHTML;
 }
