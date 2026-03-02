@@ -26,8 +26,8 @@ const AUTOFILL_RULES = [
     {
         id: 'brand-country',
         sourceField: 'country_option_id',
-        targetCharId: 'char-000002',
-        toastText: 'Країна реєстрації',
+        targetCharId: 'char-000003',
+        toastText: 'Країна виробника',
     },
     // Нові правила додавати тут:
     // { id: 'brand-xxx', sourceField: '...', targetCharId: 'char-XXXXXX', toastText: '...' },
