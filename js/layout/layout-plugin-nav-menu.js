@@ -10,7 +10,8 @@
  * ║  📋 ЩО РОБИТЬ:                                                           ║
  * ║  ├── Завантажує templates/partials/nav.html у #main-nav                  ║
  * ║  ├── Додає клас .active на посилання поточної сторінки                   ║
- * ║  └── Click-toggle expanded/collapsed для .nav.column                    ║
+ * ║  ├── Click-toggle expanded/collapsed для .nav.column                    ║
+ * ║  └── user.menu=true → expanded по дефолту (сторінки + модалі)           ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -101,19 +102,30 @@ export async function init() {
         if (navMain) navMain.remove();
     } else {
         setActiveLink(nav);
-        // Якщо user.menu === true — розгортаємо nav по дефолту
+        // Якщо user.menu вже є в localStorage — застосувати одразу
         if (isMenuExpanded()) applyNavExpanded(nav);
     }
 
     // Toggle expanded/collapsed для nav.column
     initNavToggle();
 
+    // Після auth verify — user_data оновлюється, застосовуємо menu setting
+    document.addEventListener('auth-state-changed', (e) => {
+        if (!e.detail.isAuthorized) return;
+        if (!isMenuExpanded()) return;
+
+        // Сторінковий nav
+        const mainNav = document.getElementById('main-nav');
+        if (mainNav && !mainNav.classList.contains('expanded')) {
+            applyNavExpanded(mainNav);
+        }
+    });
+
     // Модальні nav — розгортаємо при відкритті модалу якщо menu=true
-    if (isMenuExpanded()) {
-        document.addEventListener('modal-opened', (e) => {
-            const { bodyTarget } = e.detail;
-            if (!bodyTarget) return;
-            bodyTarget.querySelectorAll('.nav.column').forEach(applyNavExpanded);
-        });
-    }
+    document.addEventListener('modal-opened', (e) => {
+        if (!isMenuExpanded()) return;
+        const { bodyTarget } = e.detail;
+        if (!bodyTarget) return;
+        bodyTarget.querySelectorAll('.nav.column').forEach(applyNavExpanded);
+    });
 }

@@ -548,6 +548,71 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- ГРУПА: PRODUCTS -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">inventory_2</span>
+            Products (Товари)
+        </h3>
+        <p class="group-subtitle">Сторінка: products.html → js/pages/products/</p>
+
+        <div class="modal-cards">
+
+            <!-- Product Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="modal-card-title">Product Edit (Fullscreen)</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/product-edit.html</span>
+                    <span><strong>JS:</strong> products-crud.js → showAddProductModal() / showEditProductModal(id)</span>
+                    <span><strong>Хто:</strong> Таблиця товарів → "+" або клік на рядок</span>
+                    <span><strong>Навіщо:</strong> CRUD товару: інфо, фото, варіанти, склад, опис, характеристики, SEO</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar (7+ секцій)</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="product-edit-modal">Відкрити</button>
+            </div>
+
+            <!-- Product Wizard -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">auto_fix_high</span>
+                    <span class="modal-card-title">Product Wizard</span>
+                    <span class="badge c-yellow">Wizard</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/product-wizard.html</span>
+                    <span><strong>JS:</strong> products-wizard.js → showProductWizard()</span>
+                    <span><strong>Хто:</strong> Aside FAB → "Wizard" або кнопка на сторінці</span>
+                    <span><strong>Навіщо:</strong> Покрокове створення товару з AI-допомогою</span>
+                    <span><strong>Тип:</strong> modal-large, multi-step wizard</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="product-wizard">Відкрити</button>
+            </div>
+
+            <!-- Variant Edit -->
+            <div class="modal-card">
+                <div class="modal-card-header">
+                    <span class="material-symbols-outlined">style</span>
+                    <span class="modal-card-title">Variant Edit</span>
+                    <span class="badge c-blue">CRUD</span>
+                </div>
+                <div class="modal-card-meta">
+                    <span><strong>Шаблон:</strong> templates/modals/variant-edit.html</span>
+                    <span><strong>JS:</strong> products-crud-variants.js</span>
+                    <span><strong>Хто:</strong> Секція "Варіанти" в product-edit або таблиця варіантів</span>
+                    <span><strong>Навіщо:</strong> CRUD варіанту: SKU, ціна, об'єм, вага, штрихкод</span>
+                    <span><strong>Тип:</strong> modal-fullscreen + sidebar</span>
+                </div>
+                <button class="btn-primary modal-card-btn" data-modal-trigger="variant-edit">Відкрити</button>
+            </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
         <!-- ГРУПА 6: ЗАГАЛЬНІ / УТИЛІТАРНІ -->
         <!-- ═══════════════════════════════════════════════════════════════ -->
         <hr class="group-divider">

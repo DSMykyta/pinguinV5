@@ -127,9 +127,19 @@ function initProductsTable() {
 
             return data.map(p => {
                 const count = variants.filter(v => v.product_id === p.product_id).length;
+
+                // image_url може бути JSON масив — витягуємо перший URL
+                let thumbUrl = '';
+                const raw = p.image_url || '';
+                if (raw.startsWith('[')) {
+                    try { const arr = JSON.parse(raw); thumbUrl = arr[0] || ''; } catch { /* ignore */ }
+                } else if (raw.startsWith('http')) {
+                    thumbUrl = raw;
+                }
+
                 return {
                     ...p,
-                    // Показувати згенеровану коротку назву замість name_ua
+                    image_url: thumbUrl,
                     name_ua: p.generated_short_ua || p.name_ua,
                     brand_name: brandMap[p.brand_id] || p.brand_id,
                     category_name: catMap[p.category_id] || p.category_id,
