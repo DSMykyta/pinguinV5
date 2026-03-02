@@ -29,6 +29,7 @@ import { runHook } from './products-plugins.js';
 import { buildShortName, buildFullName, buildVariantFullName } from './products-crud.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { initVariantPhotoSection, setVariantPhotoUrls, getVariantPhotoUrls, clearVariantPhotos } from './products-crud-variant-photos.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -164,7 +165,9 @@ async function showAddVariantModal() {
     if (title) title.textContent = 'Новий варіант';
 
     clearVariantForm();
+    clearVariantPhotos();
     initVariantEditors();
+    initVariantPhotoSection();
     const productIdField = document.getElementById('variant-product-id');
     if (productIdField) productIdField.value = productId;
 
@@ -192,6 +195,7 @@ export async function showEditVariantModal(variantId) {
     if (title) title.textContent = `Редагувати ${variant.name_ua || variant.variant_id}`;
 
     initVariantEditors();
+    initVariantPhotoSection();
     fillVariantForm(variant);
     await renderVariantCharacteristics(variant.product_id, variant.variant_chars || {}, variant);
     initVariantSaveHandler();
@@ -249,7 +253,7 @@ function clearVariantForm() {
     const fields = [
         'variant-id', 'variant-product-id', 'variant-name-ua', 'variant-name-ru',
         'variant-sku', 'variant-price', 'variant-barcode', 'variant-weight',
-        'variant-stock', 'variant-image-url', 'variant-image-url-field'
+        'variant-stock', 'variant-image-url'
     ];
     fields.forEach(id => {
         const el = document.getElementById(id);
@@ -293,11 +297,19 @@ function fillVariantForm(variant) {
     const stock = document.getElementById('variant-stock');
     if (stock) stock.value = variant.stock || '';
 
-    const imageUrl = document.getElementById('variant-image-url');
-    if (imageUrl) imageUrl.value = variant.image_url || '';
-
-    const imageUrlField = document.getElementById('variant-image-url-field');
-    if (imageUrlField) imageUrlField.value = variant.image_url || '';
+    // Фото: JSON масив або одиночний URL
+    const rawImageUrl = variant.image_url || '';
+    let photoUrls = [];
+    if (rawImageUrl) {
+        try {
+            const parsed = JSON.parse(rawImageUrl);
+            if (Array.isArray(parsed)) photoUrls = parsed;
+            else photoUrls = [rawImageUrl];
+        } catch {
+            photoUrls = [rawImageUrl];
+        }
+    }
+    setVariantPhotoUrls(photoUrls);
 
     const statusRadio = document.querySelector(`input[name="variant-status"][value="${variant.status || 'active'}"]`);
     if (statusRadio) statusRadio.checked = true;
@@ -319,8 +331,7 @@ function getVariantFormData() {
         barcode: document.getElementById('variant-barcode')?.value.trim() || '',
         weight: document.getElementById('variant-weight')?.value.trim() || '',
         stock: document.getElementById('variant-stock')?.value.trim() || '',
-        image_url: document.getElementById('variant-image-url-field')?.value.trim() ||
-                   document.getElementById('variant-image-url')?.value.trim() || '',
+        image_url: document.getElementById('variant-image-url')?.value.trim() || '',
         status: document.querySelector('input[name="variant-status"]:checked')?.value || 'active',
         variant_chars: getVariantCharsData(),
         spec_ua: getSpecFieldValue('ua'),
@@ -883,6 +894,7 @@ export function discardPendingVariantChanges() {
     _currentVariantId = null;
 
     destroyVariantEditors();
+    clearVariantPhotos();
 
     if (_variantsManagedTable) {
         _variantsManagedTable.destroy();

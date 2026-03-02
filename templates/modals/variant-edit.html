@@ -1,4 +1,4 @@
-<div class="modal-overlay modal-fullscreen" data-modal-id="variant-edit-modal">
+<div class="modal-overlay modal-fullscreen" data-modal-id="variant-edit">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
         <!-- HEADER -->
@@ -14,10 +14,12 @@
             </div>
             <div class="group">
                 <div class="switch switch-fit" id="variant-status-switch">
-                    <input type="radio" id="variant-status-inactive" name="variant-status" value="inactive">
-                    <label for="variant-status-inactive" class="switch-label">Неактивний</label>
                     <input type="radio" id="variant-status-active" name="variant-status" value="active" checked>
                     <label for="variant-status-active" class="switch-label">Активний</label>
+                    <input type="radio" id="variant-status-draft" name="variant-status" value="draft">
+                    <label for="variant-status-draft" class="switch-label">Чернетка</label>
+                    <input type="radio" id="variant-status-archived" name="variant-status" value="archived">
+                    <label for="variant-status-archived" class="switch-label">Архів</label>
                 </div>
                 <button class="btn-icon" id="btn-save-variant" title="Зберегти">
                     <span class="material-symbols-outlined">save</span>
@@ -53,6 +55,9 @@
                         <span class="material-symbols-outlined">notes</span>
                         <span class="btn-icon-label">1 порція</span>
                     </a>
+
+                    <!-- Динамічні секції характеристик -->
+                    <div id="variant-nav-characteristics"></div>
                 </div>
 
                 <div class="nav-footer">
@@ -78,12 +83,13 @@
                             <div class="section-name">
                                 <h2 class="section-upper">Основне</h2>
                             </div>
-                            <span class="body-s">Основна інформація про варіант</span>
+                            <span class="body-s">Основні дані варіанту</span>
                         </div>
                     </div>
 
                     <div class="section-content">
                         <div class="grid">
+
                             <!-- Назва варіанту -->
                             <div class="group column col-6">
                                 <label class="label-l">Назва варіанту</label>
@@ -91,8 +97,7 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="variant-name-ua"
-                                                    placeholder="Назва українською" required>
+                                                <input type="text" id="variant-name-ua" placeholder="Назва українською">
                                                 <span class="tag c-secondary">UA</span>
                                             </div>
                                         </div>
@@ -100,8 +105,7 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="variant-name-ru"
-                                                    placeholder="Назва російською">
+                                                <input type="text" id="variant-name-ru" placeholder="Назва російською">
                                                 <span class="tag c-secondary">RU</span>
                                             </div>
                                         </div>
@@ -111,12 +115,11 @@
 
                             <!-- SKU -->
                             <div class="group column col-3">
-                                <label class="label-l" for="variant-sku">SKU</label>
+                                <label for="variant-sku" class="label-l">SKU</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="text" id="variant-sku"
-                                                placeholder="Артикул">
+                                            <input type="text" id="variant-sku" placeholder="Артикул">
                                         </div>
                                     </div>
                                 </div>
@@ -124,28 +127,24 @@
 
                             <!-- Штрихкод -->
                             <div class="group column col-3">
-                                <label class="label-l" for="variant-barcode">Штрихкод</label>
+                                <label for="variant-barcode" class="label-l">Штрихкод</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="text" id="variant-barcode"
-                                                placeholder="EAN / UPC">
+                                            <input type="text" id="variant-barcode" placeholder="Barcode">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="grid">
                             <!-- Ціна -->
                             <div class="group column col-3">
-                                <label class="label-l" for="variant-price">Ціна</label>
+                                <label for="variant-price" class="label-l">Ціна</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="number" step="0.01" id="variant-price"
-                                                placeholder="0.00">
-                                            <span class="tag c-tertiary">грн</span>
+                                            <input type="number" step="0.01" id="variant-price" placeholder="0.00">
+                                            <span class="tag c-tertiary">UAH</span>
                                         </div>
                                     </div>
                                 </div>
@@ -153,12 +152,12 @@
 
                             <!-- Вага -->
                             <div class="group column col-3">
-                                <label class="label-l" for="variant-weight">Вага</label>
+                                <label for="variant-weight" class="label-l">Вага</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="text" id="variant-weight"
-                                                placeholder="Наприклад: 2.27 кг">
+                                            <input type="text" id="variant-weight" placeholder="Вага">
+                                            <span class="tag c-tertiary">г</span>
                                         </div>
                                     </div>
                                 </div>
@@ -166,21 +165,23 @@
 
                             <!-- Залишок -->
                             <div class="group column col-3">
-                                <label class="label-l" for="variant-stock">Залишок</label>
+                                <label for="variant-stock" class="label-l">Залишок</label>
                                 <div class="content-bloc">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="number" step="1" id="variant-stock"
-                                                placeholder="0">
+                                            <input type="number" step="1" id="variant-stock" placeholder="0">
                                             <span class="tag c-tertiary">шт</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Динамічні характеристики (блок 8) -->
-                        <div id="variant-characteristics-container"></div>
+                            <!-- Характеристики варіанту (блок 8) — динамічно -->
+                            <div class="group column col-12" id="variant-characteristics-container">
+                                <!-- Заповнюється через JS -->
+                            </div>
+
+                        </div>
                     </div>
                 </section>
 
@@ -193,25 +194,53 @@
                             <div class="section-name">
                                 <h2 class="section-upper">Фото</h2>
                             </div>
-                            <span class="body-s">Зображення варіанту</span>
+                            <span class="body-s">До 10 зображень варіанту</span>
+                        </div>
+                        <div class="group">
+                            <span class="body-s" id="variant-photos-counter"></span>
                         </div>
                     </div>
 
                     <div class="section-content">
                         <div class="grid">
-                            <div class="group column col-12">
-                                <label class="label-l" for="variant-image-url-field">URL зображення</label>
-                                <div class="content-bloc">
+
+                            <!-- Головне фото (прев'ю) -->
+                            <div class="group column col-8" style="align-self: stretch;">
+                                <label class="label-l">Головне фото</label>
+                                <div class="content-bloc" id="variant-photo-main-preview" style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                                    <img id="variant-photo-main-img" src="" alt="Головне фото" show style="display:none; max-height: 480px; max-width: 100%; object-fit: contain;">
+                                    <span class="body-s" id="variant-photo-main-empty">Немає фото</span>
+                                </div>
+                            </div>
+
+                            <!-- Завантаження + список фото -->
+                            <div class="group column col-4" id="variant-photos-list">
+                                <label class="label-l">Галерея</label>
+
+                                <!-- Upload zone -->
+                                <div class="content-bloc" id="variant-photo-dropzone">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="url" id="variant-image-url-field"
-                                                placeholder="URL зображення">
+                                            <input type="url" id="variant-photo-url-field" placeholder="URL або перетягніть файл...">
                                         </div>
+                                        <button type="button" class="btn-icon ci-action" id="btn-pick-variant-photo" data-tooltip="Вибрати файл" data-tooltip-always>
+                                            <span class="material-symbols-outlined">folder_open</span>
+                                        </button>
+                                        <button type="button" class="btn-icon ci-action" id="btn-upload-variant-photo" data-tooltip="Завантажити з URL" data-tooltip-always>
+                                            <span class="material-symbols-outlined">download</span>
+                                        </button>
                                     </div>
+                                    <input type="file" id="variant-photo-file-input" accept="image/*" multiple hidden>
                                 </div>
-                                <input type="hidden" id="variant-image-url">
+
+                                <!-- Фото-картки (сортовані drag-and-drop) -->
+                                <div class="content-bloc-container photos" id="variant-photos-grid">
+                                    <!-- Динамічно: content-bloc з drag, preview, info, remove -->
+                                </div>
                             </div>
+
                         </div>
+                        <input type="hidden" id="variant-image-url">
                     </div>
                 </section>
 
