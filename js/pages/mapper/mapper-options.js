@@ -344,7 +344,7 @@ function populateCharacteristicSelect(preselectedId = null) {
 
 /**
  * Заповнити селект батьківської опції
- * Групує опції по характеристиках (як optgroup)
+ * Формат: {характеристика} | {Опція}
  */
 function populateParentOptionSelect(selectedId = null) {
     const select = document.getElementById('mapper-option-parent');
@@ -360,33 +360,19 @@ function populateParentOptionSelect(selectedId = null) {
 
     select.innerHTML = '<option value="">— Без батьківської опції —</option>';
 
-    const optionsByChar = new Map();
     options.forEach(opt => {
         if (!opt.characteristic_id) return;
-        if (!optionsByChar.has(opt.characteristic_id)) {
-            optionsByChar.set(opt.characteristic_id, []);
+        const char = charMap.get(opt.characteristic_id);
+        const charName = char ? (char.name_ua || opt.characteristic_id) : opt.characteristic_id;
+        const optValue = opt.value_ua || opt.id;
+
+        const option = document.createElement('option');
+        option.value = opt.id;
+        option.textContent = `${charName} | ${optValue}`;
+        if (selectedId && opt.id === selectedId) {
+            option.selected = true;
         }
-        optionsByChar.get(opt.characteristic_id).push(opt);
-    });
-
-    optionsByChar.forEach((opts, charId) => {
-        const char = charMap.get(charId);
-        const charName = char ? (char.name_ua || charId) : charId;
-
-        const optgroup = document.createElement('optgroup');
-        optgroup.label = charName;
-
-        opts.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt.id;
-            option.textContent = opt.value_ua || opt.id;
-            if (selectedId && opt.id === selectedId) {
-                option.selected = true;
-            }
-            optgroup.appendChild(option);
-        });
-
-        select.appendChild(optgroup);
+        select.appendChild(option);
     });
 
     reinitializeCustomSelect(select);
