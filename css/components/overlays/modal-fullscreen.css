@@ -259,3 +259,29 @@
     padding: 7px 15px;
     padding-right: 39px;
 }
+
+/* ============================================
+   WIZARD MODE
+   ============================================ */
+
+/* Вимкнути scroll-snap, сховати header controls */
+.wizard-mode .modal-fullscreen-content {
+    scroll-snap-type: none;
+    overflow: hidden;
+}
+
+.wizard-mode #product-status-switch,
+.wizard-mode #btn-save-product,
+.wizard-mode #save-close-product {
+    display: none;
+}
+
+/* Wizard footer */
+.wizard-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    border-top: 1px solid var(--color-outline);
+    flex-shrink: 0;
+}
