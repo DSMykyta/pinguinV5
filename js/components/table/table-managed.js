@@ -199,11 +199,13 @@ export function createManagedTable(config) {
         searchHandler = createSearchHandler();
         searchInput.addEventListener('input', searchHandler);
 
-        // Restore current search query to input
+        // Sync: managed table's query ↔ input value
         if (searchQuery) {
+            // Restore query to input (e.g. after tab switch)
             searchInput.value = searchQuery;
-        } else {
-            searchInput.value = '';
+        } else if (searchInput.value.trim()) {
+            // Pick up text the user typed before handler was bound
+            searchQuery = searchInput.value.toLowerCase().trim();
         }
     }
 
@@ -224,6 +226,11 @@ export function createManagedTable(config) {
     // Late bind — якщо charm-search ініціалізується після createManagedTable
     if (!searchInput && containerEl) {
         containerEl.addEventListener('charm:search-ready', () => bindSearchInput(), { once: true });
+
+        // Safety: retry after microtask (charm:search-ready може бути вже dispatched)
+        queueMicrotask(() => {
+            if (!searchHandler && containerEl?._charmSearchInput) bindSearchInput();
+        });
     }
 
     // ── 4. Render ──
@@ -308,9 +315,19 @@ export function createManagedTable(config) {
         },
 
         activate() {
-            if (isActive) return;
+            if (isActive) {
+                // Safety: ensure search is bound even if already active
+                if (!searchHandler) bindSearchInput();
+                return;
+            }
             isActive = true;
             bindSearchInput();
+
+            // Sync: якщо input має текст (набраний поки таб був неактивний)
+            if (searchInput && searchInput.value.trim() && !searchQuery) {
+                searchQuery = searchInput.value.toLowerCase().trim();
+            }
+
             applyFilters();
         },
 

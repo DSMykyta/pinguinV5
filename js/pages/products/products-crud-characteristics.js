@@ -214,9 +214,19 @@ function renderCharField(char, options, savedValue, colSize) {
             `;
             break;
 
-        // ── List / ListValues / CheckBoxGroup — кілька значень ───────────
+        // ── List / ListValues — мультиселект (кілька значень зі списку) ──
         case 'List':
-        case 'ListValues':
+        case 'ListValues': {
+            const savedArr = parseSavedArray(savedValue);
+            fieldHtml = `
+                <select id="${id}" multiple data-custom-select data-char-id="${char.id}">
+                    ${options.map(o => `<option value="${escapeHtml(o.id)}" ${savedArr.includes(o.id) ? 'selected' : ''}>${escapeHtml(o.value_ua || o.id)}</option>`).join('')}
+                </select>
+            `;
+            break;
+        }
+
+        // ── CheckBoxGroup / CheckBoxGroupValues — switches ─────────────
         case 'CheckBoxGroup':
         case 'CheckBoxGroupValues': {
             const savedArr = parseSavedArray(savedValue);
@@ -371,11 +381,16 @@ export function getCharacteristicsData() {
         if (val) data[charId] = val;
     });
 
-    // Select fields (List, ComboBox, ListValues)
+    // Select fields — single (ComboBox) and multiple (List, ListValues)
     container.querySelectorAll('select[data-char-id]').forEach(select => {
         const charId = select.dataset.charId;
-        const val = select.value;
-        if (val) data[charId] = val;
+        if (select.multiple) {
+            const selected = Array.from(select.selectedOptions).map(o => o.value).filter(Boolean);
+            if (selected.length > 0) data[charId] = JSON.stringify(selected);
+        } else {
+            const val = select.value;
+            if (val) data[charId] = val;
+        }
     });
 
     // Checkbox (switch) fields — single bool

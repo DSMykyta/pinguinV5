@@ -443,6 +443,12 @@ async function handleCreateProduct() {
         const { showEditProductModal } = await import('./products-crud.js');
         await showEditProductModal(newProduct.product_id);
 
+        // Автозаповнення характеристик (бренд вже обраний, поля порожні)
+        try {
+            const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
+            runAutofillAfterRender();
+        } catch { /* ignore */ }
+
     } catch (error) {
         console.error('Wizard create error:', error);
         showToast('Помилка створення товару', 'error');
