@@ -37,7 +37,7 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 12px;
-    overflow: hidden;
+    overflow: visible;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -75,10 +75,28 @@
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
+    /* Розширюємо scroll-зону вправо — hover-expand кнопок не обрізається */
+    margin-right: -350px;
+    padding-right: 350px;
+    pointer-events: none;
 }
 
 .nav-main::-webkit-scrollbar {
     display: none;
+}
+
+/* Кнопки всередині — клікабельні і скролабельні */
+.nav-main a,
+.nav-main button,
+.nav-main .btn-icon {
+    pointer-events: auto;
+}
+
+/* Expanded — скидаємо трік, нормальна поведінка */
+.nav.column.expanded .nav-main {
+    margin-right: 0;
+    padding-right: 0;
+    pointer-events: auto;
 }
 
 /* Динамічні контейнери (напр. product-nav-characteristics)
