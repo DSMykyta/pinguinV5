@@ -13,12 +13,12 @@
 // РЕЖИМ:
 // multipart/form-data
 //   - field "file" — файл зображення
-//   - field "brandName" — назва бренду
-//   - field "productName" — назва товару
+//   - field "brandId" — ID бренду (row number)
+//   - field "productId" — ID товару (row number)
 //   - field "photoIndex" — індекс фото (1-10)
 //
 // СТРУКТУРА НА DRIVE:
-// pinguin-v5/товари/{brand_name}/{product_name}/{product_name}_{index}.webp
+// pinguin-v5/товари/{brandId}/{productId}/{productId}_{index}.webp
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
@@ -32,15 +32,10 @@ const ALLOWED_TYPES = [
 const MAX_SIZE = 4 * 1024 * 1024; // 4 MB
 
 /**
- * Нормалізація назви для імені файлу/папки:
- * "Optimum Nutrition" → "optimum_nutrition"
+ * Нормалізація назви (fallback для wizard, де немає ID).
  */
 function normalizeName(name) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_')
-    .replace(/[^a-z0-9_\-]/g, '');
+  return (name || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
 }
 
 /**
@@ -95,12 +90,16 @@ async function handleFileUpload(req, res) {
 
     let fileBuffer = null;
     let mimeType = '';
+    let brandId = '';
+    let productId = '';
     let brandName = '';
     let productName = '';
     let photoIndex = '1';
     let fileTooLarge = false;
 
     bb.on('field', (name, val) => {
+      if (name === 'brandId') brandId = val;
+      if (name === 'productId') productId = val;
       if (name === 'brandName') brandName = val;
       if (name === 'productName') productName = val;
       if (name === 'photoIndex') photoIndex = val;
@@ -141,20 +140,22 @@ async function handleFileUpload(req, res) {
         return;
       }
 
-      if (!brandName || !productName) {
-        resolve(res.status(400).json({ error: 'brandName та productName є обов\'язковими' }));
+      // Пріоритет: ID > name. ID = унікальні папки без дублікатів.
+      const folderBrand = brandId || normalizeName(brandName);
+      const folderProduct = productId || normalizeName(productName);
+
+      if (!folderBrand || !folderProduct) {
+        resolve(res.status(400).json({ error: 'brandId/brandName та productId/productName є обов\'язковими' }));
         return;
       }
 
       try {
         const webpBuffer = await convertToWebP(fileBuffer);
 
-        const normalizedBrand = normalizeName(brandName);
-        const normalizedProduct = normalizeName(productName);
         const index = parseInt(photoIndex) || 1;
 
-        const folderPath = `товари/${normalizedBrand}/${normalizedProduct}`;
-        const fileName = `${normalizedProduct}_${index}.webp`;
+        const folderPath = `товари/${folderBrand}/${folderProduct}`;
+        const fileName = `${folderProduct}_${index}.webp`;
 
         const result = await uploadProductPhoto(webpBuffer, fileName, 'image/webp', folderPath);
 

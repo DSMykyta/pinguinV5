@@ -454,17 +454,18 @@ const API_DRIVE_PRODUCT_PHOTO = `${API_BASE}/api/drive/upload-product-photo`;
 
 /**
  * Завантажити фото товару на Google Drive.
+ * Папки створюються по ID (товари/{brandId}/{productId}/).
  * @param {File} file - File об'єкт зображення
- * @param {string} brandName - Назва бренду
- * @param {string} productName - Назва товару
+ * @param {string} brandId - ID бренду (row number)
+ * @param {string} productId - ID товару (row number)
  * @param {number} photoIndex - Індекс фото (1-10)
  * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
  */
-async function uploadProductPhotoFile(file, brandName, productName, photoIndex) {
+async function uploadProductPhotoFile(file, brandId, productId, photoIndex) {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('brandName', brandName);
-  formData.append('productName', productName);
+  formData.append('brandId', brandId);
+  formData.append('productId', productId);
   formData.append('photoIndex', String(photoIndex));
 
   const response = await fetch(API_DRIVE_PRODUCT_PHOTO, {

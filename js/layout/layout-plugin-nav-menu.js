@@ -124,8 +124,8 @@ export async function init() {
     // Модальні nav — розгортаємо при відкритті модалу якщо menu=true
     document.addEventListener('modal-opened', (e) => {
         if (!isMenuExpanded()) return;
-        const { bodyTarget } = e.detail;
-        if (!bodyTarget) return;
-        bodyTarget.querySelectorAll('.nav.column').forEach(applyNavExpanded);
+        const { modalElement } = e.detail;
+        if (!modalElement) return;
+        modalElement.querySelectorAll('.nav.column').forEach(applyNavExpanded);
     });
 }

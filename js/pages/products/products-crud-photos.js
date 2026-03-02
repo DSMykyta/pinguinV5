@@ -206,11 +206,17 @@ async function handleUploadPhoto(file) {
     dropzone?.classList.add('loading');
 
     try {
-        const brandName = getBrandName();
-        const productName = getProductName();
+        const brandId = getSelectValue('product-brand');
+        const productId = getInputValue('product-id');
         const photoIndex = _photoUrls.length + 1;
 
-        const result = await uploadProductPhotoFile(file, brandName, productName, photoIndex);
+        if (!brandId || !productId) {
+            showToast('Спочатку збережіть товар, щоб завантажити фото', 'warning');
+            dropzone?.classList.remove('loading');
+            return;
+        }
+
+        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex);
 
         dropzone?.classList.remove('loading');
 
@@ -366,6 +372,10 @@ function getSelectText(id) {
     return (opt && opt.value) ? opt.textContent.trim() : '';
 }
 
+function getSelectValue(id) {
+    return document.getElementById(id)?.value.trim() || '';
+}
+
 function getInputValue(id) {
     return document.getElementById(id)?.value.trim() || '';
 }
@@ -391,14 +401,6 @@ function buildPhotoName() {
         .join('-');
 
     return name || 'product';
-}
-
-function getBrandName() {
-    return getSelectText('product-brand') || 'brand';
-}
-
-function getProductName() {
-    return getInputValue('product-name-ua') || 'product';
 }
 
 function extractExtension(name) {
