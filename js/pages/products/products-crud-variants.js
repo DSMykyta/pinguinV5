@@ -41,8 +41,6 @@ let _getCurrentProductId = null;
 let _currentVariantId = null;
 
 // Editors
-let _compCodeEditorUa = null;
-let _compCodeEditorRu = null;
 let _compNotesEditorUa = null;
 let _compNotesEditorRu = null;
 
@@ -207,21 +205,6 @@ export async function showEditVariantModal(variantId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantEditors() {
-    // Код складу
-    const compCodeUa = document.getElementById('variant-composition-code-ua-editor');
-    if (compCodeUa) {
-        compCodeUa.innerHTML = '';
-        if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
-        _compCodeEditorUa = createHighlightEditor(compCodeUa);
-    }
-
-    const compCodeRu = document.getElementById('variant-composition-code-ru-editor');
-    if (compCodeRu) {
-        compCodeRu.innerHTML = '';
-        if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
-        _compCodeEditorRu = createHighlightEditor(compCodeRu);
-    }
-
     // 1 порція (br charm)
     const compNotesUa = document.getElementById('variant-composition-notes-ua-editor');
     if (compNotesUa) {
@@ -239,8 +222,6 @@ function initVariantEditors() {
 }
 
 function destroyVariantEditors() {
-    if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
-    if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
     if (_compNotesEditorUa) { _compNotesEditorUa.destroy(); _compNotesEditorUa = null; }
     if (_compNotesEditorRu) { _compNotesEditorRu.destroy(); _compNotesEditorRu = null; }
 }
@@ -251,7 +232,7 @@ function destroyVariantEditors() {
 
 function clearVariantForm() {
     const fields = [
-        'variant-id', 'variant-product-id', 'variant-name-ua', 'variant-name-ru',
+        'variant-id', 'variant-product-id',
         'variant-sku', 'variant-price', 'variant-barcode', 'variant-weight',
         'variant-stock', 'variant-image-url'
     ];
@@ -275,12 +256,6 @@ function fillVariantForm(variant) {
 
     const productIdField = document.getElementById('variant-product-id');
     if (productIdField) productIdField.value = variant.product_id || '';
-
-    const nameUa = document.getElementById('variant-name-ua');
-    if (nameUa) nameUa.value = variant.name_ua || '';
-
-    const nameRu = document.getElementById('variant-name-ru');
-    if (nameRu) nameRu.value = variant.name_ru || '';
 
     const sku = document.getElementById('variant-sku');
     if (sku) sku.value = variant.sku || '';
@@ -315,8 +290,6 @@ function fillVariantForm(variant) {
     if (statusRadio) statusRadio.checked = true;
 
     // Editors
-    if (_compCodeEditorUa) _compCodeEditorUa.setValue(variant.composition_code_ua || '');
-    if (_compCodeEditorRu) _compCodeEditorRu.setValue(variant.composition_code_ru || '');
     if (_compNotesEditorUa) _compNotesEditorUa.setValue(variant.composition_notes_ua || '');
     if (_compNotesEditorRu) _compNotesEditorRu.setValue(variant.composition_notes_ru || '');
 }
@@ -324,8 +297,6 @@ function fillVariantForm(variant) {
 function getVariantFormData() {
     return {
         product_id: document.getElementById('variant-product-id')?.value.trim() || '',
-        name_ua: document.getElementById('variant-name-ua')?.value.trim() || '',
-        name_ru: document.getElementById('variant-name-ru')?.value.trim() || '',
         sku: document.getElementById('variant-sku')?.value.trim() || '',
         price: document.getElementById('variant-price')?.value.trim() || '',
         barcode: document.getElementById('variant-barcode')?.value.trim() || '',
@@ -336,8 +307,6 @@ function getVariantFormData() {
         variant_chars: getVariantCharsData(),
         spec_ua: getSpecFieldValue('ua'),
         spec_ru: getSpecFieldValue('ru'),
-        composition_code_ua: _compCodeEditorUa ? _compCodeEditorUa.getValue() : '',
-        composition_code_ru: _compCodeEditorRu ? _compCodeEditorRu.getValue() : '',
         composition_notes_ua: _compNotesEditorUa ? _compNotesEditorUa.getValue() : '',
         composition_notes_ru: _compNotesEditorRu ? _compNotesEditorRu.getValue() : '',
     };
@@ -678,21 +647,27 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
         const specUa = variantData?.spec_ua || '';
         const specRu = variantData?.spec_ru || '';
         companionHtml = `
-            <div class="group column col-${colSize}" data-spec-for="${char.id}">
+            <div class="group column col-6" data-spec-for="${char.id}">
                 <label class="label-l">Уточнення ${label}</label>
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-spec-field="ua"
-                                value="${escapeHtml(specUa)}"
-                                placeholder="UA">
+                <div class="content-bloc-container">
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" data-spec-field="ua"
+                                    value="${escapeHtml(specUa)}"
+                                    placeholder="Уточнення українською">
+                                <span class="tag c-secondary">UA</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-spec-field="ru"
-                                value="${escapeHtml(specRu)}"
-                                placeholder="RU">
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" data-spec-field="ru"
+                                    value="${escapeHtml(specRu)}"
+                                    placeholder="Уточнення російською">
+                                <span class="tag c-secondary">RU</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -821,10 +796,13 @@ async function handleSaveVariant(shouldClose = true) {
     const formData = getVariantFormData();
     const productId = formData.product_id;
 
-    // Обчислити згенеровані назви (spec замінює name в генерованій назві)
-    const effectiveNameUa = formData.spec_ua || formData.name_ua;
-    const effectiveNameRu = formData.spec_ru || formData.name_ru;
-    const genNames = computeVariantGeneratedNames(productId, effectiveNameUa, effectiveNameRu);
+    // Авто-генерація name_ua/name_ru: spec → обрана опція → пусто
+    const autoName = resolveVariantName();
+    formData.name_ua = formData.spec_ua || autoName.ua;
+    formData.name_ru = formData.spec_ru || autoName.ru;
+
+    // Обчислити згенеровані назви
+    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru);
     Object.assign(formData, genNames);
 
     try {

@@ -9,16 +9,15 @@
  *
  * CRUD операції для варіантів товарів через Google Sheets API.
  *
- * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:W (23 колонки)
+ * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:U (21 колонка)
  * A: variant_id | B: product_id | C: sku | D: name_ua | E: name_ru
  * F: spec_ua | G: spec_ru
  * H: generated_short_ua | I: generated_short_ru
  * J: generated_full_ua | K: generated_full_ru
  * L: price | M: barcode | N: weight | O: stock
  * P: variant_chars | Q: image_url
- * R: composition_code_ua | S: composition_code_ru
- * T: composition_notes_ua | U: composition_notes_ru
- * V: status | W: created_at
+ * R: composition_notes_ua | S: composition_notes_ru
+ * T: status | U: created_at
  */
 
 import { productsState } from './products-state.js';
@@ -95,7 +94,7 @@ export function getVariantsByProductId(productId) {
 export async function loadProductVariants() {
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:W`,
+            range: `${SHEET_NAME}!A:U`,
             spreadsheetType: 'products'
         });
 
@@ -124,12 +123,10 @@ export async function loadProductVariants() {
             stock: row[14] || '',           // O
             variant_chars: safeJsonParse(row[15], {}), // P
             image_url: row[16] || '',       // Q
-            composition_code_ua: row[17] || '', // R
-            composition_code_ru: row[18] || '', // S
-            composition_notes_ua: row[19] || '', // T
-            composition_notes_ru: row[20] || '', // U
-            status: row[21] || 'active',    // V
-            created_at: row[22] || '',      // W
+            composition_notes_ua: row[17] || '', // R
+            composition_notes_ru: row[18] || '', // S
+            status: row[19] || 'active',    // T
+            created_at: row[20] || '',      // U
             _rowIndex: index + 2
         }));
 
@@ -169,12 +166,10 @@ function prepareVariantRow(variant) {
         variant.stock || '',                  // O: stock
         serializeJson(variant.variant_chars), // P: variant_chars (JSON)
         variant.image_url || '',              // Q: image_url
-        variant.composition_code_ua || '',    // R: composition_code_ua
-        variant.composition_code_ru || '',    // S: composition_code_ru
-        variant.composition_notes_ua || '',   // T: composition_notes_ua
-        variant.composition_notes_ru || '',   // U: composition_notes_ru
-        variant.status || 'active',           // V: status
-        variant.created_at || '',             // W: created_at
+        variant.composition_notes_ua || '',   // R: composition_notes_ua
+        variant.composition_notes_ru || '',   // S: composition_notes_ru
+        variant.status || 'active',           // T: status
+        variant.created_at || '',             // U: created_at
     ];
 }
 
@@ -212,8 +207,6 @@ export async function addProductVariant(variantData) {
             stock: variantData.stock || '',
             variant_chars: variantData.variant_chars || {},
             image_url: variantData.image_url || '',
-            composition_code_ua: variantData.composition_code_ua || '',
-            composition_code_ru: variantData.composition_code_ru || '',
             composition_notes_ua: variantData.composition_notes_ua || '',
             composition_notes_ru: variantData.composition_notes_ru || '',
             status: variantData.status || 'active',
@@ -224,7 +217,7 @@ export async function addProductVariant(variantData) {
         const newRow = prepareVariantRow(newVariant);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:W`,
+            range: `${SHEET_NAME}!A:U`,
             values: [newRow],
             spreadsheetType: 'products'
         });
@@ -277,14 +270,12 @@ export async function updateProductVariant(variantId, updates) {
             stock: u('stock'),
             variant_chars: u('variant_chars'),
             image_url: u('image_url'),
-            composition_code_ua: u('composition_code_ua'),
-            composition_code_ru: u('composition_code_ru'),
             composition_notes_ua: u('composition_notes_ua'),
             composition_notes_ru: u('composition_notes_ru'),
             status: u('status'),
         };
 
-        const range = `${SHEET_NAME}!A${variant._rowIndex}:W${variant._rowIndex}`;
+        const range = `${SHEET_NAME}!A${variant._rowIndex}:U${variant._rowIndex}`;
         const updatedRow = prepareVariantRow(updatedVariant);
 
         await callSheetsAPI('update', {

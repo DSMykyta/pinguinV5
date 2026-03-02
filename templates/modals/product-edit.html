@@ -274,9 +274,11 @@
                                 </div>
                             </div>
 
+                            <div class="separator-h col-12"></div>
+                            
                             <!-- Зформована назва коротка (readonly) -->
-                            <div class="group column col-6">
-                                <label class="label-l">Зформована назва товару коротка</label>
+                            <div class="group column col-4">
+                                <label class="label-l">Назва коротка</label>
                                 <div class="content-bloc-container">
                                     <div class="content-bloc">
                                         <div class="content-line">
@@ -298,8 +300,8 @@
                             </div>
 
                             <!-- Зформована назва повна (readonly) -->
-                            <div class="group column col-6">
-                                <label class="label-l">Зформована назва товару повна</label>
+                            <div class="group column col-4">
+                                <label class="label-l">Назва повна</label>
                                 <div class="content-bloc-container">
                                     <div class="content-bloc">
                                         <div class="content-line">
@@ -318,6 +320,20 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- URL адреса (readonly, генерується з короткої назви) -->
+                            <div class="group column col-4">
+                                <label class="label-l">URL адреса</label>
+                                <div class="content-bloc" id="product-url-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input type="text" id="product-url" readonly placeholder="Автоматично">
+                                            <span class="tag c-tertiary">slug</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <label class="label-s">Генерується при першому збереженні</label>
                             </div>
 
                         </div>

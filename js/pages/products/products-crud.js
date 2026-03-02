@@ -426,6 +426,7 @@ function getProductFormData() {
         generated_short_ru: v('product-generated-short-ru'),
         generated_full_ua: v('product-generated-full-ua'),
         generated_full_ru: v('product-generated-full-ru'),
+        url: v('product-url'),
         composition_code_ua: compCodeEditorUa ? compCodeEditorUa.getValue() : '',
         composition_code_ru: compCodeEditorRu ? compCodeEditorRu.getValue() : '',
         composition_notes_ua: compNotesEditorUa ? compNotesEditorUa.getValue() : '',
@@ -538,6 +539,9 @@ function fillProductForm(product) {
     if (textEditorUa) textEditorUa.setValue(product.product_text_ua || '');
     if (textEditorRu) textEditorRu.setValue(product.product_text_ru || '');
 
+    // URL (readonly, вже збережений)
+    set('product-url', product.url);
+
     // Оновити згенеровані назви
     updateGeneratedNames();
 }
@@ -555,6 +559,7 @@ function clearProductForm() {
         'product-text-after-ua', 'product-text-after-ru',
         'product-generated-short-ua', 'product-generated-short-ru',
         'product-generated-full-ua', 'product-generated-full-ru',
+        'product-url',
         'product-image-url',
         'product-seo-title-ua', 'product-seo-title-ru',
         'product-seo-desc-ua', 'product-seo-desc-ru',
@@ -683,6 +688,44 @@ export function buildVariantFullName(textBefore, brand, line, name, label, detai
     return [textBefore, core, textAfter].filter(Boolean).join(' ');
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// URL SLUG
+// ═══════════════════════════════════════════════════════════════════════════
+
+const TRANSLIT_MAP = {
+    'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye',
+    'ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l',
+    'м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
+    'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'',
+    'ю':'yu','я':'ya','ё':'yo','ы':'y','э':'e',
+};
+
+/**
+ * Транслітерація + slug: "Optimum Nutrition 100% Whey, 907 грам" → "optimum-nutrition-100-whey-907-hram"
+ */
+export function slugify(text) {
+    if (!text) return '';
+    let result = text.toLowerCase();
+    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
+    result = result.replace(/[^a-z0-9]+/g, '-');
+    result = result.replace(/^-+|-+$/g, '');
+    return result;
+}
+
+/**
+ * Перевірити унікальність URL серед товарів
+ * @param {string} url - URL для перевірки
+ * @param {string} [excludeProductId] - Виключити поточний товар
+ * @returns {boolean} true якщо унікальний
+ */
+export function isProductUrlUnique(url, excludeProductId) {
+    if (!url) return true;
+    const products = getProducts();
+    return !products.some(p =>
+        p.url === url && p.product_id !== excludeProductId
+    );
+}
+
 /**
  * Оновити згенеровані назви (коротка + повна)
  * Якщо "Текст перед назвою" порожній — підставляється назва категорії
@@ -723,6 +766,23 @@ function updateGeneratedNames() {
     const fullRu = document.getElementById('product-generated-full-ru');
     if (fullUa) fullUa.value = buildFullName(prefixUa, shortUaVal, v('product-text-after-ua'));
     if (fullRu) fullRu.value = buildFullName(prefixRu, shortRuVal, v('product-text-after-ru'));
+
+    // URL slug — тільки для нових товарів (поле ще порожнє)
+    const urlField = document.getElementById('product-url');
+    const urlBloc = document.getElementById('product-url-bloc');
+    if (urlField && !currentProductId) {
+        const slug = slugify(shortUaVal);
+        urlField.value = slug;
+        // Перевірка унікальності в реальному часі
+        if (urlBloc) {
+            const unique = isProductUrlUnique(slug, null);
+            const line = urlBloc.querySelector('.content-line');
+            if (line) {
+                if (!unique && slug) line.setAttribute('error', '');
+                else line.removeAttribute('error');
+            }
+        }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -851,6 +911,31 @@ function safeJsonParseArray(val) {
  */
 async function handleSaveProduct(shouldClose = true) {
     const productData = getProductFormData();
+
+    // URL: для нового товару — згенерувати з короткої назви
+    if (!currentProductId && !productData.url) {
+        productData.url = slugify(productData.generated_short_ua);
+    }
+
+    // URL: для існуючого — зберегти оригінальний (не змінювати)
+    if (currentProductId) {
+        const existing = getProductById(currentProductId);
+        if (existing?.url) productData.url = existing.url;
+    }
+
+    // Валідація URL: required + unique
+    if (!productData.url) {
+        showToast('URL адреса не може бути порожньою. Заповніть назву товару.', 'error');
+        return;
+    }
+
+    if (!isProductUrlUnique(productData.url, currentProductId || null)) {
+        showToast('URL адреса не унікальна — такий товар вже існує', 'error');
+        const urlBloc = document.getElementById('product-url-bloc');
+        const urlLine = urlBloc?.querySelector('.content-line');
+        if (urlLine) urlLine.setAttribute('error', '');
+        return;
+    }
 
     try {
         if (currentProductId) {
