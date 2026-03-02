@@ -77,7 +77,8 @@ export async function fetchData() {
         triggersData = parsedTriggers.map(row => ({
             title: row.name_uk ? row.name_uk.trim() : '',
             triggers: row.trigers ? row.trigers.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [],
-            keywords: row.keywords_ru ? row.keywords_ru.split(',').map(k => k.trim()).filter(Boolean) : []
+            keywords: row.keywords_ru ? row.keywords_ru.split(',').map(k => k.trim()).filter(Boolean) : [],
+            keywords_ua: row.keywords_ua ? row.keywords_ua.split(',').map(k => k.trim()).filter(Boolean) : []
         })).filter(t => t.title);
 
     } catch (error) {

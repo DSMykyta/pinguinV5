@@ -25,6 +25,8 @@ import { getBrandLines, loadBrandLines } from '../brands/lines-data.js';
 import { getCategories, loadCategories } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { getCharacteristicsData } from './products-crud-characteristics.js';
+import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from '../../generators/generator-seo/gse-generators.js';
+import { fetchData as fetchSeoData, getTriggersData } from '../../generators/generator-seo/gse-data.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -58,6 +60,7 @@ export async function showAddProductModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearProductForm();
+    fetchSeoData();
     await initModalComponents();
 
     runHook('onModalOpen', null);
@@ -783,22 +786,17 @@ function updateGeneratedNames() {
 
 /**
  * Авто-генерація SEO полів — тільки при створенні (currentProductId === null)
+ * Використовує gse-generators.js (та ж логіка що й на index сторінці).
  * Title/Keywords: коли є бренд + назва
  * Description: коли є текст товару
+ * Тригери: badge-и з matched triggers
  */
 function updateSeoForCreate() {
     if (currentProductId !== null) return;
 
-    const shortUa = document.getElementById('product-generated-short-ua')?.value.trim() || '';
-    const shortRu = document.getElementById('product-generated-short-ru')?.value.trim() || '';
-
     const brandSelect = document.getElementById('product-brand');
     const brandName = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
     const brand = (brandName && !brandName.startsWith('—')) ? brandName : '';
-
-    const lineSelect = document.getElementById('product-line');
-    const lineName = lineSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const line = (lineName && !lineName.startsWith('—')) ? lineName : '';
 
     const v = (id) => document.getElementById(id)?.value.trim() || '';
     const nameUa = v('product-name-ua');
@@ -806,41 +804,66 @@ function updateSeoForCreate() {
     const variationUa = v('product-variation-ua');
     const variationRu = v('product-variation-ru');
 
+    // Знайти збіг тригерів по назві товару
+    const activeTulips = matchProductTriggers(nameUa || nameRu);
+    renderSeoChips(activeTulips);
+
     // Title
     const seoTitleUa = document.getElementById('product-seo-title-ua');
     const seoTitleRu = document.getElementById('product-seo-title-ru');
-    if (seoTitleUa && shortUa) seoTitleUa.value = `${shortUa} купити`;
-    if (seoTitleRu && shortRu) seoTitleRu.value = `${shortRu} купить`;
+    if (seoTitleUa && (brand || nameUa)) seoTitleUa.value = generateSeoTitle(brand, nameUa, variationUa, 'ua');
+    if (seoTitleRu && (brand || nameRu)) seoTitleRu.value = generateSeoTitle(brand, nameRu, variationRu, 'ru');
 
-    // Keywords — унікальні частини через кому, lowercase
-    const kw = (...parts) => [...new Set(parts.filter(Boolean).map(p => p.toLowerCase()))].join(', ');
+    // Keywords (base + trigger keywords)
     const seoKwUa = document.getElementById('product-seo-keywords-ua');
     const seoKwRu = document.getElementById('product-seo-keywords-ru');
-    if (seoKwUa) seoKwUa.value = kw(brand, line, nameUa, variationUa);
-    if (seoKwRu) seoKwRu.value = kw(brand, line, nameRu, variationRu);
+    if (seoKwUa) seoKwUa.value = generateSeoKeywords(brand, nameUa, variationUa, activeTulips, 'ua');
+    if (seoKwRu) seoKwRu.value = generateSeoKeywords(brand, nameRu, variationRu, activeTulips, 'ru');
 
-    // Description — з тексту товару (перше речення)
+    // Description — з тексту товару
     const textUa = textEditorUa ? textEditorUa.getPlainText() : '';
     const textRu = textEditorRu ? textEditorRu.getPlainText() : '';
-
-    const firstSentence = (text) => {
-        const t = text.trim();
-        if (!t) return '';
-        return t.match(/[^.!?]+[.!?]+/)?.[0]?.trim() || t.substring(0, 160);
-    };
-
     const seoDescUa = document.getElementById('product-seo-desc-ua');
     const seoDescRu = document.getElementById('product-seo-desc-ru');
-    if (seoDescUa && textUa) {
-        seoDescUa.value = brand
-            ? `${firstSentence(textUa)} Купити ${brand} від офіційного дистриб'ютора.`
-            : firstSentence(textUa);
-    }
-    if (seoDescRu && textRu) {
-        seoDescRu.value = brand
-            ? `${firstSentence(textRu)} Купить ${brand} от официального дистрибьютора.`
-            : firstSentence(textRu);
-    }
+    if (seoDescUa && textUa) seoDescUa.value = generateSeoDescription(textUa, 'ua');
+    if (seoDescRu && textRu) seoDescRu.value = generateSeoDescription(textRu, 'ru');
+}
+
+/**
+ * Знайти тригери що збігаються з назвою товару
+ */
+function matchProductTriggers(productName) {
+    const triggersData = getTriggersData();
+    if (!triggersData.length || !productName) return [];
+    const name = productName.toLowerCase();
+    return triggersData
+        .filter(trigger => trigger.triggers.some(t => {
+            const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return new RegExp(`\\b${escaped}\\b`, 'i').test(name);
+        }))
+        .map(t => t.title);
+}
+
+/**
+ * Показати badge-и з matched triggers (як на index SEO сторінці)
+ */
+function renderSeoChips(activeTulips) {
+    const container = document.getElementById('product-seo-triggers');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!activeTulips.length) return;
+
+    const triggersData = getTriggersData();
+    activeTulips.forEach(title => {
+        const triggerData = triggersData.find(t => t.title === title);
+        const badge = document.createElement('div');
+        badge.className = 'badge c-main';
+        badge.textContent = title;
+        if (triggerData?.keywords?.length) {
+            badge.title = triggerData.keywords.join(', ');
+        }
+        container.appendChild(badge);
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
