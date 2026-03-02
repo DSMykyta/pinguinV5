@@ -1,0 +1,26 @@
+id	parent_id	name_ua	name_ru	slug	sort_order	is_active	category_type	created_at
+cat-001		Протеїн	Протеин	proteiny	10	TRUE	product	2026-03-02T00:00:00.000Z
+cat-002		Гейнер	Гейнер	geynery	20	TRUE	product	2026-03-02T00:00:00.000Z
+cat-003		Амінокислота	Аминокислота	aminokisloty	30	TRUE	product	2026-03-02T00:00:00.000Z
+cat-004		Амінокислота BCAA	Аминокислота BCAA	bcaa	40	TRUE	product	2026-03-02T00:00:00.000Z
+cat-005		Креатин	Креатин	kreatiny	50	TRUE	product	2026-03-02T00:00:00.000Z
+cat-006		Передтренувальний комплекс	Предтренировочный комплекс	predtrenirovochnyy-kompleks	60	TRUE	product	2026-03-02T00:00:00.000Z
+cat-007		Післятренувальний комплекс	Послетренировочный комплекс	posletrenirovochnyy-kompleks	70	TRUE	product	2026-03-02T00:00:00.000Z
+cat-008		Жироспалювач	Жиросжигатель	dlya-snijeniya-vesa	80	TRUE	product	2026-03-02T00:00:00.000Z
+cat-009		Стимулятор тестостерону	Стимулятор тестостерона	povyshenie-testosterona	90	TRUE	product	2026-03-02T00:00:00.000Z
+cat-010		Препарат для суглобів і зв'язок	Препарат для суставов и связок	dlya-sustavov-i-svyazok	100	TRUE	product	2026-03-02T00:00:00.000Z
+cat-011		Вітаміни та мінерали	Витамины и минералы	vitaminy-i-mineraly	110	TRUE	product	2026-03-02T00:00:00.000Z
+cat-012		Натуральна добавка	Натуральная добавка	naturalnye-dobavki-i-ekstrakty	120	TRUE	product	2026-03-02T00:00:00.000Z
+cat-013		Жирні кислоти	Жирные кислоты	jirnye-kisloty	130	TRUE	product	2026-03-02T00:00:00.000Z
+cat-014		Пробіотики і пребіотики	Пробиотики и пребиотики	probiotiki-i-prebiotiki	140	TRUE	product	2026-03-02T00:00:00.000Z
+cat-015		Замінник харчування	Заменитель питания	zameniteli-pitaniya	150	TRUE	product	2026-03-02T00:00:00.000Z
+cat-016		Ізотонік	Изотоник	izotoniki	160	TRUE	product	2026-03-02T00:00:00.000Z
+cat-017		Батончик	Батончик	batonchiki	170	TRUE	product	2026-03-02T00:00:00.000Z
+cat-018		Спортивний напій	Спортивный напиток	napitki	180	TRUE	product	2026-03-02T00:00:00.000Z
+cat-019		Екіпіровка	Экипировка	ekipirovka	190	TRUE	product	2026-03-02T00:00:00.000Z
+cat-020		Шейкер	Шейкер	sheykera-i-butylki	200	TRUE	product	2026-03-02T00:00:00.000Z
+cat-021		Пляшка	Бутылка	butylka	210	TRUE	product	2026-03-02T00:00:00.000Z
+cat-022		Аксесуари	Аксессуары	aksessuary	220	TRUE	product	2026-03-02T00:00:00.000Z
+cat-023		Спеціальні препарати	Специальные препараты	spetsialnye-preparaty	230	TRUE	product	2026-03-02T00:00:00.000Z
+cat-024		Відновлювач	Восстановитель	vosstanoviteli	240	TRUE	product	2026-03-02T00:00:00.000Z
+cat-025		Пробники	Пробники	probniki	250	TRUE	product	2026-03-02T00:00:00.000Z
