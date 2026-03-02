@@ -70,11 +70,11 @@ registerActionHandlers('product-variants', {
 function getVariantColumns() {
     return [
         col('variant_id', 'ID', 'tag', { span: 1 }),
-        col('sku', 'SKU', 'text', { span: 1 }),
-        col('name_ua', 'Назва', 'name'),
+        col('sku', 'SKU', 'text', { span: 2 }),
+        col('name_ua', 'Назва', 'name', { span: 4 }),
         col('price', 'Ціна', 'text', { span: 1, align: 'right' }),
         col('stock', 'Залишок', 'text', { span: 1, align: 'right' }),
-        col('status', 'Статус', 'status-dot'),
+        col('status', 'Статус', 'status-dot', { span: 2 }),
     ];
 }
 

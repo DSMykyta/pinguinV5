@@ -27,7 +27,11 @@ let _photoUrls = [];
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
+let _initialized = false;
+
 export function initPhotoSection() {
+    if (_initialized) return;
+
     const dropzone = document.getElementById('product-photo-dropzone');
     const fileInput = document.getElementById('product-photo-file-input');
     const urlField = document.getElementById('product-photo-url-field');
@@ -35,6 +39,7 @@ export function initPhotoSection() {
     const pickBtn = document.getElementById('btn-pick-product-photo');
 
     if (!dropzone || !fileInput) return;
+    _initialized = true;
 
     // Кнопка вибору файлу з пристрою
     pickBtn?.addEventListener('click', () => {
@@ -48,10 +53,7 @@ export function initPhotoSection() {
     // Кнопка завантаження з URL
     uploadBtn?.addEventListener('click', () => {
         const url = urlField?.value.trim();
-        if (!url) {
-            fileInput.click();
-            return;
-        }
+        if (!url) return;
         if (_photoUrls.length >= MAX_PHOTOS) {
             showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
             return;
@@ -252,9 +254,11 @@ function renderPhotoGrid() {
 
     if (empty) empty.classList.add('u-hidden');
 
+    const photoBaseName = buildPhotoName();
+
     let html = '';
     _photoUrls.forEach((url, index) => {
-        const fileName = `photo_${index + 1}.webp`;
+        const fileName = `${photoBaseName}_${index + 1}.webp`;
         const ext = extractExtension(fileName);
         html += `
             <div class="content-bloc" draggable="true" data-photo-index="${index}">
@@ -316,6 +320,7 @@ export function getPhotoUrls() {
 
 export function clearPhotos() {
     _photoUrls = [];
+    _initialized = false;
     renderPhotoGrid();
     updateMainPreview();
     syncHiddenField();
@@ -355,13 +360,46 @@ function syncHiddenField() {
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
+function getSelectText(id) {
+    const sel = document.getElementById(id);
+    if (!sel) return '';
+    const opt = sel.selectedOptions?.[0];
+    return (opt && opt.value) ? opt.textContent.trim() : '';
+}
+
+function getInputValue(id) {
+    return document.getElementById(id)?.value.trim() || '';
+}
+
+/**
+ * Побудувати базову назву фото з полів модалу:
+ * {Бренд}-{Лінійка}-{Назва}-{Ознака}-{Деталь}-{Варіація}
+ * Порожні частини пропускаються.
+ */
+function buildPhotoName() {
+    const parts = [
+        getSelectText('product-brand'),
+        getSelectText('product-line'),
+        getInputValue('product-name-ua'),
+        getInputValue('product-label-ua'),
+        getInputValue('product-detail-ua'),
+        getInputValue('product-variation-ua'),
+    ];
+
+    const name = parts
+        .map(p => normalizeName(p))
+        .filter(Boolean)
+        .join('-');
+
+    return name || 'product';
+}
+
 function getBrandName() {
-    const brandSelect = document.getElementById('product-brand');
-    return brandSelect?.selectedOptions?.[0]?.textContent?.trim() || 'brand';
+    return getSelectText('product-brand') || 'brand';
 }
 
 function getProductName() {
-    return document.getElementById('product-name-ua')?.value.trim() || 'product';
+    return getInputValue('product-name-ua') || 'product';
 }
 
 function extractExtension(name) {
