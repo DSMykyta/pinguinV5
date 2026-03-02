@@ -177,16 +177,36 @@ class CustomSelect {
     _populateOptions() {
         this.optionsList.innerHTML = '';
 
-        Array.from(this.originalSelect.options).forEach(option => {
-            if (!option.value && this.isMultiSelect) return; // Пропускаємо порожні опції в мультиселекті
+        Array.from(this.originalSelect.children).forEach(child => {
+            if (child.tagName === 'OPTGROUP') {
+                const groupLabel = this._createElement('li', {
+                    class: 'custom-select-group-label',
+                    'data-group': child.label || ''
+                });
+                groupLabel.textContent = child.label || '';
+                this.optionsList.appendChild(groupLabel);
 
-            const optionEl = this._createElement('li', {
-                class: 'custom-select-option',
-                'data-value': option.value,
-                role: 'option'
-            });
-            optionEl.innerHTML = option.dataset.htmlContent || option.textContent;
-            this.optionsList.appendChild(optionEl);
+                Array.from(child.children).forEach(option => {
+                    if (option.hidden) return;
+                    const optionEl = this._createElement('li', {
+                        class: 'custom-select-option custom-select-option-grouped',
+                        'data-value': option.value,
+                        role: 'option'
+                    });
+                    optionEl.innerHTML = option.dataset.htmlContent || option.textContent;
+                    this.optionsList.appendChild(optionEl);
+                });
+            } else if (child.tagName === 'OPTION') {
+                if (!child.value && this.isMultiSelect) return;
+                if (child.hidden) return;
+                const optionEl = this._createElement('li', {
+                    class: 'custom-select-option',
+                    'data-value': child.value,
+                    role: 'option'
+                });
+                optionEl.innerHTML = child.dataset.htmlContent || child.textContent;
+                this.optionsList.appendChild(optionEl);
+            }
         });
     }
 
@@ -416,6 +436,16 @@ class CustomSelect {
                 this.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
                     const text = optEl.textContent.toLowerCase();
                     optEl.style.display = text.includes(query) ? '' : 'none';
+                });
+                // Ховати заголовки груп коли всі їхні опції відфільтровані
+                this.optionsList.querySelectorAll('.custom-select-group-label').forEach(label => {
+                    let hasVisible = false;
+                    let next = label.nextElementSibling;
+                    while (next && next.classList.contains('custom-select-option-grouped')) {
+                        if (next.style.display !== 'none') hasVisible = true;
+                        next = next.nextElementSibling;
+                    }
+                    label.style.display = hasVisible ? '' : 'none';
                 });
             });
         }

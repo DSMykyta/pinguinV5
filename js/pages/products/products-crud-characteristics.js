@@ -26,6 +26,7 @@ import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
+import { showToast } from '../../components/feedback/toast.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BLOCK NAMES (з маппера — mapper-characteristic-edit.html:128-139)
@@ -51,6 +52,39 @@ const BLOCK_ICONS = {
     '6': 'local_shipping',
     '9': 'more_horiz',
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PARENT-CHILD MAP (generic, no hardcoded IDs)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Сканує опції характеристик. Якщо опція має parent_option_id →
+ * знаходить батьківську характеристику. Повертає Map<childCharId, parentCharId>.
+ * Видалив характеристику → map порожній. Жодних захардкоджених ID.
+ */
+function buildParentChildMap(chars, options) {
+    const childToParent = new Map();
+    const optionById = new Map();
+    options.forEach(o => optionById.set(o.id, o));
+
+    const charIds = new Set(chars.map(c => c.id));
+
+    for (const o of options) {
+        if (!o.parent_option_id || !charIds.has(o.characteristic_id)) continue;
+        const parentOpt = optionById.get(o.parent_option_id);
+        if (!parentOpt || !charIds.has(parentOpt.characteristic_id)) continue;
+
+        const childCharId = o.characteristic_id;
+        const parentCharId = parentOpt.characteristic_id;
+        if (childCharId === parentCharId) continue;
+
+        if (!childToParent.has(childCharId)) {
+            childToParent.set(childCharId, parentCharId);
+        }
+    }
+
+    return childToParent;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RENDER
@@ -140,6 +174,9 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
         blocks[blockNum].push(c);
     });
 
+    // Build parent-child map для ієрархічних опцій
+    const parentChildMap = buildParentChildMap(relevant, options);
+
     // Рендер — кожен блок як окрема <section>
     let html = '';
     const renderedBlocks = [];
@@ -169,7 +206,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
             const savedVal = savedValues[c.id] || '';
             const colSize = c.col_size || '4';
 
-            html += renderCharField(c, charOptions, savedVal, colSize);
+            html += renderCharField(c, charOptions, savedVal, colSize, parentChildMap, options, savedValues);
         });
 
         html += `
@@ -184,7 +221,96 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
     // Ініціалізувати custom selects
     initCustomSelects(container);
 
+    // Event delegation: авто-заповнення батька + каскадний фільтр
+    if (parentChildMap.size > 0) {
+        initParentChildListeners(container);
+    }
+
     return renderedBlocks;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PARENT-CHILD LISTENERS (auto-fill + cascading filter)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initParentChildListeners(container) {
+    container.addEventListener('change', (e) => {
+        const select = e.target.closest('select[data-char-id]');
+        if (!select) return;
+
+        // Child changed → авто-заповнити батька
+        if (select.dataset.parentCharId) {
+            autoFillParent(container, select);
+        }
+
+        // Parent changed → фільтрувати дітей
+        if (select.dataset.parentOf) {
+            const childCharIds = select.dataset.parentOf.split(',');
+            childCharIds.forEach(childCharId => {
+                const childSelect = container.querySelector(`select[data-char-id="${childCharId}"]`);
+                if (childSelect) filterChildOptions(childSelect, select.value);
+            });
+        }
+    });
+}
+
+function autoFillParent(container, childSelect) {
+    const parentCharId = childSelect.dataset.parentCharId;
+    if (!parentCharId) return;
+
+    const selectedOption = childSelect.selectedOptions[0];
+    if (!selectedOption || !selectedOption.value) return;
+
+    const parentOptionId = selectedOption.dataset.parentOptionId;
+    if (!parentOptionId) return;
+
+    const parentSelect = container.querySelector(`select[data-char-id="${parentCharId}"]`);
+    if (!parentSelect || parentSelect.value === parentOptionId) return;
+
+    parentSelect.value = parentOptionId;
+    parentSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    if (parentSelect.customSelect) {
+        parentSelect.customSelect._updateSelection();
+    }
+
+    const parentOptText = parentSelect.selectedOptions[0]?.textContent || '';
+    showToast(`${parentOptText} обрано автоматично`, 'info');
+}
+
+function filterChildOptions(childSelect, parentOptionId) {
+    const customSelect = childSelect.customSelect;
+    if (!customSelect) return;
+
+    // Toggle custom select rendered options
+    customSelect.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
+        const nativeOpt = Array.from(childSelect.options).find(o => o.value === optEl.dataset.value);
+        if (nativeOpt?.dataset.parentOptionId) {
+            const show = !parentOptionId || nativeOpt.dataset.parentOptionId === parentOptionId;
+            optEl.style.display = show ? '' : 'none';
+        }
+    });
+
+    // Toggle optgroup labels — ховати коли всі дочірні опції приховані
+    customSelect.optionsList.querySelectorAll('.custom-select-group-label').forEach(label => {
+        let hasVisible = false;
+        let next = label.nextElementSibling;
+        while (next && next.classList.contains('custom-select-option-grouped')) {
+            if (next.style.display !== 'none') hasVisible = true;
+            next = next.nextElementSibling;
+        }
+        label.style.display = hasVisible ? '' : 'none';
+    });
+
+    // Якщо обраний смак не з цієї групи → очистити
+    if (parentOptionId && childSelect.value) {
+        const selectedOpt = childSelect.querySelector(`option[value="${childSelect.value}"]`);
+        if (selectedOpt?.dataset.parentOptionId && selectedOpt.dataset.parentOptionId !== parentOptionId) {
+            childSelect.value = '';
+            childSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            customSelect._updateSelection();
+        }
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -194,7 +320,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
 /**
  * Рендерити поле характеристики за типом
  */
-function renderCharField(char, options, savedValue, colSize) {
+function renderCharField(char, options, savedValue, colSize, parentChildMap, allOptions, savedValues) {
     const id = `product-char-${char.id}`;
     const label = escapeHtml(char.name_ua || char.id);
     const hint = char.hint ? `<label class="label-s">${escapeHtml(char.hint)}</label>` : '';
@@ -205,14 +331,64 @@ function renderCharField(char, options, savedValue, colSize) {
     switch (char.type) {
         // ── ComboBox — одне значення зі списку ──────────────────────────
         case 'ComboBox':
-        case 'Select':
-            fieldHtml = `
-                <select id="${id}" data-custom-select data-char-id="${char.id}">
-                    <option value="">— Оберіть —</option>
-                    ${options.map(o => `<option value="${escapeHtml(o.id)}" ${savedValue === o.id ? 'selected' : ''}>${escapeHtml(o.value_ua || o.id)}</option>`).join('')}
-                </select>
-            `;
+        case 'Select': {
+            const parentCharId = parentChildMap?.get(char.id);
+            if (parentCharId) {
+                // Child char → optgroup по батьківським опціям
+                const parentCharOptions = (allOptions || []).filter(o => o.characteristic_id === parentCharId);
+                const parentOptById = new Map(parentCharOptions.map(o => [o.id, o]));
+
+                const groups = new Map();
+                const ungrouped = [];
+                options.forEach(o => {
+                    if (o.parent_option_id && parentOptById.has(o.parent_option_id)) {
+                        if (!groups.has(o.parent_option_id)) {
+                            const parentOpt = parentOptById.get(o.parent_option_id);
+                            groups.set(o.parent_option_id, { label: parentOpt.value_ua || o.parent_option_id, options: [] });
+                        }
+                        groups.get(o.parent_option_id).options.push(o);
+                    } else {
+                        ungrouped.push(o);
+                    }
+                });
+
+                let selectInner = `<option value="">— Оберіть —</option>`;
+                ungrouped.forEach(o => {
+                    selectInner += `<option value="${escapeHtml(o.id)}" ${savedValue === o.id ? 'selected' : ''}>${escapeHtml(o.value_ua || o.id)}</option>`;
+                });
+                for (const [parentOptId, group] of groups) {
+                    selectInner += `<optgroup label="${escapeHtml(group.label)}">`;
+                    group.options.forEach(o => {
+                        selectInner += `<option value="${escapeHtml(o.id)}" data-parent-option-id="${escapeHtml(parentOptId)}" ${savedValue === o.id ? 'selected' : ''}>${escapeHtml(o.value_ua || o.id)}</option>`;
+                    });
+                    selectInner += `</optgroup>`;
+                }
+
+                fieldHtml = `
+                    <select id="${id}" data-custom-select data-char-id="${char.id}" data-parent-char-id="${escapeHtml(parentCharId)}">
+                        ${selectInner}
+                    </select>
+                `;
+            } else {
+                // Перевіряємо чи цей char є батьком інших
+                const childCharIds = [];
+                if (parentChildMap) {
+                    for (const [childId, pId] of parentChildMap) {
+                        if (pId === char.id) childCharIds.push(childId);
+                    }
+                }
+                const parentOfAttr = childCharIds.length > 0
+                    ? ` data-parent-of="${childCharIds.join(',')}"` : '';
+
+                fieldHtml = `
+                    <select id="${id}" data-custom-select data-char-id="${char.id}"${parentOfAttr}>
+                        <option value="">— Оберіть —</option>
+                        ${options.map(o => `<option value="${escapeHtml(o.id)}" ${savedValue === o.id ? 'selected' : ''}>${escapeHtml(o.value_ua || o.id)}</option>`).join('')}
+                    </select>
+                `;
+            }
             break;
+        }
 
         // ── List / ListValues — мультиселект (кілька значень зі списку) ──
         case 'List':
@@ -324,12 +500,43 @@ function renderCharField(char, options, savedValue, colSize) {
             break;
     }
 
+    // Companion name field — для дочірніх ComboBox з parent_option_id
+    let companionHtml = '';
+    const isChildCombo = parentChildMap?.has(char.id) && (char.type === 'ComboBox' || char.type === 'Select');
+    if (isChildCombo) {
+        const nameUa = savedValues?.[`${char.id}_name_ua`] || '';
+        const nameRu = savedValues?.[`${char.id}_name_ru`] || '';
+        companionHtml = `
+            <div class="group column col-${colSize}" data-companion-for="${char.id}">
+                <label class="label-l">Назва ${label}</label>
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="text" data-char-name-field="${char.id}" data-lang="ua"
+                                value="${escapeHtml(nameUa)}"
+                                placeholder="UA">
+                        </div>
+                    </div>
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="text" data-char-name-field="${char.id}" data-lang="ru"
+                                value="${escapeHtml(nameRu)}"
+                                placeholder="RU">
+                        </div>
+                    </div>
+                </div>
+                <label class="label-s">Якщо порожнє — використовується обрана опція</label>
+            </div>
+        `;
+    }
+
     return `
         <div class="group column col-${colSize}">
             <label for="${id}" class="label-l">${label}</label>
             ${fieldHtml}
             ${hint}
         </div>
+        ${companionHtml}
     `;
 }
 
@@ -408,6 +615,14 @@ export function getCharacteristicsData() {
             if (radio.value) selected.push(radio.value);
         });
         if (selected.length > 0) data[charId] = JSON.stringify(selected);
+    });
+
+    // Companion name fields (для child chars з parent_option_id)
+    container.querySelectorAll('input[data-char-name-field]').forEach(input => {
+        const charId = input.dataset.charNameField;
+        const lang = input.dataset.lang;
+        const val = input.value.trim();
+        if (val && lang) data[`${charId}_name_${lang}`] = val;
     });
 
     return data;
