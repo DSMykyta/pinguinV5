@@ -28,6 +28,7 @@ import { initCustomSelects } from '../../components/forms/select.js';
 import { runHook } from './products-plugins.js';
 import { buildShortName, buildFullName, buildVariantFullName } from './products-crud.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -169,6 +170,7 @@ async function showAddVariantModal() {
 
     await renderVariantCharacteristics(productId, {});
     initVariantSaveHandler();
+    initSectionNavigation();
 }
 
 /**
@@ -193,6 +195,7 @@ export async function showEditVariantModal(variantId) {
     fillVariantForm(variant);
     await renderVariantCharacteristics(variant.product_id, variant.variant_chars || {});
     initVariantSaveHandler();
+    initSectionNavigation();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -500,6 +503,16 @@ function getVariantCharsData() {
     });
 
     return data;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECTION NAVIGATION (scroll spy)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initSectionNavigation() {
+    const nav = document.getElementById('variant-section-navigator');
+    const contentArea = document.querySelector('.modal-fullscreen-content');
+    initSectionNav(nav, contentArea);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

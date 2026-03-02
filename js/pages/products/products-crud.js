@@ -27,6 +27,7 @@ import { populateSelect, reinitializeCustomSelect } from '../../components/forms
 import { getCharacteristicsData } from './products-crud-characteristics.js';
 import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from '../../generators/generator-seo/gse-generators.js';
 import { fetchData as fetchSeoData, getTriggersData } from '../../generators/generator-seo/gse-data.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -39,7 +40,6 @@ let compCodeEditorRu = null;
 let compNotesEditorUa = null;
 let compNotesEditorRu = null;
 let currentProductId = null;
-let _sectionObserver = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -102,7 +102,7 @@ export async function showEditProductModal(productId) {
         const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
         await updateCharacteristicsNav(blocks);
-        reinitSectionObserver();
+        initSectionNavigation();
     } catch { /* ignore if not loaded */ }
 
     // Завантажити варіанти
@@ -242,7 +242,7 @@ function initCategoryChangeHandler() {
             const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
             const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
             await updateCharacteristicsNav(blocks);
-            reinitSectionObserver();
+            initSectionNavigation();
 
             const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
             runAutofillAfterRender();
@@ -346,28 +346,7 @@ function initSaveHandler() {
 function initSectionNavigation() {
     const nav = document.getElementById('product-section-navigator');
     const contentArea = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !contentArea) return;
-
-    // Делегований обробник кліків на навігації
-    if (!nav.dataset.navInited) {
-        nav.addEventListener('click', (e) => {
-            const link = e.target.closest('a.btn-icon.expand.touch');
-            if (!link) return;
-
-            e.preventDefault();
-            nav.querySelectorAll('a.btn-icon.expand.touch').forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            const targetId = link.getAttribute('href')?.substring(1);
-            const target = document.getElementById(targetId);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-        nav.dataset.navInited = '1';
-    }
-
-    reinitSectionObserver();
+    initSectionNav(nav, contentArea);
 }
 
 /**
@@ -399,39 +378,6 @@ async function updateCharacteristicsNav(blockNumbers) {
 
         navContainer.innerHTML = html;
     }).catch(() => {});
-}
-
-/**
- * Re-init IntersectionObserver для всіх секцій (фіксованих + динамічних)
- */
-function reinitSectionObserver() {
-    const nav = document.getElementById('product-section-navigator');
-    const contentArea = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !contentArea) return;
-
-    if (_sectionObserver) _sectionObserver.disconnect();
-
-    const navLinks = nav.querySelectorAll('a.btn-icon.expand.touch');
-    const sections = contentArea.querySelectorAll('section[id]');
-
-    const observerOptions = {
-        root: contentArea,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0
-    };
-
-    _sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                navLinks.forEach(link => {
-                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
-                });
-            }
-        });
-    }, observerOptions);
-
-    sections.forEach(section => _sectionObserver.observe(section));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

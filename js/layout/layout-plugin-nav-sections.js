@@ -2,75 +2,109 @@
 
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                      НАВІГАТОР ПО СЕКЦІЯХ СТОРІНКИ                       ║
+ * ║                      НАВІГАТОР ПО СЕКЦІЯХ                               ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
- * ║  Вертикальна панель іконок #section-navigator для швидкого переходу       ║
- * ║  між секціями. Підсвічує поточну секцію при скролі (Scroll Spy).         ║
+ * ║  Генерік scroll spy + навігація для сторінок і модалів.                  ║
  * ║                                                                          ║
  * ║  📋 ЩО РОБИТЬ:                                                           ║
  * ║  ├── Плавна прокрутка до секції при кліку на іконку                      ║
  * ║  └── Scroll Spy: .active на іконці відповідно до видимої секції          ║
  * ║                                                                          ║
  * ║  📋 HTML СТРУКТУРА:                                                      ║
- * ║  <nav id="section-navigator">                                            ║
- * ║    <a class="btn-icon expand" href="#section-id">...</a>                 ║
+ * ║  <nav class="nav column" id="...-section-navigator">                    ║
+ * ║    <a class="btn-icon expand touch" href="#section-id">...</a>          ║
  * ║  </nav>                                                                  ║
  * ║  <main> <section id="section-id">...</section> </main>                   ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
+const _observers = new WeakMap();
+
 // ═══════════════════════════════════════════════════════════════════════════
-// ПУБЛІЧНЕ API
+// ГЕНЕРІК API
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * 🔌 ПЛАГІН — ініціалізує навігатор по секціях зі scroll spy.
+ * Ініціалізувати scroll spy для будь-якого nav + scrollable контейнера.
+ * @param {HTMLElement} nav - навігаційний елемент з посиланнями
+ * @param {HTMLElement} contentArea - скролюваний контейнер з секціями
  */
-export function init() {
-    const navigator = document.getElementById('section-navigator');
-    if (!navigator) return;
+export function initSectionNav(nav, contentArea) {
+    if (!nav || !contentArea) return;
 
-    // 1. Плавна прокрутка по кліку
-    navigator.addEventListener('click', (e) => {
-        const navIcon = e.target.closest('.btn-icon.expand');
-        if (!navIcon || !navIcon.hash) return;
+    const navLinks = nav.querySelectorAll('a.btn-icon.expand.touch, a.btn-icon.expand');
+    const sections = contentArea.querySelectorAll('section[id]');
 
-        e.preventDefault();
-        const targetElement = document.querySelector(navIcon.hash);
+    // Клік — делегування (один раз)
+    if (!nav.dataset.navInited) {
+        nav.addEventListener('click', (e) => {
+            const link = e.target.closest('a.btn-icon.expand');
+            if (!link) return;
 
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
 
-    // 2. Scroll Spy (підсвічування активної секції)
-    const sections = document.querySelectorAll('main > section[id]');
-    const navIcons = navigator.querySelectorAll('.btn-icon.expand');
+            const targetId = link.getAttribute('href')?.substring(1);
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+        nav.dataset.navInited = '1';
+    }
+
+    // Observer — disconnect старого якщо є
+    const prevObserver = _observers.get(nav);
+    if (prevObserver) prevObserver.disconnect();
 
     if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(entries => {
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            const sectionId = entry.target.id;
-            const correspondingIcon = navigator.querySelector(`.btn-icon.expand[href="#${sectionId}"]`);
-
             if (entry.isIntersecting) {
-                navIcons.forEach(icon => icon.classList.remove('active'));
-                if (correspondingIcon) {
-                    correspondingIcon.classList.add('active');
-                }
+                const sectionId = entry.target.id;
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+                });
             }
         });
     }, {
-        root: document.getElementById('content-main'),
-        rootMargin: '-50% 0px -50% 0px',
+        root: contentArea,
+        rootMargin: '-20% 0px -70% 0px',
         threshold: 0
     });
 
     sections.forEach(section => observer.observe(section));
+    _observers.set(nav, observer);
+}
+
+/**
+ * Disconnect observer для nav
+ * @param {HTMLElement} nav
+ */
+export function destroySectionNav(nav) {
+    if (!nav) return;
+    const observer = _observers.get(nav);
+    if (observer) {
+        observer.disconnect();
+        _observers.delete(nav);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ПЛАГІН LAYOUT (сторінки — автоматичний init)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 🔌 ПЛАГІН — ініціалізує навігатор для сторінки (content-main).
+ */
+export function init() {
+    const nav = document.getElementById('section-navigator');
+    const contentArea = document.getElementById('content-main');
+    if (!nav || !contentArea) return;
+
+    initSectionNav(nav, contentArea);
 }

@@ -11,6 +11,7 @@
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 
 /**
  * Ініціалізувати scroll-snap навігацію для fullscreen модалок
@@ -19,47 +20,9 @@ import { showModal, closeModal } from '../../components/modal/modal-main.js';
 export function initSectionNavigation(navId) {
     const nav = document.getElementById(navId);
     if (!nav) return;
-
-    // Шукаємо content в межах того ж модалу
     const modalContainer = nav.closest('.modal-fullscreen-container');
     const content = modalContainer?.querySelector('.modal-fullscreen-content');
-    if (!content) return;
-
-    const navItems = nav.querySelectorAll('.btn-icon.expand.touch');
-
-    // Клік по меню - прокрутка до секції
-    navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = item.getAttribute('href')?.slice(1);
-            if (!targetId) return;
-            // Шукаємо секцію в межах поточного модалу
-            const section = content.querySelector(`#${targetId}`);
-            if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    });
-
-    // При скролі - оновлювати active в меню
-    const sections = content.querySelectorAll('section[id]');
-    if (sections.length === 0) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                navItems.forEach(item => {
-                    const href = item.getAttribute('href');
-                    item.classList.toggle('active', href === `#${sectionId}`);
-                });
-            }
-        });
-    }, { threshold: 0.5, root: content });
-
-    sections.forEach(section => {
-        observer.observe(section);
-    });
+    initSectionNav(nav, content);
 }
 
 /**

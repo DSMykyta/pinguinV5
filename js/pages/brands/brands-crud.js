@@ -23,6 +23,7 @@ import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { getOptions, loadOptions } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { initSectionNav, destroySectionNav } from '../../layout/layout-plugin-nav-sections.js';
 
 // Секції модала
 import { initAltNamesHandlers, getAltNames, setAltNames } from './brands-crud-alt-names.js';
@@ -37,7 +38,6 @@ import { showDeleteBrandConfirm } from './brands-delete.js';
 
 let textEditor = null;
 let currentBrandId = null;
-let _sectionObserver = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -188,45 +188,7 @@ function initSaveHandler() {
 function initSectionNavigation() {
     const nav = document.getElementById('brand-section-navigator');
     const contentArea = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !contentArea) return;
-
-    const navLinks = nav.querySelectorAll('.btn-icon.expand.touch');
-    const sections = contentArea.querySelectorAll('section[id]');
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            const targetId = link.getAttribute('href').substring(1);
-            const target = document.getElementById(targetId);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-
-    const observerOptions = {
-        root: contentArea,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0
-    };
-
-    if (_sectionObserver) _sectionObserver.disconnect();
-
-    _sectionObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                navLinks.forEach(link => {
-                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
-                });
-            }
-        });
-    }, observerOptions);
-
-    sections.forEach(section => _sectionObserver.observe(section));
+    initSectionNav(nav, contentArea);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -495,10 +457,7 @@ export function init(state) {
 function cleanupBrandModal() {
     currentBrandId = null;
 
-    if (_sectionObserver) {
-        _sectionObserver.disconnect();
-        _sectionObserver = null;
-    }
+    destroySectionNav(document.getElementById('brand-section-navigator'));
 
     if (textEditor) {
         textEditor.destroy();

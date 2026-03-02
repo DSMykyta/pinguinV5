@@ -13,6 +13,7 @@ import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LEGO PLUGIN INIT
@@ -510,46 +511,5 @@ function resetModalScroll() {
 function initSectionNavigation() {
     const nav = document.getElementById('keyword-section-navigator');
     const contentArea = document.querySelector('.modal-fullscreen-content');
-    if (!nav || !contentArea) return;
-
-    const navLinks = nav.querySelectorAll('.btn-icon.expand.touch[href]');
-    const sections = contentArea.querySelectorAll('section[id]');
-
-    // Клік по навігації
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // Оновити активний пункт
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            // Скролити до секції
-            const targetId = link.getAttribute('href').substring(1);
-            const target = document.getElementById(targetId);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-
-    // Scroll spy - оновлення активного пункту при прокрутці
-    const observerOptions = {
-        root: contentArea,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const sectionId = entry.target.id;
-                navLinks.forEach(link => {
-                    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
-                });
-            }
-        });
-    }, observerOptions);
-
-    sections.forEach(section => observer.observe(section));
+    initSectionNav(nav, contentArea);
 }
