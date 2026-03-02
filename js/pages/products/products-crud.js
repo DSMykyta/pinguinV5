@@ -281,9 +281,8 @@ function initTextEditors() {
         containerUa.innerHTML = '';
         if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
         textEditorUa = createHighlightEditor(containerUa);
-        // SEO description при зміні тексту
-        const edUa = textEditorUa?.getState?.()?.dom?.editor;
-        if (edUa) edUa.addEventListener('input', updateSeoForCreate);
+        // SEO description при зміні тексту (через hook системи едітора)
+        textEditorUa.getState()?.registerHook('onInput', updateSeoForCreate);
     }
 
     const containerRu = document.getElementById('product-text-ru-editor-container');
@@ -291,8 +290,7 @@ function initTextEditors() {
         containerRu.innerHTML = '';
         if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
         textEditorRu = createHighlightEditor(containerRu);
-        const edRu = textEditorRu?.getState?.()?.dom?.editor;
-        if (edRu) edRu.addEventListener('input', updateSeoForCreate);
+        textEditorRu.getState()?.registerHook('onInput', updateSeoForCreate);
     }
 
     // Код складу
