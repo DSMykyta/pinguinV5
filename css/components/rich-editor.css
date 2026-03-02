@@ -24,7 +24,6 @@
     border-radius: var(--radius-s, 8px);
     overflow: hidden;
     background: var(--color-surface);
-    container-type: inline-size;
 }
 
 /* Всередині section-content — бордер вже є на секції */
@@ -217,27 +216,6 @@
     align-items: center;
     padding: 4px 12px;
     min-height: 36px;
-}
-
-/* ============================================================================
-   RESPONSIVE TOOLBAR (container query)
-   ============================================================================ */
-
-.toolbar-extra {
-    display: contents;
-}
-
-.toolbar-overflow {
-    display: none;
-}
-
-@container (max-width: 700px) {
-    .toolbar-extra {
-        display: none;
-    }
-    .toolbar-overflow {
-        display: flex;
-    }
 }
 
 /* ============================================================================
