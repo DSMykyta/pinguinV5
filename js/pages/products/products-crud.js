@@ -79,7 +79,7 @@ export async function showEditProductModal(productId) {
     await showModal('product-edit', null);
 
     const title = document.getElementById('product-modal-title');
-    if (title) title.textContent = `Редагувати ${product.name_ua}`;
+    if (title) title.textContent = `Редагувати ${product.generated_short_ua || product.name_ua}`;
 
     const deleteBtn = document.getElementById('btn-delete-product');
     if (deleteBtn) {
