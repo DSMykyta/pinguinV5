@@ -324,6 +324,40 @@ export function getVariantPhotoUrls() {
     return [..._photoUrls];
 }
 
+/**
+ * Отримати ефективні фото для варіанту з урахуванням фото товару.
+ *
+ * - 0 фото варіанту → фото товару
+ * - 1 фото варіанту → [варіант[0], ...товар.slice(1)] (замінює головне)
+ * - 2+ фото варіанту → тільки фото варіанту (товар ігнорується)
+ *
+ * @param {string|Array} variantImageUrl - image_url варіанту (JSON string або масив)
+ * @param {string|Array} productImageUrl - image_url товару (JSON string або масив)
+ * @returns {Array} Масив URL фото для відображення
+ */
+export function getEffectiveVariantPhotos(variantImageUrl, productImageUrl) {
+    const variantPhotos = parsePhotoUrls(variantImageUrl);
+    const productPhotos = parsePhotoUrls(productImageUrl);
+
+    if (variantPhotos.length === 0) return productPhotos;
+    if (variantPhotos.length === 1) return [variantPhotos[0], ...productPhotos.slice(1)];
+    return variantPhotos;
+}
+
+function parsePhotoUrls(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    const trimmed = String(raw).trim();
+    if (!trimmed) return [];
+    try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+        return [trimmed];
+    } catch {
+        return [trimmed];
+    }
+}
+
 export function clearVariantPhotos() {
     _photoUrls = [];
     renderPhotoGrid();
