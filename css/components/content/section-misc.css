@@ -73,6 +73,8 @@
 
 .section-content-full-height > .grid > .group.column {
     margin-bottom: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .section-content-full-height iframe {
