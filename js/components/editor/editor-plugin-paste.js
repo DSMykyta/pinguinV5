@@ -73,7 +73,7 @@ export function init(state) {
         let text = clipboardData.getData('text/plain');
 
         // Детекція HTML в plain text
-        const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i)[^>]*>/i.test(text);
+        const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i|table|thead|tbody|tr|th|td)[^>]*>/i.test(text);
 
         if (looksLikeHtml) {
             const sanitized = sanitizeHtml(text, {

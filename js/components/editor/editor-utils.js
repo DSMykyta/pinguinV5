@@ -165,10 +165,10 @@ export function sanitizeHtml(html, options = {}) {
         span.parentNode.replaceChild(fragment, span);
     });
 
-    // Виносимо UL/OL з P (невалідна структура <p><ul>)
-    temp.querySelectorAll('p > ul, p > ol').forEach(list => {
-        const p = list.parentNode;
-        p.parentNode.insertBefore(list, p.nextSibling);
+    // Виносимо UL/OL/TABLE з P (невалідна структура <p><ul>, <p><table>)
+    temp.querySelectorAll('p > ul, p > ol, p > table').forEach(el => {
+        const p = el.parentNode;
+        p.parentNode.insertBefore(el, p.nextSibling);
         if (!p.textContent.trim()) {
             p.remove();
         }
@@ -446,7 +446,7 @@ export function sanitizeEditor(state) {
     });
 
     // Видаляємо атрибути (з урахуванням дозволених)
-    const attrSelector = 'p, strong, em, h1, h2, h3, ul, li'
+    const attrSelector = 'p, strong, em, h1, h2, h3, ul, li, ol, table, thead, tbody, tr, th, td, caption'
         + (state.allowLinks ? ', a' : '')
         + (state.allowImages ? ', img' : '');
     editor.querySelectorAll(attrSelector).forEach(el => {
@@ -474,6 +474,14 @@ export function sanitizeEditor(state) {
         if (!p.textContent.trim()) {
             p.remove();
         }
+        changed = true;
+    });
+
+    // Виносимо TABLE з P (невалідна структура)
+    editor.querySelectorAll('p > table').forEach(table => {
+        const p = table.parentNode;
+        p.parentNode.insertBefore(table, p.nextSibling);
+        if (!p.textContent.trim()) p.remove();
         changed = true;
     });
 
