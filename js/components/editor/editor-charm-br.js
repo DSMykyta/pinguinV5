@@ -107,24 +107,6 @@ export function init(state) {
             }
         });
 
-        // Прибираємо 3+ <br> підряд → залишаємо максимум 2
-        editor.querySelectorAll('br').forEach(br => {
-            let count = 1;
-            let next = br.nextSibling;
-            while (next && next.nodeName === 'BR') {
-                count++;
-                next = next.nextSibling;
-            }
-            if (count > 2) {
-                let toRemove = br.nextSibling;
-                while (toRemove && toRemove.nodeName === 'BR' && count > 2) {
-                    const rm = toRemove;
-                    toRemove = toRemove.nextSibling;
-                    rm.remove();
-                    count--;
-                }
-            }
-        });
     }
 
     // Очистка при введенні
