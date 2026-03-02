@@ -27,6 +27,7 @@ import {
 import { initTabs } from '../../layout/layout-plugin-nav-tabs.js';
 import { initDropdowns } from '../forms/dropdown.js';
 import { showToast } from '../feedback/toast.js';
+import { initRequiredCharm } from '../charms/charm-required.js';
 
 // ── Show / Close ──
 
@@ -85,6 +86,9 @@ export async function showModal(modalId, triggerElement = null) {
         const modalBody = modalElement.querySelector('.modal-body');
         if (modalBody) initTabs(modalBody);
         initDropdowns();
+
+        // Required charm для динамічних полів
+        initRequiredCharm(modalElement);
 
         // Хуки та події
         runHook('onAfterOpen', modalId, triggerElement, modalElement);
