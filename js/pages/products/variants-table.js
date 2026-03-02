@@ -24,13 +24,8 @@ import {
 
 registerActionHandlers('variants-page', {
     edit: async (rowId) => {
-        // Знаходимо варіант щоб отримати product_id → відкриваємо модал товару
-        const variants = getProductVariants();
-        const variant = variants.find(v => v.variant_id === rowId);
-        if (!variant) return;
-
-        const { showEditProductModal } = await import('./products-crud.js');
-        await showEditProductModal(variant.product_id);
+        const { showEditVariantModal } = await import('./products-crud-variants.js');
+        await showEditVariantModal(rowId);
     }
 });
 
