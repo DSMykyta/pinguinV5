@@ -278,6 +278,9 @@ function initTextEditors() {
         containerUa.innerHTML = '';
         if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
         textEditorUa = createHighlightEditor(containerUa);
+        // SEO description при зміні тексту
+        const edUa = textEditorUa?.getState?.()?.dom?.editor;
+        if (edUa) edUa.addEventListener('input', updateSeoForCreate);
     }
 
     const containerRu = document.getElementById('product-text-ru-editor-container');
@@ -285,6 +288,8 @@ function initTextEditors() {
         containerRu.innerHTML = '';
         if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
         textEditorRu = createHighlightEditor(containerRu);
+        const edRu = textEditorRu?.getState?.()?.dom?.editor;
+        if (edRu) edRu.addEventListener('input', updateSeoForCreate);
     }
 
     // Код складу
@@ -674,13 +679,18 @@ const NAME_FIELDS = [
 ];
 
 /**
- * Ініціалізувати слухачів для авто-генерації назв
+ * Ініціалізувати слухачів для авто-генерації назв + SEO (при створенні)
  */
 function initNameGenerationListeners() {
+    const onFieldChange = () => {
+        updateGeneratedNames();
+        updateSeoForCreate();
+    };
+
     NAME_FIELDS.forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.dataset.nameGenInited) {
-            el.addEventListener('input', updateGeneratedNames);
+            el.addEventListener('input', onFieldChange);
             el.dataset.nameGenInited = '1';
         }
     });
@@ -689,7 +699,7 @@ function initNameGenerationListeners() {
     ['product-brand', 'product-line', 'product-category'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.dataset.nameGenInited) {
-            el.addEventListener('change', updateGeneratedNames);
+            el.addEventListener('change', onFieldChange);
             el.dataset.nameGenInited = '1';
         }
     });
@@ -765,6 +775,72 @@ function updateGeneratedNames() {
     const fullRu = document.getElementById('product-generated-full-ru');
     if (fullUa) fullUa.value = buildFullName(prefixUa, shortUaVal, v('product-text-after-ua'));
     if (fullRu) fullRu.value = buildFullName(prefixRu, shortRuVal, v('product-text-after-ru'));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEO AUTO-GENERATION (тільки при створенні)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Авто-генерація SEO полів — тільки при створенні (currentProductId === null)
+ * Title/Keywords: коли є бренд + назва
+ * Description: коли є текст товару
+ */
+function updateSeoForCreate() {
+    if (currentProductId !== null) return;
+
+    const shortUa = document.getElementById('product-generated-short-ua')?.value.trim() || '';
+    const shortRu = document.getElementById('product-generated-short-ru')?.value.trim() || '';
+
+    const brandSelect = document.getElementById('product-brand');
+    const brandName = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+    const brand = (brandName && !brandName.startsWith('—')) ? brandName : '';
+
+    const lineSelect = document.getElementById('product-line');
+    const lineName = lineSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+    const line = (lineName && !lineName.startsWith('—')) ? lineName : '';
+
+    const v = (id) => document.getElementById(id)?.value.trim() || '';
+    const nameUa = v('product-name-ua');
+    const nameRu = v('product-name-ru');
+    const variationUa = v('product-variation-ua');
+    const variationRu = v('product-variation-ru');
+
+    // Title
+    const seoTitleUa = document.getElementById('product-seo-title-ua');
+    const seoTitleRu = document.getElementById('product-seo-title-ru');
+    if (seoTitleUa && shortUa) seoTitleUa.value = `${shortUa} купити`;
+    if (seoTitleRu && shortRu) seoTitleRu.value = `${shortRu} купить`;
+
+    // Keywords — унікальні частини через кому, lowercase
+    const kw = (...parts) => [...new Set(parts.filter(Boolean).map(p => p.toLowerCase()))].join(', ');
+    const seoKwUa = document.getElementById('product-seo-keywords-ua');
+    const seoKwRu = document.getElementById('product-seo-keywords-ru');
+    if (seoKwUa) seoKwUa.value = kw(brand, line, nameUa, variationUa);
+    if (seoKwRu) seoKwRu.value = kw(brand, line, nameRu, variationRu);
+
+    // Description — з тексту товару (перше речення)
+    const textUa = textEditorUa ? textEditorUa.getPlainText() : '';
+    const textRu = textEditorRu ? textEditorRu.getPlainText() : '';
+
+    const firstSentence = (text) => {
+        const t = text.trim();
+        if (!t) return '';
+        return t.match(/[^.!?]+[.!?]+/)?.[0]?.trim() || t.substring(0, 160);
+    };
+
+    const seoDescUa = document.getElementById('product-seo-desc-ua');
+    const seoDescRu = document.getElementById('product-seo-desc-ru');
+    if (seoDescUa && textUa) {
+        seoDescUa.value = brand
+            ? `${firstSentence(textUa)} Купити ${brand} від офіційного дистриб'ютора.`
+            : firstSentence(textUa);
+    }
+    if (seoDescRu && textRu) {
+        seoDescRu.value = brand
+            ? `${firstSentence(textRu)} Купить ${brand} от официального дистрибьютора.`
+            : firstSentence(textRu);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
