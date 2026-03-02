@@ -37,11 +37,11 @@ let _actionCleanup = null;
 
 export function getColumns() {
     return [
-        col('image_url', ' ', 'photo'),
         col('product_id', 'ID', 'tag', { span: 1 }),
-        col('name_ua', 'Назва', 'name'),
-        col('brand_name', 'Бренд', 'text', { span: 2 }),
+        col('image_url', ' ', 'photo'),
         col('category_name', 'Категорія', 'text', { span: 2, filterable: true }),
+        col('brand_name', 'Бренд', 'text', { span: 2 }),
+        col('name_ua', 'Назва коротка', 'name'),
         col('status', 'Статус', 'status-dot', { filterable: true }),
         col('variants_count', 'Варіанти', 'binding-chip')
     ];
@@ -54,7 +54,7 @@ export function getColumns() {
 function initProductsTable() {
     const visibleCols = productsState.visibleColumns.length > 0
         ? productsState.visibleColumns
-        : ['product_id', 'name_ua', 'brand_name', 'category_name', 'status'];
+        : ['product_id', 'image_url', 'category_name', 'brand_name', 'name_ua', 'status', 'variants_count'];
 
     const searchCols = productsState.searchColumns.length > 0
         ? productsState.searchColumns

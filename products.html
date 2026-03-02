@@ -19,9 +19,15 @@
     <main id="content-main" class="content-main tabbed-page" data-aside-template="aside-products">
 
         <!-- TAB NAVIGATOR -->
-        <nav class="nav row" data-tabs-container id="section-navigator">
-            <button data-tab-target="tab-products" class="btn-icon expand active">Товари</button>
-            <button data-tab-target="tab-variants" class="btn-icon expand">Варіанти</button>
+        <nav class="nav row" role="group" aria-label="Таби" data-tabs-container id="section-navigator">
+            <button class="btn-icon expand active" aria-label="Товари" data-tab-target="tab-products">
+                <span class="material-symbols-outlined">inventory_2</span>
+                Товари
+            </button>
+            <button class="btn-icon expand" aria-label="Варіанти" data-tab-target="tab-variants">
+                <span class="material-symbols-outlined">style</span>
+                Варіанти
+            </button>
         </nav>
 
         <!-- TAB: ТОВАРИ -->

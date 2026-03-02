@@ -21,7 +21,7 @@ import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
-import { getBrandLines } from '../brands/lines-data.js';
+import { getBrandLines, loadBrandLines } from '../brands/lines-data.js';
 import { getCategories, loadCategories } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 
@@ -150,6 +150,11 @@ async function populateBrandSelect() {
             brands = getBrands();
         }
 
+        // Завантажити лінійки якщо ще не завантажені
+        if (getBrandLines().length === 0) {
+            await loadBrandLines();
+        }
+
         brands.sort((a, b) => (a.name_uk || '').localeCompare(b.name_uk || '', 'uk'));
 
         populateSelect('product-brand',
@@ -231,26 +236,23 @@ function initCategoryChangeHandler() {
 }
 
 function initProductStatusToggle() {
-    const dot = document.getElementById('product-status-badge');
-    if (!dot || dot.dataset.toggleInited) return;
+    const badge = document.getElementById('product-status-badge');
+    if (!badge || badge.dataset.toggleInited) return;
 
     document.querySelectorAll('input[name="product-status"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            dot.classList.remove('c-green', 'c-yellow', 'c-red');
+            badge.classList.remove('c-green', 'c-yellow', 'c-red');
             if (radio.value === 'active') {
-                dot.classList.add('c-green');
-                dot.title = 'Активний';
+                badge.classList.add('c-green');
             } else if (radio.value === 'draft') {
-                dot.classList.add('c-yellow');
-                dot.title = 'Чернетка';
+                badge.classList.add('c-yellow');
             } else {
-                dot.classList.add('c-red');
-                dot.title = 'Архів';
+                badge.classList.add('c-red');
             }
         });
     });
 
-    dot.dataset.toggleInited = '1';
+    badge.dataset.toggleInited = '1';
 }
 
 /**
@@ -528,16 +530,14 @@ function fillProductForm(product) {
 
     const statusBadge = document.getElementById('product-status-badge');
     if (statusBadge) {
+        statusBadge.textContent = product.product_id || '';
         statusBadge.classList.remove('c-green', 'c-yellow', 'c-red');
         if (product.status === 'active') {
             statusBadge.classList.add('c-green');
-            statusBadge.title = 'Активний';
         } else if (product.status === 'archived') {
             statusBadge.classList.add('c-red');
-            statusBadge.title = 'Архів';
         } else {
             statusBadge.classList.add('c-yellow');
-            statusBadge.title = 'Чернетка';
         }
     }
 
@@ -614,9 +614,9 @@ function clearProductForm() {
 
     const statusBadge = document.getElementById('product-status-badge');
     if (statusBadge) {
+        statusBadge.textContent = '';
         statusBadge.classList.remove('c-green', 'c-yellow', 'c-red');
         statusBadge.classList.add('c-yellow');
-        statusBadge.title = 'Чернетка';
     }
 
     if (textEditorUa) textEditorUa.setValue('');
