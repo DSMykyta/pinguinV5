@@ -923,12 +923,7 @@ async function handleSaveProduct(shouldClose = true) {
         if (existing?.url) productData.url = existing.url;
     }
 
-    // Валідація URL: required + unique
-    if (!productData.url) {
-        showToast('URL адреса не може бути порожньою. Заповніть назву товару.', 'error');
-        return;
-    }
-
+    // Валідація URL: unique (required обробляється charm-required)
     if (!isProductUrlUnique(productData.url, currentProductId || null)) {
         showToast('URL адреса не унікальна — такий товар вже існує', 'error');
         const urlBloc = document.getElementById('product-url-bloc');
