@@ -22,6 +22,10 @@ function sanitizeBrPaste(html) {
     // Нормалізуємо варіанти <br>
     html = html.replace(/<br\s*\/?>/gi, '<br>');
 
+    // Конвертуємо \n → <br> (щоб не втрачати переноси при innerHTML парсингу)
+    html = html.replace(/\r\n/g, '\n');
+    html = html.replace(/\n/g, '<br>');
+
     const temp = document.createElement('div');
     temp.innerHTML = html;
 
