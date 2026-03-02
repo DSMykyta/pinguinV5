@@ -14,9 +14,10 @@
  * F: generated_short_ua | G: generated_short_ru
  * H: generated_full_ua | I: generated_full_ru
  * J: price | K: barcode | L: weight | M: stock
- * N: variant_chars | O: image_url | P: status | Q: created_at
- * R: composition_code_ua | S: composition_code_ru
- * T: composition_notes_ua | U: composition_notes_ru
+ * N: variant_chars | O: image_url
+ * P: composition_code_ua | Q: composition_code_ru
+ * R: composition_notes_ua | S: composition_notes_ru
+ * T: status | U: created_at
  */
 
 import { productsState } from './products-state.js';
@@ -120,12 +121,12 @@ export async function loadProductVariants() {
             stock: row[12] || '',           // M
             variant_chars: safeJsonParse(row[13], {}), // N
             image_url: row[14] || '',       // O
-            status: row[15] || 'active',    // P
-            created_at: row[16] || '',      // Q
-            composition_code_ua: row[17] || '', // R
-            composition_code_ru: row[18] || '', // S
-            composition_notes_ua: row[19] || '', // T
-            composition_notes_ru: row[20] || '', // U
+            composition_code_ua: row[15] || '', // P
+            composition_code_ru: row[16] || '', // Q
+            composition_notes_ua: row[17] || '', // R
+            composition_notes_ru: row[18] || '', // S
+            status: row[19] || 'active',    // T
+            created_at: row[20] || '',      // U
             _rowIndex: index + 2
         }));
 
@@ -163,12 +164,12 @@ function prepareVariantRow(variant) {
         variant.stock || '',                  // M: stock
         serializeJson(variant.variant_chars), // N: variant_chars (JSON)
         variant.image_url || '',              // O: image_url
-        variant.status || 'active',           // P: status
-        variant.created_at || '',             // Q: created_at
-        variant.composition_code_ua || '',    // R: composition_code_ua
-        variant.composition_code_ru || '',    // S: composition_code_ru
-        variant.composition_notes_ua || '',   // T: composition_notes_ua
-        variant.composition_notes_ru || '',   // U: composition_notes_ru
+        variant.composition_code_ua || '',    // P: composition_code_ua
+        variant.composition_code_ru || '',    // Q: composition_code_ru
+        variant.composition_notes_ua || '',   // R: composition_notes_ua
+        variant.composition_notes_ru || '',   // S: composition_notes_ru
+        variant.status || 'active',           // T: status
+        variant.created_at || '',             // U: created_at
     ];
 }
 
@@ -204,12 +205,12 @@ export async function addProductVariant(variantData) {
             stock: variantData.stock || '',
             variant_chars: variantData.variant_chars || {},
             image_url: variantData.image_url || '',
-            status: variantData.status || 'active',
-            created_at: new Date().toISOString(),
             composition_code_ua: variantData.composition_code_ua || '',
             composition_code_ru: variantData.composition_code_ru || '',
             composition_notes_ua: variantData.composition_notes_ua || '',
             composition_notes_ru: variantData.composition_notes_ru || '',
+            status: variantData.status || 'active',
+            created_at: new Date().toISOString(),
             _rowIndex: productsState.productVariants.length + 2
         };
 
@@ -267,11 +268,11 @@ export async function updateProductVariant(variantId, updates) {
             stock: u('stock'),
             variant_chars: u('variant_chars'),
             image_url: u('image_url'),
-            status: u('status'),
             composition_code_ua: u('composition_code_ua'),
             composition_code_ru: u('composition_code_ru'),
             composition_notes_ua: u('composition_notes_ua'),
             composition_notes_ru: u('composition_notes_ru'),
+            status: u('status'),
         };
 
         const range = `${SHEET_NAME}!A${variant._rowIndex}:U${variant._rowIndex}`;
