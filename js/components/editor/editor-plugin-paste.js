@@ -19,11 +19,10 @@ import { showToast } from '../feedback/toast.js';
  * Очистка HTML для brOnly режиму — залишає тільки <br> і <strong>
  */
 function sanitizeBrPaste(html) {
-    // Нормалізуємо варіанти <br>
-    html = html.replace(/<br\s*\/?>/gi, '<br>');
-
-    // Конвертуємо \n → <br> (щоб не втрачати переноси при innerHTML парсингу)
+    // Нормалізуємо: <br /> + \n → один <br>, голий \n → <br>
     html = html.replace(/\r\n/g, '\n');
+    html = html.replace(/<br\s*\/?>\s*\n/gi, '<br>');
+    html = html.replace(/<br\s*\/?>/gi, '<br>');
     html = html.replace(/\n/g, '<br>');
 
     const temp = document.createElement('div');
