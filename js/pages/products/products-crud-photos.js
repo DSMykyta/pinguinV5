@@ -237,7 +237,6 @@ async function handleUploadPhoto(file) {
 
 function renderPhotoGrid() {
     const grid = document.getElementById('product-photos-grid');
-    const empty = document.getElementById('product-photos-empty');
     const counter = document.getElementById('product-photos-counter');
     if (!grid) return;
 
@@ -247,12 +246,9 @@ function renderPhotoGrid() {
 
     if (_photoUrls.length === 0) {
         grid.innerHTML = '';
-        if (empty) empty.classList.remove('u-hidden');
         updateMainPreview();
         return;
     }
-
-    if (empty) empty.classList.add('u-hidden');
 
     const photoBaseName = buildPhotoName();
 
@@ -260,9 +256,10 @@ function renderPhotoGrid() {
     _photoUrls.forEach((url, index) => {
         const fileName = `${photoBaseName}_${index + 1}.webp`;
         const ext = extractExtension(fileName);
+        const isMain = index === 0;
         html += `
             <div class="content-bloc" draggable="true" data-photo-index="${index}">
-                <div class="content-line">
+                <div class="content-line${isMain ? ' main' : ''}">
                     <button class="btn-icon ghost drag" tabindex="-1">
                         <span class="material-symbols-outlined">expand_all</span>
                     </button>

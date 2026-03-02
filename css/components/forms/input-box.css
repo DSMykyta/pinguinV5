@@ -66,6 +66,11 @@
     gap: 8px;
 }
 
+/* Фото-галерея */
+.content-bloc-container.photos .content-line.main {
+    background-color: var(--color-main-c);
+}
+
 /* Пусте повідомлення */
 .content-bloc-container .empty-state-container {
     padding: 24px;
