@@ -1,4 +1,4 @@
-variant_id	product_id	sku	name_ua	name_ru	price	barcode	weight	stock	variant_chars	image_url	status	created_at
+variant_id	product_id	sku	name_ua	name_ru	generated_short_ua	generated_short_ru	generated_full_ua	generated_full_ru	price	barcode	weight	stock	variant_chars	image_url	status	created_at
 var-000001	prod-000001	ON-WGS-CHO-908	Подвійний шоколад 908г	Двойной шоколад 908г	1450		908	25	{}		active	2026-03-01T00:00:00.000Z
 var-000002	prod-000001	ON-WGS-CHO-2270	Подвійний шоколад 2.27кг	Двойной шоколад 2.27кг	3200		2270	15	{}		active	2026-03-01T00:00:00.000Z
 var-000003	prod-000001	ON-WGS-VAN-908	Ваніль 908г	Ваниль 908г	1450		908	20	{}		active	2026-03-01T00:00:00.000Z

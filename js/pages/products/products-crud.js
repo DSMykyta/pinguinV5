@@ -122,6 +122,7 @@ async function initModalComponents() {
     initSaveHandler();
     initSectionNavigation();
     initProductStatusToggle();
+    initNameGenerationListeners();
     await populateBrandSelect();
     await populateCategorySelect();
     initCategoryChangeHandler();
@@ -437,24 +438,40 @@ function getProductFormData() {
         imageUrl = document.getElementById('product-image-url')?.value.trim() || '';
     }
 
+    const v = (id) => document.getElementById(id)?.value.trim() || '';
+
     return {
-        name_ua: document.getElementById('product-name-ua')?.value.trim() || '',
-        name_ru: document.getElementById('product-name-ru')?.value.trim() || '',
-        brand_id: document.getElementById('product-brand')?.value.trim() || '',
-        line_id: document.getElementById('product-line')?.value.trim() || '',
-        category_id: document.getElementById('product-category')?.value.trim() || '',
-        composition_ua: document.getElementById('product-composition-ua')?.value.trim() || '',
-        composition_ru: document.getElementById('product-composition-ru')?.value.trim() || '',
+        brand_id: v('product-brand'),
+        line_id: v('product-line'),
+        category_id: v('product-category'),
+        text_before_ua: v('product-text-before-ua'),
+        text_before_ru: v('product-text-before-ru'),
+        name_ua: v('product-name-ua'),
+        name_ru: v('product-name-ru'),
+        label_ua: v('product-label-ua'),
+        label_ru: v('product-label-ru'),
+        detail_ua: v('product-detail-ua'),
+        detail_ru: v('product-detail-ru'),
+        variation_ua: v('product-variation-ua'),
+        variation_ru: v('product-variation-ru'),
+        text_after_ua: v('product-text-after-ua'),
+        text_after_ru: v('product-text-after-ru'),
+        generated_short_ua: v('product-generated-short-ua'),
+        generated_short_ru: v('product-generated-short-ru'),
+        generated_full_ua: v('product-generated-full-ua'),
+        generated_full_ru: v('product-generated-full-ru'),
+        composition_ua: v('product-composition-ua'),
+        composition_ru: v('product-composition-ru'),
         product_text_ua: textEditorUa ? textEditorUa.getValue() : '',
         product_text_ru: textEditorRu ? textEditorRu.getValue() : '',
         characteristics,
         image_url: imageUrl,
-        seo_title_ua: document.getElementById('product-seo-title-ua')?.value.trim() || '',
-        seo_title_ru: document.getElementById('product-seo-title-ru')?.value.trim() || '',
-        seo_description_ua: document.getElementById('product-seo-desc-ua')?.value.trim() || '',
-        seo_description_ru: document.getElementById('product-seo-desc-ru')?.value.trim() || '',
-        seo_keywords_ua: document.getElementById('product-seo-keywords-ua')?.value.trim() || '',
-        seo_keywords_ru: document.getElementById('product-seo-keywords-ru')?.value.trim() || '',
+        seo_title_ua: v('product-seo-title-ua'),
+        seo_title_ru: v('product-seo-title-ru'),
+        seo_description_ua: v('product-seo-desc-ua'),
+        seo_description_ru: v('product-seo-desc-ru'),
+        seo_keywords_ua: v('product-seo-keywords-ua'),
+        seo_keywords_ru: v('product-seo-keywords-ru'),
         status: document.querySelector('input[name="product-status"]:checked')?.value || 'draft',
     };
 }
@@ -463,14 +480,23 @@ function getProductFormData() {
  * Заповнити форму даними товару
  */
 function fillProductForm(product) {
-    const idField = document.getElementById('product-id');
-    if (idField) idField.value = product.product_id || '';
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
 
-    const nameUa = document.getElementById('product-name-ua');
-    if (nameUa) nameUa.value = product.name_ua || '';
-
-    const nameRu = document.getElementById('product-name-ru');
-    if (nameRu) nameRu.value = product.name_ru || '';
+    set('product-id', product.product_id);
+    set('product-name-ua', product.name_ua);
+    set('product-name-ru', product.name_ru);
+    set('product-text-before-ua', product.text_before_ua);
+    set('product-text-before-ru', product.text_before_ru);
+    set('product-label-ua', product.label_ua);
+    set('product-label-ru', product.label_ru);
+    set('product-detail-ua', product.detail_ua);
+    set('product-detail-ru', product.detail_ru);
+    set('product-variation-ua', product.variation_ua);
+    set('product-variation-ru', product.variation_ru);
+    set('product-text-after-ua', product.text_after_ua);
+    set('product-text-after-ru', product.text_after_ru);
+    set('product-composition-ua', product.composition_ua);
+    set('product-composition-ru', product.composition_ru);
 
     // Бренд
     const brandField = document.getElementById('product-brand');
@@ -495,13 +521,6 @@ function fillProductForm(product) {
         catField.value = product.category_id || '';
         reinitializeCustomSelect(catField);
     }
-
-    // Склад
-    const compUa = document.getElementById('product-composition-ua');
-    if (compUa) compUa.value = product.composition_ua || '';
-
-    const compRu = document.getElementById('product-composition-ru');
-    if (compRu) compRu.value = product.composition_ru || '';
 
     // Статус
     const statusRadio = document.querySelector(`input[name="product-status"][value="${product.status || 'draft'}"]`);
@@ -548,6 +567,9 @@ function fillProductForm(product) {
     // Тексти
     if (textEditorUa) textEditorUa.setValue(product.product_text_ua || '');
     if (textEditorRu) textEditorRu.setValue(product.product_text_ru || '');
+
+    // Оновити згенеровані назви
+    updateGeneratedNames();
 }
 
 /**
@@ -556,6 +578,13 @@ function fillProductForm(product) {
 function clearProductForm() {
     const fields = [
         'product-id', 'product-name-ua', 'product-name-ru',
+        'product-text-before-ua', 'product-text-before-ru',
+        'product-label-ua', 'product-label-ru',
+        'product-detail-ua', 'product-detail-ru',
+        'product-variation-ua', 'product-variation-ru',
+        'product-text-after-ua', 'product-text-after-ru',
+        'product-generated-short-ua', 'product-generated-short-ru',
+        'product-generated-full-ua', 'product-generated-full-ru',
         'product-composition-ua', 'product-composition-ru',
         'product-image-url',
         'product-seo-title-ua', 'product-seo-title-ru',
@@ -609,6 +638,113 @@ function clearProductForm() {
             clearPhotos();
         }).catch(() => {});
     } catch { /* ignore */ }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAME GENERATION (авто-формування назв)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const NAME_FIELDS = [
+    'product-text-before-ua', 'product-text-before-ru',
+    'product-name-ua', 'product-name-ru',
+    'product-label-ua', 'product-label-ru',
+    'product-detail-ua', 'product-detail-ru',
+    'product-variation-ua', 'product-variation-ru',
+    'product-text-after-ua', 'product-text-after-ru',
+];
+
+/**
+ * Ініціалізувати слухачів для авто-генерації назв
+ */
+function initNameGenerationListeners() {
+    NAME_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.dataset.nameGenInited) {
+            el.addEventListener('input', updateGeneratedNames);
+            el.dataset.nameGenInited = '1';
+        }
+    });
+
+    // Бренд, лінійка, категорія теж впливають на назву
+    ['product-brand', 'product-line', 'product-category'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.dataset.nameGenInited) {
+            el.addEventListener('change', updateGeneratedNames);
+            el.dataset.nameGenInited = '1';
+        }
+    });
+}
+
+/**
+ * Побудувати коротку назву:
+ * [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація]
+ */
+export function buildShortName(brand, line, name, label, detail, variation) {
+    const mainParts = [brand, line, name, label, detail].filter(Boolean).join(' ');
+    if (!variation) return mainParts;
+    return mainParts ? `${mainParts}, ${variation}` : variation;
+}
+
+/**
+ * Побудувати повну назву:
+ * [Текст перед] [Коротка назва] [Текст після]
+ */
+export function buildFullName(textBefore, shortName, textAfter) {
+    return [textBefore, shortName, textAfter].filter(Boolean).join(' ');
+}
+
+/**
+ * Побудувати повну назву варіанту:
+ * [Текст перед] [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація] - [Варіант] [Текст після]
+ */
+export function buildVariantFullName(textBefore, brand, line, name, label, detail, variation, variantName, textAfter) {
+    const mainParts = [brand, line, name, label, detail].filter(Boolean).join(' ');
+    let core = mainParts;
+    if (variation) core = core ? `${core}, ${variation}` : variation;
+    if (variantName) core = core ? `${core} - ${variantName}` : variantName;
+    return [textBefore, core, textAfter].filter(Boolean).join(' ');
+}
+
+/**
+ * Оновити згенеровані назви (коротка + повна)
+ * Якщо "Текст перед назвою" порожній — підставляється назва категорії
+ */
+function updateGeneratedNames() {
+    const v = (id) => document.getElementById(id)?.value.trim() || '';
+
+    // Бренд і лінійка — частина коротної назви
+    const brandSelect = document.getElementById('product-brand');
+    const lineSelect = document.getElementById('product-line');
+    const brandName = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+    const lineName = lineSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+    const brandPart = (brandName && !brandName.startsWith('—')) ? brandName : '';
+    const linePart = (lineName && !lineName.startsWith('—')) ? lineName : '';
+
+    // Категорія — fallback для текст перед назвою
+    const catSelect = document.getElementById('product-category');
+    const catName = catSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+    const catPart = (catName && !catName.startsWith('—')) ? catName : '';
+
+    const textBeforeUa = v('product-text-before-ua');
+    const textBeforeRu = v('product-text-before-ru');
+    // Якщо текст перед назвою порожній — підставити категорію
+    const prefixUa = textBeforeUa || catPart;
+    const prefixRu = textBeforeRu || catPart;
+
+    // Коротка: [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація]
+    const shortUaVal = buildShortName(brandPart, linePart, v('product-name-ua'), v('product-label-ua'), v('product-detail-ua'), v('product-variation-ua'));
+    const shortRuVal = buildShortName(brandPart, linePart, v('product-name-ru'), v('product-label-ru'), v('product-detail-ru'), v('product-variation-ru'));
+
+    const shortUa = document.getElementById('product-generated-short-ua');
+    const shortRu = document.getElementById('product-generated-short-ru');
+    if (shortUa) shortUa.value = shortUaVal;
+    if (shortRu) shortRu.value = shortRuVal;
+
+    // Повна: [Текст перед / Категорія] [Коротка] [Текст після]
+    const fullUa = document.getElementById('product-generated-full-ua');
+    const fullRu = document.getElementById('product-generated-full-ru');
+    if (fullUa) fullUa.value = buildFullName(prefixUa, shortUaVal, v('product-text-after-ua'));
+    if (fullRu) fullRu.value = buildFullName(prefixRu, shortRuVal, v('product-text-after-ru'));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -693,12 +829,23 @@ export function refreshProductModal() {
 }
 
 function _restoreSnapshot(snapshot) {
-    const nameUa = document.getElementById('product-name-ua');
-    if (nameUa) nameUa.value = snapshot.name_ua;
+    const set = (id, key) => { const el = document.getElementById(id); if (el) el.value = snapshot[key] || ''; };
 
-    const nameRu = document.getElementById('product-name-ru');
-    if (nameRu) nameRu.value = snapshot.name_ru;
+    // Назви — всі складові
+    set('product-name-ua', 'name_ua');
+    set('product-name-ru', 'name_ru');
+    set('product-text-before-ua', 'text_before_ua');
+    set('product-text-before-ru', 'text_before_ru');
+    set('product-label-ua', 'label_ua');
+    set('product-label-ru', 'label_ru');
+    set('product-detail-ua', 'detail_ua');
+    set('product-detail-ru', 'detail_ru');
+    set('product-variation-ua', 'variation_ua');
+    set('product-variation-ru', 'variation_ru');
+    set('product-text-after-ua', 'text_after_ua');
+    set('product-text-after-ru', 'text_after_ru');
 
+    // Selects
     const brandField = document.getElementById('product-brand');
     if (brandField) { brandField.value = snapshot.brand_id; reinitializeCustomSelect(brandField); }
 
@@ -708,23 +855,26 @@ function _restoreSnapshot(snapshot) {
     const catField = document.getElementById('product-category');
     if (catField) { catField.value = snapshot.category_id; reinitializeCustomSelect(catField); }
 
-    const compUa = document.getElementById('product-composition-ua');
-    if (compUa) compUa.value = snapshot.composition_ua;
+    // Склад
+    set('product-composition-ua', 'composition_ua');
+    set('product-composition-ru', 'composition_ru');
 
-    const compRu = document.getElementById('product-composition-ru');
-    if (compRu) compRu.value = snapshot.composition_ru;
-
+    // Тексти
     if (textEditorUa) textEditorUa.setValue(snapshot.product_text_ua || '');
     if (textEditorRu) textEditorRu.setValue(snapshot.product_text_ru || '');
 
-    const imageUrlField = document.getElementById('product-image-url');
-    if (imageUrlField) imageUrlField.value = snapshot.image_url;
+    // Зображення
+    set('product-image-url', 'image_url');
 
+    // SEO
     ['seo-title-ua', 'seo-title-ru', 'seo-desc-ua', 'seo-desc-ru', 'seo-keywords-ua', 'seo-keywords-ru'].forEach(suffix => {
         const key = suffix.replace(/-/g, '_').replace('desc', 'description');
         const field = document.getElementById(`product-${suffix}`);
         if (field) field.value = snapshot[key] || '';
     });
+
+    // Перерахувати згенеровані назви
+    updateGeneratedNames();
 }
 
 export function getCurrentProductId() {

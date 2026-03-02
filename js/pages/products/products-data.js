@@ -9,31 +9,45 @@
  *
  * 🔒 ЯДРО — цей файл не можна видаляти!
  *
- * СТРУКТУРА КОЛОНОК В GOOGLE SHEETS (Products):
+ * СТРУКТУРА КОЛОНОК В GOOGLE SHEETS (Products):  A:AI (35 колонок)
  * ┌─────────┬──────────────────────┬───────────────────────────────────────┐
  * │ Колонка │ Поле                 │ Формат                                │
  * ├─────────┼──────────────────────┼───────────────────────────────────────┤
  * │ A       │ product_id           │ prod-XXXXXX                           │
- * │ B       │ name_ua              │ текст                                 │
- * │ C       │ name_ru              │ текст                                 │
- * │ D       │ brand_id             │ bran-XXXXXX                           │
- * │ E       │ line_id              │ line-XXXXXX                           │
- * │ F       │ category_id          │ cat-XXXXXX                            │
- * │ G       │ composition_ua       │ текст                                 │
- * │ H       │ composition_ru       │ текст                                 │
- * │ I       │ product_text_ua      │ HTML текст                            │
- * │ J       │ product_text_ru      │ HTML текст                            │
- * │ K       │ characteristics      │ JSON об'єкт                           │
- * │ L       │ image_url            │ URL                                   │
- * │ M       │ seo_title_ua         │ текст                                 │
- * │ N       │ seo_title_ru         │ текст                                 │
- * │ O       │ seo_description_ua   │ текст                                 │
- * │ P       │ seo_description_ru   │ текст                                 │
- * │ Q       │ seo_keywords_ua      │ текст                                 │
- * │ R       │ seo_keywords_ru      │ текст                                 │
- * │ S       │ status               │ active | draft | archived             │
- * │ T       │ created_at           │ ISO дата                              │
- * │ U       │ updated_at           │ ISO дата                              │
+ * │ B       │ brand_id             │ bran-XXXXXX                           │
+ * │ C       │ line_id              │ line-XXXXXX                           │
+ * │ D       │ category_id          │ cat-XXXXXX                            │
+ * │ E       │ text_before_ua       │ текст (категорія/перед назвою)        │
+ * │ F       │ text_before_ru       │ текст                                 │
+ * │ G       │ name_ua              │ текст (назва товару)                  │
+ * │ H       │ name_ru              │ текст                                 │
+ * │ I       │ label_ua             │ текст (ознака товару)                 │
+ * │ J       │ label_ru             │ текст                                 │
+ * │ K       │ detail_ua            │ текст (деталь товару)                 │
+ * │ L       │ detail_ru            │ текст                                 │
+ * │ M       │ variation_ua         │ текст (варіація товару)               │
+ * │ N       │ variation_ru         │ текст                                 │
+ * │ O       │ text_after_ua        │ текст (після назви)                   │
+ * │ P       │ text_after_ru        │ текст                                 │
+ * │ Q       │ generated_short_ua   │ авто (коротка назва)                  │
+ * │ R       │ generated_short_ru   │ авто                                  │
+ * │ S       │ generated_full_ua    │ авто (повна назва)                    │
+ * │ T       │ generated_full_ru    │ авто                                  │
+ * │ U       │ composition_ua       │ текст                                 │
+ * │ V       │ composition_ru       │ текст                                 │
+ * │ W       │ product_text_ua      │ HTML текст                            │
+ * │ X       │ product_text_ru      │ HTML текст                            │
+ * │ Y       │ characteristics      │ JSON об'єкт                           │
+ * │ Z       │ image_url            │ URL / JSON масив                      │
+ * │ AA      │ seo_title_ua         │ текст                                 │
+ * │ AB      │ seo_title_ru         │ текст                                 │
+ * │ AC      │ seo_description_ua   │ текст                                 │
+ * │ AD      │ seo_description_ru   │ текст                                 │
+ * │ AE      │ seo_keywords_ua      │ текст                                 │
+ * │ AF      │ seo_keywords_ru      │ текст                                 │
+ * │ AG      │ status               │ active | draft | archived             │
+ * │ AH      │ created_at           │ ISO дата                              │
+ * │ AI      │ updated_at           │ ISO дата                              │
  * └─────────┴──────────────────────┴───────────────────────────────────────┘
  */
 
@@ -116,11 +130,25 @@ export async function loadProducts() {
 
         productsState.products = rows.map((row, index) => ({
             product_id: row.product_id || '',
-            name_ua: row.name_ua || '',
-            name_ru: row.name_ru || '',
             brand_id: row.brand_id || '',
             line_id: row.line_id || '',
             category_id: row.category_id || '',
+            text_before_ua: row.text_before_ua || '',
+            text_before_ru: row.text_before_ru || '',
+            name_ua: row.name_ua || '',
+            name_ru: row.name_ru || '',
+            label_ua: row.label_ua || '',
+            label_ru: row.label_ru || '',
+            detail_ua: row.detail_ua || '',
+            detail_ru: row.detail_ru || '',
+            variation_ua: row.variation_ua || '',
+            variation_ru: row.variation_ru || '',
+            text_after_ua: row.text_after_ua || '',
+            text_after_ru: row.text_after_ru || '',
+            generated_short_ua: row.generated_short_ua || '',
+            generated_short_ru: row.generated_short_ru || '',
+            generated_full_ua: row.generated_full_ua || '',
+            generated_full_ru: row.generated_full_ru || '',
             composition_ua: row.composition_ua || '',
             composition_ru: row.composition_ru || '',
             product_text_ua: row.product_text_ua || '',
@@ -169,33 +197,47 @@ export function getProductById(productId) {
 
 /**
  * Підготувати рядок для збереження в Google Sheets
- * Порядок колонок: A-U
+ * Порядок колонок: A:AI (35 колонок)
  * @param {Object} product - Об'єкт товару
  * @returns {Array} Масив значень для рядка
  */
 function prepareProductRow(product) {
     return [
         product.product_id || '',              // A: product_id
-        product.name_ua || '',                 // B: name_ua
-        product.name_ru || '',                 // C: name_ru
-        product.brand_id || '',                // D: brand_id
-        product.line_id || '',                 // E: line_id
-        product.category_id || '',             // F: category_id
-        product.composition_ua || '',          // G: composition_ua
-        product.composition_ru || '',          // H: composition_ru
-        product.product_text_ua || '',         // I: product_text_ua
-        product.product_text_ru || '',         // J: product_text_ru
-        serializeJson(product.characteristics),// K: characteristics (JSON)
-        product.image_url || '',               // L: image_url
-        product.seo_title_ua || '',            // M: seo_title_ua
-        product.seo_title_ru || '',            // N: seo_title_ru
-        product.seo_description_ua || '',      // O: seo_description_ua
-        product.seo_description_ru || '',      // P: seo_description_ru
-        product.seo_keywords_ua || '',         // Q: seo_keywords_ua
-        product.seo_keywords_ru || '',         // R: seo_keywords_ru
-        product.status || 'draft',             // S: status
-        product.created_at || '',              // T: created_at
-        product.updated_at || ''               // U: updated_at
+        product.brand_id || '',                // B: brand_id
+        product.line_id || '',                 // C: line_id
+        product.category_id || '',             // D: category_id
+        product.text_before_ua || '',          // E: text_before_ua
+        product.text_before_ru || '',          // F: text_before_ru
+        product.name_ua || '',                 // G: name_ua
+        product.name_ru || '',                 // H: name_ru
+        product.label_ua || '',                // I: label_ua
+        product.label_ru || '',                // J: label_ru
+        product.detail_ua || '',               // K: detail_ua
+        product.detail_ru || '',               // L: detail_ru
+        product.variation_ua || '',            // M: variation_ua
+        product.variation_ru || '',            // N: variation_ru
+        product.text_after_ua || '',           // O: text_after_ua
+        product.text_after_ru || '',           // P: text_after_ru
+        product.generated_short_ua || '',      // Q: generated_short_ua
+        product.generated_short_ru || '',      // R: generated_short_ru
+        product.generated_full_ua || '',       // S: generated_full_ua
+        product.generated_full_ru || '',       // T: generated_full_ru
+        product.composition_ua || '',          // U: composition_ua
+        product.composition_ru || '',          // V: composition_ru
+        product.product_text_ua || '',         // W: product_text_ua
+        product.product_text_ru || '',         // X: product_text_ru
+        serializeJson(product.characteristics),// Y: characteristics (JSON)
+        product.image_url || '',               // Z: image_url
+        product.seo_title_ua || '',            // AA: seo_title_ua
+        product.seo_title_ru || '',            // AB: seo_title_ru
+        product.seo_description_ua || '',      // AC: seo_description_ua
+        product.seo_description_ru || '',      // AD: seo_description_ru
+        product.seo_keywords_ua || '',         // AE: seo_keywords_ua
+        product.seo_keywords_ru || '',         // AF: seo_keywords_ru
+        product.status || 'draft',             // AG: status
+        product.created_at || '',              // AH: created_at
+        product.updated_at || '',              // AI: updated_at
     ];
 }
 
@@ -214,11 +256,25 @@ export async function addProduct(productData) {
 
         const newProduct = {
             product_id: newId,
-            name_ua: productData.name_ua || '',
-            name_ru: productData.name_ru || '',
             brand_id: productData.brand_id || '',
             line_id: productData.line_id || '',
             category_id: productData.category_id || '',
+            text_before_ua: productData.text_before_ua || '',
+            text_before_ru: productData.text_before_ru || '',
+            name_ua: productData.name_ua || '',
+            name_ru: productData.name_ru || '',
+            label_ua: productData.label_ua || '',
+            label_ru: productData.label_ru || '',
+            detail_ua: productData.detail_ua || '',
+            detail_ru: productData.detail_ru || '',
+            variation_ua: productData.variation_ua || '',
+            variation_ru: productData.variation_ru || '',
+            text_after_ua: productData.text_after_ua || '',
+            text_after_ru: productData.text_after_ru || '',
+            generated_short_ua: productData.generated_short_ua || '',
+            generated_short_ru: productData.generated_short_ru || '',
+            generated_full_ua: productData.generated_full_ua || '',
+            generated_full_ru: productData.generated_full_ru || '',
             composition_ua: productData.composition_ua || '',
             composition_ru: productData.composition_ru || '',
             product_text_ua: productData.product_text_ua || '',
@@ -240,7 +296,7 @@ export async function addProduct(productData) {
         const newRow = prepareProductRow(newProduct);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:U`,
+            range: `${SHEET_NAME}!A:AI`,
             values: [newRow],
             spreadsheetType: 'products'
         });
@@ -273,30 +329,46 @@ export async function updateProduct(productId, updates) {
             throw new Error(`Товар ${productId} не знайдено`);
         }
 
+        const u = (key) => updates[key] !== undefined ? updates[key] : product[key];
+
         const updatedProduct = {
             ...product,
-            name_ua: updates.name_ua !== undefined ? updates.name_ua : product.name_ua,
-            name_ru: updates.name_ru !== undefined ? updates.name_ru : product.name_ru,
-            brand_id: updates.brand_id !== undefined ? updates.brand_id : product.brand_id,
-            line_id: updates.line_id !== undefined ? updates.line_id : product.line_id,
-            category_id: updates.category_id !== undefined ? updates.category_id : product.category_id,
-            composition_ua: updates.composition_ua !== undefined ? updates.composition_ua : product.composition_ua,
-            composition_ru: updates.composition_ru !== undefined ? updates.composition_ru : product.composition_ru,
-            product_text_ua: updates.product_text_ua !== undefined ? updates.product_text_ua : product.product_text_ua,
-            product_text_ru: updates.product_text_ru !== undefined ? updates.product_text_ru : product.product_text_ru,
-            characteristics: updates.characteristics !== undefined ? updates.characteristics : product.characteristics,
-            image_url: updates.image_url !== undefined ? updates.image_url : product.image_url,
-            seo_title_ua: updates.seo_title_ua !== undefined ? updates.seo_title_ua : product.seo_title_ua,
-            seo_title_ru: updates.seo_title_ru !== undefined ? updates.seo_title_ru : product.seo_title_ru,
-            seo_description_ua: updates.seo_description_ua !== undefined ? updates.seo_description_ua : product.seo_description_ua,
-            seo_description_ru: updates.seo_description_ru !== undefined ? updates.seo_description_ru : product.seo_description_ru,
-            seo_keywords_ua: updates.seo_keywords_ua !== undefined ? updates.seo_keywords_ua : product.seo_keywords_ua,
-            seo_keywords_ru: updates.seo_keywords_ru !== undefined ? updates.seo_keywords_ru : product.seo_keywords_ru,
-            status: updates.status !== undefined ? updates.status : product.status,
+            brand_id: u('brand_id'),
+            line_id: u('line_id'),
+            category_id: u('category_id'),
+            text_before_ua: u('text_before_ua'),
+            text_before_ru: u('text_before_ru'),
+            name_ua: u('name_ua'),
+            name_ru: u('name_ru'),
+            label_ua: u('label_ua'),
+            label_ru: u('label_ru'),
+            detail_ua: u('detail_ua'),
+            detail_ru: u('detail_ru'),
+            variation_ua: u('variation_ua'),
+            variation_ru: u('variation_ru'),
+            text_after_ua: u('text_after_ua'),
+            text_after_ru: u('text_after_ru'),
+            generated_short_ua: u('generated_short_ua'),
+            generated_short_ru: u('generated_short_ru'),
+            generated_full_ua: u('generated_full_ua'),
+            generated_full_ru: u('generated_full_ru'),
+            composition_ua: u('composition_ua'),
+            composition_ru: u('composition_ru'),
+            product_text_ua: u('product_text_ua'),
+            product_text_ru: u('product_text_ru'),
+            characteristics: u('characteristics'),
+            image_url: u('image_url'),
+            seo_title_ua: u('seo_title_ua'),
+            seo_title_ru: u('seo_title_ru'),
+            seo_description_ua: u('seo_description_ua'),
+            seo_description_ru: u('seo_description_ru'),
+            seo_keywords_ua: u('seo_keywords_ua'),
+            seo_keywords_ru: u('seo_keywords_ru'),
+            status: u('status'),
             updated_at: new Date().toISOString(),
         };
 
-        const range = `${SHEET_NAME}!A${product._rowIndex}:U${product._rowIndex}`;
+        const range = `${SHEET_NAME}!A${product._rowIndex}:AI${product._rowIndex}`;
         const updatedRow = prepareProductRow(updatedProduct);
 
         await callSheetsAPI('update', {

@@ -25,6 +25,7 @@ import { addProductVariant } from './variants-data.js';
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { runHook } from './products-plugins.js';
+import { buildShortName, buildFullName } from './products-crud.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -379,6 +380,23 @@ async function handleCreateProduct() {
             ? JSON.stringify([_uploadedPhotoUrl])
             : (document.getElementById('wizard-photo-url')?.value.trim() || '');
 
+        // Обчислити згенеровані назви
+        const brandSelect = document.getElementById('wizard-brand');
+        const lineSelect = document.getElementById('wizard-line');
+        const categorySelect = document.getElementById('wizard-category');
+        const brandText = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+        const lineText = lineSelect?.value ? (lineSelect.selectedOptions?.[0]?.textContent?.trim() || '') : '';
+        const catText = categorySelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+        const brandPart = (brandText && !brandText.startsWith('—')) ? brandText : '';
+        const linePart = (lineText && !lineText.startsWith('—')) ? lineText : '';
+
+        const shortUa = buildShortName(brandPart, linePart, nameUa, '', '', '');
+        const shortRu = buildShortName(brandPart, linePart, nameRu, '', '', '');
+        // Wizard не має text_before → fallback на категорію
+        const prefixUa = catText && !catText.startsWith('—') ? catText : '';
+        const fullUa = buildFullName(prefixUa, shortUa, '');
+        const fullRu = buildFullName(prefixUa, shortRu, '');
+
         // Створити товар
         const productData = {
             name_ua: nameUa,
@@ -386,6 +404,10 @@ async function handleCreateProduct() {
             brand_id: brandId,
             line_id: lineId,
             category_id: categoryId,
+            generated_short_ua: shortUa,
+            generated_short_ru: shortRu,
+            generated_full_ua: fullUa,
+            generated_full_ru: fullRu,
             image_url: imageUrl,
             status: 'draft',
         };

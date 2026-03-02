@@ -39,20 +39,22 @@ async function fetchProducts() {
 
     return data.map((row, i) => ({
         product_id: row.product_id || '',
-        name_ua: row.name_ua || '',
-        name_ru: row.name_ru || '',
         brand_id: row.brand_id || '',
         line_id: row.line_id || '',
         category_id: row.category_id || '',
+        name_ua: row.name_ua || '',
+        label_ua: row.label_ua || '',
+        variation_ua: row.variation_ua || '',
         status: row.status || 'draft',
         image_url: row.image_url || '',
+        updated_at: row.updated_at || '',
         _rowIndex: i + 2,
     }));
 }
 
 async function fetchVariants() {
     const result = await callSheetsAPI('get', {
-        range: `${VARIANTS_SHEET}!A:M`,
+        range: `${VARIANTS_SHEET}!A:Q`,
         spreadsheetType: 'products',
     });
 
@@ -63,8 +65,8 @@ async function fetchVariants() {
         product_id: row[1] || '',
         sku: row[2] || '',
         name_ua: row[3] || '',
-        price: row[5] || '',
-        status: row[11] || 'active',
+        price: row[9] || '',         // J: price (shifted +4)
+        status: row[15] || 'active', // P: status (shifted +4)
         _rowIndex: i + 2,
     }));
 }
@@ -80,7 +82,7 @@ function normalizeJson(val) {
 }
 
 function productFp(p) {
-    return `${p.product_id}|${p.name_ua}|${p.brand_id}|${p.category_id}|${p.status}|${p.image_url}`;
+    return `${p.product_id}|${p.name_ua}|${p.label_ua}|${p.variation_ua}|${p.brand_id}|${p.category_id}|${p.status}|${p.updated_at}`;
 }
 
 function variantFp(v) {

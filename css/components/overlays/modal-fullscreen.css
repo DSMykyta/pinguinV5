@@ -63,6 +63,7 @@
 
 .modal-fullscreen-header {
     display: flex;
+    gap: 12px;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
@@ -163,6 +164,12 @@
    FULLSCREEN SECTIONS (scroll-snap)
    Оверрайди для стандартних section всередині модалу
    ============================================ */
+
+/* Динамічні обгортки секцій (напр. product-characteristics-sections)
+   мають бути «прозорими» для scroll-snap і висоти */
+.modal-fullscreen-content > div {
+    display: contents;
+}
 
 .modal-fullscreen-content section {
     height: 100%;

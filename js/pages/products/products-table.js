@@ -129,6 +129,8 @@ function initProductsTable() {
                 const count = variants.filter(v => v.product_id === p.product_id).length;
                 return {
                     ...p,
+                    // Показувати згенеровану коротку назву замість name_ua
+                    name_ua: p.generated_short_ua || p.name_ua,
                     brand_name: brandMap[p.brand_id] || p.brand_id,
                     category_name: catMap[p.category_id] || p.category_id,
                     variants_count: { count, tooltip: `Варіантів: ${count}` }

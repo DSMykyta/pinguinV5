@@ -20,10 +20,13 @@ import {
 } from '../../components/actions/actions-main.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
+import { getCharacteristics, getOptions, loadCharacteristics, loadOptions, getCategories } from '../mapper/mapper-data-own.js';
+import { getBrands } from '../brands/brands-data.js';
+import { getBrandLines } from '../brands/lines-data.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { runHook } from './products-plugins.js';
+import { buildShortName, buildFullName, buildVariantFullName } from './products-crud.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -438,6 +441,53 @@ function getVariantCharsData() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// VARIANT GENERATED NAMES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Обчислити згенеровані назви для варіанту
+ * Використовує дані товару (brand, line, name, label, detail, variation, text_before/after)
+ * + назву самого варіанту
+ */
+function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu) {
+    const product = getProductById(productId);
+    if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
+
+    // Бренд і лінійка (назви, не ID)
+    const brands = getBrands();
+    const lines = getBrandLines();
+    const brand = brands.find(b => b.brand_id === product.brand_id);
+    const line = lines.find(l => l.line_id === product.line_id);
+    const brandName = brand?.name_uk || '';
+    const lineName = line?.name_uk || '';
+
+    // Категорія — fallback для text_before
+    const categories = getCategories();
+    const cat = categories.find(c => c.id === product.category_id);
+    const catName = cat?.name_ua || '';
+    const prefixUa = product.text_before_ua || catName;
+    const prefixRu = product.text_before_ru || catName;
+
+    // Коротка варіанту: [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація] - [Варіант]
+    const productShortUa = buildShortName(brandName, lineName, product.name_ua, product.label_ua, product.detail_ua, product.variation_ua);
+    const productShortRu = buildShortName(brandName, lineName, product.name_ru, product.label_ru, product.detail_ru, product.variation_ru);
+
+    const shortUa = variantNameUa ? (productShortUa ? `${productShortUa} - ${variantNameUa}` : variantNameUa) : productShortUa;
+    const shortRu = variantNameRu ? (productShortRu ? `${productShortRu} - ${variantNameRu}` : variantNameRu) : productShortRu;
+
+    // Повна варіанту: [Текст перед / Категорія] + коротка + [Текст після]
+    const fullUa = buildFullName(prefixUa, shortUa, product.text_after_ua);
+    const fullRu = buildFullName(prefixRu, shortRu, product.text_after_ru);
+
+    return {
+        generated_short_ua: shortUa,
+        generated_short_ru: shortRu,
+        generated_full_ua: fullUa,
+        generated_full_ru: fullRu,
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SAVE HANDLER
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -452,6 +502,10 @@ function initVariantSaveHandler() {
 async function handleSaveVariant(shouldClose = true) {
     const formData = getVariantFormData();
     const productId = formData.product_id;
+
+    // Обчислити згенеровані назви
+    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru);
+    Object.assign(formData, genNames);
 
     try {
         if (_currentVariantId) {

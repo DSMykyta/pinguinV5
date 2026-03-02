@@ -99,15 +99,25 @@
 
                     <div class="section-content">
                         <div class="grid">
-                            <!-- Назва товару (двомовний блок) -->
+
+                            <!-- Категорія -->
                             <div class="group column col-6">
-                                <label class="label-l">Назва товару</label>
+                                <label for="product-category" class="label-l">Категорія</label>
+                                <select id="product-category" data-custom-select>
+                                    <option value="">— Оберіть категорію —</option>
+                                </select>
+                                <label class="label-s">Визначає набір характеристик товару</label>
+                            </div>
+
+                            <!-- Текст перед назвою / Категорія -->
+                            <div class="group column col-6">
+                                <label class="label-l">Текст перед назвою</label>
+                                <label class="label-s">Якщо порожнє — підставиться назва категорії</label>
                                 <div class="content-bloc-container">
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-name-ua"
-                                                    placeholder="Назва українською" required>
+                                                <input type="text" id="product-text-before-ua" placeholder="Текст перед назвою">
                                                 <span class="tag c-main">UA</span>
                                             </div>
                                         </div>
@@ -115,8 +125,7 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-name-ru"
-                                                    placeholder="Назва російською">
+                                                <input type="text" id="product-text-before-ru" placeholder="Текст перед названием">
                                                 <span class="tag c-tertiary">RU</span>
                                             </div>
                                         </div>
@@ -125,29 +134,182 @@
                             </div>
 
                             <!-- Бренд -->
-                            <div class="group column col-4">
+                            <div class="group column col-6">
                                 <label for="product-brand" class="label-l">Бренд</label>
                                 <select id="product-brand" data-custom-select>
                                     <option value="">— Оберіть бренд —</option>
                                 </select>
                             </div>
 
-                            <!-- Лінійка -->
-                            <div class="group column col-4">
-                                <label for="product-line" class="label-l">Лінійка</label>
+                            <!-- Лінійка бренду -->
+                            <div class="group column col-6">
+                                <label for="product-line" class="label-l">Лінійка бренду</label>
                                 <select id="product-line" data-custom-select>
                                     <option value="">— Оберіть лінійку —</option>
                                 </select>
                             </div>
 
-                            <!-- Категорія -->
-                            <div class="group column col-4">
-                                <label for="product-category" class="label-l">Категорія</label>
-                                <select id="product-category" data-custom-select>
-                                    <option value="">— Оберіть категорію —</option>
-                                </select>
-                                <label class="label-s">Визначає набір характеристик товару</label>
+                            <!-- Назва товару -->
+                            <div class="group column col-6">
+                                <label class="label-l">Назва товару</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-name-ua" placeholder="Назва українською" required>
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-name-ru" placeholder="Назва російською">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- Ознака товару -->
+                            <div class="group column col-3">
+                                <label class="label-l">Ознака товару</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-label-ua" placeholder="Ознака">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-label-ru" placeholder="Признак">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Деталь товару -->
+                            <div class="group column col-3">
+                                <label class="label-l">Деталь товару</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-detail-ua" placeholder="Деталь">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-detail-ru" placeholder="Деталь">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Варіація товару -->
+                            <div class="group column col-6">
+                                <label class="label-l">Варіація товару</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-variation-ua" placeholder="Варіація">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-variation-ru" placeholder="Вариация">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Текст після назви -->
+                            <div class="group column col-6">
+                                <label class="label-l">Текст після назви</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-text-after-ua" placeholder="Текст після назви">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-text-after-ru" placeholder="Текст после названия">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Зформована назва коротка (readonly) -->
+                            <div class="group column col-12">
+                                <label class="label-l">Зформована назва товару коротка</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-generated-short-ua" readonly placeholder="Автоматично">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-generated-short-ru" readonly placeholder="Автоматически">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Зформована назва повна (readonly) -->
+                            <div class="group column col-12">
+                                <label class="label-l">Зформована назва товару повна</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-generated-full-ua" readonly placeholder="Автоматично">
+                                                <span class="tag c-main">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-generated-full-ru" readonly placeholder="Автоматически">
+                                                <span class="tag c-tertiary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </section>

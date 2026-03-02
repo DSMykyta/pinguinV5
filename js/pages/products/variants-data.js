@@ -9,10 +9,12 @@
  *
  * CRUD операції для варіантів товарів через Google Sheets API.
  *
- * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):
+ * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:Q (17 колонок)
  * A: variant_id | B: product_id | C: sku | D: name_ua | E: name_ru
- * F: price | G: barcode | H: weight | I: stock
- * J: variant_chars | K: image_url | L: status | M: created_at
+ * F: generated_short_ua | G: generated_short_ru
+ * H: generated_full_ua | I: generated_full_ru
+ * J: price | K: barcode | L: weight | M: stock
+ * N: variant_chars | O: image_url | P: status | Q: created_at
  */
 
 import { productsState } from './products-state.js';
@@ -89,7 +91,7 @@ export function getVariantsByProductId(productId) {
 export async function loadProductVariants() {
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:M`,
+            range: `${SHEET_NAME}!A:Q`,
             spreadsheetType: 'products'
         });
 
@@ -101,19 +103,23 @@ export async function loadProductVariants() {
         const dataRows = result.slice(1);
 
         productsState.productVariants = dataRows.map((row, index) => ({
-            variant_id: row[0] || '',
-            product_id: row[1] || '',
-            sku: row[2] || '',
-            name_ua: row[3] || '',
-            name_ru: row[4] || '',
-            price: row[5] || '',
-            barcode: row[6] || '',
-            weight: row[7] || '',
-            stock: row[8] || '',
-            variant_chars: safeJsonParse(row[9], {}),
-            image_url: row[10] || '',
-            status: row[11] || 'active',
-            created_at: row[12] || '',
+            variant_id: row[0] || '',       // A
+            product_id: row[1] || '',       // B
+            sku: row[2] || '',              // C
+            name_ua: row[3] || '',          // D
+            name_ru: row[4] || '',          // E
+            generated_short_ua: row[5] || '', // F
+            generated_short_ru: row[6] || '', // G
+            generated_full_ua: row[7] || '',  // H
+            generated_full_ru: row[8] || '',  // I
+            price: row[9] || '',            // J
+            barcode: row[10] || '',         // K
+            weight: row[11] || '',          // L
+            stock: row[12] || '',           // M
+            variant_chars: safeJsonParse(row[13], {}), // N
+            image_url: row[14] || '',       // O
+            status: row[15] || 'active',    // P
+            created_at: row[16] || '',      // Q
             _rowIndex: index + 2
         }));
 
@@ -136,19 +142,23 @@ export async function loadProductVariants() {
  */
 function prepareVariantRow(variant) {
     return [
-        variant.variant_id || '',         // A: variant_id
-        variant.product_id || '',         // B: product_id
-        variant.sku || '',                // C: sku
-        variant.name_ua || '',            // D: name_ua
-        variant.name_ru || '',            // E: name_ru
-        variant.price || '',              // F: price
-        variant.barcode || '',            // G: barcode
-        variant.weight || '',             // H: weight
-        variant.stock || '',              // I: stock
-        serializeJson(variant.variant_chars), // J: variant_chars (JSON)
-        variant.image_url || '',          // K: image_url
-        variant.status || 'active',       // L: status
-        variant.created_at || ''          // M: created_at
+        variant.variant_id || '',             // A: variant_id
+        variant.product_id || '',             // B: product_id
+        variant.sku || '',                    // C: sku
+        variant.name_ua || '',                // D: name_ua
+        variant.name_ru || '',                // E: name_ru
+        variant.generated_short_ua || '',     // F: generated_short_ua
+        variant.generated_short_ru || '',     // G: generated_short_ru
+        variant.generated_full_ua || '',      // H: generated_full_ua
+        variant.generated_full_ru || '',      // I: generated_full_ru
+        variant.price || '',                  // J: price
+        variant.barcode || '',                // K: barcode
+        variant.weight || '',                 // L: weight
+        variant.stock || '',                  // M: stock
+        serializeJson(variant.variant_chars), // N: variant_chars (JSON)
+        variant.image_url || '',              // O: image_url
+        variant.status || 'active',           // P: status
+        variant.created_at || ''              // Q: created_at
     ];
 }
 
@@ -174,6 +184,10 @@ export async function addProductVariant(variantData) {
             sku: variantData.sku || '',
             name_ua: variantData.name_ua || '',
             name_ru: variantData.name_ru || '',
+            generated_short_ua: variantData.generated_short_ua || '',
+            generated_short_ru: variantData.generated_short_ru || '',
+            generated_full_ua: variantData.generated_full_ua || '',
+            generated_full_ru: variantData.generated_full_ru || '',
             price: variantData.price || '',
             barcode: variantData.barcode || '',
             weight: variantData.weight || '',
@@ -188,7 +202,7 @@ export async function addProductVariant(variantData) {
         const newRow = prepareVariantRow(newVariant);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:M`,
+            range: `${SHEET_NAME}!A:Q`,
             values: [newRow],
             spreadsheetType: 'products'
         });
@@ -221,22 +235,28 @@ export async function updateProductVariant(variantId, updates) {
             throw new Error(`Варіант ${variantId} не знайдено`);
         }
 
+        const u = (key) => updates[key] !== undefined ? updates[key] : variant[key];
+
         const updatedVariant = {
             ...variant,
-            product_id: updates.product_id !== undefined ? updates.product_id : variant.product_id,
-            sku: updates.sku !== undefined ? updates.sku : variant.sku,
-            name_ua: updates.name_ua !== undefined ? updates.name_ua : variant.name_ua,
-            name_ru: updates.name_ru !== undefined ? updates.name_ru : variant.name_ru,
-            price: updates.price !== undefined ? updates.price : variant.price,
-            barcode: updates.barcode !== undefined ? updates.barcode : variant.barcode,
-            weight: updates.weight !== undefined ? updates.weight : variant.weight,
-            stock: updates.stock !== undefined ? updates.stock : variant.stock,
-            variant_chars: updates.variant_chars !== undefined ? updates.variant_chars : variant.variant_chars,
-            image_url: updates.image_url !== undefined ? updates.image_url : variant.image_url,
-            status: updates.status !== undefined ? updates.status : variant.status,
+            product_id: u('product_id'),
+            sku: u('sku'),
+            name_ua: u('name_ua'),
+            name_ru: u('name_ru'),
+            generated_short_ua: u('generated_short_ua'),
+            generated_short_ru: u('generated_short_ru'),
+            generated_full_ua: u('generated_full_ua'),
+            generated_full_ru: u('generated_full_ru'),
+            price: u('price'),
+            barcode: u('barcode'),
+            weight: u('weight'),
+            stock: u('stock'),
+            variant_chars: u('variant_chars'),
+            image_url: u('image_url'),
+            status: u('status'),
         };
 
-        const range = `${SHEET_NAME}!A${variant._rowIndex}:M${variant._rowIndex}`;
+        const range = `${SHEET_NAME}!A${variant._rowIndex}:Q${variant._rowIndex}`;
         const updatedRow = prepareVariantRow(updatedVariant);
 
         await callSheetsAPI('update', {

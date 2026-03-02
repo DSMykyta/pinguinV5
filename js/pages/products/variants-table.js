@@ -107,10 +107,12 @@ function initVariantsPageTable() {
         dataTransform: (data) => {
             const products = getProducts();
             const productMap = {};
-            products.forEach(p => { productMap[p.product_id] = p.name_ua || p.product_id; });
+            products.forEach(p => { productMap[p.product_id] = p.generated_short_ua || p.name_ua || p.product_id; });
 
             return data.map(v => ({
                 ...v,
+                // Показувати згенеровану назву варіанту
+                name_ua: v.generated_short_ua || v.name_ua,
                 product_name: productMap[v.product_id] || v.product_id,
             }));
         },

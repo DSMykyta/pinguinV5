@@ -73,6 +73,12 @@
     overflow: visible;
 }
 
+/* Динамічні контейнери (напр. product-nav-characteristics)
+   мають бути «прозорими» для flex-розкладки */
+.nav-main > div {
+    display: contents;
+}
+
 /* Nav кнопки не обрізають лічильники */
 .nav-main .btn-icon.expand {
     overflow: visible;
