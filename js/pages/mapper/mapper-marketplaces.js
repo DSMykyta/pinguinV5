@@ -179,6 +179,10 @@ export async function showEditMarketplaceModal(id) {
     try { columnMapping = JSON.parse(marketplace.column_mapping || '{}'); }
     catch { columnMapping = {}; }
 
+    // Ініціалізувати charms для модальних таблиць (ДО populate — потрібен _charmSearchInput)
+    initSearchCharm();
+    initColumnsCharm();
+
     // Заповнити кожну секцію незалежно
     populateMpCategories(categories, columnMapping.categories, marketplace.slug, id);
     populateMpCharacteristics(characteristics, columnMapping.characteristics);
@@ -186,10 +190,6 @@ export async function showEditMarketplaceModal(id) {
 
     // Довідники (файли на Google Drive)
     populateMpReferences(marketplace.slug, id);
-
-    // Ініціалізувати charms для модальних таблиць
-    initSearchCharm();
-    initColumnsCharm();
 
     // charm:refresh listeners
     const catContainer = document.getElementById('mp-data-cat-container');
@@ -620,8 +620,8 @@ async function populateMpReferences(slug, marketplaceId) {
 function populateMpCategories(allData, catMapping, slug, marketplaceId) {
     const container = document.getElementById('mp-data-cat-container');
     const statsEl = document.getElementById('mp-data-cat-stats');
-    const searchInput = document.getElementById('mp-data-cat-search');
     if (!container) return;
+    const searchInput = container._charmSearchInput;
 
     const updateStats = (shown, total) => {
         if (statsEl) statsEl.textContent = `Показано ${shown} з ${total}`;

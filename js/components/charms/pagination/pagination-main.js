@@ -278,13 +278,9 @@ function applyPage(instance) {
 
     instance.state.totalItems = totalItems;
 
-    // Hide/show pagination controls
+    // Hide/show pagination nav (FAB завжди видимий — щоб можна було змінити pageSize)
     if (instance.paginationContainer) {
-        if (totalPages <= 1) {
-            instance.paginationContainer.classList.add('u-hidden');
-        } else {
-            instance.paginationContainer.classList.remove('u-hidden');
-        }
+        instance.paginationContainer.classList.remove('u-hidden');
     }
 
     // Update nav
