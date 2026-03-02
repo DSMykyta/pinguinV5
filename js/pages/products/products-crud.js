@@ -94,9 +94,6 @@ export async function showEditProductModal(productId) {
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
         updateCharacteristicsNav(blocks);
         reinitSectionObserver();
-
-        const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
-        runAutofillAfterRender();
     } catch { /* ignore if not loaded */ }
 
     // Завантажити варіанти
