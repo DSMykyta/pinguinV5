@@ -94,6 +94,9 @@ export async function showEditProductModal(productId) {
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
         updateCharacteristicsNav(blocks);
         reinitSectionObserver();
+
+        const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
+        runAutofillAfterRender();
     } catch { /* ignore if not loaded */ }
 
     // Завантажити варіанти
@@ -127,6 +130,11 @@ async function initModalComponents() {
     await populateCategorySelect();
     initCategoryChangeHandler();
     initBrandChangeHandler();
+
+    try {
+        const { initAutofill } = await import('./products-crud-autofill.js');
+        initAutofill();
+    } catch { /* ignore */ }
 
     try {
         const { initPhotoSection } = await import('./products-crud-photos.js');
@@ -229,6 +237,9 @@ function initCategoryChangeHandler() {
             const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
             updateCharacteristicsNav(blocks);
             reinitSectionObserver();
+
+            const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
+            runAutofillAfterRender();
         } catch { /* ignore */ }
     });
 
