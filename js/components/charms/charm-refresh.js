@@ -97,6 +97,8 @@ function setupRefresh(el) {
     const btn = document.createElement('button');
     btn.className = 'btn-icon';
     btn.setAttribute('aria-label', 'Оновити');
+    btn.setAttribute('data-tooltip', 'Оновити');
+    btn.setAttribute('data-tooltip-always', '');
     btn.innerHTML = '<span class="material-symbols-outlined">refresh</span>';
 
     // В модалях: вставити перед save кнопками. Інакше: append

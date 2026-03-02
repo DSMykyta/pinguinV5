@@ -60,6 +60,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
+    margin-bottom: 24px;
 }
 
 .group.column label:not(.switch-label) {

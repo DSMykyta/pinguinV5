@@ -8,9 +8,8 @@
  * Галерея фото товару (до 10 зображень).
  * Upload на Google Drive: товари/{brand}/{product}/{product}_{index}.webp
  *
- * Паттерн аналогічний brands-crud-logo.js:
- * - Upload zone: URL input + file picker + drag-and-drop
- * - Preview: content-bloc з img[show], filename, format tag, remove button
+ * Layout: col-8 (головне фото) + col-4 (upload zone + фото-картки)
+ * Drag-and-drop для зміни порядку (перше фото = головне)
  */
 
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
@@ -28,35 +27,40 @@ let _photoUrls = [];
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Ініціалізувати секцію фото
- */
 export function initPhotoSection() {
     const dropzone = document.getElementById('product-photo-dropzone');
     const fileInput = document.getElementById('product-photo-file-input');
     const urlField = document.getElementById('product-photo-url-field');
     const uploadBtn = document.getElementById('btn-upload-product-photo');
-    const btnIcon = uploadBtn?.querySelector('.material-symbols-outlined');
+    const pickBtn = document.getElementById('btn-pick-product-photo');
 
     if (!dropzone || !fileInput) return;
 
-    // Зміна іконки: є URL → download, пусто → upload
-    function updateButtonIcon() {
-        if (!btnIcon) return;
-        const hasUrl = urlField?.value.trim().length > 0;
-        btnIcon.textContent = hasUrl ? 'download' : 'upload';
-        uploadBtn.dataset.tooltip = hasUrl ? 'Завантажити з URL' : 'Вибрати файл';
-    }
-
-    urlField?.addEventListener('input', updateButtonIcon);
-
-    // Розумна кнопка: є URL → TODO (url upload), пусто → file picker
-    uploadBtn?.addEventListener('click', () => {
+    // Кнопка вибору файлу з пристрою
+    pickBtn?.addEventListener('click', () => {
         if (_photoUrls.length >= MAX_PHOTOS) {
             showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
             return;
         }
         fileInput.click();
+    });
+
+    // Кнопка завантаження з URL
+    uploadBtn?.addEventListener('click', () => {
+        const url = urlField?.value.trim();
+        if (!url) {
+            fileInput.click();
+            return;
+        }
+        if (_photoUrls.length >= MAX_PHOTOS) {
+            showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
+            return;
+        }
+        _photoUrls.push(url);
+        urlField.value = '';
+        syncHiddenField();
+        renderPhotoGrid();
+        updateMainPreview();
     });
 
     // Вибір файлів
@@ -74,7 +78,7 @@ export function initPhotoSection() {
         fileInput.value = '';
     });
 
-    // Drag-and-drop на dropzone
+    // Drag-and-drop файлів на dropzone
     const inputsLine = dropzone.querySelector('.content-line');
     if (inputsLine) {
         inputsLine.addEventListener('dragover', (e) => {
@@ -110,7 +114,7 @@ export function initPhotoSection() {
         }
     });
 
-    // Делегований обробник видалення фото
+    // Делегований обробник: видалення + drag
     const grid = document.getElementById('product-photos-grid');
     if (grid) {
         grid.addEventListener('click', (e) => {
@@ -118,11 +122,68 @@ export function initPhotoSection() {
             if (!removeBtn) return;
 
             const index = parseInt(removeBtn.dataset.photoRemove);
-            if (!isNaN(index)) {
-                removePhoto(index);
-            }
+            if (!isNaN(index)) removePhoto(index);
         });
+
+        initDragReorder(grid);
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DRAG REORDER
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initDragReorder(grid) {
+    let draggedIndex = null;
+
+    grid.addEventListener('dragstart', (e) => {
+        const bloc = e.target.closest('.content-bloc[data-photo-index]');
+        if (!bloc) return;
+        draggedIndex = parseInt(bloc.dataset.photoIndex);
+        bloc.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    grid.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const bloc = e.target.closest('.content-bloc[data-photo-index]');
+        if (!bloc) return;
+
+        // Підсвітити місце drop
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target'));
+        bloc.classList.add('drag-target');
+    });
+
+    grid.addEventListener('dragleave', (e) => {
+        const bloc = e.target.closest('.content-bloc[data-photo-index]');
+        if (bloc) bloc.classList.remove('drag-target');
+    });
+
+    grid.addEventListener('drop', (e) => {
+        e.preventDefault();
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target', 'dragging'));
+
+        const bloc = e.target.closest('.content-bloc[data-photo-index]');
+        if (!bloc || draggedIndex === null) return;
+
+        const targetIndex = parseInt(bloc.dataset.photoIndex);
+        if (draggedIndex === targetIndex) return;
+
+        // Переміщуємо елемент в масиві
+        const [moved] = _photoUrls.splice(draggedIndex, 1);
+        _photoUrls.splice(targetIndex, 0, moved);
+
+        syncHiddenField();
+        renderPhotoGrid();
+        updateMainPreview();
+        draggedIndex = null;
+    });
+
+    grid.addEventListener('dragend', () => {
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('dragging', 'drag-target'));
+        draggedIndex = null;
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -158,6 +219,7 @@ async function handleUploadPhoto(file) {
             _photoUrls.push(result.thumbnailUrl);
             syncHiddenField();
             renderPhotoGrid();
+            updateMainPreview();
             showToast('Фото завантажено', 'success');
         }
     } catch (error) {
@@ -177,7 +239,6 @@ function renderPhotoGrid() {
     const counter = document.getElementById('product-photos-counter');
     if (!grid) return;
 
-    // Лічильник
     if (counter) {
         counter.textContent = _photoUrls.length > 0 ? `${_photoUrls.length} / ${MAX_PHOTOS}` : '';
     }
@@ -185,6 +246,7 @@ function renderPhotoGrid() {
     if (_photoUrls.length === 0) {
         grid.innerHTML = '';
         if (empty) empty.classList.remove('u-hidden');
+        updateMainPreview();
         return;
     }
 
@@ -195,14 +257,18 @@ function renderPhotoGrid() {
         const fileName = `photo_${index + 1}.webp`;
         const ext = extractExtension(fileName);
         html += `
-            <div class="content-bloc">
+            <div class="content-bloc" draggable="true" data-photo-index="${index}">
                 <div class="content-line">
+                    <button class="btn-icon ghost drag" tabindex="-1">
+                        <span class="material-symbols-outlined">expand_all</span>
+                    </button>
                     <div class="content-line-photo">
-                        <img src="${escapeHtml(url)}" alt="Фото ${index + 1}" show>
+                        <img src="${escapeHtml(url)}" alt="Фото ${index + 1}" show
+                             onload="this.closest('.content-line').querySelector('.content-line-label').textContent = this.naturalWidth + '×' + this.naturalHeight">
                     </div>
                     <div class="content-line-info">
                         <span class="content-line-name">${fileName}</span>
-                        <span class="content-line-label">${index + 1} / ${_photoUrls.length}</span>
+                        <span class="content-line-label"></span>
                     </div>
                     <span class="tag c-tertiary">${ext}</span>
                     <button type="button" class="btn-icon ci-remove" data-photo-remove="${index}"
@@ -217,32 +283,41 @@ function renderPhotoGrid() {
     grid.innerHTML = html;
 }
 
+function updateMainPreview() {
+    const mainImg = document.getElementById('product-photo-main-img');
+    const mainEmpty = document.getElementById('product-photo-main-empty');
+    if (!mainImg) return;
+
+    if (_photoUrls.length > 0) {
+        mainImg.src = _photoUrls[0];
+        mainImg.style.display = '';
+        if (mainEmpty) mainEmpty.style.display = 'none';
+    } else {
+        mainImg.src = '';
+        mainImg.style.display = 'none';
+        if (mainEmpty) mainEmpty.style.display = '';
+    }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // API
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Встановити масив URL фото (при відкритті товару)
- */
 export function setPhotoUrls(urls) {
     _photoUrls = Array.isArray(urls) ? [...urls] : [];
     renderPhotoGrid();
+    updateMainPreview();
     syncHiddenField();
 }
 
-/**
- * Отримати масив URL фото
- */
 export function getPhotoUrls() {
     return [..._photoUrls];
 }
 
-/**
- * Очистити фото
- */
 export function clearPhotos() {
     _photoUrls = [];
     renderPhotoGrid();
+    updateMainPreview();
     syncHiddenField();
 }
 
@@ -252,6 +327,7 @@ function removePhoto(index) {
     const removedUrl = _photoUrls[index];
     _photoUrls.splice(index, 1);
     renderPhotoGrid();
+    updateMainPreview();
     syncHiddenField();
 
     showToast('Фото видалено', 'info', {
@@ -261,6 +337,7 @@ function removePhoto(index) {
             onClick: () => {
                 _photoUrls.splice(index, 0, removedUrl);
                 renderPhotoGrid();
+                updateMainPreview();
                 syncHiddenField();
             },
         },

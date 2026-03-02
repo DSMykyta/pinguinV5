@@ -11,6 +11,7 @@
 import { initCore } from './main-core.js';
 import { showConfirmModal, showCascadeConfirm } from './components/modal/modal-main.js';
 import { showToast } from './components/feedback/toast.js';
+import { initCustomSelects } from './components/forms/select.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     await initCore();
@@ -199,6 +200,7 @@ function initFakeDataFillers() {
         requestAnimationFrame(() => {
             const filler = FAKE_DATA_FILLERS[modalId];
             if (filler) filler(modalElement);
+            initCustomSelects(modalElement);
         });
     });
 }
@@ -387,6 +389,40 @@ const FAKE_DATA_FILLERS = {
                 </div>
             `;
         }
+    },
+
+    'product-edit': (el) => {
+        // Фото секція — імітуємо через setPhotoUrls
+        import('../pages/products/products-crud-photos.js').then(({ initPhotoSection, setPhotoUrls }) => {
+            initPhotoSection();
+            setPhotoUrls([
+                'https://lh3.googleusercontent.com/d/1BPIHZPK2EtNuxcH7ibAJHXwmqQsL7He5',
+                'https://lh3.googleusercontent.com/d/19W9RJSnmj4qDAPZ7Lts33ive0zZhe__0',
+                'https://lh3.googleusercontent.com/d/1BPIHZPK2EtNuxcH7ibAJHXwmqQsL7He5',
+            ]);
+        });
+
+        // Категорія
+        const catSelect = el.querySelector('#product-category');
+        if (catSelect) {
+            catSelect.innerHTML = `
+                <option value="">— Оберіть категорію —</option>
+                <option value="cat-001" selected>Спортивне харчування</option>
+                <option value="cat-002">Вітаміни</option>
+            `;
+        }
+
+        // Бренд
+        const brandSelect = el.querySelector('#product-brand');
+        if (brandSelect) {
+            brandSelect.innerHTML = `
+                <option value="">— Оберіть бренд —</option>
+                <option value="bran-A1B2C3" selected>Optimum Nutrition</option>
+                <option value="bran-D4E5F6">MuscleTech</option>
+            `;
+        }
+
+        setValue(el, '#product-name-ua', 'Gold Standard 100% Whey');
     },
 
     'product-text-view': (el) => {
