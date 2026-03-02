@@ -206,7 +206,7 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
             const savedVal = savedValues[c.id] || '';
             const colSize = c.col_size || '4';
 
-            html += renderCharField(c, charOptions, savedVal, colSize, parentChildMap, options, savedValues);
+            html += renderCharField(c, charOptions, savedVal, colSize, parentChildMap, options);
         });
 
         html += `
@@ -320,7 +320,7 @@ function filterChildOptions(childSelect, parentOptionId) {
 /**
  * Рендерити поле характеристики за типом
  */
-function renderCharField(char, options, savedValue, colSize, parentChildMap, allOptions, savedValues) {
+function renderCharField(char, options, savedValue, colSize, parentChildMap, allOptions) {
     const id = `product-char-${char.id}`;
     const label = escapeHtml(char.name_ua || char.id);
     const hint = char.hint ? `<label class="label-s">${escapeHtml(char.hint)}</label>` : '';
@@ -500,43 +500,12 @@ function renderCharField(char, options, savedValue, colSize, parentChildMap, all
             break;
     }
 
-    // Companion name field — для дочірніх ComboBox з parent_option_id
-    let companionHtml = '';
-    const isChildCombo = parentChildMap?.has(char.id) && (char.type === 'ComboBox' || char.type === 'Select');
-    if (isChildCombo) {
-        const nameUa = savedValues?.[`${char.id}_name_ua`] || '';
-        const nameRu = savedValues?.[`${char.id}_name_ru`] || '';
-        companionHtml = `
-            <div class="group column col-${colSize}" data-companion-for="${char.id}">
-                <label class="label-l">Назва ${label}</label>
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-char-name-field="${char.id}" data-lang="ua"
-                                value="${escapeHtml(nameUa)}"
-                                placeholder="UA">
-                        </div>
-                    </div>
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-char-name-field="${char.id}" data-lang="ru"
-                                value="${escapeHtml(nameRu)}"
-                                placeholder="RU">
-                        </div>
-                    </div>
-                </div>
-                <label class="label-s">Якщо порожнє — використовується обрана опція</label>
-            </div>
-        `;
-    }
-
     return `
         <div class="group column col-${colSize}">
             <label for="${id}" class="label-l">${label}</label>
             ${fieldHtml}
             ${hint}
         </div>
-        ${companionHtml}
     `;
 }
 
@@ -615,14 +584,6 @@ export function getCharacteristicsData() {
             if (radio.value) selected.push(radio.value);
         });
         if (selected.length > 0) data[charId] = JSON.stringify(selected);
-    });
-
-    // Companion name fields (для child chars з parent_option_id)
-    container.querySelectorAll('input[data-char-name-field]').forEach(input => {
-        const charId = input.dataset.charNameField;
-        const lang = input.dataset.lang;
-        const val = input.value.trim();
-        if (val && lang) data[`${charId}_name_${lang}`] = val;
     });
 
     return data;

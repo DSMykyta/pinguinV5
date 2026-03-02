@@ -9,15 +9,16 @@
  *
  * CRUD операції для варіантів товарів через Google Sheets API.
  *
- * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:U (21 колонка)
+ * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:W (23 колонки)
  * A: variant_id | B: product_id | C: sku | D: name_ua | E: name_ru
- * F: generated_short_ua | G: generated_short_ru
- * H: generated_full_ua | I: generated_full_ru
- * J: price | K: barcode | L: weight | M: stock
- * N: variant_chars | O: image_url
- * P: composition_code_ua | Q: composition_code_ru
- * R: composition_notes_ua | S: composition_notes_ru
- * T: status | U: created_at
+ * F: spec_ua | G: spec_ru
+ * H: generated_short_ua | I: generated_short_ru
+ * J: generated_full_ua | K: generated_full_ru
+ * L: price | M: barcode | N: weight | O: stock
+ * P: variant_chars | Q: image_url
+ * R: composition_code_ua | S: composition_code_ru
+ * T: composition_notes_ua | U: composition_notes_ru
+ * V: status | W: created_at
  */
 
 import { productsState } from './products-state.js';
@@ -94,7 +95,7 @@ export function getVariantsByProductId(productId) {
 export async function loadProductVariants() {
     try {
         const result = await callSheetsAPI('get', {
-            range: `${SHEET_NAME}!A:U`,
+            range: `${SHEET_NAME}!A:W`,
             spreadsheetType: 'products'
         });
 
@@ -111,22 +112,24 @@ export async function loadProductVariants() {
             sku: row[2] || '',              // C
             name_ua: row[3] || '',          // D
             name_ru: row[4] || '',          // E
-            generated_short_ua: row[5] || '', // F
-            generated_short_ru: row[6] || '', // G
-            generated_full_ua: row[7] || '',  // H
-            generated_full_ru: row[8] || '',  // I
-            price: row[9] || '',            // J
-            barcode: row[10] || '',         // K
-            weight: row[11] || '',          // L
-            stock: row[12] || '',           // M
-            variant_chars: safeJsonParse(row[13], {}), // N
-            image_url: row[14] || '',       // O
-            composition_code_ua: row[15] || '', // P
-            composition_code_ru: row[16] || '', // Q
-            composition_notes_ua: row[17] || '', // R
-            composition_notes_ru: row[18] || '', // S
-            status: row[19] || 'active',    // T
-            created_at: row[20] || '',      // U
+            spec_ua: row[5] || '',          // F
+            spec_ru: row[6] || '',          // G
+            generated_short_ua: row[7] || '', // H
+            generated_short_ru: row[8] || '', // I
+            generated_full_ua: row[9] || '',  // J
+            generated_full_ru: row[10] || '', // K
+            price: row[11] || '',           // L
+            barcode: row[12] || '',         // M
+            weight: row[13] || '',          // N
+            stock: row[14] || '',           // O
+            variant_chars: safeJsonParse(row[15], {}), // P
+            image_url: row[16] || '',       // Q
+            composition_code_ua: row[17] || '', // R
+            composition_code_ru: row[18] || '', // S
+            composition_notes_ua: row[19] || '', // T
+            composition_notes_ru: row[20] || '', // U
+            status: row[21] || 'active',    // V
+            created_at: row[22] || '',      // W
             _rowIndex: index + 2
         }));
 
@@ -154,22 +157,24 @@ function prepareVariantRow(variant) {
         variant.sku || '',                    // C: sku
         variant.name_ua || '',                // D: name_ua
         variant.name_ru || '',                // E: name_ru
-        variant.generated_short_ua || '',     // F: generated_short_ua
-        variant.generated_short_ru || '',     // G: generated_short_ru
-        variant.generated_full_ua || '',      // H: generated_full_ua
-        variant.generated_full_ru || '',      // I: generated_full_ru
-        variant.price || '',                  // J: price
-        variant.barcode || '',                // K: barcode
-        variant.weight || '',                 // L: weight
-        variant.stock || '',                  // M: stock
-        serializeJson(variant.variant_chars), // N: variant_chars (JSON)
-        variant.image_url || '',              // O: image_url
-        variant.composition_code_ua || '',    // P: composition_code_ua
-        variant.composition_code_ru || '',    // Q: composition_code_ru
-        variant.composition_notes_ua || '',   // R: composition_notes_ua
-        variant.composition_notes_ru || '',   // S: composition_notes_ru
-        variant.status || 'active',           // T: status
-        variant.created_at || '',             // U: created_at
+        variant.spec_ua || '',                // F: spec_ua
+        variant.spec_ru || '',                // G: spec_ru
+        variant.generated_short_ua || '',     // H: generated_short_ua
+        variant.generated_short_ru || '',     // I: generated_short_ru
+        variant.generated_full_ua || '',      // J: generated_full_ua
+        variant.generated_full_ru || '',      // K: generated_full_ru
+        variant.price || '',                  // L: price
+        variant.barcode || '',                // M: barcode
+        variant.weight || '',                 // N: weight
+        variant.stock || '',                  // O: stock
+        serializeJson(variant.variant_chars), // P: variant_chars (JSON)
+        variant.image_url || '',              // Q: image_url
+        variant.composition_code_ua || '',    // R: composition_code_ua
+        variant.composition_code_ru || '',    // S: composition_code_ru
+        variant.composition_notes_ua || '',   // T: composition_notes_ua
+        variant.composition_notes_ru || '',   // U: composition_notes_ru
+        variant.status || 'active',           // V: status
+        variant.created_at || '',             // W: created_at
     ];
 }
 
@@ -195,6 +200,8 @@ export async function addProductVariant(variantData) {
             sku: variantData.sku || '',
             name_ua: variantData.name_ua || '',
             name_ru: variantData.name_ru || '',
+            spec_ua: variantData.spec_ua || '',
+            spec_ru: variantData.spec_ru || '',
             generated_short_ua: variantData.generated_short_ua || '',
             generated_short_ru: variantData.generated_short_ru || '',
             generated_full_ua: variantData.generated_full_ua || '',
@@ -217,7 +224,7 @@ export async function addProductVariant(variantData) {
         const newRow = prepareVariantRow(newVariant);
 
         await callSheetsAPI('append', {
-            range: `${SHEET_NAME}!A:U`,
+            range: `${SHEET_NAME}!A:W`,
             values: [newRow],
             spreadsheetType: 'products'
         });
@@ -258,6 +265,8 @@ export async function updateProductVariant(variantId, updates) {
             sku: u('sku'),
             name_ua: u('name_ua'),
             name_ru: u('name_ru'),
+            spec_ua: u('spec_ua'),
+            spec_ru: u('spec_ru'),
             generated_short_ua: u('generated_short_ua'),
             generated_short_ru: u('generated_short_ru'),
             generated_full_ua: u('generated_full_ua'),
@@ -275,7 +284,7 @@ export async function updateProductVariant(variantId, updates) {
             status: u('status'),
         };
 
-        const range = `${SHEET_NAME}!A${variant._rowIndex}:U${variant._rowIndex}`;
+        const range = `${SHEET_NAME}!A${variant._rowIndex}:W${variant._rowIndex}`;
         const updatedRow = prepareVariantRow(updatedVariant);
 
         await callSheetsAPI('update', {
