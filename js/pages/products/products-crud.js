@@ -24,6 +24,7 @@ import { getBrands, loadBrands } from '../brands/brands-data.js';
 import { getBrandLines, loadBrandLines } from '../brands/lines-data.js';
 import { getCategories, loadCategories } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
+import { getCharacteristicsData } from './products-crud-characteristics.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -92,7 +93,7 @@ export async function showEditProductModal(productId) {
     try {
         const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
-        updateCharacteristicsNav(blocks);
+        await updateCharacteristicsNav(blocks);
         reinitSectionObserver();
     } catch { /* ignore if not loaded */ }
 
@@ -232,7 +233,7 @@ function initCategoryChangeHandler() {
         try {
             const { renderCharacteristicsForCategory } = await import('./products-crud-characteristics.js');
             const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
-            updateCharacteristicsNav(blocks);
+            await updateCharacteristicsNav(blocks);
             reinitSectionObserver();
 
             const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
@@ -331,12 +332,12 @@ function initSectionNavigation() {
  * Оновити sidebar nav — додати/видалити посилання на блоки характеристик
  * @param {string[]} blockNumbers - масив номерів блоків
  */
-function updateCharacteristicsNav(blockNumbers) {
+async function updateCharacteristicsNav(blockNumbers) {
     const navContainer = document.getElementById('product-nav-characteristics');
     if (!navContainer) return;
 
     // Імпортуємо назви блоків
-    import('./products-crud-characteristics.js').then(({ BLOCK_NAMES }) => {
+    await import('./products-crud-characteristics.js').then(({ BLOCK_NAMES }) => {
         const icons = {
             '1': 'scale', '2': 'category', '3': 'group',
             '4': 'target', '5': 'public', '6': 'local_shipping', '9': 'more_horiz',
@@ -399,40 +400,7 @@ function reinitSectionObserver() {
  * Отримати дані з форми
  */
 function getProductFormData() {
-    let characteristics = {};
-    try {
-        // Збираємо характеристики напряму з DOM (синхронно)
-        const container = document.getElementById('product-characteristics-sections');
-        if (container) {
-            // Text / number inputs
-            container.querySelectorAll('input[data-char-id]').forEach(input => {
-                const val = input.value.trim();
-                if (val) characteristics[input.dataset.charId] = val;
-            });
-            // TextArea
-            container.querySelectorAll('textarea[data-char-id]').forEach(textarea => {
-                const val = textarea.value.trim();
-                if (val) characteristics[textarea.dataset.charId] = val;
-            });
-            // Select
-            container.querySelectorAll('select[data-char-id]').forEach(select => {
-                if (select.value) characteristics[select.dataset.charId] = select.value;
-            });
-            // Checkbox (switch)
-            container.querySelectorAll('.switch[data-char-id]').forEach(switchEl => {
-                const checked = switchEl.querySelector('input:checked');
-                if (checked?.value) characteristics[switchEl.dataset.charId] = checked.value;
-            });
-            // CheckBoxGroup
-            container.querySelectorAll('[data-char-type="checkboxgroup"]').forEach(groupEl => {
-                const selected = [];
-                groupEl.querySelectorAll('.switch input[type="radio"]:checked').forEach(radio => {
-                    if (radio.value) selected.push(radio.value);
-                });
-                if (selected.length > 0) characteristics[groupEl.dataset.charId] = JSON.stringify(selected);
-            });
-        }
-    } catch { /* ignore */ }
+    const characteristics = getCharacteristicsData();
 
     // Фото — JSON array
     let imageUrl = '';
