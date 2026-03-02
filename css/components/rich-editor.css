@@ -132,6 +132,33 @@
 }
 
 /* ============================================================================
+   ТАБЛИЦІ (аналог .preview-table)
+   ============================================================================ */
+
+.rich-editor-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    background-color: var(--color-surface);
+}
+
+.rich-editor-content th,
+.rich-editor-content td {
+    border: 1px solid var(--color-outline);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.rich-editor-content th {
+    background-color: var(--color-surface-c-low);
+    color: var(--color-on-surface);
+}
+
+.rich-editor-content td {
+    background-color: var(--color-surface);
+}
+
+/* ============================================================================
    ПІДСВІЧУВАННЯ
    ============================================================================ */
 
