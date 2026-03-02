@@ -386,10 +386,10 @@ export async function addCharacteristic(data) {
             toSheetsBool(data.is_global),
             data.category_ids || '',
             data.block_number || '',
-            timestamp,
             data.sort_order || '',
             data.col_size || '',
-            data.hint || ''
+            data.hint || '',
+            timestamp
         ];
 
         await callSheetsAPI('append', {
@@ -409,10 +409,10 @@ export async function addCharacteristic(data) {
             is_global: toSheetsBool(data.is_global),
             category_ids: data.category_ids || '',
             block_number: data.block_number || '',
-            created_at: timestamp,
             sort_order: data.sort_order || '',
             col_size: data.col_size || '',
-            hint: data.hint || ''
+            hint: data.hint || '',
+            created_at: timestamp
         };
 
         mapperState.characteristics.push(newCharacteristic);
@@ -444,10 +444,10 @@ export async function updateCharacteristic(id, updates) {
             toSheetsBool(updates.is_global !== undefined ? updates.is_global : characteristic.is_global),
             updates.category_ids !== undefined ? updates.category_ids : characteristic.category_ids,
             updates.block_number !== undefined ? updates.block_number : (characteristic.block_number || ''),
-            timestamp,
             updates.sort_order !== undefined ? updates.sort_order : (characteristic.sort_order || ''),
             updates.col_size !== undefined ? updates.col_size : (characteristic.col_size || ''),
-            updates.hint !== undefined ? updates.hint : (characteristic.hint || '')
+            updates.hint !== undefined ? updates.hint : (characteristic.hint || ''),
+            timestamp
         ];
 
         await callSheetsAPI('update', {
