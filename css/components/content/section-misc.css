@@ -64,6 +64,17 @@
     min-height: 0; /* Важливо для правильної роботи flex в textarea */
 }
 
+/* Grid inside full-height content stretches to fill */
+.section-content-full-height > .grid {
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+}
+
+.section-content-full-height > .grid > .group.column {
+    margin-bottom: 0;
+}
+
 .section-content-full-height iframe {
     width: 100%;
     height: 100%;

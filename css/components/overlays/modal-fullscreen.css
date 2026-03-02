@@ -191,6 +191,11 @@
     margin: 0;
 }
 
+/* Full-height sections: no scroll, content fills */
+.modal-fullscreen-content section .section-content.section-content-full-height {
+    overflow: hidden;
+}
+
 .modal-fullscreen-content section .footer {
     padding: 8px 0;
 }
