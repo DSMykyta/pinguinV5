@@ -90,29 +90,6 @@
                     <div class="section-content">
                         <div class="grid">
 
-                            <!-- Назва варіанту -->
-                            <div class="group column col-6">
-                                <label class="label-l">Назва варіанту</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="variant-name-ua" placeholder="Назва українською">
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="variant-name-ru" placeholder="Назва російською">
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- SKU -->
                             <div class="group column col-3">
                                 <label for="variant-sku" class="label-l">SKU</label>
@@ -194,7 +171,7 @@
                             <div class="section-name">
                                 <h2 class="section-upper">Фото</h2>
                             </div>
-                            <span class="body-s">До 10 зображень варіанту</span>
+                            <span class="body-s">1 фото — замінить основне фото товару. Більше — всі фото товару ігноруватимуться для картки варіанту</span>
                         </div>
                         <div class="group">
                             <span class="body-s" id="variant-photos-counter"></span>
@@ -232,8 +209,6 @@
                                     </div>
                                     <input type="file" id="variant-photo-file-input" accept="image/*" multiple hidden>
                                 </div>
-
-                                <label class="label-s">1 фото — замінить основне фото товару. Більше — всі фото товару ігноруватимуться для картки варіанту</label>
 
                                 <!-- Фото-картки (сортовані drag-and-drop) -->
                                 <div class="content-bloc-container photos" id="variant-photos-grid">
