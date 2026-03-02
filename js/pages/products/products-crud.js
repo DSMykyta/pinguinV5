@@ -60,6 +60,7 @@ export async function showAddProductModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearProductForm();
+    _seoToasted.clear();
     fetchSeoData();
     await initModalComponents();
 
@@ -789,6 +790,8 @@ function updateGeneratedNames() {
  * Description: коли є текст товару
  * Тригери: badge-и з matched triggers
  */
+const _seoToasted = new Set();
+
 function updateSeoForCreate() {
     if (currentProductId !== null) return;
 
@@ -809,8 +812,14 @@ function updateSeoForCreate() {
     // Title
     const seoTitleUa = document.getElementById('product-seo-title-ua');
     const seoTitleRu = document.getElementById('product-seo-title-ru');
-    if (seoTitleUa && (brand || nameUa)) seoTitleUa.value = generateSeoTitle(brand, nameUa, variationUa, 'ua');
-    if (seoTitleRu && (brand || nameRu)) seoTitleRu.value = generateSeoTitle(brand, nameRu, variationRu, 'ru');
+    const hasTitle = brand || nameUa || nameRu;
+    if (seoTitleUa && hasTitle) seoTitleUa.value = generateSeoTitle(brand, nameUa, variationUa, 'ua');
+    if (seoTitleRu && hasTitle) seoTitleRu.value = generateSeoTitle(brand, nameRu, variationRu, 'ru');
+
+    if (hasTitle && !_seoToasted.has('title')) {
+        _seoToasted.add('title');
+        showToast('SEO Title згенеровано автоматично', 'info');
+    }
 
     // Keywords (base + trigger keywords)
     const seoKwUa = document.getElementById('product-seo-keywords-ua');
@@ -825,6 +834,11 @@ function updateSeoForCreate() {
     const seoDescRu = document.getElementById('product-seo-desc-ru');
     if (seoDescUa && textUa) seoDescUa.value = generateSeoDescription(textUa, 'ua');
     if (seoDescRu && textRu) seoDescRu.value = generateSeoDescription(textRu, 'ru');
+
+    if ((textUa || textRu) && !_seoToasted.has('desc')) {
+        _seoToasted.add('desc');
+        showToast('SEO Description згенеровано автоматично', 'info');
+    }
 }
 
 /**
