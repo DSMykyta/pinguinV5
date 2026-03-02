@@ -10,15 +10,16 @@
  * групує по block_number, рендерить КОЖЕН блок як окрему <section>.
  *
  * Типи полів (з маппера):
- *   TextInput → input[text]
- *   MultiText → input[text] (comma-separated)
- *   Integer   → input[number] step=1
- *   Decimal   → input[number] step=0.01
- *   TextArea  → textarea
- *   List      → select (з options)
- *   ComboBox  → select (з options)
- *   ListValues→ select (з options)
- *   CheckBoxGroup → група switch-ів (кожна option = switch)
+ *   ComboBox         → select (1 значення)
+ *   List / ListValues→ switches (кілька значень зі списку)
+ *   CheckBoxGroup    → switches (кілька значень з набору)
+ *   CheckBoxGroupValues → switches (кілька значень з набору)
+ *   Checkbox         → switch Так/Ні
+ *   Integer          → input[number] step=1
+ *   Decimal          → input[number] step=0.01
+ *   TextInput        → input[text]
+ *   MultiText        → input[text]
+ *   TextArea         → textarea
  */
 
 import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from '../mapper/mapper-data-own.js';
@@ -202,10 +203,8 @@ function renderCharField(char, options, savedValue, colSize) {
     let fieldHtml = '';
 
     switch (char.type) {
-        // ── Типи з options (select) ──────────────────────────────────────
-        case 'List':
+        // ── ComboBox — одне значення зі списку ──────────────────────────
         case 'ComboBox':
-        case 'ListValues':
         case 'Select':
             fieldHtml = `
                 <select id="${id}" data-custom-select data-char-id="${char.id}">
@@ -215,8 +214,11 @@ function renderCharField(char, options, savedValue, colSize) {
             `;
             break;
 
-        // ── Група чекбоксів (кожна option = switch) ─────────────────────
-        case 'CheckBoxGroup': {
+        // ── List / ListValues / CheckBoxGroup — кілька значень ───────────
+        case 'List':
+        case 'ListValues':
+        case 'CheckBoxGroup':
+        case 'CheckBoxGroupValues': {
             const savedArr = parseSavedArray(savedValue);
             fieldHtml = `<div class="group column" data-char-id="${char.id}" data-char-type="checkboxgroup">`;
             options.forEach(o => {
