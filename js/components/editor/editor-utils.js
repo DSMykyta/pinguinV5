@@ -212,6 +212,9 @@ export function sanitizeHtml(html, options = {}) {
     // Отримуємо HTML і очищаємо
     let result = temp.innerHTML;
 
+    // Нормалізуємо <br /> та <br/> до <br>
+    result = result.replace(/<br\s*\/?>/gi, '<br>');
+
     // Замінюємо тільки &nbsp; на звичайний пробіл
     result = result.replace(/&nbsp;/g, ' ');
 

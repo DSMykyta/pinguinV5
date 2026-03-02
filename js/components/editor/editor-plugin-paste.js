@@ -15,6 +15,81 @@
 import { sanitizeHtml, sanitizeEditor, escapeHtml } from './editor-utils.js';
 import { showToast } from '../feedback/toast.js';
 
+/**
+ * Очистка HTML для brOnly режиму — залишає тільки <br> і <strong>
+ */
+function sanitizeBrPaste(html) {
+    // Нормалізуємо варіанти <br>
+    html = html.replace(/<br\s*\/?>/gi, '<br>');
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Конвертуємо B → STRONG
+    temp.querySelectorAll('b').forEach(b => {
+        const strong = document.createElement('strong');
+        while (b.firstChild) strong.appendChild(b.firstChild);
+        b.parentNode.replaceChild(strong, b);
+    });
+
+    // Заголовки → <strong>вміст</strong><br>
+    temp.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        const frag = document.createDocumentFragment();
+        const strong = document.createElement('strong');
+        while (el.firstChild) strong.appendChild(el.firstChild);
+        frag.appendChild(strong);
+        frag.appendChild(document.createElement('br'));
+        el.parentNode.insertBefore(frag, el);
+        el.remove();
+    });
+
+    // Блокові елементи → вміст + <br>
+    const blockSel = 'p, div, li, td, th, tr, table, thead, tbody, tfoot, blockquote, pre, section, article';
+    let blocks = Array.from(temp.querySelectorAll(blockSel));
+    while (blocks.length) {
+        // Обробляємо leaf-first (елементи без вкладених блокових)
+        const leaf = blocks.find(el => !el.querySelector(blockSel));
+        if (!leaf) break;
+        const frag = document.createDocumentFragment();
+        while (leaf.firstChild) frag.appendChild(leaf.firstChild);
+        frag.appendChild(document.createElement('br'));
+        leaf.parentNode.insertBefore(frag, leaf);
+        leaf.remove();
+        blocks = Array.from(temp.querySelectorAll(blockSel));
+    }
+
+    // ul/ol — розгортаємо
+    temp.querySelectorAll('ul, ol').forEach(el => {
+        const frag = document.createDocumentFragment();
+        while (el.firstChild) frag.appendChild(el.firstChild);
+        el.parentNode.insertBefore(frag, el);
+        el.remove();
+    });
+
+    // Всі інші теги (em, i, span, a, u, s, font тощо) — розгортаємо, залишаємо текст
+    let others = Array.from(temp.querySelectorAll('*'));
+    others = others.filter(el => {
+        const tag = el.tagName.toLowerCase();
+        return tag !== 'br' && tag !== 'strong';
+    });
+    others.forEach(el => {
+        const parent = el.parentNode;
+        if (!parent) return;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        el.remove();
+    });
+
+    // Видаляємо атрибути зі strong
+    temp.querySelectorAll('strong').forEach(el => {
+        while (el.attributes.length > 0) el.removeAttribute(el.attributes[0].name);
+    });
+
+    // Прибираємо подвійні <br> підряд
+    temp.querySelectorAll('br + br').forEach(br => br.remove());
+
+    return temp.innerHTML;
+}
+
 export function init(state) {
     const { dom } = state;
     if (!dom.editor) return;
@@ -71,6 +146,27 @@ export function init(state) {
 
         const clipboardData = e.clipboardData || window.clipboardData;
         let text = clipboardData.getData('text/plain');
+
+        // brOnly режим — окремий pipeline, щоб не втрачати <br>
+        if (state.config.brOnly) {
+            const looksLikeHtml = /<(strong|b|br|p|div|h[1-6]|ul|ol|li|em|i|span|table|thead|tbody|tr|th|td)[^>]*>/i.test(text);
+
+            if (looksLikeHtml) {
+                const cleaned = sanitizeBrPaste(text);
+                if (cleaned) document.execCommand('insertHTML', false, cleaned);
+            } else {
+                // Plain text → рядки через <br>
+                text = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+                const html = text.split('\n')
+                    .map(line => escapeHtml(line))
+                    .join('<br>');
+                if (html) document.execCommand('insertHTML', false, html);
+            }
+
+            // Тільки onValidate (br charm зробить фінальну очистку)
+            setTimeout(() => state.runHook('onValidate'), 50);
+            return;
+        }
 
         // Детекція HTML в plain text
         const looksLikeHtml = /<(p|strong|em|h[1-6]|ul|ol|li|br|div|span|b|i|table|thead|tbody|tr|th|td)[^>]*>/i.test(text);
