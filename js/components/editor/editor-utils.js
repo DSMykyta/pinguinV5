@@ -244,7 +244,8 @@ export function sanitizeStructure(state) {
     const caretPos = saveCaretPosition(editor);
     let changed = false;
 
-    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
+    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR',
+        'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'CAPTION'];
 
     // Видаляємо браузерні span-артефакти (Chrome вставляє <span style="font-family: inherit;"> тощо)
     // Зберігаємо highlight-error/warning від валідації
@@ -335,7 +336,8 @@ export function sanitizeEditor(state) {
     const caretPos = saveCaretPosition(editor);
     let changed = false;
 
-    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR'];
+    const blockTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'HR', 'BR',
+        'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'CAPTION'];
 
     // Огортаємо "голі" текстові ноди та inline-елементи в <p>
     Array.from(editor.childNodes).forEach(node => {

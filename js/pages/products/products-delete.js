@@ -6,15 +6,14 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Видалення товару з підтвердженням.
- * Якщо є варіанти — cascade confirm (видалити разом).
+ * Якщо є варіанти — cascade confirm (видалити разом / окремо).
  */
 
 import { deleteProduct, getProductById } from './products-data.js';
 import { getVariantsByProductId, deleteProductVariant } from './variants-data.js';
-import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, showCascadeConfirm, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { runHook } from './products-plugins.js';
-import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
 /**
  * Показати діалог підтвердження видалення товару
@@ -22,59 +21,65 @@ import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
  */
 export async function showDeleteProductConfirm(productId) {
     const product = getProductById(productId);
-    if (!product) return;
+    if (!product) {
+        showToast('Товар не знайдено', 'error');
+        return;
+    }
 
     const variants = getVariantsByProductId(productId);
 
-    await showModal('modal-confirm', null);
-
-    const title = document.querySelector('[data-modal-id="modal-confirm"] .modal-title');
-    const message = document.querySelector('[data-modal-id="modal-confirm"] .modal-message');
-    const avatar = document.querySelector('[data-modal-id="modal-confirm"] .modal-avatar');
-    const confirmBtn = document.querySelector('[data-confirm-action="confirm"]');
-    const cancelBtn = document.querySelector('[data-confirm-action="cancel"]');
-
-    if (title) title.textContent = 'Видалити товар?';
-
-    if (variants.length > 0) {
-        if (message) message.textContent = `Товар "${product.name_ua}" має ${variants.length} варіант(ів). Вони будуть видалені разом з товаром.`;
-    } else {
-        if (message) message.textContent = `Ви впевнені, що хочете видалити товар "${product.name_ua}"?`;
-    }
-
-    if (avatar) {
-        avatar.innerHTML = renderAvatarState('warning', {
-            size: 'medium',
-            containerClass: '',
-            avatarClass: '',
+    // Без варіантів — просте підтвердження
+    if (variants.length === 0) {
+        const confirmed = await showConfirmModal({
+            action: 'видалити',
+            entity: 'товар',
+            name: product.generated_short_ua || product.name_ua || product.product_id,
         });
+        if (confirmed) await executeProductDelete(productId);
+        return;
     }
 
-    if (confirmBtn) {
-        confirmBtn.onclick = async () => {
-            closeModal(); // close confirm
+    // Є варіанти — каскадний діалог
+    const result = await showCascadeConfirm({
+        action: 'видалити',
+        entity: 'товар',
+        name: product.generated_short_ua || product.name_ua || product.product_id,
+        count: variants.length,
+        countEntity: pluralVariants(variants.length),
+    });
 
-            try {
-                // Видалити всі варіанти
-                for (const variant of variants) {
-                    await deleteProductVariant(variant.variant_id);
-                }
+    if (!result) return;
 
-                // Видалити товар
-                await deleteProduct(productId);
+    // Каскадний — завжди видаляє варіанти разом з товаром
+    await executeProductDelete(productId, variants);
+}
 
-                closeModal(); // close product-edit
-                showToast(`Товар "${product.name_ua}" видалено`, 'success');
-                runHook('onProductDelete', productId);
-                runHook('onRender');
-            } catch (error) {
-                console.error('❌ Помилка видалення товару:', error);
-                showToast('Помилка видалення товару', 'error');
-            }
-        };
+// ── Виконання ──
+
+async function executeProductDelete(productId, variantsToDelete = []) {
+    try {
+        closeModal(); // close confirm
+
+        for (const variant of variantsToDelete) {
+            await deleteProductVariant(variant.variant_id);
+        }
+
+        await deleteProduct(productId);
+
+        closeModal(); // close product-edit
+        showToast('Товар успішно видалено', 'success');
+        runHook('onProductDelete', productId);
+        runHook('onRender');
+    } catch (error) {
+        console.error('❌ Помилка видалення товару:', error);
+        showToast('Помилка видалення товару', 'error');
     }
+}
 
-    if (cancelBtn) {
-        cancelBtn.onclick = () => closeModal();
-    }
+function pluralVariants(n) {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return 'варіант';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'варіанти';
+    return 'варіантів';
 }

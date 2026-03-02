@@ -18,7 +18,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
-import { showModal, closeModal } from '../../components/modal/modal-main.js';
+import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { getCharacteristics, getOptions, loadCharacteristics, loadOptions, getCategories } from '../mapper/mapper-data-own.js';
 import { getBrands } from '../brands/brands-data.js';
@@ -537,11 +537,18 @@ async function handleDeleteVariant(variantId) {
     const variant = getVariantById(variantId);
     if (!variant) return;
 
+    const confirmed = await showConfirmModal({
+        action: 'видалити',
+        entity: 'варіант',
+        name: variant.name_ua || variant.variant_id,
+    });
+    if (!confirmed) return;
+
     const productId = _getCurrentProductId?.();
 
     try {
         await deleteProductVariant(variantId);
-        showToast(`Варіант ${variant.name_ua || variant.variant_id} видалено`, 'info');
+        showToast(`Варіант ${variant.name_ua || variant.variant_id} видалено`, 'success');
         runHook('onVariantDelete', variantId);
         if (productId) populateProductVariants(productId);
     } catch (error) {
