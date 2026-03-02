@@ -27,11 +27,7 @@ let _photoUrls = [];
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
-let _initialized = false;
-
 export function initPhotoSection() {
-    if (_initialized) return;
-
     const dropzone = document.getElementById('product-photo-dropzone');
     const fileInput = document.getElementById('product-photo-file-input');
     const urlField = document.getElementById('product-photo-url-field');
@@ -39,7 +35,8 @@ export function initPhotoSection() {
     const pickBtn = document.getElementById('btn-pick-product-photo');
 
     if (!dropzone || !fileInput) return;
-    _initialized = true;
+    if (dropzone.dataset.photoInit) return;
+    dropzone.dataset.photoInit = 'true';
 
     // Кнопка вибору файлу з пристрою
     pickBtn?.addEventListener('click', () => {
@@ -238,10 +235,16 @@ async function handleUploadPhoto(file) {
 function renderPhotoGrid() {
     const grid = document.getElementById('product-photos-grid');
     const counter = document.getElementById('product-photos-counter');
+    const dropzone = document.getElementById('product-photo-dropzone');
     if (!grid) return;
 
     if (counter) {
         counter.textContent = _photoUrls.length > 0 ? `${_photoUrls.length} / ${MAX_PHOTOS}` : '';
+    }
+
+    // Ховаємо dropzone якщо досягнуто ліміт
+    if (dropzone) {
+        dropzone.classList.toggle('u-hidden', _photoUrls.length >= MAX_PHOTOS);
     }
 
     if (_photoUrls.length === 0) {
@@ -268,7 +271,7 @@ function renderPhotoGrid() {
                              onload="this.closest('.content-line').querySelector('.content-line-label').textContent = this.naturalWidth + '×' + this.naturalHeight">
                     </div>
                     <div class="content-line-info">
-                        <span class="content-line-name">${fileName}</span>
+                        <span class="content-line-name" title="${fileName}">${fileName}</span>
                         <span class="content-line-label"></span>
                     </div>
                     <span class="tag c-tertiary">${ext}</span>
@@ -317,7 +320,6 @@ export function getPhotoUrls() {
 
 export function clearPhotos() {
     _photoUrls = [];
-    _initialized = false;
     renderPhotoGrid();
     updateMainPreview();
     syncHiddenField();
