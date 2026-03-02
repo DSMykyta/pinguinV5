@@ -74,6 +74,7 @@ const PLUGINS = [
     './editor-charm-tooltip.js',
     './editor-charm-stats.js',
     './editor-charm-cleanup.js',
+    './editor-charm-br.js',
 ];
 
 /**
@@ -101,6 +102,7 @@ function readCharms(container) {
         allowLinks: container.getAttribute('cleanup-links') === 'allow',
         allowImages: container.getAttribute('cleanup-images') === 'allow',
         allowStyles: container.getAttribute('cleanup-styles') === 'allow',
+        brOnly: container.hasAttribute('br'),
         placeholder: container.dataset.placeholder || 'Введіть текст...',
         minHeight: parseInt(container.dataset.minHeight) || 200,
         tag: container.dataset.tag || null,

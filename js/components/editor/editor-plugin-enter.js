@@ -17,6 +17,9 @@ export function init(state) {
     state.registerHook('onKeydown', (e) => {
         if (e.key !== 'Enter') return;
 
+        // br-режим сам обробляє Enter → <br> (charm-br.js)
+        if (state.config.brOnly) return;
+
         e.preventDefault();
 
         // Зберігаємо стан для undo (якщо є undoPlugin)

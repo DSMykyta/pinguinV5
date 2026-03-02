@@ -32,6 +32,10 @@ import { getCharacteristicsData } from './products-crud-characteristics.js';
 
 let textEditorUa = null;
 let textEditorRu = null;
+let compCodeEditorUa = null;
+let compCodeEditorRu = null;
+let compNotesEditorUa = null;
+let compNotesEditorRu = null;
 let currentProductId = null;
 let _sectionObserver = null;
 
@@ -268,6 +272,7 @@ function initProductStatusToggle() {
  * Ініціалізувати текстові редактори
  */
 function initTextEditors() {
+    // Опис товару
     const containerUa = document.getElementById('product-text-ua-editor-container');
     if (containerUa) {
         containerUa.innerHTML = '';
@@ -280,6 +285,36 @@ function initTextEditors() {
         containerRu.innerHTML = '';
         if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
         textEditorRu = createHighlightEditor(containerRu);
+    }
+
+    // Код складу
+    const compCodeUa = document.getElementById('product-composition-code-ua-editor');
+    if (compCodeUa) {
+        compCodeUa.innerHTML = '';
+        if (compCodeEditorUa) { compCodeEditorUa.destroy(); compCodeEditorUa = null; }
+        compCodeEditorUa = createHighlightEditor(compCodeUa);
+    }
+
+    const compCodeRu = document.getElementById('product-composition-code-ru-editor');
+    if (compCodeRu) {
+        compCodeRu.innerHTML = '';
+        if (compCodeEditorRu) { compCodeEditorRu.destroy(); compCodeEditorRu = null; }
+        compCodeEditorRu = createHighlightEditor(compCodeRu);
+    }
+
+    // 1 порція (br charm)
+    const compNotesUa = document.getElementById('product-composition-notes-ua-editor');
+    if (compNotesUa) {
+        compNotesUa.innerHTML = '';
+        if (compNotesEditorUa) { compNotesEditorUa.destroy(); compNotesEditorUa = null; }
+        compNotesEditorUa = createHighlightEditor(compNotesUa);
+    }
+
+    const compNotesRu = document.getElementById('product-composition-notes-ru-editor');
+    if (compNotesRu) {
+        compNotesRu.innerHTML = '';
+        if (compNotesEditorRu) { compNotesEditorRu.destroy(); compNotesEditorRu = null; }
+        compNotesEditorRu = createHighlightEditor(compNotesRu);
     }
 }
 
@@ -438,8 +473,10 @@ function getProductFormData() {
         generated_short_ru: v('product-generated-short-ru'),
         generated_full_ua: v('product-generated-full-ua'),
         generated_full_ru: v('product-generated-full-ru'),
-        composition_ua: v('product-composition-ua'),
-        composition_ru: v('product-composition-ru'),
+        composition_code_ua: compCodeEditorUa ? compCodeEditorUa.getValue() : '',
+        composition_code_ru: compCodeEditorRu ? compCodeEditorRu.getValue() : '',
+        composition_notes_ua: compNotesEditorUa ? compNotesEditorUa.getValue() : '',
+        composition_notes_ru: compNotesEditorRu ? compNotesEditorRu.getValue() : '',
         product_text_ua: textEditorUa ? textEditorUa.getValue() : '',
         product_text_ru: textEditorRu ? textEditorRu.getValue() : '',
         characteristics,
@@ -473,8 +510,6 @@ function fillProductForm(product) {
     set('product-variation-ru', product.variation_ru);
     set('product-text-after-ua', product.text_after_ua);
     set('product-text-after-ru', product.text_after_ru);
-    set('product-composition-ua', product.composition_ua);
-    set('product-composition-ru', product.composition_ru);
 
     // Бренд
     const brandField = document.getElementById('product-brand');
@@ -540,6 +575,12 @@ function fillProductForm(product) {
     const imageUrlField = document.getElementById('product-image-url');
     if (imageUrlField) imageUrlField.value = product.image_url || '';
 
+    // Склад (редактори)
+    if (compCodeEditorUa) compCodeEditorUa.setValue(product.composition_code_ua || '');
+    if (compCodeEditorRu) compCodeEditorRu.setValue(product.composition_code_ru || '');
+    if (compNotesEditorUa) compNotesEditorUa.setValue(product.composition_notes_ua || '');
+    if (compNotesEditorRu) compNotesEditorRu.setValue(product.composition_notes_ru || '');
+
     // Тексти
     if (textEditorUa) textEditorUa.setValue(product.product_text_ua || '');
     if (textEditorRu) textEditorRu.setValue(product.product_text_ru || '');
@@ -561,7 +602,6 @@ function clearProductForm() {
         'product-text-after-ua', 'product-text-after-ru',
         'product-generated-short-ua', 'product-generated-short-ru',
         'product-generated-full-ua', 'product-generated-full-ru',
-        'product-composition-ua', 'product-composition-ru',
         'product-image-url',
         'product-seo-title-ua', 'product-seo-title-ru',
         'product-seo-desc-ua', 'product-seo-desc-ru',
@@ -595,6 +635,10 @@ function clearProductForm() {
         statusBadge.classList.add('c-yellow');
     }
 
+    if (compCodeEditorUa) compCodeEditorUa.setValue('');
+    if (compCodeEditorRu) compCodeEditorRu.setValue('');
+    if (compNotesEditorUa) compNotesEditorUa.setValue('');
+    if (compNotesEditorRu) compNotesEditorRu.setValue('');
     if (textEditorUa) textEditorUa.setValue('');
     if (textEditorRu) textEditorRu.setValue('');
 
@@ -831,9 +875,11 @@ function _restoreSnapshot(snapshot) {
     const catField = document.getElementById('product-category');
     if (catField) { catField.value = snapshot.category_id; reinitializeCustomSelect(catField); }
 
-    // Склад
-    set('product-composition-ua', 'composition_ua');
-    set('product-composition-ru', 'composition_ru');
+    // Склад (редактори)
+    if (compCodeEditorUa) compCodeEditorUa.setValue(snapshot.composition_code_ua || '');
+    if (compCodeEditorRu) compCodeEditorRu.setValue(snapshot.composition_code_ru || '');
+    if (compNotesEditorUa) compNotesEditorUa.setValue(snapshot.composition_notes_ua || '');
+    if (compNotesEditorRu) compNotesEditorRu.setValue(snapshot.composition_notes_ru || '');
 
     // Тексти
     if (textEditorUa) textEditorUa.setValue(snapshot.product_text_ua || '');
@@ -904,6 +950,10 @@ function cleanupProductModal() {
         _sectionObserver = null;
     }
 
+    if (compCodeEditorUa) { compCodeEditorUa.destroy(); compCodeEditorUa = null; }
+    if (compCodeEditorRu) { compCodeEditorRu.destroy(); compCodeEditorRu = null; }
+    if (compNotesEditorUa) { compNotesEditorUa.destroy(); compNotesEditorUa = null; }
+    if (compNotesEditorRu) { compNotesEditorRu.destroy(); compNotesEditorRu = null; }
     if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
     if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
 

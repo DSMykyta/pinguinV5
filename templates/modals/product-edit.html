@@ -58,9 +58,13 @@
                         <span class="material-symbols-outlined">style</span>
                         <span class="btn-icon-label">Варіанти</span>
                     </a>
-                    <a href="#section-product-composition" class="btn-icon expand touch" aria-label="Склад">
-                        <span class="material-symbols-outlined">science</span>
-                        <span class="btn-icon-label">Склад</span>
+                    <a href="#section-product-composition-code" class="btn-icon expand touch" aria-label="Код складу">
+                        <span class="material-symbols-outlined">code</span>
+                        <span class="btn-icon-label">Код складу</span>
+                    </a>
+                    <a href="#section-product-composition-notes" class="btn-icon expand touch" aria-label="1 порція">
+                        <span class="material-symbols-outlined">notes</span>
+                        <span class="btn-icon-label">1 порція</span>
                     </a>
                     <a href="#section-product-description" class="btn-icon expand touch" aria-label="Опис">
                         <span class="material-symbols-outlined">article</span>
@@ -401,43 +405,71 @@
                     </div>
                 </section>
 
+
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <!-- СЕКЦІЯ: СКЛАД -->
+                <!-- СЕКЦІЯ: КОД СКЛАДУ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
-                <section id="section-product-composition">
+                <section id="section-product-composition-code">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Склад</h2>
+                                <h2 class="section-upper">Код складу</h2>
                             </div>
-                            <span class="body-s">Склад продукту</span>
+                            <span class="body-s">Код складу продукту</span>
                         </div>
                     </div>
 
-                    <div class="section-content">
-                        <div class="grid">
-                            <!-- Склад (двомовний блок) -->
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
                             <div class="group column col-6">
-                                <label class="label-l">Склад</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <textarea id="product-composition-ua" rows="4"
-                                                    placeholder="Склад товару українською..."></textarea>
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <textarea id="product-composition-ru" rows="4"
-                                                    placeholder="Склад товару російською..."></textarea>
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div id="product-composition-code-ua-editor" class="section-content-full-height"
+                                     editor tools
+                                     data-placeholder="Код складу українською..."
+                                     data-min-height="200"
+                                     data-tag="UA">
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <div id="product-composition-code-ru-editor" class="section-content-full-height"
+                                     editor tools
+                                     data-placeholder="Код складу російською..."
+                                     data-min-height="200"
+                                     data-tag="RU">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: 1 ПОРЦІЯ -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-product-composition-notes">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">1 порція</h2>
+                            </div>
+                            <span class="body-s">Склад на 1 порцію</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
+                            <div class="group column col-6">
+                                <div id="product-composition-notes-ua-editor" class="section-content-full-height"
+                                     editor tools br
+                                     data-placeholder="1 порція українською..."
+                                     data-min-height="200"
+                                     data-tag="UA">
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <div id="product-composition-notes-ru-editor" class="section-content-full-height"
+                                     editor tools br
+                                     data-placeholder="1 порція російською..."
+                                     data-min-height="200"
+                                     data-tag="RU">
                                 </div>
                             </div>
                         </div>
