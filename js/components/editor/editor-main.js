@@ -103,6 +103,7 @@ function readCharms(container) {
         allowStyles: container.getAttribute('cleanup-styles') === 'allow',
         placeholder: container.dataset.placeholder || 'Введіть текст...',
         minHeight: parseInt(container.dataset.minHeight) || 200,
+        tag: container.dataset.tag || null,
     };
 }
 

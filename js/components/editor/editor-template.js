@@ -36,6 +36,7 @@ export function createEditorTemplate(id, config) {
         showCleanupLinks,
         showCleanupStyles,
         showCleanupImages,
+        tag,
     } = config;
 
     const showToolbar = toolbar === true;
@@ -46,7 +47,7 @@ export function createEditorTemplate(id, config) {
 
     return `
         <div class="editor-component rich-editor-container" data-editor-id="${id}" style="--editor-min-height: ${minHeight}px;">
-            ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) : (validation ? `
+            ${showToolbar ? renderToolbar(id, { showEditing, showCode, validation, showFindReplace, tag }) : (validation ? `
         <div class="toolbar-wrapper">
             <div class="validation-results-wrapper">
                 <div id="${id}-validation-results" class="group u-p-8"></div>
@@ -107,13 +108,14 @@ export function createEditorTemplate(id, config) {
 /**
  * Рендерити тулбар
  */
-function renderToolbar(id, { showEditing, showCode, validation, showFindReplace }) {
+function renderToolbar(id, { showEditing, showCode, validation, showFindReplace, tag }) {
     return `
             <!-- Toolbar -->
             <div class="toolbar-wrapper">
                 <div class="format-toolbar" id="${id}-toolbar">
-                    ${showEditing ? renderFormattingButtons() : ''}
-                    ${showFindReplace ? renderFindReplaceDropdown(id) : ''}
+                    ${tag ? `<span class="tag c-secondary">${tag}</span>` : ''}
+                    ${showEditing ? renderPrimaryButtons() : ''}
+                    ${showEditing ? `<div class="toolbar-extra">${renderSecondaryButtons()}${showFindReplace ? renderFindReplaceDropdown(id) : ''}</div>${renderOverflowDropdown()}` : ''}
                     ${showEditing && showCode ? '<div class="toolbar-separator"></div>' : ''}
                     ${showCode ? renderModeSwitch(id) : ''}
                 </div>
@@ -126,9 +128,9 @@ function renderToolbar(id, { showEditing, showCode, validation, showFindReplace 
 }
 
 /**
- * Кнопки форматування
+ * Primary кнопки (завжди видимі)
  */
-function renderFormattingButtons() {
+function renderPrimaryButtons() {
     return `
                     <button type="button" class="btn-icon" data-action="bold" title="Жирний (Ctrl+B)" aria-label="Жирний">
                         <span class="material-symbols-outlined">format_bold</span>
@@ -136,17 +138,23 @@ function renderFormattingButtons() {
                     <button type="button" class="btn-icon" data-action="italic" title="Курсив (Ctrl+I)" aria-label="Курсив">
                         <span class="material-symbols-outlined">format_italic</span>
                     </button>
-                    <button type="button" class="btn-icon" data-action="h1" title="Заголовок H1" aria-label="Заголовок H1">
-                        <span class="material-symbols-outlined">format_h1</span>
-                    </button>
-                    <button type="button" class="btn-icon" data-action="h2" title="Заголовок H2" aria-label="Заголовок H2">
-                        <span class="material-symbols-outlined">format_h2</span>
-                    </button>
                     <button type="button" class="btn-icon" data-action="h3" title="Заголовок H3" aria-label="Заголовок H3">
                         <span class="material-symbols-outlined">format_h3</span>
                     </button>
                     <button type="button" class="btn-icon" data-action="list" title="Список" aria-label="Список">
                         <span class="material-symbols-outlined">format_list_bulleted</span>
+                    </button>`;
+}
+
+/**
+ * Secondary кнопки (ховаються при < 700px)
+ */
+function renderSecondaryButtons() {
+    return `<button type="button" class="btn-icon" data-action="h1" title="Заголовок H1" aria-label="Заголовок H1">
+                        <span class="material-symbols-outlined">format_h1</span>
+                    </button>
+                    <button type="button" class="btn-icon" data-action="h2" title="Заголовок H2" aria-label="Заголовок H2">
+                        <span class="material-symbols-outlined">format_h2</span>
                     </button>
                     <button type="button" class="btn-icon" data-action="lowercase" title="всі маленькі" aria-label="Нижній регістр">
                         <span class="material-symbols-outlined">lowercase</span>
@@ -157,6 +165,20 @@ function renderFormattingButtons() {
                     <button type="button" class="btn-icon" data-action="titlecase" title="Кожне Слово З Великої" aria-label="Кожне слово з великої">
                         <span class="material-symbols-outlined">match_case</span>
                     </button>`;
+}
+
+/**
+ * Overflow dropdown (показується при < 700px замість secondary)
+ */
+function renderOverflowDropdown() {
+    return `<div class="toolbar-overflow dropdown-wrapper">
+                        <button type="button" class="btn-icon" data-dropdown-trigger title="Ще" aria-label="Ще">
+                            <span class="material-symbols-outlined">more_horiz</span>
+                        </button>
+                        <div class="dropdown-panel" style="display: flex; flex-wrap: wrap; gap: 2px; padding: 8px;">
+                            ${renderSecondaryButtons()}
+                        </div>
+                    </div>`;
 }
 
 /**
