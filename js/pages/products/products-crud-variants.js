@@ -27,6 +27,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { runHook } from './products-plugins.js';
 import { buildShortName, buildFullName, buildVariantFullName } from './products-crud.js';
+import { createHighlightEditor } from '../../components/editor/editor-main.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -36,6 +37,12 @@ let _variantsManagedTable = null;
 let _actionCleanup = null;
 let _getCurrentProductId = null;
 let _currentVariantId = null;
+
+// Editors
+let _compCodeEditorUa = null;
+let _compCodeEditorRu = null;
+let _compNotesEditorUa = null;
+let _compNotesEditorRu = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -156,6 +163,7 @@ async function showAddVariantModal() {
     if (title) title.textContent = 'Новий варіант';
 
     clearVariantForm();
+    initVariantEditors();
     const productIdField = document.getElementById('variant-product-id');
     if (productIdField) productIdField.value = productId;
 
@@ -181,9 +189,53 @@ export async function showEditVariantModal(variantId) {
     const title = document.getElementById('variant-modal-title');
     if (title) title.textContent = `Редагувати ${variant.name_ua || variant.variant_id}`;
 
+    initVariantEditors();
     fillVariantForm(variant);
     await renderVariantCharacteristics(variant.product_id, variant.variant_chars || {});
     initVariantSaveHandler();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EDITORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initVariantEditors() {
+    // Код складу
+    const compCodeUa = document.getElementById('variant-composition-code-ua-editor');
+    if (compCodeUa) {
+        compCodeUa.innerHTML = '';
+        if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
+        _compCodeEditorUa = createHighlightEditor(compCodeUa);
+    }
+
+    const compCodeRu = document.getElementById('variant-composition-code-ru-editor');
+    if (compCodeRu) {
+        compCodeRu.innerHTML = '';
+        if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
+        _compCodeEditorRu = createHighlightEditor(compCodeRu);
+    }
+
+    // 1 порція (br charm)
+    const compNotesUa = document.getElementById('variant-composition-notes-ua-editor');
+    if (compNotesUa) {
+        compNotesUa.innerHTML = '';
+        if (_compNotesEditorUa) { _compNotesEditorUa.destroy(); _compNotesEditorUa = null; }
+        _compNotesEditorUa = createHighlightEditor(compNotesUa);
+    }
+
+    const compNotesRu = document.getElementById('variant-composition-notes-ru-editor');
+    if (compNotesRu) {
+        compNotesRu.innerHTML = '';
+        if (_compNotesEditorRu) { _compNotesEditorRu.destroy(); _compNotesEditorRu = null; }
+        _compNotesEditorRu = createHighlightEditor(compNotesRu);
+    }
+}
+
+function destroyVariantEditors() {
+    if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
+    if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
+    if (_compNotesEditorUa) { _compNotesEditorUa.destroy(); _compNotesEditorUa = null; }
+    if (_compNotesEditorRu) { _compNotesEditorRu.destroy(); _compNotesEditorRu = null; }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -244,6 +296,12 @@ function fillVariantForm(variant) {
 
     const statusRadio = document.querySelector(`input[name="variant-status"][value="${variant.status || 'active'}"]`);
     if (statusRadio) statusRadio.checked = true;
+
+    // Editors
+    if (_compCodeEditorUa) _compCodeEditorUa.setValue(variant.composition_code_ua || '');
+    if (_compCodeEditorRu) _compCodeEditorRu.setValue(variant.composition_code_ru || '');
+    if (_compNotesEditorUa) _compNotesEditorUa.setValue(variant.composition_notes_ua || '');
+    if (_compNotesEditorRu) _compNotesEditorRu.setValue(variant.composition_notes_ru || '');
 }
 
 function getVariantFormData() {
@@ -260,6 +318,10 @@ function getVariantFormData() {
                    document.getElementById('variant-image-url')?.value.trim() || '',
         status: document.querySelector('input[name="variant-status"]:checked')?.value || 'active',
         variant_chars: getVariantCharsData(),
+        composition_code_ua: _compCodeEditorUa ? _compCodeEditorUa.getValue() : '',
+        composition_code_ru: _compCodeEditorRu ? _compCodeEditorRu.getValue() : '',
+        composition_notes_ua: _compNotesEditorUa ? _compNotesEditorUa.getValue() : '',
+        composition_notes_ru: _compNotesEditorRu ? _compNotesEditorRu.getValue() : '',
     };
 }
 
@@ -572,6 +634,8 @@ export async function commitPendingVariantChanges() {
  */
 export function discardPendingVariantChanges() {
     _currentVariantId = null;
+
+    destroyVariantEditors();
 
     if (_variantsManagedTable) {
         _variantsManagedTable.destroy();
