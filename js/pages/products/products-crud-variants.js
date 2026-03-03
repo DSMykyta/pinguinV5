@@ -24,6 +24,7 @@ import {
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 import { runHook } from './products-plugins.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
@@ -32,7 +33,7 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // Sub-modules
 import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
-import { renderVariantCharacteristics, getVariantCharsData, getSpecFieldValue, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
+import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 import { addPendingVariant, removePendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 
 // Re-exports for backward compat (used by products-crud.js)
@@ -51,8 +52,12 @@ let _variantsManagedTable = null;
 let _actionCleanup = null;
 
 // Editors
+let _compCodeEditorUa = null;
+let _compCodeEditorRu = null;
 let _compNotesEditorUa = null;
 let _compNotesEditorRu = null;
+let _productTextEditorUa = null;
+let _productTextEditorRu = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
@@ -164,8 +169,10 @@ async function populateProductVariants(productId) {
                     },
                     expandable: {
                         renderContent: (row) => buildExpandContent(row),
+                        renderFooterLeft: (row) => _renderVariantFooterLeft(row),
                         onExpand: (rowEl, row) => onVariantExpand(rowEl, row),
                         onSave: (rowEl) => _handleRowSave(rowEl),
+                        onOpenFull: (_rowEl, row) => showEditVariantModal(row.variant_id),
                     }
                 }
             },
@@ -213,6 +220,20 @@ async function _handleRowSave(rowEl) {
         console.error('Помилка збереження варіанту:', error);
         showToast('Помилка збереження варіанту', 'error');
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FOOTER LEFT (expandable plugin)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Рендер лівої частини підвалу — tag c-secondary з composition_code (якщо є)
+ */
+function _renderVariantFooterLeft(row) {
+    const tags = [];
+    if (row.composition_code_ua) tags.push(`<span class="tag c-secondary">${escapeHtml(row.composition_code_ua)}</span>`);
+    if (row.composition_code_ru) tags.push(`<span class="tag c-secondary">${escapeHtml(row.composition_code_ru)}</span>`);
+    return tags.join('');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -283,24 +304,56 @@ export async function showEditVariantModal(variantId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantEditors() {
+    // Склад (composition code)
+    const compCodeUa = document.getElementById('variant-composition-code-ua-editor');
+    if (compCodeUa) {
+        compCodeUa.innerHTML = '';
+        if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
+        _compCodeEditorUa = createHighlightEditor(compCodeUa);
+    }
+    const compCodeRu = document.getElementById('variant-composition-code-ru-editor');
+    if (compCodeRu) {
+        compCodeRu.innerHTML = '';
+        if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
+        _compCodeEditorRu = createHighlightEditor(compCodeRu);
+    }
+
+    // 1 порція (composition notes)
     const compNotesUa = document.getElementById('variant-composition-notes-ua-editor');
     if (compNotesUa) {
         compNotesUa.innerHTML = '';
         if (_compNotesEditorUa) { _compNotesEditorUa.destroy(); _compNotesEditorUa = null; }
         _compNotesEditorUa = createHighlightEditor(compNotesUa);
     }
-
     const compNotesRu = document.getElementById('variant-composition-notes-ru-editor');
     if (compNotesRu) {
         compNotesRu.innerHTML = '';
         if (_compNotesEditorRu) { _compNotesEditorRu.destroy(); _compNotesEditorRu = null; }
         _compNotesEditorRu = createHighlightEditor(compNotesRu);
     }
+
+    // Опис (product text)
+    const prodTextUa = document.getElementById('variant-product-text-ua-editor');
+    if (prodTextUa) {
+        prodTextUa.innerHTML = '';
+        if (_productTextEditorUa) { _productTextEditorUa.destroy(); _productTextEditorUa = null; }
+        _productTextEditorUa = createHighlightEditor(prodTextUa);
+    }
+    const prodTextRu = document.getElementById('variant-product-text-ru-editor');
+    if (prodTextRu) {
+        prodTextRu.innerHTML = '';
+        if (_productTextEditorRu) { _productTextEditorRu.destroy(); _productTextEditorRu = null; }
+        _productTextEditorRu = createHighlightEditor(prodTextRu);
+    }
 }
 
 function destroyVariantEditors() {
+    if (_compCodeEditorUa) { _compCodeEditorUa.destroy(); _compCodeEditorUa = null; }
+    if (_compCodeEditorRu) { _compCodeEditorRu.destroy(); _compCodeEditorRu = null; }
     if (_compNotesEditorUa) { _compNotesEditorUa.destroy(); _compNotesEditorUa = null; }
     if (_compNotesEditorRu) { _compNotesEditorRu.destroy(); _compNotesEditorRu = null; }
+    if (_productTextEditorUa) { _productTextEditorUa.destroy(); _productTextEditorUa = null; }
+    if (_productTextEditorRu) { _productTextEditorRu.destroy(); _productTextEditorRu = null; }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -368,8 +421,12 @@ function fillVariantForm(variant) {
     if (statusRadio) statusRadio.checked = true;
 
     // Editors
+    if (_compCodeEditorUa) _compCodeEditorUa.setValue(variant.composition_code_ua || '');
+    if (_compCodeEditorRu) _compCodeEditorRu.setValue(variant.composition_code_ru || '');
     if (_compNotesEditorUa) _compNotesEditorUa.setValue(variant.composition_notes_ua || '');
     if (_compNotesEditorRu) _compNotesEditorRu.setValue(variant.composition_notes_ru || '');
+    if (_productTextEditorUa) _productTextEditorUa.setValue(variant.product_text_ua || '');
+    if (_productTextEditorRu) _productTextEditorRu.setValue(variant.product_text_ru || '');
 }
 
 function getVariantFormData() {
@@ -384,10 +441,12 @@ function getVariantFormData() {
         image_url: document.getElementById('variant-image-url')?.value.trim() || '',
         status: document.querySelector('input[name="variant-status"]:checked')?.value || 'active',
         variant_chars: getVariantCharsData(),
-        spec_ua: getSpecFieldValue('ua'),
-        spec_ru: getSpecFieldValue('ru'),
+        composition_code_ua: _compCodeEditorUa ? _compCodeEditorUa.getValue() : '',
+        composition_code_ru: _compCodeEditorRu ? _compCodeEditorRu.getValue() : '',
         composition_notes_ua: _compNotesEditorUa ? _compNotesEditorUa.getValue() : '',
         composition_notes_ru: _compNotesEditorRu ? _compNotesEditorRu.getValue() : '',
+        product_text_ua: _productTextEditorUa ? _productTextEditorUa.getValue() : '',
+        product_text_ru: _productTextEditorRu ? _productTextEditorRu.getValue() : '',
     };
 }
 

@@ -58,8 +58,6 @@ export function addPendingVariant(data) {
         name_ua: data.name_ua || '',
         status: data.status || 'active',
         variant_chars: data.variant_chars || {},
-        spec_ua: data.spec_ua || '',
-        spec_ru: data.spec_ru || '',
     });
 }
 
@@ -218,8 +216,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
             weight: pv.weight || '',
             stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},
-            spec_ua: pv.spec_ua || '',
-            spec_ru: pv.spec_ru || '',
             status: pv.status || productData?.status || 'active',
         });
     }

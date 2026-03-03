@@ -13,15 +13,22 @@
  * ║                                                                          ║
  * ║  КОНФІГ:                                                                 ║
  * ║  expandable: {                                                           ║
- * ║      renderContent: (row) => HTML,  // генерує вміст u-reveal            ║
- * ║      onExpand: (rowEl, row) => {},  // callback після розкриття           ║
- * ║      onCollapse: (rowEl) => {},     // callback після згортання           ║
- * ║      onSave: (rowEl, row) => {},    // callback при збереженні            ║
+ * ║      renderContent: (row) => HTML,       // генерує вміст u-reveal       ║
+ * ║      renderFooterLeft: (row) => HTML,    // ліва частина підвалу         ║
+ * ║      renderFooterRight: (row) => HTML,   // права частина підвалу        ║
+ * ║      onExpand: (rowEl, row) => {},       // callback після розкриття      ║
+ * ║      onCollapse: (rowEl) => {},          // callback після згортання      ║
+ * ║      onSave: (rowEl, row) => {},         // callback при збереженні       ║
+ * ║      onOpenFull: (rowEl, row) => {},     // callback "відкрити повний"    ║
  * ║  }                                                                       ║
+ * ║                                                                          ║
+ * ║  ПІДВАЛ (wizard-footer):                                                 ║
+ * ║  footer-left:  custom контент (renderFooterLeft)                        ║
+ * ║  footer-right: custom + [Відкрити повний][Зберегти] btn-ghost           ║
  * ║                                                                          ║
  * ║  СТАН КНОПОК (автоматично):                                             ║
  * ║  Закрито: [checkbox] [edit]           — rowActions колонка               ║
- * ║  Відкрито: [save] ... [close]         — rowActions колонка               ║
+ * ║  Відкрито: ... [close]               — rowActions колонка               ║
  * ║                                                                          ║
  * ║  CSS:                                                                    ║
  * ║  Використовує .u-reveal + .is-open з helpers.css                        ║
@@ -32,9 +39,12 @@ class ExpandablePlugin {
     constructor(config = {}) {
         this.config = {
             renderContent: null,
+            renderFooterLeft: null,
+            renderFooterRight: null,
             onExpand: null,
             onCollapse: null,
             onSave: null,
+            onOpenFull: null,
             ...config
         };
 
@@ -71,7 +81,7 @@ class ExpandablePlugin {
             const rowData = data.find(r => String(this.table.config.getRowId(r)) === String(rowId)) || data[index];
             if (!rowData) return;
 
-            // Інжектимо edit/save кнопки в rowActions
+            // Інжектимо edit кнопку в rowActions
             const actionsCell = rowEl.querySelector('.row-actions-cell');
             if (actionsCell && !actionsCell.querySelector('[data-action="expand-edit"]')) {
                 const btnGroup = document.createElement('span');
@@ -79,9 +89,6 @@ class ExpandablePlugin {
                 btnGroup.innerHTML = `
                     <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
-                        <span class="material-symbols-outlined">save</span>
                     </button>`;
                 actionsCell.prepend(btnGroup);
             }
@@ -99,9 +106,26 @@ class ExpandablePlugin {
                 </button>`;
             rowEl.appendChild(closeCell);
 
+            // Footer (wizard-footer: left + right)
+            const footerLeft = this.config.renderFooterLeft ? this.config.renderFooterLeft(rowData, rowEl) : '';
+            const footerRightCustom = this.config.renderFooterRight ? this.config.renderFooterRight(rowData, rowEl) : '';
+            const footerRightButtons = `
+                <button class="btn-ghost" data-action="expand-open-full">
+                    <span class="material-symbols-outlined">open_in_full</span>
+                    Відкрити повний
+                </button>
+                <button class="btn-ghost" data-action="expand-save">
+                    <span class="material-symbols-outlined">save</span>
+                    Зберегти
+                </button>`;
+            const footerHtml = `<div class="wizard-footer">
+                <div class="footer-left">${footerLeft}</div>
+                <div class="footer-right">${footerRightCustom}${footerRightButtons}</div>
+            </div>`;
+
             const reveal = document.createElement('div');
             reveal.className = 'u-reveal';
-            reveal.innerHTML = `<div>${content}</div>`;
+            reveal.innerHTML = `<div>${content}${footerHtml}</div>`;
             rowEl.appendChild(reveal);
         });
 
@@ -127,6 +151,11 @@ class ExpandablePlugin {
             this._collapse(row);
             return;
         }
+
+        if (e.target.closest('[data-action="expand-open-full"]')) {
+            this._openFull(row);
+            return;
+        }
     }
 
     _expand(row) {
@@ -134,12 +163,10 @@ class ExpandablePlugin {
         if (!reveal) return;
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
-        const saveBtn = row.querySelector('[data-action="expand-save"]');
         const closeCell = row.querySelector('.expand-close-cell');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
-        saveBtn?.classList.remove('u-hidden');
         closeCell?.classList.remove('u-hidden');
         checkbox?.classList.add('u-hidden');
 
@@ -156,12 +183,10 @@ class ExpandablePlugin {
         if (!reveal) return;
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
-        const saveBtn = row.querySelector('[data-action="expand-save"]');
         const closeCell = row.querySelector('.expand-close-cell');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
-        saveBtn?.classList.add('u-hidden');
         closeCell?.classList.add('u-hidden');
         checkbox?.classList.remove('u-hidden');
 
@@ -176,6 +201,13 @@ class ExpandablePlugin {
         if (this.config.onSave) {
             const rowData = this._getRowData(row);
             this.config.onSave(row, rowData);
+        }
+    }
+
+    _openFull(row) {
+        if (this.config.onOpenFull) {
+            const rowData = this._getRowData(row);
+            this.config.onOpenFull(row, rowData);
         }
     }
 

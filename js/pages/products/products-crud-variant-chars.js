@@ -474,11 +474,12 @@ export function readRowFormValues(row) {
  */
 export function getVariantColumns(col) {
     return [
-        col('product_name', 'Назва', 'text', { span: 3 }),
-        col('variant_display', 'Варіант', 'text', { span: 2 }),
-        col('price', 'Ціна', 'tag', { span: 2, align: 'center', color: 'c-secondary' }),
-        col('old_price', 'Стара ціна', 'tag', { span: 2, align: 'center', color: 'c-secondary' }),
-        col('stock', 'Кількість', 'tag', { span: 1, align: 'center', color: 'c-tertiary' }),
+        col('variant_id', 'ID', 'tag', { span: 1 }),
+        col('product_name', 'Товар', 'text', { span: 1 }),
+        col('variant_display', 'Варіант', 'name', { span: 1 }),
+        col('price', 'Ціна', 'tag', { span: 1, color: 'c-secondary' }),
+        col('old_price', 'Стара ціна', 'tag', { span: 1, color: 'c-secondary' }),
+        col('stock', 'Кількість', 'tag', { span: 1, color: 'c-tertiary' }),
     ];
 }
 
