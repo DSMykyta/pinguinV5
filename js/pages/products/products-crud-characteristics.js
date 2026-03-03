@@ -26,7 +26,7 @@ import { getCharacteristics, loadCharacteristics, getOptions, loadOptions } from
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
-import { showToast } from '../../components/feedback/toast.js';
+import { buildParentChildMap, initParentChildListeners } from './products-crud-hierarchy.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BLOCK NAMES (з маппера — mapper-characteristic-edit.html:128-139)
@@ -52,39 +52,6 @@ const BLOCK_ICONS = {
     '6': 'local_shipping',
     '9': 'more_horiz',
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PARENT-CHILD MAP (generic, no hardcoded IDs)
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Сканує опції характеристик. Якщо опція має parent_option_id →
- * знаходить батьківську характеристику. Повертає Map<childCharId, parentCharId>.
- * Видалив характеристику → map порожній. Жодних захардкоджених ID.
- */
-function buildParentChildMap(chars, options) {
-    const childToParent = new Map();
-    const optionById = new Map();
-    options.forEach(o => optionById.set(o.id, o));
-
-    const charIds = new Set(chars.map(c => c.id));
-
-    for (const o of options) {
-        if (!o.parent_option_id || !charIds.has(o.characteristic_id)) continue;
-        const parentOpt = optionById.get(o.parent_option_id);
-        if (!parentOpt || !charIds.has(parentOpt.characteristic_id)) continue;
-
-        const childCharId = o.characteristic_id;
-        const parentCharId = parentOpt.characteristic_id;
-        if (childCharId === parentCharId) continue;
-
-        if (!childToParent.has(childCharId)) {
-            childToParent.set(childCharId, parentCharId);
-        }
-    }
-
-    return childToParent;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // RENDER
@@ -227,90 +194,6 @@ export async function renderCharacteristicsForCategory(categoryId, savedValues =
     }
 
     return renderedBlocks;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PARENT-CHILD LISTENERS (auto-fill + cascading filter)
-// ═══════════════════════════════════════════════════════════════════════════
-
-function initParentChildListeners(container) {
-    container.addEventListener('change', (e) => {
-        const select = e.target.closest('select[data-char-id]');
-        if (!select) return;
-
-        // Child changed → авто-заповнити батька
-        if (select.dataset.parentCharId) {
-            autoFillParent(container, select);
-        }
-
-        // Parent changed → фільтрувати дітей
-        if (select.dataset.parentOf) {
-            const childCharIds = select.dataset.parentOf.split(',');
-            childCharIds.forEach(childCharId => {
-                const childSelect = container.querySelector(`select[data-char-id="${childCharId}"]`);
-                if (childSelect) filterChildOptions(childSelect, select.value);
-            });
-        }
-    });
-}
-
-function autoFillParent(container, childSelect) {
-    const parentCharId = childSelect.dataset.parentCharId;
-    if (!parentCharId) return;
-
-    const selectedOption = childSelect.selectedOptions[0];
-    if (!selectedOption || !selectedOption.value) return;
-
-    const parentOptionId = selectedOption.dataset.parentOptionId;
-    if (!parentOptionId) return;
-
-    const parentSelect = container.querySelector(`select[data-char-id="${parentCharId}"]`);
-    if (!parentSelect || parentSelect.value === parentOptionId) return;
-
-    parentSelect.value = parentOptionId;
-    parentSelect.dispatchEvent(new Event('change', { bubbles: true }));
-
-    if (parentSelect.customSelect) {
-        parentSelect.customSelect._updateSelection();
-    }
-
-    const parentOptText = parentSelect.selectedOptions[0]?.textContent || '';
-    showToast(`${parentOptText} обрано автоматично`, 'info');
-}
-
-function filterChildOptions(childSelect, parentOptionId) {
-    const customSelect = childSelect.customSelect;
-    if (!customSelect) return;
-
-    // Toggle custom select rendered options
-    customSelect.optionsList.querySelectorAll('.custom-select-option').forEach(optEl => {
-        const nativeOpt = Array.from(childSelect.options).find(o => o.value === optEl.dataset.value);
-        if (nativeOpt?.dataset.parentOptionId) {
-            const show = !parentOptionId || nativeOpt.dataset.parentOptionId === parentOptionId;
-            optEl.style.display = show ? '' : 'none';
-        }
-    });
-
-    // Toggle optgroup labels — ховати коли всі дочірні опції приховані
-    customSelect.optionsList.querySelectorAll('.custom-select-group-label').forEach(label => {
-        let hasVisible = false;
-        let next = label.nextElementSibling;
-        while (next && next.classList.contains('custom-select-option-grouped')) {
-            if (next.style.display !== 'none') hasVisible = true;
-            next = next.nextElementSibling;
-        }
-        label.style.display = hasVisible ? '' : 'none';
-    });
-
-    // Якщо обраний смак не з цієї групи → очистити
-    if (parentOptionId && childSelect.value) {
-        const selectedOpt = childSelect.querySelector(`option[value="${childSelect.value}"]`);
-        if (selectedOpt?.dataset.parentOptionId && selectedOpt.dataset.parentOptionId !== parentOptionId) {
-            childSelect.value = '';
-            childSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            customSelect._updateSelection();
-        }
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

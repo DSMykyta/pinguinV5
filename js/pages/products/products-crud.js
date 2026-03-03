@@ -8,7 +8,11 @@
  * 🔌 ПЛАГІН — модал товару: відкриття, заповнення, збереження.
  *
  * Секції модала винесені в окремі файли:
+ *   products-crud-names.js           — генерація назв товару
+ *   products-crud-url.js             — URL slug + валідація
+ *   products-crud-seo.js             — автогенерація SEO
  *   products-crud-characteristics.js — характеристики (за категорією)
+ *   products-crud-hierarchy.js       — ієрархія parent-child (спільна)
  *   products-crud-variants.js        — варіанти товару
  *   products-crud-photos.js          — фото товару
  *   products-delete.js               — видалення товару
@@ -16,7 +20,7 @@
 
 import { registerProductsPlugin, runHook } from './products-plugins.js';
 import { productsState } from './products-state.js';
-import { addProduct, updateProduct, getProducts, getProductById } from './products-data.js';
+import { addProduct, updateProduct, getProductById } from './products-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
@@ -25,9 +29,10 @@ import { getBrandLines, loadBrandLines } from '../brands/lines-data.js';
 import { getCategories, loadCategories } from '../mapper/mapper-data-own.js';
 import { populateSelect, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { getCharacteristicsData } from './products-crud-characteristics.js';
-import { generateSeoTitle, generateSeoDescription, generateSeoKeywords } from '../../generators/generator-seo/gse-generators.js';
-import { fetchData as fetchSeoData, getTriggersData } from '../../generators/generator-seo/gse-data.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { initNameGenerationListeners, updateGeneratedNames, buildShortName, buildFullName, buildVariantFullName } from './products-crud-names.js';
+import { slugify, isProductUrlUnique } from './products-crud-url.js';
+import { resetSeoState, fetchSeoData, updateSeoForCreate } from './products-crud-seo.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -60,7 +65,7 @@ export async function showAddProductModal() {
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
 
     clearProductForm();
-    _seoToasted.clear();
+    resetSeoState();
     fetchSeoData();
     await initModalComponents();
 
@@ -131,7 +136,7 @@ async function initModalComponents() {
     initSaveHandler();
     initSectionNavigation();
     initProductStatusToggle();
-    initNameGenerationListeners();
+    initNameGenerationListeners(_onNameFieldChange);
     await populateBrandSelect();
     await populateCategorySelect();
     initCategoryChangeHandler();
@@ -250,8 +255,9 @@ function initCategoryChangeHandler() {
 
         // Рендерити характеристики pending варіантів (block 8) при зміні категорії
         try {
-            const { renderPendingVariantCharacteristics } = await import('./products-crud-variants.js');
-            await renderPendingVariantCharacteristics(catSelect.value);
+            const { renderPendingVariantCharacteristics } = await import('./products-crud-variant-chars.js');
+            const { getPendingVariants } = await import('./products-crud-variant-pending.js');
+            await renderPendingVariantCharacteristics(catSelect.value, getPendingVariants());
         } catch { /* ignore */ }
     });
 
@@ -289,7 +295,7 @@ function initTextEditors() {
         if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
         textEditorUa = createHighlightEditor(containerUa);
         // SEO description при зміні тексту (через hook системи едітора)
-        textEditorUa.getState()?.registerHook('onInput', updateSeoForCreate);
+        textEditorUa.getState()?.registerHook('onInput', _onNameFieldChange);
     }
 
     const containerRu = document.getElementById('product-text-ru-editor-container');
@@ -297,7 +303,7 @@ function initTextEditors() {
         containerRu.innerHTML = '';
         if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
         textEditorRu = createHighlightEditor(containerRu);
-        textEditorRu.getState()?.registerHook('onInput', updateSeoForCreate);
+        textEditorRu.getState()?.registerHook('onInput', _onNameFieldChange);
     }
 
     // Код складу
@@ -549,7 +555,7 @@ function fillProductForm(product) {
     set('product-url', product.url);
 
     // Оновити згенеровані назви
-    updateGeneratedNames();
+    updateGeneratedNames(currentProductId);
 }
 
 /**
@@ -625,270 +631,21 @@ function clearProductForm() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// NAME GENERATION (авто-формування назв)
+// NAME + SEO CHANGE HANDLER
 // ═══════════════════════════════════════════════════════════════════════════
 
-const NAME_FIELDS = [
-    'product-text-before-ua', 'product-text-before-ru',
-    'product-name-ua', 'product-name-ru',
-    'product-label-ua', 'product-label-ru',
-    'product-detail-ua', 'product-detail-ru',
-    'product-variation-ua', 'product-variation-ru',
-    'product-text-after-ua', 'product-text-after-ru',
-];
-
-/**
- * Ініціалізувати слухачів для авто-генерації назв + SEO (при створенні)
- */
-function initNameGenerationListeners() {
-    const onFieldChange = () => {
-        updateGeneratedNames();
-        updateSeoForCreate();
-    };
-
-    NAME_FIELDS.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.dataset.nameGenInited) {
-            el.addEventListener('input', onFieldChange);
-            el.dataset.nameGenInited = '1';
-        }
-    });
-
-    // Бренд, лінійка, категорія теж впливають на назву
-    ['product-brand', 'product-line', 'product-category'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.dataset.nameGenInited) {
-            el.addEventListener('change', onFieldChange);
-            el.dataset.nameGenInited = '1';
-        }
-    });
-}
-
-/**
- * Побудувати коротку назву:
- * [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація]
- */
-export function buildShortName(brand, line, name, label, detail, variation) {
-    const mainParts = [brand, line, name, label, detail].filter(Boolean).join(' ');
-    if (!variation) return mainParts;
-    return mainParts ? `${mainParts}, ${variation}` : variation;
-}
-
-/**
- * Побудувати повну назву:
- * [Текст перед] [Коротка назва] [Текст після]
- */
-export function buildFullName(textBefore, shortName, textAfter) {
-    return [textBefore, shortName, textAfter].filter(Boolean).join(' ');
-}
-
-/**
- * Побудувати повну назву варіанту:
- * [Текст перед] [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація] - [Варіант] [Текст після]
- */
-export function buildVariantFullName(textBefore, brand, line, name, label, detail, variation, variantName, textAfter) {
-    const mainParts = [brand, line, name, label, detail].filter(Boolean).join(' ');
-    let core = mainParts;
-    if (variation) core = core ? `${core}, ${variation}` : variation;
-    if (variantName) core = core ? `${core} - ${variantName}` : variantName;
-    return [textBefore, core, textAfter].filter(Boolean).join(' ');
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// URL SLUG
-// ═══════════════════════════════════════════════════════════════════════════
-
-const TRANSLIT_MAP = {
-    'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye',
-    'ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l',
-    'м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u',
-    'ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'',
-    'ю':'yu','я':'ya','ё':'yo','ы':'y','э':'e',
-};
-
-/**
- * Транслітерація + slug: "Optimum Nutrition 100% Whey, 907 грам" → "optimum-nutrition-100-whey-907-hram"
- */
-export function slugify(text) {
-    if (!text) return '';
-    let result = text.toLowerCase();
-    result = result.replace(/./g, ch => TRANSLIT_MAP[ch] || ch);
-    result = result.replace(/[^a-z0-9]+/g, '-');
-    result = result.replace(/^-+|-+$/g, '');
-    return result;
-}
-
-/**
- * Перевірити унікальність URL серед товарів
- * @param {string} url - URL для перевірки
- * @param {string} [excludeProductId] - Виключити поточний товар
- * @returns {boolean} true якщо унікальний
- */
-export function isProductUrlUnique(url, excludeProductId) {
-    if (!url) return true;
-    const products = getProducts();
-    return !products.some(p =>
-        p.url === url && p.product_id !== excludeProductId
+function _onNameFieldChange() {
+    updateGeneratedNames(currentProductId);
+    updateSeoForCreate(
+        currentProductId,
+        () => textEditorUa?.getPlainText() || '',
+        () => textEditorRu?.getPlainText() || ''
     );
 }
 
-/**
- * Оновити згенеровані назви (коротка + повна)
- * Якщо "Текст перед назвою" порожній — підставляється назва категорії
- */
-function updateGeneratedNames() {
-    const v = (id) => document.getElementById(id)?.value.trim() || '';
-
-    // Бренд і лінійка — частина коротної назви
-    const brandSelect = document.getElementById('product-brand');
-    const lineSelect = document.getElementById('product-line');
-    const brandName = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const lineName = lineSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const brandPart = (brandName && !brandName.startsWith('—')) ? brandName : '';
-    const linePart = (lineName && !lineName.startsWith('—')) ? lineName : '';
-
-    // Категорія — fallback для текст перед назвою
-    const catSelect = document.getElementById('product-category');
-    const catName = catSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const catPart = (catName && !catName.startsWith('—')) ? catName : '';
-
-    const textBeforeUa = v('product-text-before-ua');
-    const textBeforeRu = v('product-text-before-ru');
-    // Якщо текст перед назвою порожній — підставити категорію
-    const prefixUa = textBeforeUa || catPart;
-    const prefixRu = textBeforeRu || catPart;
-
-    // Коротка: [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація]
-    const shortUaVal = buildShortName(brandPart, linePart, v('product-name-ua'), v('product-label-ua'), v('product-detail-ua'), v('product-variation-ua'));
-    const shortRuVal = buildShortName(brandPart, linePart, v('product-name-ru'), v('product-label-ru'), v('product-detail-ru'), v('product-variation-ru'));
-
-    const shortUa = document.getElementById('product-generated-short-ua');
-    const shortRu = document.getElementById('product-generated-short-ru');
-    if (shortUa) shortUa.value = shortUaVal;
-    if (shortRu) shortRu.value = shortRuVal;
-
-    // Повна: [Текст перед / Категорія] [Коротка] [Текст після]
-    const fullUa = document.getElementById('product-generated-full-ua');
-    const fullRu = document.getElementById('product-generated-full-ru');
-    if (fullUa) fullUa.value = buildFullName(prefixUa, shortUaVal, v('product-text-after-ua'));
-    if (fullRu) fullRu.value = buildFullName(prefixRu, shortRuVal, v('product-text-after-ru'));
-
-    // URL slug — тільки для нових товарів (поле ще порожнє)
-    const urlField = document.getElementById('product-url');
-    const urlBloc = document.getElementById('product-url-bloc');
-    if (urlField && !currentProductId) {
-        const slug = slugify(shortUaVal);
-        urlField.value = slug;
-        // Перевірка унікальності в реальному часі
-        if (urlBloc) {
-            const unique = isProductUrlUnique(slug, null);
-            const line = urlBloc.querySelector('.content-line');
-            if (line) {
-                if (!unique && slug) line.setAttribute('error', '');
-                else line.removeAttribute('error');
-            }
-        }
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SEO AUTO-GENERATION (тільки при створенні)
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Авто-генерація SEO полів — тільки при створенні (currentProductId === null)
- * Використовує gse-generators.js (та ж логіка що й на index сторінці).
- * Title/Keywords: коли є бренд + назва
- * Description: коли є текст товару
- * Тригери: badge-и з matched triggers
- */
-const _seoToasted = new Set();
-
-function updateSeoForCreate() {
-    if (currentProductId !== null) return;
-
-    const brandSelect = document.getElementById('product-brand');
-    const brandName = brandSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
-    const brand = (brandName && !brandName.startsWith('—')) ? brandName : '';
-
-    const v = (id) => document.getElementById(id)?.value.trim() || '';
-    const nameUa = v('product-name-ua');
-    const nameRu = v('product-name-ru');
-    const variationUa = v('product-variation-ua');
-    const variationRu = v('product-variation-ru');
-
-    // Знайти збіг тригерів по назві товару
-    const activeTulips = matchProductTriggers(nameUa || nameRu);
-    renderSeoChips(activeTulips);
-
-    // Title
-    const seoTitleUa = document.getElementById('product-seo-title-ua');
-    const seoTitleRu = document.getElementById('product-seo-title-ru');
-    const hasTitle = brand || nameUa || nameRu;
-    if (seoTitleUa && hasTitle) seoTitleUa.value = generateSeoTitle(brand, nameUa, variationUa, 'ua');
-    if (seoTitleRu && hasTitle) seoTitleRu.value = generateSeoTitle(brand, nameRu, variationRu, 'ru');
-
-    if (hasTitle && !_seoToasted.has('title')) {
-        _seoToasted.add('title');
-        showToast('SEO Title згенеровано автоматично', 'info');
-    }
-
-    // Keywords (base + trigger keywords)
-    const seoKwUa = document.getElementById('product-seo-keywords-ua');
-    const seoKwRu = document.getElementById('product-seo-keywords-ru');
-    if (seoKwUa) seoKwUa.value = generateSeoKeywords(brand, nameUa, variationUa, activeTulips, 'ua');
-    if (seoKwRu) seoKwRu.value = generateSeoKeywords(brand, nameRu, variationRu, activeTulips, 'ru');
-
-    // Description — з тексту товару
-    const textUa = textEditorUa ? textEditorUa.getPlainText() : '';
-    const textRu = textEditorRu ? textEditorRu.getPlainText() : '';
-    const seoDescUa = document.getElementById('product-seo-desc-ua');
-    const seoDescRu = document.getElementById('product-seo-desc-ru');
-    if (seoDescUa && textUa) seoDescUa.value = generateSeoDescription(textUa, 'ua');
-    if (seoDescRu && textRu) seoDescRu.value = generateSeoDescription(textRu, 'ru');
-
-    if ((textUa || textRu) && !_seoToasted.has('desc')) {
-        _seoToasted.add('desc');
-        showToast('SEO Description згенеровано автоматично', 'info');
-    }
-}
-
-/**
- * Знайти тригери що збігаються з назвою товару
- */
-function matchProductTriggers(productName) {
-    const triggersData = getTriggersData();
-    if (!triggersData.length || !productName) return [];
-    const name = productName.toLowerCase();
-    return triggersData
-        .filter(trigger => trigger.triggers.some(t => {
-            const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            return new RegExp(`\\b${escaped}\\b`, 'i').test(name);
-        }))
-        .map(t => t.title);
-}
-
-/**
- * Показати badge-и з matched triggers (як на index SEO сторінці)
- */
-function renderSeoChips(activeTulips) {
-    const container = document.getElementById('product-seo-triggers');
-    if (!container) return;
-    container.innerHTML = '';
-    if (!activeTulips.length) return;
-
-    const triggersData = getTriggersData();
-    activeTulips.forEach(title => {
-        const triggerData = triggersData.find(t => t.title === title);
-        const badge = document.createElement('div');
-        badge.className = 'badge c-main';
-        badge.textContent = title;
-        if (triggerData?.keywords?.length) {
-            badge.title = triggerData.keywords.join(', ');
-        }
-        container.appendChild(badge);
-    });
-}
+// Re-export name builders for external consumers
+export { buildShortName, buildFullName, buildVariantFullName };
+export { slugify, isProductUrlUnique };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -948,8 +705,9 @@ async function handleSaveProduct(shouldClose = true) {
 
             // Зберегти pending зміни варіантів
             try {
-                const { commitPendingVariantChanges } = await import('./products-crud-variants.js');
-                await commitPendingVariantChanges();
+                const { commitPendingVariantChanges } = await import('./products-crud-variant-pending.js');
+                const { populateProductVariants } = await import('./products-crud-variants.js');
+                await commitPendingVariantChanges(currentProductId, productData, populateProductVariants);
             } catch { /* ignore */ }
 
             showToast('Товар успішно оновлено', 'success');
@@ -961,8 +719,9 @@ async function handleSaveProduct(shouldClose = true) {
             // Зберегти pending варіанти (створені в UI до збереження товару)
             if (currentProductId) {
                 try {
-                    const { commitPendingVariantChanges } = await import('./products-crud-variants.js');
-                    await commitPendingVariantChanges(currentProductId, productData);
+                    const { commitPendingVariantChanges } = await import('./products-crud-variant-pending.js');
+                    const { populateProductVariants } = await import('./products-crud-variants.js');
+                    await commitPendingVariantChanges(currentProductId, productData, populateProductVariants);
                 } catch (err) {
                     console.error('Помилка збереження варіантів:', err);
                 }
@@ -1111,8 +870,14 @@ function cleanupProductModal() {
     if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
 
     try {
-        import('./products-crud-variants.js').then(({ discardPendingVariantChanges }) => {
+        import('./products-crud-variant-pending.js').then(({ discardPendingVariantChanges }) => {
             discardPendingVariantChanges();
+        }).catch(() => {});
+    } catch { /* ignore */ }
+
+    try {
+        import('./products-crud-variants.js').then(({ cleanupVariantState }) => {
+            cleanupVariantState();
         }).catch(() => {});
     } catch { /* ignore */ }
 }
