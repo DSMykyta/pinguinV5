@@ -19,13 +19,10 @@ import {
 } from '../../components/actions/actions-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { getCharacteristics, getOptions, loadCharacteristics, loadOptions, getCategories } from '../mapper/mapper-data-own.js';
-import { getBrands } from '../brands/brands-data.js';
-import { getBrandLines } from '../brands/lines-data.js';
+import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { runHook } from './products-plugins.js';
-import { buildShortName, buildFullName, buildVariantFullName } from './products-crud.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { initVariantPhotoSection, setVariantPhotoUrls, getVariantPhotoUrls, clearVariantPhotos } from './products-crud-variant-photos.js';
@@ -130,12 +127,24 @@ export async function populateProductVariants(productId) {
     }
 }
 
+function _resolveNameFromChars(variantChars) {
+    if (!variantChars || typeof variantChars !== 'object') return '';
+    const allOptions = getOptions();
+    const parts = [];
+    for (const optionId of Object.values(variantChars)) {
+        if (!optionId) continue;
+        const opt = allOptions.find(o => o.id === optionId);
+        if (opt?.value_ua) parts.push(opt.value_ua);
+    }
+    return parts.join(', ');
+}
+
 function _buildExistingVariantRowHTML(v, productName) {
     const vid = v.variant_id;
     const priceDisplay = v.price ? `${escapeHtml(v.price)} UAH` : '—';
     const oldPriceDisplay = v.old_price ? `${escapeHtml(v.old_price)} UAH` : '—';
     const stockDisplay = v.stock || '0';
-    const variantName = v.name_ua || '';
+    const variantName = v.name_ua || _resolveNameFromChars(v.variant_chars);
 
     return `
     <div class="pseudo-table-row" data-variant-id="${escapeHtml(vid)}">
@@ -731,6 +740,27 @@ function getSpecFieldValue(lang) {
  * Зібрати дані характеристик варіанту
  * @returns {Object} { char_id: value }
  */
+function resolveVariantName() {
+    const container = document.getElementById('variant-characteristics-container');
+    if (!container) return { ua: '', ru: '' };
+
+    const allOptions = getOptions();
+    const parts_ua = [];
+    const parts_ru = [];
+
+    container.querySelectorAll('select[data-vchar-id]').forEach(select => {
+        const val = select.value;
+        if (!val) return;
+        const opt = allOptions.find(o => o.id === val);
+        if (opt) {
+            if (opt.value_ua) parts_ua.push(opt.value_ua);
+            if (opt.value_ru) parts_ru.push(opt.value_ru);
+        }
+    });
+
+    return { ua: parts_ua.join(', '), ru: parts_ru.join(', ') };
+}
+
 function getVariantCharsData() {
     const container = document.getElementById('variant-characteristics-container');
     if (!container) return {};
@@ -777,31 +807,15 @@ function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu) {
     const product = getProductById(productId);
     if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
 
-    // Бренд і лінійка (назви, не ID)
-    const brands = getBrands();
-    const lines = getBrandLines();
-    const brand = brands.find(b => b.brand_id === product.brand_id);
-    const line = lines.find(l => l.line_id === product.line_id);
-    const brandName = brand?.name_uk || '';
-    const lineName = line?.name_uk || '';
+    const pShortUa = product.generated_short_ua || '';
+    const pShortRu = product.generated_short_ru || '';
+    const pFullUa = product.generated_full_ua || '';
+    const pFullRu = product.generated_full_ru || '';
 
-    // Категорія — fallback для text_before
-    const categories = getCategories();
-    const cat = categories.find(c => c.id === product.category_id);
-    const catName = cat?.name_ua || '';
-    const prefixUa = product.text_before_ua || catName;
-    const prefixRu = product.text_before_ru || catName;
-
-    // Коротка варіанту: [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація] - [Варіант]
-    const productShortUa = buildShortName(brandName, lineName, product.name_ua, product.label_ua, product.detail_ua, product.variation_ua);
-    const productShortRu = buildShortName(brandName, lineName, product.name_ru, product.label_ru, product.detail_ru, product.variation_ru);
-
-    const shortUa = variantNameUa ? (productShortUa ? `${productShortUa} - ${variantNameUa}` : variantNameUa) : productShortUa;
-    const shortRu = variantNameRu ? (productShortRu ? `${productShortRu} - ${variantNameRu}` : variantNameRu) : productShortRu;
-
-    // Повна варіанту: [Текст перед / Категорія] + коротка + [Текст після]
-    const fullUa = buildFullName(prefixUa, shortUa, product.text_after_ua);
-    const fullRu = buildFullName(prefixRu, shortRu, product.text_after_ru);
+    const shortUa = variantNameUa ? (pShortUa ? `${pShortUa} - ${variantNameUa}` : variantNameUa) : pShortUa;
+    const shortRu = variantNameRu ? (pShortRu ? `${pShortRu} - ${variantNameRu}` : variantNameRu) : pShortRu;
+    const fullUa = variantNameUa ? (pFullUa ? `${pFullUa} - ${variantNameUa}` : variantNameUa) : pFullUa;
+    const fullRu = variantNameRu ? (pFullRu ? `${pFullRu} - ${variantNameRu}` : variantNameRu) : pFullRu;
 
     return {
         generated_short_ua: shortUa,
