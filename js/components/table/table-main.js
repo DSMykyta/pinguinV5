@@ -58,6 +58,7 @@ const PLUGINS = [
     './table-sorting.js',
     './table-filters.js',
     './table-checkboxes.js',
+    './table-expandable.js',
 ];
 
 // Import for internal use
@@ -66,6 +67,7 @@ import { TableCore } from './table-core.js';
 import { init as initSorting } from './table-sorting.js';
 import { init as initFilters } from './table-filters.js';
 import { init as initCheckboxes } from './table-checkboxes.js';
+import { init as initExpandable } from './table-expandable.js';
 
 /**
  * Створити таблицю з LEGO архітектурою
@@ -156,6 +158,13 @@ export function createTable(container, config = {}) {
         const checkboxesConfig = typeof plugins.checkboxes === 'object' ? plugins.checkboxes : {};
         pluginInstances.checkboxes = initCheckboxes(tableCore, state, checkboxesConfig);
         tableCore.plugins.push(pluginInstances.checkboxes);
+    }
+
+    // Expandable plugin
+    if (plugins.expandable) {
+        const expandableConfig = typeof plugins.expandable === 'object' ? plugins.expandable : {};
+        pluginInstances.expandable = initExpandable(tableCore, state, expandableConfig);
+        tableCore.plugins.push(pluginInstances.expandable);
     }
 
     // 4. Підключаємо кастомні плагіни

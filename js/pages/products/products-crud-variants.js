@@ -17,6 +17,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
@@ -26,6 +27,7 @@ import { runHook } from './products-plugins.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { initVariantPhotoSection, setVariantPhotoUrls, getVariantPhotoUrls, clearVariantPhotos } from './products-crud-variant-photos.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -37,6 +39,14 @@ let _currentVariantId = null;
 // Pending variants (до збереження товару)
 let _pendingVariants = [];
 let _pendingCounter = 0;
+
+// Managed table (existing variants)
+let _variantsManagedTable = null;
+let _actionCleanup = null;
+
+// Managed table (pending variants — new product accordion)
+let _pendingManagedTable = null;
+let _pendingActionCleanup = null;
 
 // Editors
 let _compNotesEditorUa = null;
@@ -54,6 +64,16 @@ export function initVariantsSection(getProductIdFn) {
     _getCurrentProductId = getProductIdFn;
     _pendingVariants = [];
     _pendingCounter = 0;
+
+    // Reset pending managed table from previous session
+    if (_pendingManagedTable) {
+        _pendingManagedTable.destroy?.();
+        _pendingManagedTable = null;
+    }
+    if (_pendingActionCleanup) {
+        _pendingActionCleanup();
+        _pendingActionCleanup = null;
+    }
 
     const addBtn = document.getElementById('btn-add-product-variant');
     if (addBtn) {
@@ -94,8 +114,30 @@ registerActionHandlers('product-variants', {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PSEUDO-TABLE (єдина система для нових і існуючих товарів)
+// MANAGED TABLE (єдина система для існуючих варіантів)
 // ═══════════════════════════════════════════════════════════════════════════
+
+function _resolveNameFromChars(variantChars) {
+    if (!variantChars || typeof variantChars !== 'object') return '';
+    const allOptions = getOptions();
+    const parts = [];
+    for (const optionId of Object.values(variantChars)) {
+        if (!optionId) continue;
+        const opt = allOptions.find(o => o.id === optionId);
+        if (opt?.value_ua) parts.push(opt.value_ua);
+    }
+    return parts.join(', ');
+}
+
+function _getVariantColumns() {
+    return [
+        col('product_name', 'Назва', 'text', { span: 3 }),
+        col('variant_display', 'Варіант', 'text', { span: 2 }),
+        col('price', 'Ціна', 'text', { span: 2, align: 'center' }),
+        col('old_price', 'Стара ціна', 'text', { span: 2, align: 'center' }),
+        col('stock', 'Кількість', 'text', { span: 1, align: 'center' }),
+    ];
+}
 
 /**
  * Заповнити таблицю варіантів для існуючого товару
@@ -114,12 +156,64 @@ export async function populateProductVariants(productId) {
     const product = getProductById(productId);
     const productName = product?.generated_short_ua || '';
 
-    const headerHTML = _buildTableHeaderHTML();
+    // Transform data for table
+    const tableData = variants.map(v => ({
+        ...v,
+        product_name: productName,
+        variant_display: v.name_ua || _resolveNameFromChars(v.variant_chars),
+    }));
 
-    const rowsHTML = variants.map(v => _buildExistingVariantRowHTML(v, productName)).join('');
+    if (_variantsManagedTable) {
+        _variantsManagedTable.updateData(tableData);
+    } else {
+        _variantsManagedTable = createManagedTable({
+            container: 'product-variants-container',
+            columns: _getVariantColumns().map(c => ({
+                ...c,
+                searchable: ['product_name', 'variant_display'].includes(c.id),
+                checked: true,
+            })),
+            data: tableData,
+            tableConfig: {
+                rowActionsHeader: ' ',
+                rowActions: (row) => `
+                    <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                `,
+                getRowId: (row) => row.variant_id,
+                emptyState: { message: 'Варіанти не знайдено' },
+                withContainer: false,
+                onAfterRender: (cont) => {
+                    if (_actionCleanup) _actionCleanup();
+                    _actionCleanup = initActionHandlers(cont, 'product-variants');
+                },
+                plugins: {
+                    sorting: {
+                        columnTypes: {
+                            product_name: 'string',
+                            variant_display: 'string',
+                            price: 'number',
+                            old_price: 'number',
+                            stock: 'number',
+                        }
+                    },
+                    expandable: {
+                        renderContent: (row) => _buildExpandContent(row),
+                        onExpand: (rowEl, row) => _onVariantExpand(rowEl, row),
+                        onSave: (rowEl, row) => _handleRowSave(rowEl),
+                    }
+                }
+            },
+            pageSize: null,
+            checkboxPrefix: 'product-variants'
+        });
 
-    container.innerHTML = headerHTML + rowsHTML;
-    _initAccordionEvents(container);
+        initColumnsCharm();
+    }
 
     // Render block 8 characteristics for each existing variant
     if (product?.category_id) {
@@ -127,50 +221,23 @@ export async function populateProductVariants(productId) {
     }
 }
 
-function _resolveNameFromChars(variantChars) {
-    if (!variantChars || typeof variantChars !== 'object') return '';
-    const allOptions = getOptions();
-    const parts = [];
-    for (const optionId of Object.values(variantChars)) {
-        if (!optionId) continue;
-        const opt = allOptions.find(o => o.id === optionId);
-        if (opt?.value_ua) parts.push(opt.value_ua);
-    }
-    return parts.join(', ');
+function _buildExpandContent(row) {
+    const id = row.variant_id || row._pendingId;
+    return `
+        <div class="grid" style="padding: 12px 16px;">
+            ${_buildVariantFieldsHTML(id, row)}
+        </div>
+        <div class="separator-h"></div>
+        <div id="${id}-chars-container" style="padding: 0 16px 12px;"></div>
+    `;
 }
 
-function _buildExistingVariantRowHTML(v, productName) {
-    const vid = v.variant_id;
-    const priceDisplay = v.price ? `${escapeHtml(v.price)} UAH` : '—';
-    const oldPriceDisplay = v.old_price ? `${escapeHtml(v.old_price)} UAH` : '—';
-    const stockDisplay = v.stock || '0';
-    const variantName = v.name_ua || _resolveNameFromChars(v.variant_chars);
-
-    return `
-    <div class="pseudo-table-row" data-variant-id="${escapeHtml(vid)}">
-        <div class="pseudo-table-cell col-1">
-            <input type="checkbox" data-role="va-checkbox">
-            <button type="button" class="btn-icon" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
-            <button type="button" class="btn-icon u-hidden" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
-        </div>
-        <div class="pseudo-table-cell col-3" data-display="name">${escapeHtml(productName)}</div>
-        <div class="pseudo-table-cell col-2" data-display="variant">${escapeHtml(variantName)}</div>
-        <div class="pseudo-table-cell col-2 cell-align-center" data-display="price"><span class="tag c-secondary">${priceDisplay}</span></div>
-        <div class="pseudo-table-cell col-2 cell-align-center" data-display="old_price"><span class="tag c-secondary">${oldPriceDisplay}</span></div>
-        <div class="pseudo-table-cell col-1 cell-align-center" data-display="stock"><span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span></div>
-        <div class="pseudo-table-cell col-1 cell-align-end">
-            <button type="button" class="btn-icon u-hidden" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <div class="u-reveal">
-            <div>
-                <div class="grid" style="padding: 12px 16px;">
-                    ${_buildVariantFieldsHTML(vid, v)}
-                </div>
-                <div class="separator-h"></div>
-                <div id="${vid}-chars-container" style="padding: 0 16px 12px;"></div>
-            </div>
-        </div>
-    </div>`;
+function _onVariantExpand(rowEl, row) {
+    const id = row.variant_id || row._pendingId;
+    const charsContainer = document.getElementById(`${id}-chars-container`);
+    if (charsContainer) {
+        initCustomSelects(charsContainer);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -922,7 +989,17 @@ function _addPendingVariant(data) {
 function _removePendingVariant(pendingId) {
     _syncAccordionFormToState();
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
-    _renderPendingAccordion();
+
+    if (_pendingManagedTable && _pendingVariants.length > 0) {
+        const productName = _getProductDisplayName();
+        _pendingManagedTable.updateData(_pendingVariants.map(pv => ({
+            ...pv,
+            product_name: productName,
+            variant_display: pv.name_ua || '',
+        })));
+    } else {
+        _renderPendingAccordion();
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -934,18 +1011,6 @@ function _getProductDisplayName() {
     return shortUa?.value?.trim() || '';
 }
 
-function _buildTableHeaderHTML() {
-    return `
-        <div class="pseudo-table-header">
-            <div class="pseudo-table-cell col-1"></div>
-            <div class="pseudo-table-cell col-3">Назва</div>
-            <div class="pseudo-table-cell col-2">Варіант</div>
-            <div class="pseudo-table-cell col-2 cell-align-center">Ціна</div>
-            <div class="pseudo-table-cell col-2 cell-align-center">Стара ціна</div>
-            <div class="pseudo-table-cell col-1 cell-align-center">Кількість</div>
-            <div class="pseudo-table-cell col-1"></div>
-        </div>`;
-}
 
 function _renderPendingAccordion() {
     const accordion = document.getElementById('product-variants-accordion');
@@ -957,52 +1022,73 @@ function _renderPendingAccordion() {
     if (table) table.style.display = 'none';
 
     const productName = _getProductDisplayName();
-    const headerHTML = _buildTableHeaderHTML();
 
-    const rowsHTML = _pendingVariants.map((pv, i) =>
-        _buildAccordionItemHTML(pv, i, productName)
-    ).join('');
+    const tableData = _pendingVariants.map(pv => ({
+        ...pv,
+        product_name: productName,
+        variant_display: pv.name_ua || '',
+    }));
 
-    accordion.innerHTML = headerHTML + rowsHTML;
+    if (_pendingManagedTable) {
+        _pendingManagedTable.updateData(tableData);
+    } else {
+        _pendingManagedTable = createManagedTable({
+            container: 'product-variants-accordion',
+            columns: _getVariantColumns().map(c => ({
+                ...c,
+                searchable: false,
+                checked: true,
+            })),
+            data: tableData,
+            tableConfig: {
+                rowActionsHeader: ' ',
+                rowActions: (row) => `
+                    <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                    ${actionButton({ action: 'delete', rowId: row._pendingId })}
+                `,
+                getRowId: (row) => row._pendingId,
+                emptyState: { message: 'Додайте варіант' },
+                withContainer: false,
+                onAfterRender: (cont) => {
+                    if (_pendingActionCleanup) _pendingActionCleanup();
+                    _pendingActionCleanup = initActionHandlers(cont, 'product-variants');
+                },
+                plugins: {
+                    expandable: {
+                        renderContent: (row) => _buildExpandContent(row),
+                        onExpand: (rowEl, row) => _onVariantExpand(rowEl, row),
+                        onSave: (rowEl, row) => _onPendingVariantSave(rowEl, row),
+                    }
+                }
+            },
+            pageSize: null,
+        });
+    }
 
-    _initAccordionEvents(accordion);
+    // Auto-expand first row if only one variant
+    if (_pendingVariants.length === 1) {
+        const firstRow = accordion.querySelector('.pseudo-table-row');
+        const expandBtn = firstRow?.querySelector('[data-action="expand-edit"]');
+        if (expandBtn) expandBtn.click();
+    }
+
+    // Render characteristics for pending variants if category is selected
+    const categoryId = document.getElementById('product-category')?.value;
+    if (categoryId) renderPendingVariantCharacteristics(categoryId);
 }
 
-function _buildAccordionItemHTML(pv, index, productName) {
-    const pid = pv._pendingId;
-    const isFirst = index === 0 && _pendingVariants.length === 1;
-    const openClass = isFirst ? 'is-open' : '';
-
-    const priceDisplay = pv.price ? `${escapeHtml(pv.price)} UAH` : '—';
-    const oldPriceDisplay = pv.old_price ? `${escapeHtml(pv.old_price)} UAH` : '—';
-    const stockDisplay = pv.stock || '0';
-    const variantName = pv.name_ua || '';
-
-    return `
-    <div class="pseudo-table-row" data-pending-id="${escapeHtml(pid)}">
-        <div class="pseudo-table-cell col-1">
-            <input type="checkbox" data-role="va-checkbox" ${isFirst ? 'class="u-hidden"' : ''}>
-            <button type="button" class="btn-icon ${isFirst ? 'u-hidden' : ''}" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
-            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
-        </div>
-        <div class="pseudo-table-cell col-3" data-display="name">${escapeHtml(productName || '')}</div>
-        <div class="pseudo-table-cell col-2" data-display="variant">${escapeHtml(variantName)}</div>
-        <div class="pseudo-table-cell col-2 cell-align-center" data-display="price"><span class="tag c-secondary">${priceDisplay}</span></div>
-        <div class="pseudo-table-cell col-2 cell-align-center" data-display="old_price"><span class="tag c-secondary">${oldPriceDisplay}</span></div>
-        <div class="pseudo-table-cell col-1 cell-align-center" data-display="stock"><span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span></div>
-        <div class="pseudo-table-cell col-1 cell-align-end">
-            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <div class="u-reveal ${openClass}">
-            <div>
-                <div class="grid" style="padding: 12px 16px;">
-                    ${_buildVariantFieldsHTML(pid, pv)}
-                </div>
-                <div class="separator-h"></div>
-                <div id="${pid}-chars-container" style="padding: 0 16px 12px;"></div>
-            </div>
-        </div>
-    </div>`;
+function _onPendingVariantSave(rowEl, row) {
+    const pv = _pendingVariants.find(v => v._pendingId === row._pendingId);
+    if (pv) _syncSingleRowToState(rowEl, pv);
+    showToast('Дані варіанту збережено', 'info');
 }
 
 function _buildVariantFieldsHTML(pid, pv) {
@@ -1051,63 +1137,8 @@ function _buildVariantFieldsHTML(pid, pv) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACCORDION EVENTS (pseudo-table toggle)
+// INLINE SAVE (expandable plugin callback)
 // ═══════════════════════════════════════════════════════════════════════════
-
-function _initAccordionEvents(container) {
-    container.addEventListener('click', (e) => {
-        const row = e.target.closest('.pseudo-table-row');
-        if (!row) return;
-
-        // Edit → open reveal
-        if (e.target.closest('[data-action="va-edit"]')) {
-            _toggleVariantRow(row, true);
-            return;
-        }
-
-        // Save → sync form + close reveal (API for existing, state for pending)
-        if (e.target.closest('[data-action="va-save"]')) {
-            _handleRowSave(row);
-            return;
-        }
-
-        // Close → discard and close reveal
-        if (e.target.closest('[data-action="va-close"]')) {
-            _toggleVariantRow(row, false);
-            return;
-        }
-
-        // Delete pending variant
-        const deleteBtn = e.target.closest('[data-action="delete-pending"]');
-        if (deleteBtn) {
-            e.stopPropagation();
-            _removePendingVariant(row.dataset.pendingId);
-            return;
-        }
-    });
-}
-
-function _toggleVariantRow(row, open) {
-    const checkbox = row.querySelector('[data-role="va-checkbox"]');
-    const saveBtn = row.querySelector('[data-action="va-save"]');
-    const editBtn = row.querySelector('[data-action="va-edit"]');
-    const closeBtn = row.querySelector('[data-action="va-close"]');
-    const body = row.querySelector('.u-reveal');
-
-    if (open) {
-        checkbox?.classList.add('u-hidden');
-        saveBtn?.classList.remove('u-hidden');
-        editBtn?.classList.add('u-hidden');
-        closeBtn?.classList.remove('u-hidden');
-        body?.classList.add('is-open');
-    } else {
-        checkbox?.classList.remove('u-hidden');
-        saveBtn?.classList.add('u-hidden');
-        editBtn?.classList.remove('u-hidden');
-        closeBtn?.classList.add('u-hidden');
-        body?.classList.remove('is-open');
-    }
-}
 
 /** Read form fields from row into an object */
 function _readRowFormValues(row) {
@@ -1115,8 +1146,7 @@ function _readRowFormValues(row) {
     row.querySelectorAll('[data-field]').forEach(el => {
         data[el.dataset.field] = el.value.trim();
     });
-    // Variant chars from chars-container
-    const rowId = row.dataset.pendingId || row.dataset.variantId;
+    const rowId = row.dataset.rowId;
     const charsContainer = document.getElementById(`${rowId}-chars-container`);
     if (charsContainer) {
         const chars = {};
@@ -1127,7 +1157,6 @@ function _readRowFormValues(row) {
             if (select.value) chars[select.dataset.vcharId] = select.value;
         });
         data.variant_chars = chars;
-        // Spec fields
         const specUa = charsContainer.querySelector('input[data-spec-field="ua"]');
         const specRu = charsContainer.querySelector('input[data-spec-field="ru"]');
         if (specUa) data.spec_ua = specUa.value.trim();
@@ -1136,48 +1165,23 @@ function _readRowFormValues(row) {
     return data;
 }
 
-/** Update display cells from data */
-function _updateRowDisplayCells(row, data) {
-    const priceDisplay = data.price ? `${escapeHtml(data.price)} UAH` : '—';
-    const oldPriceDisplay = data.old_price ? `${escapeHtml(data.old_price)} UAH` : '—';
-    const stockDisplay = data.stock || '0';
+/** Handle save for existing variant row (expandable onSave callback) */
+async function _handleRowSave(rowEl) {
+    const variantId = rowEl.dataset.rowId;
+    if (!variantId) return;
 
-    const priceCell = row.querySelector('[data-display="price"]');
-    const oldPriceCell = row.querySelector('[data-display="old_price"]');
-    const stockCell = row.querySelector('[data-display="stock"]');
+    const formData = _readRowFormValues(rowEl);
 
-    if (priceCell) priceCell.innerHTML = `<span class="tag c-secondary">${priceDisplay}</span>`;
-    if (oldPriceCell) oldPriceCell.innerHTML = `<span class="tag c-secondary">${oldPriceDisplay}</span>`;
-    if (stockCell) stockCell.innerHTML = `<span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span>`;
-}
+    try {
+        await updateProductVariant(variantId, formData);
+        showToast('Варіант оновлено', 'success');
 
-/** Handle save for both pending and existing variant rows */
-async function _handleRowSave(row) {
-    const variantId = row.dataset.variantId;
-    const pendingId = row.dataset.pendingId;
-    const formData = _readRowFormValues(row);
-
-    if (variantId) {
-        // Existing variant → API update
-        try {
-            await updateProductVariant(variantId, formData);
-            _updateRowDisplayCells(row, formData);
-            _toggleVariantRow(row, false);
-            showToast('Варіант оновлено', 'success');
-        } catch (error) {
-            console.error('Помилка збереження варіанту:', error);
-            showToast('Помилка збереження варіанту', 'error');
-        }
-    } else if (pendingId) {
-        // Pending variant → sync to state
-        const pv = _pendingVariants.find(v => v._pendingId === pendingId);
-        if (pv) {
-            Object.assign(pv, formData);
-            _updateRowDisplayCells(row, pv);
-            const nameCell = row.querySelector('[data-display="name"]');
-            if (nameCell) nameCell.textContent = _getProductDisplayName();
-        }
-        _toggleVariantRow(row, false);
+        // Re-populate to refresh table data
+        const productId = _getCurrentProductId?.();
+        if (productId) populateProductVariants(productId);
+    } catch (error) {
+        console.error('Помилка збереження варіанту:', error);
+        showToast('Помилка збереження варіанту', 'error');
     }
 }
 
@@ -1191,8 +1195,10 @@ function _syncSingleRowToState(row, pv) {
 }
 
 function _syncAccordionFormToState() {
+    const accordion = document.getElementById('product-variants-accordion');
+    if (!accordion) return;
     for (const pv of _pendingVariants) {
-        const row = document.querySelector(`.pseudo-table-row[data-pending-id="${pv._pendingId}"]`);
+        const row = accordion.querySelector(`.pseudo-table-row[data-row-id="${pv._pendingId}"]`);
         if (!row) continue;
         _syncSingleRowToState(row, pv);
     }
@@ -1303,14 +1309,14 @@ export async function commitPendingVariantChanges(productId, productData) {
     if (_pendingVariants.length === 0) return;
 
     for (const pv of _pendingVariants) {
+        // Resolve variant name: spec_ua → char option name → ''
+        const variantNameUa = pv.spec_ua || _resolveNameFromChars(pv.variant_chars) || '';
+        const genNames = computeVariantGeneratedNames(productId, variantNameUa, '');
+
         await addProductVariant({
             product_id: productId,
-            name_ua: productData?.generated_short_ua || '',
-            name_ru: productData?.generated_short_ru || '',
-            generated_short_ua: productData?.generated_short_ua || '',
-            generated_short_ru: productData?.generated_short_ru || '',
-            generated_full_ua: productData?.generated_full_ua || '',
-            generated_full_ru: productData?.generated_full_ru || '',
+            name_ua: variantNameUa,
+            ...genNames,
             sku: pv.sku || '',
             barcode: pv.barcode || '',
             price: pv.price || '',
@@ -1325,10 +1331,20 @@ export async function commitPendingVariantChanges(productId, productData) {
     _pendingVariants = [];
     _pendingCounter = 0;
 
+    // Destroy pending managed table
+    if (_pendingManagedTable) {
+        _pendingManagedTable.destroy?.();
+        _pendingManagedTable = null;
+    }
+    if (_pendingActionCleanup) {
+        _pendingActionCleanup();
+        _pendingActionCleanup = null;
+    }
+
     // Hide accordion, show table
     const accordion = document.getElementById('product-variants-accordion');
     const table = document.getElementById('product-variants-container');
-    if (accordion) accordion.style.display = 'none';
+    if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
     if (table) table.style.display = '';
 
     populateProductVariants(productId);
@@ -1344,6 +1360,22 @@ export function discardPendingVariantChanges() {
 
     destroyVariantEditors();
     clearVariantPhotos();
+
+    // Destroy managed tables
+    if (_pendingManagedTable) {
+        _pendingManagedTable.destroy?.();
+        _pendingManagedTable = null;
+    }
+    if (_pendingActionCleanup) {
+        _pendingActionCleanup();
+        _pendingActionCleanup = null;
+    }
+    if (_variantsManagedTable) {
+        _variantsManagedTable = null; // DOM destroyed with modal
+    }
+    if (_actionCleanup) {
+        _actionCleanup = null;
+    }
 
     // Clean up accordion
     const accordion = document.getElementById('product-variants-accordion');
