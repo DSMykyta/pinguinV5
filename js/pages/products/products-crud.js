@@ -1093,11 +1093,6 @@ export function init(state) {
 function cleanupProductModal() {
     currentProductId = null;
 
-    if (_sectionObserver) {
-        _sectionObserver.disconnect();
-        _sectionObserver = null;
-    }
-
     if (compCodeEditorUa) { compCodeEditorUa.destroy(); compCodeEditorUa = null; }
     if (compCodeEditorRu) { compCodeEditorRu.destroy(); compCodeEditorRu = null; }
     if (compNotesEditorUa) { compNotesEditorUa.destroy(); compNotesEditorUa = null; }
