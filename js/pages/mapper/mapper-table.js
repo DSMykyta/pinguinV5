@@ -471,7 +471,7 @@ export function getCharacteristicsColumns() {
         { ...col('name_ua', 'Назва', 'name'), searchable: true },
         { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true },
         col('is_global', 'Глобальна', 'status-dot', { filterable: true }),
-        col('unit', 'Одиниця', 'text'),
+        col('unit', 'Одиниця', 'text', { span: 1, class: 'u-max-80' }),
         createBindingsColumn('characteristic')
     ];
 }

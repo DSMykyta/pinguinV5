@@ -18,6 +18,7 @@
  */
 
 import { findToolbarGroup } from './charm-refresh.js';
+import { initDropdowns } from '../forms/dropdown.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CHARM DISCOVERY
@@ -28,9 +29,15 @@ import { findToolbarGroup } from './charm-refresh.js';
  * @param {HTMLElement|Document} scope
  */
 export function initColumnsCharm(scope = document) {
-    scope.querySelectorAll('.pseudo-table-container[columns]').forEach(container => {
-        if (container._columnsCharmInit) return;
+    const containers = scope.querySelectorAll('.pseudo-table-container[columns]');
+    console.log(`[charm-columns] initColumnsCharm: знайдено ${containers.length} контейнерів`, containers);
+    containers.forEach(container => {
+        if (container._columnsCharmInit) {
+            console.log(`[charm-columns] ⏭ ${container.id} — вже ініціалізовано, пропуск`);
+            return;
+        }
         container._columnsCharmInit = true;
+        console.log(`[charm-columns] ▶ ініціалізація ${container.id}`);
         setupColumnsDropdown(container);
     });
 }
@@ -41,7 +48,11 @@ export function initColumnsCharm(scope = document) {
 
 function setupColumnsDropdown(container) {
     const group = findToolbarGroup(container);
-    if (!group) return;
+    if (!group) {
+        console.warn(`[charm-columns] ✗ toolbar group не знайдено для ${container.id}`);
+        return;
+    }
+    console.log(`[charm-columns] ✓ toolbar group знайдено для ${container.id}`, group);
 
     const wrapper = document.createElement('div');
     wrapper.className = 'dropdown-wrapper';
@@ -68,4 +79,8 @@ function setupColumnsDropdown(container) {
     group.appendChild(wrapper);
 
     container._charmColumnsListId = body.id;
+
+    // Ініціалізувати dropdown (бо він створений динамічно після initDropdowns)
+    initDropdowns(wrapper);
+    console.log(`[charm-columns] ✓ dropdown створено та ініціалізовано для ${container.id}, listId=${body.id}`);
 }
