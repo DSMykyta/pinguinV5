@@ -28,12 +28,15 @@
  * AE: seo_keywords_ua | AF: seo_keywords_ru
  * AG: status | AH: created_at | AI: updated_at
  *
- * СТРУКТУРА КОЛОНОК ProductVariants (Google Sheets):  A:Q (17 колонок)
+ * СТРУКТУРА КОЛОНОК ProductVariants (Google Sheets):  A:V (22 колонки)
  * A: variant_id | B: product_id | C: sku | D: name_ua | E: name_ru
- * F: generated_short_ua | G: generated_short_ru
- * H: generated_full_ua | I: generated_full_ru
- * J: price | K: barcode | L: weight | M: stock
- * N: variant_chars | O: image_url | P: status | Q: created_at
+ * F: spec_ua | G: spec_ru
+ * H: generated_short_ua | I: generated_short_ru
+ * J: generated_full_ua | K: generated_full_ru
+ * L: price | M: old_price | N: barcode | O: weight | P: stock
+ * Q: variant_chars | R: image_url
+ * S: composition_notes_ua | T: composition_notes_ru
+ * U: status | V: created_at
  */
 
 /**
