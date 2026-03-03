@@ -150,7 +150,7 @@ async function initModalComponents() {
     try {
         const { initVariantsSection } = await import('./products-crud-variants.js');
         initVariantsSection(() => currentProductId);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[products-crud] initVariantsSection error:', err); }
 }
 
 /**
