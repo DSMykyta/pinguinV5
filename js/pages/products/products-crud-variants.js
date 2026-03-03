@@ -771,14 +771,16 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
             break;
     }
 
-    // Companion spec field — уточнення для кожної характеристики
+    // Companion spec field — уточнення (не для батьківських характеристик)
     // spec_ua/spec_ru зберігаються як JSON { char_id: "value" }
+    const isParentChar = parentChildMap && [...parentChildMap.values()].includes(char.id);
+
     const specUaObj = variantData?._parsedSpecUa || {};
     const specRuObj = variantData?._parsedSpecRu || {};
     const specUaVal = specUaObj[char.id] || '';
     const specRuVal = specRuObj[char.id] || '';
 
-    const companionHtml = `
+    const companionHtml = isParentChar ? '' : `
         <div class="group column col-4" data-spec-for="${char.id}">
             <label class="label-l">Уточнення ${label}</label>
             <div class="content-bloc-container">
