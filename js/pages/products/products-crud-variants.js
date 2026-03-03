@@ -204,17 +204,7 @@ export async function populateProductVariants(productId) {
             data: tableData,
             tableConfig: {
                 rowActionsHeader: ' ',
-                rowActions: (row) => `
-                    <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
-                        <span class="material-symbols-outlined">save</span>
-                    </button>
-                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                `,
+                rowActions: () => '',
                 getRowId: (row) => row.variant_id,
                 emptyState: { message: 'Варіанти не знайдено' },
                 withContainer: false,
@@ -1115,18 +1105,7 @@ function _renderPendingAccordion() {
             data: tableData,
             tableConfig: {
                 rowActionsHeader: ' ',
-                rowActions: (row) => `
-                    <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
-                        <span class="material-symbols-outlined">save</span>
-                    </button>
-                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                    ${actionButton({ action: 'delete', rowId: row._pendingId })}
-                `,
+                rowActions: (row) => actionButton({ action: 'delete', rowId: row._pendingId }),
                 getRowId: (row) => row._pendingId,
                 emptyState: { message: 'Додайте варіант' },
                 withContainer: false,

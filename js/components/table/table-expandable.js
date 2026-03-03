@@ -4,11 +4,12 @@
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║                    TABLE LEGO - EXPANDABLE ROWS PLUGIN                  ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
- * ║  🔌 ПЛАГІН — Рядки що розкриваються (u-reveal)                          ║
+ * ║  ПЛАГІН — Рядки що розкриваються (u-reveal)                            ║
  * ║                                                                          ║
  * ║  ПРИЗНАЧЕННЯ:                                                            ║
  * ║  Додає u-reveal блок до кожного рядка таблиці.                          ║
  * ║  Контент розкриття генерується зовнішньою функцією.                     ║
+ * ║  Кнопки (edit/save/close) рендеряться плагіном автоматично.            ║
  * ║                                                                          ║
  * ║  КОНФІГ:                                                                 ║
  * ║  expandable: {                                                           ║
@@ -18,10 +19,10 @@
  * ║      onSave: (rowEl, row) => {},    // callback при збереженні            ║
  * ║  }                                                                       ║
  * ║                                                                          ║
- * ║  ROW ACTIONS:                                                            ║
- * ║  data-action="expand-edit"  — розкрити                                   ║
- * ║  data-action="expand-save"  — зберегти (dispatch onSave)                 ║
- * ║  data-action="expand-close" — згорнути                                   ║
+ * ║  СТАН КНОПОК (автоматично):                                             ║
+ * ║  Закрито: [checkbox] [edit]           — rowActions колонка               ║
+ * ║  Відкрито: [save]                     — rowActions колонка               ║
+ * ║            [close]                    — кінець u-reveal блоку            ║
  * ║                                                                          ║
  * ║  CSS:                                                                    ║
  * ║  Використовує .u-reveal + .is-open з helpers.css                        ║
@@ -51,13 +52,12 @@ class ExpandablePlugin {
     }
 
     /**
-     * Інжектити u-reveal в кожен рядок після рендеру
+     * Інжектити кнопки в rowActions + u-reveal в кожен рядок після рендеру
      */
     injectRevealBlocks() {
         const container = this.table.getContainer();
         if (!container || !this.config.renderContent) return;
 
-        // Видаляємо старий обробник
         if (this.clickHandler) {
             container.removeEventListener('click', this.clickHandler);
         }
@@ -66,23 +66,43 @@ class ExpandablePlugin {
         const data = this.table.getData();
 
         rows.forEach((rowEl, index) => {
-            // Не дублювати
             if (rowEl.querySelector('.u-reveal')) return;
 
             const rowId = rowEl.dataset.rowId;
             const rowData = data.find(r => String(this.table.config.getRowId(r)) === String(rowId)) || data[index];
             if (!rowData) return;
 
+            // Інжектимо edit/save кнопки в rowActions
+            const actionsCell = rowEl.querySelector('.row-actions-cell');
+            if (actionsCell && !actionsCell.querySelector('[data-action="expand-edit"]')) {
+                const btnGroup = document.createElement('span');
+                btnGroup.className = 'expand-actions';
+                btnGroup.innerHTML = `
+                    <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>`;
+                actionsCell.prepend(btnGroup);
+            }
+
             const content = this.config.renderContent(rowData, rowEl);
             if (!content) return;
 
+            // u-reveal з close кнопкою в кінці
             const reveal = document.createElement('div');
             reveal.className = 'u-reveal';
-            reveal.innerHTML = `<div>${content}</div>`;
+            reveal.innerHTML = `
+                <div>${content}</div>
+                <div style="display:flex;justify-content:flex-end;padding:8px 0">
+                    <button class="btn-icon" data-action="expand-close" data-tooltip="Згорнути">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>`;
             rowEl.appendChild(reveal);
         });
 
-        // Event delegation
         this.clickHandler = (e) => this._handleClick(e);
         container.addEventListener('click', this.clickHandler);
     }
@@ -111,14 +131,13 @@ class ExpandablePlugin {
         const reveal = row.querySelector('.u-reveal');
         if (!reveal) return;
 
-        // Toggle button visibility
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const saveBtn = row.querySelector('[data-action="expand-save"]');
-        const closeBtn = row.querySelector('[data-action="expand-close"]');
+        const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
         saveBtn?.classList.remove('u-hidden');
-        closeBtn?.classList.remove('u-hidden');
+        checkbox?.classList.add('u-hidden');
 
         reveal.classList.add('is-open');
 
@@ -134,11 +153,11 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const saveBtn = row.querySelector('[data-action="expand-save"]');
-        const closeBtn = row.querySelector('[data-action="expand-close"]');
+        const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
         saveBtn?.classList.add('u-hidden');
-        closeBtn?.classList.add('u-hidden');
+        checkbox?.classList.remove('u-hidden');
 
         reveal.classList.remove('is-open');
 
