@@ -63,13 +63,23 @@ export function initVariantsSection(getProductIdFn) {
 
     const addBtn = document.getElementById('btn-add-product-variant');
     if (addBtn) {
-        addBtn.onclick = () => showAddVariantModal();
+        addBtn.onclick = () => {
+            const productId = _getCurrentProductId?.();
+            if (!productId) {
+                // Новий товар: зберегти дані з форм → додати → перерендерити
+                _syncAccordionFormToState();
+                _addPendingVariant({ status: 'active' });
+                _renderPendingAccordion();
+            } else {
+                showAddVariantModal();
+            }
+        };
     }
 
     // Новий товар → створити 1 дефолтний pending варіант
     if (!getProductIdFn()) {
-        _addPendingVariant({ name_ua: 'Варіант 1', status: 'active' });
-        _renderPendingVariants();
+        _addPendingVariant({ status: 'active' });
+        _renderPendingAccordion();
     }
 }
 
@@ -109,6 +119,12 @@ function getVariantColumns() {
  * @param {string} productId
  */
 export function populateProductVariants(productId) {
+    // Existing product: show table, hide accordion
+    const accordion = document.getElementById('product-variants-accordion');
+    const tableContainer = document.getElementById('product-variants-container');
+    if (accordion) accordion.style.display = 'none';
+    if (tableContainer) tableContainer.style.display = '';
+
     const variants = getVariantsByProductId(productId);
 
     if (!_variantsManagedTable) {
@@ -877,62 +893,216 @@ async function handleDeleteVariant(variantId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PENDING VARIANTS (до збереження товару)
+// PENDING VARIANTS — ACCORDION SYSTEM
 // ═══════════════════════════════════════════════════════════════════════════
 
 function _addPendingVariant(data) {
     _pendingCounter++;
     _pendingVariants.push({
         _pendingId: `pending-${_pendingCounter}`,
-        variant_id: `pending-${_pendingCounter}`,
-        name_ua: data.name_ua || '',
-        name_ru: data.name_ru || '',
         sku: data.sku || '',
+        barcode: data.barcode || '',
         price: data.price || '',
+        weight: data.weight || '',
         stock: data.stock || '',
         status: data.status || 'active',
+        variant_chars: data.variant_chars || {},
     });
 }
 
 function _removePendingVariant(pendingId) {
+    _syncAccordionFormToState();
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
-    _renderPendingVariants();
+    _renderPendingAccordion();
 }
 
-function _renderPendingVariants() {
-    if (!_variantsManagedTable) {
-        const container = document.getElementById('product-variants-container');
-        if (!container) return;
+// ═══════════════════════════════════════════════════════════════════════════
+// ACCORDION RENDERING
+// ═══════════════════════════════════════════════════════════════════════════
 
-        _variantsManagedTable = createManagedTable({
-            container: 'product-variants-container',
-            columns: getVariantColumns().map(c => ({
-                ...c,
-                searchable: ['variant_id', 'sku', 'name_ua'].includes(c.id),
-                checked: true
-            })),
-            data: _pendingVariants,
-            statsId: null,
-            paginationId: null,
-            tableConfig: {
-                rowActionsHeader: ' ',
-                rowActions: (row) => `
-                    ${actionButton({ action: 'delete', rowId: row._pendingId, context: 'product-variants', icon: 'close' })}
-                `,
-                getRowId: (row) => row._pendingId || row.variant_id,
-                emptyState: { message: 'Варіанти відсутні' },
-                withContainer: false,
-                onAfterRender: (container) => {
-                    if (_actionCleanup) _actionCleanup();
-                    _actionCleanup = initActionHandlers(container, 'product-variants');
-                },
-            },
-            preFilter: null,
-            pageSize: null,
-            checkboxPrefix: 'product-variants'
+function _renderPendingAccordion() {
+    const accordion = document.getElementById('product-variants-accordion');
+    const table = document.getElementById('product-variants-container');
+    if (!accordion) return;
+
+    // Show accordion, hide table
+    accordion.style.display = '';
+    if (table) table.style.display = 'none';
+
+    accordion.innerHTML = _pendingVariants.map((pv, i) =>
+        _buildAccordionItemHTML(pv, i)
+    ).join('');
+
+    _initAccordionEvents(accordion);
+}
+
+function _buildAccordionItemHTML(pv, index) {
+    const pid = pv._pendingId;
+    const isFirst = index === 0;
+    const expandedClass = isFirst ? 'expanded' : '';
+    const bodyClass = isFirst ? 'tree-expanded' : '';
+
+    return `
+    <div class="variant-accordion-item" data-pending-id="${escapeHtml(pid)}">
+        <div class="tree-node-header variant-accordion-header">
+            <div class="tree-expand-icon ${expandedClass}">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+            <span class="tree-node-label">Варіант ${index + 1}</span>
+            <button class="btn-icon" data-action="delete-pending" data-pending-id="${escapeHtml(pid)}" aria-label="Видалити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="tree-node-children ${bodyClass} variant-accordion-body">
+            <div class="grid">
+                ${_buildVariantFieldsHTML(pid, pv)}
+            </div>
+        </div>
+    </div>`;
+}
+
+function _buildVariantFieldsHTML(pid, pv) {
+    return `
+        <div class="group column col-3">
+            <label for="${pid}-sku" class="label-l">SKU</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="text" id="${pid}-sku" data-field="sku" placeholder="Артикул" value="${escapeHtml(pv.sku || '')}">
+            </div></div></div>
+        </div>
+        <div class="group column col-3">
+            <label for="${pid}-barcode" class="label-l">Штрихкод</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
+            </div></div></div>
+        </div>
+        <div class="group column col-3">
+            <label for="${pid}-price" class="label-l">Ціна</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="number" step="0.01" id="${pid}-price" data-field="price" placeholder="0.00" value="${escapeHtml(pv.price || '')}">
+                <span class="tag c-tertiary">UAH</span>
+            </div></div></div>
+        </div>
+        <div class="group column col-3">
+            <label for="${pid}-weight" class="label-l">Вага</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="text" id="${pid}-weight" data-field="weight" placeholder="Вага" value="${escapeHtml(pv.weight || '')}">
+                <span class="tag c-tertiary">г</span>
+            </div></div></div>
+        </div>
+        <div class="group column col-3">
+            <label for="${pid}-stock" class="label-l">Залишок</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="number" step="1" id="${pid}-stock" data-field="stock" placeholder="0" value="${escapeHtml(pv.stock || '')}">
+                <span class="tag c-tertiary">шт</span>
+            </div></div></div>
+        </div>
+        <div class="group column col-12" id="${pid}-chars-container">
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACCORDION EVENTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _initAccordionEvents(container) {
+    container.addEventListener('click', (e) => {
+        // Delete
+        const deleteBtn = e.target.closest('[data-action="delete-pending"]');
+        if (deleteBtn) {
+            e.stopPropagation();
+            _removePendingVariant(deleteBtn.dataset.pendingId);
+            return;
+        }
+
+        // Toggle expand/collapse
+        const header = e.target.closest('.variant-accordion-header');
+        if (!header) return;
+        const item = header.closest('.variant-accordion-item');
+        const body = item.querySelector('.tree-node-children');
+        const icon = header.querySelector('.tree-expand-icon');
+        body.classList.toggle('tree-expanded');
+        icon.classList.toggle('expanded');
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC FORM → STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _syncAccordionFormToState() {
+    for (const pv of _pendingVariants) {
+        const item = document.querySelector(`.variant-accordion-item[data-pending-id="${pv._pendingId}"]`);
+        if (!item) continue;
+
+        pv.sku = item.querySelector('[data-field="sku"]')?.value.trim() || '';
+        pv.barcode = item.querySelector('[data-field="barcode"]')?.value.trim() || '';
+        pv.price = item.querySelector('[data-field="price"]')?.value.trim() || '';
+        pv.weight = item.querySelector('[data-field="weight"]')?.value.trim() || '';
+        pv.stock = item.querySelector('[data-field="stock"]')?.value.trim() || '';
+
+        // Variant chars
+        const charsContainer = document.getElementById(`${pv._pendingId}-chars-container`);
+        if (charsContainer) {
+            const chars = {};
+            charsContainer.querySelectorAll('input[data-vchar-id]').forEach(input => {
+                if (input.value.trim()) chars[input.dataset.vcharId] = input.value.trim();
+            });
+            charsContainer.querySelectorAll('select[data-vchar-id]').forEach(select => {
+                if (select.value) chars[select.dataset.vcharId] = select.value;
+            });
+            pv.variant_chars = chars;
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PENDING VARIANT CHARACTERISTICS (block 8)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Рендерити характеристики варіантів (block 8) для pending accordion items
+ * Викликається при зміні категорії товару
+ */
+export async function renderPendingVariantCharacteristics(categoryId) {
+    if (!categoryId || _pendingVariants.length === 0) return;
+
+    let chars = getCharacteristics();
+    if (chars.length === 0) { await loadCharacteristics(); chars = getCharacteristics(); }
+    let options = getOptions();
+    if (options.length === 0) { await loadOptions(); options = getOptions(); }
+
+    const block8Chars = chars.filter(c => {
+        if (c.block_number !== '8') return false;
+        if (c.is_global === 'TRUE' || c.is_global === true) return true;
+        if (!c.category_ids) return false;
+        return c.category_ids.split(',').map(id => id.trim()).includes(categoryId);
+    });
+
+    block8Chars.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+    const parentChildMap = buildParentChildMap(block8Chars, options);
+
+    for (const pv of _pendingVariants) {
+        const container = document.getElementById(`${pv._pendingId}-chars-container`);
+        if (!container) continue;
+
+        if (block8Chars.length === 0) { container.innerHTML = ''; continue; }
+
+        let html = '<label class="label-l">Характеристики варіанту</label><div class="grid">';
+        block8Chars.forEach(c => {
+            const charOptions = options.filter(o => o.characteristic_id === c.id);
+            charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+            const savedVal = (pv.variant_chars || {})[c.id] || '';
+            const colSize = c.col_size || '4';
+            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, pv);
         });
-    } else {
-        _variantsManagedTable.updateData(_pendingVariants);
+        html += '</div>';
+        container.innerHTML = html;
+
+        initCustomSelects(container);
+        if (parentChildMap.size > 0) {
+            initVariantParentChildListeners(container);
+        }
     }
 }
 
@@ -942,24 +1112,26 @@ function _renderPendingVariants() {
 
 /**
  * Зберегти pending варіанти до БД (після створення товару)
- * @param {string} productId - ID щойно створеного товару
- * @param {Object} productData - дані товару (для генерованих назв)
  */
 export async function commitPendingVariantChanges(productId, productData) {
+    _syncAccordionFormToState();
     if (_pendingVariants.length === 0) return;
 
     for (const pv of _pendingVariants) {
         await addProductVariant({
             product_id: productId,
-            name_ua: pv.name_ua || productData?.generated_short_ua || '',
-            name_ru: pv.name_ru || productData?.generated_short_ru || '',
+            name_ua: productData?.generated_short_ua || '',
+            name_ru: productData?.generated_short_ru || '',
             generated_short_ua: productData?.generated_short_ua || '',
             generated_short_ru: productData?.generated_short_ru || '',
             generated_full_ua: productData?.generated_full_ua || '',
             generated_full_ru: productData?.generated_full_ru || '',
             sku: pv.sku || '',
+            barcode: pv.barcode || '',
             price: pv.price || '',
+            weight: pv.weight || '',
             stock: pv.stock || '',
+            variant_chars: pv.variant_chars || {},
             status: pv.status || productData?.status || 'active',
         });
     }
@@ -967,7 +1139,12 @@ export async function commitPendingVariantChanges(productId, productData) {
     _pendingVariants = [];
     _pendingCounter = 0;
 
-    // Перерендерити таблицю з реальними даними
+    // Hide accordion, show table
+    const accordion = document.getElementById('product-variants-accordion');
+    const table = document.getElementById('product-variants-container');
+    if (accordion) accordion.style.display = 'none';
+    if (table) table.style.display = '';
+
     populateProductVariants(productId);
 }
 
@@ -981,6 +1158,10 @@ export function discardPendingVariantChanges() {
 
     destroyVariantEditors();
     clearVariantPhotos();
+
+    // Clean up accordion
+    const accordion = document.getElementById('product-variants-accordion');
+    if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
 
     if (_variantsManagedTable) {
         _variantsManagedTable.destroy();

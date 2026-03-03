@@ -247,6 +247,12 @@ function initCategoryChangeHandler() {
             const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
             runAutofillAfterRender();
         } catch { /* ignore */ }
+
+        // Рендерити характеристики pending варіантів (block 8) при зміні категорії
+        try {
+            const { renderPendingVariantCharacteristics } = await import('./products-crud-variants.js');
+            await renderPendingVariantCharacteristics(catSelect.value);
+        } catch { /* ignore */ }
     });
 
     catSelect.dataset.changeInited = '1';

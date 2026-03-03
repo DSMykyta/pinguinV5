@@ -94,6 +94,7 @@
 /* === COMPONENTS - CONTENT === */
 @import url('components/content/preview.css');
 @import url('components/content/tree.css');
+@import url('components/content/variant-accordion.css');
 /* glossary-article.css — видалено, стилі в section-misc.css */
 @import url('components/content/section-misc.css');
 @import url('components/content/image-tool.css');
