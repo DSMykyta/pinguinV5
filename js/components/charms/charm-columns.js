@@ -81,6 +81,7 @@ function setupColumnsDropdown(container) {
     container._charmColumnsListId = body.id;
 
     // Ініціалізувати dropdown (бо він створений динамічно після initDropdowns)
-    initDropdowns(wrapper);
-    console.log(`[charm-columns] ✓ dropdown створено та ініціалізовано для ${container.id}, listId=${body.id}`);
+    // initDropdowns шукає .dropdown-wrapper всередині контейнера, тому передаємо group (батько wrapper)
+    initDropdowns(group);
+    console.log(`[charm-columns] ✓ dropdown створено та ініціалізовано для ${container.id}, listId=${body.id}, init=${wrapper.dataset.dropdownInit}`);
 }
