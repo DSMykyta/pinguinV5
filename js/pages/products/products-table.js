@@ -37,10 +37,10 @@ let _actionCleanup = null;
 
 export function getColumns() {
     return [
-        col('product_id', 'ID', 'tag'),
+        col('product_id', 'ID', 'tag', { span: 1 }),
         col('image_url', ' ', 'photo'),
-        col('category_name', 'Категорія', 'text', { filterable: true }),
-        col('brand_name', 'Бренд', 'text', { filterable: true }),
+        col('category_name', 'Категорія', 'text', { span: 2, filterable: true }),
+        col('brand_name', 'Бренд', 'text', { span: 2 }),
         col('name_ua', 'Назва коротка', 'name'),
         col('status', 'Статус', 'status-dot', { filterable: true }),
         col('variants_count', 'Варіанти', 'binding-chip')
