@@ -61,7 +61,7 @@
     grid-template-rows: 1fr;
 }
 
-.u-reveal > * {
+.u-reveal>* {
     overflow: hidden;
 }
 
@@ -156,4 +156,12 @@
     background-color: var(--color-surface-c);
     flex-shrink: 0;
     margin: 12px 0;
+}
+
+/**
+ * Розмиття на 1 піксель (для створення ефекту "мерехтіння" або зниження різкості)
+ */
+.u-bl-1 {
+    filter: blur(1px);
+    opacity: 0.7;
 }

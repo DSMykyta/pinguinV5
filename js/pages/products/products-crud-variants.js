@@ -903,8 +903,10 @@ function _addPendingVariant(data) {
         sku: data.sku || '',
         barcode: data.barcode || '',
         price: data.price || '',
+        old_price: data.old_price || '',
         weight: data.weight || '',
         stock: data.stock || '',
+        name_ua: data.name_ua || '',
         status: data.status || 'active',
         variant_chars: data.variant_chars || {},
     });
@@ -917,8 +919,13 @@ function _removePendingVariant(pendingId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACCORDION RENDERING
+// ACCORDION RENDERING (pseudo-table + u-reveal)
 // ═══════════════════════════════════════════════════════════════════════════
+
+function _getProductDisplayName() {
+    const shortUa = document.getElementById('product-short-name-ua');
+    return shortUa?.value?.trim() || '';
+}
 
 function _renderPendingAccordion() {
     const accordion = document.getElementById('product-variants-accordion');
@@ -929,33 +936,57 @@ function _renderPendingAccordion() {
     accordion.style.display = '';
     if (table) table.style.display = 'none';
 
-    accordion.innerHTML = _pendingVariants.map((pv, i) =>
-        _buildAccordionItemHTML(pv, i)
+    const productName = _getProductDisplayName();
+    const headerHTML = `
+        <div class="pseudo-table-header">
+            <div class="pseudo-table-cell col-1"></div>
+            <div class="pseudo-table-cell col-3">Назва</div>
+            <div class="pseudo-table-cell col-2">Варіант</div>
+            <div class="pseudo-table-cell col-2 cell-align-center">Ціна</div>
+            <div class="pseudo-table-cell col-2 cell-align-center">Стара ціна</div>
+            <div class="pseudo-table-cell col-1 cell-align-center">Кількість</div>
+            <div class="pseudo-table-cell col-1"></div>
+        </div>`;
+
+    const rowsHTML = _pendingVariants.map((pv, i) =>
+        _buildAccordionItemHTML(pv, i, productName)
     ).join('');
+
+    accordion.innerHTML = headerHTML + rowsHTML;
 
     _initAccordionEvents(accordion);
 }
 
-function _buildAccordionItemHTML(pv, index) {
+function _buildAccordionItemHTML(pv, index, productName) {
     const pid = pv._pendingId;
-    const isFirst = index === 0;
-    const expandedClass = isFirst ? 'expanded' : '';
-    const bodyClass = isFirst ? 'tree-expanded' : '';
+    const isFirst = index === 0 && _pendingVariants.length === 1;
+    const openClass = isFirst ? 'is-open' : '';
+
+    const priceDisplay = pv.price ? `${escapeHtml(pv.price)} UAH` : '—';
+    const oldPriceDisplay = pv.old_price ? `${escapeHtml(pv.old_price)} UAH` : '—';
+    const stockDisplay = pv.stock || '0';
+    const variantName = pv.name_ua || `Варіант ${index + 1}`;
 
     return `
-    <div class="variant-accordion-item" data-pending-id="${escapeHtml(pid)}">
-        <div class="tree-node-header variant-accordion-header">
-            <div class="tree-expand-icon ${expandedClass}">
-                <span class="material-symbols-outlined">chevron_right</span>
-            </div>
-            <span class="tree-node-label">Варіант ${index + 1}</span>
-            <button class="btn-icon" data-action="delete-pending" data-pending-id="${escapeHtml(pid)}" aria-label="Видалити">
-                <span class="material-symbols-outlined">close</span>
-            </button>
+    <div class="pseudo-table-row" data-pending-id="${escapeHtml(pid)}">
+        <div class="pseudo-table-cell col-1">
+            <input type="checkbox" data-role="va-checkbox" ${isFirst ? 'class="u-hidden"' : ''}>
+            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
         </div>
-        <div class="tree-node-children ${bodyClass} variant-accordion-body">
-            <div class="grid">
-                ${_buildVariantFieldsHTML(pid, pv)}
+        <div class="pseudo-table-cell col-3" data-display="name">${escapeHtml(productName || '')}</div>
+        <div class="pseudo-table-cell col-2" data-display="variant">${escapeHtml(variantName)}</div>
+        <div class="pseudo-table-cell col-2 cell-align-center" data-display="price"><span class="tag c-secondary">${priceDisplay}</span></div>
+        <div class="pseudo-table-cell col-2 cell-align-center" data-display="old_price"><span class="tag c-secondary">${oldPriceDisplay}</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-center" data-display="stock"><span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span></div>
+        <div class="pseudo-table-cell col-1 cell-align-end">
+            <button type="button" class="btn-icon ${isFirst ? 'u-hidden' : ''}" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
+            <button type="button" class="btn-icon ghost danger ${isFirst ? '' : 'u-hidden'}" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="u-reveal ${openClass}">
+            <div>
+                <div class="grid" style="padding: 12px 16px;">
+                    ${_buildVariantFieldsHTML(pid, pv)}
+                </div>
             </div>
         </div>
     </div>`;
@@ -963,33 +994,40 @@ function _buildAccordionItemHTML(pv, index) {
 
 function _buildVariantFieldsHTML(pid, pv) {
     return `
-        <div class="group column col-3">
+        <div class="group column col-4">
             <label for="${pid}-sku" class="label-l">SKU</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="text" id="${pid}-sku" data-field="sku" placeholder="Артикул" value="${escapeHtml(pv.sku || '')}">
             </div></div></div>
         </div>
-        <div class="group column col-3">
+        <div class="group column col-4">
             <label for="${pid}-barcode" class="label-l">Штрихкод</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
             </div></div></div>
         </div>
-        <div class="group column col-3">
+        <div class="group column col-4">
             <label for="${pid}-price" class="label-l">Ціна</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="0.01" id="${pid}-price" data-field="price" placeholder="0.00" value="${escapeHtml(pv.price || '')}">
                 <span class="tag c-tertiary">UAH</span>
             </div></div></div>
         </div>
-        <div class="group column col-3">
+        <div class="group column col-4">
+            <label for="${pid}-old_price" class="label-l">Стара ціна</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="number" step="0.01" id="${pid}-old_price" data-field="old_price" placeholder="0.00" value="${escapeHtml(pv.old_price || '')}">
+                <span class="tag c-tertiary">UAH</span>
+            </div></div></div>
+        </div>
+        <div class="group column col-4">
             <label for="${pid}-weight" class="label-l">Вага</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="text" id="${pid}-weight" data-field="weight" placeholder="Вага" value="${escapeHtml(pv.weight || '')}">
                 <span class="tag c-tertiary">г</span>
             </div></div></div>
         </div>
-        <div class="group column col-3">
+        <div class="group column col-4">
             <label for="${pid}-stock" class="label-l">Залишок</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="1" id="${pid}-stock" data-field="stock" placeholder="0" value="${escapeHtml(pv.stock || '')}">
@@ -1002,57 +1040,121 @@ function _buildVariantFieldsHTML(pid, pv) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACCORDION EVENTS
+// ACCORDION EVENTS (pseudo-table toggle)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function _initAccordionEvents(container) {
     container.addEventListener('click', (e) => {
-        // Delete
-        const deleteBtn = e.target.closest('[data-action="delete-pending"]');
-        if (deleteBtn) {
-            e.stopPropagation();
-            _removePendingVariant(deleteBtn.dataset.pendingId);
+        const row = e.target.closest('.pseudo-table-row');
+        if (!row) return;
+
+        // Edit → open reveal
+        if (e.target.closest('[data-action="va-edit"]')) {
+            _toggleVariantRow(row, true);
             return;
         }
 
-        // Toggle expand/collapse
-        const header = e.target.closest('.variant-accordion-header');
-        if (!header) return;
-        const item = header.closest('.variant-accordion-item');
-        const body = item.querySelector('.tree-node-children');
-        const icon = header.querySelector('.tree-expand-icon');
-        body.classList.toggle('tree-expanded');
-        icon.classList.toggle('expanded');
+        // Save → sync form to display cells + close reveal
+        if (e.target.closest('[data-action="va-save"]')) {
+            _syncRowFormToDisplay(row);
+            _toggleVariantRow(row, false);
+            return;
+        }
+
+        // Close → discard and close reveal
+        if (e.target.closest('[data-action="va-close"]')) {
+            _toggleVariantRow(row, false);
+            return;
+        }
+
+        // Delete pending variant
+        const deleteBtn = e.target.closest('[data-action="delete-pending"]');
+        if (deleteBtn) {
+            e.stopPropagation();
+            _removePendingVariant(row.dataset.pendingId);
+            return;
+        }
     });
+}
+
+function _toggleVariantRow(row, open) {
+    const checkbox = row.querySelector('[data-role="va-checkbox"]');
+    const saveBtn = row.querySelector('[data-action="va-save"]');
+    const editBtn = row.querySelector('[data-action="va-edit"]');
+    const closeBtn = row.querySelector('[data-action="va-close"]');
+    const body = row.querySelector('.u-reveal');
+
+    if (open) {
+        checkbox?.classList.add('u-hidden');
+        saveBtn?.classList.remove('u-hidden');
+        editBtn?.classList.add('u-hidden');
+        closeBtn?.classList.remove('u-hidden');
+        body?.classList.add('is-open');
+    } else {
+        checkbox?.classList.remove('u-hidden');
+        saveBtn?.classList.add('u-hidden');
+        editBtn?.classList.remove('u-hidden');
+        closeBtn?.classList.add('u-hidden');
+        body?.classList.remove('is-open');
+    }
+}
+
+/** Sync form field values into display cells in the row */
+function _syncRowFormToDisplay(row) {
+    const pid = row.dataset.pendingId;
+    const pv = _pendingVariants.find(v => v._pendingId === pid);
+    if (!pv) return;
+
+    // Read form values
+    _syncSingleRowToState(row, pv);
+
+    // Update display cells
+    const priceDisplay = pv.price ? `${escapeHtml(pv.price)} UAH` : '—';
+    const oldPriceDisplay = pv.old_price ? `${escapeHtml(pv.old_price)} UAH` : '—';
+    const stockDisplay = pv.stock || '0';
+
+    const nameCell = row.querySelector('[data-display="name"]');
+    const priceCell = row.querySelector('[data-display="price"]');
+    const oldPriceCell = row.querySelector('[data-display="old_price"]');
+    const stockCell = row.querySelector('[data-display="stock"]');
+
+    if (nameCell) nameCell.textContent = _getProductDisplayName();
+    if (priceCell) priceCell.innerHTML = `<span class="tag c-secondary">${priceDisplay}</span>`;
+    if (oldPriceCell) oldPriceCell.innerHTML = `<span class="tag c-secondary">${oldPriceDisplay}</span>`;
+    if (stockCell) stockCell.innerHTML = `<span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span>`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SYNC FORM → STATE
 // ═══════════════════════════════════════════════════════════════════════════
 
+function _syncSingleRowToState(row, pv) {
+    pv.sku = row.querySelector('[data-field="sku"]')?.value.trim() || '';
+    pv.barcode = row.querySelector('[data-field="barcode"]')?.value.trim() || '';
+    pv.price = row.querySelector('[data-field="price"]')?.value.trim() || '';
+    pv.old_price = row.querySelector('[data-field="old_price"]')?.value.trim() || '';
+    pv.weight = row.querySelector('[data-field="weight"]')?.value.trim() || '';
+    pv.stock = row.querySelector('[data-field="stock"]')?.value.trim() || '';
+
+    // Variant chars
+    const charsContainer = document.getElementById(`${pv._pendingId}-chars-container`);
+    if (charsContainer) {
+        const chars = {};
+        charsContainer.querySelectorAll('input[data-vchar-id]').forEach(input => {
+            if (input.value.trim()) chars[input.dataset.vcharId] = input.value.trim();
+        });
+        charsContainer.querySelectorAll('select[data-vchar-id]').forEach(select => {
+            if (select.value) chars[select.dataset.vcharId] = select.value;
+        });
+        pv.variant_chars = chars;
+    }
+}
+
 function _syncAccordionFormToState() {
     for (const pv of _pendingVariants) {
-        const item = document.querySelector(`.variant-accordion-item[data-pending-id="${pv._pendingId}"]`);
-        if (!item) continue;
-
-        pv.sku = item.querySelector('[data-field="sku"]')?.value.trim() || '';
-        pv.barcode = item.querySelector('[data-field="barcode"]')?.value.trim() || '';
-        pv.price = item.querySelector('[data-field="price"]')?.value.trim() || '';
-        pv.weight = item.querySelector('[data-field="weight"]')?.value.trim() || '';
-        pv.stock = item.querySelector('[data-field="stock"]')?.value.trim() || '';
-
-        // Variant chars
-        const charsContainer = document.getElementById(`${pv._pendingId}-chars-container`);
-        if (charsContainer) {
-            const chars = {};
-            charsContainer.querySelectorAll('input[data-vchar-id]').forEach(input => {
-                if (input.value.trim()) chars[input.dataset.vcharId] = input.value.trim();
-            });
-            charsContainer.querySelectorAll('select[data-vchar-id]').forEach(select => {
-                if (select.value) chars[select.dataset.vcharId] = select.value;
-            });
-            pv.variant_chars = chars;
-        }
+        const row = document.querySelector(`.pseudo-table-row[data-pending-id="${pv._pendingId}"]`);
+        if (!row) continue;
+        _syncSingleRowToState(row, pv);
     }
 }
 
@@ -1129,6 +1231,7 @@ export async function commitPendingVariantChanges(productId, productData) {
             sku: pv.sku || '',
             barcode: pv.barcode || '',
             price: pv.price || '',
+            old_price: pv.old_price || '',
             weight: pv.weight || '',
             stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},

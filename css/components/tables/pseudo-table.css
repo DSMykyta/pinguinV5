@@ -97,13 +97,26 @@
 
 .pseudo-table-row {
     display: flex;
+    flex-wrap: wrap;
     margin: 0 6px;
     border-bottom: 1px solid var(--color-outline);
     transition: background-color 150ms ease;
 }
 
-.pseudo-table-row:hover {
+/* u-reveal всередині рядка — на повну ширину, другий рядок flex */
+.pseudo-table-row > .u-reveal {
+    width: 100%;
+}
+
+.pseudo-table-row:not(:has(.u-reveal.is-open)):hover {
     background-color: var(--color-surface-c-low);
+}
+
+/* Коли один рядок розкритий — решта приглушені й неактивні */
+.pseudo-table-container:has(.u-reveal.is-open) .pseudo-table-row:not(:has(.u-reveal.is-open)) {
+    filter: blur(1px);
+    opacity: 0.7;
+    pointer-events: none;
 }
 
 .pseudo-table-row:last-child {
