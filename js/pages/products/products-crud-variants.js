@@ -117,25 +117,53 @@ registerActionHandlers('product-variants', {
 // MANAGED TABLE (єдина система для існуючих варіантів)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function _resolveNameFromChars(variantChars) {
-    if (!variantChars || typeof variantChars !== 'object') return '';
+/**
+ * Резолвить ім'я варіанту з variant_chars + spec JSON (без DOM).
+ * spec per-char має пріоритет над option name. Parent chars пропускаються.
+ * @param {Object} variantChars - { charId: optionId }
+ * @param {string} [specUaJson] - JSON string { charId: "value" }
+ * @param {string} [specRuJson] - JSON string { charId: "value" }
+ * @returns {{ ua: string, ru: string }}
+ */
+function _resolveNameFromCharsAndSpecs(variantChars, specUaJson, specRuJson) {
+    if (!variantChars || typeof variantChars !== 'object') return { ua: '', ru: '' };
     const allOptions = getOptions();
-    const parts = [];
-    for (const optionId of Object.values(variantChars)) {
+    const allChars = getCharacteristics();
+    const parentChildMap = buildParentChildMap(allChars, allOptions);
+    const parentCharIds = new Set(parentChildMap.values());
+    const specUa = _parseSpecJson(specUaJson);
+    const specRu = _parseSpecJson(specRuJson);
+
+    const parts_ua = [];
+    const parts_ru = [];
+    for (const [charId, optionId] of Object.entries(variantChars)) {
         if (!optionId) continue;
-        const opt = allOptions.find(o => o.id === optionId);
-        if (opt?.value_ua) parts.push(opt.value_ua);
+        if (parentCharIds.has(charId)) continue;
+
+        if (specUa[charId]) {
+            parts_ua.push(specUa[charId]);
+        } else {
+            const opt = allOptions.find(o => o.id === optionId);
+            if (opt?.value_ua) parts_ua.push(opt.value_ua);
+        }
+
+        if (specRu[charId]) {
+            parts_ru.push(specRu[charId]);
+        } else {
+            const opt = allOptions.find(o => o.id === optionId);
+            if (opt?.value_ru) parts_ru.push(opt.value_ru);
+        }
     }
-    return parts.join(', ');
+    return { ua: parts_ua.join(', '), ru: parts_ru.join(', ') };
 }
 
 function _getVariantColumns() {
     return [
         col('product_name', 'Назва', 'text', { span: 3 }),
         col('variant_display', 'Варіант', 'text', { span: 2 }),
-        col('price', 'Ціна', 'text', { span: 2, align: 'center' }),
-        col('old_price', 'Стара ціна', 'text', { span: 2, align: 'center' }),
-        col('stock', 'Кількість', 'text', { span: 1, align: 'center' }),
+        col('price', 'Ціна', 'tag', { span: 2, align: 'center', color: 'c-secondary' }),
+        col('old_price', 'Стара ціна', 'tag', { span: 2, align: 'center', color: 'c-secondary' }),
+        col('stock', 'Кількість', 'tag', { span: 1, align: 'center', color: 'c-tertiary' }),
     ];
 }
 
@@ -160,7 +188,7 @@ export async function populateProductVariants(productId) {
     const tableData = variants.map(v => ({
         ...v,
         product_name: productName,
-        variant_display: v.name_ua || _resolveNameFromChars(v.variant_chars),
+        variant_display: v.name_ua || _resolveNameFromCharsAndSpecs(v.variant_chars, v.spec_ua, v.spec_ru).ua,
     }));
 
     if (_variantsManagedTable) {
@@ -182,6 +210,9 @@ export async function populateProductVariants(productId) {
                     </button>
                     <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
                         <span class="material-symbols-outlined">save</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
+                        <span class="material-symbols-outlined">close</span>
                     </button>
                 `,
                 getRowId: (row) => row.variant_id,
@@ -589,12 +620,15 @@ async function renderVariantCharacteristics(productId, savedValues, variantData)
     // Build parent-child map для ієрархічних опцій
     const parentChildMap = buildParentChildMap(block8Chars, options);
 
+    // Parse spec JSON (backward-compatible with legacy single string)
+    const enrichedVariantData = { ...variantData, _parsedSpecUa: _parseSpecJson(variantData?.spec_ua), _parsedSpecRu: _parseSpecJson(variantData?.spec_ru) };
+
     block8Chars.forEach(c => {
         const charOptions = options.filter(o => o.characteristic_id === c.id);
         charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
         const savedVal = savedValues[c.id] || '';
         const colSize = c.col_size || '4';
-        html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, variantData);
+        html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedVariantData);
     });
 
     html += '</div>';
@@ -747,41 +781,41 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
             break;
     }
 
-    // Companion spec field — для дочірніх ComboBox з parent_option_id
-    let companionHtml = '';
-    const isChildCombo = parentChildMap?.has(char.id) && (char.type === 'ComboBox' || char.type === 'Select');
-    if (isChildCombo) {
-        const specUa = variantData?.spec_ua || '';
-        const specRu = variantData?.spec_ru || '';
-        companionHtml = `
-            <div class="group column col-4" data-spec-for="${char.id}">
-                <label class="label-l">Уточнення ${label}</label>
-                <div class="content-bloc-container">
-                    <div class="content-bloc">
-                        <div class="content-line">
-                            <div class="input-box">
-                                <input type="text" data-spec-field="ua"
-                                    value="${escapeHtml(specUa)}"
-                                    placeholder="Уточнення українською">
-                                <span class="tag c-secondary">UA</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="content-bloc">
-                        <div class="content-line">
-                            <div class="input-box">
-                                <input type="text" data-spec-field="ru"
-                                    value="${escapeHtml(specRu)}"
-                                    placeholder="Уточнення російською">
-                                <span class="tag c-secondary">RU</span>
-                            </div>
+    // Companion spec field — уточнення для кожної характеристики
+    // spec_ua/spec_ru зберігаються як JSON { char_id: "value" }
+    const specUaObj = variantData?._parsedSpecUa || {};
+    const specRuObj = variantData?._parsedSpecRu || {};
+    const specUaVal = specUaObj[char.id] || '';
+    const specRuVal = specRuObj[char.id] || '';
+
+    const companionHtml = `
+        <div class="group column col-4" data-spec-for="${char.id}">
+            <label class="label-l">Уточнення ${label}</label>
+            <div class="content-bloc-container">
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ua"
+                                value="${escapeHtml(specUaVal)}"
+                                placeholder="Уточнення українською">
+                            <span class="tag c-secondary">UA</span>
                         </div>
                     </div>
                 </div>
-                <label class="label-s">Якщо порожнє — використовується обрана опція</label>
+                <div class="content-bloc">
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ru"
+                                value="${escapeHtml(specRuVal)}"
+                                placeholder="Уточнення російською">
+                            <span class="tag c-secondary">RU</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        `;
-    }
+            <label class="label-s">Якщо порожнє — використовується обрана опція</label>
+        </div>
+    `;
 
     return `
         <div class="group column col-${colSize}">
@@ -794,13 +828,31 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
 }
 
 /**
- * Отримати значення spec поля
+ * Parse spec JSON — backward-compatible with legacy single string
+ * @returns {Object} { char_id: "value", ... }
+ */
+function _parseSpecJson(raw) {
+    if (!raw) return {};
+    try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+    } catch { /* not JSON */ }
+    return {};
+}
+
+/**
+ * Зібрати spec values з per-char inputs → JSON string
  */
 function getSpecFieldValue(lang) {
     const container = document.getElementById('variant-characteristics-container');
     if (!container) return '';
-    const input = container.querySelector(`input[data-spec-field="${lang}"]`);
-    return input ? input.value.trim() : '';
+    const specs = {};
+    container.querySelectorAll(`input[data-spec-lang="${lang}"]`).forEach(input => {
+        const charId = input.dataset.specCharId;
+        const val = input.value.trim();
+        if (charId && val) specs[charId] = val;
+    });
+    return Object.keys(specs).length > 0 ? JSON.stringify(specs) : '';
 }
 
 /**
@@ -816,12 +868,31 @@ function resolveVariantName() {
     const parts_ru = [];
 
     container.querySelectorAll('select[data-vchar-id]').forEach(select => {
+        // Skip parent characteristics — they don't form variant name
+        if (select.dataset.parentOf) return;
+
+        const charId = select.dataset.vcharId;
         const val = select.value;
         if (!val) return;
-        const opt = allOptions.find(o => o.id === val);
-        if (opt) {
-            if (opt.value_ua) parts_ua.push(opt.value_ua);
-            if (opt.value_ru) parts_ru.push(opt.value_ru);
+
+        // Per-char spec takes priority over option name
+        const specUaInput = container.querySelector(`input[data-spec-char-id="${charId}"][data-spec-lang="ua"]`);
+        const specRuInput = container.querySelector(`input[data-spec-char-id="${charId}"][data-spec-lang="ru"]`);
+        const specUa = specUaInput?.value?.trim();
+        const specRu = specRuInput?.value?.trim();
+
+        if (specUa) {
+            parts_ua.push(specUa);
+        } else {
+            const opt = allOptions.find(o => o.id === val);
+            if (opt?.value_ua) parts_ua.push(opt.value_ua);
+        }
+
+        if (specRu) {
+            parts_ru.push(specRu);
+        } else {
+            const opt = allOptions.find(o => o.id === val);
+            if (opt?.value_ru) parts_ru.push(opt.value_ru);
         }
     });
 
@@ -908,10 +979,10 @@ async function handleSaveVariant(shouldClose = true) {
     const formData = getVariantFormData();
     const productId = formData.product_id;
 
-    // Авто-генерація name_ua/name_ru: spec → обрана опція → пусто
+    // Авто-генерація name_ua/name_ru: resolveVariantName вже враховує per-char spec
     const autoName = resolveVariantName();
-    formData.name_ua = formData.spec_ua || autoName.ua;
-    formData.name_ru = formData.spec_ru || autoName.ru;
+    formData.name_ua = autoName.ua;
+    formData.name_ru = autoName.ru;
 
     // Обчислити згенеровані назви
     const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru);
@@ -983,6 +1054,8 @@ function _addPendingVariant(data) {
         name_ua: data.name_ua || '',
         status: data.status || 'active',
         variant_chars: data.variant_chars || {},
+        spec_ua: data.spec_ua || '',
+        spec_ru: data.spec_ru || '',
     });
 }
 
@@ -1157,10 +1230,20 @@ function _readRowFormValues(row) {
             if (select.value) chars[select.dataset.vcharId] = select.value;
         });
         data.variant_chars = chars;
-        const specUa = charsContainer.querySelector('input[data-spec-field="ua"]');
-        const specRu = charsContainer.querySelector('input[data-spec-field="ru"]');
-        if (specUa) data.spec_ua = specUa.value.trim();
-        if (specRu) data.spec_ru = specRu.value.trim();
+        // Per-char specs → JSON
+        const specUa = {};
+        const specRu = {};
+        charsContainer.querySelectorAll('input[data-spec-char-id]').forEach(input => {
+            const charId = input.dataset.specCharId;
+            const lang = input.dataset.specLang;
+            const val = input.value.trim();
+            if (charId && val) {
+                if (lang === 'ua') specUa[charId] = val;
+                else if (lang === 'ru') specRu[charId] = val;
+            }
+        });
+        if (Object.keys(specUa).length > 0) data.spec_ua = JSON.stringify(specUa);
+        if (Object.keys(specRu).length > 0) data.spec_ru = JSON.stringify(specRu);
     }
     return data;
 }
@@ -1172,12 +1255,22 @@ async function _handleRowSave(rowEl) {
 
     const formData = _readRowFormValues(rowEl);
 
+    // Resolve variant name from chars + per-char specs
+    const resolved = _resolveNameFromCharsAndSpecs(formData.variant_chars, formData.spec_ua, formData.spec_ru);
+    formData.name_ua = resolved.ua;
+    formData.name_ru = resolved.ru;
+
+    // Compute generated names
+    const productId = _getCurrentProductId?.();
+    if (productId) {
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
+        Object.assign(formData, genNames);
+    }
+
     try {
         await updateProductVariant(variantId, formData);
         showToast('Варіант оновлено', 'success');
 
-        // Re-populate to refresh table data
-        const productId = _getCurrentProductId?.();
         if (productId) populateProductVariants(productId);
     } catch (error) {
         console.error('Помилка збереження варіанту:', error);
@@ -1236,13 +1329,14 @@ export async function renderPendingVariantCharacteristics(categoryId) {
 
         if (block8Chars.length === 0) { container.innerHTML = ''; continue; }
 
+        const enrichedPv = { ...pv, _parsedSpecUa: _parseSpecJson(pv.spec_ua), _parsedSpecRu: _parseSpecJson(pv.spec_ru) };
         let html = '<label class="label-l">Характеристики варіанту</label><div class="grid">';
         block8Chars.forEach(c => {
             const charOptions = options.filter(o => o.characteristic_id === c.id);
             charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
             const savedVal = (pv.variant_chars || {})[c.id] || '';
             const colSize = c.col_size || '4';
-            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, pv);
+            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedPv);
         });
         html += '</div>';
         container.innerHTML = html;
@@ -1279,13 +1373,14 @@ async function _renderExistingVariantCharacteristics(categoryId, variants) {
 
         if (block8Chars.length === 0) { container.innerHTML = ''; continue; }
 
+        const enrichedV = { ...v, _parsedSpecUa: _parseSpecJson(v.spec_ua), _parsedSpecRu: _parseSpecJson(v.spec_ru) };
         let html = '<div class="grid">';
         block8Chars.forEach(c => {
             const charOptions = options.filter(o => o.characteristic_id === c.id);
             charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
             const savedVal = (v.variant_chars || {})[c.id] || '';
             const colSize = c.col_size || '4';
-            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, v);
+            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedV);
         });
         html += '</div>';
         container.innerHTML = html;
@@ -1309,13 +1404,14 @@ export async function commitPendingVariantChanges(productId, productData) {
     if (_pendingVariants.length === 0) return;
 
     for (const pv of _pendingVariants) {
-        // Resolve variant name: spec_ua → char option name → ''
-        const variantNameUa = pv.spec_ua || _resolveNameFromChars(pv.variant_chars) || '';
-        const genNames = computeVariantGeneratedNames(productId, variantNameUa, '');
+        // Resolve variant name from chars + per-char specs
+        const resolved = _resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
 
         await addProductVariant({
             product_id: productId,
-            name_ua: variantNameUa,
+            name_ua: resolved.ua,
+            name_ru: resolved.ru,
             ...genNames,
             sku: pv.sku || '',
             barcode: pv.barcode || '',
@@ -1324,6 +1420,8 @@ export async function commitPendingVariantChanges(productId, productData) {
             weight: pv.weight || '',
             stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},
+            spec_ua: pv.spec_ua || '',
+            spec_ru: pv.spec_ru || '',
             status: pv.status || productData?.status || 'active',
         });
     }
