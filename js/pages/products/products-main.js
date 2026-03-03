@@ -21,7 +21,9 @@
  * ║  ├── products-delete.js         — Delete товару (confirm + API)         ║
  * ║  ├── products-events.js         — Обробники подій (refresh)             ║
  * ║  ├── variants-table.js          — Таблиця варіантів (сторінка)          ║
- * ║  └── variants-events.js         — Обробники подій варіантів             ║
+ * ║  ├── variants-events.js         — Обробники подій варіантів             ║
+ * ║  ├── groups-table.js            — Таблиця груп (сторінка)              ║
+ * ║  └── groups-crud.js             — CRUD операції для груп               ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -47,6 +49,8 @@ const PLUGINS = [
     './products-events.js',
     './variants-table.js',
     './variants-events.js',
+    './groups-table.js',
+    './groups-crud.js',
 ];
 
 /**
@@ -122,8 +126,8 @@ async function checkAuthAndLoadData() {
         }
 
         // Зберігаємо бренди і категорії для dataTransform в таблиці
-        window.__productsPageBrands = getBrands();
-        window.__productsPageCategories = getCategories();
+        productsState.brands = getBrands();
+        productsState.categories = getCategories();
 
         if (productsResult.status === 'rejected') {
             renderErrorState();

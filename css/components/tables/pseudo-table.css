@@ -24,8 +24,7 @@
  * автоматично не займають місця — видимі розтягуються.
  *
  * ЧАРМИ:
- * [compact]  — зменшений padding клітинок (8px 10px)
- * [striped]  — чергування фону парних/непарних рядків
+ * [search]     — пошук (charm-search)
  * [pagination] — пагінація (charm-pagination)
  * [refresh]    — кнопка оновлення (charm-refresh)
  * [columns]    — вибір видимих колонок (charm-columns)
@@ -201,23 +200,6 @@
 /* ЧАРМИ ТАБЛИЦІ                                */
 /* ============================================ */
 
-/* compact — зменшений padding */
-.pseudo-table-container[compact] .pseudo-table-cell {
-    padding: 8px 10px;
-}
-
-.pseudo-table-container[compact] .header-actions-cell {
-    padding: 4px 8px;
-}
-
-/* striped — чергування фону рядків */
-.pseudo-table-container[striped] .pseudo-table-row:nth-child(even) {
-    background-color: var(--color-surface-c);
-}
-
-.pseudo-table-container[striped] .pseudo-table-row:nth-child(even):hover {
-    background-color: var(--color-surface-c-high);
-}
 
 /* ============================================ */
 /* PRODUCT THUMB — фото в таблиці               */

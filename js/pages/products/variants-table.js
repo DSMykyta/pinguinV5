@@ -11,6 +11,7 @@
 import { getProductVariants } from './variants-data.js';
 import { getProducts } from './products-data.js';
 import { productsState } from './products-state.js';
+import { registerProductsPlugin } from './products-plugins.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,
@@ -151,4 +152,14 @@ export function resetVariantsTableAPI() {
         _actionCleanup();
         _actionCleanup = null;
     }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PLUGIN REGISTRATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function init(state) {
+    registerProductsPlugin('onInit', () => {
+        if (productsState.activeTab === 'variants') renderVariantsTable();
+    });
 }

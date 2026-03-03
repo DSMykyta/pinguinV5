@@ -880,6 +880,7 @@ import { init } from './components/editor/editor-formatting.js';</pre>
                     <div class="m3-block-header">
                         <h3>Неймінг файлів сторінкових модулів</h3>
                         <p>Сторінкові модулі (в <code>js/pages/</code>) — не компоненти, не перевикористовуються. Кожен живе в своїй папці. Правило одне: <strong>файли всередині папки — короткий префікс папки</strong>, а не повна назва модуля. Відкрив папку — читаєш ролі, не повторюєш назву кожного разу.</p>
+                        <p><strong>Виняток:</strong> якщо назва папки вже коротка (1 слово) — дозволено використовувати повну назву як префікс: <code>products/products-*.js</code>, <code>brands/brands-*.js</code>, <code>mapper/mapper-*.js</code>. Скорочення (<code>p-</code>, <code>br-</code>) не додає читабельності.</p>
                     </div>
                     <table class="m3-spec">
                         <thead>

@@ -110,15 +110,8 @@ function initProductsTable() {
 
         dataTransform: (data) => {
             const variants = productsState.productVariants || [];
-            // Lazy import — ці модулі вже завантажені на момент рендеру
-            let brands = [];
-            let categories = [];
-            try {
-                const brandsModule = window.__productsPageBrands || [];
-                const categoriesModule = window.__productsPageCategories || [];
-                brands = brandsModule;
-                categories = categoriesModule;
-            } catch { /* ignore */ }
+            const brands = productsState.brands || [];
+            const categories = productsState.categories || [];
 
             const brandMap = {};
             brands.forEach(b => { brandMap[b.brand_id] = b.name_uk || b.brand_id; });

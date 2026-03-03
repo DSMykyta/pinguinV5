@@ -370,7 +370,7 @@
             <section class="m3-section" id="structure">
                 <div class="m3-section-hero">
                     <h2>Структура файлів</h2>
-                    <p>Папка <code>js/components/table/</code> — 9 файлів. Ядро рендеру, типи колонок, обгортка managed table і плагіни.</p>
+                    <p>Папка <code>js/components/table/</code> — 10 файлів. Ядро рендеру, типи колонок, обгортка managed table і плагіни.</p>
                 </div>
 
                 <div class="m3-block">
@@ -429,6 +429,11 @@
                             <div class="m3-file-card-name">table-badges.js</div>
                             <div class="m3-file-card-role">Рендер badge/severity компонентів</div>
                             <div class="m3-file-card-desc">Функції <code>renderBadge()</code> і <code>renderSeverityBadge()</code> для типів badge-toggle і severity.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">table-expandable.js</div>
+                            <div class="m3-file-card-role">Плагін розкривних рядків</div>
+                            <div class="m3-file-card-desc">Додає <code>.u-reveal</code> блок до рядків. Конфіг: <code>renderContent</code>, <code>onExpand</code>, <code>onSave</code>. Кнопки: <code>expand-edit</code>, <code>expand-save</code>, <code>expand-close</code>.</div>
                         </div>
                     </div>
                 </div>
@@ -918,13 +923,18 @@ searchable: searchCols.includes(c.id) || c.searchable === true</pre>
                             <th>Приклад</th>
                         </tr>
                         <tr>
+                            <td><code>search</code></td>
+                            <td>Створює інпут пошуку в тулбарі, інтегрується з managed table автоматично</td>
+                            <td><code>&lt;div class="pseudo-table-container" search&gt;</code></td>
+                        </tr>
+                        <tr>
                             <td><code>pagination</code></td>
-                            <td>Додає пагінацію під таблицею</td>
-                            <td><code>&lt;div class="pseudo-table-container" pagination&gt;</code></td>
+                            <td>Додає пагінацію під таблицею (за замовч. 10 рядків)</td>
+                            <td><code>&lt;div class="pseudo-table-container" pagination="25"&gt;</code></td>
                         </tr>
                         <tr>
                             <td><code>refresh</code></td>
-                            <td>Додає кнопку оновлення даних</td>
+                            <td>Додає кнопку оновлення даних зі спінером</td>
                             <td><code>&lt;div class="pseudo-table-container" refresh&gt;</code></td>
                         </tr>
                         <tr>
@@ -932,25 +942,14 @@ searchable: searchCols.includes(c.id) || c.searchable === true</pre>
                             <td>Додає dropdown для вибору видимих колонок</td>
                             <td><code>&lt;div class="pseudo-table-container" columns&gt;</code></td>
                         </tr>
-                        <tr>
-                            <td><code>compact</code></td>
-                            <td>Зменшує padding комірок (компактний режим)</td>
-                            <td><code>&lt;div class="pseudo-table-container" compact&gt;</code></td>
-                        </tr>
-                        <tr>
-                            <td><code>striped</code></td>
-                            <td>Чергування кольору рядків (зебра)</td>
-                            <td><code>&lt;div class="pseudo-table-container" striped&gt;</code></td>
-                        </tr>
                     </table>
                     <div class="m3-code">
                         <div class="m3-code-label">HTML з кількома шармами</div>
 <pre>&lt;div id="brands-table"
      class="pseudo-table-container"
+     search
      pagination
-     columns
-     compact
-     striped&gt;
+     columns&gt;
 &lt;/div&gt;</pre>
                     </div>
                 </div>
@@ -1060,6 +1059,7 @@ const data = [
                     </div>
                 </div>
             </section>
+
 
         </div>
     </main>
