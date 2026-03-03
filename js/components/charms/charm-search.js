@@ -59,12 +59,10 @@ function setupSearch(container) {
     const wrapper = document.createElement('div');
     wrapper.className = 'input-box';
 
-    // search icon button (ghost — без фону)
-    const iconBtn = document.createElement('button');
-    iconBtn.type = 'button';
-    iconBtn.className = 'btn-icon';
-    iconBtn.setAttribute('aria-label', 'Пошук');
-    iconBtn.innerHTML = '<span class="material-symbols-outlined">search</span>';
+    // search icon
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined';
+    icon.textContent = 'search';
 
     // input
     const input = document.createElement('input');
@@ -72,17 +70,7 @@ function setupSearch(container) {
     input.id = inputId;
     input.placeholder = placeholder;
 
-    // clear button (data-clear-for — підхоплюється charm-search-clear.js)
-    const clearBtn = document.createElement('button');
-    clearBtn.type = 'button';
-    clearBtn.className = 'btn-icon';
-    clearBtn.style.visibility = 'hidden';
-    clearBtn.style.pointerEvents = 'none';
-    clearBtn.setAttribute('data-clear-for', inputId);
-    clearBtn.setAttribute('aria-label', 'Очистити пошук');
-    clearBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
-
-    wrapper.append(iconBtn, input, clearBtn);
+    wrapper.append(icon, input);
     group.insertBefore(wrapper, group.firstChild);
 
     // Store reference for table-managed.js auto-detection
