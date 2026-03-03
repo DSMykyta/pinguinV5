@@ -187,10 +187,6 @@ async function checkAuthAndLoadData() {
 
             createTabLoaders();
 
-            // Ініціалізувати dropdowns
-            const { initDropdowns } = await import('../../components/forms/dropdown.js');
-            initDropdowns();
-
             runHook('onDataLoaded');
 
             // Lazy load даних для активного табу
@@ -204,9 +200,6 @@ async function checkAuthAndLoadData() {
 
             // Рендер
             renderCurrentTab();
-
-            // Ініціалізувати dropdowns після рендеру
-            initDropdowns();
 
             // Ініціалізувати обробники подій
             initMapperEvents();
