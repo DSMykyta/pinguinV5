@@ -32,9 +32,8 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // Sub-modules
 import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
-import { renderVariantCharacteristics, getVariantCharsData, getSpecFieldValue, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics } from './products-crud-variant-chars.js';
+import { renderVariantCharacteristics, getVariantCharsData, getSpecFieldValue, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 import { addPendingVariant, removePendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
-import { renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 
 // Re-exports for backward compat (used by products-crud.js)
 export { commitPendingVariantChanges, discardPendingVariantChanges, populateProductVariants };
