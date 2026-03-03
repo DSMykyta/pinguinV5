@@ -947,6 +947,28 @@ async function handleSaveProduct(shouldClose = true) {
         } else {
             const newProduct = await addProduct(productData);
             currentProductId = newProduct?.product_id || null;
+
+            // Автоматично створити дефолтний варіант
+            if (currentProductId) {
+                try {
+                    const { addProductVariant } = await import('./variants-data.js');
+                    const { populateProductVariants } = await import('./products-crud-variants.js');
+                    await addProductVariant({
+                        product_id: currentProductId,
+                        name_ua: productData.generated_short_ua || '',
+                        name_ru: productData.generated_short_ru || '',
+                        generated_short_ua: productData.generated_short_ua || '',
+                        generated_short_ru: productData.generated_short_ru || '',
+                        generated_full_ua: productData.generated_full_ua || '',
+                        generated_full_ru: productData.generated_full_ru || '',
+                        status: productData.status || 'active',
+                    });
+                    populateProductVariants(currentProductId);
+                } catch (err) {
+                    console.error('Помилка створення дефолтного варіанту:', err);
+                }
+            }
+
             showToast('Товар успішно додано', 'success');
             runHook('onProductAdd', newProduct);
         }

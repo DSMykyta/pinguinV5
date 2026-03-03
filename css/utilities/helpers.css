@@ -155,4 +155,5 @@
     width: 100%;
     background-color: var(--color-surface-c);
     flex-shrink: 0;
+    margin: 12px 0;
 }

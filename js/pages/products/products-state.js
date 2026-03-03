@@ -52,6 +52,7 @@ export const productsState = {
 
     products: [],
     productVariants: [],
+    productGroups: [],
 
     // ═══════════════════════════════════════════════════════════════════════
     // ПОШУК

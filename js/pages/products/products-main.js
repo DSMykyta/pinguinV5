@@ -29,6 +29,7 @@
 import { productsState } from './products-state.js';
 import { loadProducts } from './products-data.js';
 import { loadProductVariants } from './variants-data.js';
+import { loadProductGroups } from './groups-data.js';
 import { loadCategories, getCategories, loadOptions, getOptions } from '../mapper/mapper-data-own.js';
 import { getBrands, loadBrands } from '../brands/brands-data.js';
 import { runHook, runHookAsync } from './products-plugins.js';
@@ -102,9 +103,10 @@ async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
 
         // Завантажити товари, варіанти, бренди та категорії паралельно
-        const [productsResult, variantsResult, brandsResult, categoriesResult] = await Promise.allSettled([
+        const [productsResult, variantsResult, groupsResult, brandsResult, categoriesResult] = await Promise.allSettled([
             loadProducts(),
             loadProductVariants(),
+            loadProductGroups(),
             getBrands().length === 0 ? loadBrands() : Promise.resolve(),
             getCategories().length === 0 ? loadCategories() : Promise.resolve()
         ]);
@@ -114,6 +116,9 @@ async function checkAuthAndLoadData() {
         }
         if (variantsResult.status === 'rejected') {
             console.error('❌ Помилка завантаження варіантів:', variantsResult.reason);
+        }
+        if (groupsResult.status === 'rejected') {
+            console.error('❌ Помилка завантаження груп:', groupsResult.reason);
         }
 
         // Зберігаємо бренди і категорії для dataTransform в таблиці
@@ -171,17 +176,24 @@ function initTabSwitching() {
             // Charm pagination — deactivate/activate при tab switch
             const productsContainer = document.getElementById('products-table-container');
             const variantsContainer = document.getElementById('variants-table-container');
+            const groupsContainer = document.getElementById('groups-table-container');
+
+            // Деактивувати всі
+            productsContainer?._paginationCharm?.deactivate();
+            variantsContainer?._paginationCharm?.deactivate();
+            groupsContainer?._paginationCharm?.deactivate();
 
             if (tabName === 'variants') {
-                productsContainer?._paginationCharm?.deactivate();
                 variantsContainer?._paginationCharm?.activate();
-
-                // Lazy init — рендерити таблицю варіантів при першому перемиканні
                 import('./variants-table.js').then(({ renderVariantsTable }) => {
                     renderVariantsTable();
                 }).catch(() => {});
+            } else if (tabName === 'groups') {
+                groupsContainer?._paginationCharm?.activate();
+                import('./groups-table.js').then(({ renderGroupsTable }) => {
+                    renderGroupsTable();
+                }).catch(() => {});
             } else {
-                variantsContainer?._paginationCharm?.deactivate();
                 productsContainer?._paginationCharm?.activate();
             }
 

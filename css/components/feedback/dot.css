@@ -7,8 +7,8 @@
 }
 
 .dot.small {
-    width: 6px;
-    height: 6px;
+    max-width: 6px;
+    max-height: 6px;
 }
 
 /* dot — суцільний кружок, фон = color з c-* утиліти.

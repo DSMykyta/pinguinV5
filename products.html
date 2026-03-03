@@ -28,6 +28,10 @@
                 <span class="material-symbols-outlined">style</span>
                 Варіанти
             </button>
+            <button class="btn-icon expand" aria-label="Групування" data-tab-target="tab-groups">
+                <span class="material-symbols-outlined">link</span>
+                Групування
+            </button>
         </nav>
 
         <!-- TAB: ТОВАРИ -->
@@ -74,6 +78,35 @@
             <!-- Table Container -->
             <div id="variants-table-container" class="pseudo-table-container"
                  search="Пошук варіантів..."
+                 pagination
+                 refresh columns>
+                <!-- Заповнюється JavaScript -->
+            </div>
+        </div>
+
+        <!-- TAB: ГРУПУВАННЯ -->
+        <div class="tab-content" data-tab-content="tab-groups" id="tab-groups">
+
+            <div class="section-header">
+                <div class="section-name-block">
+                    <div class="section-name">
+                        <h2 class="display-l section-upper">Групування</h2>
+                        <button class="btn-icon" aria-label="Інформація">
+                            <span class="material-symbols-outlined">info</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <button class="btn-icon" id="btn-add-group" aria-label="Додати групу">
+                        <span class="material-symbols-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div id="groups-table-container" class="pseudo-table-container"
+                 search="Пошук груп..."
                  pagination
                  refresh columns>
                 <!-- Заповнюється JavaScript -->
