@@ -40,6 +40,10 @@ let _actionCleanup = null;
 let _getCurrentProductId = null;
 let _currentVariantId = null;
 
+// Pending variants (до збереження товару)
+let _pendingVariants = [];
+let _pendingCounter = 0;
+
 // Editors
 let _compNotesEditorUa = null;
 let _compNotesEditorRu = null;
@@ -54,10 +58,18 @@ let _compNotesEditorRu = null;
  */
 export function initVariantsSection(getProductIdFn) {
     _getCurrentProductId = getProductIdFn;
+    _pendingVariants = [];
+    _pendingCounter = 0;
 
     const addBtn = document.getElementById('btn-add-product-variant');
     if (addBtn) {
         addBtn.onclick = () => showAddVariantModal();
+    }
+
+    // Новий товар → створити 1 дефолтний pending варіант
+    if (!getProductIdFn()) {
+        _addPendingVariant({ name_ua: 'Варіант 1', status: 'active' });
+        _renderPendingVariants();
     }
 }
 
@@ -67,7 +79,14 @@ export function initVariantsSection(getProductIdFn) {
 
 registerActionHandlers('product-variants', {
     edit: (rowId) => showEditVariantModal(rowId),
-    delete: (rowId) => handleDeleteVariant(rowId),
+    delete: (rowId) => {
+        // Pending варіант — видалити з пам'яті
+        if (String(rowId).startsWith('pending-')) {
+            _removePendingVariant(rowId);
+            return;
+        }
+        handleDeleteVariant(rowId);
+    },
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -150,8 +169,11 @@ export function populateProductVariants(productId) {
  */
 async function showAddVariantModal() {
     const productId = _getCurrentProductId?.();
+
+    // Якщо товар ще не збережений — додати pending варіант
     if (!productId) {
-        showToast('Спочатку збережіть товар', 'warning');
+        _addPendingVariant({ name_ua: `Варіант ${_pendingVariants.length + 1}`, status: 'active' });
+        _renderPendingVariants();
         return;
     }
 
@@ -855,14 +877,98 @@ async function handleDeleteVariant(variantId) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PENDING VARIANTS (до збереження товару)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _addPendingVariant(data) {
+    _pendingCounter++;
+    _pendingVariants.push({
+        _pendingId: `pending-${_pendingCounter}`,
+        variant_id: `pending-${_pendingCounter}`,
+        name_ua: data.name_ua || '',
+        name_ru: data.name_ru || '',
+        sku: data.sku || '',
+        price: data.price || '',
+        stock: data.stock || '',
+        status: data.status || 'active',
+    });
+}
+
+function _removePendingVariant(pendingId) {
+    _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
+    _renderPendingVariants();
+}
+
+function _renderPendingVariants() {
+    if (!_variantsManagedTable) {
+        const container = document.getElementById('product-variants-container');
+        if (!container) return;
+
+        _variantsManagedTable = createManagedTable({
+            container: 'product-variants-container',
+            columns: getVariantColumns().map(c => ({
+                ...c,
+                searchable: ['variant_id', 'sku', 'name_ua'].includes(c.id),
+                checked: true
+            })),
+            data: _pendingVariants,
+            statsId: null,
+            paginationId: null,
+            tableConfig: {
+                rowActionsHeader: ' ',
+                rowActions: (row) => `
+                    ${actionButton({ action: 'delete', rowId: row._pendingId, context: 'product-variants', icon: 'close' })}
+                `,
+                getRowId: (row) => row._pendingId || row.variant_id,
+                emptyState: { message: 'Варіанти відсутні' },
+                withContainer: false,
+                onAfterRender: (container) => {
+                    if (_actionCleanup) _actionCleanup();
+                    _actionCleanup = initActionHandlers(container, 'product-variants');
+                },
+            },
+            preFilter: null,
+            pageSize: null,
+            checkboxPrefix: 'product-variants'
+        });
+    } else {
+        _variantsManagedTable.updateData(_pendingVariants);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // PENDING CHANGES (draft manager)
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Зберегти pending зміни варіантів
+ * Зберегти pending варіанти до БД (після створення товару)
+ * @param {string} productId - ID щойно створеного товару
+ * @param {Object} productData - дані товару (для генерованих назв)
  */
-export async function commitPendingVariantChanges() {
-    // Прямі зміни без буферизації
+export async function commitPendingVariantChanges(productId, productData) {
+    if (_pendingVariants.length === 0) return;
+
+    for (const pv of _pendingVariants) {
+        await addProductVariant({
+            product_id: productId,
+            name_ua: pv.name_ua || productData?.generated_short_ua || '',
+            name_ru: pv.name_ru || productData?.generated_short_ru || '',
+            generated_short_ua: productData?.generated_short_ua || '',
+            generated_short_ru: productData?.generated_short_ru || '',
+            generated_full_ua: productData?.generated_full_ua || '',
+            generated_full_ru: productData?.generated_full_ru || '',
+            sku: pv.sku || '',
+            price: pv.price || '',
+            stock: pv.stock || '',
+            status: pv.status || productData?.status || 'active',
+        });
+    }
+
+    _pendingVariants = [];
+    _pendingCounter = 0;
+
+    // Перерендерити таблицю з реальними даними
+    populateProductVariants(productId);
 }
 
 /**
@@ -870,6 +976,8 @@ export async function commitPendingVariantChanges() {
  */
 export function discardPendingVariantChanges() {
     _currentVariantId = null;
+    _pendingVariants = [];
+    _pendingCounter = 0;
 
     destroyVariantEditors();
     clearVariantPhotos();

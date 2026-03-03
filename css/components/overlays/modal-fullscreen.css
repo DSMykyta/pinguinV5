@@ -272,7 +272,8 @@
 
 .wizard-mode #product-status-switch,
 .wizard-mode #btn-save-product,
-.wizard-mode #save-close-product {
+.wizard-mode #save-close-product,
+.wizard-mode #product-section-navigator {
     display: none;
 }
 

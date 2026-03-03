@@ -948,24 +948,13 @@ async function handleSaveProduct(shouldClose = true) {
             const newProduct = await addProduct(productData);
             currentProductId = newProduct?.product_id || null;
 
-            // Автоматично створити дефолтний варіант
+            // Зберегти pending варіанти (створені в UI до збереження товару)
             if (currentProductId) {
                 try {
-                    const { addProductVariant } = await import('./variants-data.js');
-                    const { populateProductVariants } = await import('./products-crud-variants.js');
-                    await addProductVariant({
-                        product_id: currentProductId,
-                        name_ua: productData.generated_short_ua || '',
-                        name_ru: productData.generated_short_ru || '',
-                        generated_short_ua: productData.generated_short_ua || '',
-                        generated_short_ru: productData.generated_short_ru || '',
-                        generated_full_ua: productData.generated_full_ua || '',
-                        generated_full_ru: productData.generated_full_ru || '',
-                        status: productData.status || 'active',
-                    });
-                    populateProductVariants(currentProductId);
+                    const { commitPendingVariantChanges } = await import('./products-crud-variants.js');
+                    await commitPendingVariantChanges(currentProductId, productData);
                 } catch (err) {
-                    console.error('Помилка створення дефолтного варіанту:', err);
+                    console.error('Помилка збереження варіантів:', err);
                 }
             }
 
