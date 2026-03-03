@@ -133,6 +133,10 @@
     z-index: calc(var(--z-header) + 1);
 }
 
+.modal-fullscreen-container > .nav.column .nav-main {
+    margin-left: 6px;
+}
+
 /* ============================================
    FULLSCREEN CONTENT
    ============================================ */

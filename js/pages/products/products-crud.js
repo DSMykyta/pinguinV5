@@ -556,6 +556,12 @@ function fillProductForm(product) {
 
     // Оновити згенеровані назви
     updateGeneratedNames(currentProductId);
+
+    // Інформація (метадані)
+    try {
+        const { fillInfoSection } = await import('./products-crud-info.js');
+        fillInfoSection(product);
+    } catch { /* ignore */ }
 }
 
 /**
@@ -626,6 +632,13 @@ function clearProductForm() {
     try {
         import('./products-crud-photos.js').then(({ clearPhotos }) => {
             clearPhotos();
+        }).catch(() => {});
+    } catch { /* ignore */ }
+
+    // Очистити інформацію (метадані)
+    try {
+        import('./products-crud-info.js').then(({ clearInfoSection }) => {
+            clearInfoSection();
         }).catch(() => {});
     } catch { /* ignore */ }
 }

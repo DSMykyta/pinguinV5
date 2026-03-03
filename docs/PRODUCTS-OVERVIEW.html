@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Модуль товарів — pinguin-v5</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
+    <script src="../js/theme-init.js"></script>
+    <style>
+        * { font-size: revert; }
+
+        body {
+            display: flex !important;
+            flex-direction: row !important;
+            height: 100dvh !important;
+            overflow: hidden !important;
+            scroll-snap-type: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            background: var(--color-surface);
+        }
+
+        section {
+            height: auto !important;
+            min-height: auto !important;
+            scroll-snap-align: none !important;
+            overflow: visible !important;
+        }
+
+        .content-main, .nav.column, .section-navigator { display: none !important; }
+
+        /* SIDEBAR */
+        .m3-sidebar {
+            width: 260px;
+            min-width: 260px;
+            height: 100dvh;
+            overflow-y: auto;
+            background: var(--color-surface-c-low);
+            border-right: 1px solid var(--color-outline);
+            padding: 24px 16px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .m3-sidebar-title {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 8px 12px 20px;
+            color: var(--color-on-surface);
+            border-bottom: 1px solid var(--color-outline);
+            margin-bottom: 12px;
+        }
+        .m3-sidebar-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--color-on-surface-v);
+            display: block;
+            margin-top: 2px;
+        }
+        .m3-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-full);
+            color: var(--color-on-surface);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .m3-nav-item:hover { background: var(--color-surface-c); }
+        .m3-nav-item.active {
+            background: var(--color-main-c);
+            color: var(--color-main);
+            font-weight: 600;
+        }
+        .m3-nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* MAIN */
+        .m3-main { flex: 1; overflow-y: auto; padding: 0; }
+        .m3-content { max-width: 960px; margin: 0 auto; padding: 40px 48px 80px; }
+
+        /* HERO */
+        .m3-hero {
+            background: linear-gradient(135deg, var(--color-main) 0%, var(--color-secondary) 100%);
+            border-radius: 28px;
+            padding: 48px;
+            margin-bottom: 40px;
+            color: var(--color-on-main);
+        }
+        .m3-hero h1 { font-size: 40px; font-weight: 400; margin: 0 0 8px; color: inherit; }
+        .m3-hero p { font-size: 16px; opacity: 0.85; margin: 0; max-width: 600px; line-height: 1.5; }
+
+        /* SECTION */
+        .m3-section { margin-bottom: 56px; scroll-margin-top: 24px; }
+
+        /* SECTION HERO */
+        .m3-section-hero {
+            border-radius: 16px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            color: var(--color-on-secondary);
+            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-tertiary) 100%);
+        }
+        .m3-section-hero h2 {
+            font-size: 22px;
+            font-weight: 400;
+            margin: 0 0 6px;
+            color: inherit;
+        }
+        .m3-section-hero p {
+            font-size: 13px;
+            opacity: 0.88;
+            margin: 0;
+            max-width: 600px;
+            line-height: 1.55;
+            color: inherit;
+        }
+
+        /* BLOCK */
+        .m3-block {
+            margin-bottom: 32px;
+            border: 1px solid var(--color-outline);
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--color-surface);
+        }
+        .m3-block-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-block-header h3 { font-size: 16px; font-weight: 600; margin: 0 0 4px; color: var(--color-on-surface); }
+        .m3-block-header p { font-size: 13px; color: var(--color-on-surface-v); margin: 0; line-height: 1.5; }
+
+        /* SPEC TABLE */
+        .m3-spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .m3-spec th {
+            text-align: left;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-on-surface-v);
+            background: var(--color-surface-c-low);
+            border-bottom: 1px solid var(--color-outline);
+        }
+        .m3-spec td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--color-outline);
+            color: var(--color-on-surface);
+        }
+        .m3-spec tr:last-child td { border-bottom: none; }
+        .m3-spec code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11px;
+            background: var(--color-surface-c);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* THEME TOGGLE */
+        .m3-theme-toggle { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+
+        /* SCROLLBAR */
+        .m3-sidebar::-webkit-scrollbar, .m3-main::-webkit-scrollbar { width: 4px; }
+        .m3-sidebar::-webkit-scrollbar-thumb, .m3-main::-webkit-scrollbar-thumb {
+            background: var(--color-outline);
+            border-radius: 4px;
+        }
+
+        /* CODE BLOCKS */
+        .m3-code {
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-outline);
+            background: var(--color-surface-c-low);
+            overflow-x: auto;
+        }
+        .m3-code-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 10px;
+        }
+        .m3-code pre {
+            margin: 0;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--color-on-surface);
+            white-space: pre;
+        }
+
+        /* PART DIVIDERS */
+        .m3-part {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 48px 0 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-outline);
+        }
+        .m3-part:first-of-type { margin-top: 0; }
+        .m3-part-icon { font-size: 22px; color: var(--color-main); }
+        .m3-part-title { font-size: 20px; font-weight: 600; color: var(--color-on-surface); flex: 1; }
+        .m3-part-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 100px;
+            letter-spacing: 0.03em;
+        }
+        .m3-part-badge.locked {
+            background: color-mix(in srgb, #ba1a1a 12%, transparent);
+            color: #ba1a1a;
+        }
+        .m3-part-badge.removable {
+            background: var(--color-main-c);
+            color: var(--color-main);
+        }
+        .m3-part-badge.utility {
+            background: color-mix(in srgb, var(--color-secondary) 20%, transparent);
+            color: var(--color-secondary, #7b5ea7);
+        }
+
+        /* FILE CARDS GRID */
+        .m3-file-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        .m3-file-card {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--color-outline);
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-file-card:nth-child(2n) { border-right: none; }
+        .m3-file-card:last-child { border-bottom: none; }
+        .m3-file-card:nth-last-child(2):nth-child(2n+1) { border-bottom: none; }
+        .m3-file-card-name {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-main);
+            margin-bottom: 4px;
+        }
+        .m3-file-card-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-on-surface);
+            margin-bottom: 5px;
+        }
+        .m3-file-card-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.6; }
+
+        /* FLOW */
+        .m3-flow {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+        }
+        .m3-flow-step {
+            flex: 1;
+            padding: 16px 18px;
+            border-right: 1px solid var(--color-outline);
+        }
+        .m3-flow-step:last-child { border-right: none; }
+        .m3-flow-step-num {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-main);
+            margin-bottom: 6px;
+        }
+        .m3-flow-step-title { font-size: 13px; font-weight: 600; color: var(--color-on-surface); margin-bottom: 4px; }
+        .m3-flow-step-desc { font-size: 12px; color: var(--color-on-surface-v); line-height: 1.55; }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="m3-sidebar">
+        <div class="m3-sidebar-title">
+            Модуль товарів
+            <span>pinguin-v5</span>
+        </div>
+
+        <a href="#architecture" class="m3-nav-item active">
+            <span class="material-symbols-outlined">account_tree</span>Архітектура
+        </a>
+        <a href="#files" class="m3-nav-item">
+            <span class="material-symbols-outlined">folder_open</span>Структура файлів
+        </a>
+        <a href="#data-model" class="m3-nav-item">
+            <span class="material-symbols-outlined">database</span>Модель даних
+        </a>
+        <a href="#products-table" class="m3-nav-item">
+            <span class="material-symbols-outlined">table_chart</span>Таблиця товарів
+        </a>
+        <a href="#crud-modal" class="m3-nav-item">
+            <span class="material-symbols-outlined">edit_note</span>CRUD модал
+        </a>
+        <a href="#variants" class="m3-nav-item">
+            <span class="material-symbols-outlined">style</span>Варіанти
+        </a>
+        <a href="#groups" class="m3-nav-item">
+            <span class="material-symbols-outlined">link</span>Групування
+        </a>
+        <a href="#characteristics" class="m3-nav-item">
+            <span class="material-symbols-outlined">tune</span>Характеристики
+        </a>
+        <a href="#name-generation" class="m3-nav-item">
+            <span class="material-symbols-outlined">text_fields</span>Генерація назв
+        </a>
+        <a href="#seo" class="m3-nav-item">
+            <span class="material-symbols-outlined">travel_explore</span>SEO
+        </a>
+        <a href="#wizard" class="m3-nav-item">
+            <span class="material-symbols-outlined">magic_button</span>Wizard
+        </a>
+        <a href="#polling" class="m3-nav-item">
+            <span class="material-symbols-outlined">sync</span>Polling
+        </a>
+        <a href="#hooks" class="m3-nav-item">
+            <span class="material-symbols-outlined">webhook</span>Хуки (плагіни)
+        </a>
+        <a href="#integrations" class="m3-nav-item">
+            <span class="material-symbols-outlined">hub</span>Інтеграції
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="m3-main">
+        <div class="m3-content">
+
+            <div class="m3-theme-toggle">
+                <button class="fab"
+                    onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+            </div>
+
+            <!-- HERO -->
+            <div class="m3-hero">
+                <h1>Модуль товарів</h1>
+                <p>Повна система управління товарами, варіантами та групами. Плагінна архітектура, CRUD через Google Sheets, polling, wizard, SEO-генерація.</p>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- АРХІТЕКТУРА -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="architecture">
+                <div class="m3-section-hero">
+                    <h2>Архітектура</h2>
+                    <p>Модульна система: ядро (стан + дані + хуки) + плагіни (таблиці, модали, події). Будь-який плагін можна видалити без поломки ядра.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Принцип роботи</h3>
+                        <p>Точка входу <code>main-products.js</code> &rarr; <code>initCore()</code> &rarr; <code>initProducts()</code>. Плагіни завантажуються динамічно через <code>import()</code>.</p>
+                    </div>
+                    <div class="m3-flow">
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 1</div>
+                            <div class="m3-flow-step-title">initCore()</div>
+                            <div class="m3-flow-step-desc">Layout, nav, модали, тема, авторизація.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 2</div>
+                            <div class="m3-flow-step-title">loadPlugins()</div>
+                            <div class="m3-flow-step-desc">7 плагінів через <code>Promise.allSettled</code>. Кожен реєструє хуки.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 3</div>
+                            <div class="m3-flow-step-title">checkAuthAndLoadData()</div>
+                            <div class="m3-flow-step-desc">Паралельне завантаження: Products, Variants, Groups, Brands, Categories.</div>
+                        </div>
+                        <div class="m3-flow-step">
+                            <div class="m3-flow-step-num">Крок 4</div>
+                            <div class="m3-flow-step-title">runHook('onInit')</div>
+                            <div class="m3-flow-step-desc">Плагіни рендерять таблиці, ініціалізують event handlers.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Сторінка products.html</h3>
+                        <p>3 таби: Товари, Варіанти, Групування. Кожен таб має свій <code>.pseudo-table-container</code> з charm-ами.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">HTML структура</div>
+<pre>&lt;main class="content-main tabbed-page" data-aside-template="aside-products"&gt;
+
+    &lt;nav class="nav row" data-tabs-container&gt;
+        &lt;button data-tab-target="tab-products" class="active"&gt;Товари&lt;/button&gt;
+        &lt;button data-tab-target="tab-variants"&gt;Варіанти&lt;/button&gt;
+        &lt;button data-tab-target="tab-groups"&gt;Групування&lt;/button&gt;
+    &lt;/nav&gt;
+
+    &lt;div data-tab-content="tab-products" class="active"&gt;
+        &lt;div id="products-table-container"
+             class="pseudo-table-container"
+             search pagination refresh columns&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div data-tab-content="tab-variants"&gt;
+        &lt;div id="variants-table-container" ...&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div data-tab-content="tab-groups"&gt;
+        &lt;div id="groups-table-container" ...&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+&lt;/main&gt;</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- СТРУКТУРА ФАЙЛІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="files">
+                <div class="m3-section-hero">
+                    <h2>Структура файлів</h2>
+                    <p>Папка <code>js/pages/products/</code> &mdash; 26 файлів. Ядро (5), плагіни сторінки (7), CRUD підмодулі (14).</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">lock</span>
+                        <span class="m3-part-title">ЯДРО</span>
+                        <span class="m3-part-badge locked">не видаляти</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-state.js</div>
+                            <div class="m3-file-card-role">Глобальний стан</div>
+                            <div class="m3-file-card-desc">Об'єкт <code>productsState</code>: дані, активний таб, пошук, видимі колонки, сортування, managed table reference.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-data.js</div>
+                            <div class="m3-file-card-role">CRUD товарів</div>
+                            <div class="m3-file-card-desc">Завантаження через CSV export + PapaParse. Додавання/оновлення/видалення через Sheets API. 40 колонок (A:AN).</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">variants-data.js</div>
+                            <div class="m3-file-card-role">CRUD варіантів</div>
+                            <div class="m3-file-card-desc">Завантаження через Sheets API get. Додавання/оновлення/видалення. 22 колонки (A:V).</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">groups-data.js</div>
+                            <div class="m3-file-card-role">CRUD груп</div>
+                            <div class="m3-file-card-desc">Група = масив product_ids. 2 колонки (A:B). JSON серіалізація.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-plugins.js</div>
+                            <div class="m3-file-card-role">Система хуків</div>
+                            <div class="m3-file-card-desc">11 хуків + <code>registerProductsPlugin()</code> + <code>runHook()</code> / <code>runHookAsync()</code>. Пріоритезація callbacks.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-main.js</div>
+                            <div class="m3-file-card-role">Оркестратор</div>
+                            <div class="m3-file-card-desc">Точка входу модуля. Завантаження плагінів, табів, авторизації. Aside FAB меню (Wizard + Додати товар).</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">extension</span>
+                        <span class="m3-part-title">ПЛАГІНИ СТОРІНКИ</span>
+                        <span class="m3-part-badge removable">можна видалити</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-table.js</div>
+                            <div class="m3-file-card-role">Таблиця товарів</div>
+                            <div class="m3-file-card-desc"><code>createManagedTable</code> з 7 колонками. dataTransform: brand/category name resolve, variants count.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">variants-table.js</div>
+                            <div class="m3-file-card-role">Таблиця варіантів (таб)</div>
+                            <div class="m3-file-card-desc">Таблиця ВСІХ варіантів на вкладці "Варіанти". 7 колонок, dataTransform: product name lookup.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">groups-table.js</div>
+                            <div class="m3-file-card-role">Таблиця груп (таб)</div>
+                            <div class="m3-file-card-desc">Таблиця груп на вкладці "Групування". 3 колонки, edit + delete actions.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud.js</div>
+                            <div class="m3-file-card-role">Модал товару</div>
+                            <div class="m3-file-card-desc">Оркестратор: open, fill, save, clear. Ініціалізація редакторів, селектів, секцій. 884 рядки.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">groups-crud.js</div>
+                            <div class="m3-file-card-role">CRUD груп (модал)</div>
+                            <div class="m3-file-card-desc">Додавання/редагування/видалення груп. Пошук товарів з suggestions, мін. 2 товари.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-events.js</div>
+                            <div class="m3-file-card-role">Обробники подій</div>
+                            <div class="m3-file-card-desc"><code>charm:refresh</code> на контейнерах. Modal-level refresh для product-edit.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">variants-events.js</div>
+                            <div class="m3-file-card-role">Обробники подій варіантів</div>
+                            <div class="m3-file-card-desc"><code>charm:refresh</code> на variants-table-container.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-part" style="margin: 0; border-radius: 0; padding: 16px 22px;">
+                        <span class="material-symbols-outlined m3-part-icon">build</span>
+                        <span class="m3-part-title">CRUD ПІДМОДУЛІ</span>
+                        <span class="m3-part-badge utility">підключаються динамічно</span>
+                    </div>
+                    <div class="m3-file-cards">
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-names.js</div>
+                            <div class="m3-file-card-role">Генерація назв</div>
+                            <div class="m3-file-card-desc"><code>buildShortName()</code>, <code>buildFullName()</code>, <code>buildVariantFullName()</code>. Reactive listeners на полях.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-url.js</div>
+                            <div class="m3-file-card-role">URL slug</div>
+                            <div class="m3-file-card-desc">Транслітерація кирилиці, <code>slugify()</code>, <code>isProductUrlUnique()</code>, real-time валідація.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-seo.js</div>
+                            <div class="m3-file-card-role">SEO автогенерація</div>
+                            <div class="m3-file-card-desc">Title, Description, Keywords. Trigger matching, badge chips.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-characteristics.js</div>
+                            <div class="m3-file-card-role">Характеристики</div>
+                            <div class="m3-file-card-desc">9 типів полів, блоки 1-6 + 9. Фільтрація за категорією, parent-child, initCustomSelects.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-hierarchy.js</div>
+                            <div class="m3-file-card-role">Parent-child ієрархія</div>
+                            <div class="m3-file-card-desc"><code>buildParentChildMap()</code>, <code>initParentChildListeners()</code>, <code>filterChildOptions()</code>. Спільна для products + variants.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-photos.js</div>
+                            <div class="m3-file-card-role">Фото товару</div>
+                            <div class="m3-file-card-desc">До 10 фото. Upload файл/URL/drag-drop, Google Drive, gallery з drag-reorder.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-variants.js</div>
+                            <div class="m3-file-card-role">Варіанти (модал)</div>
+                            <div class="m3-file-card-desc">Managed table варіантів всередині модала, expandable rows, inline edit.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-variant-names.js</div>
+                            <div class="m3-file-card-role">Назви варіантів</div>
+                            <div class="m3-file-card-desc"><code>resolveVariantName()</code>, <code>computeVariantGeneratedNames()</code>. Побудова short/full з chars + spec.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-variant-chars.js</div>
+                            <div class="m3-file-card-role">Характеристики варіанту</div>
+                            <div class="m3-file-card-desc">Блок 8 (Варіант). Рендер в expandable rows і modal. <code>getVariantCharsData()</code>.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-variant-pending.js</div>
+                            <div class="m3-file-card-role">Pending варіанти</div>
+                            <div class="m3-file-card-desc">Accordion для нових варіантів до збереження товару. <code>commitPendingVariantChanges()</code> при save.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-crud-variant-photos.js</div>
+                            <div class="m3-file-card-role">Фото варіанту</div>
+                            <div class="m3-file-card-desc">Окрема gallery для кожного варіанту, аналогічна products-crud-photos.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-delete.js</div>
+                            <div class="m3-file-card-role">Видалення товару</div>
+                            <div class="m3-file-card-desc">Просте або каскадне підтвердження. Видаляє всі варіанти перед товаром.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-wizard.js</div>
+                            <div class="m3-file-card-role">Wizard</div>
+                            <div class="m3-file-card-desc">Покрокове створення. Переключає секції product-edit модала, Назад/Далі/Створити.</div>
+                        </div>
+                        <div class="m3-file-card">
+                            <div class="m3-file-card-name">products-polling.js</div>
+                            <div class="m3-file-card-role">Polling + BroadcastChannel</div>
+                            <div class="m3-file-card-desc">Кожні 20 сек, fingerprint, BroadcastChannel для миттєвої синхронізації між вкладками.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- МОДЕЛЬ ДАНИХ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="data-model">
+                <div class="m3-section-hero">
+                    <h2>Модель даних</h2>
+                    <p>3 аркуші в Google Sheets (PRODUCTS spreadsheet): Products (40 колонок), ProductVariants (22 колонки), ProductGroups (2 колонки).</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Products &mdash; A:AN (40 колонок)</h3>
+                        <p>Префікс ID: <code>prod-XXXXXX</code>. Статуси: <code>active</code> | <code>draft</code> | <code>archived</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Колонки</th>
+                            <th>Поля</th>
+                            <th>Опис</th>
+                        </tr>
+                        <tr>
+                            <td><code>A</code></td>
+                            <td><code>product_id</code></td>
+                            <td>prod-XXXXXX</td>
+                        </tr>
+                        <tr>
+                            <td><code>B-D</code></td>
+                            <td><code>brand_id, line_id, category_id</code></td>
+                            <td>FK на Brands, BrandLines, Mapper_Categories</td>
+                        </tr>
+                        <tr>
+                            <td><code>E-P</code></td>
+                            <td>text_before, name, label, detail, variation, text_after (ua/ru)</td>
+                            <td>Складові частини назви товару</td>
+                        </tr>
+                        <tr>
+                            <td><code>Q-T</code></td>
+                            <td>generated_short, generated_full (ua/ru)</td>
+                            <td>Авто-генеровані назви (readonly)</td>
+                        </tr>
+                        <tr>
+                            <td><code>U</code></td>
+                            <td><code>url</code></td>
+                            <td>Slug (транслітерація), унікальний</td>
+                        </tr>
+                        <tr>
+                            <td><code>V-Y</code></td>
+                            <td>composition_code, composition_notes (ua/ru)</td>
+                            <td>Код складу (HTML) + 1 порція (br-only HTML)</td>
+                        </tr>
+                        <tr>
+                            <td><code>Z-AA</code></td>
+                            <td>product_text (ua/ru)</td>
+                            <td>Опис товару (HTML, rich editor)</td>
+                        </tr>
+                        <tr>
+                            <td><code>AB</code></td>
+                            <td><code>characteristics</code></td>
+                            <td>JSON { char_id: value }</td>
+                        </tr>
+                        <tr>
+                            <td><code>AC</code></td>
+                            <td><code>image_url</code></td>
+                            <td>URL або JSON масив URL-ів</td>
+                        </tr>
+                        <tr>
+                            <td><code>AD-AI</code></td>
+                            <td>seo_title, seo_description, seo_keywords (ua/ru)</td>
+                            <td>SEO-поля, авто-генеруються при створенні</td>
+                        </tr>
+                        <tr>
+                            <td><code>AJ-AN</code></td>
+                            <td>status, created_at, updated_at, created_by, updated_by</td>
+                            <td>Метадані</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>ProductVariants &mdash; A:V (22 колонки)</h3>
+                        <p>Префікс ID: <code>var-XXXXXX</code>. Прив'язка до товару через <code>product_id</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr>
+                            <th>Колонки</th>
+                            <th>Поля</th>
+                            <th>Опис</th>
+                        </tr>
+                        <tr>
+                            <td><code>A-B</code></td>
+                            <td><code>variant_id, product_id</code></td>
+                            <td>var-XXXXXX, FK на Products</td>
+                        </tr>
+                        <tr>
+                            <td><code>C-G</code></td>
+                            <td>sku, name (ua/ru), spec (ua/ru)</td>
+                            <td>Артикул, назва, специфікація</td>
+                        </tr>
+                        <tr>
+                            <td><code>H-K</code></td>
+                            <td>generated_short, generated_full (ua/ru)</td>
+                            <td>Авто-генеровані назви варіанту</td>
+                        </tr>
+                        <tr>
+                            <td><code>L-P</code></td>
+                            <td>price, old_price, barcode, weight, stock</td>
+                            <td>Комерційні поля</td>
+                        </tr>
+                        <tr>
+                            <td><code>Q</code></td>
+                            <td><code>variant_chars</code></td>
+                            <td>JSON { char_id: value } &mdash; тільки блок 8</td>
+                        </tr>
+                        <tr>
+                            <td><code>R-V</code></td>
+                            <td>image_url, composition_notes (ua/ru), status, created_at</td>
+                            <td>Фото, склад, стан</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>ProductGroups &mdash; A:B (2 колонки)</h3>
+                        <p>Префікс ID: <code>grp-XXXXXX</code>. Група = набір пов'язаних товарів.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Колонка</th><th>Поле</th><th>Опис</th></tr>
+                        <tr><td><code>A</code></td><td><code>group_id</code></td><td>grp-XXXXXX</td></tr>
+                        <tr><td><code>B</code></td><td><code>product_ids</code></td><td>JSON масив product_id</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ТАБЛИЦЯ ТОВАРІВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="products-table">
+                <div class="m3-section-hero">
+                    <h2>Таблиця товарів</h2>
+                    <p>Managed table з 7 колонками, charms (search, pagination, refresh, columns), sorting + filters plugins.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Колонки</h3>
+                        <p>Визначені через <code>col()</code> фабрику. dataTransform маппить brand_id &rarr; brand_name, category_id &rarr; category_name.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>ID</th><th>Label</th><th>Type</th><th>span</th><th>Extras</th></tr>
+                        <tr><td><code>product_id</code></td><td>ID</td><td>tag</td><td>1</td><td>&mdash;</td></tr>
+                        <tr><td><code>image_url</code></td><td>&nbsp;</td><td>photo</td><td>1</td><td>thumbnail з JSON масиву</td></tr>
+                        <tr><td><code>category_name</code></td><td>Категорія</td><td>text</td><td>2</td><td>filterable</td></tr>
+                        <tr><td><code>brand_name</code></td><td>Бренд</td><td>text</td><td>2</td><td>filterable</td></tr>
+                        <tr><td><code>name_ua</code></td><td>Назва коротка</td><td>name</td><td>3</td><td>generated_short_ua</td></tr>
+                        <tr><td><code>status</code></td><td>Статус</td><td>status-dot</td><td>1</td><td>filterable</td></tr>
+                        <tr><td><code>variants_count</code></td><td>Варіанти</td><td>binding-chip</td><td>1</td><td>count + tooltip</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Стандартні патерни</h3>
+                        <p>Ідентичні з іншими сторінками: render, rowsOnly, reset.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Render</div>
+<pre>if (!productsState.productsManagedTable) {
+    if (!document.getElementById('products-table-container')) return;
+    initProductsTable();   // createManagedTable(...)
+    return;
+}
+productsState.productsManagedTable.updateData(getProducts());</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">rowsOnly</div>
+<pre>if (productsState.productsManagedTable) {
+    productsState.productsManagedTable.refilter();
+} else {
+    renderProductsTable();
+}</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Reset</div>
+<pre>productsState.productsManagedTable.destroy();
+productsState.productsManagedTable = null;
+productsState.tableAPI = null;</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- CRUD МОДАЛ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="crud-modal">
+                <div class="m3-section-hero">
+                    <h2>CRUD модал товару</h2>
+                    <p>Fullscreen модал <code>product-edit.html</code> з sidebar навігацією. 8 секцій + динамічні блоки характеристик. 6 текстових редакторів.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Секції модалу</h3>
+                        <p>Фіксовані секції + динамічні характеристики (залежать від обраної категорії).</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Секція</th><th>Вміст</th><th>Підмодуль</th></tr>
+                        <tr>
+                            <td>Основне</td>
+                            <td>Категорія, бренд, лінійка, назва (ua/ru), ознака, деталь, варіація, text before/after, згенеровані назви, URL</td>
+                            <td><code>products-crud.js</code>, <code>products-crud-names.js</code>, <code>products-crud-url.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Фото</td>
+                            <td>До 10 фото, drag-drop upload, URL, gallery з reorder</td>
+                            <td><code>products-crud-photos.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Варіанти</td>
+                            <td>Managed table з expandable rows / pending accordion</td>
+                            <td><code>products-crud-variants.js</code>, <code>products-crud-variant-pending.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>Код складу</td>
+                            <td>Highlight editor (ua/ru)</td>
+                            <td>compCodeEditorUa/Ru</td>
+                        </tr>
+                        <tr>
+                            <td>1 Порція</td>
+                            <td>Highlight editor br-only (ua/ru)</td>
+                            <td>compNotesEditorUa/Ru</td>
+                        </tr>
+                        <tr>
+                            <td>Опис</td>
+                            <td>Rich text editor (ua/ru). Тригерить SEO description</td>
+                            <td>textEditorUa/Ru</td>
+                        </tr>
+                        <tr>
+                            <td>Характеристики</td>
+                            <td>Динамічні блоки 1-6, 9 (блок 8 = variant_chars)</td>
+                            <td><code>products-crud-characteristics.js</code></td>
+                        </tr>
+                        <tr>
+                            <td>SEO</td>
+                            <td>Title, description, keywords (ua/ru). Trigger badges</td>
+                            <td><code>products-crud-seo.js</code></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Lifecycle модалу</h3>
+                        <p>Відкриття &rarr; ініціалізація компонентів &rarr; заповнення &rarr; збереження &rarr; очистка.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Open + Init</div>
+<pre>showModal('product-edit', null)
+  &rarr; initModalComponents()
+      &rarr; initTextEditors()         // 6 highlight editors
+      &rarr; initSaveHandler()          // btn-save + save-close
+      &rarr; initSectionNavigation()    // sidebar nav
+      &rarr; initNameGenerationListeners()
+      &rarr; populateBrandSelect()      // async
+      &rarr; populateCategorySelect()   // async
+      &rarr; initCategoryChangeHandler()
+      &rarr; initBrandChangeHandler()
+      &rarr; initPhotoSection()         // dynamic import
+      &rarr; initVariantsSection()      // dynamic import</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Save flow</div>
+<pre>handleSaveProduct(shouldClose)
+  1. getProductFormData()                    // все з DOM
+  2. URL: slugify() &rarr; isProductUrlUnique()  // валідація
+  3. addProduct() або updateProduct()        // API
+  4. commitPendingVariantChanges()           // pending variants &rarr; real
+  5. showToast() + runHook(onProduct*)
+  6. closeModal() (якщо shouldClose)
+  7. runHook(onRender)</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Cleanup (modal-closed event)</div>
+<pre>cleanupProductModal()
+  &rarr; currentProductId = null
+  &rarr; destroy() всі 6 редакторів
+  &rarr; discardPendingVariantChanges()
+  &rarr; cleanupVariantState()</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ВАРІАНТИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="variants">
+                <div class="m3-section-hero">
+                    <h2>Система варіантів</h2>
+                    <p>Два контексти: всередині модала товару (existing + pending) та окрема таблиця на сторінці (tab "Варіанти").</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Existing vs Pending</h3>
+                        <p>Якщо товар вже збережений &mdash; existing table з inline edit. Якщо новий товар &mdash; pending accordion в пам'яті.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Аспект</th><th>Existing (збережений товар)</th><th>Pending (новий товар)</th></tr>
+                        <tr><td>Сховище</td><td>Google Sheets (ProductVariants)</td><td>Масив <code>_pendingVariants[]</code> в пам'яті</td></tr>
+                        <tr><td>UI</td><td>Managed table + expandable rows</td><td>Accordion (managed table + expandable)</td></tr>
+                        <tr><td>Save</td><td>Миттєво через <code>updateProductVariant()</code></td><td>При <code>commitPendingVariantChanges()</code> = save товару</td></tr>
+                        <tr><td>Delete</td><td><code>deleteProductVariant()</code></td><td><code>removePendingVariant()</code></td></tr>
+                        <tr><td>Блок 8</td><td><code>renderExistingVariantCharacteristics()</code></td><td><code>renderPendingVariantCharacteristics()</code></td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Колонки таблиці варіантів (сторінка)</h3>
+                        <p>Таб "Варіанти" &mdash; ВСІ варіанти з усіх товарів.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>ID</th><th>Label</th><th>Type</th><th>span</th></tr>
+                        <tr><td><code>variant_id</code></td><td>ID</td><td>tag</td><td>1</td></tr>
+                        <tr><td><code>product_name</code></td><td>Товар</td><td>text</td><td>2</td></tr>
+                        <tr><td><code>sku</code></td><td>SKU</td><td>text</td><td>2</td></tr>
+                        <tr><td><code>name_ua</code></td><td>Назва</td><td>name</td><td>3</td></tr>
+                        <tr><td><code>price</code></td><td>Ціна</td><td>text</td><td>1</td></tr>
+                        <tr><td><code>stock</code></td><td>Залишок</td><td>text</td><td>1</td></tr>
+                        <tr><td><code>status</code></td><td>Статус</td><td>status-dot</td><td>1</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ГРУПУВАННЯ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="groups">
+                <div class="m3-section-hero">
+                    <h2>Групування товарів</h2>
+                    <p>Група &mdash; набір пов'язаних товарів (різні дозування, ваги тощо). Мінімум 2 товари в групі.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>CRUD групи</h3>
+                        <p>Модал <code>group-edit.html</code>. Пошук товарів з suggestions, додавання/видалення з групи.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Flow</div>
+<pre>showAddGroupModal() / showEditGroupModal(groupId)
+  &rarr; renderGroupProductsList()     // список товарів в групі
+  &rarr; initGroupSearch()             // пошук + suggestions (debounce 200ms)
+  &rarr; initGroupSaveHandler()        // save / delete
+
+Валідація: _groupProductIds.length &lt; 2 &rarr; warning toast
+Save: addProductGroup() або updateProductGroup()
+Delete: showConfirmModal() &rarr; deleteProductGroup()</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ХАРАКТЕРИСТИКИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="characteristics">
+                <div class="m3-section-hero">
+                    <h2>Характеристики</h2>
+                    <p>Динамічні поля з маппера, згруповані по блоках. 9 типів введення. Блок 8 (Варіант) виноситься у variant_chars.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Блоки характеристик</h3>
+                        <p>Номер блоку визначає категорію характеристики. Блок 8 &mdash; тільки для варіантів.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Блок</th><th>Назва</th><th>Іконка</th><th>Де зберігається</th></tr>
+                        <tr><td>1</td><td>Скільки там?</td><td>scale</td><td>product.characteristics</td></tr>
+                        <tr><td>2</td><td>Який він?</td><td>category</td><td>product.characteristics</td></tr>
+                        <tr><td>3</td><td>Кому це?</td><td>group</td><td>product.characteristics</td></tr>
+                        <tr><td>4</td><td>Навіщо це?</td><td>target</td><td>product.characteristics</td></tr>
+                        <tr><td>5</td><td>Звідки це?</td><td>public</td><td>product.characteristics</td></tr>
+                        <tr><td>6</td><td>Куди відправляти?</td><td>local_shipping</td><td>product.characteristics</td></tr>
+                        <tr><td>8</td><td>Варіант</td><td>&mdash;</td><td>variant.variant_chars</td></tr>
+                        <tr><td>9</td><td>Інше</td><td>more_horiz</td><td>product.characteristics</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>9 типів полів</h3>
+                        <p>Тип визначається в <code>Mapper_Characteristics.type</code>.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Тип</th><th>UI</th><th>Значення</th></tr>
+                        <tr><td><code>ComboBox</code> / <code>Select</code></td><td>Custom select (single)</td><td>option.id</td></tr>
+                        <tr><td><code>List</code> / <code>ListValues</code></td><td>Custom select (multiple)</td><td>JSON [id, id]</td></tr>
+                        <tr><td><code>CheckBoxGroup</code></td><td>Switch toggles (Так/Ні per option)</td><td>JSON [id, id]</td></tr>
+                        <tr><td><code>Checkbox</code></td><td>Switch Так/Ні</td><td>"true" або ""</td></tr>
+                        <tr><td><code>Integer</code></td><td>input[number] step=1</td><td>число</td></tr>
+                        <tr><td><code>Decimal</code></td><td>input[number] step=0.01</td><td>число</td></tr>
+                        <tr><td><code>TextInput</code> / <code>MultiText</code></td><td>input[text]</td><td>рядок</td></tr>
+                        <tr><td><code>TextArea</code></td><td>textarea rows=3</td><td>рядок</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Parent-child ієрархія</h3>
+                        <p>Якщо опція має <code>parent_option_id</code> &rarr; будується Map&lt;childCharId, parentCharId&gt;. Авто-заповнення батька, каскадний фільтр дітей.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Алгоритм</div>
+<pre>buildParentChildMap(chars, options)
+  &rarr; Для кожної опції з parent_option_id:
+     знайти батьківську характеристику через optionById
+  &rarr; Map { childCharId: parentCharId }
+
+initParentChildListeners(container)
+  &rarr; change event delegation:
+     child changed &rarr; autoFillParent()
+     parent changed &rarr; filterChildOptions()</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ГЕНЕРАЦІЯ НАЗВ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="name-generation">
+                <div class="m3-section-hero">
+                    <h2>Генерація назв</h2>
+                    <p>Авто-формування коротких і повних назв з полів модалу. Reactive &mdash; оновлюється при кожному input/change.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Формули</h3>
+                        <p>Якщо "Текст перед назвою" порожній &mdash; підставляється назва категорії.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Формули назв</div>
+<pre>Коротка: [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація]
+Повна:   [Текст перед / Категорія] [Коротка] [Текст після]
+Варіант: [Текст перед] [Бренд] [Лінійка] [Назва] [Ознака] [Деталь], [Варіація] - [Варіант] [Текст після]
+
+Приклад:
+  Бренд: Optimum Nutrition | Лінійка: Gold Standard
+  Назва: Whey | Ознака: Premium | Деталь: Isolate
+  Варіація: Chocolate
+  &rarr; Коротка: "Optimum Nutrition Gold Standard Whey Premium Isolate, Chocolate"
+  &rarr; URL: "optimum-nutrition-gold-standard-whey-premium-isolate-chocolate"</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- SEO -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="seo">
+                <div class="m3-section-hero">
+                    <h2>SEO автогенерація</h2>
+                    <p>Автоматичне заповнення SEO полів тільки при створенні нового товару. Тригери з generator-seo модуля.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Що генерується</h3>
+                        <p>Title &mdash; одразу при наявності бренду/назви. Description &mdash; при наявності тексту товару. Keywords &mdash; base + trigger.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Поле</th><th>Джерело</th><th>Коли</th></tr>
+                        <tr><td><code>seo_title</code></td><td><code>generateSeoTitle(brand, name, variation, lang)</code></td><td>Є бренд або назва</td></tr>
+                        <tr><td><code>seo_description</code></td><td><code>generateSeoDescription(plainText, lang)</code></td><td>Є текст товару (editor)</td></tr>
+                        <tr><td><code>seo_keywords</code></td><td><code>generateSeoKeywords(brand, name, variation, triggers, lang)</code></td><td>Є бренд або назва</td></tr>
+                    </table>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Система тригерів</h3>
+                        <p>Тригери &mdash; ключові слова з generator-seo. Якщо назва товару містить тригер &rarr; додаткові keywords + badge chip.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Matching</div>
+<pre>matchProductTriggers(productName)
+  &rarr; triggersData.filter(t =&gt; t.triggers.some(keyword =&gt;
+        new RegExp(`\\b${keyword}\\b`, 'i').test(productName)
+     ))
+  &rarr; [title1, title2, ...]  // matched trigger titles
+
+renderSeoChips(activeTulips)
+  &rarr; badge.c-main для кожного matched trigger</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- WIZARD -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="wizard">
+                <div class="m3-section-hero">
+                    <h2>Wizard (покрокове створення)</h2>
+                    <p>Використовує той самий product-edit модал, але показує секції по одній. Перемикач Wizard/Стандарт.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Механіка</h3>
+                        <p>Wizard footer: Назад | N/Total | Далі / Створити. MutationObserver відслідковує зміну характеристик при зміні категорії.</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Flow</div>
+<pre>showProductWizard()
+  &rarr; showAddProductModal()
+  &rarr; _activateWizardMode()
+      &rarr; container.classList.add('wizard-mode')
+      &rarr; _createWizardFooter()   // Назад + Далі + Створити
+      &rarr; _collectSections()      // querySelectorAll sections
+      &rarr; _showCurrentStep()      // u-hidden toggle
+      &rarr; _watchCategoryChanges() // MutationObserver
+
+"Створити" &rarr; click btn-save-product &rarr; _deactivate()
+  &rarr; remove wizard-mode, show all sections
+  &rarr; модал стає звичайним для подальшого редагування</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- POLLING -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="polling">
+                <div class="m3-section-hero">
+                    <h2>Polling + BroadcastChannel</h2>
+                    <p>Кожні 20 секунд перевіряє зміни інших користувачів. BroadcastChannel &mdash; миттєва синхронізація між вкладками.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Polling механізм</h3>
+                        <p>Використовує утиліту <code>createPolling()</code>. 2 джерела: products (CSV) + variants (Sheets API).</p>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">Fingerprinting</div>
+<pre>productFp(p) = `${p.product_id}|${p.name_ua}|${p.status}|${p.updated_at}`
+variantFp(v) = `${v.variant_id}|${v.product_id}|${v.sku}|${v.price}|${v.status}`
+
+contentFingerprint(items, itemFp) = items.map(fp).sort().join('\n')
+
+// Якщо fingerprint змінився &rarr; onChanged():
+//   loadProducts() + loadProductVariants() &rarr; renderProductsTable()</pre>
+                    </div>
+                    <div class="m3-code">
+                        <div class="m3-code-label">BroadcastChannel</div>
+<pre>channel = new BroadcastChannel('products-changes')
+
+// При збереженні:
+notifyChange(productId)  &rarr; { type: 'products-changed', productId }
+notifyDelete(productId)  &rarr; { type: 'product-deleted',  productId }
+
+// При отриманні:
+'products-changed' &rarr; refreshData() + refreshProductModal() (якщо відкрито)
+'product-deleted'  &rarr; refreshData() + closeModal() (якщо цей товар відкрито)
+
+// CRUD операції: pausePolling() &rarr; API call &rarr; resumePolling()</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ХУКИ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="hooks">
+                <div class="m3-section-hero">
+                    <h2>Хуки (плагінна система)</h2>
+                    <p>11 хуків для розширення поведінки. Плагіни реєструють callbacks з пріоритетом.</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Реєстр хуків</h3>
+                        <p><code>registerProductsPlugin(hookName, callback, priority)</code> &mdash; менше priority = раніше виконується.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Хук</th><th>Коли</th><th>Аргументи</th></tr>
+                        <tr><td><code>onInit</code></td><td>Після завантаження даних</td><td>products[]</td></tr>
+                        <tr><td><code>onProductAdd</code></td><td>Після додавання товару</td><td>newProduct</td></tr>
+                        <tr><td><code>onProductUpdate</code></td><td>Після оновлення товару</td><td>productId, updates</td></tr>
+                        <tr><td><code>onProductDelete</code></td><td>Після видалення товару</td><td>productId</td></tr>
+                        <tr><td><code>onVariantAdd</code></td><td>Після додавання варіанту</td><td>&mdash;</td></tr>
+                        <tr><td><code>onVariantUpdate</code></td><td>Після оновлення варіанту</td><td>&mdash;</td></tr>
+                        <tr><td><code>onVariantDelete</code></td><td>Після видалення варіанту</td><td>&mdash;</td></tr>
+                        <tr><td><code>onRender</code></td><td>Після рендеру / оновлення</td><td>&mdash;</td></tr>
+                        <tr><td><code>onTabChange</code></td><td>Після зміни табу</td><td>tabName</td></tr>
+                        <tr><td><code>onModalOpen</code></td><td>Після відкриття модалу</td><td>product | null</td></tr>
+                        <tr><td><code>onModalClose</code></td><td>Після закриття модалу</td><td>&mdash;</td></tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- ІНТЕГРАЦІЇ -->
+            <!-- ============================================================ -->
+            <section class="m3-section" id="integrations">
+                <div class="m3-section-hero">
+                    <h2>Інтеграції з іншими модулями</h2>
+                    <p>Products залежить від 11 зовнішніх модулів. Всі підключаються через import (статичний або динамічний).</p>
+                </div>
+
+                <div class="m3-block">
+                    <div class="m3-block-header">
+                        <h3>Карта залежностей</h3>
+                        <p>Зовнішні модулі використовуються Products модулем.</p>
+                    </div>
+                    <table class="m3-spec">
+                        <tr><th>Модуль</th><th>Що імпортується</th><th>Для чого</th></tr>
+                        <tr>
+                            <td>Brands</td>
+                            <td><code>getBrands()</code>, <code>loadBrands()</code></td>
+                            <td>Select бренду, dataTransform brand_name</td>
+                        </tr>
+                        <tr>
+                            <td>Brand Lines</td>
+                            <td><code>getBrandLines()</code>, <code>loadBrandLines()</code></td>
+                            <td>Select лінійки (каскад від бренду)</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper Categories</td>
+                            <td><code>getCategories()</code>, <code>loadCategories()</code></td>
+                            <td>Select категорії, dataTransform category_name</td>
+                        </tr>
+                        <tr>
+                            <td>Mapper Characteristics</td>
+                            <td><code>getCharacteristics()</code>, <code>getOptions()</code></td>
+                            <td>Динамічні блоки характеристик (blocks 1-9)</td>
+                        </tr>
+                        <tr>
+                            <td>Generator SEO</td>
+                            <td><code>generateSeoTitle()</code>, <code>getTriggersData()</code></td>
+                            <td>Автогенерація SEO title/description/keywords</td>
+                        </tr>
+                        <tr>
+                            <td>Editor</td>
+                            <td><code>createHighlightEditor()</code></td>
+                            <td>6 текстових редакторів (склад, опис)</td>
+                        </tr>
+                        <tr>
+                            <td>Modal</td>
+                            <td><code>showModal()</code>, <code>closeModal()</code>, <code>showConfirmModal()</code></td>
+                            <td>Fullscreen модал, confirm/cascade confirm</td>
+                        </tr>
+                        <tr>
+                            <td>Table</td>
+                            <td><code>createManagedTable()</code>, <code>col()</code></td>
+                            <td>3 таблиці на сторінці + таблиця варіантів в модалі</td>
+                        </tr>
+                        <tr>
+                            <td>Forms</td>
+                            <td><code>populateSelect()</code>, <code>initCustomSelects()</code></td>
+                            <td>Custom selects для бренду, лінійки, категорії, характеристик</td>
+                        </tr>
+                        <tr>
+                            <td>Actions</td>
+                            <td><code>registerActionHandlers()</code>, <code>actionButton()</code></td>
+                            <td>Edit/delete actions на рядках таблиць</td>
+                        </tr>
+                        <tr>
+                            <td>Polling utility</td>
+                            <td><code>createPolling()</code></td>
+                            <td>Fingerprint-based polling кожні 20 сек</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Підсвічування активного пункту в sidebar при скролі
+        const navItems = document.querySelectorAll('.m3-nav-item');
+        const sections = document.querySelectorAll('.m3-section');
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const active = document.querySelector(`.m3-nav-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+        sections.forEach(s => observer.observe(s));
+    </script>
+
+</body>
+</html>
