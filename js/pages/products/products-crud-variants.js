@@ -141,7 +141,8 @@ function _buildExistingVariantRowHTML(v, productName) {
     <div class="pseudo-table-row" data-variant-id="${escapeHtml(vid)}">
         <div class="pseudo-table-cell col-1">
             <input type="checkbox" data-role="va-checkbox">
-            <button type="button" class="btn-icon u-hidden" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
+            <button type="button" class="btn-icon" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
+            <button type="button" class="btn-icon u-hidden" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
         </div>
         <div class="pseudo-table-cell col-3" data-display="name">${escapeHtml(productName)}</div>
         <div class="pseudo-table-cell col-2" data-display="variant">${escapeHtml(variantName)}</div>
@@ -149,8 +150,7 @@ function _buildExistingVariantRowHTML(v, productName) {
         <div class="pseudo-table-cell col-2 cell-align-center" data-display="old_price"><span class="tag c-secondary">${oldPriceDisplay}</span></div>
         <div class="pseudo-table-cell col-1 cell-align-center" data-display="stock"><span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span></div>
         <div class="pseudo-table-cell col-1 cell-align-end">
-            <button type="button" class="btn-icon u-hidden" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
-            <button type="button" class="btn-icon" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
+            <button type="button" class="btn-icon u-hidden" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
         </div>
         <div class="u-reveal">
             <div>
@@ -968,7 +968,8 @@ function _buildAccordionItemHTML(pv, index, productName) {
     <div class="pseudo-table-row" data-pending-id="${escapeHtml(pid)}">
         <div class="pseudo-table-cell col-1">
             <input type="checkbox" data-role="va-checkbox" ${isFirst ? 'class="u-hidden"' : ''}>
-            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
+            <button type="button" class="btn-icon ${isFirst ? 'u-hidden' : ''}" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
+            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
         </div>
         <div class="pseudo-table-cell col-3" data-display="name">${escapeHtml(productName || '')}</div>
         <div class="pseudo-table-cell col-2" data-display="variant">${escapeHtml(variantName)}</div>
@@ -976,8 +977,7 @@ function _buildAccordionItemHTML(pv, index, productName) {
         <div class="pseudo-table-cell col-2 cell-align-center" data-display="old_price"><span class="tag c-secondary">${oldPriceDisplay}</span></div>
         <div class="pseudo-table-cell col-1 cell-align-center" data-display="stock"><span class="tag c-tertiary">${escapeHtml(stockDisplay)}</span></div>
         <div class="pseudo-table-cell col-1 cell-align-end">
-            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-save"><span class="material-symbols-outlined">save</span></button>
-            <button type="button" class="btn-icon ${isFirst ? 'u-hidden' : ''}" data-action="va-edit"><span class="material-symbols-outlined">edit</span></button>
+            <button type="button" class="btn-icon ${isFirst ? '' : 'u-hidden'}" data-action="va-close"><span class="material-symbols-outlined">close</span></button>
         </div>
         <div class="u-reveal ${openClass}">
             <div>
