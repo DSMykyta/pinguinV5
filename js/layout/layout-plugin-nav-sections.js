@@ -13,7 +13,7 @@
  * ║                                                                          ║
  * ║  📋 HTML СТРУКТУРА:                                                      ║
  * ║  <nav class="nav column" id="...-section-navigator">                    ║
- * ║    <a class="btn-icon expand touch" href="#section-id">...</a>          ║
+ * ║    <a class="btn-icon expand" href="#section-id">...</a>          ║
  * ║  </nav>                                                                  ║
  * ║  <main> <section id="section-id">...</section> </main>                   ║
  * ║                                                                          ║

@@ -375,7 +375,7 @@ async function updateCharacteristicsNav(blockNumbers) {
             const name = BLOCK_NAMES[blockNum] || `Блок ${blockNum}`;
             const icon = icons[blockNum] || 'tune';
             html += `
-                <a href="#section-product-block-${blockNum}" class="btn-icon expand touch" aria-label="${name}">
+                <a href="#section-product-block-${blockNum}" class="btn-icon expand" aria-label="${name}">
                     <span class="material-symbols-outlined">${icon}</span>
                     <span class="btn-icon-label">${name}</span>
                 </a>

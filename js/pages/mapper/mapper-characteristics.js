@@ -677,7 +677,7 @@ function renderMappedMpCharacteristicsSections(ownCharId) {
     const navTarget = navMain || nav;
     const navItem = document.createElement('a');
     navItem.href = '#section-mp-characteristics';
-    navItem.className = 'btn-icon expand touch mp-nav-item';
+    navItem.className = 'btn-icon expand mp-nav-item';
     navItem.setAttribute('aria-label', 'Маркетплейси');
     navItem.innerHTML = `
         <span class="material-symbols-outlined">hexagon</span>
