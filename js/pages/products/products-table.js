@@ -17,6 +17,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -153,6 +154,8 @@ function initProductsTable() {
     });
 
     productsState.tableAPI = productsState.productsManagedTable.tableAPI;
+
+    initColumnsCharm();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

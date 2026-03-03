@@ -17,6 +17,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ACTION HANDLERS
@@ -115,6 +116,8 @@ function initVariantsPageTable() {
         pageSize: null,
         checkboxPrefix: 'variants-page'
     });
+
+    initColumnsCharm();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -17,6 +17,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { getOptions } from '../mapper/mapper-data-own.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -129,6 +130,8 @@ function initBrandsTable() {
 
     // Зберігаємо tableAPI в state для сумісності
     brandsState.tableAPI = brandsState.brandsManagedTable.tableAPI;
+
+    initColumnsCharm();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

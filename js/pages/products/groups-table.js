@@ -18,6 +18,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
@@ -105,6 +106,8 @@ function initGroupsPageTable() {
         pageSize: null,
         checkboxPrefix: 'groups-page'
     });
+
+    initColumnsCharm();
 
     // Кнопка додавання
     const addBtn = document.getElementById('btn-add-group');

@@ -18,6 +18,7 @@ import {
     initActionHandlers,
     actionButton
 } from '../../components/actions/actions-main.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -109,6 +110,8 @@ function initLinesTable() {
         pageSize: null,
         checkboxPrefix: 'lines'
     });
+
+    initColumnsCharm();
 
     // Деактивувати одразу — brands таб активний за замовчуванням
     brandsState.linesManagedTable.deactivate();
