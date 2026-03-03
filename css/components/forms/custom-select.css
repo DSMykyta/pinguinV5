@@ -227,26 +227,4 @@
 
 /* ============================================ */
 /* COMPACT TRIGGER (in pseudo-table rows)       */
-/* ============================================ */
-
-.pseudo-table-row .custom-select-trigger {
-    min-height: unset;
-    max-height: unset;
-    padding: 4px 8px;
-    width: 100%;
-    color: var(--color-on-surface-v);
-    gap: 4px;
-}
-
-.pseudo-table-row .custom-select-trigger .custom-select-arrow {
-    width: 16px;
-    height: 16px;
-}
-
-.pseudo-table-row .custom-select-trigger.mapped {
-    color: var(--color-on-surface);
-    border-color: var(--color-main);
-    background: var(--color-main-c);
-}
-
 
