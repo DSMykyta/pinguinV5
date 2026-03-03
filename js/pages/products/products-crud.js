@@ -558,9 +558,11 @@ function fillProductForm(product) {
     updateGeneratedNames(currentProductId);
 
     // Інформація (метадані)
+    // Інформація (метадані)
     try {
-        const { fillInfoSection } = await import('./products-crud-info.js');
-        fillInfoSection(product);
+        import('./products-crud-info.js').then(({ fillInfoSection }) => {
+            fillInfoSection(product);
+        }).catch(() => {});
     } catch { /* ignore */ }
 }
 
