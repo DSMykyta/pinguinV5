@@ -34,7 +34,7 @@ const _observers = new WeakMap();
 export function initSectionNav(nav, contentArea) {
     if (!nav || !contentArea) return;
 
-    const navLinks = nav.querySelectorAll('a.btn-icon.expand.touch, a.btn-icon.expand');
+    const navLinks = nav.querySelectorAll('a.btn-icon.expand.touch');
     const sections = contentArea.querySelectorAll('section[id]');
 
     // Клік — делегування (один раз)
