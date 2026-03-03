@@ -21,8 +21,7 @@
  * ║                                                                          ║
  * ║  СТАН КНОПОК (автоматично):                                             ║
  * ║  Закрито: [checkbox] [edit]           — rowActions колонка               ║
- * ║  Відкрито: [save]                     — rowActions колонка               ║
- * ║            [close]                    — кінець u-reveal блоку            ║
+ * ║  Відкрито: [save] ... [close]         — rowActions колонка               ║
  * ║                                                                          ║
  * ║  CSS:                                                                    ║
  * ║  Використовує .u-reveal + .is-open з helpers.css                        ║
@@ -85,6 +84,13 @@ class ExpandablePlugin {
                         <span class="material-symbols-outlined">save</span>
                     </button>`;
                 actionsCell.prepend(btnGroup);
+
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'btn-icon u-hidden';
+                closeBtn.dataset.action = 'expand-close';
+                closeBtn.dataset.tooltip = 'Згорнути';
+                closeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+                actionsCell.appendChild(closeBtn);
             }
 
             const content = this.config.renderContent(rowData, rowEl);
@@ -93,13 +99,7 @@ class ExpandablePlugin {
             // u-reveal з close кнопкою в кінці
             const reveal = document.createElement('div');
             reveal.className = 'u-reveal';
-            reveal.innerHTML = `
-                <div>${content}</div>
-                <div style="display:flex;justify-content:flex-end;padding:8px 0">
-                    <button class="btn-icon" data-action="expand-close" data-tooltip="Згорнути">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>`;
+            reveal.innerHTML = `<div>${content}</div>`;
             rowEl.appendChild(reveal);
         });
 
@@ -133,10 +133,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const saveBtn = row.querySelector('[data-action="expand-save"]');
+        const closeBtn = row.querySelector('[data-action="expand-close"]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
         saveBtn?.classList.remove('u-hidden');
+        closeBtn?.classList.remove('u-hidden');
         checkbox?.classList.add('u-hidden');
 
         reveal.classList.add('is-open');
@@ -153,10 +155,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const saveBtn = row.querySelector('[data-action="expand-save"]');
+        const closeBtn = row.querySelector('[data-action="expand-close"]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
         saveBtn?.classList.add('u-hidden');
+        closeBtn?.classList.add('u-hidden');
         checkbox?.classList.remove('u-hidden');
 
         reveal.classList.remove('is-open');
