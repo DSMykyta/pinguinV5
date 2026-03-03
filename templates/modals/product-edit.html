@@ -41,6 +41,10 @@
                     <span class="material-symbols-outlined">travel_explore</span>
                     <span class="btn-icon-label">SEO</span>
                 </a>
+                <a href="#section-product-about" class="btn-icon expand" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info_i</span>
+                    <span class="btn-icon-label">Інформація</span>
+                </a>
             </div>
 
             <div class="nav-footer">
@@ -261,68 +265,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="separator-h col-12"></div>
-                            
-                            <!-- Зформована назва коротка (readonly) -->
-                            <div class="group column col-4">
-                                <label class="label-l">Назва коротка</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-short-ua" readonly placeholder="Автоматично">
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-short-ru" readonly placeholder="Автоматически">
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Зформована назва повна (readonly) -->
-                            <div class="group column col-4">
-                                <label class="label-l">Назва повна</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-full-ua" readonly placeholder="Автоматично">
-                                                <span class="tag c-secondary">UA</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-full-ru" readonly placeholder="Автоматически">
-                                                <span class="tag c-secondary">RU</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- URL адреса (readonly, генерується з короткої назви) -->
-                            <div class="group column col-4">
-                                <label class="label-l">URL адреса</label>
-                                <div class="content-bloc" id="product-url-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-url" readonly placeholder="Автоматично">
-                                            <span class="tag c-tertiary">slug</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <label class="label-s">Генерується при першому збереженні</label>
                             </div>
 
                         </div>
@@ -628,7 +570,7 @@
 
         <!-- ПАНЕЛЬ ДІЙ -->
         <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch" data-modal-close title="Закрити">
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
                 <span class="material-symbols-outlined">close</span>
             </button>
             <div class="modal-fullscreen-actions-footer">
