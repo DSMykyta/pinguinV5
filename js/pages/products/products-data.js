@@ -308,8 +308,8 @@ export async function addProduct(productData) {
             status: productData.status || 'draft',
             created_at: now,
             updated_at: now,
-            created_by: window.currentUser?.display_name || '',
-            updated_by: window.currentUser?.display_name || '',
+            created_by: window.currentUser?.username || '',
+            updated_by: window.currentUser?.username || '',
             _rowIndex: productsState.products.length + 2
         };
 
@@ -390,7 +390,7 @@ export async function updateProduct(productId, updates) {
             status: u('status'),
             updated_at: new Date().toISOString(),
             created_by: product.created_by || '',
-            updated_by: window.currentUser?.display_name || '',
+            updated_by: window.currentUser?.username || '',
         };
 
         const range = `${SHEET_NAME}!A${product._rowIndex}:AN${product._rowIndex}`;
