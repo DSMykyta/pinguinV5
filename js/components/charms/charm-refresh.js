@@ -142,14 +142,14 @@ async function handleRefreshClick(btn, el) {
 
 /**
  * Знайти .group для елемента.
- * Case A: modal container → .modal-fullscreen-header > .group
+ * Case A: modal container → .modal-fullscreen-actions-footer
  * Case B: <section>       → .section-header > .group (ВНИЗ)
  * Case C: container       → .section-header > .group (ВГОРУ)
  */
 export function findToolbarGroup(el) {
-    // Case A: modal container
-    const modalHeader = el.querySelector(':scope > .modal-fullscreen-header');
-    if (modalHeader) return ensureGroup(modalHeader);
+    // Case A: modal container → actions footer (right panel)
+    const actionsFooter = el.querySelector(':scope > .modal-fullscreen-actions > .modal-fullscreen-actions-footer');
+    if (actionsFooter) return actionsFooter;
 
     // Case B: section — шукати ВНИЗ
     const headerDown = el.querySelector(':scope > .section-header');

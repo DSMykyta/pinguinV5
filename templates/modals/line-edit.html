@@ -1,49 +1,35 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="line-edit-modal">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
+        <!-- НАВІГАЦІЯ -->
+        <nav class="nav column" id="line-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-line-info" class="btn-icon expand active" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Інформація</span>
+                </a>
+            </div>
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-line" aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon touch" data-modal-close title="Закрити">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="line-modal-title">Нова лінійка</h1>
                 </div>
             </div>
-            <div class="group">
-                <button class="btn-icon" id="btn-save-line" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-line" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
-            </div>
         </header>
 
-        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <!-- КОНТЕНТ -->
         <div class="modal-body-with-sidebar">
-
-            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
-            <nav class="nav column" id="line-section-navigator">
-                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <div class="nav-main">
-                    <a href="#section-line-info" class="btn-icon expand active" aria-label="Інформація">
-                        <span class="material-symbols-outlined">info</span>
-                        <span class="btn-icon-label">Інформація</span>
-                    </a>
-                </div>
-
-                <div class="nav-footer">
-                    <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-line" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- КОНТЕНТ - секції -->
             <main class="modal-fullscreen-content">
 
                 <!-- Hidden fields -->
@@ -130,7 +116,21 @@
                 </section>
 
             </main>
+        </div>
 
+        <!-- ПАНЕЛЬ ДІЙ -->
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch" data-modal-close title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon" id="btn-save-line" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-line" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
         </div>
 
     </div>

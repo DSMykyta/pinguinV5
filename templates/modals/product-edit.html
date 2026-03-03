@@ -1,12 +1,58 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="product-edit-modal">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
+        <!-- НАВІГАЦІЯ -->
+        <nav class="nav column" id="product-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <!-- Фіксовані секції -->
+                <a href="#section-product-info" class="btn-icon expand active" aria-label="Основне">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Основне</span>
+                </a>
+                <a href="#section-product-photos" class="btn-icon expand" aria-label="Фото">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    <span class="btn-icon-label">Фото</span>
+                </a>
+                <a href="#section-product-variants" class="btn-icon expand" aria-label="Варіанти">
+                    <span class="material-symbols-outlined">style</span>
+                    <span class="btn-icon-label">Варіанти</span>
+                </a>
+                <a href="#section-product-composition-code" class="btn-icon expand" aria-label="Код складу">
+                    <span class="material-symbols-outlined">code</span>
+                    <span class="btn-icon-label">Код складу</span>
+                </a>
+                <a href="#section-product-composition-notes" class="btn-icon expand" aria-label="1 порція">
+                    <span class="material-symbols-outlined">notes</span>
+                    <span class="btn-icon-label">1 порція</span>
+                </a>
+                <a href="#section-product-description" class="btn-icon expand" aria-label="Опис">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="btn-icon-label">Опис</span>
+                </a>
+
+                <!-- Динамічні секції характеристик — додаються через JS -->
+                <div id="product-nav-characteristics"></div>
+
+                <!-- SEO завжди останній -->
+                <a href="#section-product-seo" class="btn-icon expand" aria-label="SEO">
+                    <span class="material-symbols-outlined">travel_explore</span>
+                    <span class="btn-icon-label">SEO</span>
+                </a>
+            </div>
+
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-product" aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon touch" data-modal-close title="Закрити">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="product-modal-title">Новий товар</h1>
                     <span class="tag c-yellow" id="product-status-badge"></span>
@@ -27,68 +73,11 @@
                     <input type="radio" id="product-status-archived" name="product-status" value="archived">
                     <label for="product-status-archived" class="switch-label">Архів</label>
                 </div>
-                <button class="btn-icon" id="btn-save-product" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-product" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
             </div>
         </header>
 
-        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <!-- КОНТЕНТ -->
         <div class="modal-body-with-sidebar">
-
-            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
-            <nav class="nav column" id="product-section-navigator">
-                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <div class="nav-main">
-                    <!-- Фіксовані секції -->
-                    <a href="#section-product-info" class="btn-icon expand active" aria-label="Основне">
-                        <span class="material-symbols-outlined">info</span>
-                        <span class="btn-icon-label">Основне</span>
-                    </a>
-                    <a href="#section-product-photos" class="btn-icon expand" aria-label="Фото">
-                        <span class="material-symbols-outlined">photo_library</span>
-                        <span class="btn-icon-label">Фото</span>
-                    </a>
-                    <a href="#section-product-variants" class="btn-icon expand" aria-label="Варіанти">
-                        <span class="material-symbols-outlined">style</span>
-                        <span class="btn-icon-label">Варіанти</span>
-                    </a>
-                    <a href="#section-product-composition-code" class="btn-icon expand" aria-label="Код складу">
-                        <span class="material-symbols-outlined">code</span>
-                        <span class="btn-icon-label">Код складу</span>
-                    </a>
-                    <a href="#section-product-composition-notes" class="btn-icon expand" aria-label="1 порція">
-                        <span class="material-symbols-outlined">notes</span>
-                        <span class="btn-icon-label">1 порція</span>
-                    </a>
-                    <a href="#section-product-description" class="btn-icon expand" aria-label="Опис">
-                        <span class="material-symbols-outlined">article</span>
-                        <span class="btn-icon-label">Опис</span>
-                    </a>
-
-                    <!-- Динамічні секції характеристик — додаються через JS -->
-                    <div id="product-nav-characteristics"></div>
-
-                    <!-- SEO завжди останній -->
-                    <a href="#section-product-seo" class="btn-icon expand" aria-label="SEO">
-                        <span class="material-symbols-outlined">travel_explore</span>
-                        <span class="btn-icon-label">SEO</span>
-                    </a>
-                </div>
-
-                <div class="nav-footer">
-                    <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-product" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- КОНТЕНТ - секції -->
             <main class="modal-fullscreen-content">
 
                 <!-- Hidden fields -->
@@ -635,6 +624,21 @@
 
             </main>
 
+        </div>
+
+        <!-- ПАНЕЛЬ ДІЙ -->
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch" data-modal-close title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon" id="btn-save-product" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-product" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
         </div>
 
     </div>

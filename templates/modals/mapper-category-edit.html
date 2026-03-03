@@ -1,12 +1,32 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="mapper-category-edit">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
+        <!-- SIDEBAR NAVIGATOR -->
+        <nav class="nav column" id="category-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-category-main" class="btn-icon expand active" aria-label="Основні дані">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span class="btn-icon-label">Основні дані</span>
+                </a>
+                <a href="#section-category-chars" class="btn-icon expand" aria-label="Характеристики">
+                    <span class="material-symbols-outlined">change_history</span>
+                    <span class="btn-icon-label">Характеристики</span>
+                </a>
+                <!-- Секції маркетплейсів додаються динамічно через JS -->
+            </div>
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="delete-mapper-category" aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon touch" data-modal-close title="Закрити">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="category-modal-title">Категорія</h1>
                     <span class="dot c-green" id="category-grouping-dot" title="Товарна"></span>
@@ -20,42 +40,11 @@
                     <input type="radio" id="mapper-category-grouping-yes" name="mapper-category-grouping" value="true">
                     <label for="mapper-category-grouping-yes" class="switch-label">Групуюча</label>
                 </div>
-                <button class="btn-icon" id="save-mapper-category" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-mapper-category" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
             </div>
         </header>
 
-        <!-- BODY WITH SIDEBAR -->
+        <!-- КОНТЕНТ -->
         <div class="modal-body-with-sidebar">
-
-            <!-- SIDEBAR NAVIGATOR -->
-            <nav class="nav column" id="category-section-navigator">
-                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <div class="nav-main">
-                    <a href="#section-category-main" class="btn-icon expand active" aria-label="Основні дані">
-                        <span class="material-symbols-outlined">edit</span>
-                        <span class="btn-icon-label">Основні дані</span>
-                    </a>
-                    <a href="#section-category-chars" class="btn-icon expand" aria-label="Характеристики">
-                        <span class="material-symbols-outlined">change_history</span>
-                        <span class="btn-icon-label">Характеристики</span>
-                    </a>
-                    <!-- Секції маркетплейсів додаються динамічно через JS -->
-                </div>
-                <div class="nav-footer">
-                    <button type="button" class="btn-icon touch danger u-hidden" id="delete-mapper-category" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- CONTENT SECTIONS -->
             <main class="modal-fullscreen-content">
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
@@ -134,6 +123,21 @@
                 <!-- СЕКЦІЇ МАРКЕТПЛЕЙСІВ додаються динамічно через JS -->
 
             </main>
+        </div>
+
+        <!-- ПАНЕЛЬ ДІЙ -->
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch" data-modal-close title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon" id="save-mapper-category" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-mapper-category" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>

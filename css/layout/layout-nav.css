@@ -126,6 +126,6 @@ body.nav-expanded .content-main {
     margin-left: var(--nav-width-expanded);
 }
 
-.modal-body-with-sidebar .nav.column.expanded ~ .modal-fullscreen-content {
+.modal-fullscreen-container > .nav.column.expanded ~ .modal-body-with-sidebar .modal-fullscreen-content {
     padding-left: var(--nav-width-expanded);
 }

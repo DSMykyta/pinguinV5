@@ -1,12 +1,47 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="variant-edit">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
+        <!-- НАВІГАЦІЯ -->
+        <nav class="nav column" id="variant-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-variant-info" class="btn-icon expand active" aria-label="Основне">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Основне</span>
+                </a>
+                <a href="#section-variant-photos" class="btn-icon expand" aria-label="Фото">
+                    <span class="material-symbols-outlined">photo_library</span>
+                    <span class="btn-icon-label">Фото</span>
+                </a>
+                <a href="#section-variant-composition-code" class="btn-icon expand" aria-label="Склад">
+                    <span class="material-symbols-outlined">science</span>
+                    <span class="btn-icon-label">Склад</span>
+                </a>
+                <a href="#section-variant-composition-notes" class="btn-icon expand" aria-label="1 порція">
+                    <span class="material-symbols-outlined">notes</span>
+                    <span class="btn-icon-label">1 порція</span>
+                </a>
+                <a href="#section-variant-product-text" class="btn-icon expand" aria-label="Опис">
+                    <span class="material-symbols-outlined">description</span>
+                    <span class="btn-icon-label">Опис</span>
+                </a>
+
+                <!-- Динамічні секції характеристик -->
+                <div id="variant-nav-characteristics"></div>
+            </div>
+
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-variant" aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon touch" data-modal-close title="Закрити">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="variant-modal-title">Новий варіант</h1>
                     <span class="tag c-yellow" id="variant-status-badge"></span>
@@ -21,49 +56,11 @@
                     <input type="radio" id="variant-status-archived" name="variant-status" value="archived">
                     <label for="variant-status-archived" class="switch-label">Архів</label>
                 </div>
-                <button class="btn-icon" id="btn-save-variant" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-variant" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
             </div>
         </header>
 
-        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <!-- КОНТЕНТ -->
         <div class="modal-body-with-sidebar">
-
-            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
-            <nav class="nav column" id="variant-section-navigator">
-                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <div class="nav-main">
-                    <a href="#section-variant-info" class="btn-icon expand active" aria-label="Основне">
-                        <span class="material-symbols-outlined">info</span>
-                        <span class="btn-icon-label">Основне</span>
-                    </a>
-                    <a href="#section-variant-photos" class="btn-icon expand" aria-label="Фото">
-                        <span class="material-symbols-outlined">photo_library</span>
-                        <span class="btn-icon-label">Фото</span>
-                    </a>
-                    <a href="#section-variant-composition-notes" class="btn-icon expand" aria-label="1 порція">
-                        <span class="material-symbols-outlined">notes</span>
-                        <span class="btn-icon-label">1 порція</span>
-                    </a>
-
-                    <!-- Динамічні секції характеристик -->
-                    <div id="variant-nav-characteristics"></div>
-                </div>
-
-                <div class="nav-footer">
-                    <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-variant" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- КОНТЕНТ - секції -->
             <main class="modal-fullscreen-content">
 
                 <!-- Hidden fields -->
@@ -231,6 +228,41 @@
                 </section>
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: СКЛАД -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-variant-composition-code">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Склад</h2>
+                            </div>
+                            <span class="body-s">Код складу варіанту</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
+                            <div class="group column col-6">
+                                <div id="variant-composition-code-ua-editor" class="section-content-full-height"
+                                     editor tools code br
+                                     data-placeholder="Склад українською..."
+                                     data-min-height="200"
+                                     data-tag="UA">
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <div id="variant-composition-code-ru-editor" class="section-content-full-height"
+                                     editor tools code br
+                                     data-placeholder="Склад російською..."
+                                     data-min-height="200"
+                                     data-tag="RU">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ: 1 ПОРЦІЯ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-variant-composition-notes">
@@ -265,8 +297,58 @@
                     </div>
                 </section>
 
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ОПИС -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-variant-product-text">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Опис</h2>
+                            </div>
+                            <span class="body-s">Текст опису варіанту</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
+                            <div class="group column col-6">
+                                <div id="variant-product-text-ua-editor" class="section-content-full-height"
+                                     editor tools code br
+                                     data-placeholder="Опис українською..."
+                                     data-min-height="200"
+                                     data-tag="UA">
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <div id="variant-product-text-ru-editor" class="section-content-full-height"
+                                     editor tools code br
+                                     data-placeholder="Опис російською..."
+                                     data-min-height="200"
+                                     data-tag="RU">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
 
+        </div>
+
+        <!-- ПАНЕЛЬ ДІЙ -->
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch" data-modal-close title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon" id="btn-save-variant" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-variant" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
         </div>
 
     </div>

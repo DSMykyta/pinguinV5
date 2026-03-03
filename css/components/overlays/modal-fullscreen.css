@@ -2,24 +2,27 @@
  * COMPONENT: Modal Fullscreen
  *
  * ПРИЗНАЧЕННЯ:
- * Повноекранні модальні вікна з бічною навігацією.
- * Використовується для складних редакторів (продукти, категорії, ключові слова).
+ * Повноекранні модальні вікна з трьохколонковою розкладкою:
+ * nav (ліва) | header+content (центр) | actions (права)
  *
  * ВИКОРИСТАННЯ:
  * <div class="modal-overlay modal-fullscreen" data-modal-id="...">
  *   <div class="modal-fullscreen-container modal-with-sidebar">
+ *     <nav class="nav column">...</nav>
  *     <header class="modal-fullscreen-header">
  *       <div class="modal-fullscreen-header-left">
- *         <button class="btn-icon">...</button>
  *         <div class="modal-fullscreen-title"><h1>Title</h1></div>
  *       </div>
- *       <div class="modal-fullscreen-header-right">...</div>
+ *       <div class="group">[switches]</div>
  *     </header>
  *     <div class="modal-body-with-sidebar">
- *       <nav class="nav column">
- *         <a class="btn-icon expand active">...</a>
- *       </nav>
  *       <main class="modal-fullscreen-content">...</main>
+ *     </div>
+ *     <div class="modal-fullscreen-actions">
+ *       <button data-modal-close>close</button>
+ *       <div class="modal-fullscreen-actions-footer">
+ *         [refresh (generated)] [save] [save+close]
+ *       </div>
  *     </div>
  *   </div>
  * </div>
@@ -47,6 +50,7 @@
    ============================================ */
 
 .modal-fullscreen-container {
+    position: relative;
     width: 95vw;
     height: 95dvh;
     display: flex;
@@ -66,7 +70,7 @@
     gap: 12px;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    padding: 12px var(--panel-width-collapsed);
     background: var(--color-surface);
     flex-shrink: 0;
     z-index: var(--z-header);
@@ -112,17 +116,19 @@
 
 .modal-body-with-sidebar {
     display: flex;
-    position: relative;
     flex: 1;
     overflow: hidden;
 }
 
-/* Nav column всередині модалки — absolute замість fixed */
-.modal-body-with-sidebar .nav.column {
+/* Nav column — absolute на повну висоту модалу */
+.modal-fullscreen-container > .nav.column {
     position: absolute;
     top: 0;
+    left: 0;
     bottom: 0;
     height: auto;
+    margin-left: 6px;
+    z-index: var(--z-header);
 }
 
 /* ============================================
@@ -136,10 +142,36 @@
     scroll-snap-type: y mandatory;
 }
 
-/* Відступ під nav column */
+/* Відступи з боків (під nav column + симетрія) */
 .modal-body-with-sidebar .modal-fullscreen-content {
     padding-left: var(--panel-width-collapsed);
+    padding-right: var(--panel-width-collapsed);
     transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   RIGHT ACTION BAR
+   ============================================ */
+
+.modal-fullscreen-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--panel-width-collapsed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    z-index: var(--z-header);
+}
+
+.modal-fullscreen-actions-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
 
 /* Legacy: centered section navigator inside fullscreen */

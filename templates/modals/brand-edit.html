@@ -1,12 +1,43 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="brand-edit-modal">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
 
+        <!-- НАВІГАЦІЯ -->
+        <nav class="nav column" id="brand-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-brand-info" class="btn-icon expand active" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Інформація</span>
+                </a>
+                <a href="#section-brand-lines" class="btn-icon expand" aria-label="Лінійки">
+                    <span class="material-symbols-outlined">category</span>
+                    <span class="btn-icon-label">Лінійки</span>
+                </a>
+                <a href="#section-brand-links" class="btn-icon expand" aria-label="Посилання">
+                    <span class="material-symbols-outlined">link</span>
+                    <span class="btn-icon-label">Посилання</span>
+                </a>
+                <a href="#section-brand-marketplaces" class="btn-icon expand" aria-label="Маркетплейси">
+                    <span class="material-symbols-outlined">storefront</span>
+                    <span class="btn-icon-label">Маркетплейси</span>
+                </a>
+                <a href="#section-brand-text" class="btn-icon expand" aria-label="Опис">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="btn-icon-label">Опис</span>
+                </a>
+            </div>
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-brand" aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
         <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
-                <button class="btn-icon touch" data-modal-close title="Закрити">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </button>
                 <div class="modal-fullscreen-title">
                     <h1 id="brand-modal-title">Новий бренд</h1>
                     <span class="dot c-green" id="brand-status-badge" title="Активний"></span>
@@ -19,54 +50,11 @@
                     <input type="radio" id="brand-status-yes" name="brand-status" value="active" checked>
                     <label for="brand-status-yes" class="switch-label">Активний</label>
                 </div>
-                <button class="btn-icon" id="btn-save-brand" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-brand" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
             </div>
         </header>
 
-        <!-- ОСНОВНИЙ КОНТЕНТ З САЙДБАРОМ -->
+        <!-- КОНТЕНТ -->
         <div class="modal-body-with-sidebar">
-
-            <!-- ВЕРТИКАЛЬНА НАВІГАЦІЯ ЗЛІВА -->
-            <nav class="nav column" id="brand-section-navigator">
-                <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <div class="nav-main">
-                    <a href="#section-brand-info" class="btn-icon expand active" aria-label="Інформація">
-                        <span class="material-symbols-outlined">info</span>
-                        <span class="btn-icon-label">Інформація</span>
-                    </a>
-                    <a href="#section-brand-lines" class="btn-icon expand" aria-label="Лінійки">
-                        <span class="material-symbols-outlined">category</span>
-                        <span class="btn-icon-label">Лінійки</span>
-                    </a>
-                    <a href="#section-brand-links" class="btn-icon expand" aria-label="Посилання">
-                        <span class="material-symbols-outlined">link</span>
-                        <span class="btn-icon-label">Посилання</span>
-                    </a>
-                    <a href="#section-brand-marketplaces" class="btn-icon expand" aria-label="Маркетплейси">
-                        <span class="material-symbols-outlined">storefront</span>
-                        <span class="btn-icon-label">Маркетплейси</span>
-                    </a>
-                    <a href="#section-brand-text" class="btn-icon expand" aria-label="Опис">
-                        <span class="material-symbols-outlined">article</span>
-                        <span class="btn-icon-label">Опис</span>
-                    </a>
-                </div>
-
-                <div class="nav-footer">
-                    <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-brand" aria-label="Видалити">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- КОНТЕНТ - секції -->
             <main class="modal-fullscreen-content">
 
                 <!-- Hidden fields -->
@@ -256,7 +244,21 @@
                 </section>
 
             </main>
+        </div>
 
+        <!-- ПАНЕЛЬ ДІЙ -->
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch" data-modal-close title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon" id="btn-save-brand" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-brand" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
+                </button>
+            </div>
         </div>
 
     </div>
