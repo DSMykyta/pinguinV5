@@ -54,7 +54,7 @@ export const COLUMN_TYPES = {
 
     // 1. Word-chip — ID, коди, артикули
     'tag': {
-        span: 1,
+        span: 2,
         sortable: true,
         searchable: true,
         render: (value) => `<span class="tag c-blue">${escapeHtml(value ?? '')}</span>`
@@ -143,7 +143,6 @@ export const COLUMN_TYPES = {
         span: 1,
         align: 'center',
         sortable: false,
-        class: 'u-max-80',
         render: (value, row) => value
             ? `<img src="${value}" alt="${escapeHtml(row.name_short || '')}" class="product-thumb">`
             : '<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>'
