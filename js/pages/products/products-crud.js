@@ -923,10 +923,14 @@ async function handleSaveProduct(shouldClose = true) {
         productData.url = slugify(productData.generated_short_ua);
     }
 
-    // URL: для існуючого — зберегти оригінальний (не змінювати)
+    // URL: для існуючого — зберегти оригінальний, або згенерувати якщо ще немає
     if (currentProductId) {
         const existing = getProductById(currentProductId);
-        if (existing?.url) productData.url = existing.url;
+        if (existing?.url) {
+            productData.url = existing.url;
+        } else if (!productData.url) {
+            productData.url = slugify(productData.generated_short_ua);
+        }
     }
 
     // Валідація URL: unique (required обробляється charm-required)
