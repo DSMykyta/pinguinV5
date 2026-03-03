@@ -61,6 +61,10 @@
     grid-template-rows: 1fr;
 }
 
+.u-reveal.is-open>* {
+    overflow: visible;
+}
+
 .u-reveal>* {
     overflow: hidden;
 }
