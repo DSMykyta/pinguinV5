@@ -389,7 +389,7 @@ async function updateCharacteristicsNav(blockNumbers) {
         });
 
         navContainer.innerHTML = html;
-    }).catch(() => {});
+    }).catch(() => { });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -562,7 +562,7 @@ function fillProductForm(product) {
     try {
         import('./products-crud-info.js').then(({ fillInfoSection }) => {
             fillInfoSection(product);
-        }).catch(() => {});
+        }).catch(() => { });
     } catch { /* ignore */ }
 }
 
@@ -634,14 +634,14 @@ function clearProductForm() {
     try {
         import('./products-crud-photos.js').then(({ clearPhotos }) => {
             clearPhotos();
-        }).catch(() => {});
+        }).catch(() => { });
     } catch { /* ignore */ }
 
     // Очистити інформацію (метадані)
     try {
         import('./products-crud-info.js').then(({ clearInfoSection }) => {
             clearInfoSection();
-        }).catch(() => {});
+        }).catch(() => { });
     } catch { /* ignore */ }
 }
 
@@ -762,7 +762,7 @@ async function handleSaveProduct(shouldClose = true) {
 /**
  * Оновити форму модала свіжими даними зі стейту
  */
-export function refreshProductModal() {
+export function refreshProductModal(isManual = false) {
     if (!currentProductId) return;
     const product = getProductById(currentProductId);
     if (!product) return;
@@ -771,13 +771,15 @@ export function refreshProductModal() {
 
     fillProductForm(product);
 
-    showToast('Дані оновлено іншим користувачем', 'info', {
-        duration: 8000,
-        action: {
-            label: 'Відмінити',
-            onClick: () => _restoreSnapshot(snapshot),
-        },
-    });
+    if (!isManual) {
+        showToast('Дані оновлено іншим користувачем', 'info', {
+            duration: 8000,
+            action: {
+                label: 'Відмінити',
+                onClick: () => _restoreSnapshot(snapshot),
+            },
+        });
+    }
 }
 
 function _restoreSnapshot(snapshot) {
@@ -844,7 +846,7 @@ export function init(state) {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);
-            }).catch(() => {});
+            }).catch(() => { });
         }
     });
 
@@ -852,7 +854,7 @@ export function init(state) {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);
-            }).catch(() => {});
+            }).catch(() => { });
         }
     });
 
@@ -860,7 +862,7 @@ export function init(state) {
         if (currentProductId) {
             import('./products-crud-variants.js').then(({ populateProductVariants }) => {
                 populateProductVariants(currentProductId);
-            }).catch(() => {});
+            }).catch(() => { });
         }
     });
 
@@ -887,12 +889,12 @@ function cleanupProductModal() {
     try {
         import('./products-crud-variant-pending.js').then(({ discardPendingVariantChanges }) => {
             discardPendingVariantChanges();
-        }).catch(() => {});
+        }).catch(() => { });
     } catch { /* ignore */ }
 
     try {
         import('./products-crud-variants.js').then(({ cleanupVariantState }) => {
             cleanupVariantState();
-        }).catch(() => {});
+        }).catch(() => { });
     } catch { /* ignore */ }
 }

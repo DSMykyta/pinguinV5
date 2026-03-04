@@ -86,7 +86,6 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
     let html = `
         <div class="grid">
             <div class="group column col-12">
-                <label class="label-l">Характеристики варіанту</label>
             </div>
     `;
 

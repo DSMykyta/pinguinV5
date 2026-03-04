@@ -51,7 +51,7 @@ function initRefreshHandlers() {
                 const { resetSnapshots } = await import('./products-polling.js');
                 const { refreshProductModal } = await import('./products-crud.js');
                 resetSnapshots();
-                refreshProductModal();
+                refreshProductModal(true);
                 showToast('Дані оновлено', 'success');
             })());
         });
@@ -70,11 +70,11 @@ function initRefreshHandlers() {
 
                 if (variantId) {
                     const { loadProductVariants } = await import('./variants-data.js');
-                    await loadProductVariants(); 
-                    
+                    await loadProductVariants();
+
                     const { showEditVariantModal } = await import('./products-crud-variants.js');
                     await showEditVariantModal(variantId);
-                    
+
                     showToast('Дані варіанту оновлено', 'success');
                 } else {
                     showToast('Неможливо оновити новий варіант', 'warning');

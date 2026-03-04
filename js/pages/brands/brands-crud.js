@@ -341,7 +341,7 @@ async function handleSaveBrand(shouldClose = true) {
  * Оновити форму модала свіжими даними зі стейту.
  * Оновлює одразу + показує undo тост.
  */
-export function refreshBrandModal() {
+export function refreshBrandModal(isManual = false) {
     if (!currentBrandId) return;
     const brand = getBrandById(currentBrandId);
     if (!brand) return;
@@ -349,22 +349,24 @@ export function refreshBrandModal() {
     // Зберегти snapshot для undo
     const snapshot = getBrandFormData();
 
-    _applyRefresh(brand, snapshot);
+    _applyRefresh(brand, snapshot, isManual);
 }
 
-function _applyRefresh(brand, snapshot) {
+function _applyRefresh(brand, snapshot, isManual = false) {
     fillBrandForm(brand);
     populateBrandLines(currentBrandId);
 
-    showToast('Дані оновлено іншим користувачем', 'info', {
-        duration: 8000,
-        action: {
-            label: 'Відмінити',
-            onClick: () => {
-                _restoreSnapshot(snapshot);
+    if (!isManual) {
+        showToast('Дані оновлено іншим користувачем', 'info', {
+            duration: 8000,
+            action: {
+                label: 'Відмінити',
+                onClick: () => {
+                    _restoreSnapshot(snapshot);
+                },
             },
-        },
-    });
+        });
+    }
 }
 
 function _restoreSnapshot(snapshot) {

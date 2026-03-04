@@ -68,7 +68,7 @@ function initRefreshHandlers() {
                 const { resetSnapshots } = await import('./brands-polling.js');
                 const { refreshBrandModal } = await import('./brands-crud.js');
                 resetSnapshots();
-                refreshBrandModal();
+                refreshBrandModal(true);
                 showToast('Дані оновлено', 'success');
             })());
         });

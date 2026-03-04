@@ -121,7 +121,7 @@
 }
 
 /* Nav column — absolute на повну висоту модалу */
-.modal-fullscreen-container > .nav.column {
+.modal-fullscreen-container>.nav.column {
     position: absolute;
     top: 0;
     left: 0;
@@ -133,7 +133,7 @@
     z-index: calc(var(--z-header) + 1);
 }
 
-.modal-fullscreen-container > .nav.column .nav-main {
+.modal-fullscreen-container>.nav.column .nav-main {
     margin-left: 6px;
 }
 
@@ -205,7 +205,7 @@
 
 /* Динамічні обгортки секцій (напр. product-characteristics-sections)
    мають бути «прозорими» для scroll-snap і висоти */
-.modal-fullscreen-content > div {
+.modal-fullscreen-content>div {
     display: contents;
 }
 
@@ -263,40 +263,6 @@
     line-height: 1.5;
 }
 
-/* Custom select styling */
-.modal-fullscreen .group.column select {
-    display: flex;
-    align-items: center;
-    padding: 8px 16px;
-    border: 1px solid var(--color-outline);
-    border-radius: var(--radius-s, 8px);
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    min-height: 40px;
-    width: 100%;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 40px;
-    transition: border-color 150ms ease-in-out;
-}
-
-.modal-fullscreen .group.column select:hover {
-    border-color: var(--color-on-surface-v);
-}
-
-.modal-fullscreen .group.column select:focus {
-    border-color: var(--color-main);
-    border-width: 1px;
-    outline: none;
-    padding: 7px 15px;
-    padding-right: 39px;
-}
 
 /* ============================================
    WIZARD MODE
@@ -308,10 +274,9 @@
     overflow: hidden;
 }
 
-.wizard-mode #product-status-switch,
-.wizard-mode #btn-save-product,
-.wizard-mode #save-close-product,
-.wizard-mode #product-section-navigator {
+.wizard-mode .nav.column,
+.wizard-mode .modal-fullscreen-actions-footer,
+.wizard-mode #product-status-switch {
     display: none;
 }
 
