@@ -243,216 +243,215 @@
     </div>
 
     <script>
-        // Імітація початкових даних з таблиці
-        const rawTableData = [
-            {
-                id: "mpc-mp-000001-26856",
-                data: '{"id":"26856","name":"Кількість порцій","category_id":"273294,273293","category_name":"Протеин,Креатин","type":"Integer","filter_type":"disable","unit":"N/D","is_global":"FALSE"}'
-            },
-            {
-                id: "mpc-mp-000001-257201",
-                data: '{"id":"257201","name":"ТЕГИ","category_id":"4669267","category_name":"Эспандеры","is_global":"FALSE","type":"CheckBoxGroupValues","filter_type":"bottom","unit":"N/D"}'
-            },
-            {
-                id: "mpc-mp-000001-111111",
-                data: '{"id":"111111","name":"Вага","category_id":"123","category_name":"Гантелі","is_global":"TRUE","type":"Decimal","filter_type":"range","unit":"kg"}'
-            },
-            {
-                id: "mpc-mp-000001-222222",
-                data: '{"id":"222222","name":"Смак","category_id":"273294","category_name":"Протеин","is_global":"FALSE","type":"String","filter_type":"dropdown","unit":"N/D"}'
-            },
-            {
-                id: "mpc-mp-000001-333333",
-                data: '{"id":"333333","name":"Колір","category_id":"4669267","category_name":"Эспандеры","is_global":"TRUE","type":"String","filter_type":"colors","unit":"N/D"}'
+    // Внутрішній стан додатку
+    const state = {
+        items: {}, // Всі вузли (картки та папки)
+        draggedId: null
+    };
+
+    // Ініціалізація стану (завантаження з вашого API)
+    async function init() {
+        try {
+            // Виклик реального ендпоінту
+            const response = await fetch('/api/public/data'); 
+            
+            if (!response.ok) {
+                throw new Error(`Помилка HTTP: ${response.status}`);
             }
-        ];
+            
+            const realTableData = await response.json();
 
-        // Внутрішній стан додатку
-        const state = {
-            items: {}, // Всі вузли (картки та папки)
-            draggedId: null
-        };
-
-        // Ініціалізація стану
-        function init() {
-            rawTableData.forEach(row => {
-                const parsedData = JSON.parse(row.data);
+            // Парсимо отримані дані
+            realTableData.forEach(row => {
+                const parsedData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+                
                 state.items[row.id] = {
                     id: row.id,
                     type: 'card',
-                    parentId: null,
+                    parentId: null, // Усі нові елементи спочатку є картками без папки
                     data: parsedData
                 };
             });
+
+            // Запускаємо рендер після успішного завантаження та парсингу
             render();
+
+        } catch (error) {
+            console.error('Помилка завантаження даних:', error);
+            document.getElementById('mainGrid').innerHTML = `<p style="color: #ff4d4d; padding: 16px;">Помилка завантаження даних: ${error.message}</p>`;
         }
+    }
 
-        // Рендер головного гріда
-        function render() {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '';
+    // Рендер головного гріда
+    function render() {
+        const grid = document.getElementById('mainGrid');
+        grid.innerHTML = '';
 
-            const rootItems = Object.values(state.items).filter(item => item.parentId === null);
+        const rootItems = Object.values(state.items).filter(item => item.parentId === null);
+        
+        rootItems.forEach(item => {
+            const el = createDOMElement(item);
+            grid.appendChild(el);
+        });
+    }
+
+    // Створення HTML елемента на основі даних
+    function createDOMElement(item) {
+        const el = document.createElement('div');
+        el.className = `tile ${item.type}`;
+        el.dataset.id = item.id;
+        el.draggable = true;
+
+        // Drag and Drop слухачі
+        el.addEventListener('dragstart', handleDragStart);
+        el.addEventListener('dragover', handleDragOver);
+        el.addEventListener('dragleave', handleDragLeave);
+        el.addEventListener('drop', handleDrop);
+        el.addEventListener('dragend', handleDragEnd);
+
+        if (item.type === 'card') {
+            // Використовуємо безпечні перевірки на випадок відсутності полів
+            const name = item.data?.name || 'Без назви';
+            const type = item.data?.type || 'N/A';
+            const catName = item.data?.category_name ? item.data.category_name.split(',')[0] + '...' : 'N/A';
+            const filterType = item.data?.filter_type || 'N/A';
             
-            rootItems.forEach(item => {
-                const el = createDOMElement(item);
-                grid.appendChild(el);
-            });
+            el.innerHTML = `
+                <div class="card-title">${name}</div>
+                <div class="card-meta">
+                    <span><span class="tag">${type}</span> ID: ${item.data?.id || item.id}</span>
+                    <span>Крок: ${catName}</span>
+                    <span>Фільтр: ${filterType}</span>
+                </div>
+            `;
+        } else if (item.type === 'folder') {
+            const childrenCount = Object.values(state.items).filter(child => child.parentId === item.id).length;
+            el.innerHTML = `
+                <div class="folder-header" onclick="preventProp(event)">
+                    <input type="text" class="folder-input" value="${item.name}" 
+                           onchange="renameFolder('${item.id}', this.value)" 
+                           onclick="this.select()">
+                </div>
+                <div class="folder-count">${childrenCount} елементів</div>
+                <div class="card-meta" style="margin-top: auto;">Клікніть щоб розгорнути</div>
+            `;
+            el.addEventListener('click', () => openModal(item.id));
         }
 
-        // Створення HTML елемента на основі даних
-        function createDOMElement(item) {
-            const el = document.createElement('div');
-            el.className = `tile ${item.type}`;
-            el.dataset.id = item.id;
-            el.draggable = true;
+        return el;
+    }
 
-            // Drag and Drop слухачі
-            el.addEventListener('dragstart', handleDragStart);
-            el.addEventListener('dragover', handleDragOver);
-            el.addEventListener('dragleave', handleDragLeave);
-            el.addEventListener('drop', handleDrop);
-            el.addEventListener('dragend', handleDragEnd);
+    function preventProp(e) {
+        e.stopPropagation();
+    }
 
-            if (item.type === 'card') {
-                el.innerHTML = `
-                    <div class="card-title">${item.data.name}</div>
-                    <div class="card-meta">
-                        <span><span class="tag">${item.data.type}</span> ID: ${item.data.id}</span>
-                        <span>Крок: ${item.data.category_name.split(',')[0]}...</span>
-                        <span>Фільтр: ${item.data.filter_type}</span>
-                    </div>
-                `;
-            } else if (item.type === 'folder') {
-                const childrenCount = Object.values(state.items).filter(child => child.parentId === item.id).length;
-                el.innerHTML = `
-                    <div class="folder-header" onclick="preventProp(event)">
-                        <input type="text" class="folder-input" value="${item.name}" 
-                               onchange="renameFolder('${item.id}', this.value)" 
-                               onclick="this.select()">
-                    </div>
-                    <div class="folder-count">${childrenCount} елементів</div>
-                    <div class="card-meta" style="margin-top: auto;">Клікніть щоб розгорнути</div>
-                `;
-                el.addEventListener('click', () => openModal(item.id));
-            }
-
-            return el;
+    function renameFolder(folderId, newName) {
+        if (state.items[folderId] && newName.trim() !== '') {
+            state.items[folderId].name = newName.trim();
         }
+        render();
+    }
 
-        function preventProp(e) {
-            e.stopPropagation();
+    // Drag & Drop Логіка
+    function handleDragStart(e) {
+        state.draggedId = this.dataset.id;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.id);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        const targetId = this.dataset.id;
+        if (targetId !== state.draggedId) {
+            this.classList.add('drag-over');
         }
+    }
 
-        function renameFolder(folderId, newName) {
-            if (state.items[folderId] && newName.trim() !== '') {
-                state.items[folderId].name = newName.trim();
-            }
-            render();
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.classList.remove('drag-over');
+
+        const sourceId = state.draggedId;
+        const targetId = this.dataset.id;
+
+        if (sourceId && targetId && sourceId !== targetId) {
+            mergeItems(sourceId, targetId);
         }
+    }
 
-        // Drag & Drop Логіка
-        function handleDragStart(e) {
-            state.draggedId = this.dataset.id;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', this.dataset.id);
-        }
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        state.draggedId = null;
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
+    }
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
+    // Логіка об'єднання (створення папок або додавання в папку)
+    function mergeItems(sourceId, targetId) {
+        const sourceItem = state.items[sourceId];
+        const targetItem = state.items[targetId];
+
+        if (!sourceItem || !targetItem) return;
+
+        // Якщо ціль - це картка, створюємо нову папку
+        if (targetItem.type === 'card') {
+            const newFolderId = 'folder-' + Date.now();
             
-            const targetId = this.dataset.id;
-            if (targetId !== state.draggedId) {
-                this.classList.add('drag-over');
-            }
+            state.items[newFolderId] = {
+                id: newFolderId,
+                type: 'folder',
+                name: 'Нова папка',
+                parentId: null
+            };
+
+            sourceItem.parentId = newFolderId;
+            targetItem.parentId = newFolderId;
+        } 
+        // Якщо ціль - це папка, просто додаємо туди
+        else if (targetItem.type === 'folder') {
+            sourceItem.parentId = targetItem.id;
         }
 
-        function handleDragLeave(e) {
-            this.classList.remove('drag-over');
-        }
+        render();
+    }
 
-        function handleDrop(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            this.classList.remove('drag-over');
+    // Логіка модального вікна
+    function openModal(folderId) {
+        const folder = state.items[folderId];
+        document.getElementById('modalTitle').innerText = folder.name;
+        
+        const modalGrid = document.getElementById('modalGrid');
+        modalGrid.innerHTML = '';
 
-            const sourceId = state.draggedId;
-            const targetId = this.dataset.id;
-
-            if (sourceId && targetId && sourceId !== targetId) {
-                mergeItems(sourceId, targetId);
-            }
-        }
-
-        function handleDragEnd(e) {
-            this.classList.remove('dragging');
-            state.draggedId = null;
-            document.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
-        }
-
-        // Логіка об'єднання (створення папок або додавання в папку)
-        function mergeItems(sourceId, targetId) {
-            const sourceItem = state.items[sourceId];
-            const targetItem = state.items[targetId];
-
-            if (!sourceItem || !targetItem) return;
-
-            // Якщо ціль - це картка, створюємо нову папку
-            if (targetItem.type === 'card') {
-                const newFolderId = 'folder-' + Date.now();
-                
-                state.items[newFolderId] = {
-                    id: newFolderId,
-                    type: 'folder',
-                    name: 'Нова папка',
-                    parentId: null
-                };
-
-                sourceItem.parentId = newFolderId;
-                targetItem.parentId = newFolderId;
-            } 
-            // Якщо ціль - це папка, просто додаємо туди
-            else if (targetItem.type === 'folder') {
-                sourceItem.parentId = targetItem.id;
-            }
-
-            render();
-        }
-
-        // Логіка модального вікна
-        function openModal(folderId) {
-            const folder = state.items[folderId];
-            document.getElementById('modalTitle').innerText = folder.name;
-            
-            const modalGrid = document.getElementById('modalGrid');
-            modalGrid.innerHTML = '';
-
-            const children = Object.values(state.items).filter(item => item.parentId === folderId);
-            
-            children.forEach(item => {
-                const el = createDOMElement(item);
-                // Вимикаємо D&D всередині модалки для простоти інструменту, 
-                // або залишаємо, але блокуємо створення папок в папках.
-                el.draggable = false; 
-                modalGrid.appendChild(el);
-            });
-
-            document.getElementById('folderModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('folderModal').classList.remove('active');
-        }
-
-        // Закриття модалки по кліку на бекграунд
-        document.getElementById('folderModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+        const children = Object.values(state.items).filter(item => item.parentId === folderId);
+        
+        children.forEach(item => {
+            const el = createDOMElement(item);
+            el.draggable = false; // Вимикаємо D&D всередині модалки
+            modalGrid.appendChild(el);
         });
 
-        // Запуск
-        init();
-    </script>
+        document.getElementById('folderModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('folderModal').classList.remove('active');
+    }
+
+    // Закриття модалки по кліку на бекграунд
+    document.getElementById('folderModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Запуск
+    init();
+</script>
 </body>
 </html>
