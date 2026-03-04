@@ -10,7 +10,7 @@
  * CRUD операції для варіантів товарів через Google Sheets API.
  *
  * СТРУКТУРА КОЛОНОК (Google Sheets - ProductVariants):  A:X (24 колонки)
- * A: variant_id | B: product_id | C: sku | D: name_ua | E: name_ru
+ * A: variant_id | B: product_id | C: article | D: name_ua | E: name_ru
  * F: generated_short_ua | G: generated_short_ru
  * H: generated_full_ua | I: generated_full_ru
  * J: price | K: old_price | L: barcode | M: weight | N: stock
@@ -109,7 +109,7 @@ export async function loadProductVariants() {
         productsState.productVariants = dataRows.map((row, index) => ({
             variant_id: row[0] || '',            // A
             product_id: row[1] || '',            // B
-            sku: row[2] || '',                   // C
+            article: row[2] || '',               // C
             name_ua: row[3] || '',               // D
             name_ru: row[4] || '',               // E
             generated_short_ua: row[5] || '',    // F
@@ -155,7 +155,7 @@ function prepareVariantRow(variant) {
     return [
         variant.variant_id || '',             // A: variant_id
         variant.product_id || '',             // B: product_id
-        variant.sku || '',                    // C: sku
+        variant.article || '',                // C: article
         variant.name_ua || '',                // D: name_ua
         variant.name_ru || '',                // E: name_ru
         variant.generated_short_ua || '',     // F: generated_short_ua
@@ -199,7 +199,7 @@ export async function addProductVariant(variantData) {
         const newVariant = {
             variant_id: newId,
             product_id: variantData.product_id || '',
-            sku: variantData.sku || '',
+            article: variantData.article || '',
             name_ua: variantData.name_ua || '',
             name_ru: variantData.name_ru || '',
             generated_short_ua: variantData.generated_short_ua || '',
@@ -265,7 +265,7 @@ export async function updateProductVariant(variantId, updates) {
         const updatedVariant = {
             ...variant,
             product_id: u('product_id'),
-            sku: u('sku'),
+            article: u('article'),
             name_ua: u('name_ua'),
             name_ru: u('name_ru'),
             generated_short_ua: u('generated_short_ua'),

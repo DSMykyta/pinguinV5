@@ -61,6 +61,7 @@ const PLUGINS = [
     './groups-table.js',
     './groups-crud.js',
     './products-crud-variant-weight.js',
+    './products-crud-article.js',
 ];
 
 /**

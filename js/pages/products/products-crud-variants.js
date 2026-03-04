@@ -6,7 +6,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * Секція варіантів у модалі товару.
- * Вкладена таблиця: SKU, назва, ціна, штрихкод, вага, залишок.
+ * Вкладена таблиця: артикул, назва, ціна, штрихкод, вага, залишок.
  * Повноцінний модал variant-edit для редагування варіантів.
  *
  * Суб-модулі:
@@ -363,7 +363,7 @@ function destroyVariantEditors() {
 function clearVariantForm() {
     const fields = [
         'variant-id', 'variant-product-id',
-        'variant-sku', 'variant-price', 'variant-old-price', 'variant-barcode', 'variant-weight',
+        'variant-article', 'variant-price', 'variant-old-price', 'variant-barcode', 'variant-weight',
         'variant-stock', 'variant-image-url'
     ];
     fields.forEach(id => {
@@ -385,8 +385,11 @@ function fillVariantForm(variant) {
     const productIdField = document.getElementById('variant-product-id');
     if (productIdField) productIdField.value = variant.product_id || '';
 
-    const sku = document.getElementById('variant-sku');
-    if (sku) sku.value = variant.sku || '';
+    const articleField = document.getElementById('variant-article');
+    if (articleField) articleField.value = variant.article || '';
+
+    const idDisplay = document.getElementById('variant-id-display');
+    if (idDisplay) idDisplay.value = variant.variant_id || '';
 
     const price = document.getElementById('variant-price');
     if (price) price.value = variant.price || '';
@@ -432,7 +435,7 @@ function fillVariantForm(variant) {
 function getVariantFormData() {
     return {
         product_id: document.getElementById('variant-product-id')?.value.trim() || '',
-        sku: document.getElementById('variant-sku')?.value.trim() || '',
+        article: document.getElementById('variant-article')?.value.trim() || '',
         price: document.getElementById('variant-price')?.value.trim() || '',
         old_price: document.getElementById('variant-old-price')?.value.trim() || '',
         barcode: document.getElementById('variant-barcode')?.value.trim() || '',
@@ -519,14 +522,22 @@ async function handleDeleteVariant(variantId) {
     const variant = getVariantById(variantId);
     if (!variant) return;
 
+    // Guard: не можна видалити останній варіант товару
+    const productId = _getCurrentProductId?.() || variant.product_id;
+    if (productId) {
+        const siblings = getVariantsByProductId(productId);
+        if (siblings.length <= 1) {
+            showToast('Потрібен хоча б один варіант', 'warning');
+            return;
+        }
+    }
+
     const confirmed = await showConfirmModal({
         action: 'видалити',
         entity: 'варіант',
         name: displayName(variant.name_ua) || variant.variant_id,
     });
     if (!confirmed) return;
-
-    const productId = _getCurrentProductId?.();
 
     try {
         await deleteProductVariant(variantId);

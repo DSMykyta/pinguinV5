@@ -18,7 +18,7 @@
  *   products-delete.js               — видалення товару
  */
 
-import { registerProductsPlugin, runHook } from './products-plugins.js';
+import { registerProductsPlugin, runHook, applyFilter } from './products-plugins.js';
 import { productsState } from './products-state.js';
 import { addProduct, updateProduct, getProductById } from './products-data.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
@@ -419,6 +419,7 @@ function getProductFormData() {
     const v = (id) => document.getElementById(id)?.value.trim() || '';
 
     return {
+        article: v('product-article'),
         brand_id: v('product-brand'),
         line_id: v('product-line'),
         category_id: v('product-category'),
@@ -464,6 +465,7 @@ function fillProductForm(product) {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
 
     set('product-id', product.product_id);
+    set('product-article', product.article);
     set('product-name-ua', product.name_ua);
     set('product-name-ru', product.name_ru);
     set('product-text-before-ua', product.text_before_ua);
@@ -571,7 +573,7 @@ function fillProductForm(product) {
  */
 function clearProductForm() {
     const fields = [
-        'product-id', 'product-name-ua', 'product-name-ru',
+        'product-id', 'product-article', 'product-name-ua', 'product-name-ru',
         'product-text-before-ua', 'product-text-before-ru',
         'product-label-ua', 'product-label-ru',
         'product-detail-ua', 'product-detail-ru',
@@ -689,6 +691,11 @@ function safeJsonParseArray(val) {
  */
 async function handleSaveProduct(shouldClose = true) {
     const productData = getProductFormData();
+    const isNew = !currentProductId;
+
+    // Фільтр перед збереженням (плагіни: article, тощо)
+    const filtered = applyFilter('beforeProductSave', productData, { isNew });
+    Object.assign(productData, filtered);
 
     // URL: для нового товару — згенерувати з короткої назви
     if (!currentProductId && !productData.url) {

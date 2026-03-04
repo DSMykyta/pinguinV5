@@ -43,7 +43,7 @@ function getColumns() {
     return [
         col('variant_id', 'ID', 'tag', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 2 }),
-        col('sku', 'SKU', 'text', { span: 2 }),
+        col('article', 'Артикул', 'text', { span: 2 }),
         col('name_ua', 'Назва', 'name'),
         col('price', 'Ціна', 'text', { span: 1, align: 'right' }),
         col('stock', 'Залишок', 'text', { span: 1, align: 'right' }),
@@ -56,8 +56,8 @@ function getColumns() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantsPageTable() {
-    const visibleCols = ['variant_id', 'product_name', 'sku', 'name_ua', 'price', 'stock', 'status'];
-    const searchCols = ['variant_id', 'sku', 'name_ua', 'product_name'];
+    const visibleCols = ['variant_id', 'product_name', 'article', 'name_ua', 'price', 'stock', 'status'];
+    const searchCols = ['variant_id', 'article', 'name_ua', 'product_name'];
 
     _variantsPageManagedTable = createManagedTable({
         container: 'variants-table-container',
@@ -88,7 +88,7 @@ function initVariantsPageTable() {
                     columnTypes: {
                         variant_id: 'id-text',
                         product_name: 'string',
-                        sku: 'string',
+                        article: 'string',
                         name_ua: 'string',
                         price: 'number',
                         stock: 'number',

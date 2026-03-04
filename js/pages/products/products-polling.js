@@ -39,6 +39,7 @@ async function fetchProducts() {
 
     return data.map((row, i) => ({
         product_id: row.product_id || '',
+        article: row.article || '',
         brand_id: row.brand_id || '',
         line_id: row.line_id || '',
         category_id: row.category_id || '',
@@ -63,7 +64,7 @@ async function fetchVariants() {
     return result.slice(1).map((row, i) => ({
         variant_id: row[0] || '',
         product_id: row[1] || '',
-        sku: row[2] || '',
+        article: row[2] || '',
         name_ua: row[3] || '',
         price: row[9] || '',         // J: price (shifted +4)
         status: row[15] || 'active', // P: status (shifted +4)
@@ -86,7 +87,7 @@ function productFp(p) {
 }
 
 function variantFp(v) {
-    return `${v.variant_id}|${v.product_id}|${v.sku}|${v.name_ua}|${v.price}|${v.status}`;
+    return `${v.variant_id}|${v.product_id}|${v.article}|${v.name_ua}|${v.price}|${v.status}`;
 }
 
 function contentFingerprint(items, itemFp) {

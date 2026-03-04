@@ -49,7 +49,7 @@ export function addPendingVariant(data) {
     _pendingCounter++;
     _pendingVariants.push({
         _pendingId: `pending-${_pendingCounter}`,
-        sku: data.sku || '',
+        article: data.article || '',
         barcode: data.barcode || '',
         price: data.price || '',
         old_price: data.old_price || '',
@@ -65,6 +65,10 @@ export function addPendingVariant(data) {
  * Видалити pending варіант
  */
 export function removePendingVariant(pendingId) {
+    if (_pendingVariants.length <= 1) {
+        showToast('Потрібен хоча б один варіант', 'warning');
+        return;
+    }
     syncAccordionFormToState();
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
 
@@ -209,7 +213,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
             name_ua: resolved.ua,
             name_ru: resolved.ru,
             ...genNames,
-            sku: pv.sku || '',
+            article: pv.article || '',
             barcode: pv.barcode || '',
             price: pv.price || '',
             old_price: pv.old_price || '',

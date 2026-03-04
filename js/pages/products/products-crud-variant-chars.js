@@ -8,7 +8,7 @@
  * Рендер характеристик блоку 8 (Варіант) у модалі та expandable таблиці.
  * Companion spec fields (уточнення) — per-char текстове поле.
  * Збір даних характеристик і spec значень з DOM.
- * Рендер полів варіанту для expandable рядків (SKU, ціна, вага тощо).
+ * Рендер полів варіанту для expandable рядків (артикул, ціна, вага тощо).
  */
 
 import { getProductById } from './products-data.js';
@@ -367,9 +367,9 @@ export function getVariantCharsData() {
 export function buildVariantFieldsHTML(pid, pv) {
     return `
         <div class="group column col-4">
-            <label for="${pid}-sku" class="label-l">SKU</label>
+            <label for="${pid}-article" class="label-l">Артикул</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="text" id="${pid}-sku" data-field="sku" placeholder="Артикул" value="${escapeHtml(pv.sku || '')}">
+                <input type="text" id="${pid}-article" data-field="article" placeholder="Артикул" value="${escapeHtml(pv.article || '')}">
             </div></div></div>
         </div>
         <div class="group column col-4">
@@ -479,6 +479,7 @@ export function readRowFormValues(row) {
 export function getVariantColumns(col) {
     return [
         col('variant_id', 'ID', 'tag', { span: 1 }),
+        col('article', 'Артикул', 'text', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 1 }),
         col('variant_display', 'Варіант', 'name', { span: 1 }),
         col('price', 'Ціна', 'tag', { span: 1, color: 'c-secondary' }),
