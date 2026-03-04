@@ -20,7 +20,7 @@ import { handleSave } from './gim-saver.js';
 import { updateCanvasDisplay } from './gim-renderer.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { initCustomSelects } from '../../components/forms/select.js';
-import { debounce } from '../../_utils/common-utils.js';
+import { debounce } from '../../utils/common-utils.js';
 
 /**
  * Ініціалізація DOM, завантаження зображень та обробка подій

@@ -40,7 +40,7 @@
  */
 
 import { renderBadge, renderSeverityBadge } from './table-badges.js';
-import { escapeHtml } from '../../_utils/text-utils.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 /** status value → color class for dot */
 const DOT_COLOR = { active: 'c-green', draft: 'c-yellow', hidden: 'c-red', inactive: 'c-red', true: 'c-green', false: 'c-red' };

@@ -10,7 +10,7 @@
 
 import { priceState } from './price-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
-import { escapeHtml } from '../../_utils/text-utils.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 import { getAvatarPath } from '../../components/avatar/avatar-user.js';
 import { getInitials, getAvatarColor } from '../../components/avatar/avatar-text.js';
 

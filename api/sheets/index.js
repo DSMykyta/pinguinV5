@@ -17,7 +17,7 @@
 // Головний handler роутить запити до відповідних функцій.
 // =========================================================================
 
-const { corsMiddleware } = require('../_utils/cors');
+const { corsMiddleware } = require('../utils/cors');
 const {
   getValues,
   batchGetValues,
@@ -26,7 +26,7 @@ const {
   batchUpdate,
   batchUpdateSpreadsheet,
   getSheetNames,
-} = require('../_utils/google-sheets');
+} = require('../utils/google-sheets');
 
 // =========================================================================
 // MAIN ROUTER

@@ -45,7 +45,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../../_utils/text-utils.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 import { renderTableState } from './table-states.js';
 
 /**

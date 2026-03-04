@@ -13,7 +13,7 @@
  */
 
 import { getBrandsData } from './gse-data.js';
-import { stripHtmlTags as stripHtml } from '../../_utils/text-utils.js';
+import { stripHtmlTags as stripHtml } from '../../utils/text-utils.js';
 
 /**
  * Розпізнає бренд та назву продукту з тексту

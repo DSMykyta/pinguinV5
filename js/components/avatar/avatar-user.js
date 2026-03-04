@@ -15,7 +15,7 @@
  */
 
 import { markPluginLoaded, registerHook, getCurrentUserAvatar } from './avatar-state.js';
-import { capitalizeFirst } from '../../_utils/common-utils.js';
+import { capitalizeFirst } from '../../utils/common-utils.js';
 import {
     AVATAR_BASE_PATH,
     AVATAR_HD_PATH,

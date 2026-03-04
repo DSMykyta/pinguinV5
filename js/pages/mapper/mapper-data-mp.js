@@ -10,7 +10,7 @@
  */
 
 import { mapperState } from './mapper-state.js';
-import { callSheetsAPI } from '../../_utils/api-client.js';
+import { callSheetsAPI } from '../../utils/api-client.js';
 import { SHEETS, deduplicateMappings } from './mapper-data-helpers.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -12,7 +12,7 @@ import { getProductGroups, addProductGroup, updateProductGroup, deleteProductGro
 import { getProducts } from './products-data.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { escapeHtml } from '../../_utils/text-utils.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE

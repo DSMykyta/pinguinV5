@@ -19,9 +19,9 @@
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
-const { corsMiddleware } = require('../_utils/cors');
-const { generateToken, generateRefreshToken, verifyToken, extractTokenFromHeader } = require('../_utils/jwt');
-const { getValues, updateValues } = require('../_utils/google-sheets');
+const { corsMiddleware } = require('../utils/cors');
+const { generateToken, generateRefreshToken, verifyToken, extractTokenFromHeader } = require('../utils/jwt');
+const { getValues, updateValues } = require('../utils/google-sheets');
 
 // =========================================================================
 // MAIN ROUTER

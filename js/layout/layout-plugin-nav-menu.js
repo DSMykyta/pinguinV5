@@ -16,7 +16,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { loadHTML } from '../_utils/html-loader.js';
+import { loadHTML } from '../utils/html-loader.js';
 import { getUserData } from '../auth/auth-google.js';
 
 // ═══════════════════════════════════════════════════════════════════════════

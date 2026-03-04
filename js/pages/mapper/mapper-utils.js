@@ -8,7 +8,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { escapeHtml } from '../../_utils/text-utils.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
