@@ -13,11 +13,11 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createPolling } from '../../utils/polling.js';
+import { createPolling } from '../../_utils/polling.js';
 import { brandsState } from './brands-state.js';
 import { loadBrands } from './brands-data.js';
 import { loadBrandLines } from './lines-data.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../_utils/api-client.js';
 import { MAIN_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 // ── Fetch helpers (без побічних ефектів — тільки повертають дані) ──

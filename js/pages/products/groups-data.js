@@ -15,8 +15,8 @@
  */
 
 import { productsState } from './products-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { callSheetsAPI } from '../../_utils/api-client.js';
+import { generateNextId } from '../../_utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONSTANTS

@@ -345,7 +345,7 @@ async function mergeCategoryIds(characteristic, newCategoryIds) {
  * Оновити id_directory опції через Sheets API
  */
 async function updateOptionIdDirectory(option, idDirectory) {
-    const { callSheetsAPI } = await import('../../utils/api-client.js');
+    const { callSheetsAPI } = await import('../../_utils/api-client.js');
     const range = `Mapper_Options!B${option._rowIndex}`;
     await callSheetsAPI('update', {
         range,
@@ -358,7 +358,7 @@ async function updateOptionIdDirectory(option, idDirectory) {
  * Оновити id_directory характеристики через Sheets API
  */
 async function updateCharIdDirectory(char, idDirectory) {
-    const { callSheetsAPI } = await import('../../utils/api-client.js');
+    const { callSheetsAPI } = await import('../../_utils/api-client.js');
     const range = `Mapper_Characteristics!B${char._rowIndex}`;
     await callSheetsAPI('update', {
         range,

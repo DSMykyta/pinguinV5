@@ -216,7 +216,7 @@ async function updateAuthUI(isAuthorized) {
   if (isAuthorized && !existingNavMain && nav) {
     // Login: завантажуємо nav.html в тимчасовий контейнер і вставляємо тільки .nav-main
     const tmp = document.createElement('div');
-    const { loadHTML } = await import('../utils/html-loader.js');
+    const { loadHTML } = await import('../_utils/html-loader.js');
     await loadHTML('templates/partials/nav.html', tmp);
     const navMainEl = tmp.querySelector('.nav-main');
     if (navMainEl) {

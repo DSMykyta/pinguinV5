@@ -72,4 +72,4 @@ export function normalizeDecimals(text) {
 }
 
 // stripHtml — re-export з text-utils
-export { stripHtmlTags as stripHtml } from '../../utils/text-utils.js';
+export { stripHtmlTags as stripHtml } from '../../_utils/text-utils.js';

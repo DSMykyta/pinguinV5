@@ -30,7 +30,7 @@
 
 import { avatarState, runHook, runHookAsync, setCurrentUser } from './avatar-state.js';
 import { AVAILABLE_ANIMALS } from './avatar-config.js';
-import { capitalizeFirst } from '../../utils/common-utils.js';
+import { capitalizeFirst } from '../../_utils/common-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ПЛАГІНИ - можна видалити будь-який, система працюватиме

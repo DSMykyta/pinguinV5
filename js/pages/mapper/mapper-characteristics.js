@@ -53,7 +53,7 @@ import { showToast } from '../../components/feedback/toast.js';
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
 import { getBatchBar } from '../../components/actions/actions-batch.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { initPaginationCharm } from '../../components/charms/pagination/pagination-main.js';

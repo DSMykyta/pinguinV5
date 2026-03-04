@@ -28,7 +28,7 @@ import {
 import { renderCurrentTab } from './mapper-table.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 
 export const PLUGIN_NAME = 'mapper-import-wizard';
 

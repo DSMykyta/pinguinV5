@@ -14,11 +14,11 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-import { createPolling } from '../../utils/polling.js';
+import { createPolling } from '../../_utils/polling.js';
 import { productsState } from './products-state.js';
 import { loadProducts } from './products-data.js';
 import { loadProductVariants } from './variants-data.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../_utils/api-client.js';
 import { PRODUCTS_SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 // ── Fetch helpers (без побічних ефектів — тільки повертають дані) ──

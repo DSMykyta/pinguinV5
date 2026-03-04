@@ -13,7 +13,7 @@
 
 import { getProductById } from './products-data.js';
 import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from '../mapper/mapper-data-own.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { buildParentChildMap, initParentChildListeners, filterChildOptions } from './products-crud-hierarchy.js';
 

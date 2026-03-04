@@ -17,7 +17,7 @@
  */
 
 // Re-export escapeHtml from central text-utils
-export { escapeHtml } from '../../utils/text-utils.js';
+export { escapeHtml } from '../../_utils/text-utils.js';
 
 /**
  * Зберегти позицію курсора

@@ -43,7 +43,7 @@ import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { showLoader, hideLoader } from '../../components/feedback/loading.js';
 import { initCustomSelects, reinitializeCustomSelect } from '../../components/forms/select.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 
 export const PLUGIN_NAME = 'mapper-import';
 
@@ -581,7 +581,7 @@ function validateImport() {
  * та записати file_id у відповідну MP категорію.
  */
 async function saveReferenceFileToDrive(state) {
-    const { uploadReferenceFile, callSheetsAPI } = await import('../../utils/api-client.js');
+    const { uploadReferenceFile, callSheetsAPI } = await import('../../_utils/api-client.js');
     const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
 
     const marketplace = getMarketplaces().find(m => m.id === state.marketplaceId);
@@ -680,7 +680,7 @@ async function executeImport() {
  * @param {Function} onProgress - Callback для оновлення прогресу (percent, message)
  */
 async function importCharacteristicsAndOptions(onProgress = () => { }) {
-    const { callSheetsAPI } = await import('../../utils/api-client.js');
+    const { callSheetsAPI } = await import('../../_utils/api-client.js');
 
     onProgress(10, 'Обробка даних файлу...');
 

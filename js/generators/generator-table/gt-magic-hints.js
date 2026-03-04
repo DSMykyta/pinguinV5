@@ -17,7 +17,7 @@
  */
 
 import { markPluginLoaded } from './gt-state.js';
-import { debounce } from '../../utils/common-utils.js';
+import { debounce } from '../../_utils/common-utils.js';
 
 export const PLUGIN_NAME = 'gt-magic-hints';
 

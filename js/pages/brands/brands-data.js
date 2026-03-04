@@ -43,9 +43,9 @@
  */
 
 import { brandsState } from './brands-state.js';
-import { callSheetsAPI } from '../../utils/api-client.js';
+import { callSheetsAPI } from '../../_utils/api-client.js';
 import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../_utils/common-utils.js';
 
 const SHEET_NAME = 'Brands';
 const SHEET_GID = '653695455';

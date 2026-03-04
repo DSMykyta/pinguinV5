@@ -12,7 +12,7 @@
 
 import { showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../utils/api-client.js';
+import { uploadBrandLogoFile, uploadBrandLogoUrl } from '../../_utils/api-client.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT

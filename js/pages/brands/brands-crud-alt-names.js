@@ -8,7 +8,7 @@
  * 🔌 Секція альтернативних назв у модалі бренду.
  */
 
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT

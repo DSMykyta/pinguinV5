@@ -18,10 +18,10 @@ import {
     getMapCategories, getMapCharacteristics, getMapOptions
 } from './mapper-data.js';
 import { getBatchBar } from '../../components/actions/actions-batch.js';
-import { createCachedFn } from '../../utils/lazy-load.js';
+import { createCachedFn } from '../../_utils/lazy-load.js';
 import { createManagedTable } from '../../components/table/table-managed.js';
 import { col } from '../../components/table/table-main.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 
 import {
     registerActionHandlers,

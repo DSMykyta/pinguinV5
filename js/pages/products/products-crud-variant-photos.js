@@ -14,8 +14,8 @@
  * Ідентичний products-crud-photos.js, але з variant- префіксами.
  */
 
-import { uploadProductPhotoFile } from '../../utils/api-client.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { uploadProductPhotoFile } from '../../_utils/api-client.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { normalizeName } from './products-crud-photos.js';
 

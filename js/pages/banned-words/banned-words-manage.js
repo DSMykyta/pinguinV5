@@ -8,11 +8,11 @@
  */
 
 import { bannedWordsState } from './banned-words-state.js';
-import { generateNextId } from '../../utils/common-utils.js';
+import { generateNextId } from '../../_utils/common-utils.js';
 import { showModal, closeModal } from '../../components/modal/modal-main.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { initDropdowns } from '../../components/forms/dropdown.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { escapeHtml } from '../../_utils/text-utils.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
     registerActionHandlers,

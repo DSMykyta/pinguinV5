@@ -112,7 +112,7 @@ function showCategoryInfo(category, fileName) {
 async function importCategory(category, marketplaceId) {
     if (!category?.id || !category?.name) return;
 
-    const { callSheetsAPI } = await import('../../utils/api-client.js');
+    const { callSheetsAPI } = await import('../../_utils/api-client.js');
     const { loadMpCategories, getMpCategories } = await import('./mapper-data.js');
     await loadMpCategories();
 
