@@ -25,7 +25,7 @@ import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
-import { runHook } from './products-plugins.js';
+import { runHook, applyFilter } from './products-plugins.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 import { initVariantPhotoSection, setVariantPhotoUrls, clearVariantPhotos } from './products-crud-variant-photos.js';
@@ -473,7 +473,11 @@ function initVariantSaveHandler() {
 }
 
 async function handleSaveVariant(shouldClose = true) {
-    const formData = getVariantFormData();
+    let formData = getVariantFormData();
+    
+    // Пропускаємо через фільтри (плагін ваги перехопить і запише char-000022)
+    formData = applyFilter('onBeforeVariantSave', formData);
+
     const productId = formData.product_id;
 
     // Авто-генерація name_ua/name_ru: resolveVariantName вже враховує per-char spec
@@ -481,8 +485,8 @@ async function handleSaveVariant(shouldClose = true) {
     formData.name_ua = autoName.ua;
     formData.name_ru = autoName.ru;
 
-    // Обчислити згенеровані назви
-    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru);
+    // Обчислити згенеровані назви (додаємо formData.weight як 4-й параметр)
+    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.weight);
     Object.assign(formData, genNames);
 
     try {

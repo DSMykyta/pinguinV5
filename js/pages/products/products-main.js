@@ -7,31 +7,32 @@
  * ║                                                                          ║
  * ║  🔒 ЯДРО (не видаляти):                                                  ║
  * ║  ├── products-main.js     — Точка входу, завантаження плагінів           ║
- * ║  ├── products-plugins.js  — Система реєстрації плагінів (хуки)          ║
- * ║  ├── products-state.js    — Глобальний стан (productsState)             ║
- * ║  ├── products-data.js     — Google Sheets API (CRUD товарів)            ║
- * ║  └── variants-data.js     — Google Sheets API (CRUD варіантів)          ║
+ * ║  ├── products-plugins.js  — Система реєстрації плагінів (хуки)           ║
+ * ║  ├── products-state.js    — Глобальний стан (productsState)              ║
+ * ║  ├── products-data.js     — Google Sheets API (CRUD товарів)             ║
+ * ║  └── variants-data.js     — Google Sheets API (CRUD варіантів)           ║
  * ║                                                                          ║
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
- * ║  ├── products-table.js              — Таблиця товарів (сторінка)       ║
- * ║  ├── products-crud.js               — Модал товару (open/fill/save)    ║
- * ║  ├── products-crud-names.js         — Генерація назв товару            ║
- * ║  ├── products-crud-url.js           — URL slug + валідація             ║
- * ║  ├── products-crud-seo.js           — Автогенерація SEO                ║
- * ║  ├── products-crud-hierarchy.js     — Ієрархія parent-child (спільна)  ║
- * ║  ├── products-crud-characteristics.js — Характеристики                 ║
- * ║  ├── products-crud-variants.js      — Варіанти (модал + таблиця)       ║
- * ║  ├── products-crud-variant-names.js — Резолвінг назв варіантів         ║
- * ║  ├── products-crud-variant-chars.js — Характеристики варіанту (блок 8) ║
- * ║  ├── products-crud-variant-pending.js — Pending варіанти (accordion)   ║
- * ║  ├── products-crud-photos.js        — Фото товару (до 10, Google Drive)║
- * ║  ├── products-crud-variant-photos.js — Фото варіанту                   ║
- * ║  ├── products-delete.js             — Delete товару (confirm + API)    ║
- * ║  ├── products-events.js             — Обробники подій (refresh)        ║
- * ║  ├── variants-table.js              — Таблиця варіантів (сторінка)     ║
- * ║  ├── variants-events.js             — Обробники подій варіантів        ║
- * ║  ├── groups-table.js                — Таблиця груп (сторінка)          ║
- * ║  └── groups-crud.js                 — CRUD операції для груп           ║
+ * ║  ├── products-table.js              — Таблиця товарів (сторінка)         ║
+ * ║  ├── products-crud.js               — Модал товару (open/fill/save)      ║
+ * ║  ├── products-crud-names.js         — Генерація назв товару              ║
+ * ║  ├── products-crud-url.js           — URL slug + валідація               ║
+ * ║  ├── products-crud-seo.js           — Автогенерація SEO                  ║
+ * ║  ├── products-crud-hierarchy.js     — Ієрархія parent-child (спільна)    ║
+ * ║  ├── products-crud-characteristics.js — Характеристики                   ║
+ * ║  ├── products-crud-variants.js      — Варіанти (модал + таблиця)         ║
+ * ║  ├── products-crud-variant-names.js — Резолвінг назв варіантів           ║
+ * ║  ├── products-crud-variant-chars.js — Характеристики варіанту (блок 8)   ║
+ * ║  ├── products-crud-variant-pending.js — Pending варіанти (accordion)     ║
+ * ║  ├── products-crud-photos.js        — Фото товару (до 10, Google Drive)  ║
+ * ║  ├── products-crud-photos.js        — Фото товару (до 10, Google Drive)  ║
+ * ║  ├── products-crud-variant-weight.js — Вага варіанту                     ║
+ * ║  ├── products-delete.js             — Delete товару (confirm + API)      ║
+ * ║  ├── products-events.js             — Обробники подій (refresh)          ║
+ * ║  ├── variants-table.js              — Таблиця варіантів (сторінка)       ║
+ * ║  ├── variants-events.js             — Обробники подій варіантів          ║
+ * ║  ├── groups-table.js                — Таблиця груп (сторінка)            ║
+ * ║  └── groups-crud.js                 — CRUD операції для груп             ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
@@ -59,6 +60,7 @@ const PLUGINS = [
     './variants-events.js',
     './groups-table.js',
     './groups-crud.js',
+    './products-crud-variant-weight.js',
 ];
 
 /**

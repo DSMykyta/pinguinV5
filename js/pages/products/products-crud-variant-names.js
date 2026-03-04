@@ -14,7 +14,7 @@ import { getCharacteristics, getOptions } from '../mapper/mapper-data-own.js';
 import { getProductById } from './products-data.js';
 import { buildParentChildMap } from './products-crud-hierarchy.js';
 import { parseSpecJson } from './products-crud-variant-chars.js';
-
+import { applyFilter } from './products-plugins.js';
 /**
  * Утиліта: перетворити name_ua/name_ru (JSON або рядок) на текст для відображення.
  * Якщо це JSON об'єкт — бере Object.values() і з'єднує через ", ".
@@ -146,7 +146,7 @@ export function resolveVariantName() {
  * @param {string} variantNameUa
  * @param {string} variantNameRu
  */
-export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu) {
+export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu, variantWeight = '') {
     const product = getProductById(productId);
     if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
 
@@ -164,10 +164,18 @@ export function computeVariantGeneratedNames(productId, variantNameUa, variantNa
     const fullUa = nameUaDisplay ? (pFullUa ? `${pFullUa} - ${nameUaDisplay}` : nameUaDisplay) : pFullUa;
     const fullRu = nameRuDisplay ? (pFullRu ? `${pFullRu} - ${nameRuDisplay}` : nameRuDisplay) : pFullRu;
 
-    return {
+    const defaultNames = {
         generated_short_ua: shortUa,
         generated_short_ru: shortRu,
         generated_full_ua: fullUa,
         generated_full_ru: fullRu,
     };
+
+    // Фільтр дозволяє плагінам перезаписати імена (наприклад, використавши вагу)
+    return applyFilter('onComputeVariantNames', defaultNames, {
+        product,
+        weight: variantWeight,
+        nameUaDisplay,
+        nameRuDisplay
+    });
 }
