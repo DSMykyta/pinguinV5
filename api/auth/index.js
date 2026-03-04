@@ -19,7 +19,7 @@
 // =========================================================================
 
 const bcrypt = require('bcryptjs');
-const { corsMiddleware } = require('../utils/cors');
+const { corsMiddleware } = require('../_utils/cors');
 const { generateToken, generateRefreshToken, verifyToken, extractTokenFromHeader } = require('../utils/jwt');
 const { getValues, updateValues } = require('../utils/google-sheets');
 

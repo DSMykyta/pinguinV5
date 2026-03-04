@@ -17,8 +17,8 @@
 // - Розмір: до 10 MB
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { uploadFile, listFiles, deleteFile } = require('../utils/google-drive');
+const { corsMiddleware } = require('../_utils/cors');
+const { uploadFile, listFiles, deleteFile } = require('../_utils/google-drive');
 
 const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx

@@ -21,8 +21,8 @@
 // pinguin-v5/товари/{brandId}/{productId}/{productId}_{index}.webp
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { uploadProductPhoto } = require('../utils/google-drive');
+const { corsMiddleware } = require('../_utils/cors');
+const { uploadProductPhoto } = require('../_utils/google-drive');
 const sharp = require('sharp');
 
 const ALLOWED_TYPES = [

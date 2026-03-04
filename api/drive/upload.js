@@ -25,8 +25,8 @@
 // - Ім'я файлу на Drive: "{normalized_brand_name}.webp"
 // =========================================================================
 
-const { corsMiddleware } = require('../utils/cors');
-const { uploadBrandLogo } = require('../utils/google-drive');
+const { corsMiddleware } = require('../_utils/cors');
+const { uploadBrandLogo } = require('../_utils/google-drive');
 const sharp = require('sharp');
 
 // Дозволені вхідні MIME типи (конвертуються в WebP)
