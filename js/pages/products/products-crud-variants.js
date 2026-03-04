@@ -32,7 +32,7 @@ import { initVariantPhotoSection, setVariantPhotoUrls, clearVariantPhotos } from
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // Sub-modules
-import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
+import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
 import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 import { addPendingVariant, removePendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 
@@ -133,7 +133,7 @@ async function populateProductVariants(productId) {
     const tableData = variants.map(v => ({
         ...v,
         product_name: productName,
-        variant_display: v.name_ua || resolveNameFromCharsAndSpecs(v.variant_chars, v.spec_ua, v.spec_ru).ua,
+        variant_display: displayName(v.name_ua) || displayName(resolveNameFromCharsAndSpecs(v.variant_chars, v.spec_ua, v.spec_ru).ua),
     }));
 
     if (_variantsManagedTable) {
@@ -289,7 +289,7 @@ export async function showEditVariantModal(variantId) {
     await showModal('variant-edit', null);
 
     const title = document.getElementById('variant-modal-title');
-    if (title) title.textContent = `Редагувати ${variant.name_ua || variant.variant_id}`;
+    if (title) title.textContent = `Редагувати ${displayName(variant.name_ua) || variant.variant_id}`;
 
     initVariantEditors();
     initVariantPhotoSection();
@@ -518,7 +518,7 @@ async function handleDeleteVariant(variantId) {
     const confirmed = await showConfirmModal({
         action: 'видалити',
         entity: 'варіант',
-        name: variant.name_ua || variant.variant_id,
+        name: displayName(variant.name_ua) || variant.variant_id,
     });
     if (!confirmed) return;
 
@@ -526,7 +526,7 @@ async function handleDeleteVariant(variantId) {
 
     try {
         await deleteProductVariant(variantId);
-        showToast(`Варіант ${variant.name_ua || variant.variant_id} видалено`, 'success');
+        showToast(`Варіант ${displayName(variant.name_ua) || variant.variant_id} видалено`, 'success');
         runHook('onVariantDelete', variantId);
         if (productId) populateProductVariants(productId);
     } catch (error) {

@@ -19,6 +19,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { displayName } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ACTION HANDLERS
@@ -109,7 +110,7 @@ function initVariantsPageTable() {
             return data.map(v => ({
                 ...v,
                 // Показувати згенеровану назву варіанту
-                name_ua: v.generated_short_ua || v.name_ua,
+                name_ua: v.generated_short_ua || displayName(v.name_ua),
                 product_name: productMap[v.product_id] || v.product_id,
             }));
         },

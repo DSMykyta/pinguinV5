@@ -38,7 +38,7 @@ function initRefreshHandlers() {
         });
     }
 
-    // Modal-level refresh
+    // Modal-level refresh (product-edit)
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'product-edit') return;
         const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
@@ -53,6 +53,32 @@ function initRefreshHandlers() {
                 resetSnapshots();
                 refreshProductModal();
                 showToast('Дані оновлено', 'success');
+            })());
+        });
+    });
+
+    // Modal-level refresh (variant-edit)
+    document.addEventListener('modal-opened', (e) => {
+        if (e.detail.modalId !== 'variant-edit') return;
+        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        if (!container || container._variantRefreshInit) return;
+        container._variantRefreshInit = true;
+        container.addEventListener('charm:refresh', (ev) => {
+            ev.detail.waitUntil((async () => {
+                const variantIdInput = document.getElementById('variant-id');
+                const variantId = variantIdInput ? variantIdInput.value : null;
+
+                if (variantId) {
+                    const { loadProductVariants } = await import('./variants-data.js');
+                    await loadProductVariants(); 
+                    
+                    const { showEditVariantModal } = await import('./products-crud-variants.js');
+                    await showEditVariantModal(variantId);
+                    
+                    showToast('Дані варіанту оновлено', 'success');
+                } else {
+                    showToast('Неможливо оновити новий варіант', 'warning');
+                }
             })());
         });
     });

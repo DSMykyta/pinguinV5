@@ -15,6 +15,28 @@ import { getProductById } from './products-data.js';
 import { buildParentChildMap } from './products-crud-hierarchy.js';
 import { parseSpecJson } from './products-crud-variant-chars.js';
 
+/**
+ * Утиліта: перетворити name_ua/name_ru (JSON або рядок) на текст для відображення.
+ * Якщо це JSON об'єкт — бере Object.values() і з'єднує через ", ".
+ * Якщо це звичайний рядок — повертає як є (зворотна сумісність).
+ * @param {string} nameValue
+ * @returns {string}
+ */
+export function displayName(nameValue) {
+    if (!nameValue) return '';
+    if (typeof nameValue === 'string') {
+        const trimmed = nameValue.trim();
+        if (trimmed.startsWith('{')) {
+            try {
+                const obj = JSON.parse(trimmed);
+                return Object.values(obj).filter(Boolean).join(', ');
+            } catch (e) { /* fallback */ }
+        }
+        return nameValue;
+    }
+    return String(nameValue);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // RESOLVE FROM DATA (без DOM)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -36,27 +58,30 @@ export function resolveNameFromCharsAndSpecs(variantChars, specUaJson, specRuJso
     const specUa = parseSpecJson(specUaJson);
     const specRu = parseSpecJson(specRuJson);
 
-    const parts_ua = [];
-    const parts_ru = [];
+    const obj_ua = {};
+    const obj_ru = {};
     for (const [charId, optionId] of Object.entries(variantChars)) {
         if (!optionId) continue;
         if (parentCharIds.has(charId)) continue;
 
         if (specUa[charId]) {
-            parts_ua.push(specUa[charId]);
+            obj_ua[charId] = specUa[charId];
         } else {
             const opt = allOptions.find(o => o.id === optionId);
-            if (opt?.value_ua) parts_ua.push(opt.value_ua);
+            if (opt?.value_ua) obj_ua[charId] = opt.value_ua;
         }
 
         if (specRu[charId]) {
-            parts_ru.push(specRu[charId]);
+            obj_ru[charId] = specRu[charId];
         } else {
             const opt = allOptions.find(o => o.id === optionId);
-            if (opt?.value_ru) parts_ru.push(opt.value_ru);
+            if (opt?.value_ru) obj_ru[charId] = opt.value_ru;
         }
     }
-    return { ua: parts_ua.join(', '), ru: parts_ru.join(', ') };
+    return {
+        ua: Object.keys(obj_ua).length ? JSON.stringify(obj_ua) : '',
+        ru: Object.keys(obj_ru).length ? JSON.stringify(obj_ru) : ''
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -72,8 +97,8 @@ export function resolveVariantName() {
     if (!container) return { ua: '', ru: '' };
 
     const allOptions = getOptions();
-    const parts_ua = [];
-    const parts_ru = [];
+    const obj_ua = {};
+    const obj_ru = {};
 
     container.querySelectorAll('select[data-vchar-id]').forEach(select => {
         // Skip parent characteristics — they don't form variant name
@@ -90,21 +115,24 @@ export function resolveVariantName() {
         const specRu = specRuInput?.value?.trim();
 
         if (specUa) {
-            parts_ua.push(specUa);
+            obj_ua[charId] = specUa;
         } else {
             const opt = allOptions.find(o => o.id === val);
-            if (opt?.value_ua) parts_ua.push(opt.value_ua);
+            if (opt?.value_ua) obj_ua[charId] = opt.value_ua;
         }
 
         if (specRu) {
-            parts_ru.push(specRu);
+            obj_ru[charId] = specRu;
         } else {
             const opt = allOptions.find(o => o.id === val);
-            if (opt?.value_ru) parts_ru.push(opt.value_ru);
+            if (opt?.value_ru) obj_ru[charId] = opt.value_ru;
         }
     });
 
-    return { ua: parts_ua.join(', '), ru: parts_ru.join(', ') };
+    return {
+        ua: Object.keys(obj_ua).length ? JSON.stringify(obj_ua) : '',
+        ru: Object.keys(obj_ru).length ? JSON.stringify(obj_ru) : ''
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -122,15 +150,19 @@ export function computeVariantGeneratedNames(productId, variantNameUa, variantNa
     const product = getProductById(productId);
     if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
 
+    // name_ua/ru може бути JSON — витягуємо текстове представлення
+    const nameUaDisplay = displayName(variantNameUa);
+    const nameRuDisplay = displayName(variantNameRu);
+
     const pShortUa = product.generated_short_ua || '';
     const pShortRu = product.generated_short_ru || '';
     const pFullUa = product.generated_full_ua || '';
     const pFullRu = product.generated_full_ru || '';
 
-    const shortUa = variantNameUa ? (pShortUa ? `${pShortUa} - ${variantNameUa}` : variantNameUa) : pShortUa;
-    const shortRu = variantNameRu ? (pShortRu ? `${pShortRu} - ${variantNameRu}` : variantNameRu) : pShortRu;
-    const fullUa = variantNameUa ? (pFullUa ? `${pFullUa} - ${variantNameUa}` : variantNameUa) : pFullUa;
-    const fullRu = variantNameRu ? (pFullRu ? `${pFullRu} - ${variantNameRu}` : variantNameRu) : pFullRu;
+    const shortUa = nameUaDisplay ? (pShortUa ? `${pShortUa} - ${nameUaDisplay}` : nameUaDisplay) : pShortUa;
+    const shortRu = nameRuDisplay ? (pShortRu ? `${pShortRu} - ${nameRuDisplay}` : nameRuDisplay) : pShortRu;
+    const fullUa = nameUaDisplay ? (pFullUa ? `${pFullUa} - ${nameUaDisplay}` : nameUaDisplay) : pFullUa;
+    const fullRu = nameRuDisplay ? (pFullRu ? `${pFullRu} - ${nameRuDisplay}` : nameRuDisplay) : pFullRu;
 
     return {
         generated_short_ua: shortUa,

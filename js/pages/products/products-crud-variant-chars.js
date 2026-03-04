@@ -93,8 +93,13 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
     // Build parent-child map для ієрархічних опцій
     const parentChildMap = buildParentChildMap(block8Chars, options);
 
-    // Parse spec JSON (backward-compatible with legacy single string)
-    const enrichedVariantData = { ...variantData, _parsedSpecUa: parseSpecJson(variantData?.spec_ua), _parsedSpecRu: parseSpecJson(variantData?.spec_ru) };
+    // Parse spec JSON from name_ua/name_ru (which now stores JSON {charId: "value"})
+    // Fallback to legacy spec_ua/spec_ru for backward compatibility
+    const enrichedVariantData = {
+        ...variantData,
+        _parsedSpecUa: parseSpecJson(variantData?.name_ua) || parseSpecJson(variantData?.spec_ua),
+        _parsedSpecRu: parseSpecJson(variantData?.name_ru) || parseSpecJson(variantData?.spec_ru)
+    };
 
     block8Chars.forEach(c => {
         const charOptions = options.filter(o => o.characteristic_id === c.id);

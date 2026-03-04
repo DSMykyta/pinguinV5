@@ -27,7 +27,7 @@ import {
     renderPendingVariantCharacteristics,
     parseSpecJson
 } from './products-crud-variant-chars.js';
-import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
+import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -73,7 +73,7 @@ export function removePendingVariant(pendingId) {
         _pendingManagedTable.updateData(_pendingVariants.map(pv => ({
             ...pv,
             product_name: productName,
-            variant_display: pv.name_ua || '',
+            variant_display: displayName(pv.name_ua) || '',
         })));
     } else {
         renderPendingAccordion();
@@ -126,7 +126,7 @@ export function renderPendingAccordion() {
     const tableData = _pendingVariants.map(pv => ({
         ...pv,
         product_name: productName,
-        variant_display: pv.name_ua || '',
+        variant_display: displayName(pv.name_ua) || '',
     }));
 
     if (_pendingManagedTable) {
