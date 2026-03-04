@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управління картками та папками</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --surface-hover: #2c2c2c;
+            --border-color: #333;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-color: #bb86fc;
+            --folder-bg: #29293d;
+            --folder-border: #4d4dff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 24px;
+        }
+
+        header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            align-items: start;
+        }
+
+        /* Base Tile Styles */
+        .tile {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            position: relative;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 120px;
+        }
+
+        .tile:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        .tile:active {
+            cursor: grabbing;
+        }
+
+        .tile.drag-over {
+            border-color: var(--accent-color);
+            background-color: var(--surface-hover);
+            transform: scale(1.02);
+        }
+
+        .tile.dragging {
+            opacity: 0.5;
+        }
+
+        /* Card Specific Styles */
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 4px;
+        }
+
+        /* Folder Specific Styles */
+        .folder {
+            background-color: var(--folder-bg);
+            border: 1px dashed var(--folder-border);
+        }
+
+        .folder::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 16px;
+            width: 40px;
+            height: 10px;
+            background-color: var(--folder-bg);
+            border: 1px dashed var(--folder-border);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .folder-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+            width: 100%;
+            border-bottom: 1px solid transparent;
+        }
+
+        .folder-input:focus {
+            border-bottom: 1px solid var(--accent-color);
+        }
+
+        .folder-count {
+            font-size: 12px;
+            background: var(--folder-border);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+            align-self: flex-start;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>База даних атрибутів</h1>
+    </header>
+
+    <div class="grid-container" id="mainGrid">
+        </div>
+
+    <div class="modal-overlay" id="folderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Вміст папки</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="grid-container" id="modalGrid">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+   <script>
+    // Внутрішній стан додатку
+    const state = {
+        items: {}, // Всі вузли (картки та папки)
+        draggedId: null
+    };
+
+    // Ініціалізація стану (завантаження з вашого API)
+    async function init() {
+        try {
+            // Виклик реального ендпоінту
+            const response = await fetch('/api/public/data'); 
+            
+            if (!response.ok) {
+                throw new Error(`Помилка HTTP: ${response.status}`);
+            }
+            
+            const realTableData = await response.json();
+
+            // Парсимо отримані дані
+            realTableData.forEach(row => {
+                const parsedData = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+                
+                state.items[row.id] = {
+                    id: row.id,
+                    type: 'card',
+                    parentId: null, // Усі нові елементи спочатку є картками без папки
+                    data: parsedData
+                };
+            });
+
+            // Запускаємо рендер після успішного завантаження та парсингу
+            render();
+
+        } catch (error) {
+            console.error('Помилка завантаження даних:', error);
+            document.getElementById('mainGrid').innerHTML = `<p style="color: #ff4d4d; padding: 16px;">Помилка завантаження даних: ${error.message}</p>`;
+        }
+    }
+
+    // Рендер головного гріда
+    function render() {
+        const grid = document.getElementById('mainGrid');
+        grid.innerHTML = '';
+
+        const rootItems = Object.values(state.items).filter(item => item.parentId === null);
+        
+        rootItems.forEach(item => {
+            const el = createDOMElement(item);
+            grid.appendChild(el);
+        });
+    }
+
+    // Створення HTML елемента на основі даних
+    function createDOMElement(item) {
+        const el = document.createElement('div');
+        el.className = `tile ${item.type}`;
+        el.dataset.id = item.id;
+        el.draggable = true;
+
+        // Drag and Drop слухачі
+        el.addEventListener('dragstart', handleDragStart);
+        el.addEventListener('dragover', handleDragOver);
+        el.addEventListener('dragleave', handleDragLeave);
+        el.addEventListener('drop', handleDrop);
+        el.addEventListener('dragend', handleDragEnd);
+
+        if (item.type === 'card') {
+            // Використовуємо безпечні перевірки на випадок відсутності полів
+            const name = item.data?.name || 'Без назви';
+            const type = item.data?.type || 'N/A';
+            const catName = item.data?.category_name ? item.data.category_name.split(',')[0] + '...' : 'N/A';
+            const filterType = item.data?.filter_type || 'N/A';
+            
+            el.innerHTML = `
+                <div class="card-title">${name}</div>
+                <div class="card-meta">
+                    <span><span class="tag">${type}</span> ID: ${item.data?.id || item.id}</span>
+                    <span>Крок: ${catName}</span>
+                    <span>Фільтр: ${filterType}</span>
+                </div>
+            `;
+        } else if (item.type === 'folder') {
+            const childrenCount = Object.values(state.items).filter(child => child.parentId === item.id).length;
+            el.innerHTML = `
+                <div class="folder-header" onclick="preventProp(event)">
+                    <input type="text" class="folder-input" value="${item.name}" 
+                           onchange="renameFolder('${item.id}', this.value)" 
+                           onclick="this.select()">
+                </div>
+                <div class="folder-count">${childrenCount} елементів</div>
+                <div class="card-meta" style="margin-top: auto;">Клікніть щоб розгорнути</div>
+            `;
+            el.addEventListener('click', () => openModal(item.id));
+        }
+
+        return el;
+    }
+
+    function preventProp(e) {
+        e.stopPropagation();
+    }
+
+    function renameFolder(folderId, newName) {
+        if (state.items[folderId] && newName.trim() !== '') {
+            state.items[folderId].name = newName.trim();
+        }
+        render();
+    }
+
+    // Drag & Drop Логіка
+    function handleDragStart(e) {
+        state.draggedId = this.dataset.id;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.dataset.id);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        const targetId = this.dataset.id;
+        if (targetId !== state.draggedId) {
+            this.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.classList.remove('drag-over');
+
+        const sourceId = state.draggedId;
+        const targetId = this.dataset.id;
+
+        if (sourceId && targetId && sourceId !== targetId) {
+            mergeItems(sourceId, targetId);
+        }
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        state.draggedId = null;
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('drag-over'));
+    }
+
+    // Логіка об'єднання (створення папок або додавання в папку)
+    function mergeItems(sourceId, targetId) {
+        const sourceItem = state.items[sourceId];
+        const targetItem = state.items[targetId];
+
+        if (!sourceItem || !targetItem) return;
+
+        // Якщо ціль - це картка, створюємо нову папку
+        if (targetItem.type === 'card') {
+            const newFolderId = 'folder-' + Date.now();
+            
+            state.items[newFolderId] = {
+                id: newFolderId,
+                type: 'folder',
+                name: 'Нова папка',
+                parentId: null
+            };
+
+            sourceItem.parentId = newFolderId;
+            targetItem.parentId = newFolderId;
+        } 
+        // Якщо ціль - це папка, просто додаємо туди
+        else if (targetItem.type === 'folder') {
+            sourceItem.parentId = targetItem.id;
+        }
+
+        render();
+    }
+
+    // Логіка модального вікна
+    function openModal(folderId) {
+        const folder = state.items[folderId];
+        document.getElementById('modalTitle').innerText = folder.name;
+        
+        const modalGrid = document.getElementById('modalGrid');
+        modalGrid.innerHTML = '';
+
+        const children = Object.values(state.items).filter(item => item.parentId === folderId);
+        
+        children.forEach(item => {
+            const el = createDOMElement(item);
+            el.draggable = false; // Вимикаємо D&D всередині модалки
+            modalGrid.appendChild(el);
+        });
+
+        document.getElementById('folderModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('folderModal').classList.remove('active');
+    }
+
+    // Закриття модалки по кліку на бекграунд
+    document.getElementById('folderModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Запуск
+    init();
+</script>
+</body>
+</html>
