@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attributes Manager | Pinguin</title>
+    
+    <link rel="stylesheet" href="css/main.css">
+    
+    <style>
+        /* Додаткові стилі для специфічної логіки плиток */
+        :root {
+            --tile-bg: var(--color-surface-1, #1e1e1e);
+            --tile-hover: var(--color-surface-2, #2c2c2c);
+            --folder-color: #3b82f6;
+            --accent: #bb86fc;
+        }
+
+        .attributes-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .attr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Стиль плитки (картки) */
+        .attr-tile {
+            background: var(--tile-bg);
+            border: 1px solid var(--color-border, #333);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 160px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            user-select: none;
+        }
+
+        .attr-tile:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .attr-tile.drag-over {
+            background: var(--tile-hover);
+            border: 2px dashed var(--accent);
+            transform: scale(1.02);
+        }
+
+        .attr-tile.dragging {
+            opacity: 0.4;
+        }
+
+        /* Специфічний стиль для папки */
+        .attr-tile.folder {
+            background: linear-gradient(135deg, #1e1e2e 0%, #252545 100%);
+            border-left: 4px solid var(--folder-color);
+        }
+
+        .folder-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .folder-title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            outline: none;
+            padding: 2px 0;
+        }
+
+        .folder-title-input:focus {
+            border-bottom-color: var(--accent);
+        }
+
+        .tile-id {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            color: var(--color-text-dim, #888);
+        }
+
+        .tile-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .tile-badge {
+            background: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            align-self: flex-start;
+            color: var(--accent);
+        }
+
+        /* Модальне вікно вмісту папки */
+        .folder-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .folder-modal.active { display: flex; }
+
+        .modal-content {
+            background: #121212;
+            width: 90%;
+            max-width: 1100px;
+            max-height: 85vh;
+            border-radius: 16px;
+            border: 1px solid #333;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            font-size: 28px;
+            color: #666;
+        }
+
+        .close-modal:hover { color: #fff; }
+
+    </style>
+</head>
+<body class="theme-dark">
+
+    <div class="attributes-container">
+        <header style="margin-bottom: 40px;">
+            <h1 class="panel-title">Менеджер атрибутів</h1>
+            <p style="color: #888;">Перетягуйте картки одну на одну, щоб групувати їх у папки</p>
+        </header>
+
+        <div id="mainGrid" class="attr-grid">
+            </div>
+    </div>
+
+    <div id="folderModal" class="folder-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalFolderName">Назва групи</h2>
+                <span class="close-modal" onclick="closeFolder()">&times;</span>
+            </div>
+            <div id="modalGrid" class="attr-grid">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Імітація даних з вашої таблиці (структура: [id, mp_id, ext_id, source, data_json, ...])
+        const rawTableData = [
+            ["mpc-01", "mp-01", "26856", "import", '{"id":"26856","name":"Кількість порцій","type":"Integer","category_name":"Протеин"}'],
+            ["mpc-02", "mp-01", "257201", "import", '{"id":"257201","name":"ТЕГИ","type":"CheckBox","category_name":"Эспандеры"}'],
+            ["mpc-03", "mp-01", "1001", "import", '{"id":"1001","name":"Смак","type":"String","category_name":"BCAA"}'],
+            ["mpc-04", "mp-01", "1002", "import", '{"id":"1002","name":"Вага","type":"Decimal","category_name":"Гантелі"}'],
+            ["mpc-05", "mp-01", "1003", "import", '{"id":"1003","name":"Колір","type":"String","category_name":"Одяг"}']
+        ];
+
+        let state = {
+            items: {}, // Об'єкт для зберігання карток та папок
+            draggedId: null
+        };
+
+        // 1. Ініціалізація: перетворюємо масив таблиці в об'єкти стану
+        function init() {
+            rawTableData.forEach(row => {
+                const dataObj = JSON.parse(row[4]);
+                state.items[row[0]] = {
+                    id: row[0],
+                    type: 'card',
+                    parentId: null,
+                    data: dataObj
+                };
+            });
+            render();
+        }
+
+        // 2. Рендеринг основної сітки
+        function render() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '';
+
+            // Відображаємо тільки ті елементи, які не в папках (parentId === null)
+            Object.values(state.items)
+                .filter(item => item.parentId === null)
+                .forEach(item => {
+                    grid.appendChild(createTileElement(item));
+                });
+        }
+
+        // 3. Створення HTML-елемента плитки
+        function createTileElement(item) {
+            const div = document.createElement('div');
+            div.className = `attr-tile ${item.type}`;
+            div.dataset.id = item.id;
+            div.draggable = true;
+
+            if (item.type === 'card') {
+                div.innerHTML = `
+                    <div class="tile-id">ID: ${item.data.id}</div>
+                    <div class="tile-name">${item.data.name}</div>
+                    <div class="tile-badge">${item.data.type}</div>
+                    <div class="tile-id" style="margin-top:auto">${item.data.category_name}</div>
+                `;
+            } else {
+                // Логіка для папки
+                const childrenCount = Object.values(state.items).filter(i => i.parentId === item.id).length;
+                div.innerHTML = `
+                    <div class="folder-icon">📂</div>
+                    <input class="folder-title-input" value="${item.name}" 
+                           onchange="renameFolder('${item.id}', this.value)" 
+                           onclick="event.stopPropagation()">
+                    <div class="tile-id">${childrenCount} атрибутів всередині</div>
+                    <div class="tile-id" style="margin-top:auto; font-style:italic;">Клікніть, щоб відкрити</div>
+                `;
+                div.onclick = () => openFolder(item.id);
+            }
+
+            // Навішування Drag & Drop подій
+            setupDragAndDrop(div);
+
+            return div;
+        }
+
+        // 4. Логіка Drag & Drop
+        function setupDragAndDrop(el) {
+            el.ondragstart = (e) => {
+                state.draggedId = el.dataset.id;
+                el.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', el.dataset.id);
+            };
+
+            el.ondragend = () => {
+                el.classList.remove('dragging');
+                document.querySelectorAll('.attr-tile').forEach(t => t.classList.remove('drag-over'));
+            };
+
+            el.ondragover = (e) => {
+                e.preventDefault();
+                if (el.dataset.id !== state.draggedId) {
+                    el.classList.add('drag-over');
+                }
+            };
+
+            el.ondragleave = () => el.classList.remove('drag-over');
+
+            el.ondrop = (e) => {
+                e.preventDefault();
+                const sourceId = e.dataTransfer.getData('text/plain');
+                const targetId = el.dataset.id;
+
+                if (sourceId !== targetId) {
+                    handleMerge(sourceId, targetId);
+                }
+            };
+        }
+
+        // 5. Логіка об'єднання елементів
+        function handleMerge(sourceId, targetId) {
+            const source = state.items[sourceId];
+            const target = state.items[targetId];
+
+            if (target.type === 'card') {
+                // Створення нової папки при наведенні картки на картку
+                const newFolderId = 'folder-' + Date.now();
+                state.items[newFolderId] = {
+                    id: newFolderId,
+                    type: 'folder',
+                    name: 'Нова група',
+                    parentId: null
+                };
+                
+                source.parentId = newFolderId;
+                target.parentId = newFolderId;
+            } else {
+                // Додавання в існуючу папку
+                source.parentId = targetId;
+            }
+
+            render();
+        }
+
+        // 6. Управління папками (перейменування та відкриття)
+        function renameFolder(id, newName) {
+            if (state.items[id]) {
+                state.items[id].name = newName;
+            }
+        }
+
+        function openFolder(folderId) {
+            const folder = state.items[folderId];
+            document.getElementById('modalFolderName').innerText = folder.name;
+            const modalGrid = document.getElementById('modalGrid');
+            modalGrid.innerHTML = '';
+
+            Object.values(state.items)
+                .filter(item => item.parentId === folderId)
+                .forEach(item => {
+                    const el = createTileElement(item);
+                    el.draggable = false; // Вимикаємо D&D всередині папки для простоти
+                    modalGrid.appendChild(el);
+                });
+
+            document.getElementById('folderModal').classList.add('active');
+        }
+
+        function closeFolder() {
+            document.getElementById('folderModal').classList.remove('active');
+            render(); // Перемалювати, якщо змінилися імена
+        }
+
+        // Закриття модалки по кліку на фон
+        window.onclick = (e) => {
+            if (e.target == document.getElementById('folderModal')) closeFolder();
+        }
+
+        // Запуск
+        init();
+    </script>
+</body>
+</html>
