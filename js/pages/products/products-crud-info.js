@@ -106,11 +106,11 @@ async function resolveUser(username) {
 function renderMetadataBlock(container, user, username, dateStr) {
     if (!container) return;
 
-    const line = container.querySelector('.content-line');
-    if (!line) return;
+    const inputBox = container.querySelector('.input-box');
+    if (!inputBox) return;
 
     if (!username && !dateStr) {
-        line.innerHTML = '<span class="body-s">—</span>';
+        inputBox.innerHTML = '<input class="body-s" type="text" readonly tabindex="-1" value="—">';
         return;
     }
 
@@ -123,9 +123,10 @@ function renderMetadataBlock(container, user, username, dateStr) {
     }
 
     const displayName = user?.display_name || username || '—';
+    const cleanName = displayName.replace(/"/g, '&quot;');
     const dateFormatted = dateStr ? formatDate(new Date(dateStr)) : '';
 
-    line.innerHTML = `${avatarHtml}<span class="body-s">${displayName}</span>${dateFormatted ? `<span class="tag c-tertiary">${dateFormatted}</span>` : ''}`;
+    inputBox.innerHTML = `${avatarHtml}<input class="body-s" type="text" readonly tabindex="-1" value="${cleanName}">${dateFormatted ? `<span class="tag c-tertiary">${dateFormatted}</span>` : ''}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -157,7 +158,7 @@ export function clearInfoSection() {
     const updatedContainer = document.getElementById('product-info-updated');
 
     [createdContainer, updatedContainer].forEach(c => {
-        const line = c?.querySelector('.content-line');
-        if (line) line.innerHTML = '<span class="body-s">—</span>';
+        const inputBox = c?.querySelector('.input-box');
+        if (inputBox) inputBox.innerHTML = '<input class="body-s" type="text" readonly tabindex="-1" value="—">';
     });
 }

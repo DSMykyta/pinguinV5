@@ -3,7 +3,8 @@
 
         <!-- НАВІГАЦІЯ -->
         <nav class="nav column" id="product-section-navigator">
-            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always
+                aria-label="Розгорнути меню">
                 <span class="material-symbols-outlined">menu</span>
             </button>
             <div class="nav-main">
@@ -48,7 +49,8 @@
             </div>
 
             <div class="nav-footer">
-                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-product" aria-label="Видалити">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-product"
+                    aria-label="Видалити">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
             </div>
@@ -119,7 +121,8 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-text-before-ua" placeholder="Текст перед назвою">
+                                                <input type="text" id="product-text-before-ua"
+                                                    placeholder="Текст перед назвою">
                                                 <span class="tag c-secondary">UA</span>
                                             </div>
                                         </div>
@@ -127,7 +130,8 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-text-before-ru" placeholder="Текст перед названием">
+                                                <input type="text" id="product-text-before-ru"
+                                                    placeholder="Текст перед названием">
                                                 <span class="tag c-secondary">RU</span>
                                             </div>
                                         </div>
@@ -159,7 +163,8 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-name-ua" placeholder="Назва українською" required>
+                                                <input type="text" id="product-name-ua" placeholder="Назва українською"
+                                                    required>
                                                 <span class="tag c-secondary">UA</span>
                                             </div>
                                         </div>
@@ -251,7 +256,8 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-text-after-ua" placeholder="Текст після назви">
+                                                <input type="text" id="product-text-after-ua"
+                                                    placeholder="Текст після назви">
                                                 <span class="tag c-secondary">UA</span>
                                             </div>
                                         </div>
@@ -259,7 +265,8 @@
                                     <div class="content-bloc">
                                         <div class="content-line">
                                             <div class="input-box">
-                                                <input type="text" id="product-text-after-ru" placeholder="Текст после названия">
+                                                <input type="text" id="product-text-after-ru"
+                                                    placeholder="Текст после названия">
                                                 <span class="tag c-secondary">RU</span>
                                             </div>
                                         </div>
@@ -293,8 +300,10 @@
                             <!-- Головне фото (прев'ю) -->
                             <div class="group column col-8" style="align-self: stretch;">
                                 <label class="label-l">Головне фото</label>
-                                <div class="content-bloc" id="product-photo-main-preview" style="flex: 1; display: flex; align-items: center; justify-content: center;">
-                                    <img id="product-photo-main-img" src="" alt="Головне фото" show style="display:none; max-height: 480px; max-width: 100%; object-fit: contain;">
+                                <div class="content-bloc" id="product-photo-main-preview"
+                                    style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                                    <img id="product-photo-main-img" src="" alt="Головне фото" show
+                                        style="display:none; max-height: 480px; max-width: 100%; object-fit: contain;">
                                     <span class="body-s" id="product-photo-main-empty">Немає фото</span>
                                 </div>
                             </div>
@@ -307,12 +316,15 @@
                                 <div class="content-bloc" id="product-photo-dropzone">
                                     <div class="content-line">
                                         <div class="input-box">
-                                            <input type="url" id="product-photo-url-field" placeholder="URL або перетягніть файл...">
+                                            <input type="url" id="product-photo-url-field"
+                                                placeholder="URL або перетягніть файл...">
                                         </div>
-                                        <button type="button" class="btn-icon ci-action" id="btn-pick-product-photo" data-tooltip="Вибрати файл" data-tooltip-always>
+                                        <button type="button" class="btn-icon ci-action" id="btn-pick-product-photo"
+                                            data-tooltip="Вибрати файл" data-tooltip-always>
                                             <span class="material-symbols-outlined">folder_open</span>
                                         </button>
-                                        <button type="button" class="btn-icon ci-action" id="btn-upload-product-photo" data-tooltip="Завантажити з URL" data-tooltip-always>
+                                        <button type="button" class="btn-icon ci-action" id="btn-upload-product-photo"
+                                            data-tooltip="Завантажити з URL" data-tooltip-always>
                                             <span class="material-symbols-outlined">download</span>
                                         </button>
                                     </div>
@@ -348,8 +360,8 @@
                     </div>
 
                     <!-- Table mode: existing products -->
-                    <div id="product-variants-container" class="pseudo-table-container"
-                         pagination columns search="Пошук варіантів..." style="display:none;">
+                    <div id="product-variants-container" class="pseudo-table-container" pagination columns
+                        search="Пошук варіантів..." style="display:none;">
                     </div>
                     <!-- Accordion mode: new products (pending variants) -->
                     <div id="product-variants-accordion" class="pseudo-table-container" style="display:none;">
@@ -373,19 +385,15 @@
                     <div class="section-content section-content-full-height">
                         <div class="grid editor-focus-split">
                             <div class="group column col-6">
-                                <div id="product-composition-code-ua-editor" class="section-content-full-height"
-                                     editor tools code
-                                     data-placeholder="Код складу українською..."
-                                     data-min-height="200"
-                                     data-tag="UA">
+                                <div id="product-composition-code-ua-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Код складу українською..." data-min-height="200"
+                                    data-tag="UA">
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <div id="product-composition-code-ru-editor" class="section-content-full-height"
-                                     editor tools code
-                                     data-placeholder="Код складу російською..."
-                                     data-min-height="200"
-                                     data-tag="RU">
+                                <div id="product-composition-code-ru-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Код складу російською..." data-min-height="200"
+                                    data-tag="RU">
                                 </div>
                             </div>
                         </div>
@@ -408,19 +416,15 @@
                     <div class="section-content section-content-full-height">
                         <div class="grid editor-focus-split">
                             <div class="group column col-6">
-                                <div id="product-composition-notes-ua-editor" class="section-content-full-height"
-                                     editor tools code br
-                                     data-placeholder="1 порція українською..."
-                                     data-min-height="200"
-                                     data-tag="UA">
+                                <div id="product-composition-notes-ua-editor" class="section-content-full-height" editor
+                                    tools code br data-placeholder="1 порція українською..." data-min-height="200"
+                                    data-tag="UA">
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <div id="product-composition-notes-ru-editor" class="section-content-full-height"
-                                     editor tools code br
-                                     data-placeholder="1 порція російською..."
-                                     data-min-height="200"
-                                     data-tag="RU">
+                                <div id="product-composition-notes-ru-editor" class="section-content-full-height" editor
+                                    tools code br data-placeholder="1 порція російською..." data-min-height="200"
+                                    data-tag="RU">
                                 </div>
                             </div>
                         </div>
@@ -443,19 +447,15 @@
                     <div class="section-content section-content-full-height">
                         <div class="grid editor-focus-split">
                             <div class="group column col-6">
-                                <div id="product-text-ua-editor-container" class="section-content-full-height"
-                                     editor tools code check
-                                     data-placeholder="Введіть опис товару українською..."
-                                     data-min-height="300"
-                                     data-tag="UA">
+                                <div id="product-text-ua-editor-container" class="section-content-full-height" editor
+                                    tools code check data-placeholder="Введіть опис товару українською..."
+                                    data-min-height="300" data-tag="UA">
                                 </div>
                             </div>
                             <div class="group column col-6">
-                                <div id="product-text-ru-editor-container" class="section-content-full-height"
-                                     editor tools code check
-                                     data-placeholder="Введіть опис товару російською..."
-                                     data-min-height="300"
-                                     data-tag="RU">
+                                <div id="product-text-ru-editor-container" class="section-content-full-height" editor
+                                    tools code check data-placeholder="Введіть опис товару російською..."
+                                    data-min-height="300" data-tag="RU">
                                 </div>
                             </div>
                         </div>
@@ -584,77 +584,94 @@
                             <div class="group column col-6">
 
                                 <!-- Назва коротка (readonly) -->
-                                <label class="label-l">Назва коротка</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-short-ua" readonly placeholder="Автоматично">
-                                                <span class="tag c-secondary">UA</span>
+                                <div class="group column col-12">
+                                    <label class="label-l">Назва коротка</label>
+                                    <div class="content-bloc-container">
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-generated-short-ua" readonly
+                                                        placeholder="Автоматично">
+                                                    <span class="tag c-secondary">UA</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-short-ru" readonly placeholder="Автоматически">
-                                                <span class="tag c-secondary">RU</span>
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-generated-short-ru" readonly
+                                                        placeholder="Автоматически">
+                                                    <span class="tag c-secondary">RU</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Назва повна (readonly) -->
-                                <label class="label-l">Назва повна</label>
-                                <div class="content-bloc-container">
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-full-ua" readonly placeholder="Автоматично">
-                                                <span class="tag c-secondary">UA</span>
+                                <div class="group column col-12">
+                                    <label class="label-l">Назва повна</label>
+                                    <div class="content-bloc-container">
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-generated-full-ua" readonly
+                                                        placeholder="Автоматично">
+                                                    <span class="tag c-secondary">UA</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="content-bloc">
-                                        <div class="content-line">
-                                            <div class="input-box">
-                                                <input type="text" id="product-generated-full-ru" readonly placeholder="Автоматически">
-                                                <span class="tag c-secondary">RU</span>
+                                        <div class="content-bloc">
+                                            <div class="content-line">
+                                                <div class="input-box">
+                                                    <input type="text" id="product-generated-full-ru" readonly
+                                                        placeholder="Автоматически">
+                                                    <span class="tag c-secondary">RU</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- URL адреса (readonly) -->
-                                <label class="label-l">URL адреса</label>
-                                <div class="content-bloc" id="product-url-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-url" readonly placeholder="Автоматично">
-                                            <span class="tag c-tertiary">slug</span>
+                                <div class="group column col-12">
+                                    <label class="label-l">URL адреса</label>
+                                    <div class="content-bloc" id="product-url-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="product-url" readonly placeholder="Автоматично">
+                                                <span class="tag c-tertiary">slug</span>
+                                            </div>
                                         </div>
                                     </div>
+                                    <label class="label-s">Генерується при першому збереженні</label>
                                 </div>
-                                <label class="label-s">Генерується при першому збереженні</label>
-
                             </div>
 
                             <!-- ПРАВО: метадані -->
                             <div class="group column col-6" id="product-info-metadata">
 
                                 <!-- Створено -->
-                                <label class="label-l">Створено</label>
-                                <div class="content-bloc" id="product-info-created">
-                                    <div class="content-line">
-                                        <span class="body-s">—</span>
+                                <div class="group column col-12">
+                                    <label class="label-l">Створено</label>
+                                    <div class="content-bloc" id="product-info-created">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input class="body-s" type="text" readonly tabindex="-1" value="—">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Оновлено -->
-                                <label class="label-l">Оновлено</label>
-                                <div class="content-bloc" id="product-info-updated">
-                                    <div class="content-line">
-                                        <span class="body-s">—</span>
+                                <div class="group column col-12">
+                                    <label class="label-l">Оновлено</label>
+                                    <div class="content-bloc" id="product-info-updated">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input class="body-s" type="text" readonly tabindex="-1" value="—">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -670,7 +687,8 @@
 
         <!-- ПАНЕЛЬ ДІЙ -->
         <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always
+                title="Закрити">
                 <span class="material-symbols-outlined">close</span>
             </button>
             <div class="modal-fullscreen-actions-footer">
