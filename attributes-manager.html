@@ -2,348 +2,333 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attributes Manager | Pinguin</title>
-    
+    <title>Управління атрибутами</title>
     <link rel="stylesheet" href="css/main.css">
-    
-    <style>
-        /* Додаткові стилі для специфічної логіки плиток */
-        :root {
-            --tile-bg: var(--color-surface-1, #1e1e1e);
-            --tile-hover: var(--color-surface-2, #2c2c2c);
-            --folder-color: #3b82f6;
-            --accent: #bb86fc;
-        }
-
-        .attributes-container {
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .attr-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        /* Стиль плитки (картки) */
-        .attr-tile {
-            background: var(--tile-bg);
-            border: 1px solid var(--color-border, #333);
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 160px;
-            cursor: grab;
-            transition: all 0.2s ease;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            user-select: none;
-        }
-
-        .attr-tile:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-
-        .attr-tile.drag-over {
-            background: var(--tile-hover);
-            border: 2px dashed var(--accent);
-            transform: scale(1.02);
-        }
-
-        .attr-tile.dragging {
-            opacity: 0.4;
-        }
-
-        /* Специфічний стиль для папки */
-        .attr-tile.folder {
-            background: linear-gradient(135deg, #1e1e2e 0%, #252545 100%);
-            border-left: 4px solid var(--folder-color);
-        }
-
-        .folder-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .folder-title-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid transparent;
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
-            width: 100%;
-            outline: none;
-            padding: 2px 0;
-        }
-
-        .folder-title-input:focus {
-            border-bottom-color: var(--accent);
-        }
-
-        .tile-id {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 12px;
-            color: var(--color-text-dim, #888);
-        }
-
-        .tile-name {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .tile-badge {
-            background: #333;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            align-self: flex-start;
-            color: var(--accent);
-        }
-
-        /* Модальне вікно вмісту папки */
-        .folder-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-
-        .folder-modal.active { display: flex; }
-
-        .modal-content {
-            background: #121212;
-            width: 90%;
-            max-width: 1100px;
-            max-height: 85vh;
-            border-radius: 16px;
-            border: 1px solid #333;
-            padding: 30px;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
-
-        .close-modal {
-            cursor: pointer;
-            font-size: 28px;
-            color: #666;
-        }
-
-        .close-modal:hover { color: #fff; }
-
-    </style>
 </head>
-<body class="theme-dark">
+<body style="display: flex; min-height: 100vh; margin: 0;">
 
-    <div class="attributes-container">
-        <header style="margin-bottom: 40px;">
-            <h1 class="panel-title">Менеджер атрибутів</h1>
-            <p style="color: #888;">Перетягуйте картки одну на одну, щоб групувати їх у папки</p>
+    <aside class="layout-aside" style="width: 300px; padding: 24px; border-right: 1px solid var(--color-border, #333);">
+        <h2>Фільтри</h2>
+        
+        <div class="form-group" style="margin-top: 24px;">
+            <label class="block-line-label">Тип атрибуту (type)</label>
+            <select id="filterType" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+                <option value="all">Всі типи</option>
+                </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+            <label class="block-line-label">Тип фільтра (filter_type)</label>
+            <select id="filterCategory" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+                <option value="all">Всі фільтри</option>
+                </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+            <label class="block-line-label">Глобальний (is_global)</label>
+            <select id="filterGlobal" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+                <option value="all">Всі</option>
+                <option value="TRUE">TRUE</option>
+                <option value="FALSE">FALSE</option>
+            </select>
+        </div>
+    </aside>
+
+    <main class="layout-main" style="flex: 1; padding: 24px; overflow-y: auto;">
+        
+        <header class="toolbar" style="margin-bottom: 24px;">
+            <div class="search-box" style="max-width: 600px;">
+                <input type="text" id="searchInput" class="input-box" placeholder="Пошук за назвою або ID..." onkeyup="applyFilters()" style="width: 100%;">
+            </div>
         </header>
 
-        <div id="mainGrid" class="attr-grid">
+        <div class="block-group grid" id="mainGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
             </div>
-    </div>
 
-    <div id="folderModal" class="folder-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalFolderName">Назва групи</h2>
-                <span class="close-modal" onclick="closeFolder()">&times;</span>
-            </div>
-            <div id="modalGrid" class="attr-grid">
-                </div>
+    </main>
+
+    <dialog id="folderModal" style="width: 80%; max-width: 1200px; padding: 24px; border-radius: 8px; border: 1px solid var(--color-border, #333); background: var(--color-surface, #1e1e1e); color: inherit;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 id="modalTitle">Назва папки</h2>
+            <button class="btn-icon" onclick="document.getElementById('folderModal').close()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
-    </div>
+        <div class="block-group grid" id="modalGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+            </div>
+    </dialog>
 
-    <script>
-        // Імітація даних з вашої таблиці (структура: [id, mp_id, ext_id, source, data_json, ...])
-        const rawTableData = [
-            ["mpc-01", "mp-01", "26856", "import", '{"id":"26856","name":"Кількість порцій","type":"Integer","category_name":"Протеин"}'],
-            ["mpc-02", "mp-01", "257201", "import", '{"id":"257201","name":"ТЕГИ","type":"CheckBox","category_name":"Эспандеры"}'],
-            ["mpc-03", "mp-01", "1001", "import", '{"id":"1001","name":"Смак","type":"String","category_name":"BCAA"}'],
-            ["mpc-04", "mp-01", "1002", "import", '{"id":"1002","name":"Вага","type":"Decimal","category_name":"Гантелі"}'],
-            ["mpc-05", "mp-01", "1003", "import", '{"id":"1003","name":"Колір","type":"String","category_name":"Одяг"}']
-        ];
+<script>
+    let state = {
+        items: {},
+        draggedId: null,
+        visibleIds: new Set() 
+    };
 
-        let state = {
-            items: {}, // Об'єкт для зберігання карток та папок
-            draggedId: null
+    // 1. Асинхронне завантаження твоїх 13903 рядків
+    async function init() {
+        try {
+            // ВКАЖИ ТУТ СВОЮ НАЗВУ АРКУША ТА ДІАПАЗОН (наприклад Attributes!A2:Z15000)
+            const apiUrl = '/api/public/data?sheet=ТВІЙ_АРКУШ&range=A2:Z15000'; 
+            
+            // Показуємо індикатор завантаження
+            document.getElementById('mainGrid').innerHTML = '<h3 style="padding: 24px;">Завантаження 13000+ атрибутів...</h3>';
+
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Помилка сервера');
+            
+            const result = await response.json();
+            const rows = result.data; // Твій масив масивів з Google Sheets
+
+            const types = new Set();
+            const filterTypes = new Set();
+
+            // 2. Парсимо всі 13к рядків у фоні (це швидко)
+            rows.forEach(row => {
+                const rowId = row[0]; // id
+                const jsonStr = row[4]; // 5 колонка: data
+
+                if (jsonStr) {
+                    try {
+                        const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+                        state.items[rowId] = {
+                            id: rowId,
+                            type: 'card',
+                            parentId: null,
+                            data: data
+                        };
+                        
+                        if(data.type) types.add(data.type);
+                        if(data.filter_type) filterTypes.add(data.filter_type);
+                    } catch(e) {
+                        // Ігноруємо рядки з битим JSON
+                    }
+                }
+            });
+
+            // Заповнюємо фільтри
+            populateSelect('filterType', types);
+            populateSelect('filterCategory', filterTypes);
+
+            // Викликаємо первинну фільтрацію і рендер
+            applyFilters(); 
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('mainGrid').innerHTML = `<h3 style="color: red; padding: 24px;">Помилка: ${error.message}</h3>`;
+        }
+    }
+
+    function populateSelect(selectId, optionsSet) {
+        const select = document.getElementById(selectId);
+        optionsSet.forEach(opt => {
+            if(opt && opt !== "null") {
+                const el = document.createElement('option');
+                el.value = opt;
+                el.innerText = opt;
+                select.appendChild(el);
+            }
+        });
+    }
+
+    // 3. Логіка фільтрації
+    function applyFilters() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('filterType').value;
+        const filterCategory = document.getElementById('filterCategory').value;
+        const globalFilter = document.getElementById('filterGlobal').value;
+
+        state.visibleIds.clear();
+
+        Object.values(state.items).forEach(item => {
+            if (item.type === 'folder') {
+                state.visibleIds.add(item.id);
+                return;
+            }
+
+            const d = item.data;
+            // Безпечна перевірка полів, бо в 13к рядках може бути що завгодно
+            const name = d.name ? d.name.toLowerCase() : '';
+            const idStr = d.id ? d.id.toString() : '';
+            
+            const matchSearch = name.includes(searchQuery) || idStr.includes(searchQuery);
+            const matchType = typeFilter === 'all' || d.type === typeFilter;
+            const matchCategory = filterCategory === 'all' || d.filter_type === filterCategory;
+            const matchGlobal = globalFilter === 'all' || d.is_global === globalFilter;
+
+            if (matchSearch && matchType && matchCategory && matchGlobal) {
+                state.visibleIds.add(item.id);
+            }
+        });
+
+        render();
+    }
+
+    // 4. Рендер З ОБМЕЖЕННЯМ КІЛЬКОСТІ (щоб не завис браузер)
+    function render() {
+        const grid = document.getElementById('mainGrid');
+        grid.innerHTML = '';
+
+        // Беремо всі елементи, які пройшли фільтр і не лежать в папках
+        const itemsToRender = Object.values(state.items)
+            .filter(item => item.parentId === null && state.visibleIds.has(item.id));
+
+        // ЛІМІТ: Рендеримо тільки перші 100 результатів!
+        const RENDER_LIMIT = 100;
+        const slicedItems = itemsToRender.slice(0, RENDER_LIMIT);
+
+        slicedItems.forEach(item => {
+            grid.appendChild(createDomElement(item));
+        });
+
+        // Показуємо повідомлення, якщо є ще приховані картки
+        if (itemsToRender.length > RENDER_LIMIT) {
+            const msg = document.createElement('div');
+            msg.style.gridColumn = "1 / -1";
+            msg.style.padding = "20px";
+            msg.style.textAlign = "center";
+            msg.style.color = "var(--color-text-dim)";
+            msg.innerHTML = `Показано ${RENDER_LIMIT} з ${itemsToRender.length} результатів. Використовуйте пошук та фільтри, щоб знайти інші.`;
+            grid.appendChild(msg);
+        }
+    }
+
+    // 5. Формування HTML елемента
+    function createDomElement(item) {
+        const block = document.createElement('div');
+        block.className = 'block';
+        block.dataset.rowId = item.id;
+        block.draggable = true;
+        block.style.cursor = 'grab';
+
+        // Drag & Drop
+        block.ondragstart = (e) => {
+            state.draggedId = item.id;
+            e.dataTransfer.setData('text/plain', item.id);
+            block.style.opacity = '0.5';
+        };
+        block.ondragend = () => {
+            state.draggedId = null;
+            block.style.opacity = '1';
+            document.querySelectorAll('.block').forEach(b => b.style.outline = 'none');
+        };
+        block.ondragover = (e) => {
+            e.preventDefault();
+            if (state.draggedId !== item.id) block.style.outline = '2px dashed var(--color-primary, #007bff)';
+        };
+        block.ondragleave = () => block.style.outline = 'none';
+        block.ondrop = (e) => {
+            e.preventDefault();
+            block.style.outline = 'none';
+            handleMerge(e.dataTransfer.getData('text/plain'), item.id);
         };
 
-        // 1. Ініціалізація: перетворюємо масив таблиці в об'єкти стану
-        function init() {
-            rawTableData.forEach(row => {
-                const dataObj = JSON.parse(row[4]);
-                state.items[row[0]] = {
-                    id: row[0],
-                    type: 'card',
-                    parentId: null,
-                    data: dataObj
-                };
-            });
-            render();
-        }
-
-        // 2. Рендеринг основної сітки
-        function render() {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = '';
-
-            // Відображаємо тільки ті елементи, які не в папках (parentId === null)
-            Object.values(state.items)
-                .filter(item => item.parentId === null)
-                .forEach(item => {
-                    grid.appendChild(createTileElement(item));
-                });
-        }
-
-        // 3. Створення HTML-елемента плитки
-        function createTileElement(item) {
-            const div = document.createElement('div');
-            div.className = `attr-tile ${item.type}`;
-            div.dataset.id = item.id;
-            div.draggable = true;
-
-            if (item.type === 'card') {
-                div.innerHTML = `
-                    <div class="tile-id">ID: ${item.data.id}</div>
-                    <div class="tile-name">${item.data.name}</div>
-                    <div class="tile-badge">${item.data.type}</div>
-                    <div class="tile-id" style="margin-top:auto">${item.data.category_name}</div>
-                `;
-            } else {
-                // Логіка для папки
-                const childrenCount = Object.values(state.items).filter(i => i.parentId === item.id).length;
-                div.innerHTML = `
-                    <div class="folder-icon">📂</div>
-                    <input class="folder-title-input" value="${item.name}" 
+        if (item.type === 'card') {
+            const d = item.data;
+            block.innerHTML = `
+                <div class="block-header">
+                    <h3>${d.name || 'Без назви'}</h3>
+                    <div class="group">
+                        <button class="btn-icon" title="Тип: ${d.type}"><span class="material-symbols-outlined">info</span></button>
+                    </div>
+                </div>
+                <div class="block-list">
+                    <div class="block-line">
+                        <label class="block-line-label">id</label>
+                        <span class="block-line-text">${d.id || '-'}</span>
+                    </div>
+                    <div class="block-line">
+                        <label class="block-line-label">type</label>
+                        <span class="block-line-text">${d.type || '-'}</span>
+                    </div>
+                    <div class="block-line">
+                        <label class="block-line-label">filter_type</label>
+                        <span class="block-line-text">${d.filter_type || '-'}</span>
+                    </div>
+                    <div class="block-line">
+                        <label class="block-line-label">is_global</label>
+                        <span class="block-line-text">${d.is_global || '-'}</span>
+                    </div>
+                    <div class="block-line">
+                        <label class="block-line-label">category</label>
+                        <span class="block-line-text" title="${d.category_name}">${(d.category_name || '').split(',')[0]}...</span>
+                    </div>
+                </div>
+            `;
+        } else if (item.type === 'folder') {
+            const childrenCount = Object.values(state.items).filter(i => i.parentId === item.id).length;
+            block.innerHTML = `
+                <div class="block-header" style="background: var(--color-surface-2, rgba(255,255,255,0.05));">
+                    <input type="text" class="input-box" value="${item.name}" 
+                           style="background: transparent; border: none; font-weight: bold; font-size: 16px; width: 100%;"
                            onchange="renameFolder('${item.id}', this.value)" 
                            onclick="event.stopPropagation()">
-                    <div class="tile-id">${childrenCount} атрибутів всередині</div>
-                    <div class="tile-id" style="margin-top:auto; font-style:italic;">Клікніть, щоб відкрити</div>
-                `;
-                div.onclick = () => openFolder(item.id);
-            }
-
-            // Навішування Drag & Drop подій
-            setupDragAndDrop(div);
-
-            return div;
+                </div>
+                <div class="block-list">
+                    <div class="block-line">
+                        <label class="block-line-label">Вкладених атрибутів</label>
+                        <span class="block-line-text">${childrenCount} шт.</span>
+                    </div>
+                    <div class="block-line" style="justify-content: center; margin-top: 16px;">
+                        <span class="block-line-text" style="color: var(--color-text-dim); cursor: pointer;">Клікніть щоб розкрити</span>
+                    </div>
+                </div>
+            `;
+            block.onclick = () => openFolder(item.id);
         }
 
-        // 4. Логіка Drag & Drop
-        function setupDragAndDrop(el) {
-            el.ondragstart = (e) => {
-                state.draggedId = el.dataset.id;
-                el.classList.add('dragging');
-                e.dataTransfer.setData('text/plain', el.dataset.id);
+        return block;
+    }
+
+    function handleMerge(sourceId, targetId) {
+        if (sourceId === targetId) return;
+
+        const source = state.items[sourceId];
+        const target = state.items[targetId];
+
+        if (target.type === 'card') {
+            const newFolderId = 'folder-' + Date.now();
+            state.items[newFolderId] = {
+                id: newFolderId,
+                type: 'folder',
+                name: 'Нова група атрибутів',
+                parentId: null
             };
-
-            el.ondragend = () => {
-                el.classList.remove('dragging');
-                document.querySelectorAll('.attr-tile').forEach(t => t.classList.remove('drag-over'));
-            };
-
-            el.ondragover = (e) => {
-                e.preventDefault();
-                if (el.dataset.id !== state.draggedId) {
-                    el.classList.add('drag-over');
-                }
-            };
-
-            el.ondragleave = () => el.classList.remove('drag-over');
-
-            el.ondrop = (e) => {
-                e.preventDefault();
-                const sourceId = e.dataTransfer.getData('text/plain');
-                const targetId = el.dataset.id;
-
-                if (sourceId !== targetId) {
-                    handleMerge(sourceId, targetId);
-                }
-            };
+            state.visibleIds.add(newFolderId); 
+            
+            source.parentId = newFolderId;
+            target.parentId = newFolderId;
+        } else {
+            source.parentId = targetId;
         }
+        render();
+    }
 
-        // 5. Логіка об'єднання елементів
-        function handleMerge(sourceId, targetId) {
-            const source = state.items[sourceId];
-            const target = state.items[targetId];
+    function renameFolder(id, newName) {
+        state.items[id].name = newName;
+    }
 
-            if (target.type === 'card') {
-                // Створення нової папки при наведенні картки на картку
-                const newFolderId = 'folder-' + Date.now();
-                state.items[newFolderId] = {
-                    id: newFolderId,
-                    type: 'folder',
-                    name: 'Нова група',
-                    parentId: null
-                };
-                
-                source.parentId = newFolderId;
-                target.parentId = newFolderId;
-            } else {
-                // Додавання в існуючу папку
-                source.parentId = targetId;
-            }
+    function openFolder(folderId) {
+        const folder = state.items[folderId];
+        document.getElementById('modalTitle').innerText = folder.name;
+        
+        const modalGrid = document.getElementById('modalGrid');
+        modalGrid.innerHTML = '';
 
-            render();
-        }
+        Object.values(state.items)
+            .filter(item => item.parentId === folderId)
+            .forEach(item => {
+                const el = createDomElement(item);
+                el.draggable = false; 
+                el.style.cursor = 'default';
+                modalGrid.appendChild(el);
+            });
 
-        // 6. Управління папками (перейменування та відкриття)
-        function renameFolder(id, newName) {
-            if (state.items[id]) {
-                state.items[id].name = newName;
-            }
-        }
+        document.getElementById('folderModal').showModal();
+    }
 
-        function openFolder(folderId) {
-            const folder = state.items[folderId];
-            document.getElementById('modalFolderName').innerText = folder.name;
-            const modalGrid = document.getElementById('modalGrid');
-            modalGrid.innerHTML = '';
-
-            Object.values(state.items)
-                .filter(item => item.parentId === folderId)
-                .forEach(item => {
-                    const el = createTileElement(item);
-                    el.draggable = false; // Вимикаємо D&D всередині папки для простоти
-                    modalGrid.appendChild(el);
-                });
-
-            document.getElementById('folderModal').classList.add('active');
-        }
-
-        function closeFolder() {
-            document.getElementById('folderModal').classList.remove('active');
-            render(); // Перемалювати, якщо змінилися імена
-        }
-
-        // Закриття модалки по кліку на фон
-        window.onclick = (e) => {
-            if (e.target == document.getElementById('folderModal')) closeFolder();
-        }
-
-        // Запуск
-        init();
-    </script>
+    // Запускаємо завантаження при старті
+    init();
+</script>
 </body>
 </html>
