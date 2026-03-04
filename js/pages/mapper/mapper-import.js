@@ -232,19 +232,74 @@ function initFileDropzone() {
 
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            handleFileSelect(files[0]);
+            handleFilesSelect([...files]);
         }
     });
 
     // Вибір файлу
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            handleFileSelect(e.target.files[0]);
+            handleFilesSelect([...e.target.files]);
         }
     });
 }
 
-async function handleFileSelect(file) {
+/**
+ * Обробка масового вибору файлів.
+ * Якщо 1 файл — класична поведінка (підготовка, кнопка «Імпортувати»).
+ * Якщо > 1 файлу — автоматичний послідовний імпорт кожного.
+ */
+async function handleFilesSelect(files) {
+    if (files.length === 1) {
+        await handleSingleFile(files[0]);
+        return;
+    }
+
+    // Масовий імпорт
+    const importBtn = document.getElementById('execute-mapper-import');
+    const fileNameEl = document.getElementById('mapper-import-filename');
+    const modalContent = document.querySelector('#modal-mapper-import .modal-body');
+
+    if (importBtn) importBtn.disabled = true;
+
+    const total = files.length;
+    let success = 0;
+    let failed = 0;
+
+    const loader = showLoader(modalContent, {
+        type: 'progress',
+        message: `Масовий імпорт: 0/${total}...`,
+        overlay: true
+    });
+
+    for (let i = 0; i < total; i++) {
+        const file = files[i];
+        const pct = Math.round((i / total) * 100);
+        loader.updateProgress(pct, `Файл ${i + 1}/${total}: ${file.name}`);
+
+        try {
+            await handleSingleFile(file);
+            applyHeaderRowSilent();
+            await executeSingleFileImport();
+            success++;
+        } catch (err) {
+            console.error(`❌ Помилка імпорту файлу ${file.name}:`, err);
+            failed++;
+        }
+    }
+
+    loader.updateProgress(100, 'Масовий імпорт завершено!');
+    setTimeout(() => {
+        loader.hide();
+        const msg = `Імпорт завершено: ${success} успішно` + (failed ? `, ${failed} з помилками` : '');
+        showToast(msg, failed ? 'warning' : 'success');
+        if (fileNameEl) fileNameEl.textContent = `${success}/${total} файлів імпортовано`;
+        if (importBtn) importBtn.disabled = false;
+        renderCurrentTab();
+    }, 500);
+}
+
+async function handleSingleFile(file) {
     const fileNameEl = document.getElementById('mapper-import-filename');
     if (fileNameEl) fileNameEl.textContent = file.name;
 
@@ -265,6 +320,31 @@ async function handleFileSelect(file) {
     } catch (error) {
         console.error('❌ Помилка парсингу файлу:', error);
         showToast('Помилка читання файлу', 'error');
+        throw error;
+    }
+}
+
+/**
+ * Імпорт одного файлу (без UI loader — для масового імпорту)
+ */
+async function executeSingleFileImport() {
+    if (importState.adapter?.onBeforeImport) {
+        await importState.adapter.onBeforeImport(importState, () => {});
+    }
+
+    if (importState.adapter?.executeImport) {
+        await importState.adapter.executeImport(importState, () => {});
+    } else {
+        await importCharacteristicsAndOptions(() => {});
+    }
+
+    // Збереження файлу на Drive
+    if (importState.file && importState.marketplaceId) {
+        try {
+            await saveReferenceFileToDrive(importState);
+        } catch (err) {
+            console.warn('⚠️ Не вдалося зберегти довідник на Drive:', err);
+        }
     }
 }
 
