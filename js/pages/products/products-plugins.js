@@ -84,6 +84,46 @@ export async function runHookAsync(hookName, ...args) {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ФІЛЬТРИ (value-трансформери, на відміну від хуків — повертають значення)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const filters = {};
+
+/**
+ * Зареєструвати фільтр (value-трансформер)
+ * @param {string} filterName - Назва фільтру
+ * @param {Function} callback - fn(value, ctx) => value
+ * @param {Object} [options]
+ * @param {number} [options.priority=10]
+ * @param {string} [options.plugin]
+ */
+export function registerFilter(filterName, callback, options = {}) {
+    if (!filters[filterName]) filters[filterName] = [];
+    const priority = options.priority ?? 10;
+    filters[filterName].push({ callback, priority, plugin: options.plugin });
+    filters[filterName].sort((a, b) => a.priority - b.priority);
+}
+
+/**
+ * Застосувати фільтри — кожен callback отримує поточне значення і повертає нове
+ * @param {string} filterName
+ * @param {*} value - початкове значення
+ * @param {Object} [ctx] - додатковий контекст
+ * @returns {*} - трансформоване значення
+ */
+export function applyFilter(filterName, value, ctx = {}) {
+    if (!filters[filterName]) return value;
+    for (const { callback, plugin } of filters[filterName]) {
+        try {
+            value = callback(value, ctx);
+        } catch (err) {
+            console.error(`[Products Filter Error] ${filterName}${plugin ? ` (${plugin})` : ''}:`, err);
+        }
+    }
+    return value;
+}
+
 /**
  * Опціональні функції, які можуть бути зареєстровані плагінами
  */

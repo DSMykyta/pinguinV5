@@ -40,10 +40,19 @@
  * W: status | X: created_at
  */
 
+import { registerFilter } from './products-plugins.js';
+
 /**
  * Глобальний стан для products модуля
  */
 export const productsState = {
+    // ═══════════════════════════════════════════════════════════════════════
+    // PLUGIN API — делегати до products-plugins.js
+    // ═══════════════════════════════════════════════════════════════════════
+
+    registerFilter(name, callback, options) {
+        registerFilter(name, callback, options);
+    },
     // ═══════════════════════════════════════════════════════════════════════
     // АКТИВНИЙ ТАБ
     // ═══════════════════════════════════════════════════════════════════════
