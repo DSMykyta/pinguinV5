@@ -65,52 +65,42 @@
         visibleIds: new Set() 
     };
 
-    // 1. Асинхронне завантаження твоїх 13903 рядків
+    // 1. Асинхронне завантаження
     async function init() {
         try {
-            // ВКАЖИ ТУТ СВОЮ НАЗВУ АРКУША ТА ДІАПАЗОН (наприклад Attributes!A2:Z15000)
-            const apiUrl = '/api/public/data?sheet=ТВІЙ_АРКУШ&range=A2:Z15000'; 
+            // Використовуємо твою точну назву аркуша
+            const apiUrl = '/api/public/data?sheet=Mapper_MP_Categories&range=A2:H15000'; 
             
-            // Показуємо індикатор завантаження
-            document.getElementById('mainGrid').innerHTML = '<h3 style="padding: 24px;">Завантаження 13000+ атрибутів...</h3>';
+            document.getElementById('mainGrid').innerHTML = '<h3 style="padding: 24px;">Завантаження категорій...</h3>';
 
             const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error('Помилка сервера');
+            if (!response.ok) throw new Error(`Помилка сервера: ${response.status}`);
             
             const result = await response.json();
-            const rows = result.data; // Твій масив масивів з Google Sheets
+            const rows = result.data; 
 
-            const types = new Set();
-            const filterTypes = new Set();
-
-            // 2. Парсимо всі 13к рядків у фоні (це швидко)
+            // Парсинг даних
             rows.forEach(row => {
-                const rowId = row[0]; // id
-                const jsonStr = row[4]; // 5 колонка: data
+                const rowId = row[0]; // mpc-mp-...
+                const mpId = row[1]; // mp-000001
+                const jsonStr = row[4]; // колонка data
 
                 if (jsonStr) {
                     try {
                         const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
                         state.items[rowId] = {
                             id: rowId,
+                            mpId: mpId,
                             type: 'card',
                             parentId: null,
                             data: data
                         };
-                        
-                        if(data.type) types.add(data.type);
-                        if(data.filter_type) filterTypes.add(data.filter_type);
                     } catch(e) {
-                        // Ігноруємо рядки з битим JSON
+                        console.error("Помилка парсингу JSON у рядку", rowId);
                     }
                 }
             });
 
-            // Заповнюємо фільтри
-            populateSelect('filterType', types);
-            populateSelect('filterCategory', filterTypes);
-
-            // Викликаємо первинну фільтрацію і рендер
             applyFilters(); 
 
         } catch (error) {
@@ -119,25 +109,9 @@
         }
     }
 
-    function populateSelect(selectId, optionsSet) {
-        const select = document.getElementById(selectId);
-        optionsSet.forEach(opt => {
-            if(opt && opt !== "null") {
-                const el = document.createElement('option');
-                el.value = opt;
-                el.innerText = opt;
-                select.appendChild(el);
-            }
-        });
-    }
-
-    // 3. Логіка фільтрації
+    // 2. Логіка фільтрації (тільки пошук, бо типи в категоріях унікальні)
     function applyFilters() {
         const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        const typeFilter = document.getElementById('filterType').value;
-        const filterCategory = document.getElementById('filterCategory').value;
-        const globalFilter = document.getElementById('filterGlobal').value;
-
         state.visibleIds.clear();
 
         Object.values(state.items).forEach(item => {
@@ -147,16 +121,11 @@
             }
 
             const d = item.data;
-            // Безпечна перевірка полів, бо в 13к рядках може бути що завгодно
-            const name = d.name ? d.name.toLowerCase() : '';
-            const idStr = d.id ? d.id.toString() : '';
+            // Шукаємо по всіх текстових значеннях усередині JSON
+            const allText = Object.values(d).join(' ').toLowerCase();
+            const rowIdStr = item.id.toLowerCase();
             
-            const matchSearch = name.includes(searchQuery) || idStr.includes(searchQuery);
-            const matchType = typeFilter === 'all' || d.type === typeFilter;
-            const matchCategory = filterCategory === 'all' || d.filter_type === filterCategory;
-            const matchGlobal = globalFilter === 'all' || d.is_global === globalFilter;
-
-            if (matchSearch && matchType && matchCategory && matchGlobal) {
+            if (allText.includes(searchQuery) || rowIdStr.includes(searchQuery)) {
                 state.visibleIds.add(item.id);
             }
         });
@@ -164,16 +133,14 @@
         render();
     }
 
-    // 4. Рендер З ОБМЕЖЕННЯМ КІЛЬКОСТІ (щоб не завис браузер)
+    // 3. Рендер з лімітом у 100 карток
     function render() {
         const grid = document.getElementById('mainGrid');
         grid.innerHTML = '';
 
-        // Беремо всі елементи, які пройшли фільтр і не лежать в папках
         const itemsToRender = Object.values(state.items)
             .filter(item => item.parentId === null && state.visibleIds.has(item.id));
 
-        // ЛІМІТ: Рендеримо тільки перші 100 результатів!
         const RENDER_LIMIT = 100;
         const slicedItems = itemsToRender.slice(0, RENDER_LIMIT);
 
@@ -181,19 +148,18 @@
             grid.appendChild(createDomElement(item));
         });
 
-        // Показуємо повідомлення, якщо є ще приховані картки
         if (itemsToRender.length > RENDER_LIMIT) {
             const msg = document.createElement('div');
             msg.style.gridColumn = "1 / -1";
             msg.style.padding = "20px";
             msg.style.textAlign = "center";
             msg.style.color = "var(--color-text-dim)";
-            msg.innerHTML = `Показано ${RENDER_LIMIT} з ${itemsToRender.length} результатів. Використовуйте пошук та фільтри, щоб знайти інші.`;
+            msg.innerHTML = `Показано ${RENDER_LIMIT} з ${itemsToRender.length} карток. Використовуйте пошук для фільтрації.`;
             grid.appendChild(msg);
         }
     }
 
-    // 5. Формування HTML елемента
+    // 4. Генерація HTML елемента за твоїми стилями
     function createDomElement(item) {
         const block = document.createElement('div');
         block.className = 'block';
@@ -225,34 +191,29 @@
 
         if (item.type === 'card') {
             const d = item.data;
+            // Розумний вибір назви категорії
+            const title = d.name || d.nameUa || d.titleUk || d.code || 'Категорія';
+            
+            // Динамічна генерація рядків з JSON
+            let linesHtml = '';
+            for (const [key, value] of Object.entries(d)) {
+                linesHtml += `
+                    <div class="block-line">
+                        <label class="block-line-label">${key}</label>
+                        <span class="block-line-text" title="${value}">${value}</span>
+                    </div>
+                `;
+            }
+
             block.innerHTML = `
                 <div class="block-header">
-                    <h3>${d.name || 'Без назви'}</h3>
+                    <h3 title="${title}">${title.length > 25 ? title.substring(0, 25) + '...' : title}</h3>
                     <div class="group">
-                        <button class="btn-icon" title="Тип: ${d.type}"><span class="material-symbols-outlined">info</span></button>
+                        <span class="btn-icon" style="font-size:12px; font-weight:bold;">${item.mpId}</span>
                     </div>
                 </div>
                 <div class="block-list">
-                    <div class="block-line">
-                        <label class="block-line-label">id</label>
-                        <span class="block-line-text">${d.id || '-'}</span>
-                    </div>
-                    <div class="block-line">
-                        <label class="block-line-label">type</label>
-                        <span class="block-line-text">${d.type || '-'}</span>
-                    </div>
-                    <div class="block-line">
-                        <label class="block-line-label">filter_type</label>
-                        <span class="block-line-text">${d.filter_type || '-'}</span>
-                    </div>
-                    <div class="block-line">
-                        <label class="block-line-label">is_global</label>
-                        <span class="block-line-text">${d.is_global || '-'}</span>
-                    </div>
-                    <div class="block-line">
-                        <label class="block-line-label">category</label>
-                        <span class="block-line-text" title="${d.category_name}">${(d.category_name || '').split(',')[0]}...</span>
-                    </div>
+                    ${linesHtml}
                 </div>
             `;
         } else if (item.type === 'folder') {
@@ -266,7 +227,7 @@
                 </div>
                 <div class="block-list">
                     <div class="block-line">
-                        <label class="block-line-label">Вкладених атрибутів</label>
+                        <label class="block-line-label">Вкладених карток</label>
                         <span class="block-line-text">${childrenCount} шт.</span>
                     </div>
                     <div class="block-line" style="justify-content: center; margin-top: 16px;">
@@ -281,7 +242,7 @@
     }
 
     function handleMerge(sourceId, targetId) {
-        if (sourceId === targetId) return;
+        if (sourceId === targetId || !sourceId) return;
 
         const source = state.items[sourceId];
         const target = state.items[targetId];
@@ -291,7 +252,7 @@
             state.items[newFolderId] = {
                 id: newFolderId,
                 type: 'folder',
-                name: 'Нова група атрибутів',
+                name: 'Нова папка категорій',
                 parentId: null
             };
             state.visibleIds.add(newFolderId); 
@@ -305,7 +266,9 @@
     }
 
     function renameFolder(id, newName) {
-        state.items[id].name = newName;
+        if (state.items[id]) {
+            state.items[id].name = newName;
+        }
     }
 
     function openFolder(folderId) {
@@ -327,7 +290,6 @@
         document.getElementById('folderModal').showModal();
     }
 
-    // Запускаємо завантаження при старті
     init();
 </script>
 </body>
