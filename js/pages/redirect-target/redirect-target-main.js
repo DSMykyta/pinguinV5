@@ -21,14 +21,28 @@ import { loadRedirects } from './redirect-target-data.js';
 import { redirectTargetState } from './redirect-target-state.js';
 import { renderAvatarState } from '../../components/avatar/avatar-ui-states.js';
 
-// 🟢 ЯВНИЙ ІМПОРТ ПЛАГІНІВ (Вирішує проблему з "порожньою сторінкою")
-import * as tablePlugin from './redirect-target-table.js';
+const PLUGINS = [
+    './redirect-target-table.js',
+    './redirect-target-ui.js'
+];
+
+async function loadPlugins() {
+    const results = await Promise.allSettled(
+        PLUGINS.map(path => import(path))
+    );
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value.init) {
+            result.value.init(redirectTargetState);
+        } else if (result.status === 'rejected') {
+            console.warn(`[RedirectTarget] ⚠️ Плагін не завантажено: ${PLUGINS[index]}`, result.reason?.message || '');
+        }
+    });
+}
 
 export async function initRedirectTarget() {
-    // 1. Явно ініціалізуємо плагін таблиці (реєструємо хуки)
-    if (tablePlugin.init) {
-        tablePlugin.init(redirectTargetState);
-    }
+    // 1. Динамічно завантажуємо плагіни
+    await loadPlugins();
     
     // 2. Перевіряємо авторизацію та запускаємо завантаження
     checkAuthAndLoadData();
@@ -43,10 +57,9 @@ export async function initRedirectTarget() {
 async function checkAuthAndLoadData() {
     if (window.isAuthorized) {
         try {
-            // Завантажуємо дані з Google Sheets
             await loadRedirects();
             
-            // Сповіщаємо плагіни (таблицю), що дані готові і можна рендерити
+            // Сповіщаємо плагіни, що дані готові і можна рендерити
             runHook('onInit');
             runHook('onDataLoaded');
             

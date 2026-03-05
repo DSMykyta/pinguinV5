@@ -51,7 +51,7 @@ function initRedirectsTable() {
             rowActions: () => '',
             getRowId: (row) => row.redirect_id,
             emptyState: { message: 'Редиректи не знайдено' },
-            withContainer: true, // ВИПРАВЛЕНО: Ядро саме створить потрібні div-обгортки
+            withContainer: true,
             plugins: {
                 sorting: {
                     columnTypes: {
@@ -73,7 +73,6 @@ function initRedirectsTable() {
                 }
             }
         },
-        // ВИПРАВЛЕНО: words-list вимагає масив. Конвертуємо рядок з CSV у масив.
         dataTransform: (data) => {
             return data.map(item => ({
                 ...item,
