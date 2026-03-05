@@ -1,27 +1,68 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8">
     <title>Управління атрибутами</title>
     <link rel="stylesheet" href="css/main.css">
+
+    <style>
+        /* Стилізація фону заголовка для амінокислот (mpc-mp-000001) */
+        [data-row-id*="mpc-mp-000001"] .block-header {
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, #00A046 50%, transparent) 0%,
+                    transparent 100%);
+        }
+
+        /* Стилізація фону заголовка для амінокислот (mpc-mp-000002) */
+        [data-row-id*="mpc-mp-000002"] .block-header {
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, #0849b2 50%, transparent) 0%,
+                    transparent 100%);
+        }
+
+        /* Стилізація фону заголовка для амінокислот (mpc-mp-000003) */
+        [data-row-id*="mpc-mp-000003"] .block-header {
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, #e00122 50%, transparent) 0%,
+                    transparent 100%);
+        }
+
+        /* Стилізація фону заголовка для амінокислот (mpc-mp-000004) */
+        [data-row-id*="mpc-mp-000004"] .block-header {
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, #a4ffb8 50%, transparent) 0%,
+                    transparent 100%);
+            color: #371f5e;
+        }
+
+        /* Стилізація фону заголовка для амінокислот (mpc-mp-000005) */
+        [data-row-id*="mpc-mp-000005"] .block-header {
+            background: linear-gradient(135deg,
+                    color-mix(in srgb, #ee7448 50%, transparent) 0%,
+                    transparent 100%);
+        }
+    </style>
 </head>
+
 <body style="display: flex; min-height: 100vh; margin: 0;">
 
     <aside class="layout-aside" style="width: 300px; padding: 24px; border-right: 1px solid var(--color-border, #333);">
         <h2>Фільтри</h2>
-        
+
         <div class="form-group" style="margin-top: 24px;">
             <label class="block-line-label">Тип атрибуту (type)</label>
             <select id="filterType" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
                 <option value="all">Всі типи</option>
-                </select>
+            </select>
         </div>
 
         <div class="form-group" style="margin-top: 16px;">
             <label class="block-line-label">Тип фільтра (filter_type)</label>
-            <select id="filterCategory" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+            <select id="filterCategory" class="input-box" onchange="applyFilters()"
+                style="width: 100%; margin-top: 8px;">
                 <option value="all">Всі фільтри</option>
-                </select>
+            </select>
         </div>
 
         <div class="form-group" style="margin-top: 16px;">
@@ -35,190 +76,172 @@
     </aside>
 
     <main class="layout-main" style="flex: 1; padding: 24px; overflow-y: auto;">
-        
+
         <header class="toolbar" style="margin-bottom: 24px;">
             <div class="search-box" style="max-width: 600px;">
-                <input type="text" id="searchInput" class="input-box" placeholder="Пошук за назвою або ID..." onkeyup="applyFilters()" style="width: 100%;">
+                <input type="text" id="searchInput" class="input-box" placeholder="Пошук за назвою або ID..."
+                    onkeyup="applyFilters()" style="width: 100%;">
             </div>
         </header>
 
-        <div class="block-group grid" id="mainGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-            </div>
+        <div class="block-group grid" id="mainGrid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        </div>
 
     </main>
 
-    <dialog id="folderModal" style="width: 80%; max-width: 1200px; padding: 24px; border-radius: 8px; border: 1px solid var(--color-border, #333); background: var(--color-surface, #1e1e1e); color: inherit;">
+    <dialog id="folderModal"
+        style="width: 80%; max-width: 1200px; padding: 24px; border-radius: 8px; border: 1px solid var(--color-border, #333); background: var(--color-surface, #1e1e1e); color: inherit;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2 id="modalTitle">Назва папки</h2>
             <button class="btn-icon" onclick="document.getElementById('folderModal').close()">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
-        <div class="block-group grid" id="modalGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-            </div>
+        <div class="block-group grid" id="modalGrid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        </div>
     </dialog>
 
-<script>
-    let state = {
-        items: {},
-        draggedId: null,
-        visibleIds: new Set() 
-    };
+    <script>
+        let state = {
+            items: {},
+            draggedId: null,
+            visibleIds: new Set()
+        };
 
-    // 1. Асинхронне завантаження
-    async function init() {
-        try {
-            // Використовуємо твою точну назву аркуша
-            const apiUrl = '/api/public/data?sheet=Mapper_MP_Categories&range=A2:H15000'; 
-            
-            document.getElementById('mainGrid').innerHTML = '<h3 style="padding: 24px;">Завантаження категорій...</h3>';
+        async function init() {
+            try {
+                const apiUrl = '/api/public/data?sheet=Mapper_MP_Categories&range=A2:H15000';
 
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`Помилка сервера: ${response.status}`);
-            
-            const result = await response.json();
-            const rows = result.data; 
+                document.getElementById('mainGrid').innerHTML = '<h3 style="padding: 24px;">Завантаження категорій...</h3>';
 
-            // Парсинг даних
-            rows.forEach(row => {
-                const rowId = row[0]; // mpc-mp-...
-                const mpId = row[1]; // mp-000001
-                const jsonStr = row[4]; // колонка data
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Помилка сервера: ${response.status}`);
 
-                if (jsonStr) {
-                    try {
-                        const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
-                        state.items[rowId] = {
-                            id: rowId,
-                            mpId: mpId,
-                            type: 'card',
-                            parentId: null,
-                            data: data
-                        };
-                    } catch(e) {
-                        console.error("Помилка парсингу JSON у рядку", rowId);
+                const result = await response.json();
+                const rows = result.data;
+
+                rows.forEach(row => {
+                    const rowId = row[0];
+                    const mpId = row[1];
+                    const jsonStr = row[4];
+
+                    if (jsonStr) {
+                        try {
+                            const data = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+                            state.items[rowId] = {
+                                id: rowId,
+                                mpId: mpId,
+                                type: 'card',
+                                parentId: null,
+                                data: data
+                            };
+                        } catch (e) {
+                            console.error("Помилка парсингу JSON у рядку", rowId);
+                        }
                     }
+                });
+
+                applyFilters();
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('mainGrid').innerHTML = `<h3 style="color: red; padding: 24px;">Помилка: ${error.message}</h3>`;
+            }
+        }
+
+        function applyFilters() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            state.visibleIds.clear();
+
+            Object.values(state.items).forEach(item => {
+                if (item.type === 'folder') {
+                    state.visibleIds.add(item.id);
+                    return;
+                }
+
+                const d = item.data;
+                const allText = Object.values(d).join(' ').toLowerCase();
+                const rowIdStr = item.id.toLowerCase();
+
+                if (allText.includes(searchQuery) || rowIdStr.includes(searchQuery)) {
+                    state.visibleIds.add(item.id);
                 }
             });
 
-            applyFilters(); 
-
-        } catch (error) {
-            console.error(error);
-            document.getElementById('mainGrid').innerHTML = `<h3 style="color: red; padding: 24px;">Помилка: ${error.message}</h3>`;
+            render();
         }
-    }
 
-    // 2. Логіка фільтрації (тільки пошук, бо типи в категоріях унікальні)
-    function applyFilters() {
-        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-        state.visibleIds.clear();
+        function render() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = '';
 
-        Object.values(state.items).forEach(item => {
-            if (item.type === 'folder') {
-                state.visibleIds.add(item.id);
-                return;
-            }
+            const itemsToRender = Object.values(state.items)
+                .filter(item => item.parentId === null && state.visibleIds.has(item.id));
 
-            const d = item.data;
-            // Шукаємо по всіх текстових значеннях усередині JSON
-            const allText = Object.values(d).join(' ').toLowerCase();
-            const rowIdStr = item.id.toLowerCase();
-            
-            if (allText.includes(searchQuery) || rowIdStr.includes(searchQuery)) {
-                state.visibleIds.add(item.id);
-            }
-        });
-
-        render();
-    }
-
-    // 3. Рендер з лімітом у 100 карток
-    function render() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
-
-        const itemsToRender = Object.values(state.items)
-            .filter(item => item.parentId === null && state.visibleIds.has(item.id));
-
-        const RENDER_LIMIT = 100;
-        const slicedItems = itemsToRender.slice(0, RENDER_LIMIT);
-
-        slicedItems.forEach(item => {
-            grid.appendChild(createDomElement(item));
-        });
-
-        if (itemsToRender.length > RENDER_LIMIT) {
-            const msg = document.createElement('div');
-            msg.style.gridColumn = "1 / -1";
-            msg.style.padding = "20px";
-            msg.style.textAlign = "center";
-            msg.style.color = "var(--color-text-dim)";
-            msg.innerHTML = `Показано ${RENDER_LIMIT} з ${itemsToRender.length} карток. Використовуйте пошук для фільтрації.`;
-            grid.appendChild(msg);
+            // Виведено всі елементи масиву
+            itemsToRender.forEach(item => {
+                grid.appendChild(createDomElement(item));
+            });
         }
-    }
 
-    // 4. Генерація HTML елемента за твоїми стилями
-    function createDomElement(item) {
-        const block = document.createElement('div');
-        block.className = 'block';
-        block.dataset.rowId = item.id;
-        block.draggable = true;
-        block.style.cursor = 'grab';
+        function createDomElement(item) {
+            const block = document.createElement('div');
+            block.className = 'block';
+            block.dataset.rowId = item.id;
+            block.draggable = true;
+            block.style.cursor = 'grab';
 
-        // Drag & Drop
-        block.ondragstart = (e) => {
-            state.draggedId = item.id;
-            e.dataTransfer.setData('text/plain', item.id);
-            block.style.opacity = '0.5';
-        };
-        block.ondragend = () => {
-            state.draggedId = null;
-            block.style.opacity = '1';
-            document.querySelectorAll('.block').forEach(b => b.style.outline = 'none');
-        };
-        block.ondragover = (e) => {
-            e.preventDefault();
-            if (state.draggedId !== item.id) block.style.outline = '2px dashed var(--color-primary, #007bff)';
-        };
-        block.ondragleave = () => block.style.outline = 'none';
-        block.ondrop = (e) => {
-            e.preventDefault();
-            block.style.outline = 'none';
-            handleMerge(e.dataTransfer.getData('text/plain'), item.id);
-        };
+            block.ondragstart = (e) => {
+                state.draggedId = item.id;
+                e.dataTransfer.setData('text/plain', item.id);
+                block.style.opacity = '0.5';
+            };
+            block.ondragend = () => {
+                state.draggedId = null;
+                block.style.opacity = '1';
+                document.querySelectorAll('.block').forEach(b => b.style.outline = 'none');
+            };
+            block.ondragover = (e) => {
+                e.preventDefault();
+                if (state.draggedId !== item.id) block.style.outline = '2px dashed var(--color-primary, #007bff)';
+            };
+            block.ondragleave = () => block.style.outline = 'none';
+            block.ondrop = (e) => {
+                e.preventDefault();
+                block.style.outline = 'none';
+                handleMerge(e.dataTransfer.getData('text/plain'), item.id);
+            };
 
-        if (item.type === 'card') {
-            const d = item.data;
-            // Розумний вибір назви категорії
-            const title = d.name || d.nameUa || d.titleUk || d.code || 'Категорія';
-            
-            // Динамічна генерація рядків з JSON
-            let linesHtml = '';
-            for (const [key, value] of Object.entries(d)) {
-                linesHtml += `
+            if (item.type === 'card') {
+                const d = item.data;
+                const title = d.name || d.nameUa || d.titleUk || d.code || 'Категорія';
+
+                let linesHtml = '';
+                for (const [key, value] of Object.entries(d)) {
+                    linesHtml += `
                     <div class="block-line">
                         <label class="block-line-label">${key}</label>
                         <span class="block-line-text" title="${value}">${value}</span>
                     </div>
                 `;
-            }
+                }
 
-            block.innerHTML = `
+                block.innerHTML = `
                 <div class="block-header">
                     <h3 title="${title}">${title.length > 25 ? title.substring(0, 25) + '...' : title}</h3>
                     <div class="group">
-                        <span class="btn-icon" style="font-size:12px; font-weight:bold;">${item.mpId}</span>
+                        <span class="tag">${item.mpId}</span>
                     </div>
                 </div>
                 <div class="block-list">
                     ${linesHtml}
                 </div>
             `;
-        } else if (item.type === 'folder') {
-            const childrenCount = Object.values(state.items).filter(i => i.parentId === item.id).length;
-            block.innerHTML = `
+            } else if (item.type === 'folder') {
+                const childrenCount = Object.values(state.items).filter(i => i.parentId === item.id).length;
+                block.innerHTML = `
                 <div class="block-header" style="background: var(--color-surface-2, rgba(255,255,255,0.05));">
                     <input type="text" class="input-box" value="${item.name}" 
                            style="background: transparent; border: none; font-weight: bold; font-size: 16px; width: 100%;"
@@ -235,62 +258,63 @@
                     </div>
                 </div>
             `;
-            block.onclick = () => openFolder(item.id);
+                block.onclick = () => openFolder(item.id);
+            }
+
+            return block;
         }
 
-        return block;
-    }
+        function handleMerge(sourceId, targetId) {
+            if (sourceId === targetId || !sourceId) return;
 
-    function handleMerge(sourceId, targetId) {
-        if (sourceId === targetId || !sourceId) return;
+            const source = state.items[sourceId];
+            const target = state.items[targetId];
 
-        const source = state.items[sourceId];
-        const target = state.items[targetId];
+            if (target.type === 'card') {
+                const newFolderId = 'folder-' + Date.now();
+                state.items[newFolderId] = {
+                    id: newFolderId,
+                    type: 'folder',
+                    name: 'Нова папка категорій',
+                    parentId: null
+                };
+                state.visibleIds.add(newFolderId);
 
-        if (target.type === 'card') {
-            const newFolderId = 'folder-' + Date.now();
-            state.items[newFolderId] = {
-                id: newFolderId,
-                type: 'folder',
-                name: 'Нова папка категорій',
-                parentId: null
-            };
-            state.visibleIds.add(newFolderId); 
-            
-            source.parentId = newFolderId;
-            target.parentId = newFolderId;
-        } else {
-            source.parentId = targetId;
+                source.parentId = newFolderId;
+                target.parentId = newFolderId;
+            } else {
+                source.parentId = targetId;
+            }
+            render();
         }
-        render();
-    }
 
-    function renameFolder(id, newName) {
-        if (state.items[id]) {
-            state.items[id].name = newName;
+        function renameFolder(id, newName) {
+            if (state.items[id]) {
+                state.items[id].name = newName;
+            }
         }
-    }
 
-    function openFolder(folderId) {
-        const folder = state.items[folderId];
-        document.getElementById('modalTitle').innerText = folder.name;
-        
-        const modalGrid = document.getElementById('modalGrid');
-        modalGrid.innerHTML = '';
+        function openFolder(folderId) {
+            const folder = state.items[folderId];
+            document.getElementById('modalTitle').innerText = folder.name;
 
-        Object.values(state.items)
-            .filter(item => item.parentId === folderId)
-            .forEach(item => {
-                const el = createDomElement(item);
-                el.draggable = false; 
-                el.style.cursor = 'default';
-                modalGrid.appendChild(el);
-            });
+            const modalGrid = document.getElementById('modalGrid');
+            modalGrid.innerHTML = '';
 
-        document.getElementById('folderModal').showModal();
-    }
+            Object.values(state.items)
+                .filter(item => item.parentId === folderId)
+                .forEach(item => {
+                    const el = createDomElement(item);
+                    el.draggable = false;
+                    el.style.cursor = 'default';
+                    modalGrid.appendChild(el);
+                });
 
-    init();
-</script>
+            document.getElementById('folderModal').showModal();
+        }
+
+        init();
+    </script>
 </body>
+
 </html>
