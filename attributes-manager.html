@@ -52,14 +52,14 @@
 
         <div class="form-group" style="margin-top: 24px;">
             <label class="block-line-label">Тип атрибуту (type)</label>
-            <select id="filterType" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+            <select data-custom-select id="filterType" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
                 <option value="all">Всі типи</option>
             </select>
         </div>
 
         <div class="form-group" style="margin-top: 16px;">
             <label class="block-line-label">Тип фільтра (filter_type)</label>
-            <select id="filterCategory" class="input-box" onchange="applyFilters()"
+            <select data-custom-select id="filterCategory" class="input-box" onchange="applyFilters()"
                 style="width: 100%; margin-top: 8px;">
                 <option value="all">Всі фільтри</option>
             </select>
@@ -67,7 +67,7 @@
 
         <div class="form-group" style="margin-top: 16px;">
             <label class="block-line-label">Глобальний (is_global)</label>
-            <select id="filterGlobal" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
+            <select data-custom-select id="filterGlobal" class="input-box" onchange="applyFilters()" style="width: 100%; margin-top: 8px;">
                 <option value="all">Всі</option>
                 <option value="TRUE">TRUE</option>
                 <option value="FALSE">FALSE</option>
