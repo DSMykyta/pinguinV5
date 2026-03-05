@@ -16,26 +16,21 @@ import { registerRedirectPlugin } from './redirect-target-plugins.js';
 
 let _redirectsManagedTable = null;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// COLUMNS
-// ═══════════════════════════════════════════════════════════════════════════
-
 export function getColumns() {
     return [
-        col('redirect_id', 'ID', 'tag', { span: 2 }),
-        col('redirect_in', 'Вхідний URL', 'code', { span: 3 }),
-        col('redirect_out', 'Вихідний URL', 'code', { span: 3 }),
+        col('redirect_id', 'ID', 'tag', { span: 2, sortable: true }),
+        col('redirect_in', 'Вхідний URL', 'code', { span: 3, sortable: true }),
+        col('redirect_out', 'Вихідний URL', 'code', { span: 3, sortable: true }),
         col('redirect_target', 'Ціль', 'words-list', { 
             span: 2, 
+            sortable: true, 
+            filterable: true, 
+            filterType: 'values', 
             extraClass: 'c-secondary' 
         }),
-        col('redirect_entity', 'Сутність', 'text', { span: 2 })
+        col('redirect_entity', 'Сутність', 'text', { span: 2, sortable: true })
     ];
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MANAGED TABLE
-// ═══════════════════════════════════════════════════════════════════════════
 
 function initRedirectsTable() {
     const visibleCols = ['redirect_id', 'redirect_in', 'redirect_out', 'redirect_target', 'redirect_entity'];
@@ -53,10 +48,10 @@ function initRedirectsTable() {
         paginationId: null,
         tableConfig: {
             rowActionsHeader: ' ',
-            rowActions: () => '', // Кнопка розкриття додається плагіном expandable
+            rowActions: () => '',
             getRowId: (row) => row.redirect_id,
             emptyState: { message: 'Редиректи не знайдено' },
-            withContainer: false,
+            withContainer: true, // ВИПРАВЛЕНО: Ядро саме створить потрібні div-обгортки
             plugins: {
                 sorting: {
                     columnTypes: {
@@ -78,6 +73,13 @@ function initRedirectsTable() {
                 }
             }
         },
+        // ВИПРАВЛЕНО: words-list вимагає масив. Конвертуємо рядок з CSV у масив.
+        dataTransform: (data) => {
+            return data.map(item => ({
+                ...item,
+                redirect_target: typeof item.redirect_target === 'string' ? [item.redirect_target] : item.redirect_target
+            }));
+        },
         preFilter: null,
         pageSize: null,
         checkboxPrefix: 'redirects'
@@ -86,10 +88,6 @@ function initRedirectsTable() {
     redirectTargetState.tableAPI = _redirectsManagedTable.tableAPI;
     redirectTargetState.managedTable = _redirectsManagedTable;
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC RENDER
-// ═══════════════════════════════════════════════════════════════════════════
 
 export function renderRedirectsTable() {
     if (!_redirectsManagedTable) {
@@ -117,17 +115,10 @@ export function resetRedirectsTableAPI() {
     redirectTargetState.managedTable = null;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PLUGIN REGISTRATION
-// ═══════════════════════════════════════════════════════════════════════════
-
 export function init(state) {
-    // Підписуємо таблицю на подію ініціалізації
     registerRedirectPlugin('onInit', () => {
         renderRedirectsTable();
     });
-
-    // Підписуємо таблицю на перемальовування (refilter)
     registerRedirectPlugin('onRender', () => {
         if (redirectTargetState.managedTable) {
             redirectTargetState.managedTable.refilter();
