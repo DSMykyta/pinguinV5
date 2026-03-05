@@ -41,9 +41,12 @@ class ExpandablePlugin {
             renderContent: null,
             renderFooterLeft: null,
             renderFooterRight: null,
+            showSaveButton: true,
+            showOpenFullButton: null,
             onExpand: null,
             onCollapse: null,
             onSave: null,
+            onDelete: null,
             onOpenFull: null,
             ...config
         };
@@ -89,6 +92,9 @@ class ExpandablePlugin {
                 btnGroup.innerHTML = `
                     <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
+                        <span class="material-symbols-outlined">close</span>
                     </button>`;
                 actionsCell.prepend(btnGroup);
             }
@@ -96,31 +102,31 @@ class ExpandablePlugin {
             const content = this.config.renderContent(rowData, rowEl);
             if (!content) return;
 
-            // Close — окрема комірка в кінці рядка (справа, після всіх колонок)
-            const closeCell = document.createElement('div');
-            closeCell.className = 'pseudo-table-cell expand-close-cell u-hidden';
-            closeCell.style.cssText = 'flex:0 0 auto';
-            closeCell.innerHTML = `
-                <button class="btn-icon" data-action="expand-close" data-tooltip="Згорнути">
-                    <span class="material-symbols-outlined">close</span>
-                </button>`;
-            rowEl.appendChild(closeCell);
-
             // Footer (wizard-footer: left + right)
             const footerLeft = this.config.renderFooterLeft ? this.config.renderFooterLeft(rowData, rowEl) : '';
             const footerRightCustom = this.config.renderFooterRight ? this.config.renderFooterRight(rowData, rowEl) : '';
-            const footerRightButtons = `
-                <button class="btn-ghost" data-action="expand-open-full">
-                    <span class="material-symbols-outlined">open_in_full</span>
-                    Відкрити повний
-                </button>
-                <button class="btn-ghost" data-action="expand-save">
-                    <span class="material-symbols-outlined">save</span>
-                    Зберегти
-                </button>`;
+            const footerRightButtons = [];
+            const showOpenFullButton = this.config.showOpenFullButton ?? Boolean(this.config.onOpenFull);
+
+            if (showOpenFullButton) {
+                footerRightButtons.push(`
+                    <button class="btn-ghost" data-action="expand-open-full">
+                        <span class="material-symbols-outlined">open_in_full</span>
+                        Відкрити повний
+                    </button>`);
+            }
+
+            if (this.config.showSaveButton !== false) {
+                footerRightButtons.push(`
+                    <button class="btn-ghost" data-action="expand-save">
+                        <span class="material-symbols-outlined">save</span>
+                        Зберегти
+                    </button>`);
+            }
+
             const footerHtml = `<div class="wizard-footer">
                 <div class="footer-left">${footerLeft}</div>
-                <div class="footer-right">${footerRightCustom}${footerRightButtons}</div>
+                <div class="footer-right">${footerRightCustom}${footerRightButtons.join('')}</div>
             </div>`;
 
             const reveal = document.createElement('div');
@@ -147,6 +153,11 @@ class ExpandablePlugin {
             return;
         }
 
+        if (e.target.closest('[data-action="expand-delete"]')) {
+            this._delete(row);
+            return;
+        }
+
         if (e.target.closest('[data-action="expand-close"]')) {
             this._collapse(row);
             return;
@@ -163,11 +174,11 @@ class ExpandablePlugin {
         if (!reveal) return;
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
-        const closeCell = row.querySelector('.expand-close-cell');
+        const closeBtn = row.querySelector('[data-action="expand-close"]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
-        closeCell?.classList.remove('u-hidden');
+        closeBtn?.classList.remove('u-hidden');
         checkbox?.classList.add('u-hidden');
 
         reveal.classList.add('is-open');
@@ -183,11 +194,11 @@ class ExpandablePlugin {
         if (!reveal) return;
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
-        const closeCell = row.querySelector('.expand-close-cell');
+        const closeBtn = row.querySelector('[data-action="expand-close"]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
-        closeCell?.classList.add('u-hidden');
+        closeBtn?.classList.add('u-hidden');
         checkbox?.classList.remove('u-hidden');
 
         reveal.classList.remove('is-open');
@@ -201,6 +212,13 @@ class ExpandablePlugin {
         if (this.config.onSave) {
             const rowData = this._getRowData(row);
             this.config.onSave(row, rowData);
+        }
+    }
+
+    _delete(row) {
+        if (this.config.onDelete) {
+            const rowData = this._getRowData(row);
+            this.config.onDelete(row, rowData);
         }
     }
 

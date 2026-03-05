@@ -11,8 +11,9 @@
 import { getRedirects } from './redirect-target-data.js';
 import { redirectTargetState } from './redirect-target-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
-import { renderRedirectEditRow, handleRedirectSave } from './redirect-target-crud.js';
+import { renderRedirectEditRow, handleRedirectExpand, handleRedirectSave, handleRedirectDelete } from './redirect-target-crud.js';
 import { registerRedirectPlugin } from './redirect-target-plugins.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 let _redirectsManagedTable = null;
 
@@ -21,12 +22,15 @@ export function getColumns() {
         col('redirect_id', 'ID', 'tag', { span: 2, sortable: true }),
         col('redirect_in', 'Вхідний URL', 'code', { span: 3, sortable: true }),
         col('redirect_out', 'Вихідний URL', 'code', { span: 3, sortable: true }),
-        col('redirect_target', 'Ціль', 'words-list', { 
+        col('redirect_target', 'Ціль', 'words-list', {
             span: 2, 
             sortable: true, 
             filterable: true, 
             filterType: 'values', 
-            extraClass: 'c-secondary' 
+            extraClass: 'c-secondary',
+            render: (value) => value
+                ? `<span class="tag c-main">${escapeHtml(value)}</span>`
+                : '<span class="text-muted">—</span>'
         }),
         col('redirect_entity', 'Сутність', 'text', { span: 2, sortable: true })
     ];
@@ -51,7 +55,7 @@ function initRedirectsTable() {
             rowActions: () => '',
             getRowId: (row) => row.redirect_id,
             emptyState: { message: 'Редиректи не знайдено' },
-            withContainer: true,
+            withContainer: false,
             plugins: {
                 sorting: {
                     columnTypes: {
@@ -69,15 +73,16 @@ function initRedirectsTable() {
                 },
                 expandable: {
                     renderContent: renderRedirectEditRow,
-                    onSave: (rowEl, row) => handleRedirectSave(rowEl, row, redirectTargetState.tableAPI)
+                    renderFooterLeft: () => `
+                        <button type="button" class="btn-icon danger" data-action="expand-delete" aria-label="Видалити">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>`,
+                    showOpenFullButton: false,
+                    onExpand: (rowEl) => handleRedirectExpand(rowEl),
+                    onSave: (rowEl, row) => handleRedirectSave(rowEl, row, redirectTargetState.managedTable),
+                    onDelete: (rowEl, row) => handleRedirectDelete(rowEl, row, redirectTargetState.managedTable)
                 }
             }
-        },
-        dataTransform: (data) => {
-            return data.map(item => ({
-                ...item,
-                redirect_target: typeof item.redirect_target === 'string' ? [item.redirect_target] : item.redirect_target
-            }));
         },
         preFilter: null,
         pageSize: null,

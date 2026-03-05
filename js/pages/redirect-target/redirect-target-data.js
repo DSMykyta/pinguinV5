@@ -85,3 +85,39 @@ export async function updateRedirect(redirectId, updates) {
         throw error;
     }
 }
+
+export async function deleteRedirect(redirectId) {
+    try {
+        const redirectIndex = redirectTargetState.redirects.findIndex(e => e.redirect_id === redirectId);
+        if (redirectIndex === -1) {
+            throw new Error(`Редирект ${redirectId} не знайдено`);
+        }
+
+        const redirect = redirectTargetState.redirects[redirectIndex];
+        const rowIndex = redirect._rowIndex;
+
+        await callSheetsAPI('batchUpdateSpreadsheet', {
+            requests: [{
+                deleteDimension: {
+                    range: {
+                        sheetId: parseInt(SHEET_GID, 10),
+                        dimension: 'ROWS',
+                        startIndex: rowIndex - 1,
+                        endIndex: rowIndex
+                    }
+                }
+            }],
+            spreadsheetType: 'products'
+        });
+
+        redirectTargetState.redirects.splice(redirectIndex, 1);
+        redirectTargetState.redirects.forEach(item => {
+            if (item._rowIndex > rowIndex) item._rowIndex -= 1;
+        });
+
+        return true;
+    } catch (error) {
+        console.error('❌ Помилка видалення редиректу:', error);
+        throw error;
+    }
+}
