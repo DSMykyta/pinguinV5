@@ -8,20 +8,21 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
-export function init(state) {
-    // Підписуємось на ініціалізацію
-    state.registerHook('onDidInit', () => setupUI(state), { plugin: 'ui' });
-    
-    // Підписуємось на оновлення даних
-    state.registerHook('onDataLoaded', () => renderTable(state), { plugin: 'ui' });
+import { registerRedirectPlugin } from './redirect-target-plugins.js';
+import { redirectTargetState } from './redirect-target-state.js';
+
+export function init() {
+    registerRedirectPlugin('onInit', setupUI);
+    registerRedirectPlugin('onDataLoaded', renderTableStateLog);
 }
 
-function setupUI(state) {
-    console.log('[ui] Підготовка інтерфейсу Redirect Target');
+function setupUI() {
+    const tableContainer = document.getElementById('redirect-target-table-container');
+    if (!tableContainer) {
+        console.warn('[RedirectTarget UI] Table container not found');
+    }
 }
 
-function renderTable(state) {
-    if (!state.dom.tableContainer) return;
-    console.log('[ui] Рендер таблиці, даних:', state.data.length);
-    // state.dom.tableContainer.innerHTML = ...
+function renderTableStateLog() {
+    console.log('[RedirectTarget UI] Loaded redirects:', redirectTargetState.redirects.length);
 }

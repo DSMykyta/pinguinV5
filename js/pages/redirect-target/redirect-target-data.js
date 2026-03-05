@@ -10,7 +10,7 @@
 
 import { redirectTargetState } from './redirect-target-state.js';
 import { callSheetsAPI } from '../../utils/api-client.js';
-import { MAIN_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
+import { PRODUCTS_SPREADSHEET_ID as SPREADSHEET_ID } from '../../config/spreadsheet-config.js';
 
 const SHEET_NAME = 'RedirectTarget';
 const SHEET_GID = '1641646787';
@@ -75,7 +75,7 @@ export async function updateRedirect(redirectId, updates) {
         await callSheetsAPI('update', {
             range: range,
             values: [updatedRow],
-            spreadsheetType: 'main'
+            spreadsheetType: 'products'
         });
 
         Object.assign(entry, updates);
