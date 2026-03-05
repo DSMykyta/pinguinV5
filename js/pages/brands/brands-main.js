@@ -12,17 +12,17 @@
  * ║  └── brands-data.js     — Google Sheets API (CRUD операції)              ║
  * ║                                                                          ║
  * ║  🔌 ПЛАГІНИ (можна видалити):                                            ║
- * ║  ├── brands-table.js         — Таблиця брендів (сторінка)               ║
- * ║  ├── brands-crud.js          — Модал бренду (open/fill/save)            ║
- * ║  ├── brands-crud-alt-names.js— Модал: секція альт. назв                 ║
- * ║  ├── brands-crud-links.js    — Модал: секція посилань                   ║
- * ║  ├── brands-crud-logo.js     — Модал: секція логотипу                   ║
- * ║  ├── brands-crud-lines.js    — Модал: таблиця лінійок                   ║
- * ║  ├── brands-delete.js        — Delete бренду (confirm + API)            ║
- * ║  ├── brands-events.js        — Обробники подій (refresh)                ║
- * ║  ├── lines-table.js          — Таблиця лінійок (сторінка)               ║
- * ║  ├── lines-crud.js           — Модал лінійки                            ║
- * ║  └── lines-delete.js         — Delete лінійки                           ║
+ * ║  ├── brands-table.js         — Таблиця брендів (сторінка)                ║
+ * ║  ├── brands-crud.js          — Модал бренду (open/fill/save)             ║
+ * ║  ├── brands-crud-alt-names.js— Модал: секція альт. назв                  ║
+ * ║  ├── brands-crud-links.js    — Модал: секція посилань                    ║
+ * ║  ├── brands-crud-logo.js     — Модал: секція логотипу                    ║
+ * ║  ├── brands-crud-lines.js    — Модал: таблиця лінійок                    ║
+ * ║  ├── brands-delete.js        — Delete бренду (confirm + API)             ║
+ * ║  ├── brands-events.js        — Обробники подій (refresh)                 ║
+ * ║  ├── lines-table.js          — Таблиця лінійок (сторінка)                ║
+ * ║  ├── lines-crud.js           — Модал лінійки                             ║
+ * ║  └── lines-delete.js         — Delete лінійки                            ║
  * ║                                                                          ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
