@@ -370,6 +370,49 @@
 
 
                 <!-- ═══════════════════════════════════════════════════════════════ -->
+                <!-- СЕКЦІЯ: ГЕНЕРАТОР ТАБЛИЦЬ (тільки wizard mode) -->
+                <!-- ═══════════════════════════════════════════════════════════════ -->
+                <section id="section-product-table-generator" class="wizard-only-section u-hidden">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Генератор таблиць</h2>
+                            </div>
+                            <span class="body-s">Створіть таблицю складу, потім натисніть "Заповнити"</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <!-- Панель кнопок -->
+                        <div class="grid" style="gap: 8px; margin-bottom: 12px;">
+                            <button type="button" class="btn-ghost col-3" data-wg-action="add-row">
+                                <span class="material-symbols-outlined">add</span> Рядок
+                            </button>
+                            <button type="button" class="btn-ghost col-3" data-wg-action="add-separator">
+                                <span class="material-symbols-outlined">rectangle</span> Розділювач
+                            </button>
+                            <button type="button" class="btn-ghost col-3" data-wg-action="add-nutrition">
+                                <span class="material-symbols-outlined">nutrition</span> Харчова цінність
+                            </button>
+                            <button type="button" class="btn-ghost col-3" data-wg-action="magic" data-modal-trigger="magic-modal">
+                                <span class="material-symbols-outlined">auto_fix_high</span> Магія
+                            </button>
+                        </div>
+
+                        <!-- Рядки таблиці -->
+                        <div id="wizard-rows-container" class="section-content"></div>
+
+                        <!-- Кнопка заповнення -->
+                        <div style="margin-top: 16px; text-align: center;">
+                            <button type="button" class="btn-primary" id="wizard-fill-composition">
+                                <span class="material-symbols-outlined">send</span>
+                                Заповнити склад
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════════════ -->
                 <!-- СЕКЦІЯ: КОД СКЛАДУ -->
                 <!-- ═══════════════════════════════════════════════════════════════ -->
                 <section id="section-product-composition-code">

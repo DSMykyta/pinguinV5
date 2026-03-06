@@ -43,7 +43,7 @@
  * ║                                                                          ║
  * ║  ✨ ШАРМИ — активуються тільки при наявності атрибута:                   ║
  * ║  ├── editor-charm-find.js           — Find & Replace        [tools]      ║
- * ║  ├── editor-charm-check.js          — Заборонені слова       [check]      ║
+ * ║  ├── editor-charm-check.js          — Заборонені слова       [check]     ║
  * ║  ├── editor-charm-chip-navigation.js — Навігація по чіпах   [check]      ║
  * ║  ├── editor-charm-tooltip.js        — Підказки              [check]      ║
  * ║  ├── editor-charm-stats.js          — Статистика            [stats]      ║

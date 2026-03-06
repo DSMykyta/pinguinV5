@@ -13,7 +13,8 @@
  * модал стає звичайним для подальшого редагування.
  */
 
-import { showAddProductModal } from './products-crud.js';
+import { showAddProductModal, getCompCodeEditorRu, getCompNotesEditorRu } from './products-crud.js';
+import { initWizardGenerator, showWizardGenerator, resetWizardGenerator } from './products-crud-composition-generator.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -73,6 +74,16 @@ function _activateWizardMode() {
 
     container.classList.add('wizard-mode');
     _createWizardFooter(container);
+
+    // Показати генератор таблиць та ініціалізувати
+    showWizardGenerator(true);
+    initWizardGenerator((htmlTable, brText) => {
+        const codeEditor = getCompCodeEditorRu();
+        const notesEditor = getCompNotesEditorRu();
+        if (codeEditor) codeEditor.setValue(htmlTable);
+        if (notesEditor) notesEditor.setValue(brText);
+    });
+
     _collectSections();
     _showCurrentStep();
     _watchCategoryChanges();
@@ -260,6 +271,10 @@ function _deactivate() {
     // Видалити wizard footer
     const footer = container?.querySelector('.wizard-footer');
     if (footer) footer.remove();
+
+    // Сховати та скинути генератор
+    showWizardGenerator(false);
+    resetWizardGenerator();
 
     // Показати всі секції
     _sections.forEach(s => s.classList.remove('u-hidden'));

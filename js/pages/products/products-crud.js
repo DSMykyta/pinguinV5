@@ -840,6 +840,9 @@ function _restoreSnapshot(snapshot) {
     updateGeneratedNames();
 }
 
+export function getCompCodeEditorRu() { return compCodeEditorRu; }
+export function getCompNotesEditorRu() { return compNotesEditorRu; }
+
 export function getCurrentProductId() {
     return currentProductId;
 }
