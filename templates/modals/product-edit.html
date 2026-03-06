@@ -382,32 +382,48 @@
                         </div>
                     </div>
 
-                    <div class="section-content">
-                        <!-- Панель кнопок -->
-                        <div class="grid" style="gap: 8px; margin-bottom: 12px;">
-                            <button type="button" class="btn-ghost col-3" data-wg-action="add-row">
-                                <span class="material-symbols-outlined">add</span> Рядок
-                            </button>
-                            <button type="button" class="btn-ghost col-3" data-wg-action="add-separator">
-                                <span class="material-symbols-outlined">rectangle</span> Розділювач
-                            </button>
-                            <button type="button" class="btn-ghost col-3" data-wg-action="add-nutrition">
-                                <span class="material-symbols-outlined">nutrition</span> Харчова цінність
-                            </button>
-                            <button type="button" class="btn-ghost col-3" data-wg-action="magic" data-modal-trigger="magic-modal">
-                                <span class="material-symbols-outlined">auto_fix_high</span> Магія
-                            </button>
+                    <div class="section-content grid">
+                        <!-- Ліва частина: рядки таблиці -->
+                        <div class="col-9">
+                            <div id="wizard-rows-container" class="section-content"></div>
                         </div>
 
-                        <!-- Рядки таблиці -->
-                        <div id="wizard-rows-container" class="section-content"></div>
+                        <!-- Права частина: панель кнопок (імітація aside) -->
+                        <div class="col-3" style="display: flex; flex-direction: column;">
+                            <div class="panel-content-fix">
+                                <div class="content-line panel" id="wizard-fill-composition" style="cursor: pointer;">
+                                    <span class="material-symbols-outlined">send</span>
+                                    <span class="panel-text result-status">Заповнити склад</span>
+                                </div>
+                            </div>
 
-                        <!-- Кнопка заповнення -->
-                        <div style="margin-top: 16px; text-align: center;">
-                            <button type="button" class="btn-primary" id="wizard-fill-composition">
-                                <span class="material-symbols-outlined">send</span>
-                                Заповнити склад
-                            </button>
+                            <div class="panel-content-scroll">
+                                <button type="button" class="panel-item" data-wg-action="add-row">
+                                    <span class="material-symbols-outlined panel-item-icon">add</span>
+                                    <span class="panel-item-text">Новий рядок</span>
+                                </button>
+
+                                <button type="button" class="panel-item" data-wg-action="add-separator">
+                                    <span class="material-symbols-outlined panel-item-icon">rectangle</span>
+                                    <span class="panel-item-text">Розділювач</span>
+                                </button>
+
+                                <button type="button" class="panel-item" data-wg-action="add-ingredients">
+                                    <span class="material-symbols-outlined panel-item-icon">science</span>
+                                    <span class="panel-item-text">Інгредієнти</span>
+                                </button>
+
+                                <button type="button" class="panel-item" data-wg-action="add-warning">
+                                    <span class="material-symbols-outlined panel-item-icon">warning</span>
+                                    <span class="panel-item-text">Попередження</span>
+                                </button>
+                            </div>
+
+                            <div class="panel-content-footer">
+                                <button type="button" class="fab primary" data-wg-action="magic" data-modal-trigger="magic-modal" data-tooltip="Магія" data-tooltip-always>
+                                    <span class="material-symbols-outlined">auto_fix_high</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>

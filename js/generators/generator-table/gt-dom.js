@@ -45,3 +45,21 @@ export function getTableDOM() {
 
     return domCache;
 }
+
+/**
+ * Перемикає rowsContainer на інший елемент (для wizard-режиму).
+ * @param {HTMLElement} container - Новий контейнер рядків.
+ */
+export function setRowsContainer(container) {
+    getTableDOM(); // Переконатись що кеш створений
+    domCache.rowsContainer = container;
+}
+
+/**
+ * Повертає rowsContainer до стандартного #rows-container.
+ */
+export function resetRowsContainer() {
+    if (domCache) {
+        domCache.rowsContainer = document.getElementById('rows-container');
+    }
+}
