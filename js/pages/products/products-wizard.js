@@ -3,14 +3,22 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
  * ║              PRODUCTS — WIZARD (Покрокове створення товару)             ║
+ * ╠══════════════════════════════════════════════════════════════════════════╣
+ * ║                                                                        ║
+ * ║  Відкриває product-edit fullscreen модал у режимі wizard:              ║
+ * ║  секції показуються по одній, навігація Назад/Далі/Створити.           ║
+ * ║                                                                        ║
+ * ║  Dot-індикатори у шапці (по центру):                                   ║
+ * ║  ├── c-grey   — не відвідано                                           ║
+ * ║  ├── c-red    — є незаповнені required                                 ║
+ * ║  ├── c-green  — все заповнено                                          ║
+ * ║  └── c-yellow — відвідано, required ок, але є порожні поля             ║
+ * ║                                                                        ║
+ * ║  Чекбокси в section-header кожної секції для ручної позначки.          ║
+ * ║                                                                        ║
+ * ║  Створити — зберігає товар і закриває модал.                           ║
+ * ║                                                                        ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
- *
- * Відкриває той самий product-edit fullscreen модал,
- * але в режимі wizard: секції показуються по одній,
- * навігація кнопками Назад/Далі/Створити.
- *
- * Після "Створити" — зберігає товар, знімає wizard-mode,
- * модал стає звичайним для подальшого редагування.
  */
 
 import { showAddProductModal, getCompCodeEditorRu, getCompNotesEditorRu } from './products-crud.js';
@@ -24,6 +32,8 @@ let _currentStep = 0;
 let _sections = [];
 let _active = false;
 let _categoryChangeObserver = null;
+let _visited = new Set();
+let _dotsContainer = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC
@@ -32,50 +42,21 @@ let _categoryChangeObserver = null;
 export async function showProductWizard() {
     await showAddProductModal();
     _activateWizardMode();
-    _showModeSwitch(true);
-    _initModeSwitch();
-}
-
-/**
- * Показати перемикач Wizard/Стандарт (тільки для створення)
- */
-function _showModeSwitch(show) {
-    const sw = document.getElementById('product-mode-switch');
-    if (!sw) return;
-
-    if (show) {
-        sw.classList.remove('u-hidden');
-        const wizardRadio = document.getElementById('product-mode-wizard');
-        if (wizardRadio) wizardRadio.checked = true;
-    } else {
-        sw.classList.add('u-hidden');
-    }
-}
-
-function _initModeSwitch() {
-    const sw = document.getElementById('product-mode-switch');
-    if (!sw) return;
-
-    sw.addEventListener('change', (e) => {
-        if (e.target.value === 'wizard' && !_active) {
-            _activateWizardMode();
-        } else if (e.target.value === 'standard' && _active) {
-            _deactivate();
-        }
-    });
 }
 
 function _activateWizardMode() {
     _active = true;
     _currentStep = 0;
+    _visited = new Set();
 
     const container = document.querySelector('.modal-fullscreen-container');
     if (!container) return;
 
     container.classList.add('wizard-mode');
     _createWizardFooter(container);
+    _createDots();
 
-    // Показати генератор таблиць та ініціалізувати
+    // Генератор таблиць
     showWizardGenerator(true);
     initWizardGenerator((htmlTable, brText) => {
         const codeEditor = getCompCodeEditorRu();
@@ -85,8 +66,81 @@ function _activateWizardMode() {
     });
 
     _collectSections();
+    _visited.add(0);
     _showCurrentStep();
     _watchCategoryChanges();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DOTS — індикатори кроків у шапці
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _createDots() {
+    _dotsContainer?.remove();
+
+    const header = document.querySelector('.wizard-mode .modal-fullscreen-header');
+    if (!header) return;
+
+    _dotsContainer = document.createElement('div');
+    _dotsContainer.className = 'wizard-dots';
+    _dotsContainer.addEventListener('click', (e) => {
+        const dot = e.target.closest('.wizard-dot');
+        if (!dot) return;
+        const idx = parseInt(dot.dataset.step);
+        if (!isNaN(idx)) _goToStep(idx);
+    });
+
+    header.appendChild(_dotsContainer);
+}
+
+function _renderDots() {
+    if (!_dotsContainer) return;
+
+    _dotsContainer.innerHTML = _sections.map((section, i) => {
+        const color = _getDotColor(section, i);
+        const active = i === _currentStep ? ' active' : '';
+        return `<button class="wizard-dot${active}" data-step="${i}"><span class="dot ${color}"></span></button>`;
+    }).join('');
+}
+
+function _getDotColor(section, index) {
+    if (!_visited.has(index)) return 'c-grey';
+
+    const requiredFields = section.querySelectorAll('[required]');
+    const hasEmptyRequired = Array.from(requiredFields).some(_isFieldEmpty);
+    if (hasEmptyRequired) return 'c-red';
+
+    const allInputs = section.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]), textarea, select');
+    const filledCount = Array.from(allInputs).filter(el => !_isFieldEmpty(el)).length;
+    if (filledCount === 0 && allInputs.length > 0) return 'c-yellow';
+
+    return 'c-green';
+}
+
+function _isFieldEmpty(el) {
+    if (el.tagName === 'SELECT') return !el.value;
+    return !el.value.trim();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHECKBOXES — галочки в section-header
+// ═══════════════════════════════════════════════════════════════════════════
+
+function _addCheckboxToSection(section) {
+    if (section.querySelector('.wizard-section-check')) return;
+
+    const header = section.querySelector('.section-header');
+    if (!header) return;
+
+    const cb = document.createElement('label');
+    cb.className = 'wizard-section-check';
+    cb.innerHTML = `
+        <input type="checkbox" class="wizard-check-input">
+        <span class="material-symbols-outlined wizard-check-icon">check_circle</span>
+    `;
+    header.appendChild(cb);
+
+    cb.querySelector('input').addEventListener('change', () => _renderDots());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -94,7 +148,6 @@ function _activateWizardMode() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function _createWizardFooter(container) {
-    // Видалити старий якщо є
     const old = container.querySelector('.wizard-footer');
     if (old) old.remove();
 
@@ -140,14 +193,15 @@ function _collectSections() {
 function _goToStep(step) {
     if (step < 0 || step >= _sections.length) return;
     _currentStep = step;
+    _visited.add(step);
     _showCurrentStep();
 }
 
 function _showCurrentStep() {
-    // Показати/сховати секції
     _sections.forEach((section, i) => {
         if (i === _currentStep) {
             section.classList.remove('u-hidden');
+            _addCheckboxToSection(section);
         } else {
             section.classList.add('u-hidden');
         }
@@ -156,43 +210,19 @@ function _showCurrentStep() {
     const total = _sections.length;
     const step = _currentStep;
 
-    // Label
     const label = document.getElementById('wizard-step-label');
     if (label) label.textContent = `${step + 1} / ${total}`;
 
-    // Prev button
     const prevBtn = document.getElementById('wizard-btn-prev');
-    if (prevBtn) {
-        prevBtn.style.visibility = step === 0 ? 'hidden' : '';
-    }
+    if (prevBtn) prevBtn.style.visibility = step === 0 ? 'hidden' : '';
 
-    // Next / Create
     const nextBtn = document.getElementById('wizard-btn-next');
     const createBtn = document.getElementById('wizard-btn-create');
     const isLast = step === total - 1;
-
     if (nextBtn) nextBtn.classList.toggle('u-hidden', isLast);
     if (createBtn) createBtn.classList.toggle('u-hidden', !isLast);
 
-    // Sidebar nav — підсвітити поточну секцію
-    _updateSidebarNav();
-}
-
-function _updateSidebarNav() {
-    const nav = document.getElementById('product-section-navigator');
-    if (!nav) return;
-
-    const currentSection = _sections[_currentStep];
-    if (!currentSection) return;
-
-    nav.querySelectorAll('.nav-main a').forEach(a => {
-        const href = a.getAttribute('href');
-        if (href && href === `#${currentSection.id}`) {
-            a.classList.add('active');
-        } else {
-            a.classList.remove('active');
-        }
-    });
+    _renderDots();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -200,7 +230,6 @@ function _updateSidebarNav() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function _watchCategoryChanges() {
-    // MutationObserver на контейнер характеристик
     const charContainer = document.getElementById('product-characteristics-sections');
     if (!charContainer) return;
 
@@ -211,7 +240,6 @@ function _watchCategoryChanges() {
         const prevCount = _sections.length;
         _collectSections();
 
-        // Якщо кількість секцій змінилась — оновити UI
         if (_sections.length !== prevCount) {
             if (_currentStep >= _sections.length) {
                 _currentStep = _sections.length - 1;
@@ -224,7 +252,7 @@ function _watchCategoryChanges() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// CREATE
+// CREATE — зберегти та закрити модал
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function _handleCreate() {
@@ -232,20 +260,11 @@ async function _handleCreate() {
     if (createBtn) createBtn.disabled = true;
 
     try {
-        // Використовуємо існуючий save handler з products-crud
-        const saveBtn = document.getElementById('save-close-product');
-        if (saveBtn) {
-            // Тригеримо збереження, але НЕ закриваємо модал
-            const { default: _unused, ...crud } = await import('./products-crud.js');
-            // Напряму кликнути save (не save-close)
-            const saveBtnOnly = document.getElementById('btn-save-product');
-            if (saveBtnOnly) saveBtnOnly.click();
-        }
+        // save-close: зберегти + закрити модал
+        const saveCloseBtn = document.getElementById('save-close-product');
+        if (saveCloseBtn) saveCloseBtn.click();
 
-        // Зняти wizard-mode → модал стає звичайним edit
         _deactivate();
-        _showModeSwitch(false);
-
     } catch (error) {
         console.error('Wizard create error:', error);
     } finally {
@@ -268,15 +287,18 @@ function _deactivate() {
     const container = document.querySelector('.modal-fullscreen-container');
     if (container) container.classList.remove('wizard-mode');
 
-    // Видалити wizard footer
-    const footer = container?.querySelector('.wizard-footer');
-    if (footer) footer.remove();
+    // Видалити wizard UI
+    container?.querySelector('.wizard-footer')?.remove();
+    _dotsContainer?.remove();
+    _dotsContainer = null;
+    container?.querySelectorAll('.wizard-section-check').forEach(el => el.remove());
 
-    // Сховати та скинути генератор
+    // Скинути генератор
     showWizardGenerator(false);
     resetWizardGenerator();
 
     // Показати всі секції
     _sections.forEach(s => s.classList.remove('u-hidden'));
     _sections = [];
+    _visited = new Set();
 }
