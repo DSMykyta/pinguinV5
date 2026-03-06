@@ -807,7 +807,7 @@ function populateMpOptions(allData, optMapping) {
             { ...col('mp_name', 'Назва', 'name'), searchable: true },
             { ...col('char_display', 'Характ.', 'text', { span: 3, filterable: true }), searchable: true },
             col('mapping', 'Наша опція', 'select', {
-                span: 4, sortable: false,
+                span: 3, sortable: false,
                 render: (value, row) => {
                     const cls = row.mapped_id ? 'custom-select-trigger mapped' : 'custom-select-trigger';
                     return `<div class="${cls}" data-entity-type="option" data-mp-entity-id="${escapeHtml(row.id)}" data-mp-ext-id="${escapeHtml(row.external_id || '')}" data-current-value="${escapeHtml(row.mapped_id)}"><span class="mp-tree-mapping-label">${row.mapped_label ? escapeHtml(row.mapped_label) : '—'}</span><svg class="custom-select-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div>`;
