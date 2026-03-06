@@ -60,22 +60,26 @@ export function resolveNameFromCharsAndSpecs(variantChars, specUaJson, specRuJso
 
     const obj_ua = {};
     const obj_ru = {};
-    for (const [charId, optionId] of Object.entries(variantChars)) {
-        if (!optionId) continue;
+    for (const [charId, value] of Object.entries(variantChars)) {
+        if (!value) continue;
         if (parentCharIds.has(charId)) continue;
+
+        const opt = allOptions.find(o => o.id === value);
 
         if (specUa[charId]) {
             obj_ua[charId] = specUa[charId];
+        } else if (opt?.value_ua) {
+            obj_ua[charId] = opt.value_ua;
         } else {
-            const opt = allOptions.find(o => o.id === optionId);
-            if (opt?.value_ua) obj_ua[charId] = opt.value_ua;
+            obj_ua[charId] = value;
         }
 
         if (specRu[charId]) {
             obj_ru[charId] = specRu[charId];
+        } else if (opt?.value_ru) {
+            obj_ru[charId] = opt.value_ru;
         } else {
-            const opt = allOptions.find(o => o.id === optionId);
-            if (opt?.value_ru) obj_ru[charId] = opt.value_ru;
+            obj_ru[charId] = value;
         }
     }
     return {
@@ -100,6 +104,7 @@ export function resolveVariantName() {
     const obj_ua = {};
     const obj_ru = {};
 
+    // Select characteristics — resolve option names + spec overrides
     container.querySelectorAll('select[data-vchar-id]').forEach(select => {
         // Skip parent characteristics — they don't form variant name
         if (select.dataset.parentOf) return;
@@ -127,6 +132,26 @@ export function resolveVariantName() {
             const opt = allOptions.find(o => o.id === val);
             if (opt?.value_ru) obj_ru[charId] = opt.value_ru;
         }
+    });
+
+    // Bilingual text inputs (TextInput/TextArea) — UA and RU values
+    container.querySelectorAll('input[data-vchar-id][data-vchar-lang="ua"]').forEach(input => {
+        const charId = input.dataset.vcharId;
+        const valUa = input.value.trim();
+        if (!valUa) return;
+        obj_ua[charId] = valUa;
+
+        const ruInput = container.querySelector(`input[data-vchar-id="${charId}"][data-vchar-lang="ru"]`);
+        obj_ru[charId] = ruInput?.value?.trim() || valUa;
+    });
+
+    // Non-bilingual inputs (Integer/Decimal) — same value for both langs
+    container.querySelectorAll('input[data-vchar-id]:not([data-vchar-lang])').forEach(input => {
+        const charId = input.dataset.vcharId;
+        const val = input.value.trim();
+        if (!val) return;
+        obj_ua[charId] = val;
+        obj_ru[charId] = val;
     });
 
     return {

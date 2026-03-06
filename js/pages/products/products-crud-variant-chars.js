@@ -246,24 +246,41 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
             break;
 
         case 'TextInput':
-        case 'MultiText':
-        default:
+        case 'TextArea':
+        default: {
+            const savedValueRu = variantData?._parsedSpecRu?.[char.id] || '';
             fieldHtml = `
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" id="${id}" data-vchar-id="${char.id}"
-                                value="${escapeHtml(savedValue)}"
-                                placeholder="${escapeHtml(char.name_ua || '')}">
-                            ${unit}
+                <div class="content-bloc-container">
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="${id}" data-vchar-id="${char.id}" data-vchar-lang="ua"
+                                    value="${escapeHtml(savedValue)}"
+                                    placeholder="${escapeHtml(char.name_ua || '')}">
+                                <span class="tag c-secondary">UA</span>
+                                ${unit}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" data-vchar-id="${char.id}" data-vchar-lang="ru"
+                                    value="${escapeHtml(savedValueRu)}"
+                                    placeholder="${escapeHtml(char.name_ru || char.name_ua || '')}">
+                                <span class="tag c-secondary">RU</span>
+                                ${unit}
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
             break;
+        }
     }
 
-    // Companion spec field — уточнення (не для батьківських характеристик)
+    // Companion spec field — уточнення (тільки для Select/ComboBox/List, не для текстових і не для батьківських)
+    const isTextType = ['TextInput', 'TextArea'].includes(char.type);
     const isParentChar = parentChildMap && [...parentChildMap.values()].includes(char.id);
 
     const specUaObj = variantData?._parsedSpecUa || {};
@@ -271,7 +288,7 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
     const specUaVal = specUaObj[char.id] || '';
     const specRuVal = specRuObj[char.id] || '';
 
-    const companionHtml = isParentChar ? '' : `
+    const companionHtml = (isTextType || isParentChar) ? '' : `
         <div class="group column col-4" data-spec-for="${char.id}">
             <label class="label-l">Уточнення ${label}</label>
             <div class="content-bloc-container">
@@ -339,8 +356,9 @@ export function getVariantCharsData() {
 
     const data = {};
 
-    // Text / number inputs
+    // Text / number inputs (skip RU — store only UA/primary value)
     container.querySelectorAll('input[data-vchar-id]').forEach(input => {
+        if (input.dataset.vcharLang === 'ru') return;
         const charId = input.dataset.vcharId;
         const val = input.value.trim();
         if (val) data[charId] = val;
