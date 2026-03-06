@@ -1,16 +1,14 @@
 // js/pages/banners/banners-ui.js
 
-/*
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                        BANNERS — UI                                      ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+/**
+ * BANNERS — UI
  */
 
 import { registerBannersPlugin } from './banners-plugins.js';
 import { bannersState } from './banners-state.js';
 import { loadBanners } from './banners-data.js';
 import { renderBannersTable } from './banners-table.js';
-import { handleBannerAdd } from './banners-crud.js';
+import { showAddBannerModal } from './banners-crud.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
@@ -45,7 +43,7 @@ function setupUI() {
     addButtons.forEach((btn) => {
         if (btn._bannersAddInit) return;
         btn._bannersAddInit = true;
-        btn.addEventListener('click', () => handleBannerAdd(bannersState.managedTable));
+        btn.addEventListener('click', () => showAddBannerModal());
     });
 }
 

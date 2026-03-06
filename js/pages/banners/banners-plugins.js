@@ -7,7 +7,9 @@
 const hooks = {
     onInit: [],
     onRender: [],
-    onDataLoaded: []
+    onDataLoaded: [],
+    onModalOpen: [],
+    onModalClose: []
 };
 
 export function registerBannersPlugin(hookName, callback) {

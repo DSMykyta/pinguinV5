@@ -1,25 +1,40 @@
 // js/pages/banners/banners-table.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                    BANNERS — TABLE RENDERING                             ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * BANNERS — TABLE RENDERING
+ *
+ * Uses action handlers + fullscreen modal (consistent with products pattern).
  */
 
 import { getBanners } from './banners-data.js';
 import { bannersState } from './banners-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
-    renderBannerEditRow,
-    handleBannerExpand,
-    handleBannerSave,
-    handleBannerDelete
-} from './banners-crud.js';
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../../components/actions/actions-main.js';
 import { registerBannersPlugin } from './banners-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('banners', {
+    edit: async (rowId) => {
+        const { showEditBannerModal } = await import('./banners-crud.js');
+        await showEditBannerModal(rowId);
+    }
+});
+
 let _bannersManagedTable = null;
+let _actionCleanup = null;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLUMNS
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function getColumns() {
     return [
@@ -42,31 +57,21 @@ export function getColumns() {
     ];
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MANAGED TABLE
+// ═══════════════════════════════════════════════════════════════════════════
+
 function initBannersTable() {
     const visibleCols = [
-        'banner_id',
-        'banner_target',
-        'banner_group',
-        'banner_type',
-        'banner_sort_order',
-        'status',
-        'banner_name_ua',
-        'url',
-        'image_url',
-        'created_at'
+        'banner_id', 'banner_target', 'banner_group', 'banner_type',
+        'banner_sort_order', 'status', 'banner_name_ua',
+        'url', 'image_url', 'created_at'
     ];
 
     const searchCols = [
-        'banner_id',
-        'banner_target',
-        'banner_group',
-        'banner_type',
-        'banner_name_ua',
-        'banner_name_ru',
-        'url_ua',
-        'url_ru',
-        'url',
-        'created_by'
+        'banner_id', 'banner_target', 'banner_group', 'banner_type',
+        'banner_name_ua', 'banner_name_ru', 'url_ua', 'url_ru',
+        'url', 'created_by'
     ];
 
     _bannersManagedTable = createManagedTable({
@@ -81,10 +86,18 @@ function initBannersTable() {
         paginationId: null,
         tableConfig: {
             rowActionsHeader: ' ',
-            rowActions: () => '',
+            rowActions: (row) => actionButton({
+                action: 'edit',
+                rowId: row.banner_id,
+                context: 'banners'
+            }),
             getRowId: (row) => row.banner_id,
             emptyState: { message: 'Банери не знайдено' },
             withContainer: false,
+            onAfterRender: (container) => {
+                if (_actionCleanup) _actionCleanup();
+                _actionCleanup = initActionHandlers(container, 'banners');
+            },
             plugins: {
                 sorting: {
                     columnTypes: {
@@ -106,17 +119,6 @@ function initBannersTable() {
                         { id: 'banner_type', label: 'Type', filterType: 'values' },
                         { id: 'status', label: 'Status', filterType: 'values' }
                     ]
-                },
-                expandable: {
-                    renderContent: renderBannerEditRow,
-                    renderFooterLeft: () => `
-                        <button type="button" class="btn-icon danger" data-action="expand-delete" aria-label="Видалити">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>`,
-                    showOpenFullButton: false,
-                    onExpand: (rowEl) => handleBannerExpand(rowEl),
-                    onSave: (rowEl, row) => handleBannerSave(rowEl, row, bannersState.managedTable),
-                    onDelete: (rowEl, row) => handleBannerDelete(rowEl, row, bannersState.managedTable)
                 }
             }
         },

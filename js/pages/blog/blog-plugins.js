@@ -8,7 +8,9 @@ const hooks = {
     onInit: [],
     onRender: [],
     onDataLoaded: [],
-    onTabChange: []
+    onTabChange: [],
+    onModalOpen: [],
+    onModalClose: []
 };
 
 export function registerBlogPlugin(hookName, callback) {
