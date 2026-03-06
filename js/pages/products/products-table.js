@@ -18,6 +18,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { createBatchActionsBar } from '../../components/actions/actions-batch.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // РЕЄСТРАЦІЯ ОБРОБНИКІВ ДІЙ
@@ -31,6 +32,7 @@ registerActionHandlers('products', {
 });
 
 let _actionCleanup = null;
+let _productsBatchBar = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLUMNS CONFIGURATION
@@ -105,6 +107,9 @@ function initProductsTable() {
                         { id: 'category_name', label: 'Категорія', filterType: 'values' },
                         { id: 'status', label: 'Статус', filterType: 'values' }
                     ]
+                },
+                checkboxes: {
+                    batchBar: () => _productsBatchBar
                 }
             }
         },
@@ -149,6 +154,34 @@ function initProductsTable() {
 
     productsState.tableAPI = productsState.productsManagedTable.tableAPI;
 
+    // Batch actions bar
+    _productsBatchBar = createBatchActionsBar({
+        tabId: 'products',
+        actions: [
+            {
+                id: 'delete',
+                label: 'Видалити',
+                icon: 'delete',
+                handler: async (selectedIds) => {
+                    const { deleteProduct } = await import('./products-data.js');
+                    const { showToast } = await import('../../components/feedback/toast.js');
+                    if (!confirm(`Видалити ${selectedIds.length} товар(ів)?`)) return;
+                    try {
+                        for (const id of selectedIds) {
+                            await deleteProduct(id);
+                        }
+                        _productsBatchBar.deselectAll();
+                        renderProductsTable();
+                        showToast(`Видалено ${selectedIds.length} товар(ів)`, 'success');
+                    } catch (error) {
+                        console.error('Batch delete error:', error);
+                        showToast('Помилка видалення', 'error');
+                    }
+                }
+            }
+        ]
+    });
+
     initColumnsCharm();
 }
 
@@ -177,6 +210,10 @@ export function resetTableAPI() {
     if (productsState.productsManagedTable) {
         productsState.productsManagedTable.destroy();
         productsState.productsManagedTable = null;
+    }
+    if (_productsBatchBar) {
+        _productsBatchBar.destroy();
+        _productsBatchBar = null;
     }
     productsState.tableAPI = null;
 }

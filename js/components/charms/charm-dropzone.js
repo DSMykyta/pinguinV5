@@ -37,18 +37,6 @@
 
 export function initDropzoneCharm() {
 
-    // --- CLICK: empty URL input → delegate to pick button ---
-    document.addEventListener('click', (e) => {
-        const zone = e.target.closest('[data-dropzone]');
-        if (!zone) return;
-
-        // Click on URL input when empty → trigger pick button
-        if (e.target.matches('input[type="url"]') && !e.target.value.trim()) {
-            const pickBtn = zone.querySelector('[data-dz-pick]');
-            if (pickBtn) pickBtn.click();
-        }
-    });
-
     // --- INPUT: toggle pick/upload buttons ---
     document.addEventListener('input', (e) => {
         if (e.target.type !== 'url') return;
