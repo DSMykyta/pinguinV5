@@ -448,6 +448,21 @@ async function deleteReferenceFile(fileId) {
   return data;
 }
 
+// ============= Google Drive Images List API =============
+
+const API_DRIVE_IMAGES = `${API_BASE}/api/drive/images`;
+
+/**
+ * Отримати список всіх зображень з Google Drive.
+ * @returns {Promise<Array<{fileId: string, name: string, mimeType: string, size: string, modifiedTime: string, thumbnailUrl: string, folder: string, width: number|null, height: number|null}>>}
+ */
+async function listDriveImages() {
+  const response = await fetch(API_DRIVE_IMAGES);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Failed to list images');
+  return data.images || [];
+}
+
 // ============= Google Drive Photos API =============
 
 const API_DRIVE_PHOTO = `${API_BASE}/api/drive/upload-photo`;
@@ -499,7 +514,8 @@ export {
   uploadReferenceFile,
   listReferenceFiles,
   deleteReferenceFile,
-  uploadProductPhotoFile
+  uploadProductPhotoFile,
+  listDriveImages
 };
 
 // Глобальний об'єкт для доступу до API
@@ -535,6 +551,7 @@ window.apiClient = {
     listReferenceFiles,
     deleteReferenceFile,
     uploadProductPhotoFile,
+    listDriveImages,
   },
 
   // Утиліти

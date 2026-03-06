@@ -94,6 +94,7 @@
 
 .dropdown-separator {
     height: 1px;
+    flex-shrink: 0;
     background-color: var(--color-outline-v);
     margin: 4px 8px;
 }
