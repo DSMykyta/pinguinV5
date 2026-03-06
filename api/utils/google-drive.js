@@ -10,7 +10,7 @@
 // СТРУКТУРА НА DRIVE:
 // pinguin-v5/              ← GOOGLE_DRIVE_ROOT_FOLDER_ID
 //   ├── brand-logos/       ← створюється автоматично
-//   └── довідники/         ← довідники маркетплейсів
+//   └── references/        ← довідники маркетплейсів
 //       ├── rozetka/
 //       ├── epicentr/
 //       └── ...
@@ -233,7 +233,7 @@ async function uploadFile(fileBuffer, fileName, mimeType, marketplaceSlug) {
   const drive = getDriveClient();
 
   // довідники/ → довідники/{slug}/
-  const referencesId = await getOrCreateSubfolder(drive, 'довідники');
+  const referencesId = await getOrCreateSubfolder(drive, 'references');
   const mpFolderId = await getOrCreateNestedFolder(drive, referencesId, marketplaceSlug);
 
   // Шукаємо існуючий файл з такою назвою
@@ -294,7 +294,7 @@ async function listFiles(marketplaceSlug) {
   const drive = getDriveClient();
 
   // Знаходимо папку довідники/
-  const referencesId = await getOrCreateSubfolder(drive, 'довідники');
+  const referencesId = await getOrCreateSubfolder(drive, 'references');
 
   // Шукаємо підпапку маркетплейсу (не створюємо якщо немає)
   const escapedSlug = marketplaceSlug.replace(/'/g, "\\'");
