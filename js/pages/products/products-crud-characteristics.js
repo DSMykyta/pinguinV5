@@ -350,22 +350,65 @@ function renderCharField(char, options, savedValue, colSize, parentChildMap, all
             `;
             break;
 
-        // ── TextArea ────────────────────────────────────────────────────
-        case 'TextArea':
+        // ── TextArea (двомовне: UA/RU) ─────────────────────────────────
+        case 'TextArea': {
+            const parsed = parseBilingualValue(savedValue);
             fieldHtml = `
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <textarea id="${id}" data-char-id="${char.id}" rows="3"
-                                placeholder="${escapeHtml(char.name_ua || '')}">${escapeHtml(savedValue)}</textarea>
+                <div class="content-bloc-container">
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <textarea id="${id}-ua" data-char-id="${char.id}" data-char-lang="ua" rows="3"
+                                    placeholder="${escapeHtml(char.name_ua || '')} (UA)">${escapeHtml(parsed.ua)}</textarea>
+                                <span class="tag c-secondary">UA</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <textarea id="${id}-ru" data-char-id="${char.id}" data-char-lang="ru" rows="3"
+                                    placeholder="${escapeHtml(char.name_ua || '')} (RU)">${escapeHtml(parsed.ru)}</textarea>
+                                <span class="tag c-secondary">RU</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
             break;
+        }
 
-        // ── TextInput / MultiText / default ─────────────────────────────
-        case 'TextInput':
+        // ── TextInput (двомовне: UA/RU) ──────────────────────────────────
+        case 'TextInput': {
+            const parsed = parseBilingualValue(savedValue);
+            fieldHtml = `
+                <div class="content-bloc-container">
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="${id}-ua" data-char-id="${char.id}" data-char-lang="ua"
+                                    value="${escapeHtml(parsed.ua)}"
+                                    placeholder="${escapeHtml(char.name_ua || '')} (UA)">
+                                <span class="tag c-secondary">UA</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-bloc">
+                        <div class="content-line">
+                            <div class="input-box">
+                                <input type="text" id="${id}-ru" data-char-id="${char.id}" data-char-lang="ru"
+                                    value="${escapeHtml(parsed.ru)}"
+                                    placeholder="${escapeHtml(char.name_ua || '')} (RU)">
+                                <span class="tag c-secondary">RU</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+        }
+
+        // ── MultiText / default ───────────────────────────────────────────
         case 'MultiText':
         default:
             fieldHtml = `
@@ -397,6 +440,26 @@ function renderCharField(char, options, savedValue, colSize, parentChildMap, all
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Парсити збережене двомовне значення
+ * @param {string} val - JSON {"ua":"...","ru":"..."} або простий рядок
+ * @returns {{ ua: string, ru: string }}
+ */
+function parseBilingualValue(val) {
+    if (!val) return { ua: '', ru: '' };
+    if (typeof val === 'object' && !Array.isArray(val)) return { ua: val.ua || '', ru: val.ru || '' };
+    if (typeof val === 'string') {
+        try {
+            const parsed = JSON.parse(val);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                return { ua: parsed.ua || '', ru: parsed.ru || '' };
+            }
+        } catch { /* not JSON — treat as UA-only */ }
+        return { ua: val, ru: '' };
+    }
+    return { ua: '', ru: '' };
+}
+
+/**
  * Парсити збережене значення як масив (для CheckBoxGroup)
  */
 function parseSavedArray(val) {
@@ -426,19 +489,34 @@ export function getCharacteristicsData() {
 
     const data = {};
 
-    // TextInput / Integer / Decimal / MultiText fields
-    container.querySelectorAll('input[data-char-id]').forEach(input => {
+    // TextInput / Integer / Decimal / MultiText fields (non-bilingual)
+    container.querySelectorAll('input[data-char-id]:not([data-char-lang])').forEach(input => {
         const charId = input.dataset.charId;
         const val = input.value.trim();
         if (val) data[charId] = val;
     });
 
-    // TextArea fields
-    container.querySelectorAll('textarea[data-char-id]').forEach(textarea => {
+    // TextArea fields (non-bilingual)
+    container.querySelectorAll('textarea[data-char-id]:not([data-char-lang])').forEach(textarea => {
         const charId = textarea.dataset.charId;
         const val = textarea.value.trim();
         if (val) data[charId] = val;
     });
+
+    // Bilingual fields (TextInput / TextArea with data-char-lang)
+    const bilingualMap = {};
+    container.querySelectorAll('[data-char-id][data-char-lang]').forEach(el => {
+        const charId = el.dataset.charId;
+        const lang = el.dataset.charLang;
+        const val = el.value.trim();
+        if (!bilingualMap[charId]) bilingualMap[charId] = {};
+        if (val) bilingualMap[charId][lang] = val;
+    });
+    for (const [charId, langs] of Object.entries(bilingualMap)) {
+        if (Object.keys(langs).length > 0) {
+            data[charId] = JSON.stringify(langs);
+        }
+    }
 
     // Select fields — single (ComboBox) and multiple (List, ListValues)
     container.querySelectorAll('select[data-char-id]').forEach(select => {

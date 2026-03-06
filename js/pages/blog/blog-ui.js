@@ -1,16 +1,14 @@
 // js/pages/blog/blog-ui.js
 
-/*
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                          BLOG — UI                                       ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+/**
+ * BLOG — UI
  */
 
 import { registerBlogPlugin } from './blog-plugins.js';
 import { blogState } from './blog-state.js';
 import { loadBlogPosts } from './blog-data.js';
-import { renderBlogTable, getActiveManagedTable } from './blog-table.js';
-import { handleBlogAdd } from './blog-crud.js';
+import { renderBlogTable } from './blog-table.js';
+import { showAddBlogModal } from './blog-crud.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 export function init() {
@@ -23,10 +21,6 @@ function setupUI() {
         document.getElementById('news-table-container'),
         document.getElementById('blog-table-container')
     ].filter(Boolean);
-
-    if (containers.length === 0) {
-        console.warn('[Blog UI] Table containers not found');
-    }
 
     containers.forEach((tableContainer) => {
         if (tableContainer._blogRefreshInit) return;
@@ -45,8 +39,7 @@ function setupUI() {
     if (addNewsBtn && !addNewsBtn._blogAddInit) {
         addNewsBtn._blogAddInit = true;
         addNewsBtn.addEventListener('click', () => {
-            blogState.activeTab = 'news';
-            handleBlogAdd(blogState.managedTables.news, 'news');
+            showAddBlogModal('news');
         });
     }
 
@@ -54,8 +47,7 @@ function setupUI() {
     if (addBlogBtn && !addBlogBtn._blogAddInit) {
         addBlogBtn._blogAddInit = true;
         addBlogBtn.addEventListener('click', () => {
-            blogState.activeTab = 'blog';
-            handleBlogAdd(blogState.managedTables.blog, 'blog');
+            showAddBlogModal('blog');
         });
     }
 
@@ -63,9 +55,8 @@ function setupUI() {
     if (addAsideBtn && !addAsideBtn._blogAddInit) {
         addAsideBtn._blogAddInit = true;
         addAsideBtn.addEventListener('click', () => {
-            const managedTable = getActiveManagedTable();
             const type = blogState.activeTab === 'blog' ? 'blog' : 'news';
-            handleBlogAdd(managedTable, type);
+            showAddBlogModal(type);
         });
     }
 }

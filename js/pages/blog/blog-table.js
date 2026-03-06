@@ -1,26 +1,40 @@
 // js/pages/blog/blog-table.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                      BLOG — TABLE RENDERING                              ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * BLOG — TABLE RENDERING
+ *
+ * Uses action handlers + fullscreen modal (consistent with products pattern).
  */
 
 import { getBlogPosts } from './blog-data.js';
 import { blogState } from './blog-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import {
-    renderBlogEditRow,
-    handleBlogExpand,
-    handleBlogSave,
-    handleBlogDelete
-} from './blog-crud.js';
+    registerActionHandlers,
+    initActionHandlers,
+    actionButton
+} from '../../components/actions/actions-main.js';
 import { registerBlogPlugin } from './blog-plugins.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('blog', {
+    edit: async (rowId) => {
+        const { showEditBlogModal } = await import('./blog-crud.js');
+        await showEditBlogModal(rowId);
+    }
+});
+
 let _newsManagedTable = null;
 let _blogManagedTable = null;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
 
 function normalizeType(value) {
     return String(value || '').trim().toLowerCase();
@@ -35,10 +49,13 @@ function rowMatchesTab(rowType, tabName) {
         return newsTypes.has(type);
     }
 
-    // Blog tab: blog-like + empty values
     if (!type) return true;
     return blogTypes.has(type);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLUMNS
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function getColumns() {
     return [
@@ -62,37 +79,24 @@ export function getColumns() {
     ];
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MANAGED TABLE
+// ═══════════════════════════════════════════════════════════════════════════
+
 function initManagedBlogTable({ containerId, tabName, checkboxPrefix }) {
     const visibleCols = [
-        'blog_id',
-        'blog_ext_site',
-        'blog_target',
-        'blog_group',
-        'blog_type',
-        'blog_sort_order',
-        'status',
-        'blog_name_ua',
-        'url',
-        'image_url',
-        'created_at'
+        'blog_id', 'blog_ext_site', 'blog_target', 'blog_group',
+        'blog_type', 'blog_sort_order', 'status', 'blog_name_ua',
+        'url', 'image_url', 'created_at'
     ];
 
     const searchCols = [
-        'blog_id',
-        'blog_ext_id',
-        'blog_ext_site',
-        'blog_target',
-        'blog_group',
-        'blog_type',
-        'blog_name_ua',
-        'blog_name_ru',
-        'url_ua',
-        'url_ru',
-        'url',
-        'created_by'
+        'blog_id', 'blog_ext_id', 'blog_ext_site', 'blog_target',
+        'blog_group', 'blog_type', 'blog_name_ua', 'blog_name_ru',
+        'url_ua', 'url_ru', 'url', 'created_by'
     ];
 
-    let managedTableRef = null;
+    let _actionCleanup = null;
 
     const managedTable = createManagedTable({
         container: containerId,
@@ -106,10 +110,18 @@ function initManagedBlogTable({ containerId, tabName, checkboxPrefix }) {
         paginationId: null,
         tableConfig: {
             rowActionsHeader: ' ',
-            rowActions: () => '',
+            rowActions: (row) => actionButton({
+                action: 'edit',
+                rowId: row.blog_id,
+                context: 'blog'
+            }),
             getRowId: (row) => row.blog_id,
             emptyState: { message: 'Пости не знайдено' },
             withContainer: false,
+            onAfterRender: (container) => {
+                if (_actionCleanup) _actionCleanup();
+                _actionCleanup = initActionHandlers(container, 'blog');
+            },
             plugins: {
                 sorting: {
                     columnTypes: {
@@ -133,17 +145,6 @@ function initManagedBlogTable({ containerId, tabName, checkboxPrefix }) {
                         { id: 'blog_type', label: 'Type', filterType: 'values' },
                         { id: 'status', label: 'Status', filterType: 'values' }
                     ]
-                },
-                expandable: {
-                    renderContent: renderBlogEditRow,
-                    renderFooterLeft: () => `
-                        <button type="button" class="btn-icon danger" data-action="expand-delete" aria-label="Видалити">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>`,
-                    showOpenFullButton: false,
-                    onExpand: (rowEl) => handleBlogExpand(rowEl),
-                    onSave: (rowEl, row) => handleBlogSave(rowEl, row, managedTableRef),
-                    onDelete: (rowEl, row) => handleBlogDelete(rowEl, row, managedTableRef)
                 }
             }
         },
@@ -152,7 +153,6 @@ function initManagedBlogTable({ containerId, tabName, checkboxPrefix }) {
         checkboxPrefix
     });
 
-    managedTableRef = managedTable;
     return managedTable;
 }
 

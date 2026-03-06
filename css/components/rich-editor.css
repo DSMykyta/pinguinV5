@@ -258,13 +258,13 @@
     grid-column: auto !important;
 }
 
-/* Focus on first editor → 2fr 1fr */
-.editor-focus-split:has(.group:first-child :focus-within) {
+/* Focus on first editor → 2fr 1fr (via JS class) */
+.editor-focus-split.focus-first {
     grid-template-columns: 2fr 1fr !important;
 }
 
-/* Focus on second editor → 1fr 2fr */
-.editor-focus-split:has(.group:last-child :focus-within) {
+/* Focus on second editor → 1fr 2fr (via JS class) */
+.editor-focus-split.focus-last {
     grid-template-columns: 1fr 2fr !important;
 }
 

@@ -59,6 +59,7 @@ import { sanitizeHtml } from './editor-utils.js';
 import { initDropdowns } from '../forms/dropdown.js';
 
 let instanceCounter = 0;
+let _focusSplitInit = false;
 
 const PLUGINS = [
     // Завжди активні
@@ -145,6 +146,9 @@ export function createHighlightEditor(container, options = {}) {
     // Ініціалізувати режими (core)
     initEditorMode(state);
 
+    // Focus-split (один раз на document)
+    initFocusSplit();
+
     // Завантажити плагіни
     loadPlugins(state);
 
@@ -183,6 +187,36 @@ export function createHighlightEditor(container, options = {}) {
         destroy: () => container.innerHTML = '',
         getState: () => state,
     };
+}
+
+function initFocusSplit() {
+    if (_focusSplitInit) return;
+    _focusSplitInit = true;
+
+    document.addEventListener('focusin', (e) => {
+        const split = e.target.closest('.editor-focus-split');
+        if (!split) return;
+
+        const groups = [...split.children];
+        const group = e.target.closest('.group');
+        if (!group) return;
+
+        const index = groups.indexOf(group);
+        split.classList.remove('focus-first', 'focus-last');
+        if (index === 0) split.classList.add('focus-first');
+        else if (index === groups.length - 1) split.classList.add('focus-last');
+    });
+
+    document.addEventListener('focusout', (e) => {
+        const split = e.target.closest('.editor-focus-split');
+        if (!split) return;
+
+        requestAnimationFrame(() => {
+            if (!split.contains(document.activeElement)) {
+                split.classList.remove('focus-first', 'focus-last');
+            }
+        });
+    });
 }
 
 async function loadPlugins(state) {

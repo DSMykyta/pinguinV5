@@ -1,51 +1,304 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="blog-edit">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+
+        <!-- NAVIGATION -->
+        <nav class="nav column" id="blog-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always
+                aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-blog-info" class="btn-icon expand active" aria-label="Основне">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Основне</span>
+                </a>
+                <a href="#section-blog-content" class="btn-icon expand" aria-label="Контент">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="btn-icon-label">Контент</span>
+                </a>
+                <a href="#section-blog-urls" class="btn-icon expand" aria-label="URL">
+                    <span class="material-symbols-outlined">link</span>
+                    <span class="btn-icon-label">URL</span>
+                </a>
+                <a href="#section-blog-about" class="btn-icon expand" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info_i</span>
+                    <span class="btn-icon-label">Інформація</span>
+                </a>
+            </div>
+
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-blog"
+                    aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
                 <div class="modal-fullscreen-title">
-                    <h1 id="blog-modal-title">Пост блогу</h1>
+                    <h1 id="blog-modal-title">Новий пост</h1>
+                    <span class="tag c-yellow" id="blog-status-badge"></span>
+                </div>
+            </div>
+            <div class="group">
+                <div class="switch switch-fit" id="blog-status-switch">
+                    <input type="radio" id="blog-status-active" name="blog-status" value="active" checked>
+                    <label for="blog-status-active" class="switch-label">Активний</label>
+                    <input type="radio" id="blog-status-draft" name="blog-status" value="draft">
+                    <label for="blog-status-draft" class="switch-label">Чернетка</label>
+                    <input type="radio" id="blog-status-hidden" name="blog-status" value="hidden">
+                    <label for="blog-status-hidden" class="switch-label">Прихований</label>
                 </div>
             </div>
         </header>
 
+        <!-- CONTENT -->
         <div class="modal-body-with-sidebar">
             <main class="modal-fullscreen-content">
-                <section>
+
+                <input type="hidden" id="blog-id">
+
+                <!-- SECTION: INFO -->
+                <section id="section-blog-info">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Основні дані</h2>
+                                <h2 class="section-upper">Основне</h2>
                             </div>
+                            <span class="body-s">Класифікація та налаштування поста</span>
                         </div>
                     </div>
+
                     <div class="section-content">
                         <div class="grid">
+
+                            <!-- Ext ID -->
+                            <div class="group column col-3">
+                                <label for="blog-ext-id" class="label-l">EXT ID</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-ext-id" placeholder="external-id">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Ext Site -->
+                            <div class="group column col-3">
+                                <label for="blog-ext-site" class="label-l">EXT Site</label>
+                                <select id="blog-ext-site" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Target -->
+                            <div class="group column col-3">
+                                <label for="blog-target" class="label-l">Target</label>
+                                <select id="blog-target" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Group -->
+                            <div class="group column col-3">
+                                <label for="blog-group" class="label-l">Group</label>
+                                <select id="blog-group" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Type -->
+                            <div class="group column col-3">
+                                <label for="blog-type" class="label-l">Type</label>
+                                <select id="blog-type" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Sort Order -->
+                            <div class="group column col-3">
+                                <label for="blog-sort-order" class="label-l">Sort Order</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-sort-order" placeholder="0">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Image URL -->
                             <div class="group column col-6">
-                                <label class="label-l" for="blog-id">ID</label>
-                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="blog-id" type="text" readonly></div></div></div>
+                                <label for="blog-image-url" class="label-l">Image URL</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-image-url" placeholder="https://...">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Name UA/RU -->
+                            <div class="group column col-6">
+                                <label class="label-l">Назва</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="blog-name-ua" placeholder="Назва українською">
+                                                <span class="tag c-secondary">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="blog-name-ru" placeholder="Назва російською">
+                                                <span class="tag c-secondary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display None UA/RU -->
+                            <div class="group column col-6">
+                                <label class="label-l">Видимість</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="blog-display-none-ua" placeholder="0 / 1">
+                                                <span class="tag c-secondary">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="blog-display-none-ru" placeholder="0 / 1">
+                                                <span class="tag c-secondary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: CONTENT -->
+                <section id="section-blog-content">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Контент</h2>
+                            </div>
+                            <span class="body-s">Текст поста</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
+                            <div class="group column col-6">
+                                <div id="blog-text-ua-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Текст українською..." data-min-height="300"
+                                    data-tag="UA">
+                                </div>
                             </div>
                             <div class="group column col-6">
-                                <label class="label-l" for="blog-image-url">Image URL</label>
-                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="blog-image-url" type="text"></div></div></div>
+                                <div id="blog-text-ru-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Текст російською..." data-min-height="300"
+                                    data-tag="RU">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                <!-- SECTION: URLs -->
+                <section id="section-blog-urls">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">URL</h2>
+                            </div>
+                            <span class="body-s">Посилання на пост</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-4">
+                                <label for="blog-url-ua" class="label-l">URL UA</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-url-ua" placeholder="/ua/...">
+                                </div></div></div>
+                            </div>
+                            <div class="group column col-4">
+                                <label for="blog-url-ru" class="label-l">URL RU</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-url-ru" placeholder="/ru/...">
+                                </div></div></div>
+                            </div>
+                            <div class="group column col-4">
+                                <label for="blog-url" class="label-l">URL</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="blog-url" placeholder="https://...">
+                                </div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: ABOUT -->
+                <section id="section-blog-about">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Інформація</h2>
+                            </div>
+                            <span class="body-s">Метадані</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l">Створено</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="blog-created-at" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Хто створив</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="blog-created-by" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
 
+        <!-- ACTIONS -->
         <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always
+                title="Закрити">
                 <span class="material-symbols-outlined">close</span>
             </button>
             <div class="modal-fullscreen-actions-footer">
-                <button class="btn-icon touch danger" id="delete-blog" title="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-blog" title="Зберегти">
+                <button class="btn-icon" id="btn-save-blog" title="Зберегти">
                     <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-blog" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
                 </button>
             </div>
         </div>
+
     </div>
 </div>

@@ -121,11 +121,12 @@ function formatHtml(html) {
     return html
         .replace(/>\s+</g, '><')
         .trim()
-        .replace(/<\/p>/g, '</p>\n')
-        .replace(/<\/h([1-6])>/g, '</h$1>\n')
-        .replace(/<\/li>/g, '</li>\n')
-        .replace(/<\/ul>/g, '</ul>\n')
-        .replace(/<\/ol>/g, '</ol>\n')
-        .replace(/<ul>/g, '<ul>\n')
-        .replace(/<ol>/g, '<ol>\n');
+        // Newline before opening block tags
+        .replace(/<(p|h[1-6]|ul|ol|li|table|tr|thead|tbody|div|blockquote)[\s>]/g, '\n<$1 ')
+        .replace(/<(p|h[1-6]|ul|ol|li|table|tr|thead|tbody|div|blockquote)>/g, '\n<$1>')
+        // Newline after closing block tags
+        .replace(/<\/(p|h[1-6]|li|ul|ol|table|tr|th|td|thead|tbody|div|blockquote)>/g, '\n</$1>\n')
+        // Clean up multiple newlines
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
 }

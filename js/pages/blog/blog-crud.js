@@ -1,17 +1,27 @@
 // js/pages/blog/blog-crud.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║                        BLOG — CRUD & FORMS                               ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * BLOG — CRUD (MODAL)
+ *
+ * Modal-based editing for blog posts (consistent with products pattern).
  */
 
 import { getBlogPosts, addBlogPost, updateBlogPost, deleteBlogPost } from './blog-data.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { showConfirmModal } from '../../components/modal/modal-main.js';
+import { showConfirmModal, showModal, closeModal } from '../../components/modal/modal-main.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
+import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
+import { runHook } from './blog-plugins.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+let textEditorUa = null;
+let textEditorRu = null;
+let currentBlogId = null;
 
 const DEFAULTS = {
     blog_ext_site: ['site-a', 'site-b'],
@@ -21,308 +31,311 @@ const DEFAULTS = {
     status: ['active', 'draft', 'hidden', 'inactive']
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
 function getDynamicOptions(fieldName, currentValue = '') {
     const fromData = getBlogPosts()
         .map(item => String(item[fieldName] || '').trim())
         .filter(Boolean);
     if (currentValue) fromData.push(String(currentValue).trim());
-
     return [...new Set([...(DEFAULTS[fieldName] || []), ...fromData])].sort((a, b) => a.localeCompare(b));
 }
 
-function renderSelectOptions(options, selectedValue) {
-    return options
-        .map(value => `<option value="${escapeHtml(value)}" ${String(selectedValue || '') === value ? 'selected' : ''}>${escapeHtml(value)}</option>`)
-        .join('');
+function getBlogById(blogId) {
+    return getBlogPosts().find(p => p.blog_id === blogId) || null;
 }
 
-function readRowFields(rowEl, fieldNames) {
-    const result = {};
-    fieldNames.forEach((name) => {
-        const input = rowEl.querySelector(`[name="${name}"]`);
-        result[name] = input ? input.value.trim() : '';
-    });
-    return result;
+function v(id) {
+    return document.getElementById(id)?.value.trim() || '';
 }
 
-export function renderBlogEditRow(row) {
-    const rowId = String(row.blog_id || 'blog').replace(/[^\w-]/g, '_');
-    const extSiteOptions = renderSelectOptions(getDynamicOptions('blog_ext_site', row.blog_ext_site), row.blog_ext_site);
-    const targetOptions = renderSelectOptions(getDynamicOptions('blog_target', row.blog_target), row.blog_target);
-    const groupOptions = renderSelectOptions(getDynamicOptions('blog_group', row.blog_group), row.blog_group);
-    const typeOptions = renderSelectOptions(getDynamicOptions('blog_type', row.blog_type), row.blog_type);
-    const statusOptions = renderSelectOptions(getDynamicOptions('status', row.status), row.status);
-
-    return `
-        <div class="grid" style="padding: 12px 16px;">
-            <div class="group column col-3">
-                <label for="${rowId}-blog-ext-id" class="label-l">EXT ID</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-blog-ext-id" name="blog_ext_id" placeholder="external-id" value="${escapeHtml(row.blog_ext_id || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-blog-ext-site" class="label-l">EXT Site</label>
-                <div class="content-bloc"><div class="content-line">
-                    <select id="${rowId}-blog-ext-site" name="blog_ext_site" data-custom-select placeholder="Оберіть site">
-                        <option value="">— Оберіть —</option>
-                        ${extSiteOptions}
-                    </select>
-                </div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-blog-target" class="label-l">Target</label>
-                <div class="content-bloc"><div class="content-line">
-                    <select id="${rowId}-blog-target" name="blog_target" data-custom-select placeholder="Оберіть target">
-                        <option value="">— Оберіть —</option>
-                        ${targetOptions}
-                    </select>
-                </div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-blog-group" class="label-l">Group</label>
-                <div class="content-bloc"><div class="content-line">
-                    <select id="${rowId}-blog-group" name="blog_group" data-custom-select placeholder="Оберіть group">
-                        <option value="">— Оберіть —</option>
-                        ${groupOptions}
-                    </select>
-                </div></div>
-            </div>
-
-            <div class="group column col-3">
-                <label for="${rowId}-blog-type" class="label-l">Type</label>
-                <div class="content-bloc"><div class="content-line">
-                    <select id="${rowId}-blog-type" name="blog_type" data-custom-select placeholder="Оберіть type">
-                        <option value="">— Оберіть —</option>
-                        ${typeOptions}
-                    </select>
-                </div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-blog-sort-order" class="label-l">Sort Order</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-blog-sort-order" name="blog_sort_order" placeholder="0" value="${escapeHtml(row.blog_sort_order || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-blog-status" class="label-l">Status</label>
-                <div class="content-bloc"><div class="content-line">
-                    <select id="${rowId}-blog-status" name="status" data-custom-select placeholder="Оберіть status">
-                        <option value="">— Оберіть —</option>
-                        ${statusOptions}
-                    </select>
-                </div></div>
-            </div>
-            <div class="group column col-3">
-                <label for="${rowId}-image-url" class="label-l">Image URL</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-image-url" name="image_url" placeholder="https://..." value="${escapeHtml(row.image_url || '')}">
-                </div></div></div>
-            </div>
-
-            <div class="group column col-6">
-                <label for="${rowId}-blog-name-ua" class="label-l">Назва UA</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-blog-name-ua" name="blog_name_ua" placeholder="Назва UA" value="${escapeHtml(row.blog_name_ua || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-6">
-                <label for="${rowId}-blog-name-ru" class="label-l">Назва RU</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-blog-name-ru" name="blog_name_ru" placeholder="Назва RU" value="${escapeHtml(row.blog_name_ru || '')}">
-                </div></div></div>
-            </div>
-
-            <div class="group column col-4">
-                <label for="${rowId}-url-ua" class="label-l">URL UA</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-url-ua" name="url_ua" placeholder="/ua/..." value="${escapeHtml(row.url_ua || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-4">
-                <label for="${rowId}-url-ru" class="label-l">URL RU</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-url-ru" name="url_ru" placeholder="/ru/..." value="${escapeHtml(row.url_ru || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-4">
-                <label for="${rowId}-url" class="label-l">URL</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-url" name="url" placeholder="https://..." value="${escapeHtml(row.url || '')}">
-                </div></div></div>
-            </div>
-
-            <div class="group column col-6">
-                <label for="${rowId}-display-none-ua" class="label-l">display_none UA</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-display-none-ua" name="blog_display_none_ua" placeholder="0 / 1" value="${escapeHtml(row.blog_display_none_ua || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-6">
-                <label for="${rowId}-display-none-ru" class="label-l">display_none RU</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-display-none-ru" name="blog_display_none_ru" placeholder="0 / 1" value="${escapeHtml(row.blog_display_none_ru || '')}">
-                </div></div></div>
-            </div>
-
-            <div class="group column col-6">
-                <label class="label-l">Текст UA</label>
-                <div class="content-bloc"><div class="content-line">
-                    <div id="${rowId}-blog-text-ua" class="highlight-editor-container" data-field="blog_text_ua"
-                         editor tools code data-placeholder="Введіть текст UA..." data-min-height="200"
-                         data-initial-value="${escapeHtml(row.blog_text_ua || '')}"></div>
-                </div></div>
-            </div>
-            <div class="group column col-6">
-                <label class="label-l">Текст RU</label>
-                <div class="content-bloc"><div class="content-line">
-                    <div id="${rowId}-blog-text-ru" class="highlight-editor-container" data-field="blog_text_ru"
-                         editor tools code data-placeholder="Введіть текст RU..." data-min-height="200"
-                         data-initial-value="${escapeHtml(row.blog_text_ru || '')}"></div>
-                </div></div>
-            </div>
-
-            <div class="group column col-6">
-                <label for="${rowId}-created-at" class="label-l">Створено</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-created-at" name="created_at" placeholder="YYYY-MM-DD HH:mm:ss" value="${escapeHtml(row.created_at || '')}">
-                </div></div></div>
-            </div>
-            <div class="group column col-6">
-                <label for="${rowId}-created-by" class="label-l">Хто створив</label>
-                <div class="content-bloc"><div class="content-line"><div class="input-box">
-                    <input type="text" id="${rowId}-created-by" name="created_by" placeholder="User" value="${escapeHtml(row.created_by || '')}">
-                </div></div></div>
-            </div>
-        </div>
-    `;
+function set(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = val || '';
 }
 
-export function handleBlogExpand(rowEl) {
-    initCustomSelects(rowEl);
+// ═══════════════════════════════════════════════════════════════════════════
+// SHOW MODALS
+// ═══════════════════════════════════════════════════════════════════════════
 
-    rowEl.querySelectorAll('.highlight-editor-container[data-field]').forEach(container => {
-        const initialValue = container.dataset.initialValue || '';
-        const editor = createHighlightEditor(container, { initialValue });
-        container._editorApi = editor;
-    });
+export async function showAddBlogModal(defaultType = 'blog') {
+    currentBlogId = null;
+
+    await showModal('blog-edit', null);
+
+    const title = document.getElementById('blog-modal-title');
+    if (title) title.textContent = 'Новий пост';
+
+    const deleteBtn = document.getElementById('btn-delete-blog');
+    if (deleteBtn) deleteBtn.classList.add('u-hidden');
+
+    const badge = document.getElementById('blog-status-badge');
+    if (badge) badge.textContent = '';
+
+    clearBlogForm();
+    await initModalComponents();
+
+    // Set default type after selects are populated
+    const typeEl = document.getElementById('blog-type');
+    if (typeEl) typeEl.value = defaultType;
+
+    runHook('onModalOpen', null);
 }
 
-export async function handleBlogSave(rowEl, row, managedTable) {
-    const saveBtn = rowEl.querySelector('[data-action="expand-save"]');
-    if (saveBtn) {
-        saveBtn.classList.add('loading');
-        saveBtn.disabled = true;
+export async function showEditBlogModal(blogId) {
+    const post = getBlogById(blogId);
+    if (!post) {
+        showToast('Пост не знайдено', 'error');
+        return;
     }
 
+    currentBlogId = blogId;
+
+    await showModal('blog-edit', null);
+
+    const title = document.getElementById('blog-modal-title');
+    if (title) title.textContent = post.blog_name_ua || `Пост ${blogId}`;
+
+    const deleteBtn = document.getElementById('btn-delete-blog');
+    if (deleteBtn) {
+        deleteBtn.classList.remove('u-hidden');
+        deleteBtn.onclick = () => handleDeleteBlog();
+    }
+
+    await initModalComponents();
+    fillBlogForm(post);
+
+    runHook('onModalOpen', post);
+}
+
+export function getCurrentBlogId() {
+    return currentBlogId;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL INIT
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function initModalComponents() {
+    initTextEditors();
+    initSaveHandler();
+    initSectionNavigation();
+    populateSelects();
+    initStatusToggle();
+}
+
+function initTextEditors() {
+    const uaContainer = document.getElementById('blog-text-ua-editor');
+    const ruContainer = document.getElementById('blog-text-ru-editor');
+
+    if (uaContainer) {
+        textEditorUa = createHighlightEditor(uaContainer, { initialValue: '' });
+    }
+    if (ruContainer) {
+        textEditorRu = createHighlightEditor(ruContainer, { initialValue: '' });
+    }
+}
+
+function initSaveHandler() {
+    const saveBtn = document.getElementById('btn-save-blog');
+    if (saveBtn) saveBtn.onclick = () => handleSaveBlog(false);
+
+    const saveCloseBtn = document.getElementById('save-close-blog');
+    if (saveCloseBtn) saveCloseBtn.onclick = () => handleSaveBlog(true);
+}
+
+function initSectionNavigation() {
+    const nav = document.getElementById('blog-section-navigator');
+    if (nav) initSectionNav(nav);
+}
+
+function populateSelects() {
+    const selectConfigs = [
+        { id: 'blog-ext-site', field: 'blog_ext_site' },
+        { id: 'blog-target', field: 'blog_target' },
+        { id: 'blog-group', field: 'blog_group' },
+        { id: 'blog-type', field: 'blog_type' }
+    ];
+
+    selectConfigs.forEach(({ id, field }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const options = getDynamicOptions(field);
+        el.innerHTML = '<option value="">— Оберіть —</option>' +
+            options.map(val => `<option value="${escapeHtml(val)}">${escapeHtml(val)}</option>`).join('');
+    });
+
+    const modalEl = document.getElementById('modal-blog-edit');
+    if (modalEl) initCustomSelects(modalEl);
+}
+
+function initStatusToggle() {
+    const statusSwitch = document.getElementById('blog-status-switch');
+    if (!statusSwitch) return;
+
+    statusSwitch.addEventListener('change', () => {
+        updateStatusBadge();
+    });
+}
+
+function updateStatusBadge() {
+    const badge = document.getElementById('blog-status-badge');
+    if (!badge) return;
+
+    const status = document.querySelector('input[name="blog-status"]:checked')?.value || 'active';
+    badge.textContent = currentBlogId || '';
+    badge.classList.remove('c-green', 'c-yellow', 'c-red');
+
+    if (status === 'active') badge.classList.add('c-green');
+    else if (status === 'draft') badge.classList.add('c-yellow');
+    else badge.classList.add('c-red');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILL / CLEAR FORM
+// ═══════════════════════════════════════════════════════════════════════════
+
+function fillBlogForm(post) {
+    set('blog-id', post.blog_id);
+    set('blog-ext-id', post.blog_ext_id);
+    set('blog-sort-order', post.blog_sort_order);
+    set('blog-image-url', post.image_url);
+    set('blog-name-ua', post.blog_name_ua);
+    set('blog-name-ru', post.blog_name_ru);
+    set('blog-url-ua', post.url_ua);
+    set('blog-url-ru', post.url_ru);
+    set('blog-url', post.url);
+    set('blog-display-none-ua', post.blog_display_none_ua);
+    set('blog-display-none-ru', post.blog_display_none_ru);
+    set('blog-created-at', post.created_at || '—');
+    set('blog-created-by', post.created_by || '—');
+
+    // Selects
+    ['blog-ext-site', 'blog-target', 'blog-group', 'blog-type'].forEach(id => {
+        const el = document.getElementById(id);
+        const fieldMap = {
+            'blog-ext-site': 'blog_ext_site',
+            'blog-target': 'blog_target',
+            'blog-group': 'blog_group',
+            'blog-type': 'blog_type'
+        };
+        if (el) el.value = post[fieldMap[id]] || '';
+    });
+
+    // Status radio
+    const statusRadio = document.querySelector(`input[name="blog-status"][value="${post.status || 'active'}"]`);
+    if (statusRadio) statusRadio.checked = true;
+
+    updateStatusBadge();
+
+    // Editors
+    if (textEditorUa) textEditorUa.setValue(post.blog_text_ua || '');
+    if (textEditorRu) textEditorRu.setValue(post.blog_text_ru || '');
+}
+
+function clearBlogForm() {
+    ['blog-id', 'blog-ext-id', 'blog-ext-site', 'blog-target', 'blog-group',
+     'blog-type', 'blog-sort-order', 'blog-image-url', 'blog-name-ua',
+     'blog-name-ru', 'blog-url-ua', 'blog-url-ru', 'blog-url',
+     'blog-display-none-ua', 'blog-display-none-ru'].forEach(id => set(id, ''));
+
+    set('blog-created-at', '—');
+    set('blog-created-by', '—');
+
+    const statusRadio = document.querySelector('input[name="blog-status"][value="active"]');
+    if (statusRadio) statusRadio.checked = true;
+
+    if (textEditorUa) textEditorUa.setValue('');
+    if (textEditorRu) textEditorRu.setValue('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLLECT FORM DATA
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getBlogFormData() {
+    return {
+        blog_ext_id: v('blog-ext-id'),
+        blog_ext_site: v('blog-ext-site'),
+        blog_target: v('blog-target'),
+        blog_group: v('blog-group'),
+        blog_type: v('blog-type'),
+        blog_sort_order: v('blog-sort-order'),
+        status: document.querySelector('input[name="blog-status"]:checked')?.value || 'active',
+        blog_name_ua: v('blog-name-ua'),
+        blog_name_ru: v('blog-name-ru'),
+        url_ua: v('blog-url-ua'),
+        url_ru: v('blog-url-ru'),
+        url: v('blog-url'),
+        blog_display_none_ua: v('blog-display-none-ua'),
+        blog_display_none_ru: v('blog-display-none-ru'),
+        blog_text_ua: textEditorUa ? textEditorUa.getValue() : '',
+        blog_text_ru: textEditorRu ? textEditorRu.getValue() : '',
+        image_url: v('blog-image-url')
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE / DELETE
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function handleSaveBlog(shouldClose = true) {
+    const blogData = getBlogFormData();
+
     try {
-        const updates = readRowFields(rowEl, [
-            'blog_ext_id',
-            'blog_ext_site',
-            'blog_target',
-            'blog_group',
-            'blog_type',
-            'blog_sort_order',
-            'status',
-            'blog_name_ua',
-            'blog_name_ru',
-            'url_ua',
-            'url_ru',
-            'url',
-            'blog_display_none_ua',
-            'blog_display_none_ru',
-            'image_url',
-            'created_at',
-            'created_by'
-        ]);
+        if (currentBlogId) {
+            await updateBlogPost(currentBlogId, blogData);
+            showToast('Пост оновлено', 'success');
+        } else {
+            const newPost = await addBlogPost(blogData);
+            currentBlogId = newPost?.blog_id || null;
+            showToast(`Пост ${currentBlogId} додано`, 'success');
+        }
 
-        const editorUa = rowEl.querySelector('[data-field="blog_text_ua"]');
-        const editorRu = rowEl.querySelector('[data-field="blog_text_ru"]');
-        updates.blog_text_ua = editorUa?._editorApi?.getValue() || '';
-        updates.blog_text_ru = editorRu?._editorApi?.getValue() || '';
-
-        await updateBlogPost(row.blog_id, updates);
-        managedTable?.refilter?.();
-
-        const closeBtn = rowEl.querySelector('[data-action="expand-close"]');
-        if (closeBtn) closeBtn.click();
-
-        showToast('Пост оновлено', 'success');
+        if (shouldClose) closeModal('blog-edit');
+        runHook('onRender');
     } catch (error) {
         console.error('Помилка збереження поста:', error);
         showToast('Помилка збереження поста', 'error');
-    } finally {
-        if (saveBtn) {
-            saveBtn.classList.remove('loading');
-            saveBtn.disabled = false;
-        }
     }
 }
 
-export async function handleBlogDelete(rowEl, row, managedTable) {
-    const deleteBtn = rowEl.querySelector('[data-action="expand-delete"]');
-    if (deleteBtn) {
-        deleteBtn.classList.add('loading');
-        deleteBtn.disabled = true;
-    }
+async function handleDeleteBlog() {
+    if (!currentBlogId) return;
+
+    const confirmed = await showConfirmModal({
+        action: 'видалити',
+        entity: 'пост',
+        name: currentBlogId
+    });
+    if (!confirmed) return;
 
     try {
-        const confirmed = await showConfirmModal({
-            action: 'видалити',
-            entity: 'пост',
-            name: row.blog_id
-        });
-        if (!confirmed) return;
-
-        await deleteBlogPost(row.blog_id);
-        managedTable?.updateData?.(getBlogPosts());
-        showToast(`Пост ${row.blog_id} видалено`, 'success');
+        await deleteBlogPost(currentBlogId);
+        showToast(`Пост ${currentBlogId} видалено`, 'success');
+        closeModal('blog-edit');
+        runHook('onRender');
     } catch (error) {
         console.error('Помилка видалення поста:', error);
         showToast('Помилка видалення поста', 'error');
-    } finally {
-        if (deleteBtn) {
-            deleteBtn.classList.remove('loading');
-            deleteBtn.disabled = false;
-        }
     }
 }
 
-export async function handleBlogAdd(managedTable, defaultType = 'blog') {
-    try {
-        const newPost = await addBlogPost({
-            blog_ext_id: '',
-            blog_ext_site: '',
-            blog_target: '',
-            blog_group: '',
-            blog_type: defaultType,
-            blog_sort_order: String(getBlogPosts().length + 1),
-            status: 'active',
-            blog_name_ua: '',
-            blog_name_ru: '',
-            url_ua: '',
-            url_ru: '',
-            url: '',
-            blog_display_none_ua: '',
-            blog_display_none_ru: '',
-            blog_text_ua: '',
-            blog_text_ru: '',
-            image_url: ''
-        });
+// ═══════════════════════════════════════════════════════════════════════════
+// CLEANUP
+// ═══════════════════════════════════════════════════════════════════════════
 
-        managedTable?.updateData?.(getBlogPosts());
-        showToast(`Пост ${newPost.blog_id} додано`, 'success');
+document.addEventListener('modal-closed', (e) => {
+    if (e.detail?.modalId !== 'blog-edit') return;
+    cleanupBlogModal();
+});
 
-        setTimeout(() => {
-            const escapedId = window.CSS?.escape
-                ? window.CSS.escape(newPost.blog_id)
-                : String(newPost.blog_id).replace(/"/g, '\\"');
-            const row = document.querySelector(`.pseudo-table-row[data-row-id="${escapedId}"]`);
-            const openBtn = row?.querySelector('[data-action="expand-edit"]');
-            openBtn?.click();
-        }, 0);
-    } catch (error) {
-        console.error('Помилка додавання поста:', error);
-        showToast('Помилка додавання поста', 'error');
-    }
+function cleanupBlogModal() {
+    currentBlogId = null;
+
+    if (textEditorUa) { textEditorUa.destroy(); textEditorUa = null; }
+    if (textEditorRu) { textEditorRu.destroy(); textEditorRu = null; }
 }

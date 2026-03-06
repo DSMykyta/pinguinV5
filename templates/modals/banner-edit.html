@@ -1,51 +1,265 @@
 <div class="modal-overlay modal-fullscreen" data-modal-id="banner-edit">
     <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+
+        <!-- NAVIGATION -->
+        <nav class="nav column" id="banner-section-navigator">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always
+                aria-label="Розгорнути меню">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="nav-main">
+                <a href="#section-banner-info" class="btn-icon expand active" aria-label="Основне">
+                    <span class="material-symbols-outlined">info</span>
+                    <span class="btn-icon-label">Основне</span>
+                </a>
+                <a href="#section-banner-content" class="btn-icon expand" aria-label="Контент">
+                    <span class="material-symbols-outlined">article</span>
+                    <span class="btn-icon-label">Контент</span>
+                </a>
+                <a href="#section-banner-urls" class="btn-icon expand" aria-label="URL">
+                    <span class="material-symbols-outlined">link</span>
+                    <span class="btn-icon-label">URL</span>
+                </a>
+                <a href="#section-banner-about" class="btn-icon expand" aria-label="Інформація">
+                    <span class="material-symbols-outlined">info_i</span>
+                    <span class="btn-icon-label">Інформація</span>
+                </a>
+            </div>
+
+            <div class="nav-footer">
+                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-banner"
+                    aria-label="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- HEADER -->
         <header class="modal-fullscreen-header">
             <div class="modal-fullscreen-header-left">
                 <div class="modal-fullscreen-title">
-                    <h1 id="banner-modal-title">Банер</h1>
+                    <h1 id="banner-modal-title">Новий банер</h1>
+                    <span class="tag c-yellow" id="banner-status-badge"></span>
+                </div>
+            </div>
+            <div class="group">
+                <div class="switch switch-fit" id="banner-status-switch">
+                    <input type="radio" id="banner-status-active" name="banner-status" value="active" checked>
+                    <label for="banner-status-active" class="switch-label">Активний</label>
+                    <input type="radio" id="banner-status-draft" name="banner-status" value="draft">
+                    <label for="banner-status-draft" class="switch-label">Чернетка</label>
+                    <input type="radio" id="banner-status-hidden" name="banner-status" value="hidden">
+                    <label for="banner-status-hidden" class="switch-label">Прихований</label>
                 </div>
             </div>
         </header>
 
+        <!-- CONTENT -->
         <div class="modal-body-with-sidebar">
             <main class="modal-fullscreen-content">
-                <section>
+
+                <input type="hidden" id="banner-id">
+
+                <!-- SECTION: INFO -->
+                <section id="section-banner-info">
                     <div class="section-header">
                         <div class="section-name-block">
                             <div class="section-name">
-                                <h2 class="section-upper">Основні дані</h2>
+                                <h2 class="section-upper">Основне</h2>
                             </div>
+                            <span class="body-s">Класифікація та налаштування банера</span>
                         </div>
                     </div>
+
                     <div class="section-content">
                         <div class="grid">
+
+                            <!-- Target -->
+                            <div class="group column col-4">
+                                <label for="banner-target" class="label-l">Target</label>
+                                <select id="banner-target" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Group -->
+                            <div class="group column col-4">
+                                <label for="banner-group" class="label-l">Group</label>
+                                <select id="banner-group" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Type -->
+                            <div class="group column col-4">
+                                <label for="banner-type" class="label-l">Type</label>
+                                <select id="banner-type" data-custom-select>
+                                    <option value="">— Оберіть —</option>
+                                </select>
+                            </div>
+
+                            <!-- Sort Order -->
+                            <div class="group column col-3">
+                                <label for="banner-sort-order" class="label-l">Sort Order</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="banner-sort-order" placeholder="0">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Image URL -->
+                            <div class="group column col-9">
+                                <label for="banner-image-url" class="label-l">Image URL</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="banner-image-url" placeholder="https://...">
+                                </div></div></div>
+                            </div>
+
+                            <!-- Name UA/RU -->
+                            <div class="group column col-12">
+                                <label class="label-l">Назва</label>
+                                <div class="content-bloc-container">
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="banner-name-ua" placeholder="Назва українською">
+                                                <span class="tag c-secondary">UA</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-bloc">
+                                        <div class="content-line">
+                                            <div class="input-box">
+                                                <input type="text" id="banner-name-ru" placeholder="Назва російською">
+                                                <span class="tag c-secondary">RU</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: CONTENT -->
+                <section id="section-banner-content">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Контент</h2>
+                            </div>
+                            <span class="body-s">Текст банера</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content section-content-full-height">
+                        <div class="grid editor-focus-split">
                             <div class="group column col-6">
-                                <label class="label-l" for="banner-id">ID</label>
-                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="banner-id" type="text" readonly></div></div></div>
+                                <div id="banner-text-ua-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Текст українською..." data-min-height="300"
+                                    data-tag="UA">
+                                </div>
                             </div>
                             <div class="group column col-6">
-                                <label class="label-l" for="banner-image-url">Image URL</label>
-                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="banner-image-url" type="text"></div></div></div>
+                                <div id="banner-text-ru-editor" class="section-content-full-height" editor
+                                    tools code data-placeholder="Текст російською..." data-min-height="300"
+                                    data-tag="RU">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                <!-- SECTION: URLs -->
+                <section id="section-banner-urls">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">URL</h2>
+                            </div>
+                            <span class="body-s">Посилання банера</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-4">
+                                <label for="banner-url-ua" class="label-l">URL UA</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="banner-url-ua" placeholder="/ua/...">
+                                </div></div></div>
+                            </div>
+                            <div class="group column col-4">
+                                <label for="banner-url-ru" class="label-l">URL RU</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="banner-url-ru" placeholder="/ru/...">
+                                </div></div></div>
+                            </div>
+                            <div class="group column col-4">
+                                <label for="banner-url" class="label-l">URL</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box">
+                                    <input type="text" id="banner-url" placeholder="https://...">
+                                </div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION: ABOUT -->
+                <section id="section-banner-about">
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Інформація</h2>
+                            </div>
+                            <span class="body-s">Метадані</span>
+                        </div>
+                    </div>
+
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l">Створено</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="banner-created-at" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l">Хто створив</label>
+                                <div class="content-bloc">
+                                    <div class="content-line">
+                                        <div class="input-box">
+                                            <input class="body-s" type="text" id="banner-created-by" readonly tabindex="-1" value="—">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
         </div>
 
+        <!-- ACTIONS -->
         <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always
+                title="Закрити">
                 <span class="material-symbols-outlined">close</span>
             </button>
             <div class="modal-fullscreen-actions-footer">
-                <button class="btn-icon touch danger" id="delete-banner" title="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-banner" title="Зберегти">
+                <button class="btn-icon" id="btn-save-banner" title="Зберегти">
                     <span class="material-symbols-outlined">save</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-close-banner" title="Зберегти і закрити">
+                    <span class="material-symbols-outlined">check</span>
                 </button>
             </div>
         </div>
+
     </div>
 </div>
