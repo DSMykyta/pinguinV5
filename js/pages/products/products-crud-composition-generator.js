@@ -6,6 +6,7 @@
  */
 
 import { setRowsContainer, resetRowsContainer } from '../../generators/generator-table/gt-dom.js';
+import { setupEventListeners } from '../../generators/generator-table/gt-event-handler.js';
 import { initializeFirstRow } from '../../generators/generator-table/gt-row-manager.js';
 import { generateHtmlTable } from '../../generators/generator-table/gt-html-builder.js';
 import { generateBrText } from '../../generators/generator-table/gt-br-builder.js';
@@ -17,6 +18,7 @@ import { showToast } from '../../components/feedback/toast.js';
 // ═══════════════════════════════════════════════════════════════════════════
 
 let _initialized = false;
+let _eventsInitialized = false;
 let _fillCallback = null;
 let _interceptHandler = null;
 
@@ -40,6 +42,12 @@ export function initWizardGenerator(onFill) {
 
     // Перемикаємо gt-* на wizard-контейнер
     setRowsContainer(container);
+
+    // Встановити обробники aside-table кнопок і магії (на products сторінці gt-main не імпортується)
+    if (!_eventsInitialized) {
+        setupEventListeners();
+        _eventsInitialized = true;
+    }
 
     // Показати aside-table поверх модалу
     document.body.classList.add('wizard-aside-active');
