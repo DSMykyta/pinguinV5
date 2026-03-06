@@ -139,18 +139,15 @@ function _createWizardFooter(container) {
     const footer = document.createElement('div');
     footer.className = 'wizard-footer';
     footer.innerHTML = `
-        <button class="btn-ghost" id="wizard-btn-prev">
+        <button class="btn-icon touch c-secondary" id="wizard-btn-prev">
             <span class="material-symbols-outlined">arrow_back</span>
-            Назад
         </button>
         <span class="body-s" id="wizard-step-label"></span>
-        <button class="btn-primary" id="wizard-btn-next">
-            Далі
+        <button class="btn-icon touch c-main" id="wizard-btn-next">
             <span class="material-symbols-outlined">arrow_forward</span>
         </button>
-        <button class="btn-primary u-hidden" id="wizard-btn-create">
+        <button class="btn-icon touch c-main u-hidden" id="wizard-btn-create">
             <span class="material-symbols-outlined">check</span>
-            Створити
         </button>
     `;
     container.appendChild(footer);
