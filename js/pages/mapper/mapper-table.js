@@ -468,7 +468,7 @@ export function getCharacteristicsColumns() {
                 return `<span class="${cls}" data-tooltip="${escapeHtml(display.tooltip || '')}" data-tooltip-always style="cursor:pointer">${display.count}</span>`;
             }
         }),
-        { ...col('name_ua', 'Назва', 'name'), searchable: true },
+        { ...col('name_ua', 'Назва', 'name', { span: 4 }), searchable: true },
         { ...col('type', 'Тип', 'code', { filterable: true }), searchable: true },
         col('is_global', 'Глобальна', 'status-dot', { filterable: true }),
         col('unit', 'Одиниця', 'text', { span: 1, class: 'u-max-80' }),

@@ -13,6 +13,7 @@ import { redirectTargetState } from './redirect-target-state.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { renderRedirectEditRow, handleRedirectExpand, handleRedirectSave, handleRedirectDelete } from './redirect-target-crud.js';
 import { registerRedirectPlugin } from './redirect-target-plugins.js';
+import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 
 let _redirectsManagedTable = null;
@@ -91,6 +92,7 @@ function initRedirectsTable() {
 
     redirectTargetState.tableAPI = _redirectsManagedTable.tableAPI;
     redirectTargetState.managedTable = _redirectsManagedTable;
+    initColumnsCharm();
 }
 
 export function renderRedirectsTable() {

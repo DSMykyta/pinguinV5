@@ -1,0 +1,51 @@
+<div class="modal-overlay modal-fullscreen" data-modal-id="blog-edit">
+    <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+        <header class="modal-fullscreen-header">
+            <div class="modal-fullscreen-header-left">
+                <div class="modal-fullscreen-title">
+                    <h1 id="blog-modal-title">Пост блогу</h1>
+                </div>
+            </div>
+        </header>
+
+        <div class="modal-body-with-sidebar">
+            <main class="modal-fullscreen-content">
+                <section>
+                    <div class="section-header">
+                        <div class="section-name-block">
+                            <div class="section-name">
+                                <h2 class="section-upper">Основні дані</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="grid">
+                            <div class="group column col-6">
+                                <label class="label-l" for="blog-id">ID</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="blog-id" type="text" readonly></div></div></div>
+                            </div>
+                            <div class="group column col-6">
+                                <label class="label-l" for="blog-image-url">Image URL</label>
+                                <div class="content-bloc"><div class="content-line"><div class="input-box"><input id="blog-image-url" type="text"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <div class="modal-fullscreen-actions">
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-fullscreen-actions-footer">
+                <button class="btn-icon touch danger" id="delete-blog" title="Видалити">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <button class="btn-icon touch c-main" id="save-blog" title="Зберегти">
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

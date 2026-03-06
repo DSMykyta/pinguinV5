@@ -54,7 +54,7 @@ export function renderRedirectEditRow(row) {
                         <option value="">— Оберіть —</option>
                         ${targetOptions}
                     </select>
-                </div>
+                </div></div>
             </div>
             <div class="group column col-3">
                 <label for="${rowId}-redirect-entity" class="label-l">Сутність</label>
