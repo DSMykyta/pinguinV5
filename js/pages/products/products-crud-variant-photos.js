@@ -211,13 +211,22 @@ async function handleUploadPhoto(file) {
         const productId = document.getElementById('variant-product-id')?.value.trim() || '';
         const photoIndex = _photoUrls.length + 1;
 
-        if (!brandId || !productId) {
-            showToast('Спочатку збережіть товар, щоб завантажити фото', 'warning');
+        const brandEl = document.getElementById('product-brand');
+        const brandName = brandEl?.selectedOptions?.[0]?.textContent?.trim() || '';
+        if (!brandId && !brandName) {
+            showToast('Оберіть бренд перед завантаженням фото', 'warning');
             dropzone?.classList.remove('loading');
             return;
         }
 
-        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex);
+        const productName = buildPhotoName();
+        if (!productId && !productName) {
+            showToast('Введіть назву товару перед завантаженням фото', 'warning');
+            dropzone?.classList.remove('loading');
+            return;
+        }
+
+        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName });
 
         dropzone?.classList.remove('loading');
 

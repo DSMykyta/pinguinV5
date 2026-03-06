@@ -210,13 +210,21 @@ async function handleUploadPhoto(file) {
         const productId = getInputValue('product-id');
         const photoIndex = _photoUrls.length + 1;
 
-        if (!brandId || !productId) {
-            showToast('Спочатку збережіть товар, щоб завантажити фото', 'warning');
+        const brandName = getSelectText('product-brand');
+        if (!brandId && !brandName) {
+            showToast('Оберіть бренд перед завантаженням фото', 'warning');
             dropzone?.classList.remove('loading');
             return;
         }
 
-        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex);
+        const productName = buildPhotoName();
+        if (!productId && !productName) {
+            showToast('Введіть назву товару перед завантаженням фото', 'warning');
+            dropzone?.classList.remove('loading');
+            return;
+        }
+
+        const result = await uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName });
 
         dropzone?.classList.remove('loading');
 

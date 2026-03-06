@@ -461,12 +461,14 @@ const API_DRIVE_PRODUCT_PHOTO = `${API_BASE}/api/drive/upload-product-photo`;
  * @param {number} photoIndex - Індекс фото (1-10)
  * @returns {Promise<{success: boolean, thumbnailUrl: string, fileId: string}>}
  */
-async function uploadProductPhotoFile(file, brandId, productId, photoIndex) {
+async function uploadProductPhotoFile(file, brandId, productId, photoIndex, { brandName, productName } = {}) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('brandId', brandId);
   formData.append('productId', productId);
   formData.append('photoIndex', String(photoIndex));
+  if (brandName) formData.append('brandName', brandName);
+  if (productName) formData.append('productName', productName);
 
   const response = await fetch(API_DRIVE_PRODUCT_PHOTO, {
     method: 'POST',
