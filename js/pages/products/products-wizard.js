@@ -204,28 +204,6 @@ function _showCurrentStep() {
     if (createBtn) createBtn.classList.toggle('u-hidden', !isLast);
 
     _renderDots();
-
-    // Якщо поточний крок — секція варіантів, примусово рендерити характеристики блоку 8
-    const currentSection = _sections[_currentStep];
-    if (currentSection?.id === 'section-product-variants') {
-        _renderVariantCharsForStep();
-    }
-}
-
-async function _renderVariantCharsForStep() {
-    const categoryId = document.getElementById('product-category')?.value;
-    if (!categoryId) return;
-
-    try {
-        const { renderPendingVariantCharacteristics } = await import('./products-crud-variant-chars.js');
-        const { getPendingVariants } = await import('./products-crud-variant-pending.js');
-        const pending = getPendingVariants();
-        if (pending.length > 0) {
-            await renderPendingVariantCharacteristics(categoryId, pending);
-        }
-    } catch (err) {
-        console.error('[wizard] renderVariantChars error:', err);
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

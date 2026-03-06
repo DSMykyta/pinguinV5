@@ -275,14 +275,9 @@
 }
 
 .wizard-mode .nav.column,
-.wizard-mode .modal-fullscreen-actions-footer,
+.wizard-mode .modal-fullscreen-actions,
 .wizard-mode #product-status-switch,
 .wizard-mode #product-mode-switch {
-    display: none;
-}
-
-/* Wizard — pending variants: сховати header таблиці */
-.wizard-mode #product-variants-accordion .pseudo-table-header {
     display: none;
 }
 
@@ -300,6 +295,7 @@ body.wizard-aside-active .aside-fab {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 12px;
     flex-shrink: 0;
 }
 
