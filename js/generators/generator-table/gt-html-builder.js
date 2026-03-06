@@ -94,7 +94,7 @@ function generateTableRow(row, leftContent, rightContent, cellTag) {
     
     if (row.classList.contains(ROW_CLASSES.COLSPAN2)) {
         const content = isBold ? `<strong>${leftContent}</strong>` : leftContent;
-        return `<tr><${cellTag}>${content}</${cellTag}></tr>`;
+        return `<tr><${cellTag} colspan="2">${content}</${cellTag}></tr>`;
     }
 
     if (row.classList.contains(ROW_CLASSES.SINGLE)) {
