@@ -5,7 +5,7 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Ендпоінт для завантаження логотипів брендів на Google Drive.
-// Всі зображення конвертуються в WebP через sharp.
+// JPG/PNG зберігаються як є, інші формати конвертуються в JPG через sharp.
 //
 // ЕНДПОІНТ:
 // - POST /api/drive/upload
@@ -20,21 +20,23 @@
 //
 // ОБМЕЖЕННЯ:
 // - Вхідні формати: PNG, JPG, WebP, AVIF, GIF, TIFF, SVG
-// - Вихідний формат: завжди WebP
+// - Вихідний формат: JPG/PNG (оригінал) або JPG (конвертовані)
 // - Розмір: до 4 MB
-// - Ім'я файлу на Drive: "{normalized_brand_name}.webp"
+// - Ім'я файлу на Drive: "{normalized_brand_name}.{jpg|png}"
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
 const { uploadBrandLogo } = require('../utils/google-drive');
 const sharp = require('sharp');
 
-// Дозволені вхідні MIME типи (конвертуються в WebP)
 const ALLOWED_TYPES = [
   'image/png', 'image/jpeg', 'image/webp', 'image/svg+xml',
   'image/avif', 'image/gif', 'image/tiff',
 ];
 const MAX_SIZE = 4 * 1024 * 1024; // 4 MB
+
+/** Формати які зберігаються без конвертації */
+const PASSTHROUGH_TYPES = ['image/jpeg', 'image/png'];
 
 // =========================================================================
 // UTILS
@@ -53,12 +55,17 @@ function normalizeBrandName(name) {
 }
 
 /**
- * Конвертує будь-яке зображення в WebP через sharp
+ * Конвертує зображення у відповідний формат:
+ * - JPG/PNG → без змін
+ * - Решта → JPG (quality 90)
  */
-async function convertToWebP(buffer) {
-  return sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
+async function convertImage(buffer, mimeType) {
+  if (PASSTHROUGH_TYPES.includes(mimeType)) {
+    const ext = mimeType === 'image/png' ? 'png' : 'jpg';
+    return { buffer, ext, mime: mimeType };
+  }
+  const converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+  return { buffer: converted, ext: 'jpg', mime: 'image/jpeg' };
 }
 
 /**
@@ -172,10 +179,10 @@ async function handleFileUpload(req, res) {
       }
 
       try {
-        const webpBuffer = await convertToWebP(fileBuffer);
-        const driveName = `${normalizeBrandName(brandName)}.webp`;
+        const { buffer: outputBuffer, ext, mime } = await convertImage(fileBuffer, mimeType);
+        const driveName = `${normalizeBrandName(brandName)}.${ext}`;
 
-        const result = await uploadBrandLogo(webpBuffer, driveName, 'image/webp');
+        const result = await uploadBrandLogo(outputBuffer, driveName, mime);
         resolve(res.status(200).json({
           success: true,
           thumbnailUrl: result.thumbnailUrl,
@@ -225,10 +232,11 @@ async function handleUrlUpload(req, res) {
     return res.status(400).json({ error: 'Зображення занадто велике. Максимум 4 MB' });
   }
 
-  const webpBuffer = await convertToWebP(fileBuffer);
-  const driveName = `${normalizeBrandName(brandName)}.webp`;
+  const contentType = response.headers.get('content-type') || 'image/jpeg';
+  const { buffer: outputBuffer, ext, mime } = await convertImage(fileBuffer, contentType);
+  const driveName = `${normalizeBrandName(brandName)}.${ext}`;
 
-  const result = await uploadBrandLogo(webpBuffer, driveName, 'image/webp');
+  const result = await uploadBrandLogo(outputBuffer, driveName, mime);
   return res.status(200).json({
     success: true,
     thumbnailUrl: result.thumbnailUrl,

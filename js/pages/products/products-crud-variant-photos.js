@@ -272,7 +272,8 @@ function renderPhotoGrid() {
 
     let html = '';
     _photoUrls.forEach((url, index) => {
-        const fileName = `${photoBaseName}_${index + 1}.webp`;
+        const urlExt = url.match(/\.(\w{3,4})(?:[?#]|$)/)?.[1] || 'jpg';
+        const fileName = `${photoBaseName}_${index + 1}.${urlExt}`;
         const ext = extractExtension(fileName);
         const isMain = index === 0;
         html += `

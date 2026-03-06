@@ -1,14 +1,14 @@
-// api/drive/upload-product-photo.js
+// api/drive/upload-photo.js
 
 // =========================================================================
-// DRIVE UPLOAD API - PRODUCT PHOTOS
+// DRIVE UPLOAD API - PHOTOS
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
-// Ендпоінт для завантаження фото товарів на Google Drive.
+// Універсальний ендпоінт для завантаження фото на Google Drive.
 // JPG/PNG зберігаються як є, інші формати конвертуються в JPG через sharp.
 //
 // ЕНДПОІНТ:
-// - POST /api/drive/upload-product-photo
+// - POST /api/drive/upload-photo
 //
 // РЕЖИМ:
 // multipart/form-data

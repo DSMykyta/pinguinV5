@@ -448,9 +448,9 @@ async function deleteReferenceFile(fileId) {
   return data;
 }
 
-// ============= Google Drive Product Photos API =============
+// ============= Google Drive Photos API =============
 
-const API_DRIVE_PRODUCT_PHOTO = `${API_BASE}/api/drive/upload-product-photo`;
+const API_DRIVE_PHOTO = `${API_BASE}/api/drive/upload-photo`;
 
 /**
  * Завантажити фото товару на Google Drive.
@@ -470,7 +470,7 @@ async function uploadProductPhotoFile(file, brandId, productId, photoIndex, { br
   if (brandName) formData.append('brandName', brandName);
   if (productName) formData.append('productName', productName);
 
-  const response = await fetch(API_DRIVE_PRODUCT_PHOTO, {
+  const response = await fetch(API_DRIVE_PHOTO, {
     method: 'POST',
     body: formData,
   });
