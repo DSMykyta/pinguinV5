@@ -1,15 +1,15 @@
 // js/pages/products/products-crud-composition-generator.js
 
 /**
- * Вбудований генератор таблиць для wizard-режиму.
- * Використовує gt-* модулі, перемикаючи rowsContainer на #wizard-rows-container.
+ * Wizard-генератор: перемикає gt-* на wizard-rows-container
+ * і використовує справжній aside-table для кнопок/магії.
  */
 
 import { setRowsContainer, resetRowsContainer } from '../../generators/generator-table/gt-dom.js';
-import { createAndAppendRow, initializeEmptyRow, initializeFirstRow } from '../../generators/generator-table/gt-row-manager.js';
-import { addSampleTemplate } from '../../generators/generator-table/gt-template-helpers.js';
+import { initializeFirstRow } from '../../generators/generator-table/gt-row-manager.js';
 import { generateHtmlTable } from '../../generators/generator-table/gt-html-builder.js';
 import { generateBrText } from '../../generators/generator-table/gt-br-builder.js';
+import { showAsidePanel } from '../../layout/layout-plugin-aside-loader.js';
 import { showToast } from '../../components/feedback/toast.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -18,14 +18,18 @@ import { showToast } from '../../components/feedback/toast.js';
 
 let _initialized = false;
 let _fillCallback = null;
+let _interceptHandler = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Iнiцiалiзувати wizard-генератор
- * @param {Function} onFill - callback(htmlTable, brText) для заповнення едiторiв
+ * Активувати wizard-генератор:
+ * - перемикає gt-* на wizard-rows-container
+ * - показує справжній aside-table поверх модалу
+ * - перехоплює result-card кліки для заповнення editors
+ * @param {Function} onFill - callback(htmlTable, brText)
  */
 export function initWizardGenerator(onFill) {
     const container = document.getElementById('wizard-rows-container');
@@ -37,25 +41,20 @@ export function initWizardGenerator(onFill) {
     // Перемикаємо gt-* на wizard-контейнер
     setRowsContainer(container);
 
-    // Кнопки дій
-    const section = document.getElementById('section-product-table-generator');
-    if (!section) return;
+    // Показати aside-table поверх модалу
+    document.body.classList.add('wizard-aside-active');
+    showAsidePanel('aside-table');
 
-    section.addEventListener('click', (e) => {
-        const action = e.target.closest('[data-wg-action]')?.dataset.wgAction;
-        if (!action) return;
+    // Перехоплення result-card кліків: заповнити editors замість clipboard
+    _interceptHandler = (e) => {
+        const target = e.target.closest('#result-card-html, #result-card-br');
+        if (!target) return;
 
-        // Переконатись що gt-* працює з wizard-контейнером
-        setRowsContainer(container);
-
-        if (action === 'add-row') createAndAppendRow();
-        else if (action === 'add-separator') initializeEmptyRow();
-        else if (action === 'add-ingredients') addSampleTemplate('ingredients');
-        else if (action === 'add-warning') addSampleTemplate('warning');
-    });
-
-    // Кнопка заповнення
-    document.getElementById('wizard-fill-composition')?.addEventListener('click', _handleFill);
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        _handleFill();
+    };
+    document.addEventListener('click', _interceptHandler, true);
 
     // Створити перший рядок
     initializeFirstRow();
@@ -70,7 +69,7 @@ export function showWizardGenerator(show) {
 }
 
 /**
- * Очистити генератор
+ * Деактивувати wizard-генератор
  */
 export function resetWizardGenerator() {
     const container = document.getElementById('wizard-rows-container');
@@ -78,6 +77,15 @@ export function resetWizardGenerator() {
 
     // Повернути gt-* до стандартного контейнера
     resetRowsContainer();
+
+    // Прибрати aside поверх модалу
+    document.body.classList.remove('wizard-aside-active');
+
+    // Зняти перехоплення
+    if (_interceptHandler) {
+        document.removeEventListener('click', _interceptHandler, true);
+        _interceptHandler = null;
+    }
 
     _initialized = false;
     _fillCallback = null;

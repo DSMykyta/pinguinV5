@@ -18,16 +18,22 @@ import {
 } from '../../components/actions/actions-main.js';
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { initCustomSelects } from '../../components/forms/select.js';
 import {
-    buildExpandContent,
     onVariantExpand,
     readRowFormValues,
-    getVariantColumns,
     renderPendingVariantCharacteristics,
-    parseSpecJson
 } from './products-crud-variant-chars.js';
-import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
+import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PENDING COLUMNS (спрощений набір для нового товару)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getPendingColumns() {
+    return [
+        col('_label', ' ', 'text', { span: 4 }),
+    ];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -73,11 +79,12 @@ export function removePendingVariant(pendingId) {
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
 
     if (_pendingManagedTable && _pendingVariants.length > 0) {
-        const productName = _getProductDisplayName();
-        _pendingManagedTable.updateData(_pendingVariants.map(pv => ({
+        const productName = _getProductShortName();
+        _pendingManagedTable.updateData(_pendingVariants.map((pv, i) => ({
             ...pv,
-            product_name: productName,
-            variant_display: displayName(pv.name_ua) || '',
+            _label: productName
+                ? `${productName} — Варіант ${i + 1}`
+                : `Варіант ${i + 1}`,
         })));
     } else {
         renderPendingAccordion();
@@ -105,13 +112,24 @@ export function syncAccordionFormToState() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ACCORDION RENDERING (managed table + expandable)
+// HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function _getProductDisplayName() {
-    const shortUa = document.getElementById('product-short-name-ua');
-    return shortUa?.value?.trim() || '';
+function _getProductShortName() {
+    return document.getElementById('product-short-name-ua')?.value?.trim() || '';
 }
+
+/**
+ * Expandable контент для pending варіанту — тільки chars (без базових полів)
+ */
+function _buildPendingExpandContent(row) {
+    const id = row._pendingId;
+    return `<div id="${id}-chars-container" style="padding: 12px 16px;"></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACCORDION RENDERING (managed table + expandable)
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Рендерити pending accordion (managed table)
@@ -125,12 +143,12 @@ export function renderPendingAccordion() {
     accordion.style.display = '';
     if (table) table.style.display = 'none';
 
-    const productName = _getProductDisplayName();
-
-    const tableData = _pendingVariants.map(pv => ({
+    const productName = _getProductShortName();
+    const tableData = _pendingVariants.map((pv, i) => ({
         ...pv,
-        product_name: productName,
-        variant_display: displayName(pv.name_ua) || '',
+        _label: productName
+            ? `${productName} — Варіант ${i + 1}`
+            : `Варіант ${i + 1}`,
     }));
 
     if (_pendingManagedTable) {
@@ -138,7 +156,7 @@ export function renderPendingAccordion() {
     } else {
         _pendingManagedTable = createManagedTable({
             container: 'product-variants-accordion',
-            columns: getVariantColumns(col).map(c => ({
+            columns: getPendingColumns().map(c => ({
                 ...c,
                 searchable: false,
                 checked: true,
@@ -156,22 +174,22 @@ export function renderPendingAccordion() {
                 },
                 plugins: {
                     expandable: {
-                        renderContent: (row) => buildExpandContent(row),
+                        renderContent: (row) => _buildPendingExpandContent(row),
                         onExpand: (rowEl, row) => onVariantExpand(rowEl, row),
                         onSave: (rowEl, row) => _onPendingVariantSave(rowEl, row),
                     }
                 }
             },
             pageSize: null,
+            checkboxPrefix: 'pending-variants'
         });
     }
 
-    // Auto-expand first row if only one variant
-    if (_pendingVariants.length === 1) {
-        const firstRow = accordion.querySelector('.pseudo-table-row');
-        const expandBtn = firstRow?.querySelector('[data-action="expand-edit"]');
+    // Auto-expand all rows
+    accordion.querySelectorAll('.pseudo-table-row').forEach(row => {
+        const expandBtn = row.querySelector('[data-action="expand-edit"]');
         if (expandBtn) expandBtn.click();
-    }
+    });
 
     // Render characteristics for pending variants if category is selected
     const categoryId = document.getElementById('product-category')?.value;

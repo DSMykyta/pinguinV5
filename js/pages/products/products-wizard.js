@@ -56,7 +56,7 @@ function _activateWizardMode() {
     _createWizardFooter(container);
     _createDots();
 
-    // Генератор таблиць
+    // Генератор таблиць: перемикає gt-* на wizard-контейнер + показує aside-table
     showWizardGenerator(true);
     initWizardGenerator((htmlTable, brText) => {
         const codeEditor = getCompCodeEditorRu();
@@ -64,6 +64,12 @@ function _activateWizardMode() {
         if (codeEditor) codeEditor.setValue(htmlTable);
         if (notesEditor) notesEditor.setValue(brText);
     });
+
+    // Відкрити aside (може бути закритий)
+    const aside = document.querySelector('.aside');
+    if (aside?.classList.contains('closed')) {
+        aside.classList.remove('closed');
+    }
 
     _collectSections();
     _visited.add(0);
@@ -82,9 +88,9 @@ function _createDots() {
     if (!header) return;
 
     _dotsContainer = document.createElement('div');
-    _dotsContainer.className = 'wizard-dots';
+    _dotsContainer.className = 'group';
     _dotsContainer.addEventListener('click', (e) => {
-        const dot = e.target.closest('.wizard-dot');
+        const dot = e.target.closest('.dot-btn');
         if (!dot) return;
         const idx = parseInt(dot.dataset.step);
         if (!isNaN(idx)) _goToStep(idx);
@@ -99,7 +105,7 @@ function _renderDots() {
     _dotsContainer.innerHTML = _sections.map((section, i) => {
         const color = _getDotColor(section, i);
         const active = i === _currentStep ? ' active' : '';
-        return `<button class="wizard-dot${active}" data-step="${i}"><span class="dot ${color}"></span></button>`;
+        return `<button class="dot-btn${active}" data-step="${i}"><span class="dot ${color}"></span></button>`;
     }).join('');
 }
 
@@ -120,27 +126,6 @@ function _getDotColor(section, index) {
 function _isFieldEmpty(el) {
     if (el.tagName === 'SELECT') return !el.value;
     return !el.value.trim();
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CHECKBOXES — галочки в section-header
-// ═══════════════════════════════════════════════════════════════════════════
-
-function _addCheckboxToSection(section) {
-    if (section.querySelector('.wizard-section-check')) return;
-
-    const header = section.querySelector('.section-header');
-    if (!header) return;
-
-    const cb = document.createElement('label');
-    cb.className = 'wizard-section-check';
-    cb.innerHTML = `
-        <input type="checkbox" class="wizard-check-input">
-        <span class="material-symbols-outlined wizard-check-icon">check_circle</span>
-    `;
-    header.appendChild(cb);
-
-    cb.querySelector('input').addEventListener('change', () => _renderDots());
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -201,7 +186,6 @@ function _showCurrentStep() {
     _sections.forEach((section, i) => {
         if (i === _currentStep) {
             section.classList.remove('u-hidden');
-            _addCheckboxToSection(section);
         } else {
             section.classList.add('u-hidden');
         }
@@ -223,6 +207,28 @@ function _showCurrentStep() {
     if (createBtn) createBtn.classList.toggle('u-hidden', !isLast);
 
     _renderDots();
+
+    // Якщо поточний крок — секція варіантів, примусово рендерити характеристики блоку 8
+    const currentSection = _sections[_currentStep];
+    if (currentSection?.id === 'section-product-variants') {
+        _renderVariantCharsForStep();
+    }
+}
+
+async function _renderVariantCharsForStep() {
+    const categoryId = document.getElementById('product-category')?.value;
+    if (!categoryId) return;
+
+    try {
+        const { renderPendingVariantCharacteristics } = await import('./products-crud-variant-chars.js');
+        const { getPendingVariants } = await import('./products-crud-variant-pending.js');
+        const pending = getPendingVariants();
+        if (pending.length > 0) {
+            await renderPendingVariantCharacteristics(categoryId, pending);
+        }
+    } catch (err) {
+        console.error('[wizard] renderVariantChars error:', err);
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -291,7 +297,6 @@ function _deactivate() {
     container?.querySelector('.wizard-footer')?.remove();
     _dotsContainer?.remove();
     _dotsContainer = null;
-    container?.querySelectorAll('.wizard-section-check').forEach(el => el.remove());
 
     // Скинути генератор
     showWizardGenerator(false);
