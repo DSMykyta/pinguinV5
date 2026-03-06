@@ -5,7 +5,7 @@
 // =========================================================================
 // ПРИЗНАЧЕННЯ:
 // Ендпоінт для завантаження фото товарів на Google Drive.
-// Всі зображення конвертуються в WebP через sharp.
+// JPG/PNG зберігаються як є, інші формати конвертуються в JPG через sharp.
 //
 // ЕНДПОІНТ:
 // - POST /api/drive/upload-product-photo
@@ -18,7 +18,7 @@
 //   - field "photoIndex" — індекс фото (1-10)
 //
 // СТРУКТУРА НА DRIVE:
-// pinguin-v5/товари/{brandId}/{productId}/{productId}_{index}.webp
+// pinguin-v5/товари/{brandId}/{productId}/{productId}_{index}.{jpg|png}
 // =========================================================================
 
 const { corsMiddleware } = require('../utils/cors');
@@ -38,13 +38,21 @@ function normalizeName(name) {
   return (name || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
 }
 
+/** Формати які зберігаються без конвертації */
+const PASSTHROUGH_TYPES = ['image/jpeg', 'image/png'];
+
 /**
- * Конвертує зображення в WebP
+ * Конвертує зображення у відповідний формат:
+ * - JPG/PNG → без змін
+ * - Решта → JPG (quality 90)
  */
-async function convertToWebP(buffer) {
-  return sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
+async function convertImage(buffer, mimeType) {
+  if (PASSTHROUGH_TYPES.includes(mimeType)) {
+    const ext = mimeType === 'image/png' ? 'png' : 'jpg';
+    return { buffer, ext, mime: mimeType };
+  }
+  const converted = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+  return { buffer: converted, ext: 'jpg', mime: 'image/jpeg' };
 }
 
 // =========================================================================
@@ -150,14 +158,14 @@ async function handleFileUpload(req, res) {
       }
 
       try {
-        const webpBuffer = await convertToWebP(fileBuffer);
+        const { buffer: outputBuffer, ext, mime } = await convertImage(fileBuffer, mimeType);
 
         const index = parseInt(photoIndex) || 1;
 
         const folderPath = `товари/${folderBrand}/${folderProduct}`;
-        const fileName = `${folderProduct}_${index}.webp`;
+        const fileName = `${folderProduct}_${index}.${ext}`;
 
-        const result = await uploadProductPhoto(webpBuffer, fileName, 'image/webp', folderPath);
+        const result = await uploadProductPhoto(outputBuffer, fileName, mime, folderPath);
 
         resolve(res.status(200).json({
           success: true,
