@@ -152,6 +152,21 @@
     background-color: var(--color-main-c);
 }
 
+/* Dropzone charm: drag-active state (.dz-dragging on .content-bloc) */
+.content-bloc.dz-dragging {
+    position: relative;
+    z-index: 10;
+}
+
+.content-bloc.dz-dragging .content-line {
+    min-height: calc(42px * 3);
+    border: 2px dashed var(--color-main);
+    border-radius: 12px;
+    background-color: color-mix(in srgb, var(--color-surface) 60%, transparent);
+    backdrop-filter: blur(12px);
+    transition: min-height 0.2s ease, border 0.2s ease, background-color 0.2s ease;
+}
+
 
 /* ============================================ */
 /* PANEL ВАРІАНТ (сірий фон, без бордера)      */

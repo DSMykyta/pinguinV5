@@ -113,15 +113,19 @@
                             <div class="group column col-4">
                                 <label class="label-l">Логотип</label>
 
-                                <div class="content-bloc" id="brand-logo-dropzone">
+                                <div class="content-bloc" id="brand-logo-dropzone" data-dropzone>
                                     <div class="content-line">
                                         <div class="input-box">
                                             <input type="url" id="brand-logo-url-field"
                                                 placeholder="URL або перетягніть файл...">
                                         </div>
-                                        <button type="button" class="btn-icon ci-action" id="btn-upload-from-url"
-                                            data-tooltip="Завантажити">
-                                            <span class="material-symbols-outlined">upload</span>
+                                        <button type="button" class="btn-icon ci-action" id="btn-pick-brand-logo"
+                                            data-dz-pick data-tooltip="Вибрати файл">
+                                            <span class="material-symbols-outlined">folder_open</span>
+                                        </button>
+                                        <button type="button" class="btn-icon ci-action u-hidden" id="btn-upload-from-url"
+                                            data-dz-upload data-tooltip="Завантажити з URL">
+                                            <span class="material-symbols-outlined">download</span>
                                         </button>
                                     </div>
                                     <input type="file" id="brand-logo-file-input" accept="image/*" hidden>

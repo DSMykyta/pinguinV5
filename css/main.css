@@ -61,6 +61,7 @@
 @import url('components/navigation/tabs.css');
 @import url('components/navigation/tab-header.css');
 @import url('components/navigation/toolbar.css');
+@import url('components/navigation/scroll-fade.css');
 /* nav.css — перенесено в layout/layout-nav.css */
 
 /* === COMPONENTS - TABLES === */

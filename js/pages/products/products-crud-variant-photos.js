@@ -41,7 +41,7 @@ export function initVariantPhotoSection() {
     if (dropzone.dataset.photoInit) return;
     dropzone.dataset.photoInit = 'true';
 
-    // Кнопка вибору файлу з пристрою
+    // [data-dz-pick] → відкрити файл-діалог (з гардом на MAX_PHOTOS)
     pickBtn?.addEventListener('click', () => {
         if (_photoUrls.length >= MAX_PHOTOS) {
             showToast(`Максимум ${MAX_PHOTOS} фото`, 'warning');
@@ -50,7 +50,7 @@ export function initVariantPhotoSection() {
         fileInput.click();
     });
 
-    // Кнопка завантаження з URL
+    // [data-dz-upload] → додати URL (charm тригерить через Enter / клік)
     uploadBtn?.addEventListener('click', () => {
         const url = urlField?.value.trim();
         if (!url) return;
@@ -60,6 +60,7 @@ export function initVariantPhotoSection() {
         }
         _photoUrls.push(url);
         urlField.value = '';
+        urlField.dispatchEvent(new Event('input', { bubbles: true }));
         syncHiddenField();
         renderPhotoGrid();
         updateMainPreview();
@@ -80,39 +81,17 @@ export function initVariantPhotoSection() {
         fileInput.value = '';
     });
 
-    // Drag-and-drop файлів на dropzone
-    const inputsLine = dropzone.querySelector('.content-line');
-    if (inputsLine) {
-        inputsLine.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            inputsLine.classList.add('drag-over');
-        });
+    // Drop файлів (charm обробляє візуал, тут — бізнес-логіка)
+    dropzone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer?.files || []).filter(f => f.type.startsWith('image/'));
+        if (files.length === 0) return;
 
-        inputsLine.addEventListener('dragleave', () => {
-            inputsLine.classList.remove('drag-over');
-        });
+        const remaining = MAX_PHOTOS - _photoUrls.length;
+        const toUpload = files.slice(0, remaining);
 
-        inputsLine.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            inputsLine.classList.remove('drag-over');
-
-            const files = Array.from(e.dataTransfer?.files || []).filter(f => f.type.startsWith('image/'));
-            if (files.length === 0) return;
-
-            const remaining = MAX_PHOTOS - _photoUrls.length;
-            const toUpload = files.slice(0, remaining);
-
-            for (const file of toUpload) {
-                await handleUploadPhoto(file);
-            }
-        });
-    }
-
-    // Enter в URL полі
-    urlField?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            uploadBtn?.click();
+        for (const file of toUpload) {
+            await handleUploadPhoto(file);
         }
     });
 

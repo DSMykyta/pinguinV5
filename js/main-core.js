@@ -25,6 +25,8 @@ import { initSearchCharm }          from './components/charms/charm-search.js';
 import { initRequiredCharm }        from './components/charms/charm-required.js';
 import { initPaginationCharm }      from './components/charms/pagination/pagination-main.js';
 import { initVirtualScrollCharm }   from './components/charms/charm-virtual-scroll.js';
+import { initScrollFadeCharm }     from './components/charms/charm-scroll-fade.js';
+import { initDropzoneCharm }       from './components/charms/charm-dropzone.js';
 
 
 export async function initCore() {
@@ -49,4 +51,6 @@ export async function initCore() {
     initRequiredCharm();
     initPaginationCharm();
     initVirtualScrollCharm();
+    initScrollFadeCharm();
+    initDropzoneCharm();
 }

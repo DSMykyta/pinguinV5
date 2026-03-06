@@ -1,0 +1,74 @@
+/**
+ * COMPONENT: Scroll Fade
+ *
+ * Gradient + arrow indicator for scrollable containers.
+ * Shows when content overflows — hides when scrolled to edge.
+ *
+ * USAGE (charm):
+ * <div scroll-fade style="overflow-y: auto;">...</div>
+ *
+ * JS: initScrollFadeCharm() in main-core.js
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - root.css (--color-surface, --color-on-surface-v)
+ * - Material Symbols Outlined (arrow icons)
+ */
+
+/* Wrapper — inserted by JS around [scroll-fade] element */
+.scroll-fade-wrapper {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll-fade-wrapper > [scroll-fade] {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Indicator overlays — positioned absolutely in wrapper */
+.scroll-fade-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.scroll-fade-indicator.visible {
+    opacity: 1;
+}
+
+.scroll-fade-top {
+    top: 0;
+    background: linear-gradient(to bottom, var(--color-surface), transparent);
+}
+
+.scroll-fade-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, var(--color-surface), transparent);
+}
+
+/* Arrow icon */
+.scroll-fade-indicator .scroll-fade-arrow {
+    pointer-events: auto;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--color-on-surface-v);
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+    user-select: none;
+}
+
+.scroll-fade-indicator .scroll-fade-arrow:hover {
+    opacity: 1;
+}

@@ -106,25 +106,12 @@
                         <div class="grid">
 
                             <!-- Категорія -->
-                            <div class="group column col-4">
+                            <div class="group column col-6">
                                 <label for="product-category" class="label-l">Категорія</label>
                                 <select id="product-category" data-custom-select required>
                                     <option value="">— Оберіть категорію —</option>
                                 </select>
                                 <label class="label-s">Визначає набір характеристик товару</label>
-                            </div>
-
-                            <!-- Артикул -->
-                            <div class="group column col-2">
-                                <label for="product-article" class="label-l">Артикул</label>
-                                <div class="content-bloc">
-                                    <div class="content-line">
-                                        <div class="input-box">
-                                            <input type="text" id="product-article" placeholder="Авто">
-                                        </div>
-                                    </div>
-                                </div>
-                                <label class="label-s">Генерується автоматично</label>
                             </div>
 
                             <!-- Текст перед назвою / Категорія -->
@@ -326,18 +313,18 @@
                                 <label class="label-l">Галерея</label>
 
                                 <!-- Upload zone -->
-                                <div class="content-bloc" id="product-photo-dropzone">
+                                <div class="content-bloc" id="product-photo-dropzone" data-dropzone>
                                     <div class="content-line">
                                         <div class="input-box">
                                             <input type="url" id="product-photo-url-field"
                                                 placeholder="URL або перетягніть файл...">
                                         </div>
                                         <button type="button" class="btn-icon ci-action" id="btn-pick-product-photo"
-                                            data-tooltip="Вибрати файл" data-tooltip-always>
+                                            data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
                                             <span class="material-symbols-outlined">folder_open</span>
                                         </button>
-                                        <button type="button" class="btn-icon ci-action" id="btn-upload-product-photo"
-                                            data-tooltip="Завантажити з URL" data-tooltip-always>
+                                        <button type="button" class="btn-icon ci-action u-hidden" id="btn-upload-product-photo"
+                                            data-dz-upload data-tooltip="Завантажити з URL" data-tooltip-always>
                                             <span class="material-symbols-outlined">download</span>
                                         </button>
                                     </div>

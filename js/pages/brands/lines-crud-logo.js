@@ -25,30 +25,22 @@ export function initLineLogoHandlers() {
     const dropzone = document.getElementById('line-logo-dropzone');
     const fileInput = document.getElementById('line-logo-file-input');
     const urlField = document.getElementById('line-logo-url-field');
-    const urlBtn = document.getElementById('btn-upload-line-logo');
+    const uploadBtn = document.getElementById('btn-upload-line-logo');
+    const pickBtn = document.getElementById('btn-pick-line-logo');
     const removeBtn = document.getElementById('btn-remove-line-logo');
-    const btnIcon = urlBtn?.querySelector('.material-symbols-outlined');
 
     if (!dropzone || !urlField) return;
 
-    // Зміна іконки кнопки залежно від вмісту поля
-    function updateButtonIcon() {
-        if (!btnIcon) return;
-        const hasUrl = urlField.value.trim().length > 0;
-        btnIcon.textContent = hasUrl ? 'download' : 'upload';
-        urlBtn.dataset.tooltip = hasUrl ? 'Завантажити з URL' : 'Вибрати файл';
-    }
+    // [data-dz-pick] → file picker з підтвердженням заміни
+    pickBtn?.addEventListener('click', () => {
+        uploadLogoWithConfirm(() => fileInput?.click());
+    });
 
-    urlField.addEventListener('input', updateButtonIcon);
-
-    // Розумна кнопка: є URL → завантажити, пусто → file picker
-    urlBtn?.addEventListener('click', () => {
+    // [data-dz-upload] → завантажити з URL (charm тригерить через Enter / клік)
+    uploadBtn?.addEventListener('click', () => {
         const url = urlField.value.trim();
-        if (url) {
-            uploadLogoWithConfirm(() => handleLogoUrlUpload(url));
-        } else {
-            uploadLogoWithConfirm(() => fileInput?.click());
-        }
+        if (!url) return;
+        uploadLogoWithConfirm(() => handleLogoUrlUpload(url));
     });
 
     // Вибір файлу
@@ -60,32 +52,11 @@ export function initLineLogoHandlers() {
         fileInput.value = '';
     });
 
-    // Drag-and-drop на content-line
-    const inputsLine = dropzone.querySelector('.content-line');
-    if (inputsLine) {
-        inputsLine.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            inputsLine.classList.add('drag-over');
-        });
-
-        inputsLine.addEventListener('dragleave', () => {
-            inputsLine.classList.remove('drag-over');
-        });
-
-        inputsLine.addEventListener('drop', (e) => {
-            e.preventDefault();
-            inputsLine.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (file) uploadLogoWithConfirm(() => handleLogoFileUpload(file));
-        });
-    }
-
-    // Enter в URL полі
-    urlField.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            urlBtn?.click();
-        }
+    // Drop файлів (charm обробляє візуал, тут — бізнес-логіка)
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) uploadLogoWithConfirm(() => handleLogoFileUpload(file));
     });
 
     // Видалення логотипу

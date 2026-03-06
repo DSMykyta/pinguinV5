@@ -16,6 +16,7 @@ import { getCharacteristics, getOptions, loadCharacteristics, loadOptions } from
 import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { buildParentChildMap, initParentChildListeners, filterChildOptions } from './products-crud-hierarchy.js';
+import { displayName, resolveNameFromCharsAndSpecs } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPEC JSON PARSER
@@ -424,14 +425,55 @@ export function buildExpandContent(row) {
 }
 
 /**
- * Callback при розкритті expandable рядка — ініціалізація custom selects
+ * Callback при розкритті expandable рядка — ініціалізація custom selects + live update
  */
 export function onVariantExpand(rowEl, row) {
     const id = row.variant_id || row._pendingId;
     const charsContainer = document.getElementById(`${id}-chars-container`);
     if (charsContainer) {
         initCustomSelects(charsContainer);
+        _attachLiveVariantDisplay(rowEl, charsContainer);
     }
+}
+
+/**
+ * Прив'язати live-оновлення variant_display при зміні характеристик / spec
+ */
+function _attachLiveVariantDisplay(rowEl, charsContainer) {
+    const updateDisplay = () => {
+        // Зчитати chars з контейнера
+        const chars = {};
+        charsContainer.querySelectorAll('select[data-vchar-id]').forEach(s => {
+            if (s.value) chars[s.dataset.vcharId] = s.value;
+        });
+        charsContainer.querySelectorAll('input[data-vchar-id]').forEach(i => {
+            if (i.value.trim()) chars[i.dataset.vcharId] = i.value.trim();
+        });
+
+        // Зчитати spec
+        const specUa = {};
+        const specRu = {};
+        charsContainer.querySelectorAll('input[data-spec-char-id]').forEach(i => {
+            const val = i.value.trim();
+            if (!val) return;
+            if (i.dataset.specLang === 'ua') specUa[i.dataset.specCharId] = val;
+            else if (i.dataset.specLang === 'ru') specRu[i.dataset.specCharId] = val;
+        });
+
+        const specUaJson = Object.keys(specUa).length ? JSON.stringify(specUa) : '';
+        const specRuJson = Object.keys(specRu).length ? JSON.stringify(specRu) : '';
+        const resolved = resolveNameFromCharsAndSpecs(chars, specUaJson, specRuJson);
+        const text = displayName(resolved.ua);
+
+        // Оновити клітинку variant_display в рядку
+        const cell = rowEl.querySelector('[data-column="variant_display"]');
+        if (cell) cell.textContent = text || '—';
+    };
+
+    charsContainer.addEventListener('change', updateDisplay);
+    charsContainer.addEventListener('input', (e) => {
+        if (e.target.matches('input[data-spec-char-id]')) updateDisplay();
+    });
 }
 
 /**

@@ -24,6 +24,7 @@ import { showToast } from '../../components/feedback/toast.js';
 export function setupFileHandlers() {
     const dom = getImageDom();
 
+    // [data-dz-pick] → відкрити file picker
     dom.selectFileBtn.addEventListener('click', (e) => {
         e.preventDefault();
         dom.imageInput.click();
@@ -34,33 +35,14 @@ export function setupFileHandlers() {
         e.target.value = '';
     });
 
+    // [data-dz-upload] → завантажити з URL (charm тригерить через Enter / клік)
     dom.loadUrlBtn.addEventListener('click', handleUrlLoad);
 
-    const dropzone = dom.dropzone;
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, preventDefaults, false);
-    });
-
-    dropzone.addEventListener('dragenter', () => {
-        dropzone.classList.add('dragover');
-    });
-
-    dropzone.addEventListener('dragleave', (e) => {
-        if (e.relatedTarget === null || !dropzone.contains(e.relatedTarget)) {
-            dropzone.classList.remove('dragover');
-        }
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-        dropzone.classList.remove('dragover');
+    // Drop файлів (charm обробляє візуал, тут — бізнес-логіка)
+    dom.dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
         handleFileLoad(e.dataTransfer.files);
     });
-}
-
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
 }
 
 /**
