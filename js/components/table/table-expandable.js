@@ -27,8 +27,8 @@
  * ║  footer-right: custom + [Відкрити повний][Зберегти] btn-ghost           ║
  * ║                                                                          ║
  * ║  СТАН КНОПОК (автоматично):                                             ║
- * ║  Закрито: [checkbox] [edit]           — rowActions колонка               ║
- * ║  Відкрито: ... [close]               — rowActions колонка               ║
+ * ║  Закрито: [checkbox] [edit]          — початкова action-комірка          ║
+ * ║  Відкрито: ... [close]               — кінцева action-комірка            ║
  * ║                                                                          ║
  * ║  CSS:                                                                    ║
  * ║  Використовує .u-reveal + .is-open з helpers.css                        ║
@@ -74,6 +74,8 @@ class ExpandablePlugin {
             container.removeEventListener('click', this.clickHandler);
         }
 
+        this._ensureActionHeaders(container);
+
         const rows = container.querySelectorAll('.pseudo-table-row');
         const data = this.table.getData();
 
@@ -84,19 +86,30 @@ class ExpandablePlugin {
             const rowData = data.find(r => String(this.table.config.getRowId(r)) === String(rowId)) || data[index];
             if (!rowData) return;
 
-            // Інжектимо edit кнопку в rowActions
-            const actionsCell = rowEl.querySelector('.row-actions-cell');
+            // Інжектимо edit кнопку в початкову rowActions-комірку
+            const actionsCell =
+                rowEl.querySelector('.row-actions-cell:not([data-expand-close-cell])') ||
+                rowEl.querySelector('.row-actions-cell');
             if (actionsCell && !actionsCell.querySelector('[data-action="expand-edit"]')) {
                 const btnGroup = document.createElement('span');
                 btnGroup.className = 'expand-actions';
                 btnGroup.innerHTML = `
                     <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
-                    </button>
+                    </button>`;
+                actionsCell.prepend(btnGroup);
+            }
+
+            // Кінцева action-комірка для close кнопки (видима завжди, кнопка — по стану)
+            if (!rowEl.querySelector('[data-expand-close-cell]')) {
+                const closeCell = document.createElement('div');
+                closeCell.className = 'pseudo-table-cell row-actions-cell';
+                closeCell.setAttribute('data-expand-close-cell', '');
+                closeCell.innerHTML = `
                     <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
                         <span class="material-symbols-outlined">close</span>
                     </button>`;
-                actionsCell.prepend(btnGroup);
+                rowEl.appendChild(closeCell);
             }
 
             const content = this.config.renderContent(rowData, rowEl);
@@ -233,6 +246,19 @@ class ExpandablePlugin {
         const rowId = row.dataset.rowId;
         const data = this.table.getData();
         return data.find(r => String(this.table.config.getRowId(r)) === String(rowId)) || null;
+    }
+
+    _ensureActionHeaders(container) {
+        const header = container.querySelector('.pseudo-table-header');
+        if (!header) return;
+
+        if (!header.querySelector('[data-expand-close-header]')) {
+            const endHeader = document.createElement('div');
+            endHeader.className = 'pseudo-table-cell header-actions-cell';
+            endHeader.setAttribute('data-expand-close-header', '');
+            endHeader.setAttribute('aria-hidden', 'true');
+            header.appendChild(endHeader);
+        }
     }
 
     destroy() {

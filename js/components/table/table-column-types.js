@@ -144,7 +144,7 @@ export const COLUMN_TYPES = {
         align: 'center',
         sortable: false,
         render: (value, row) => value
-            ? `<img src="${value}" alt="${escapeHtml(row.name_short || '')}" class="product-thumb">`
+            ? `<img src="${value}" alt="${escapeHtml(row.name_short || '')}" class="product-thumb" show>`
             : '<div class="product-thumb product-thumb-empty"><span class="material-symbols-outlined">image</span></div>'
     },
 
