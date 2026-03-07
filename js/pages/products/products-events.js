@@ -38,26 +38,27 @@ function initRefreshHandlers() {
         });
     }
 
-    // Mode switch: Повний / Покроковий
-    const modeSwitch = document.getElementById('product-mode-switch');
-    if (modeSwitch) {
-        modeSwitch.addEventListener('change', async (e) => {
-            const container = e.target.closest('.modal-container');
-            if (!container) return;
-
-            const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
-
-            if (e.target.value === 'wizard') {
-                initWizard(container);
-            } else {
-                destroyWizard(container);
-            }
-        });
-    }
-
     // Modal-level refresh (product-edit)
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'product-edit') return;
+
+        // Mode switch: Повний / Покроковий
+        const modeSwitch = e.detail.modalElement?.querySelector('#product-mode-switch');
+        if (modeSwitch && !modeSwitch._wizardInit) {
+            modeSwitch._wizardInit = true;
+            modeSwitch.addEventListener('change', async (ev) => {
+                const container = ev.target.closest('.modal-container');
+                if (!container) return;
+
+                const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
+
+                if (ev.target.value === 'wizard') {
+                    initWizard(container);
+                } else {
+                    destroyWizard(container);
+                }
+            });
+        }
         const container = e.detail.modalElement?.querySelector('.modal-container');
         if (!container || container._productsRefreshInit) return;
         container._productsRefreshInit = true;
