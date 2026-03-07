@@ -267,10 +267,7 @@ registerAsideInitializer('aside-products', () => {
 
         fabMenu.classList.remove('open');
 
-        if (item.id === 'btn-wizard-product-aside') {
-            const { showProductWizard } = await import('./products-wizard.js');
-            showProductWizard();
-        } else if (item.id === 'btn-add-variant-aside') {
+        if (item.id === 'btn-add-variant-aside') {
             // TODO: створити варіант
         } else if (item.id === 'btn-add-group-aside') {
             // TODO: створити групу

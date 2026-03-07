@@ -32,13 +32,13 @@
 /* Indicator overlays — positioned absolutely in wrapper */
 .scroll-fade-indicator {
     position: absolute;
-    left: 0;
+    left: 14px;
     right: 0;
     z-index: 10;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    height: 32px;
+    height: 48px;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;

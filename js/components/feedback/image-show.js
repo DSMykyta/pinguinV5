@@ -24,7 +24,6 @@ export function initImageShow() {
 function onMouseOver(e) {
     const img = e.target.closest('img[show]');
     if (img) {
-        if (img.closest('.wizard-mode')) return;
         if (img === currentImg) return;
         clearTimers();
         currentImg = img;
