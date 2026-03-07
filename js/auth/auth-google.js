@@ -330,8 +330,6 @@ function handleModalOpened(event) {
   const usernameInput = bodyTarget.querySelector('#auth-username');
   const passwordInput = bodyTarget.querySelector('#auth-password');
   const loginButton = bodyTarget.querySelector('#auth-login-btn');
-  const loginError = bodyTarget.querySelector('#auth-login-error');
-  const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
   const avatarMessage = bodyTarget.querySelector('#auth-login-avatar-message');
 
   if (!loginForm) {
@@ -339,13 +337,12 @@ function handleModalOpened(event) {
     return;
   }
 
-  // Аватар та повідомлення рендеряться автоматично через ui-modal-avatars.js
-  // (див. MODAL_AVATAR_MAPPING в js/common/ui-modal-avatars.js)
+  // Зберігаємо оригінальний текст бульбашки
+  const originalMessage = avatarMessage?.textContent || '';
 
   // Очищаємо поля
   if (usernameInput) usernameInput.value = '';
   if (passwordInput) passwordInput.value = '';
-  if (loginError) loginError.classList.add('u-hidden');
 
   // Фокус на логін
   setTimeout(() => {
@@ -354,57 +351,28 @@ function handleModalOpened(event) {
     }
   }, 100);
 
-  // Submit форми
+  // Submit форми (валідація пустих полів — charm-required автоматично)
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const username = usernameInput?.value?.trim();
     const password = passwordInput?.value;
-
-    // Валідація
-    if (!username || !password) {
-      showLoginError('Будь ласка, введіть логін та пароль', loginError);
-      return;
-    }
+    if (!username || !password) return;
 
     // Показуємо індикатор завантаження
-    if (loginButton) {
-      loginButton.disabled = true;
-      const label = loginButton.querySelector('.label');
-      if (label) label.textContent = 'Вхід...';
-    }
-    if (loginError) loginError.classList.add('u-hidden');
+    if (loginButton) loginButton.disabled = true;
+    if (avatarMessage) avatarMessage.textContent = originalMessage;
 
     // Виконуємо вхід
     const result = await handleSignIn(username, password);
 
-    if (result.success) {
-      // UI оновиться автоматично через updateAuthUI
-      // Модал закриється в handleSignIn()
-    } else {
-      // Показуємо помилку
-      showLoginError(result.error || 'Невірний логін або пароль', loginError);
-
-      if (loginButton) {
-        loginButton.disabled = false;
-        const label = loginButton.querySelector('.label');
-        if (label) label.textContent = 'Увійти';
-      }
-
-      // Очищаємо пароль
+    if (!result.success) {
+      // Серверна помилка → speech-bubble
+      if (avatarMessage) avatarMessage.textContent = result.error || 'Невірний логін або пароль';
+      if (loginButton) loginButton.disabled = false;
       if (passwordInput) passwordInput.value = '';
     }
   });
-}
-
-/**
- * Показати помилку логіну
- */
-function showLoginError(message, loginError) {
-  if (loginError) {
-    loginError.textContent = message;
-    loginError.classList.remove('u-hidden');
-  }
 }
 
 /**
