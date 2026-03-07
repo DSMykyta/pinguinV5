@@ -38,6 +38,23 @@ function initRefreshHandlers() {
         });
     }
 
+    // Mode switch: Повний / Покроковий
+    const modeSwitch = document.getElementById('product-mode-switch');
+    if (modeSwitch) {
+        modeSwitch.addEventListener('change', async (e) => {
+            const container = e.target.closest('.modal-container');
+            if (!container) return;
+
+            const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
+
+            if (e.target.value === 'wizard') {
+                initWizard(container);
+            } else {
+                destroyWizard(container);
+            }
+        });
+    }
+
     // Modal-level refresh (product-edit)
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'product-edit') return;

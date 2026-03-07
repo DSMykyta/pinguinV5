@@ -1,0 +1,36 @@
+/**
+ * COMPONENT: Modal Wizard Mode
+ *
+ * Оверрайди для покрокового режиму fullscreen модалу.
+ * Ховає nav, aside. Секції slide-анімація через JS inline styles.
+ *
+ * ЗАЛЕЖНОСТІ:
+ * - modal.css (базова структура)
+ */
+
+/* ============================================
+   WIZARD MODE — hide nav, aside
+   ============================================ */
+
+.wizard-mode .nav.column,
+.wizard-mode .modal-aside {
+    display: none;
+}
+
+.wizard-mode .modal-body > main {
+    scroll-snap-type: none;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Секції — абсолютне позиціонування для slide */
+.wizard-mode .modal-body > main > section,
+.wizard-mode .modal-body > main > div > section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+}

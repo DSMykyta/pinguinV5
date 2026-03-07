@@ -72,6 +72,7 @@
 
 /* === COMPONENTS - OVERLAYS === */
 @import url('components/overlays/modal.css');
+@import url('components/overlays/modal-wizard.css');
 @import url('components/overlays/modal-avatar.css');
 @import url('components/overlays/modal-content.css');
 @import url('components/overlays/dropdown.css');
