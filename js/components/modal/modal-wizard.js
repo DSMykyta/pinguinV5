@@ -44,10 +44,10 @@ export function initWizard(container) {
     _originalCenter = _headerCenter?.innerHTML ?? '';
     _originalLeft = _headerLeft?.innerHTML ?? '';
 
-    // Зібрати секції
+    // Зібрати секції (пропустити hidden і порожні)
     _sections = Array.from(
         _main.querySelectorAll(':scope > section, :scope > div > section')
-    );
+    ).filter(sec => !sec.classList.contains('u-hidden') && sec.offsetParent !== null);
 
     if (_sections.length === 0) { console.warn('[Wizard] no sections'); return; }
 
@@ -170,11 +170,17 @@ function _updateUI() {
     if (label) label.textContent = `${_currentStep + 1} / ${_sections.length}`;
 
     // Footer buttons visibility
+    const isFirst = _currentStep === 0;
+    const isLast = _currentStep === _sections.length - 1;
+
     const prev = _footer?.querySelector('[data-wizard="prev"]');
-    if (prev) prev.style.visibility = _currentStep === 0 ? 'hidden' : '';
+    if (prev) prev.style.visibility = isFirst ? 'hidden' : '';
 
     const next = _footer?.querySelector('[data-wizard="next"]');
-    if (next) next.style.visibility = _currentStep === _sections.length - 1 ? 'hidden' : '';
+    if (next) next.classList.toggle('u-hidden', isLast);
+
+    const save = _footer?.querySelector('[data-wizard="save"]');
+    if (save) save.classList.toggle('u-hidden', !isLast);
 
     // Title — назва секції
     if (_headerLeft) {
@@ -207,10 +213,18 @@ function _buildFooter() {
         <button type="button" class="btn-icon touch c-main" data-wizard="next">
             <span class="material-symbols-outlined">arrow_forward</span>
         </button>
+        <button type="button" class="btn-icon touch c-main u-hidden" data-wizard="save">
+            <span class="material-symbols-outlined">check</span>
+        </button>
     `;
 
     _footer.querySelector('[data-wizard="prev"]').addEventListener('click', () => _showStep(_currentStep - 1));
     _footer.querySelector('[data-wizard="next"]').addEventListener('click', () => _showStep(_currentStep + 1));
+    _footer.querySelector('[data-wizard="save"]').addEventListener('click', () => {
+        // Клікаємо оригінальну кнопку save-close якщо є
+        const saveBtn = _container?.querySelector('[id$="save-close-product"], [id^="save-close"]');
+        if (saveBtn) saveBtn.click();
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
