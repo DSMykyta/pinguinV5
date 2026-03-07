@@ -269,7 +269,15 @@ registerAsideInitializer('aside-products', () => {
 
         if (item.id === 'btn-wizard-product-aside') {
             const { showAddProductModal } = await import('./products-crud.js');
-            showAddProductModal();
+            const { initWizard } = await import('../../components/modal/modal-wizard.js');
+            await showAddProductModal();
+            // Активувати wizard після відкриття модалу
+            const container = document.querySelector('#modal-product-edit .modal-container');
+            if (container) {
+                initWizard(container);
+                const radio = container.querySelector('#product-mode-wizard');
+                if (radio) radio.checked = true;
+            }
         } else if (item.id === 'btn-add-variant-aside') {
             // TODO: створити варіант
         } else if (item.id === 'btn-add-group-aside') {

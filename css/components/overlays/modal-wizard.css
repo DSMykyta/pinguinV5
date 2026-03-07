@@ -13,7 +13,14 @@
    ============================================ */
 
 .wizard-mode .nav.column,
-.wizard-mode .modal-aside {
+.wizard-mode .modal-aside,
+.wizard-mode .nav-toggle,
+.wizard-mode #product-status-switch {
+    display: none;
+}
+
+/* Footer: оригінальні кнопки delete/save ховаються */
+.wizard-mode .modal-footer > .btn-icon:not([data-wizard]) {
     display: none;
 }
 
