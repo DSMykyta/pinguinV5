@@ -1,33 +1,19 @@
 // js/pages/products/products-crud-variant-pending.js
 
 /**
- * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║        PRODUCTS CRUD — PENDING ВАРІАНТИ (ACCORDION)                     ║
- * ╚══════════════════════════════════════════════════════════════════════════╝
+ * PRODUCTS CRUD — PENDING ВАРІАНТИ (КАРТКИ)
  *
- * Система pending варіантів для нового товару (ще не збереженого).
- * Managed table з expandable рядками, inline save,
- * commit до БД після створення товару.
+ * Прості картки для створення варіантів нового товару.
+ * Кожна картка = характеристики блоку 8 (з батьком + уточненням).
+ * Ціна/вага/залишок — заповнюються потім через variant-edit модал.
+ *
+ * Commit до БД після створення товару.
  */
 
 import { addProductVariant } from './variants-data.js';
-import {
-    registerActionHandlers,
-    initActionHandlers,
-    actionButton
-} from '../../components/actions/actions-main.js';
-import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { initCustomSelects } from '../../components/forms/select.js';
-import {
-    buildExpandContent,
-    onVariantExpand,
-    readRowFormValues,
-    getVariantColumns,
-    renderPendingVariantCharacteristics,
-    parseSpecJson
-} from './products-crud-variant-chars.js';
-import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
+import { renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
+import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -35,8 +21,6 @@ import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName
 
 let _pendingVariants = [];
 let _pendingCounter = 0;
-let _pendingManagedTable = null;
-let _pendingActionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC API
@@ -49,15 +33,10 @@ export function addPendingVariant(data) {
     _pendingCounter++;
     _pendingVariants.push({
         _pendingId: `pending-${_pendingCounter}`,
-        article: data.article || '',
-        barcode: data.barcode || '',
-        price: data.price || '',
-        old_price: data.old_price || '',
-        weight: data.weight || '',
-        stock: data.stock || '',
-        name_ua: data.name_ua || '',
         status: data.status || 'active',
         variant_chars: data.variant_chars || {},
+        spec_ua: data.spec_ua || '',
+        spec_ru: data.spec_ru || '',
     });
 }
 
@@ -71,17 +50,7 @@ export function removePendingVariant(pendingId) {
     }
     syncAccordionFormToState();
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
-
-    if (_pendingManagedTable && _pendingVariants.length > 0) {
-        const productName = _getProductDisplayName();
-        _pendingManagedTable.updateData(_pendingVariants.map(pv => ({
-            ...pv,
-            product_name: productName,
-            variant_display: displayName(pv.name_ua) || '',
-        })));
-    } else {
-        renderPendingAccordion();
-    }
+    renderPendingAccordion();
 }
 
 /**
@@ -91,103 +60,84 @@ export function getPendingVariants() {
     return _pendingVariants;
 }
 
-/**
- * Синхронізувати дані з форм accordion → state
- */
-export function syncAccordionFormToState() {
-    const accordion = document.getElementById('product-variants-accordion');
-    if (!accordion) return;
-    for (const pv of _pendingVariants) {
-        const row = accordion.querySelector(`.pseudo-table-row[data-row-id="${pv._pendingId}"]`);
-        if (!row) continue;
-        _syncSingleRowToState(row, pv);
-    }
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
-// ACCORDION RENDERING (managed table + expandable)
+// RENDER — прості картки
 // ═══════════════════════════════════════════════════════════════════════════
 
-function _getProductDisplayName() {
-    const shortUa = document.getElementById('product-short-name-ua');
-    return shortUa?.value?.trim() || '';
-}
-
 /**
- * Рендерити pending accordion (managed table)
+ * Рендерити pending картки
  */
 export function renderPendingAccordion() {
     const accordion = document.getElementById('product-variants-accordion');
     const table = document.getElementById('product-variants-container');
     if (!accordion) return;
 
-    // Show accordion, hide table
     accordion.style.display = '';
     if (table) table.style.display = 'none';
 
-    const productName = _getProductDisplayName();
+    const canDelete = _pendingVariants.length > 1;
 
-    const tableData = _pendingVariants.map(pv => ({
-        ...pv,
-        product_name: productName,
-        variant_display: displayName(pv.name_ua) || '',
-    }));
+    let html = '<div class="content-bloc-container">';
+    _pendingVariants.forEach((pv, i) => {
+        html += `
+            <div class="content-bloc" data-pending-id="${pv._pendingId}">
+                <div class="content-line">
+                    <span class="body-s">Варіант ${i + 1}</span>
+                    ${canDelete
+                        ? `<button type="button" class="btn-icon ci-action" data-pending-delete="${pv._pendingId}" data-tooltip="Видалити" data-tooltip-always><span class="material-symbols-outlined">close</span></button>`
+                        : ''}
+                </div>
+                <div id="${pv._pendingId}-chars-container"></div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    accordion.innerHTML = html;
 
-    if (_pendingManagedTable) {
-        _pendingManagedTable.updateData(tableData);
-    } else {
-        _pendingManagedTable = createManagedTable({
-            container: 'product-variants-accordion',
-            columns: getVariantColumns(col).map(c => ({
-                ...c,
-                searchable: false,
-                checked: true,
-            })),
-            data: tableData,
-            tableConfig: {
-                rowActionsHeader: ' ',
-                rowActions: (row) => actionButton({ action: 'delete', rowId: row._pendingId }),
-                getRowId: (row) => row._pendingId,
-                emptyState: { message: 'Додайте варіант' },
-                withContainer: false,
-                onAfterRender: (cont) => {
-                    if (_pendingActionCleanup) _pendingActionCleanup();
-                    _pendingActionCleanup = initActionHandlers(cont, 'product-variants');
-                },
-                plugins: {
-                    expandable: {
-                        renderContent: (row) => buildExpandContent(row),
-                        onExpand: (rowEl, row) => onVariantExpand(rowEl, row),
-                        onSave: (rowEl, row) => _onPendingVariantSave(rowEl, row),
-                    }
-                }
-            },
-            pageSize: null,
-            checkboxPrefix: 'product-variants'
-        });
-    }
+    // Delete handlers
+    accordion.querySelectorAll('[data-pending-delete]').forEach(btn => {
+        btn.addEventListener('click', () => removePendingVariant(btn.dataset.pendingDelete));
+    });
 
-    // Auto-expand first row if only one variant
-    if (_pendingVariants.length === 1) {
-        const firstRow = accordion.querySelector('.pseudo-table-row');
-        const expandBtn = firstRow?.querySelector('[data-action="expand-edit"]');
-        if (expandBtn) expandBtn.click();
-    }
-
-    // Render characteristics for pending variants if category is selected
+    // Render characteristics (block 8)
     const categoryId = document.getElementById('product-category')?.value;
     if (categoryId) renderPendingVariantCharacteristics(categoryId, _pendingVariants);
 }
 
-function _onPendingVariantSave(rowEl, row) {
-    const pv = _pendingVariants.find(v => v._pendingId === row._pendingId);
-    if (pv) _syncSingleRowToState(rowEl, pv);
-    showToast('Дані варіанту збережено', 'info');
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC — зчитати дані з DOM → state
+// ═══════════════════════════════════════════════════════════════════════════
 
-function _syncSingleRowToState(row, pv) {
-    const formData = readRowFormValues(row);
-    Object.assign(pv, formData);
+/**
+ * Синхронізувати дані з карток → state
+ */
+export function syncAccordionFormToState() {
+    for (const pv of _pendingVariants) {
+        const container = document.getElementById(`${pv._pendingId}-chars-container`);
+        if (!container) continue;
+
+        // Variant chars
+        const chars = {};
+        container.querySelectorAll('select[data-vchar-id]').forEach(s => {
+            if (s.value) chars[s.dataset.vcharId] = s.value;
+        });
+        container.querySelectorAll('input[data-vchar-id]').forEach(i => {
+            if (i.dataset.vcharLang === 'ru') return;
+            if (i.value.trim()) chars[i.dataset.vcharId] = i.value.trim();
+        });
+        pv.variant_chars = chars;
+
+        // Specs (уточнення)
+        const specUa = {}, specRu = {};
+        container.querySelectorAll('input[data-spec-char-id]').forEach(i => {
+            const val = i.value.trim();
+            if (!val) return;
+            if (i.dataset.specLang === 'ua') specUa[i.dataset.specCharId] = val;
+            else if (i.dataset.specLang === 'ru') specRu[i.dataset.specCharId] = val;
+        });
+        pv.spec_ua = Object.keys(specUa).length ? JSON.stringify(specUa) : '';
+        pv.spec_ru = Object.keys(specRu).length ? JSON.stringify(specRu) : '';
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -196,16 +146,12 @@ function _syncSingleRowToState(row, pv) {
 
 /**
  * Зберегти pending варіанти до БД (після створення товару)
- * @param {string} productId
- * @param {Object} productData - дані товару (для status fallback)
- * @param {Function} populateProductVariants - callback для оновлення таблиці
  */
 export async function commitPendingVariantChanges(productId, productData, populateProductVariants) {
     syncAccordionFormToState();
     if (_pendingVariants.length === 0) return;
 
     for (const pv of _pendingVariants) {
-        // Resolve variant name from chars + per-char specs
         const resolved = resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
         const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
 
@@ -214,12 +160,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
             name_ua: resolved.ua,
             name_ru: resolved.ru,
             ...genNames,
-            article: pv.article || '',
-            barcode: pv.barcode || '',
-            price: pv.price || '',
-            old_price: pv.old_price || '',
-            weight: pv.weight || '',
-            stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},
             status: pv.status || productData?.status || 'active',
         });
@@ -228,17 +168,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
     _pendingVariants = [];
     _pendingCounter = 0;
 
-    // Destroy pending managed table
-    if (_pendingManagedTable) {
-        _pendingManagedTable.destroy?.();
-        _pendingManagedTable = null;
-    }
-    if (_pendingActionCleanup) {
-        _pendingActionCleanup();
-        _pendingActionCleanup = null;
-    }
-
-    // Hide accordion, show table
     const accordion = document.getElementById('product-variants-accordion');
     const table = document.getElementById('product-variants-container');
     if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
@@ -248,20 +177,11 @@ export async function commitPendingVariantChanges(productId, productData, popula
 }
 
 /**
- * Відкинути pending зміни (cleanup)
+ * Відкинути pending зміни
  */
 export function discardPendingVariantChanges() {
     _pendingVariants = [];
     _pendingCounter = 0;
-
-    if (_pendingManagedTable) {
-        _pendingManagedTable.destroy?.();
-        _pendingManagedTable = null;
-    }
-    if (_pendingActionCleanup) {
-        _pendingActionCleanup();
-        _pendingActionCleanup = null;
-    }
 
     const accordion = document.getElementById('product-variants-accordion');
     if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }

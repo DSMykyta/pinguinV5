@@ -34,7 +34,7 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 // Sub-modules
 import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
 import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
-import { addPendingVariant, removePendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
+import { addPendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 
 // Re-exports for backward compat (used by products-crud.js)
 export { commitPendingVariantChanges, discardPendingVariantChanges, populateProductVariants };
@@ -98,14 +98,7 @@ export function initVariantsSection(getProductIdFn) {
 
 registerActionHandlers('product-variants', {
     edit: (rowId) => showEditVariantModal(rowId),
-    delete: (rowId) => {
-        // Pending варіант — видалити з пам'яті
-        if (String(rowId).startsWith('pending-')) {
-            removePendingVariant(rowId);
-            return;
-        }
-        handleDeleteVariant(rowId);
-    },
+    delete: (rowId) => handleDeleteVariant(rowId),
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
