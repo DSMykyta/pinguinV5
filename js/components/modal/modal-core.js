@@ -70,7 +70,7 @@ export async function showModal(modalId, triggerElement = null) {
         document.body.appendChild(modalElement);
 
         // Закриття при кліку на overlay (не для fullscreen)
-        if (!modalElement.classList.contains('modal-fullscreen')) {
+        if (!modalElement.classList.contains('modal-full')) {
             modalElement.addEventListener('click', (e) => {
                 if (e.target === modalElement) closeModal(modalId);
             });
@@ -169,7 +169,7 @@ export function initModalCore() {
 
         // Закриття через [data-modal-close] або .modal-close-btn
         const closeTrigger = e.target.closest('[data-modal-close], .modal-close-btn');
-        if (closeTrigger && closeTrigger.closest('.modal-container, .modal-fullscreen-container')) {
+        if (closeTrigger && closeTrigger.closest('.modal-container')) {
             e.preventDefault();
             closeModal();
         }

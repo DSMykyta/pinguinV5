@@ -81,7 +81,7 @@ function initRefreshHandlers() {
     document.addEventListener('modal-opened', (e) => {
         const loader = modalLoaders[e.detail.modalId];
         if (!loader) return;
-        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        const container = e.detail.modalElement?.querySelector('.modal-container');
         if (!container || container._mapperRefreshInit) return;
         container._mapperRefreshInit = true;
         container.addEventListener('charm:refresh', (ev) => {

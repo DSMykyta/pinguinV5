@@ -1126,7 +1126,7 @@ export async function showSelectOwnCharacteristicModal(selectedIds) {
     // Інакше показуємо модалку вибору цілі
     const modalHtml = `
         <div class="modal-overlay">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної характеристики</h2>
                     <div class="group">
@@ -1236,7 +1236,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
 
     const modalHtml = `
         <div class="modal-overlay">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>
                     <div class="group">
@@ -1468,7 +1468,7 @@ export async function showViewMpCharacteristicModal(mpCharIdOrData) {
 
     const modalHtml = `
         <div class="modal-overlay">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Характеристика маркетплейсу</h2>
                     <div class="group">
@@ -1599,7 +1599,7 @@ export async function showViewMpOptionModal(mpOptionIdOrData) {
 
     const modalHtml = `
         <div class="modal-overlay">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Опція маркетплейсу</h2>
                     <div class="group">
@@ -1857,7 +1857,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
 
     const modalHtml = `
         <div class="modal-overlay open">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Категорія маркетплейсу</h2>
                     <div class="group">

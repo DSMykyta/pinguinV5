@@ -14,7 +14,7 @@
  * ║  <section refresh>                                — кнопка + event      ║
  * ║  <section refresh data-aside-template="id">      — + aside auto        ║
  * ║  <div class="pseudo-table-container" refresh>     — для таблиць         ║
- * ║  <div class="modal-fullscreen-container" refresh> — модалі              ║
+ * ║  <div class="modal-container" refresh> — модалі                        ║
  * ║                                                                          ║
  * ║  EVENT:                                                                  ║
  * ║  charm:refresh — на елементі, detail.waitUntil(promise)                 ║
@@ -142,13 +142,13 @@ async function handleRefreshClick(btn, el) {
 
 /**
  * Знайти .group для елемента.
- * Case A: modal container → .modal-fullscreen-actions-footer
+ * Case A: modal container → .modal-top
  * Case B: <section>       → .section-header > .group (ВНИЗ)
  * Case C: container       → .section-header > .group (ВГОРУ)
  */
 export function findToolbarGroup(el) {
     // Case A: modal container → actions footer (right panel)
-    const actionsFooter = el.querySelector(':scope > .modal-fullscreen-actions > .modal-fullscreen-actions-footer');
+    const actionsFooter = el.querySelector(':scope > .modal-body > .modal-aside > .modal-top');
     if (actionsFooter) return actionsFooter;
 
     // Case B: section — шукати ВНИЗ

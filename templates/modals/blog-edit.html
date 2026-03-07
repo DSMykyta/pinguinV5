@@ -1,48 +1,17 @@
-<div class="modal-overlay modal-fullscreen" data-modal-id="blog-edit">
-    <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+<div class="modal-overlay modal-full" data-modal-id="blog-edit">
+    <div class="modal-container" refresh>
 
-        <!-- NAVIGATION -->
-        <nav class="nav column" id="blog-section-navigator">
-            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always
-                aria-label="Розгорнути меню">
+        <!-- HEADER BAR -->
+        <div class="modal-header">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Меню" data-tooltip-always aria-label="Меню">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <div class="nav-main">
-                <a href="#section-blog-info" class="btn-icon expand active" aria-label="Основне">
-                    <span class="material-symbols-outlined">info</span>
-                    <span class="btn-icon-label">Основне</span>
-                </a>
-                <a href="#section-blog-content" class="btn-icon expand" aria-label="Контент">
-                    <span class="material-symbols-outlined">article</span>
-                    <span class="btn-icon-label">Контент</span>
-                </a>
-                <a href="#section-blog-urls" class="btn-icon expand" aria-label="URL">
-                    <span class="material-symbols-outlined">link</span>
-                    <span class="btn-icon-label">URL</span>
-                </a>
-                <a href="#section-blog-about" class="btn-icon expand" aria-label="Інформація">
-                    <span class="material-symbols-outlined">info_i</span>
-                    <span class="btn-icon-label">Інформація</span>
-                </a>
+            <div class="modal-left">
+                <h1 id="blog-modal-title">Новий пост</h1>
+                <span class="tag c-yellow" id="blog-status-badge"></span>
             </div>
-
-            <div class="nav-footer">
-                <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-blog"
-                    aria-label="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-            </div>
-        </nav>
-
-        <!-- HEADER -->
-        <header class="modal-fullscreen-header">
-            <div class="modal-fullscreen-header-left">
-                <div class="modal-fullscreen-title">
-                    <h1 id="blog-modal-title">Новий пост</h1>
-                    <span class="tag c-yellow" id="blog-status-badge"></span>
-                </div>
-            </div>
-            <div class="group">
+            <div class="modal-center"></div>
+            <div class="modal-right">
                 <div class="switch switch-fit" id="blog-status-switch">
                     <input type="radio" id="blog-status-active" name="blog-status" value="active" checked>
                     <label for="blog-status-active" class="switch-label">Активний</label>
@@ -52,11 +21,37 @@
                     <label for="blog-status-hidden" class="switch-label">Прихований</label>
                 </div>
             </div>
-        </header>
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always
+                title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
 
-        <!-- CONTENT -->
-        <div class="modal-body-with-sidebar">
-            <main class="modal-fullscreen-content">
+        <!-- BODY ROW -->
+        <div class="modal-body">
+            <!-- NAVIGATION -->
+            <nav class="nav column" id="blog-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-blog-info" class="btn-icon expand active" aria-label="Основне">
+                        <span class="material-symbols-outlined">info</span>
+                        <span class="btn-icon-label">Основне</span>
+                    </a>
+                    <a href="#section-blog-content" class="btn-icon expand" aria-label="Контент">
+                        <span class="material-symbols-outlined">article</span>
+                        <span class="btn-icon-label">Контент</span>
+                    </a>
+                    <a href="#section-blog-urls" class="btn-icon expand" aria-label="URL">
+                        <span class="material-symbols-outlined">link</span>
+                        <span class="btn-icon-label">URL</span>
+                    </a>
+                    <a href="#section-blog-about" class="btn-icon expand" aria-label="Інформація">
+                        <span class="material-symbols-outlined">info_i</span>
+                        <span class="btn-icon-label">Інформація</span>
+                    </a>
+                </div>
+
+            </nav>
+            <main>
 
                 <input type="hidden" id="blog-id">
 
@@ -282,22 +277,29 @@
                 </section>
 
             </main>
+
+            <!-- ASIDE -->
+            <div class="modal-aside">
+                <div class="modal-top"></div>
+                <div class="modal-btm">
+                    <button class="btn-icon" id="btn-save-blog" data-tooltip="Зберегти" data-tooltip-always aria-label="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- ACTIONS -->
-        <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always
-                title="Закрити">
-                <span class="material-symbols-outlined">close</span>
+        <!-- FOOTER BAR -->
+        <div class="modal-footer">
+            <button type="button" class="btn-icon touch danger u-hidden" id="btn-delete-blog" data-tooltip="Видалити" data-tooltip-always aria-label="Видалити">
+                <span class="material-symbols-outlined">delete</span>
             </button>
-            <div class="modal-fullscreen-actions-footer">
-                <button class="btn-icon" id="btn-save-blog" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-blog" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
-            </div>
+            <div class="modal-left"></div>
+            <div class="modal-center"></div>
+            <div class="modal-right"></div>
+            <button class="btn-icon touch c-main" id="save-close-blog" data-tooltip="Зберегти і закрити" data-tooltip-always aria-label="Зберегти і закрити">
+                <span class="material-symbols-outlined">check</span>
+            </button>
         </div>
 
     </div>

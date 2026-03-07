@@ -58,7 +58,7 @@ function initRefreshHandlers() {
     // тому вішаємо listener через modal-opened event
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'brand-edit') return;
-        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        const container = e.detail.modalElement?.querySelector('.modal-container');
         if (!container || container._brandsRefreshInit) return;
         container._brandsRefreshInit = true;
         container.addEventListener('charm:refresh', (ev) => {

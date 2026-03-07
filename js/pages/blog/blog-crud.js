@@ -148,7 +148,7 @@ function initSaveHandler() {
 
 function initSectionNavigation() {
     const nav = document.getElementById('blog-section-navigator');
-    const content = document.querySelector('#modal-blog-edit .modal-fullscreen-content');
+    const content = document.querySelector('#modal-blog-edit .modal-body > main');
     if (nav && content) initSectionNav(nav, content);
 }
 

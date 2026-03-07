@@ -61,7 +61,12 @@ function initNavToggle() {
         const toggle = e.target.closest('.nav-toggle');
         if (!toggle) return;
 
-        const nav = toggle.closest('.nav.column');
+        let nav = toggle.closest('.nav.column');
+        if (!nav) {
+            // nav-toggle в modal-header — знайти nav в modal-body
+            const container = toggle.closest('.modal-container');
+            if (container) nav = container.querySelector('.modal-body > .nav.column');
+        }
         if (!nav) return;
 
         nav.classList.toggle('expanded');

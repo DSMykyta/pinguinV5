@@ -1,28 +1,25 @@
 /**
- * COMPONENT: Modal Base
+ * COMPONENT: Modal
  *
- * ПРИЗНАЧЕННЯ:
- * Базова структура модальних вікон - overlay, container, header, body, footer.
+ * СТРУКТУРА (однакова для всіх розмірів):
  *
- * ВИКОРИСТАННЯ:
- * <div class="modal-overlay" data-modal-id="example">
- *   <div class="modal-container modal-medium">
- *     <header class="modal-header">
- *       <h2>Заголовок</h2>
- *       <div class="modal-header-actions">...</div>
- *     </header>
- *     <div class="modal-body">...</div>
- *   </div>
- * </div>
+ * .modal-overlay.modal-full
+ *   .modal-container
+ *     .modal-header
+ *       [btn-icon] [.modal-left] [.modal-center] [.modal-right] [btn-icon]
+ *     .modal-body
+ *       nav.column                                  ← навігація по секціях
+ *       main                                        ← секції, скрол
+ *       .modal-aside
+ *         .modal-top
+ *         .modal-btm
+ *     .modal-footer
+ *       [btn-icon] [.modal-left] [.modal-center] [.modal-right] [btn-icon]
  *
- * ЗАЛЕЖНОСТІ:
- * - root.css (CSS змінні)
- *
- * ПОВ'ЯЗАНІ ФАЙЛИ:
- * - modal-sizes.css (розміри: small, medium, large)
- * - modal-fullscreen.css (повноекранні модалі)
- * - modal-avatar.css (модалі з аватарами)
- * - modal-content.css (специфічний контент)
+ * РОЗМІРИ (на .modal-overlay):
+ *   .modal-small  — 400px
+ *   .modal-medium — 60vw
+ *   .modal-full   — 95vw × 95dvh
  */
 
 /* ============================================
@@ -34,7 +31,7 @@ body.modal-open {
 }
 
 /* ============================================
-   MODAL OVERLAY
+   OVERLAY
    ============================================ */
 
 .modal-overlay {
@@ -47,9 +44,7 @@ body.modal-open {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-
-    /* Анімація появи */
+    z-index: var(--z-modal, 1000);
     opacity: 0;
     visibility: hidden;
     backdrop-filter: blur(0px);
@@ -66,48 +61,230 @@ body.modal-open {
 }
 
 /* ============================================
-   MODAL CONTAINER
+   CONTAINER — flex column: header / body / footer
    ============================================ */
 
 .modal-container {
-    background-color: var(--color-surface-c-low);
+    background: var(--color-surface);
     border-radius: var(--radius-l);
     box-shadow: var(--shadow-2);
-    width: 70vw;
-    max-height: 90dvh;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
     transform: scale(0.95);
     transition: transform 0.2s ease;
-    overflow: visible;
+
+    display: flex;
+    flex-direction: column;
+
+    /* default size */
+    width: 60vw;
+    max-width: 90vw;
+    max-height: 90dvh;
 }
 
 .modal-overlay.open .modal-container {
     transform: scale(1);
 }
 
-/* Legacy: старий контейнер */
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-height: 90dvh;
-}
-
 /* ============================================
-   MODAL HEADER
+   NAV COLUMN — навігація по секціях модалу
+   Той самий компонент nav.column, скинутий position
    ============================================ */
 
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-m) var(--space-l);
-    border-bottom: 1px solid var(--color-outline);
+.modal-body > .nav.column {
+    position: relative;
+    top: auto;
+    left: auto;
+    height: auto;
+    padding: 8px 14px;
+    z-index: auto;
     flex-shrink: 0;
 }
 
-/* Заголовок з іконкою */
+/* ============================================
+   HEADER / FOOTER — universal bar
+   [btn-icon] [.modal-left] [.modal-center] [.modal-right] [btn-icon]
+   ============================================ */
+
+.modal-header,
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.modal-footer:empty {
+    display: none;
+}
+
+/* Slots */
+.modal-left,
+.modal-right,
+.modal-center {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+
+.modal-center {
+    justify-content: center;
+}
+
+.modal-right {
+    justify-content: flex-end;
+}
+
+/* Пусті слоти в header — ховати, в footer — залишити для розпірки */
+.modal-header > .modal-left:empty,
+.modal-header > .modal-center:empty,
+.modal-header > .modal-right:empty {
+    display: none;
+}
+
+/* Title */
+.modal-header h1,
+.modal-footer h1 {
+    margin: 0;
+    color: var(--color-on-surface);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================
+   BODY — flex row: [nav] [main] [aside]
+   ============================================ */
+
+.modal-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+    justify-content: center;
+}
+
+/* Main — scrollable content */
+.modal-body > main {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+}
+
+/* ============================================
+   ASIDE — right column
+   ============================================ */
+
+.modal-aside {
+    width: var(--panel-width-collapsed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    flex-shrink: 0;
+}
+
+.modal-aside:empty {
+    display: none;
+}
+
+.modal-top {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-btm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ============================================
+   SECTIONS inside main (scroll-snap)
+   ============================================ */
+
+.modal-body > main > div {
+    display: contents;
+}
+
+.modal-body > main section {
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    scroll-snap-align: start;
+}
+
+.modal-body > main section .section-header {
+    flex: 0 0 auto;
+    padding-bottom: 16px;
+}
+
+.modal-body > main section .section-content,
+.modal-body > main section .pseudo-table-container {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    min-height: 0;
+    margin: 0;
+}
+
+.modal-body > main section .section-content.section-content-full-height {
+    overflow: hidden;
+}
+
+.modal-body > main section .footer {
+    padding: 8px 0;
+}
+
+/* Section navigator (legacy) */
+.modal-container .section-navigator:not(.nav) {
+    position: sticky;
+    top: 8px;
+    z-index: 200;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    display: flex;
+    gap: 12px;
+    padding: 6px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-2);
+    margin: 0 auto;
+}
+
+/* ============================================
+   FORM INPUTS
+   ============================================ */
+
+.modal-overlay input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.modal-overlay input[type="number"]::-webkit-outer-spin-button,
+.modal-overlay input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.modal-overlay .group.column textarea {
+    min-height: 80px;
+    max-height: none;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+/* ============================================
+   LEGACY — старі модалі (modal-header з border)
+   Працює поки малі модалі не переведені на нову структуру
+   ============================================ */
+
 .modal-title-container {
     display: flex;
     align-items: center;
@@ -119,62 +296,23 @@ body.modal-open {
     color: var(--color-main);
 }
 
-/* Приховані джерела заголовку (для динамічного контенту) */
 .modal-title-source,
 .modal-header-actions-source {
     display: none !important;
 }
 
-/* ============================================
-   MODAL HEADER ACTIONS
-   ============================================ */
-
-
-
-/* ============================================
-   MODAL BODY
-   ============================================ */
-
-.modal-body {
-    padding: var(--space-l);
-    overflow-y: auto;
-    overflow-x: visible;
-    flex-grow: 1;
-}
-
-/* ============================================
-   MODAL FOOTER
-   ============================================ */
-
-.modal-footer {
+.modal-content {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-    padding: var(--space-l);
-    padding-top: var(--space-m);
-    flex-shrink: 0;
+    flex-direction: column;
+    width: 100%;
+    max-height: 90dvh;
 }
-
-.modal-footer:empty {
-    display: none;
-}
-
-/* Центровані кнопки для confirm-модалів */
-.modal-footer.modal-footer-confirm {
-    justify-content: center;
-}
-
-/* ============================================
-   MODAL FORM
-   ============================================ */
 
 .modal-form {
     display: flex;
     flex-direction: column;
 }
 
-/* Textarea в модалі */
 .modal-textarea {
     width: 100%;
     min-height: 120px;
@@ -191,4 +329,24 @@ body.modal-open {
     border-color: var(--color-main);
 }
 
+.modal-footer-confirm {
+    justify-content: center;
+}
 
+/* ============================================
+   SIZES
+   ============================================ */
+
+.modal-container.modal-small {
+    width: 400px;
+    max-width: 90vw;
+    max-height: none;
+}
+
+.modal-full .modal-container {
+    width: 95vw;
+    max-width: none;
+    height: 95dvh;
+    max-height: 95dvh;
+    border-radius: 28px;
+}

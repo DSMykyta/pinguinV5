@@ -744,7 +744,7 @@ export async function showViewMpCategoryModal(mpCatIdOrData) {
 
 function renderMappedMpCategoriesSections(ownCatId) {
     const nav = document.getElementById('category-section-navigator');
-    const content = nav?.closest('.modal-fullscreen-container')?.querySelector('.modal-fullscreen-content');
+    const content = nav?.closest('.modal-container')?.querySelector('.modal-body > main');
     if (!nav || !content) return;
 
     nav.querySelectorAll('.btn-icon.expand.touch.mp-nav-item').forEach(el => el.remove());

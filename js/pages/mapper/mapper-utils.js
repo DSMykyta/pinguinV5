@@ -20,8 +20,8 @@ import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
 export function initSectionNavigation(navId) {
     const nav = document.getElementById(navId);
     if (!nav) return;
-    const modalContainer = nav.closest('.modal-fullscreen-container');
-    const content = modalContainer?.querySelector('.modal-fullscreen-content');
+    const modalContainer = nav.closest('.modal-container');
+    const content = modalContainer?.querySelector('.modal-body > main');
     initSectionNav(nav, content);
 }
 
@@ -122,7 +122,7 @@ export function buildMpViewModal({ title, mpName, externalId, jsonData, mappedTo
 
     return `
         <div class="modal-overlay open">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">${escapeHtml(title)}</h2>
                     <div class="group">

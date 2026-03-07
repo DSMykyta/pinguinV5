@@ -18,7 +18,7 @@ export function initKeywordsEvents() {
     // тому вішаємо listener через modal-opened event
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'keywords-edit') return;
-        const modal = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        const modal = e.detail.modalElement?.querySelector('.modal-container');
         if (!modal || modal._keywordsRefreshInit) return;
         modal._keywordsRefreshInit = true;
         modal.addEventListener('charm:refresh', (ev) => {

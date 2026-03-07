@@ -187,7 +187,7 @@ function initSaveHandler() {
  */
 function initSectionNavigation() {
     const nav = document.getElementById('brand-section-navigator');
-    const contentArea = document.querySelector('.modal-fullscreen-content');
+    const contentArea = document.querySelector('.modal-body > main');
     initSectionNav(nav, contentArea);
 }
 

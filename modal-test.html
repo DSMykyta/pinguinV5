@@ -711,6 +711,473 @@
 
         </div>
 
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- МАКЕТИ FULLSCREEN МОДАЛІВ -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <hr class="group-divider">
+        <h3 class="group-title">
+            <span class="material-symbols-outlined">dashboard</span>
+            Макети Fullscreen Modal
+        </h3>
+        <p class="group-subtitle">Статичні макети для редизайну — Standard та Wizard mode</p>
+
+        <style>
+            /* ── Mockup wrapper ── */
+            .mockup-wrapper {
+                position: relative;
+                width: 100%;
+                aspect-ratio: 16 / 10;
+                background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+                border-radius: 20px;
+                border: 1px solid var(--color-outline-v);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 32px;
+                overflow: hidden;
+            }
+
+            .mockup-label {
+                position: absolute;
+                top: 12px;
+                left: 16px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--color-on-surface-v);
+                background: var(--color-surface-container);
+                padding: 4px 10px;
+                border-radius: 6px;
+                z-index: 10;
+            }
+
+            /* ── Modal container ── */
+            .mockup-modal {
+                width: 95%;
+                height: 92%;
+                background: var(--color-surface);
+                border-radius: 28px;
+                box-shadow: var(--shadow-2);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            /* ══ BAR (header & footer share same layout) ══
+               [btn] [left] [center] [right] [btn]
+               6px padding = btn centers align with nav/aside btn centers */
+            .mockup-bar {
+                display: flex;
+                align-items: center;
+                padding: 6px;
+                flex-shrink: 0;
+                gap: 8px;
+            }
+
+            .mockup-bar-left,
+            .mockup-bar-right {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .mockup-bar-center {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mockup-bar-left { justify-content: flex-start; }
+            .mockup-bar-right { justify-content: flex-end; }
+
+            .mockup-bar h1 {
+                margin: 0;
+                font-size: 18px;
+                color: var(--color-on-surface);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .mockup-bar .body-s {
+                color: var(--color-on-surface-v);
+                white-space: nowrap;
+            }
+
+            /* ══ BODY: [nav] [content] [aside] ══ */
+            .mockup-body {
+                flex: 1;
+                display: flex;
+                overflow: hidden;
+            }
+
+            .mockup-nav,
+            .mockup-aside {
+                width: 56px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 6px;
+                gap: 2px;
+                overflow-y: auto;
+            }
+
+            .mockup-aside { gap: 4px; }
+            .mockup-spacer { flex: 1; }
+
+            .mockup-content {
+                flex: 1;
+                overflow-y: auto;
+                min-width: 0;
+            }
+
+            /* ══ Buttons (same 44px everywhere) ══ */
+            .mockup-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                cursor: default;
+                color: var(--color-on-surface-v);
+                flex-shrink: 0;
+            }
+
+            .mockup-btn.primary {
+                color: var(--color-primary);
+                background: var(--color-primary-container);
+            }
+
+            .mockup-btn.danger { color: var(--color-error); }
+
+            .mockup-btn.active {
+                background: var(--color-primary-container);
+                color: var(--color-primary);
+            }
+
+            /* ══ Switches ══ */
+            .mockup-switch {
+                display: flex;
+                background: var(--color-surface-container);
+                border-radius: 99px;
+                padding: 3px;
+                font-size: 11px;
+                flex-shrink: 0;
+            }
+
+            .mockup-switch span {
+                padding: 4px 10px;
+                border-radius: 99px;
+                color: var(--color-on-surface-v);
+            }
+
+            .mockup-switch span.active {
+                background: var(--color-primary);
+                color: var(--color-on-primary);
+            }
+
+            /* ══ Dots ══ */
+            .mockup-dots {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .mockup-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                border: 2px solid var(--color-outline-v);
+            }
+
+            .mockup-dot.visited { background: var(--color-success); border-color: var(--color-success); }
+            .mockup-dot.current { background: var(--color-primary); border-color: var(--color-primary); }
+            .mockup-dot.error { background: var(--color-error); border-color: var(--color-error); }
+
+            /* ══ Section content ══ */
+            .mockup-section {
+                height: 100%;
+                min-height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .mockup-section-header {
+                padding: 16px 20px 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-shrink: 0;
+            }
+
+            .mockup-section-header h2 {
+                margin: 0;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--color-on-surface);
+            }
+
+            .mockup-section-header span {
+                font-size: 12px;
+                color: var(--color-on-surface-v);
+            }
+
+            .mockup-section-body {
+                flex: 1;
+                padding: 12px 20px 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                overflow-y: auto;
+            }
+
+            /* Fake fields */
+            .mockup-field { display: flex; flex-direction: column; gap: 4px; }
+            .mockup-field-label { font-size: 11px; color: var(--color-on-surface-v); }
+            .mockup-field-input {
+                height: 36px;
+                border-radius: 8px;
+                background: var(--color-surface-container);
+            }
+            .mockup-field-row { display: flex; gap: 8px; }
+            .mockup-field-row .mockup-field { flex: 1; }
+
+            /* ══ Wizard hidden ══ */
+            .mockup-hidden {
+                opacity: 0.12;
+                pointer-events: none;
+            }
+        </style>
+
+        <div style="padding: 0 24px;">
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- МАКЕТ 1: STANDARD MODE -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="mockup-wrapper">
+                <span class="mockup-label">Standard Mode</span>
+
+                <div class="mockup-modal">
+
+                    <!-- ── HEADER BAR ── -->
+                    <div class="mockup-bar">
+                        <div class="mockup-btn">
+                            <span class="material-symbols-outlined">menu</span>
+                        </div>
+                        <div class="mockup-bar-left">
+                            <h1>Новий товар</h1>
+                            <span class="tag c-yellow">draft</span>
+                            <span class="body-s">SKU-001234</span>
+                        </div>
+                        <div class="mockup-bar-center"></div>
+                        <div class="mockup-bar-right">
+                            <div class="mockup-switch">
+                                <span class="active">Чернетка</span>
+                                <span>Активний</span>
+                                <span>Архів</span>
+                            </div>
+                        </div>
+                        <div class="mockup-btn">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </div>
+
+                    <!-- ── BODY ── -->
+                    <div class="mockup-body">
+                        <div class="mockup-nav">
+                            <div class="mockup-btn active">
+                                <span class="material-symbols-outlined">info</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">photo_library</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">style</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">code</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">notes</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">article</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">travel_explore</span>
+                            </div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">info_i</span>
+                            </div>
+                        </div>
+
+                        <div class="mockup-content">
+                            <div class="mockup-section">
+                                <div class="mockup-section-header">
+                                    <h2>Основне</h2>
+                                    <span>Основні дані про товар</span>
+                                </div>
+                                <div class="mockup-section-body">
+                                    <div class="mockup-field-row">
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Категорія</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Текст перед назвою</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-field-row">
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Бренд</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Лінійка</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-field-row">
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Назва UA</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Назва RU</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mockup-field-row">
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Ознака UA</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                        <div class="mockup-field">
+                                            <span class="mockup-field-label">Деталь UA</span>
+                                            <div class="mockup-field-input"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mockup-aside">
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">refresh</span>
+                            </div>
+                            <div class="mockup-spacer"></div>
+                            <div class="mockup-btn">
+                                <span class="material-symbols-outlined">save</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── FOOTER BAR ── -->
+                    <div class="mockup-bar">
+                        <div class="mockup-btn danger">
+                            <span class="material-symbols-outlined">delete</span>
+                        </div>
+                        <div class="mockup-bar-left"></div>
+                        <div class="mockup-bar-center"></div>
+                        <div class="mockup-bar-right"></div>
+                        <div class="mockup-btn primary">
+                            <span class="material-symbols-outlined">check</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- МАКЕТ 2: WIZARD MODE -->
+            <!-- ══════════════════════════════════════════ -->
+            <div class="mockup-wrapper">
+                <span class="mockup-label">Wizard Mode</span>
+
+                <div class="mockup-modal">
+
+                    <!-- ── HEADER BAR ── -->
+                    <div class="mockup-bar">
+                        <div class="mockup-btn mockup-hidden">
+                            <span class="material-symbols-outlined">menu</span>
+                        </div>
+                        <div class="mockup-bar-left">
+                            <h1>Новий товар</h1>
+                            <span class="tag c-yellow">draft</span>
+                        </div>
+                        <div class="mockup-bar-center">
+                            <div class="mockup-dots">
+                                <div class="mockup-dot visited"></div>
+                                <div class="mockup-dot visited"></div>
+                                <div class="mockup-dot current"></div>
+                                <div class="mockup-dot error"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                                <div class="mockup-dot"></div>
+                            </div>
+                        </div>
+                        <div class="mockup-bar-right"></div>
+                        <div class="mockup-btn">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </div>
+
+                    <!-- ── BODY ── -->
+                    <div class="mockup-body">
+                        <div class="mockup-content">
+                            <div class="mockup-section">
+                                <div class="mockup-section-header">
+                                    <h2>Варіанти товару</h2>
+                                    <span>Крок 3 з 8</span>
+                                </div>
+                                <div class="mockup-section-body">
+                                    <div class="mockup-field">
+                                        <span class="mockup-field-label">Варіант 1</span>
+                                        <div class="mockup-field-input"></div>
+                                    </div>
+                                    <div class="mockup-field">
+                                        <span class="mockup-field-label">Варіант 2</span>
+                                        <div class="mockup-field-input"></div>
+                                    </div>
+                                    <div class="mockup-field">
+                                        <span class="mockup-field-label">Варіант 3</span>
+                                        <div class="mockup-field-input"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── FOOTER BAR ── -->
+                    <div class="mockup-bar">
+                        <div class="mockup-btn">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                        </div>
+                        <div class="mockup-bar-left"></div>
+                        <div class="mockup-bar-center">
+                            <span class="body-s">3 / 8</span>
+                        </div>
+                        <div class="mockup-bar-right"></div>
+                        <div class="mockup-btn primary">
+                            <span class="material-symbols-outlined">arrow_forward</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
         <div style="height: 48px;"></div>
 
         <!-- FOOTER -->

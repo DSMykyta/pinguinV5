@@ -491,7 +491,7 @@ function populateRelatedChildOptions(optionId) {
 
 function renderMappedMpOptionsSections(ownOptionId) {
     const nav = document.getElementById('option-section-navigator');
-    const content = nav?.closest('.modal-fullscreen-container')?.querySelector('.modal-fullscreen-content');
+    const content = nav?.closest('.modal-container')?.querySelector('.modal-body > main');
     if (!nav || !content) return;
 
     nav.querySelectorAll('.btn-icon.expand.touch.mp-nav-item').forEach(el => el.remove());
@@ -704,7 +704,7 @@ export async function showSelectOwnOptionModal(selectedIds) {
 
     const modalHtml = `
         <div class="modal-overlay open">
-            <div class="modal-container modal-medium">
+            <div class="modal-container">
                 <div class="modal-header">
                     <h2 class="modal-title">Замапити до власної опції</h2>
                     <div class="group">

@@ -41,7 +41,7 @@ function initRefreshHandlers() {
     // Modal-level refresh (product-edit)
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'product-edit') return;
-        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        const container = e.detail.modalElement?.querySelector('.modal-container');
         if (!container || container._productsRefreshInit) return;
         container._productsRefreshInit = true;
         container.addEventListener('charm:refresh', (ev) => {
@@ -60,7 +60,7 @@ function initRefreshHandlers() {
     // Modal-level refresh (variant-edit)
     document.addEventListener('modal-opened', (e) => {
         if (e.detail.modalId !== 'variant-edit') return;
-        const container = e.detail.modalElement?.querySelector('.modal-fullscreen-container');
+        const container = e.detail.modalElement?.querySelector('.modal-container');
         if (!container || container._variantRefreshInit) return;
         container._variantRefreshInit = true;
         container.addEventListener('charm:refresh', (ev) => {

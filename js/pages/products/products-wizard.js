@@ -49,7 +49,7 @@ function _activateWizardMode() {
     _currentStep = 0;
     _visited = new Set();
 
-    const container = document.querySelector('.modal-fullscreen-container');
+    const container = document.querySelector('.modal-container');
     if (!container) return;
 
     container.classList.add('wizard-mode');
@@ -84,7 +84,7 @@ function _activateWizardMode() {
 function _createDots() {
     _dotsContainer?.remove();
 
-    const header = document.querySelector('.wizard-mode .modal-fullscreen-header');
+    const header = document.querySelector('.wizard-mode .modal-header');
     if (!header) return;
 
     _dotsContainer = document.createElement('div');
@@ -162,7 +162,7 @@ function _createWizardFooter(container) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function _collectSections() {
-    const content = document.querySelector('.modal-fullscreen-content');
+    const content = document.querySelector('.modal-body > main');
     if (!content) { _sections = []; return; }
 
     _sections = Array.from(content.querySelectorAll(':scope > section, :scope > div > section'));
@@ -265,7 +265,7 @@ function _deactivate() {
         _categoryChangeObserver = null;
     }
 
-    const container = document.querySelector('.modal-fullscreen-container');
+    const container = document.querySelector('.modal-container');
     if (container) container.classList.remove('wizard-mode');
 
     // Видалити wizard UI

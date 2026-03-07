@@ -490,7 +490,7 @@ async function initModalSelects() {
  * Скинути скрол модалу на початок та активувати першу секцію
  */
 function resetModalScroll() {
-    const contentArea = document.querySelector('.modal-fullscreen-content');
+    const contentArea = document.querySelector('.modal-body > main');
     if (contentArea) {
         contentArea.scrollTop = 0;
     }
@@ -510,6 +510,6 @@ function resetModalScroll() {
  */
 function initSectionNavigation() {
     const nav = document.getElementById('keyword-section-navigator');
-    const contentArea = document.querySelector('.modal-fullscreen-content');
+    const contentArea = document.querySelector('.modal-body > main');
     initSectionNav(nav, contentArea);
 }

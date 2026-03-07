@@ -102,7 +102,7 @@ function createModal() {
     modal.className = 'modal-overlay';
 
     modal.innerHTML = `
-        <div class="modal-container modal-medium">
+        <div class="modal-container">
             <!-- Header -->
             <div class="modal-header">
                 <h2 class="modal-title"><span id="edit-modal-title">Товар</span></h2>

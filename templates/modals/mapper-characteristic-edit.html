@@ -1,38 +1,17 @@
-<div class="modal-overlay modal-fullscreen" data-modal-id="mapper-characteristic-edit">
-    <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+<div class="modal-overlay modal-full" data-modal-id="mapper-characteristic-edit">
+    <div class="modal-container" refresh>
 
-        <!-- SIDEBAR NAVIGATOR -->
-        <nav class="nav column" id="char-section-navigator">
-            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+        <!-- HEADER BAR -->
+        <div class="modal-header">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Меню" data-tooltip-always aria-label="Меню">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <div class="nav-main">
-                <a href="#section-char-main" class="btn-icon expand active" aria-label="Основні дані">
-                    <span class="material-symbols-outlined">edit</span>
-                    <span class="btn-icon-label">Основні дані</span>
-                </a>
-                <a href="#section-char-options" class="btn-icon expand" aria-label="Опції">
-                    <span class="material-symbols-outlined">circle</span>
-                    <span class="btn-icon-label">Опції</span>
-                </a>
-                <!-- Секції маркетплейсів додаються динамічно через JS -->
+            <div class="modal-left">
+                <h1 id="char-modal-title">Характеристика</h1>
+                <span class="dot c-red" id="char-global-dot" title="Категорійна"></span>
             </div>
-            <div class="nav-footer">
-                <button type="button" class="btn-icon touch danger u-hidden" id="delete-mapper-characteristic" aria-label="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-            </div>
-        </nav>
-
-        <!-- HEADER -->
-        <header class="modal-fullscreen-header">
-            <div class="modal-fullscreen-header-left">
-                <div class="modal-fullscreen-title">
-                    <h1 id="char-modal-title">Характеристика</h1>
-                    <span class="dot c-red" id="char-global-dot" title="Категорійна"></span>
-                </div>
-            </div>
-            <div class="group">
+            <div class="modal-center"></div>
+            <div class="modal-right">
                 <div class="switch switch-fit" id="mapper-char-global-switch">
                     <input type="radio" id="mapper-char-global-no" name="mapper-char-global" value="false" checked>
                     <label for="mapper-char-global-no" class="switch-label">Категорійна</label>
@@ -40,11 +19,28 @@
                     <label for="mapper-char-global-yes" class="switch-label">Глобальна</label>
                 </div>
             </div>
-        </header>
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
 
-        <!-- КОНТЕНТ -->
-        <div class="modal-body-with-sidebar">
-            <main class="modal-fullscreen-content">
+        <!-- BODY ROW -->
+        <div class="modal-body">
+            <!-- SIDEBAR NAVIGATOR -->
+            <nav class="nav column" id="char-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-char-main" class="btn-icon expand active" aria-label="Основні дані">
+                        <span class="material-symbols-outlined">edit</span>
+                        <span class="btn-icon-label">Основні дані</span>
+                    </a>
+                    <a href="#section-char-options" class="btn-icon expand" aria-label="Опції">
+                        <span class="material-symbols-outlined">circle</span>
+                        <span class="btn-icon-label">Опції</span>
+                    </a>
+                    <!-- Секції маркетплейсів додаються динамічно через JS -->
+                </div>
+            </nav>
+            <main>
 
                 <!-- СЕКЦІЯ: ОСНОВНІ ДАНІ -->
                 <section id="section-char-main" >
@@ -205,21 +201,30 @@
                 <!-- СЕКЦІЇ МАРКЕТПЛЕЙСІВ додаються динамічно через JS -->
 
             </main>
-        </div>
 
-        <!-- ПАНЕЛЬ ДІЙ -->
-        <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <div class="modal-fullscreen-actions-footer">
-                <button class="btn-icon" id="save-mapper-characteristic" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-mapper-characteristic" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
+            <!-- ASIDE -->
+            <div class="modal-aside">
+                <div class="modal-top"></div>
+                <div class="modal-btm">
+                    <button class="btn-icon" id="save-mapper-characteristic" data-tooltip="Зберегти" data-tooltip-always aria-label="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                </div>
             </div>
         </div>
+
+        <!-- FOOTER BAR -->
+        <div class="modal-footer">
+            <button type="button" class="btn-icon touch danger u-hidden" id="delete-mapper-characteristic" data-tooltip="Видалити" data-tooltip-always aria-label="Видалити">
+                <span class="material-symbols-outlined">delete</span>
+            </button>
+            <div class="modal-left"></div>
+            <div class="modal-center"></div>
+            <div class="modal-right"></div>
+            <button class="btn-icon touch c-main" id="save-close-mapper-characteristic" data-tooltip="Зберегти і закрити" data-tooltip-always aria-label="Зберегти і закрити">
+                <span class="material-symbols-outlined">check</span>
+            </button>
+        </div>
+
     </div>
 </div>

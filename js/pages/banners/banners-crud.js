@@ -143,7 +143,7 @@ function initSaveHandler() {
 
 function initSectionNavigation() {
     const nav = document.getElementById('banner-section-navigator');
-    const content = document.querySelector('#modal-banner-edit .modal-fullscreen-content');
+    const content = document.querySelector('#modal-banner-edit .modal-body > main');
     if (nav && content) initSectionNav(nav, content);
 }
 

@@ -459,7 +459,7 @@ function getVariantFormData() {
 
 function initSectionNavigation() {
     const nav = document.getElementById('variant-section-navigator');
-    const contentArea = document.querySelector('.modal-fullscreen-content');
+    const contentArea = document.querySelector('.modal-body > main');
     initSectionNav(nav, contentArea);
 }
 

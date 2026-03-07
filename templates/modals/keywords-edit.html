@@ -1,44 +1,41 @@
-<div class="modal-overlay modal-fullscreen" data-modal-id="keywords-edit">
-    <div class="modal-fullscreen-container modal-with-sidebar" refresh>
+<div class="modal-overlay modal-full" data-modal-id="keywords-edit">
+    <div class="modal-container" refresh>
 
-        <!-- НАВІГАЦІЯ -->
-        <nav class="nav column" id="keyword-section-navigator">
-            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Розгорнути меню" data-tooltip-always aria-label="Розгорнути меню">
+        <!-- HEADER BAR -->
+        <div class="modal-header">
+            <button type="button" class="btn-icon touch nav-toggle" data-tooltip="Меню" data-tooltip-always aria-label="Меню">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <div class="nav-main">
-                <a href="#section-keyword-main" class="btn-icon expand active" aria-label="Основні дані">
-                    <span class="material-symbols-outlined">tune</span>
-                    <span class="btn-icon-label">Основні дані</span>
-                </a>
-                <a href="#section-keyword-keywords" class="btn-icon expand" aria-label="Ключові слова">
-                    <span class="material-symbols-outlined">label</span>
-                    <span class="btn-icon-label">Ключові слова</span>
-                </a>
-                <a href="#section-keyword-glossary" class="btn-icon expand" aria-label="Глосарій">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    <span class="btn-icon-label">Глосарій</span>
-                </a>
+            <div class="modal-left">
+                <h1 id="keyword-modal-title">Ключове слово</h1>
             </div>
-            <div class="nav-footer">
-                <button type="button" class="btn-icon touch danger u-hidden" id="delete-keyword" aria-label="Видалити">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-            </div>
-        </nav>
+            <div class="modal-center"></div>
+            <div class="modal-right"></div>
+            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
 
-        <!-- HEADER -->
-        <header class="modal-fullscreen-header">
-            <div class="modal-fullscreen-header-left">
-                <div class="modal-fullscreen-title">
-                    <h1 id="keyword-modal-title">Ключове слово</h1>
+        <!-- BODY ROW -->
+        <div class="modal-body">
+            <!-- НАВІГАЦІЯ -->
+            <nav class="nav column" id="keyword-section-navigator">
+                <div class="nav-main">
+                    <a href="#section-keyword-main" class="btn-icon expand active" aria-label="Основні дані">
+                        <span class="material-symbols-outlined">tune</span>
+                        <span class="btn-icon-label">Основні дані</span>
+                    </a>
+                    <a href="#section-keyword-keywords" class="btn-icon expand" aria-label="Ключові слова">
+                        <span class="material-symbols-outlined">label</span>
+                        <span class="btn-icon-label">Ключові слова</span>
+                    </a>
+                    <a href="#section-keyword-glossary" class="btn-icon expand" aria-label="Глосарій">
+                        <span class="material-symbols-outlined">menu_book</span>
+                        <span class="btn-icon-label">Глосарій</span>
+                    </a>
                 </div>
-            </div>
-        </header>
-
-        <!-- КОНТЕНТ -->
-        <div class="modal-body-with-sidebar">
-            <main class="modal-fullscreen-content">
+            </nav>
+            <main>
 
                 <!-- Hidden fields -->
                 <input type="hidden" id="keyword-local-id">
@@ -221,21 +218,29 @@
                 </section>
 
             </main>
+
+            <!-- ASIDE -->
+            <div class="modal-aside">
+                <div class="modal-top"></div>
+                <div class="modal-btm">
+                    <button class="btn-icon" id="save-keyword" data-tooltip="Зберегти" data-tooltip-always aria-label="Зберегти">
+                        <span class="material-symbols-outlined">save</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- ПАНЕЛЬ ДІЙ -->
-        <div class="modal-fullscreen-actions">
-            <button class="btn-icon touch c-secondary" data-modal-close data-tooltip="Закрити" data-tooltip-always title="Закрити">
-                <span class="material-symbols-outlined">close</span>
+        <!-- FOOTER BAR -->
+        <div class="modal-footer">
+            <button type="button" class="btn-icon touch danger u-hidden" id="delete-keyword" data-tooltip="Видалити" data-tooltip-always aria-label="Видалити">
+                <span class="material-symbols-outlined">delete</span>
             </button>
-            <div class="modal-fullscreen-actions-footer">
-                <button class="btn-icon" id="save-keyword" title="Зберегти">
-                    <span class="material-symbols-outlined">save</span>
-                </button>
-                <button class="btn-icon touch c-main" id="save-close-keyword" title="Зберегти і закрити">
-                    <span class="material-symbols-outlined">check</span>
-                </button>
-            </div>
+            <div class="modal-left"></div>
+            <div class="modal-center"></div>
+            <div class="modal-right"></div>
+            <button class="btn-icon touch c-main" id="save-close-keyword" data-tooltip="Зберегти і закрити" data-tooltip-always aria-label="Зберегти і закрити">
+                <span class="material-symbols-outlined">check</span>
+            </button>
         </div>
 
     </div>
