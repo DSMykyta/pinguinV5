@@ -59,7 +59,7 @@ export async function showAddProductModal() {
     await showModal('product-edit', null);
 
     const title = document.getElementById('product-modal-title');
-    if (title) title.textContent = 'Новий товар';
+    if (title) { title.textContent = 'Новий товар'; title.title = 'Новий товар'; }
 
     const deleteBtn = document.getElementById('btn-delete-product');
     if (deleteBtn) deleteBtn.classList.add('u-hidden');
@@ -88,7 +88,11 @@ export async function showEditProductModal(productId) {
     await showModal('product-edit', null);
 
     const title = document.getElementById('product-modal-title');
-    if (title) title.textContent = `Редагувати ${product.generated_short_ua || product.name_ua}`;
+    if (title) {
+        const text = `Редагувати ${product.generated_short_ua || product.name_ua}`;
+        title.textContent = text;
+        title.title = text;
+    }
 
     const deleteBtn = document.getElementById('btn-delete-product');
     if (deleteBtn) {

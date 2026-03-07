@@ -61,12 +61,16 @@ function initRefreshHandlers() {
         }
 
         // ── Auto-activate wizard якщо прапорець стоїть ──
+        const modeSwitch2 = overlay?.querySelector('#product-mode-switch');
         if (window._pendingWizardMode && container) {
             window._pendingWizardMode = false;
+            if (modeSwitch2) modeSwitch2.classList.remove('u-hidden');
             const { initWizard } = await import('../../components/modal/modal-wizard.js');
             initWizard(container);
             const radio = overlay.querySelector('#product-mode-wizard');
             if (radio) radio.checked = true;
+        } else {
+            if (modeSwitch2) modeSwitch2.classList.add('u-hidden');
         }
         if (!container || container._productsRefreshInit) return;
         container._productsRefreshInit = true;

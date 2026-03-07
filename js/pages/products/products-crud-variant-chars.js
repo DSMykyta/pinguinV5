@@ -279,7 +279,7 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
         }
     }
 
-    // Companion spec field — уточнення (тільки для Select/ComboBox/List, не для текстових і не для батьківських)
+    // Companion spec fields — уточнення (тільки для Select/ComboBox/List, не для текстових і не для батьківських)
     const isTextType = ['TextInput', 'TextArea'].includes(char.type);
     const isParentChar = parentChildMap && [...parentChildMap.values()].includes(char.id);
 
@@ -288,33 +288,31 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
     const specUaVal = specUaObj[char.id] || '';
     const specRuVal = specRuObj[char.id] || '';
 
-    const companionHtml = (isTextType || isParentChar) ? '' : `
-        <div class="group column col-4" data-spec-for="${char.id}">
-            <label class="label-l">Уточнення ${label}</label>
-            <div class="content-bloc-container">
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ua"
-                                value="${escapeHtml(specUaVal)}"
-                                placeholder="Уточнення українською">
-                            <span class="tag c-secondary">UA</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ru"
-                                value="${escapeHtml(specRuVal)}"
-                                placeholder="Уточнення російською">
-                            <span class="tag c-secondary">RU</span>
-                        </div>
+    // Spec всередині того ж col-блоку (вертикально під характеристикою)
+    const specHtml = (isTextType || isParentChar) ? '' : `
+        <div class="content-bloc-container" data-spec-for="${char.id}">
+            <div class="content-bloc">
+                <div class="content-line">
+                    <div class="input-box">
+                        <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ua"
+                            value="${escapeHtml(specUaVal)}"
+                            placeholder="Уточнення українською">
+                        <span class="tag c-secondary">UA</span>
                     </div>
                 </div>
             </div>
-            <label class="label-s">Якщо порожнє — використовується обрана опція</label>
+            <div class="content-bloc">
+                <div class="content-line">
+                    <div class="input-box">
+                        <input type="text" data-spec-char-id="${char.id}" data-spec-lang="ru"
+                            value="${escapeHtml(specRuVal)}"
+                            placeholder="Уточнення російською">
+                        <span class="tag c-secondary">RU</span>
+                    </div>
+                </div>
+            </div>
         </div>
+        <label class="label-s">Якщо порожнє — використовується обрана опція</label>
     `;
 
     return `
@@ -322,8 +320,8 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
             <label for="${id}" class="label-l">${label}</label>
             ${fieldHtml}
             ${hint}
+            ${specHtml}
         </div>
-        ${companionHtml}
     `;
 }
 
@@ -392,30 +390,10 @@ export function buildVariantFieldsHTML(pid, pv) {
             </div></div></div>
         </div>
         <div class="group column col-4">
-            <label for="${pid}-barcode" class="label-l">Штрихкод</label>
-            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
-            </div></div></div>
-        </div>
-        <div class="group column col-4">
             <label for="${pid}-price" class="label-l">Ціна</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="0.01" id="${pid}-price" data-field="price" placeholder="0.00" value="${escapeHtml(pv.price || '')}">
                 <span class="tag c-tertiary">UAH</span>
-            </div></div></div>
-        </div>
-        <div class="group column col-4">
-            <label for="${pid}-old_price" class="label-l">Стара ціна</label>
-            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="number" step="0.01" id="${pid}-old_price" data-field="old_price" placeholder="0.00" value="${escapeHtml(pv.old_price || '')}">
-                <span class="tag c-tertiary">UAH</span>
-            </div></div></div>
-        </div>
-        <div class="group column col-4">
-            <label for="${pid}-weight" class="label-l">Вага</label>
-            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="text" id="${pid}-weight" data-field="weight" placeholder="Вага" value="${escapeHtml(pv.weight || '')}">
-                <span class="tag c-tertiary">г</span>
             </div></div></div>
         </div>
         <div class="group column col-4">
