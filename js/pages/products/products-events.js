@@ -38,28 +38,36 @@ function initRefreshHandlers() {
         });
     }
 
-    // Modal-level refresh (product-edit)
-    document.addEventListener('modal-opened', (e) => {
+    // Modal-level: product-edit
+    document.addEventListener('modal-opened', async (e) => {
         if (e.detail.modalId !== 'product-edit') return;
+        const overlay = e.detail.modalElement;
+        const container = overlay?.querySelector('.modal-container');
 
-        // Mode switch: Повний / Покроковий
-        const modeSwitch = e.detail.modalElement?.querySelector('#product-mode-switch');
+        // ── Wizard mode switch ──
+        const modeSwitch = overlay?.querySelector('#product-mode-switch');
         if (modeSwitch && !modeSwitch._wizardInit) {
             modeSwitch._wizardInit = true;
             modeSwitch.addEventListener('change', async (ev) => {
-                const container = ev.target.closest('.modal-container');
-                if (!container) return;
-
+                const c = ev.target.closest('.modal-container');
+                if (!c) return;
                 const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
-
                 if (ev.target.value === 'wizard') {
-                    initWizard(container);
+                    initWizard(c);
                 } else {
-                    destroyWizard(container);
+                    destroyWizard(c);
                 }
             });
         }
-        const container = e.detail.modalElement?.querySelector('.modal-container');
+
+        // ── Auto-activate wizard якщо прапорець стоїть ──
+        if (window._pendingWizardMode && container) {
+            window._pendingWizardMode = false;
+            const { initWizard } = await import('../../components/modal/modal-wizard.js');
+            initWizard(container);
+            const radio = overlay.querySelector('#product-mode-wizard');
+            if (radio) radio.checked = true;
+        }
         if (!container || container._productsRefreshInit) return;
         container._productsRefreshInit = true;
         container.addEventListener('charm:refresh', (ev) => {
@@ -73,6 +81,16 @@ function initRefreshHandlers() {
                 showToast('Дані оновлено', 'success');
             })());
         });
+    });
+
+    // Destroy wizard on modal close
+    document.addEventListener('modal-closed', async (e) => {
+        if (e.detail.modalId !== 'product-edit') return;
+        const container = e.detail.modalElement?.querySelector('.modal-container');
+        if (container?.classList.contains('wizard-mode')) {
+            const { destroyWizard } = await import('../../components/modal/modal-wizard.js');
+            destroyWizard(container);
+        }
     });
 
     // Modal-level refresh (variant-edit)
