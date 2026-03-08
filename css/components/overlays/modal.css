@@ -149,6 +149,7 @@ body.modal-open {
 .modal-header h1,
 .modal-footer h1 {
     margin: 0;
+    padding-left: 12px;
     color: var(--color-on-surface);
     overflow: hidden;
     text-overflow: ellipsis;

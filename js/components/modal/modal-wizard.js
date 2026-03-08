@@ -63,6 +63,37 @@ export function initWizard(container) {
     console.log(`[Wizard] activated, ${_sections.length} sections`);
 }
 
+/**
+ * Перебудувати список секцій (після динамічного рендеру характеристик)
+ * Зберігає поточний крок якщо можливо.
+ */
+export function refreshWizard() {
+    if (!_active || !_main) return;
+
+    // Скинути inline styles зі старих секцій
+    _sections.forEach(sec => {
+        sec.style.cssText = '';
+        sec.classList.remove('u-hidden');
+        const header = sec.querySelector('.section-header');
+        if (header) header.style.display = '';
+    });
+
+    // Перезібрати секції (як в initWizard — видимі, не hidden)
+    _sections = Array.from(
+        _main.querySelectorAll(':scope > section, :scope > div > section')
+    ).filter(sec => !sec.classList.contains('u-hidden') && sec.offsetParent !== null);
+
+    if (_sections.length === 0) return;
+
+    // Зберегти крок у межах
+    if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
+
+    _buildDots();
+    _showStep(_currentStep);
+
+    console.log(`[Wizard] refreshed, ${_sections.length} sections`);
+}
+
 export function destroyWizard(container) {
     if (!_active) return;
     _active = false;

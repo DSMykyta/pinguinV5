@@ -24,7 +24,7 @@
  * ║  ├── products-crud-variant-names.js — Резолвінг назв варіантів           ║
  * ║  ├── products-crud-variant-chars.js — Характеристики варіанту (блок 8)   ║
  * ║  ├── products-crud-variant-pending.js — Pending варіанти (accordion)     ║
- * ║  ├── products-crud-photos.js        — Фото товару (до 10, Google Drive)  ║
+ * ║  ├── products-crud-wizard.js        — Wizard mode для модалу товару     ║
  * ║  ├── products-crud-photos.js        — Фото товару (до 10, Google Drive)  ║
  * ║  ├── products-crud-variant-weight.js — Вага варіанту                     ║
  * ║  ├── products-delete.js             — Delete товару (confirm + API)      ║
@@ -60,6 +60,7 @@ const PLUGINS = [
     './variants-events.js',
     './groups-table.js',
     './groups-crud.js',
+    './products-crud-wizard.js',
     './products-crud-variant-weight.js',
     './products-crud-article.js',
     './products-plugin-brand-status.js',
@@ -270,8 +271,8 @@ registerAsideInitializer('aside-products', () => {
 
         if (item.id === 'btn-wizard-product-aside') {
             const { showAddProductModal } = await import('./products-crud.js');
-            // Поставити прапорець що наступний модал — wizard
-            window._pendingWizardMode = true;
+            const { setPendingWizardMode } = await import('./products-crud-wizard.js');
+            setPendingWizardMode();
             await showAddProductModal();
         } else if (item.id === 'btn-add-variant-aside') {
             // TODO: створити варіант
