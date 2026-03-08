@@ -112,6 +112,13 @@ export async function showEditProductModal(productId) {
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
         await updateCharacteristicsNav(blocks);
         initSectionNavigation();
+
+        // Оновити wizard якщо активний
+        const wc = document.querySelector('#product-edit .modal-container');
+        if (wc?.classList.contains('wizard-mode')) {
+            const { refreshWizard } = await import('../../components/modal/modal-wizard.js');
+            refreshWizard();
+        }
     } catch { /* ignore if not loaded */ }
 
     // Завантажити варіанти
@@ -252,6 +259,13 @@ function initCategoryChangeHandler() {
             const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
             await updateCharacteristicsNav(blocks);
             initSectionNavigation();
+
+            // Оновити wizard якщо активний
+            const wc = document.querySelector('#product-edit .modal-container');
+            if (wc?.classList.contains('wizard-mode')) {
+                const { refreshWizard } = await import('../../components/modal/modal-wizard.js');
+                refreshWizard();
+            }
 
             const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
             runAutofillAfterRender();
