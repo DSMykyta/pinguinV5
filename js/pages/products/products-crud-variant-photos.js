@@ -106,63 +106,25 @@ export function initVariantPhotoSection() {
             if (!isNaN(index)) removePhoto(index);
         });
 
-        initDragReorder(grid);
+        // Sortable.js для drag reorder
+        if (typeof Sortable !== 'undefined') {
+            new Sortable(grid, {
+                handle: '.btn-icon.drag',
+                animation: 150,
+                onEnd: () => {
+                    const newOrder = [];
+                    grid.querySelectorAll('[data-photo-index]').forEach((el, i) => {
+                        newOrder.push(_photoUrls[parseInt(el.dataset.photoIndex)]);
+                    });
+                    _photoUrls.length = 0;
+                    _photoUrls.push(...newOrder);
+                    syncHiddenField();
+                    renderPhotoGrid();
+                    updateMainPreview();
+                }
+            });
+        }
     }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// DRAG REORDER
-// ═══════════════════════════════════════════════════════════════════════════
-
-function initDragReorder(grid) {
-    let draggedIndex = null;
-
-    grid.addEventListener('dragstart', (e) => {
-        const bloc = e.target.closest('.content-bloc[data-photo-index]');
-        if (!bloc) return;
-        draggedIndex = parseInt(bloc.dataset.photoIndex);
-        bloc.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-    });
-
-    grid.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        const bloc = e.target.closest('.content-bloc[data-photo-index]');
-        if (!bloc) return;
-
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target'));
-        bloc.classList.add('drag-target');
-    });
-
-    grid.addEventListener('dragleave', (e) => {
-        const bloc = e.target.closest('.content-bloc[data-photo-index]');
-        if (bloc) bloc.classList.remove('drag-target');
-    });
-
-    grid.addEventListener('drop', (e) => {
-        e.preventDefault();
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target', 'dragging'));
-
-        const bloc = e.target.closest('.content-bloc[data-photo-index]');
-        if (!bloc || draggedIndex === null) return;
-
-        const targetIndex = parseInt(bloc.dataset.photoIndex);
-        if (draggedIndex === targetIndex) return;
-
-        const [moved] = _photoUrls.splice(draggedIndex, 1);
-        _photoUrls.splice(targetIndex, 0, moved);
-
-        syncHiddenField();
-        renderPhotoGrid();
-        updateMainPreview();
-        draggedIndex = null;
-    });
-
-    grid.addEventListener('dragend', () => {
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('dragging', 'drag-target'));
-        draggedIndex = null;
-    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

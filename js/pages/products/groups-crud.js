@@ -154,7 +154,7 @@ function renderGroupProductsList() {
         const name = p ? escapeHtml(p.generated_short_ua || p.name_ua || id) : escapeHtml(id);
 
         return `
-            <div class="content-bloc" draggable="true" data-group-product-id="${escapeHtml(id)}" data-group-index="${index}">
+            <div class="content-bloc" data-group-product-id="${escapeHtml(id)}" data-group-index="${index}">
                 <div class="content-line main">
                     <button class="btn-icon ghost drag" tabindex="-1">
                         <span class="material-symbols-outlined">expand_all</span>
@@ -181,62 +181,21 @@ function renderGroupProductsList() {
         };
     });
 
-    // Init drag reorder
-    initDragReorder(container);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// DRAG REORDER
-// ═══════════════════════════════════════════════════════════════════════════
-
-function initDragReorder(grid) {
-    let draggedIndex = null;
-
-    grid.addEventListener('dragstart', (e) => {
-        const bloc = e.target.closest('.content-bloc[data-group-index]');
-        if (!bloc) return;
-        draggedIndex = parseInt(bloc.dataset.groupIndex);
-        bloc.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-    });
-
-    grid.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        const bloc = e.target.closest('.content-bloc[data-group-index]');
-        if (!bloc) return;
-
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target'));
-        bloc.classList.add('drag-target');
-    });
-
-    grid.addEventListener('dragleave', (e) => {
-        const bloc = e.target.closest('.content-bloc[data-group-index]');
-        if (bloc) bloc.classList.remove('drag-target');
-    });
-
-    grid.addEventListener('drop', (e) => {
-        e.preventDefault();
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target', 'dragging'));
-
-        const bloc = e.target.closest('.content-bloc[data-group-index]');
-        if (!bloc || draggedIndex === null) return;
-
-        const targetIndex = parseInt(bloc.dataset.groupIndex);
-        if (draggedIndex === targetIndex) return;
-
-        // Переміщуємо елемент в масиві
-        const [moved] = _groupProductIds.splice(draggedIndex, 1);
-        _groupProductIds.splice(targetIndex, 0, moved);
-
-        renderGroupProductsList();
-        draggedIndex = null;
-    });
-
-    grid.addEventListener('dragend', () => {
-        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('dragging', 'drag-target'));
-        draggedIndex = null;
-    });
+    // Sortable.js для drag reorder (handle: .btn-icon.drag)
+    if (typeof Sortable !== 'undefined') {
+        new Sortable(container, {
+            handle: '.btn-icon.drag',
+            animation: 150,
+            onEnd: () => {
+                // Синхронізуємо масив з DOM-порядком
+                const newOrder = [];
+                container.querySelectorAll('[data-group-product-id]').forEach(el => {
+                    newOrder.push(el.dataset.groupProductId);
+                });
+                _groupProductIds = newOrder;
+            }
+        });
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
