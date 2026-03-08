@@ -34,9 +34,9 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 // Sub-modules
 import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
 import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
-import { addPendingVariant, renderPendingAccordion, syncAccordionFormToState, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
+import { addPendingVariant, updatePendingVariant, getPendingVariantById, renderPendingList, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 
-// Re-exports for backward compat (used by products-crud.js)
+// Re-exports (used by products-crud.js)
 export { commitPendingVariantChanges, discardPendingVariantChanges, populateProductVariants };
 export { renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 
@@ -46,6 +46,10 @@ export { renderPendingVariantCharacteristics } from './products-crud-variant-cha
 
 let _getCurrentProductId = null;
 let _currentVariantId = null;
+
+// Pending mode (new product, variants not yet saved)
+let _pendingMode = false;
+let _pendingEditId = null;
 
 // Managed table (existing variants)
 let _variantsManagedTable = null;
@@ -75,20 +79,28 @@ export function initVariantsSection(getProductIdFn) {
         addBtn.onclick = () => {
             const productId = _getCurrentProductId?.();
             if (!productId) {
-                // Новий товар: зберегти дані з форм → додати → перерендерити
-                syncAccordionFormToState();
-                addPendingVariant({ status: 'active' });
-                renderPendingAccordion();
+                showPendingVariantModal(null);
             } else {
                 showAddVariantModal();
             }
         };
     }
 
+    // Event delegation for pending variant edit clicks
+    const accordion = document.getElementById('product-variants-accordion');
+    if (accordion) {
+        accordion.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('[data-pending-edit]');
+            if (editBtn) {
+                showPendingVariantModal(editBtn.dataset.pendingEdit);
+            }
+        });
+    }
+
     // Новий товар → створити 1 дефолтний pending варіант
     if (!getProductIdFn()) {
         addPendingVariant({ status: 'active' });
-        renderPendingAccordion();
+        renderPendingList();
     }
 }
 
@@ -234,20 +246,15 @@ function _renderVariantFooterLeft(row) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Показати модал додавання варіанту
+ * Показати модал додавання варіанту (існуючий товар)
  */
 async function showAddVariantModal() {
     const productId = _getCurrentProductId?.();
-
-    // Якщо товар ще не збережений — додати pending варіант
-    if (!productId) {
-        syncAccordionFormToState();
-        addPendingVariant({ status: 'active' });
-        renderPendingAccordion();
-        return;
-    }
+    if (!productId) return;
 
     _currentVariantId = null;
+    _pendingMode = false;
+    _pendingEditId = null;
 
     await showModal('variant-edit', null);
 
@@ -262,6 +269,40 @@ async function showAddVariantModal() {
     if (productIdField) productIdField.value = productId;
 
     await renderVariantCharacteristics(productId, {}, {});
+    initVariantSaveHandler();
+    initSectionNavigation();
+}
+
+/**
+ * Показати модал для pending варіанту (новий товар)
+ * @param {string|null} pendingId — null = новий, інакше = редагування
+ */
+async function showPendingVariantModal(pendingId) {
+    _pendingMode = true;
+    _pendingEditId = pendingId;
+    _currentVariantId = null;
+
+    await showModal('variant-edit', null);
+
+    const title = document.getElementById('variant-modal-title');
+    const existing = pendingId ? getPendingVariantById(pendingId) : null;
+
+    if (title) title.textContent = existing ? 'Редагувати варіант' : 'Новий варіант';
+
+    clearVariantForm();
+    clearVariantPhotos();
+    initVariantEditors();
+    initVariantPhotoSection();
+
+    // Fill form if editing existing pending variant
+    if (existing) {
+        fillVariantForm(existing);
+    }
+
+    // categoryIdOverride from product form
+    const categoryId = document.getElementById('product-category')?.value || '';
+    await renderVariantCharacteristics(null, existing?.variant_chars || {}, existing || {}, categoryId);
+
     initVariantSaveHandler();
     initSectionNavigation();
 }
@@ -470,16 +511,33 @@ function initVariantSaveHandler() {
 
 async function handleSaveVariant(shouldClose = true) {
     let formData = getVariantFormData();
-    
+
     // Пропускаємо через фільтри (плагін ваги перехопить і запише char-000022)
     formData = applyFilter('onBeforeVariantSave', formData);
-
-    const productId = formData.product_id;
 
     // Авто-генерація name_ua/name_ru: resolveVariantName вже враховує per-char spec
     const autoName = resolveVariantName();
     formData.name_ua = autoName.ua;
     formData.name_ru = autoName.ru;
+
+    // ── Pending mode: зберегти в пам'ять, не в API ──
+    if (_pendingMode) {
+        if (_pendingEditId) {
+            updatePendingVariant(_pendingEditId, formData);
+            showToast('Варіант оновлено', 'success');
+        } else {
+            addPendingVariant(formData);
+            showToast('Варіант додано', 'success');
+        }
+        renderPendingList();
+        if (shouldClose) closeModal();
+        _pendingMode = false;
+        _pendingEditId = null;
+        return;
+    }
+
+    // ── Normal mode: API ──
+    const productId = formData.product_id;
 
     // Обчислити згенеровані назви (додаємо formData.weight як 4-й параметр)
     const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.weight);
@@ -551,6 +609,8 @@ async function handleDeleteVariant(variantId) {
  */
 export function cleanupVariantState() {
     _currentVariantId = null;
+    _pendingMode = false;
+    _pendingEditId = null;
 
     destroyVariantEditors();
     clearVariantPhotos();

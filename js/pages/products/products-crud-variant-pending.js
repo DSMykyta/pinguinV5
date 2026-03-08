@@ -1,18 +1,17 @@
 // js/pages/products/products-crud-variant-pending.js
 
 /**
- * PRODUCTS CRUD — PENDING ВАРІАНТИ (КАРТКИ)
+ * PRODUCTS CRUD — PENDING ВАРІАНТИ
  *
- * Прості картки для створення варіантів нового товару.
- * Кожна картка = характеристики блоку 8 (з батьком + уточненням).
- * Ціна/вага/залишок — заповнюються потім через variant-edit модал.
- *
- * Commit до БД після створення товару.
+ * Дані + простий список для варіантів нового (ще не збереженого) товару.
+ * Редагування — через стандартний variant-edit модал.
+ * При створенні товару автоматично створюється 1 дефолтний варіант.
+ * Видалити останній варіант не можна.
  */
 
 import { addProductVariant } from './variants-data.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -23,136 +22,115 @@ let _pendingVariants = [];
 let _pendingCounter = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC API
+// DATA API
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Додати pending варіант
- */
 export function addPendingVariant(data) {
     _pendingCounter++;
-    _pendingVariants.push({
+    const pv = {
         _pendingId: `pending-${_pendingCounter}`,
         status: data.status || 'active',
         variant_chars: data.variant_chars || {},
         spec_ua: data.spec_ua || '',
         spec_ru: data.spec_ru || '',
-    });
+        name_ua: data.name_ua || '',
+        name_ru: data.name_ru || '',
+        article: data.article || '',
+        price: data.price || '',
+        old_price: data.old_price || '',
+        barcode: data.barcode || '',
+        weight: data.weight || '',
+        stock: data.stock || '',
+        image_url: data.image_url || '',
+        composition_code_ua: data.composition_code_ua || '',
+        composition_code_ru: data.composition_code_ru || '',
+        composition_notes_ua: data.composition_notes_ua || '',
+        composition_notes_ru: data.composition_notes_ru || '',
+        product_text_ua: data.product_text_ua || '',
+        product_text_ru: data.product_text_ru || '',
+    };
+    _pendingVariants.push(pv);
+    return pv;
 }
 
-/**
- * Видалити pending варіант
- */
+export function updatePendingVariant(pendingId, data) {
+    const pv = _pendingVariants.find(v => v._pendingId === pendingId);
+    if (!pv) return;
+    Object.assign(pv, data);
+}
+
 export function removePendingVariant(pendingId) {
     if (_pendingVariants.length <= 1) {
         showToast('Потрібен хоча б один варіант', 'warning');
         return;
     }
-    syncAccordionFormToState();
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
-    renderPendingAccordion();
+    renderPendingList();
 }
 
-/**
- * Отримати pending варіанти
- */
+export function getPendingVariantById(pendingId) {
+    return _pendingVariants.find(v => v._pendingId === pendingId) || null;
+}
+
 export function getPendingVariants() {
     return _pendingVariants;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RENDER — прості картки
+// RENDER — простий список
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Рендерити pending картки
- */
-export function renderPendingAccordion() {
-    const accordion = document.getElementById('product-variants-accordion');
+export function renderPendingList() {
+    const container = document.getElementById('product-variants-accordion');
     const table = document.getElementById('product-variants-container');
-    if (!accordion) return;
+    if (!container) return;
 
-    accordion.style.display = '';
+    container.style.display = '';
     if (table) table.style.display = 'none';
 
     const canDelete = _pendingVariants.length > 1;
 
     let html = '<div class="content-bloc-container">';
     _pendingVariants.forEach((pv, i) => {
+        const name = pv.name_ua || `Варіант ${i + 1}`;
+        const isDefault = !pv.name_ua && !Object.keys(pv.variant_chars || {}).length;
+        const hint = isDefault ? '<span class="label-s"> — базовий варіант (без смаку/розміру)</span>' : '';
+
         html += `
             <div class="content-bloc" data-pending-id="${pv._pendingId}">
                 <div class="content-line">
-                    <span class="body-s">Варіант ${i + 1}</span>
+                    <span class="body-s">${escapeHtml(name)}${hint}</span>
+                    <button type="button" class="btn-icon ci-action" data-pending-edit="${pv._pendingId}" data-tooltip="Редагувати" data-tooltip-always>
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
                     ${canDelete
                         ? `<button type="button" class="btn-icon ci-action" data-pending-delete="${pv._pendingId}" data-tooltip="Видалити" data-tooltip-always><span class="material-symbols-outlined">close</span></button>`
                         : ''}
                 </div>
-                <div id="${pv._pendingId}-chars-container"></div>
             </div>
         `;
     });
     html += '</div>';
-    accordion.innerHTML = html;
+    container.innerHTML = html;
 
-    // Delete handlers
-    accordion.querySelectorAll('[data-pending-delete]').forEach(btn => {
+    // Delete handlers (edit handled via event delegation in variants module)
+    container.querySelectorAll('[data-pending-delete]').forEach(btn => {
         btn.addEventListener('click', () => removePendingVariant(btn.dataset.pendingDelete));
     });
-
-    // Render characteristics (block 8)
-    const categoryId = document.getElementById('product-category')?.value;
-    if (categoryId) renderPendingVariantCharacteristics(categoryId, _pendingVariants);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SYNC — зчитати дані з DOM → state
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Синхронізувати дані з карток → state
- */
-export function syncAccordionFormToState() {
-    for (const pv of _pendingVariants) {
-        const container = document.getElementById(`${pv._pendingId}-chars-container`);
-        if (!container) continue;
-
-        // Variant chars
-        const chars = {};
-        container.querySelectorAll('select[data-vchar-id]').forEach(s => {
-            if (s.value) chars[s.dataset.vcharId] = s.value;
-        });
-        container.querySelectorAll('input[data-vchar-id]').forEach(i => {
-            if (i.dataset.vcharLang === 'ru') return;
-            if (i.value.trim()) chars[i.dataset.vcharId] = i.value.trim();
-        });
-        pv.variant_chars = chars;
-
-        // Specs (уточнення)
-        const specUa = {}, specRu = {};
-        container.querySelectorAll('input[data-spec-char-id]').forEach(i => {
-            const val = i.value.trim();
-            if (!val) return;
-            if (i.dataset.specLang === 'ua') specUa[i.dataset.specCharId] = val;
-            else if (i.dataset.specLang === 'ru') specRu[i.dataset.specCharId] = val;
-        });
-        pv.spec_ua = Object.keys(specUa).length ? JSON.stringify(specUa) : '';
-        pv.spec_ru = Object.keys(specRu).length ? JSON.stringify(specRu) : '';
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMMIT / DISCARD
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Зберегти pending варіанти до БД (після створення товару)
- */
 export async function commitPendingVariantChanges(productId, productData, populateProductVariants) {
-    syncAccordionFormToState();
     if (_pendingVariants.length === 0) return;
 
     for (const pv of _pendingVariants) {
-        const resolved = resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
+        // Resolve name if not already set
+        const resolved = pv.name_ua
+            ? { ua: pv.name_ua, ru: pv.name_ru }
+            : resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
         const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
 
         await addProductVariant({
@@ -160,7 +138,20 @@ export async function commitPendingVariantChanges(productId, productData, popula
             name_ua: resolved.ua,
             name_ru: resolved.ru,
             ...genNames,
+            article: pv.article || '',
+            barcode: pv.barcode || '',
+            price: pv.price || '',
+            old_price: pv.old_price || '',
+            weight: pv.weight || '',
+            stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},
+            image_url: pv.image_url || '',
+            composition_code_ua: pv.composition_code_ua || '',
+            composition_code_ru: pv.composition_code_ru || '',
+            composition_notes_ua: pv.composition_notes_ua || '',
+            composition_notes_ru: pv.composition_notes_ru || '',
+            product_text_ua: pv.product_text_ua || '',
+            product_text_ru: pv.product_text_ru || '',
             status: pv.status || productData?.status || 'active',
         });
     }
@@ -176,9 +167,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
     if (populateProductVariants) populateProductVariants(productId);
 }
 
-/**
- * Відкинути pending зміни
- */
 export function discardPendingVariantChanges() {
     _pendingVariants = [];
     _pendingCounter = 0;
@@ -186,3 +174,6 @@ export function discardPendingVariantChanges() {
     const accordion = document.getElementById('product-variants-accordion');
     if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
 }
+
+// Backward compat stub
+export function syncAccordionFormToState() {}

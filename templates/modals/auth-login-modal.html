@@ -1,53 +1,43 @@
 <!-- templates/modals/auth-login-modal.html -->
 
 <div class="modal-overlay">
-    <div class="modal-container modal-small">
+    <div class="modal-container">
         <!-- Header -->
         <div class="modal-header">
             <h2>Вхід</h2>
             <div class="group">
-                <div class="group">
-                    <button class="btn-icon touch modal-close-btn" aria-label="Закрити" data-modal-close>
-                        <div class="state-layer">
-                            <span class="material-symbols-outlined">close</span>
-                        </div>
-                    </button>
-                </div>
+                <button class="btn-icon touch" aria-label="Закрити" data-modal-close>
+                    <span class="material-symbols-outlined">close</span>
+                </button>
             </div>
         </div>
 
         <!-- Body -->
         <div class="modal-body">
-            <div class="group column">
-                <!-- Пінгвін з булькою -->
-                <div class="modal-confirm-body">
-                    <div id="auth-login-avatar-container"></div>
-                    <div class="speech-bubble body-s" id="auth-login-avatar-message"></div>
+            <div class="grid">
+                <div class="group column col-6">
+                    <label class="label-l" for="auth-username">Логін</label>
+                    <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін"
+                        autocomplete="username" required autofocus>
                 </div>
 
-                <!-- Форма входу -->
-                <div id="auth-login-form" class="group column u-p-8">
-                    <div class="group column">
-                        <label class="label-l" for="auth-username">Логін</label>
-                        <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін"
-                            autocomplete="username" required autofocus>
-                    </div>
-
-                    <div class="group column">
-                        <label class="label-l" for="auth-password">Пароль</label>
-                        <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль"
-                            autocomplete="current-password" required>
-                    </div>
-
-                    <label class="label-s">Для отримання доступу зверніться до найкращої людини в цьому
-                        світі</label>
+                <div class="group column col-6">
+                    <label class="label-l" for="auth-password">Пароль</label>
+                    <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль"
+                        autocomplete="current-password" required>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="modal-footer">
-            <button type="submit" form="auth-login-form" class="btn-primary" id="auth-login-btn">Увійти</button>
+            <div class="modal-left">
+                <span class="body-s" id="auth-login-avatar-message"></span>
+            </div>
+            <div class="modal-center"></div>
+            <div class="modal-right">
+                <button class="btn-primary" id="auth-login-btn">Увійти</button>
+            </div>
         </div>
     </div>
 </div>

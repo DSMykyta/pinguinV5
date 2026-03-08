@@ -325,54 +325,39 @@ function handleModalOpened(event) {
   }
 
 
-  // Знаходимо елементи форми в завантаженому модалі
-  const loginForm = bodyTarget.querySelector('#auth-login-form');
+  // Знаходимо елементи в модалі
   const usernameInput = bodyTarget.querySelector('#auth-username');
   const passwordInput = bodyTarget.querySelector('#auth-password');
   const loginButton = bodyTarget.querySelector('#auth-login-btn');
-  const avatarMessage = bodyTarget.querySelector('#auth-login-avatar-message');
-
-  if (!loginForm) {
-    console.error('❌ Форма входу НЕ ЗНАЙДЕНА в модалі!');
-    return;
-  }
-
-  // Зберігаємо оригінальний текст бульбашки
-  const originalMessage = avatarMessage?.textContent || '';
+  const statusMessage = bodyTarget.querySelector('#auth-login-avatar-message');
 
   // Очищаємо поля
   if (usernameInput) usernameInput.value = '';
   if (passwordInput) passwordInput.value = '';
+  if (statusMessage) statusMessage.textContent = '';
 
   // Фокус на логін
-  setTimeout(() => {
-    if (usernameInput) {
-      usernameInput.focus();
-    }
-  }, 100);
+  setTimeout(() => usernameInput?.focus(), 100);
 
-  // Submit форми (валідація пустих полів — charm-required автоматично)
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  // Клік на кнопку "Увійти"
+  if (loginButton) {
+    loginButton.onclick = async () => {
+      const username = usernameInput?.value?.trim();
+      const password = passwordInput?.value;
+      if (!username || !password) return;
 
-    const username = usernameInput?.value?.trim();
-    const password = passwordInput?.value;
-    if (!username || !password) return;
+      loginButton.disabled = true;
+      if (statusMessage) statusMessage.textContent = '';
 
-    // Показуємо індикатор завантаження
-    if (loginButton) loginButton.disabled = true;
-    if (avatarMessage) avatarMessage.textContent = originalMessage;
+      const result = await handleSignIn(username, password);
 
-    // Виконуємо вхід
-    const result = await handleSignIn(username, password);
-
-    if (!result.success) {
-      // Серверна помилка → speech-bubble
-      if (avatarMessage) avatarMessage.textContent = result.error || 'Невірний логін або пароль';
-      if (loginButton) loginButton.disabled = false;
-      if (passwordInput) passwordInput.value = '';
-    }
-  });
+      if (!result.success) {
+        if (statusMessage) statusMessage.textContent = result.error || 'Невірний логін або пароль';
+        loginButton.disabled = false;
+        if (passwordInput) passwordInput.value = '';
+      }
+    };
+  }
 }
 
 /**

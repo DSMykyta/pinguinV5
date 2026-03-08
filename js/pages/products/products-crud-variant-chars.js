@@ -44,13 +44,14 @@ export function parseSpecJson(raw) {
  * @param {string} productId - ID товару (для отримання category_id)
  * @param {Object} savedValues - Збережені значення { char_id: value }
  * @param {Object} variantData - Повні дані варіанту (для spec_ua/spec_ru)
+ * @param {string} [categoryIdOverride] - Пряме передавання categoryId (для pending варіантів без productId)
  */
-export async function renderVariantCharacteristics(productId, savedValues, variantData) {
+export async function renderVariantCharacteristics(productId, savedValues, variantData, categoryIdOverride) {
     const container = document.getElementById('variant-characteristics-container');
     if (!container) return;
 
-    const product = getProductById(productId);
-    const categoryId = product?.category_id;
+    const product = productId ? getProductById(productId) : null;
+    const categoryId = categoryIdOverride || product?.category_id;
 
     if (!categoryId) {
         container.innerHTML = '';
