@@ -41,7 +41,7 @@ function _startObserver() {
     if (!charContainer) return;
 
     _observer = new MutationObserver(() => {
-        const container = document.querySelector('#product-edit .modal-container');
+        const container = document.querySelector('#modal-product-edit .modal-container');
         if (!container?.classList.contains('wizard-mode')) return;
         refreshWizard();
     });

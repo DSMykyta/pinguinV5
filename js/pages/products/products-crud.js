@@ -114,7 +114,7 @@ export async function showEditProductModal(productId) {
         initSectionNavigation();
 
         // Оновити wizard якщо активний
-        const wc = document.querySelector('#product-edit .modal-container');
+        const wc = document.querySelector('#modal-product-edit .modal-container');
         if (wc?.classList.contains('wizard-mode')) {
             const { refreshWizard } = await import('../../components/modal/modal-wizard.js');
             refreshWizard();
@@ -261,7 +261,7 @@ function initCategoryChangeHandler() {
             initSectionNavigation();
 
             // Оновити wizard якщо активний
-            const wc = document.querySelector('#product-edit .modal-container');
+            const wc = document.querySelector('#modal-product-edit .modal-container');
             if (wc?.classList.contains('wizard-mode')) {
                 const { refreshWizard } = await import('../../components/modal/modal-wizard.js');
                 refreshWizard();
