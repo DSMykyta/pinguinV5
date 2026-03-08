@@ -134,11 +134,23 @@ async function populateProductVariants(productId) {
     const productName = product?.generated_short_ua || '';
 
     // Transform data for table
-    const tableData = variants.map(v => ({
-        ...v,
-        product_name: productName,
-        variant_display: displayName(v.name_ua) || displayName(resolveNameFromCharsAndSpecs(v.variant_chars, v.spec_ua, v.spec_ru).ua),
-    }));
+    const tableData = variants.map(v => {
+        // Витягнути перший URL з JSON масиву для відображення
+        let thumb = v.image_url || '';
+        if (thumb) {
+            try {
+                const parsed = JSON.parse(thumb);
+                if (Array.isArray(parsed)) thumb = parsed[0] || '';
+            } catch { /* not JSON — use as-is */ }
+        }
+
+        return {
+            ...v,
+            product_name: productName,
+            variant_display: displayName(v.name_ua) || displayName(resolveNameFromCharsAndSpecs(v.variant_chars, v.spec_ua, v.spec_ru).ua),
+            image_url: thumb,
+        };
+    });
 
     if (_variantsManagedTable) {
         _variantsManagedTable.updateData(tableData);

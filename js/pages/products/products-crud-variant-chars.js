@@ -618,6 +618,7 @@ export function getVariantColumns(col) {
     return [
         col('variant_id', 'ID', 'tag', { span: 1 }),
         col('article', 'Артикул', 'text', { span: 1 }),
+        col('image_url', 'Фото', 'photo', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 1 }),
         col('variant_display', 'Варіант', 'name', { span: 1 }),
         col('price', 'Ціна', 'tag', { span: 1, color: 'c-secondary' }),

@@ -44,6 +44,7 @@ function getColumns() {
         col('variant_id', 'ID', 'tag', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 2 }),
         col('article', 'Артикул', 'text', { span: 2 }),
+        col('image_url', 'Фото', 'photo', { span: 1 }),
         col('name_ua', 'Назва', 'name'),
         col('price', 'Ціна', 'text', { span: 1, align: 'right' }),
         col('stock', 'Залишок', 'text', { span: 1, align: 'right' }),
@@ -56,7 +57,7 @@ function getColumns() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantsPageTable() {
-    const visibleCols = ['variant_id', 'product_name', 'article', 'name_ua', 'price', 'stock', 'status'];
+    const visibleCols = ['variant_id', 'product_name', 'article', 'image_url', 'name_ua', 'price', 'stock', 'status'];
     const searchCols = ['variant_id', 'article', 'name_ua', 'product_name'];
 
     _variantsPageManagedTable = createManagedTable({
@@ -107,12 +108,24 @@ function initVariantsPageTable() {
             const productMap = {};
             products.forEach(p => { productMap[p.product_id] = p.generated_short_ua || p.name_ua || p.product_id; });
 
-            return data.map(v => ({
-                ...v,
-                // Показувати згенеровану назву варіанту
-                name_ua: v.generated_short_ua || displayName(v.name_ua),
-                product_name: productMap[v.product_id] || v.product_id,
-            }));
+            return data.map(v => {
+                // Витягнути перший URL з JSON масиву або залишити як є
+                let thumb = v.image_url || '';
+                if (thumb) {
+                    try {
+                        const parsed = JSON.parse(thumb);
+                        if (Array.isArray(parsed)) thumb = parsed[0] || '';
+                    } catch { /* not JSON — use as-is */ }
+                }
+
+                return {
+                    ...v,
+                    // Показувати згенеровану назву варіанту
+                    name_ua: v.generated_short_ua || displayName(v.name_ua),
+                    product_name: productMap[v.product_id] || v.product_id,
+                    image_url: thumb,
+                };
+            });
         },
         preFilter: null,
         pageSize: null,
