@@ -3,7 +3,8 @@
 /**
  * PRODUCTS CRUD — PENDING ВАРІАНТИ
  *
- * Дані + простий список для варіантів нового (ще не збереженого) товару.
+ * Дані + таблиця для варіантів нового (ще не збереженого) товару.
+ * Використовує ту саму managed table що й існуючі варіанти.
  * Редагування — через стандартний variant-edit модал.
  * При створенні товару автоматично створюється 1 дефолтний варіант.
  * Видалити останній варіант не можна.
@@ -11,8 +12,10 @@
 
 import { addProductVariant } from './variants-data.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { escapeHtml } from '../../utils/text-utils.js';
+import { createManagedTable, col } from '../../components/table/table-main.js';
+import { registerActionHandlers, initActionHandlers } from '../../components/actions/actions-main.js';
 import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
+import { getVariantColumns } from './products-crud-variant-chars.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -20,6 +23,8 @@ import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName
 
 let _pendingVariants = [];
 let _pendingCounter = 0;
+let _pendingManagedTable = null;
+let _pendingActionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA API
@@ -77,55 +82,76 @@ export function getPendingVariants() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// RENDER — простий список
+// ACTION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerActionHandlers('pending-variants', {
+    edit: (rowId) => {
+        // Dispatch event — products-crud-variants.js handles opening modal
+        document.dispatchEvent(new CustomEvent('pending-variant-edit', { detail: { pendingId: rowId } }));
+    },
+    delete: (rowId) => removePendingVariant(rowId),
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER — managed table (та сама структура що й для існуючих варіантів)
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function renderPendingList() {
     const container = document.getElementById('product-variants-accordion');
-    const table = document.getElementById('product-variants-container');
+    const existingTable = document.getElementById('product-variants-container');
     if (!container) return;
 
     container.style.display = '';
-    if (table) table.style.display = 'none';
+    if (existingTable) existingTable.style.display = 'none';
 
-    const canDelete = _pendingVariants.length > 1;
-
-    let html = `
-        <div class="section-content">
-            <button type="button" class="btn-icon" id="btn-add-pending-variant" data-tooltip="Додати варіант" data-tooltip-always>
-                <span class="material-symbols-outlined">add</span>
-                <span class="btn-icon-label">Створити варіант</span>
-            </button>
-        </div>
-    `;
-    html += '<div class="content-bloc-container">';
-    _pendingVariants.forEach((pv, i) => {
+    // Transform pending data to table format
+    const tableData = _pendingVariants.map((pv, i) => {
         const resolvedName = displayName(pv.name_ua);
-        const name = resolvedName || `Варіант ${i + 1}`;
-        const isDefault = !resolvedName && !Object.keys(pv.variant_chars || {}).length;
-        const hint = isDefault ? '<span class="label-s"> — базовий варіант (без смаку/розміру)</span>' : '';
-
-        html += `
-            <div class="content-bloc" data-pending-id="${pv._pendingId}">
-                <div class="content-line">
-                    <span class="body-s">${escapeHtml(name)}${hint}</span>
-                    <button type="button" class="btn-icon ci-action" data-pending-edit="${pv._pendingId}" data-tooltip="Редагувати" data-tooltip-always>
-                        <span class="material-symbols-outlined">edit</span>
-                    </button>
-                    ${canDelete
-                        ? `<button type="button" class="btn-icon ci-action" data-pending-delete="${pv._pendingId}" data-tooltip="Видалити" data-tooltip-always><span class="material-symbols-outlined">close</span></button>`
-                        : ''}
-                </div>
-            </div>
-        `;
+        return {
+            ...pv,
+            variant_id: pv._pendingId,
+            variant_display: resolvedName || `Варіант ${i + 1}`,
+            product_name: '',
+        };
     });
-    html += '</div>';
-    container.innerHTML = html;
 
-    // Delete handlers (edit handled via event delegation in variants module)
-    container.querySelectorAll('[data-pending-delete]').forEach(btn => {
-        btn.addEventListener('click', () => removePendingVariant(btn.dataset.pendingDelete));
-    });
+    if (_pendingManagedTable) {
+        _pendingManagedTable.updateData(tableData);
+    } else {
+        _pendingManagedTable = createManagedTable({
+            container: 'product-variants-accordion',
+            columns: getVariantColumns(col).map(c => ({
+                ...c,
+                searchable: false,
+                checked: !['product_name', 'variant_id', 'article', 'image_url'].includes(c.id),
+            })),
+            data: tableData,
+            tableConfig: {
+                rowActionsHeader: ' ',
+                rowActions: () => '',
+                getRowId: (row) => row.variant_id,
+                emptyState: { message: 'Додайте варіант' },
+                withContainer: false,
+                onAfterRender: (cont) => {
+                    if (_pendingActionCleanup) _pendingActionCleanup();
+                    _pendingActionCleanup = initActionHandlers(cont, 'pending-variants');
+                },
+            },
+            pageSize: null,
+        });
+    }
+}
+
+export function destroyPendingTable() {
+    if (_pendingManagedTable) {
+        _pendingManagedTable.destroy();
+        _pendingManagedTable = null;
+    }
+    if (_pendingActionCleanup) {
+        _pendingActionCleanup();
+        _pendingActionCleanup = null;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -167,6 +193,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
 
     _pendingVariants = [];
     _pendingCounter = 0;
+    destroyPendingTable();
 
     const accordion = document.getElementById('product-variants-accordion');
     const table = document.getElementById('product-variants-container');
@@ -179,6 +206,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
 export function discardPendingVariantChanges() {
     _pendingVariants = [];
     _pendingCounter = 0;
+    destroyPendingTable();
 
     const accordion = document.getElementById('product-variants-accordion');
     if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }

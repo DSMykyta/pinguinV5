@@ -85,21 +85,10 @@ export function initVariantsSection(getProductIdFn) {
         };
     }
 
-    // Event delegation for pending variant clicks (add + edit)
-    const accordion = document.getElementById('product-variants-accordion');
-    if (accordion) {
-        accordion.addEventListener('click', (e) => {
-            const addBtn = e.target.closest('#btn-add-pending-variant');
-            if (addBtn) {
-                showPendingVariantModal(null);
-                return;
-            }
-            const editBtn = e.target.closest('[data-pending-edit]');
-            if (editBtn) {
-                showPendingVariantModal(editBtn.dataset.pendingEdit);
-            }
-        });
-    }
+    // Pending variant edit — dispatched from action handlers in pending module
+    document.addEventListener('pending-variant-edit', (e) => {
+        showPendingVariantModal(e.detail.pendingId);
+    });
 
     // Новий товар → створити 1 дефолтний pending варіант
     if (!getProductIdFn()) {
