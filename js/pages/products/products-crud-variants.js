@@ -77,11 +77,12 @@ export function initVariantsSection(getProductIdFn) {
     const addBtn = document.getElementById('btn-add-product-variant');
     if (addBtn) {
         addBtn.onclick = () => {
+            addPendingVariant({ status: 'active' });
             const productId = _getCurrentProductId?.();
-            if (!productId) {
-                showPendingVariantModal(null);
+            if (productId) {
+                populateProductVariants(productId);
             } else {
-                showAddVariantModal();
+                renderPendingVariantsTable();
             }
         };
     }
@@ -199,7 +200,7 @@ async function populateProductVariants(productId) {
     const product = getProductById(productId);
     const productName = product?.generated_short_ua || '';
 
-    const tableData = variants.map(v => {
+    const existingData = variants.map(v => {
         let thumb = v.image_url || '';
         if (thumb) {
             try {
@@ -215,7 +216,9 @@ async function populateProductVariants(productId) {
         };
     });
 
-    _ensureTable(tableData);
+    // Об'єднуємо існуючі + pending варіанти
+    const pendingData = getPendingTableData();
+    _ensureTable([...existingData, ...pendingData]);
 
     if (product?.category_id) {
         await renderExistingVariantCharacteristics(product.category_id, variants);
@@ -244,11 +247,28 @@ async function _handleRowSave(rowEl) {
     formData.name_ua = resolved.ua;
     formData.name_ru = resolved.ru;
 
-    // ── Pending variant: зберегти в пам'ять ──
+    // ── Pending variant ──
     if (variantId.startsWith('pending-')) {
-        updatePendingVariant(variantId, formData);
-        renderPendingVariantsTable();
-        showToast('Варіант оновлено', 'success');
+        const productId = _getCurrentProductId?.();
+        if (productId) {
+            // Існуючий товар — зберегти в API одразу
+            const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars);
+            Object.assign(formData, genNames);
+            try {
+                await addProductVariant({ product_id: productId, ...formData });
+                removePendingVariant(variantId);
+                showToast('Варіант збережено', 'success');
+                populateProductVariants(productId);
+            } catch (error) {
+                console.error('Помилка збереження варіанту:', error);
+                showToast('Помилка збереження варіанту', 'error');
+            }
+        } else {
+            // Новий товар — зберегти в пам'ять
+            updatePendingVariant(variantId, formData);
+            renderPendingVariantsTable();
+            showToast('Варіант оновлено', 'success');
+        }
         return;
     }
 
@@ -313,36 +333,6 @@ function _renderCloseCellContent(row) {
 // ═══════════════════════════════════════════════════════════════════════════
 // VARIANT MODALS
 // ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Показати модал додавання варіанту (існуючий товар)
- */
-async function showAddVariantModal() {
-    const productId = _getCurrentProductId?.();
-    if (!productId) return;
-
-    _currentVariantId = null;
-    _pendingMode = false;
-    _pendingEditId = null;
-
-    await showModal('variant-edit', null);
-
-    const title = document.getElementById('variant-modal-title');
-    if (title) title.textContent = 'Новий варіант';
-
-    clearVariantForm();
-    clearVariantPhotos();
-    initVariantEditors();
-    initVariantPhotoSection();
-    const productIdField = document.getElementById('variant-product-id');
-    if (productIdField) productIdField.value = productId;
-
-    await renderVariantCharacteristics(productId, {}, {});
-    initLiveTitleUpdate();
-    initVariantSaveHandler();
-    initSectionNavigation();
-    runHook('onVariantModalOpen', { productId });
-}
 
 /**
  * Показати модал для pending варіанту (новий товар)
@@ -622,16 +612,36 @@ async function handleSaveVariant(shouldClose = true) {
     formData.name_ua = autoName.ua;
     formData.name_ru = autoName.ru;
 
-    // ── Pending mode: зберегти в пам'ять, не в API ──
+    // ── Pending mode ──
     if (_pendingMode) {
-        if (_pendingEditId) {
-            updatePendingVariant(_pendingEditId, formData);
-            showToast('Варіант оновлено', 'success');
+        const existingProductId = _getCurrentProductId?.();
+
+        if (existingProductId) {
+            // Існуючий товар — зберігаємо pending одразу в API
+            const genNames = computeVariantGeneratedNames(existingProductId, formData.name_ua, formData.name_ru, formData.variant_chars);
+            Object.assign(formData, genNames);
+            formData.product_id = existingProductId;
+            try {
+                if (_pendingEditId) removePendingVariant(_pendingEditId);
+                await addProductVariant(formData);
+                showToast('Варіант збережено', 'success');
+                populateProductVariants(existingProductId);
+            } catch (error) {
+                console.error('Помилка збереження варіанту:', error);
+                showToast('Помилка збереження варіанту', 'error');
+            }
         } else {
-            addPendingVariant(formData);
-            showToast('Варіант додано', 'success');
+            // Новий товар — зберігаємо в пам'ять
+            if (_pendingEditId) {
+                updatePendingVariant(_pendingEditId, formData);
+                showToast('Варіант оновлено', 'success');
+            } else {
+                addPendingVariant(formData);
+                showToast('Варіант додано', 'success');
+            }
+            renderPendingVariantsTable();
         }
-        renderPendingVariantsTable();
+
         if (shouldClose) closeModal();
         _pendingMode = false;
         _pendingEditId = null;
