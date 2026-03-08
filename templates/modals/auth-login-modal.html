@@ -1,43 +1,38 @@
 <!-- templates/modals/auth-login-modal.html -->
 
 <div class="modal-overlay">
-    <div class="modal-container">
+    <div class="modal-container modal-small">
         <!-- Header -->
         <div class="modal-header">
             <h2>Вхід</h2>
-            <div class="group">
-                <button class="btn-icon touch" aria-label="Закрити" data-modal-close>
-                    <span class="material-symbols-outlined">close</span>
-                </button>
-            </div>
         </div>
 
         <!-- Body -->
         <div class="modal-body">
-            <div class="grid">
-                <div class="group column col-6">
-                    <label class="label-l" for="auth-username">Логін</label>
-                    <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін"
-                        autocomplete="username" required autofocus>
-                </div>
+            <div class="modal-confirm-body">
+                <!-- Avatar (filled by JS) -->
+                <div id="auth-login-avatar-container"></div>
 
-                <div class="group column col-6">
-                    <label class="label-l" for="auth-password">Пароль</label>
-                    <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль"
-                        autocomplete="current-password" required>
-                </div>
+                <div class="speech-bubble body-s" id="auth-login-avatar-message"></div>
+            </div>
+
+            <div class="group column">
+                <label class="label-l" for="auth-username">Логін</label>
+                <input type="text" id="auth-username" class="input-main" placeholder="Введіть логін"
+                    autocomplete="username" required autofocus>
+            </div>
+
+            <div class="group column">
+                <label class="label-l" for="auth-password">Пароль</label>
+                <input type="password" id="auth-password" class="input-main" placeholder="Введіть пароль"
+                    autocomplete="current-password" required>
             </div>
         </div>
 
         <!-- Footer -->
         <div class="modal-footer">
-            <div class="modal-left">
-                <span class="body-s" id="auth-login-avatar-message"></span>
-            </div>
-            <div class="modal-center"></div>
-            <div class="modal-right">
-                <button class="btn-primary" id="auth-login-btn">Увійти</button>
-            </div>
+            <button class="btn-ghost" data-modal-close>Скасувати</button>
+            <button class="btn-primary" id="auth-login-btn">Увійти</button>
         </div>
     </div>
 </div>

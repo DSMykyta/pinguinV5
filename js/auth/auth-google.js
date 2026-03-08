@@ -330,11 +330,16 @@ function handleModalOpened(event) {
   const passwordInput = bodyTarget.querySelector('#auth-password');
   const loginButton = bodyTarget.querySelector('#auth-login-btn');
   const statusMessage = bodyTarget.querySelector('#auth-login-avatar-message');
+  const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
+
+  // Рендеримо аватар + рандомне привітання
+  const state = getAvatarState('authLogin');
+  if (avatarContainer) avatarContainer.innerHTML = renderAvatarState('authLogin', { showMessage: false });
+  if (statusMessage) statusMessage.textContent = state.message;
 
   // Очищаємо поля
   if (usernameInput) usernameInput.value = '';
   if (passwordInput) passwordInput.value = '';
-  if (statusMessage) statusMessage.textContent = '';
 
   // Фокус на логін
   setTimeout(() => usernameInput?.focus(), 100);
