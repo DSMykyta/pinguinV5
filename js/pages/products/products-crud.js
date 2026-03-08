@@ -112,10 +112,6 @@ export async function showEditProductModal(productId) {
         const blocks = await renderCharacteristicsForCategory(product.category_id, product.characteristics);
         await updateCharacteristicsNav(blocks);
         initSectionNavigation();
-
-        // Оновити wizard якщо активний (нові секції)
-        const { refreshWizardIfActive } = await import('./products-crud-wizard.js');
-        await refreshWizardIfActive();
     } catch { /* ignore if not loaded */ }
 
     // Завантажити варіанти
@@ -256,10 +252,6 @@ function initCategoryChangeHandler() {
             const blocks = await renderCharacteristicsForCategory(catSelect.value, {});
             await updateCharacteristicsNav(blocks);
             initSectionNavigation();
-
-            // Оновити wizard якщо активний (нові секції характеристик)
-            const { refreshWizardIfActive } = await import('./products-crud-wizard.js');
-            await refreshWizardIfActive();
 
             const { runAutofillAfterRender } = await import('./products-crud-autofill.js');
             runAutofillAfterRender();

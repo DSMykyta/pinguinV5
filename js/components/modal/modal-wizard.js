@@ -44,10 +44,10 @@ export function initWizard(container) {
     _originalCenter = _headerCenter?.innerHTML ?? '';
     _originalLeft = _headerLeft?.innerHTML ?? '';
 
-    // Зібрати секції (пропустити hidden і порожні)
+    // Зібрати всі секції
     _sections = Array.from(
         _main.querySelectorAll(':scope > section, :scope > div > section')
-    ).filter(sec => !sec.classList.contains('u-hidden') && sec.offsetParent !== null);
+    );
 
     if (_sections.length === 0) { console.warn('[Wizard] no sections'); return; }
 
@@ -64,28 +64,25 @@ export function initWizard(container) {
 }
 
 /**
- * Перебудувати список секцій (після динамічного рендеру характеристик)
+ * Перебудувати список секцій (після динамічного рендеру характеристик).
  * Зберігає поточний крок якщо можливо.
  */
 export function refreshWizard() {
     if (!_active || !_main) return;
 
-    // Скинути inline styles зі старих секцій
-    _sections.forEach(sec => {
+    // Скинути inline styles + u-hidden зі ВСІХ секцій
+    const all = _main.querySelectorAll(':scope > section, :scope > div > section');
+    all.forEach(sec => {
         sec.style.cssText = '';
         sec.classList.remove('u-hidden');
         const header = sec.querySelector('.section-header');
         if (header) header.style.display = '';
     });
 
-    // Перезібрати секції (як в initWizard — видимі, не hidden)
-    _sections = Array.from(
-        _main.querySelectorAll(':scope > section, :scope > div > section')
-    ).filter(sec => !sec.classList.contains('u-hidden') && sec.offsetParent !== null);
+    // Зібрати всі секції (без фільтрів — _showStep сховає непотрібні)
+    _sections = Array.from(all);
 
     if (_sections.length === 0) return;
-
-    // Зберегти крок у межах
     if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
 
     _buildDots();

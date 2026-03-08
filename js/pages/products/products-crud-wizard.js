@@ -10,11 +10,12 @@
  * Відповідає за:
  *   - Перемикач standard/wizard mode
  *   - Авто-активація wizard (FAB кнопка)
- *   - Оновлення wizard при зміні секцій (характеристики)
+ *   - MutationObserver на #product-characteristics-sections
  *   - Очищення при закритті модалу
  */
 
 let _pendingWizardMode = false;
+let _observer = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PUBLIC
@@ -27,15 +28,33 @@ export function setPendingWizardMode() {
     _pendingWizardMode = true;
 }
 
-/**
- * Оновити wizard якщо активний (після рендеру нових секцій)
- */
-export async function refreshWizardIfActive() {
-    const modal = document.getElementById('product-edit');
-    if (!modal?.classList.contains('wizard-mode')) return;
+// ═══════════════════════════════════════════════════════════════════════════
+// MUTATION OBSERVER — автоматично оновлює wizard при зміні секцій
+// ═══════════════════════════════════════════════════════════════════════════
 
-    const { refreshWizard } = await import('../../components/modal/modal-wizard.js');
-    refreshWizard();
+function _startObserver() {
+    _stopObserver();
+
+    const charContainer = document.getElementById('product-characteristics-sections');
+    if (!charContainer) return;
+
+    _observer = new MutationObserver(() => {
+        const container = document.querySelector('#product-edit .modal-container');
+        if (!container?.classList.contains('wizard-mode')) return;
+
+        import('../../components/modal/modal-wizard.js').then(({ refreshWizard }) => {
+            refreshWizard();
+        });
+    });
+
+    _observer.observe(charContainer, { childList: true });
+}
+
+function _stopObserver() {
+    if (_observer) {
+        _observer.disconnect();
+        _observer = null;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -58,7 +77,9 @@ function onProductModalOpened(e) {
             const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
             if (ev.target.value === 'wizard') {
                 initWizard(c);
+                _startObserver();
             } else {
+                _stopObserver();
                 destroyWizard(c);
             }
         });
@@ -70,6 +91,7 @@ function onProductModalOpened(e) {
         if (modeSwitch) modeSwitch.classList.remove('u-hidden');
         import('../../components/modal/modal-wizard.js').then(({ initWizard }) => {
             initWizard(container);
+            _startObserver();
         });
         const radio = overlay.querySelector('#product-mode-wizard');
         if (radio) radio.checked = true;
@@ -80,6 +102,8 @@ function onProductModalOpened(e) {
 
 async function onProductModalClosed(e) {
     if (e.detail.modalId !== 'product-edit') return;
+
+    _stopObserver();
 
     const container = e.detail.modalElement?.querySelector('.modal-container');
     if (container?.classList.contains('wizard-mode')) {
