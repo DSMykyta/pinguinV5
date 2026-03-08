@@ -117,7 +117,7 @@ class ExpandablePlugin {
                         <span class="material-symbols-outlined">edit</span>
                     </button>
                     ${expandButtons.join('')}`;
-                actionsCell.prepend(btnGroup);
+                actionsCell.append(btnGroup);
             }
 
             // Кінцева action-комірка для close кнопки (видима завжди, кнопка — по стану)

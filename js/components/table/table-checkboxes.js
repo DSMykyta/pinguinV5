@@ -70,27 +70,27 @@ class CheckboxesPlugin {
         const originalRowActionsHeader = this.table.config.rowActionsHeader;
         const tableId = this.state.getTableId();
 
-        // Додаємо чекбокс до заголовка (після інших дій)
+        // Додаємо чекбокс до заголовка (перед іншими діями)
         this.table.config.rowActionsHeader = `
-            ${originalRowActionsHeader || ''}
             <input type="checkbox"
                    class="${this.config.selectAllClass}"
                    data-table-id="${tableId}">
+            ${originalRowActionsHeader || ''}
         `;
 
-        // Додаємо чекбокс до кожного рядка (після інших дій)
+        // Додаємо чекбокс до кожного рядка (перед іншими діями)
         this.table.config.rowActions = (row) => {
             const rowId = this.table.config.getRowId(row);
             const isChecked = this.state.isSelected(rowId);
             const originalActions = originalRowActions ? originalRowActions(row) : '';
 
             return `
-                ${originalActions}
                 <input type="checkbox"
                        class="${this.config.checkboxClass}"
                        data-row-id="${escapeHtml(rowId)}"
                        data-table-id="${tableId}"
                        ${isChecked ? 'checked' : ''}>
+                ${originalActions}
             `;
         };
     }
