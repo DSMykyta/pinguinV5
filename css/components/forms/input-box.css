@@ -168,17 +168,6 @@
 }
 
 
-/* Drag reorder: visual feedback */
-.content-bloc.dragging {
-    opacity: 0.4;
-}
-
-.content-bloc.drag-target {
-    outline: 2px dashed var(--color-main);
-    outline-offset: -2px;
-    border-radius: 12px;
-}
-
 /* ============================================ */
 /* PANEL ВАРІАНТ (сірий фон, без бордера)      */
 /* ============================================ */
