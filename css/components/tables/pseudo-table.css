@@ -114,7 +114,7 @@
 /* Коли один рядок розкритий — решта приглушені й неактивні */
 .pseudo-table-container:has(.u-reveal.is-open) .pseudo-table-row:not(:has(.u-reveal.is-open)) {
     filter: blur(1px);
-    opacity: 0.7;
+    opacity: 0.2;
     pointer-events: none;
 }
 
@@ -243,6 +243,20 @@
     justify-content: flex-start;
     gap: 4px;
     padding: 8px;
+}
+
+/* Close cell з тегами — гнучка ширина */
+[data-expand-close-cell]:has(.expand-tags),
+[data-expand-close-header] {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+}
+
+.expand-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 /* .row-checkbox, .header-select-all — тільки JS-селектори.

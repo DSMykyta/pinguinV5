@@ -41,6 +41,8 @@ class ExpandablePlugin {
             renderContent: null,
             renderFooterLeft: null,
             renderFooterRight: null,
+            closeCellHeader: null,
+            renderCloseCellContent: null,
             showSaveButton: true,
             showOpenFullButton: null,
             onExpand: null,
@@ -105,7 +107,13 @@ class ExpandablePlugin {
                 const closeCell = document.createElement('div');
                 closeCell.className = 'pseudo-table-cell row-actions-cell';
                 closeCell.setAttribute('data-expand-close-cell', '');
+
+                const customContent = this.config.renderCloseCellContent
+                    ? this.config.renderCloseCellContent(rowData, rowEl)
+                    : '';
+
                 closeCell.innerHTML = `
+                    ${customContent ? `<span class="expand-tags">${customContent}</span>` : ''}
                     <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
                         <span class="material-symbols-outlined">close</span>
                     </button>`;
@@ -188,10 +196,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
+        const expandTags = row.querySelector('.expand-tags');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
         closeBtn?.classList.remove('u-hidden');
+        expandTags?.classList.add('u-hidden');
         checkbox?.classList.add('u-hidden');
 
         reveal.classList.add('is-open');
@@ -208,10 +218,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
+        const expandTags = row.querySelector('.expand-tags');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
         closeBtn?.classList.add('u-hidden');
+        expandTags?.classList.remove('u-hidden');
         checkbox?.classList.remove('u-hidden');
 
         reveal.classList.remove('is-open');
@@ -256,7 +268,13 @@ class ExpandablePlugin {
             const endHeader = document.createElement('div');
             endHeader.className = 'pseudo-table-cell header-actions-cell';
             endHeader.setAttribute('data-expand-close-header', '');
-            endHeader.setAttribute('aria-hidden', 'true');
+
+            if (this.config.closeCellHeader) {
+                endHeader.textContent = this.config.closeCellHeader;
+            } else {
+                endHeader.setAttribute('aria-hidden', 'true');
+            }
+
             header.appendChild(endHeader);
         }
     }

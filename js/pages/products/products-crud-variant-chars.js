@@ -102,12 +102,26 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
         _parsedSpecRu: parseSpecJson(variantData?.name_ru) || parseSpecJson(variantData?.spec_ru)
     };
 
+    // Визначити які chars є дітьми (їх рендеримо разом з батьком)
+    const childCharIds = new Set(parentChildMap.keys());
+
     block8Chars.forEach(c => {
-        const charOptions = options.filter(o => o.characteristic_id === c.id);
-        charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
-        const savedVal = savedValues[c.id] || '';
-        const colSize = c.col_size || '4';
-        html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedVariantData);
+        // Пропустити дітей — вони рендеряться разом з батьком
+        if (childCharIds.has(c.id)) return;
+
+        // Знайти дітей цього char
+        const children = block8Chars.filter(ch => parentChildMap.get(ch.id) === c.id);
+
+        if (children.length > 0) {
+            // Parent + children в одному col-3
+            html += renderGroupedCharField(c, children, savedValues, parentChildMap, options, options, enrichedVariantData);
+        } else {
+            // Standalone — окремий col-3
+            const charOptions = options.filter(o => o.characteristic_id === c.id);
+            charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+            const savedVal = savedValues[c.id] || '';
+            html += renderVariantCharField(c, charOptions, savedVal, '3', parentChildMap, options, enrichedVariantData);
+        }
     });
 
     html += '</div>';
@@ -135,9 +149,48 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Рендерити поле характеристики варіанту
+ * Рендерити згруповане поле: батько + діти + spec в одному col-3
+ */
+function renderGroupedCharField(parentChar, children, savedValues, parentChildMap, allOptions, _unused, variantData) {
+    // Батько
+    const parentOptions = allOptions.filter(o => o.characteristic_id === parentChar.id);
+    parentOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+    const parentSaved = savedValues[parentChar.id] || '';
+    const parentInner = renderVariantCharFieldInner(parentChar, parentOptions, parentSaved, parentChildMap, allOptions, variantData);
+
+    // Діти
+    let childrenHtml = '';
+    children.forEach(child => {
+        const childOptions = allOptions.filter(o => o.characteristic_id === child.id);
+        childOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+        const childSaved = savedValues[child.id] || '';
+        childrenHtml += renderVariantCharFieldInner(child, childOptions, childSaved, parentChildMap, allOptions, variantData);
+    });
+
+    return `
+        <div class="group column col-3">
+            ${parentInner}
+            ${childrenHtml}
+        </div>
+    `;
+}
+
+/**
+ * Рендерити поле характеристики варіанту (обгорнуте в col-N)
  */
 function renderVariantCharField(char, options, savedValue, colSize, parentChildMap, allOptions, variantData) {
+    const inner = renderVariantCharFieldInner(char, options, savedValue, parentChildMap, allOptions, variantData);
+    return `
+        <div class="group column col-${colSize}">
+            ${inner}
+        </div>
+    `;
+}
+
+/**
+ * Рендерити внутрішній HTML поля характеристики (без col обгортки)
+ */
+function renderVariantCharFieldInner(char, options, savedValue, parentChildMap, allOptions, variantData) {
     const id = `variant-char-${char.id}`;
     const label = escapeHtml(char.name_ua || char.id);
     const hint = char.hint ? `<label class="label-s">${escapeHtml(char.hint)}</label>` : '';
@@ -317,12 +370,10 @@ function renderVariantCharField(char, options, savedValue, colSize, parentChildM
     `;
 
     return `
-        <div class="group column col-${colSize}">
-            <label for="${id}" class="label-l">${label}</label>
-            ${fieldHtml}
-            ${hint}
-            ${specHtml}
-        </div>
+        <label for="${id}" class="label-l">${label}</label>
+        ${fieldHtml}
+        ${hint}
+        ${specHtml}
     `;
 }
 

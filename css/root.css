@@ -7,13 +7,13 @@
        ═══════════════════════════════════════════ */
 
     /* --- Main --- */
-    --color-main: /*rgb(9, 63, 69)*/ #007aff;
+    --color-main: /*rgb(9, 63, 69)*/ #113855;
     --color-on-main: rgb(255, 255, 255);
     --color-main-c: color-mix(in srgb, var(--color-main) 8%, transparent);
     --color-on-main-c: var(--color-main);
 
     /* --- Secondary --- */
-    --color-secondary: /*rgb(39, 93, 99)*/#113855;
+    --color-secondary: /*rgb(39, 93, 99)*/#007aff;
     --color-on-secondary: rgb(255, 255, 255);
     --color-secondary-c: color-mix(in srgb, var(--color-secondary) 8%, transparent);
     --color-on-secondary-c: var(--color-secondary);
@@ -164,6 +164,14 @@
     --affinity-pixel: #d946ef;
     --affinity-layout: #fb923c;
     --affinity-canvas: #60a5fa;
+
+    /* ═══════════════════════════════════════════
+       16. ГРАДІЄНТИ
+       ═══════════════════════════════════════════ */
+
+    --gradient-light: linear-gradient(to bottom, #5ba3d9, #8ec5e8, #d4eaf5, #edf6fb, #d4eaf5, #8ec5e8);
+    --gradient-storm: linear-gradient(to bottom, #0d1f3c, #0f2847, #1a3a5c, #2d5a7b, #5a9aba, #8ec5e8);
+    --gradient-dawn: linear-gradient(to bottom, #4a8ec9, #5a96cc, #7a8faa, #b07860, #e06030, #f05a28);
 }
 
 /* ═══════════════════════════════════════════════════

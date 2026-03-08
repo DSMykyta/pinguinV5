@@ -175,6 +175,8 @@ async function populateProductVariants(productId) {
                     expandable: {
                         renderContent: (row) => buildExpandContent(row),
                         renderFooterLeft: (row) => _renderVariantFooterLeft(row),
+                        closeCellHeader: 'Власні дані',
+                        renderCloseCellContent: (row) => _renderCloseCellContent(row),
                         onExpand: (rowEl, row) => onVariantExpand(rowEl, row),
                         onSave: (rowEl) => _handleRowSave(rowEl),
                         onOpenFull: (_rowEl, row) => showEditVariantModal(row.variant_id),
@@ -232,13 +234,39 @@ async function _handleRowSave(rowEl) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Рендер лівої частини підвалу — tag c-secondary з composition_code (якщо є)
+ * Згенерувати теги «Власні дані» варіанту (склад/опис/вага)
+ * @param {Object} row - дані варіанту
+ * @returns {string} HTML тегів
+ */
+function _buildOwnDataTags(row) {
+    const tags = [];
+    if (row.composition_code_ua || row.composition_code_ru) {
+        tags.push('<span class="tag c-secondary">склад</span>');
+    }
+    if (row.product_text_ua || row.product_text_ru) {
+        tags.push('<span class="tag c-secondary">опис</span>');
+    }
+    if (row.weight) {
+        tags.push('<span class="tag c-secondary">вага</span>');
+    }
+    if (row.composition_notes_ua || row.composition_notes_ru) {
+        tags.push('<span class="tag c-secondary">порція</span>');
+    }
+    return tags.join('');
+}
+
+/**
+ * Рендер лівої частини підвалу — теги власних даних
  */
 function _renderVariantFooterLeft(row) {
-    const tags = [];
-    if (row.composition_code_ua) tags.push(`<span class="tag c-secondary">${escapeHtml(row.composition_code_ua)}</span>`);
-    if (row.composition_code_ru) tags.push(`<span class="tag c-secondary">${escapeHtml(row.composition_code_ru)}</span>`);
-    return tags.join('');
+    return _buildOwnDataTags(row);
+}
+
+/**
+ * Рендер контенту close-комірки (теги при закритому стані)
+ */
+function _renderCloseCellContent(row) {
+    return _buildOwnDataTags(row);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
