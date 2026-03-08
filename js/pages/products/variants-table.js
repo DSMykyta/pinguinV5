@@ -46,8 +46,9 @@ function getColumns() {
         col('article', 'Артикул', 'text', { span: 2 }),
         col('image_url', 'Фото', 'photo', { span: 1 }),
         col('name_ua', 'Назва', 'name'),
-        col('price', 'Ціна', 'text', { span: 1, align: 'right' }),
-        col('stock', 'Залишок', 'text', { span: 1, align: 'right' }),
+        col('price', 'Ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
+        col('old_price', 'Стара ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
+        col('stock', 'Залишок', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-tertiary' }),
         col('status', 'Статус', 'status-dot'),
     ];
 }
@@ -57,7 +58,7 @@ function getColumns() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantsPageTable() {
-    const visibleCols = ['variant_id', 'product_name', 'article', 'image_url', 'name_ua', 'price', 'stock', 'status'];
+    const visibleCols = ['variant_id', 'product_name', 'article', 'image_url', 'name_ua', 'price', 'old_price', 'stock', 'status'];
     const searchCols = ['variant_id', 'article', 'name_ua', 'product_name'];
 
     _variantsPageManagedTable = createManagedTable({
@@ -92,6 +93,7 @@ function initVariantsPageTable() {
                         article: 'string',
                         name_ua: 'string',
                         price: 'number',
+                        old_price: 'number',
                         stock: 'number',
                         status: 'string',
                     }

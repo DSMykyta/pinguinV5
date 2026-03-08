@@ -72,6 +72,9 @@ function initNavToggle() {
         nav.classList.toggle('expanded');
         const isExpanded = nav.classList.contains('expanded');
 
+        // Поворот іконки (flip шарм)
+        toggle.classList.toggle('open', isExpanded);
+
         // Оновлюємо тултіп
         const label = isExpanded ? 'Згорнути меню' : 'Розгорнути меню';
         toggle.dataset.tooltip = label;

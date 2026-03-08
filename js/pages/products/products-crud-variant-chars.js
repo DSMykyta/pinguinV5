@@ -600,9 +600,9 @@ export function getVariantColumns(col) {
         col('image_url', 'Фото', 'photo', { span: 1 }),
         col('product_name', 'Товар', 'text', { span: 1 }),
         col('variant_display', 'Варіант', 'name', { span: 1 }),
-        col('price', 'Ціна', 'tag', { span: 1, color: 'c-secondary' }),
-        col('old_price', 'Стара ціна', 'tag', { span: 1, color: 'c-secondary' }),
-        col('stock', 'Кількість', 'tag', { span: 1, color: 'c-tertiary' }),
+        col('price', 'Ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
+        col('old_price', 'Стара ціна', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-secondary' }),
+        col('stock', 'Кількість', 'tag', { span: 1, align: 'center', class: 'u-max-80', color: 'c-tertiary' }),
         col('status', 'Статус', 'status-dot'),
     ];
 }

@@ -159,8 +159,8 @@ async function populateProductVariants(productId) {
             container: 'product-variants-container',
             columns: getVariantColumns(col).map(c => ({
                 ...c,
-                searchable: ['product_name', 'variant_display'].includes(c.id),
-                checked: true,
+                searchable: ['variant_display'].includes(c.id),
+                checked: c.id !== 'product_name',
             })),
             data: tableData,
             tableConfig: {
