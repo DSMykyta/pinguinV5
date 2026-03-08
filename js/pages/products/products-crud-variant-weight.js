@@ -43,11 +43,8 @@ export function init(state) {
 
         const saved = savedValues?.[WEIGHT_CHAR_ID] || '';
 
-        const isModal = container.id === 'variant-characteristics-container';
-        const colSize = isModal ? '2' : '3';
-
         const weightField = document.createElement('div');
-        weightField.className = `group column col-${colSize}`;
+        weightField.className = 'group column col-2';
         weightField.innerHTML = `
             <label for="variant-char-${WEIGHT_CHAR_ID}" class="label-l">Вага</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
@@ -60,21 +57,8 @@ export function init(state) {
             </div></div></div>
         `;
 
-        if (isModal) {
-            // Модал — вставити в основний grid секції (поруч із Залишок)
-            const section = document.getElementById('section-variant-info');
-            const mainGrid = section?.querySelector('.section-content > .grid');
-            if (mainGrid && !mainGrid.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) {
-                const charsEl = mainGrid.querySelector('#variant-characteristics-container');
-                if (charsEl) mainGrid.insertBefore(weightField, charsEl);
-                else mainGrid.appendChild(weightField);
-            }
-        } else {
-            // Акордіон — вставити першим у .grid всередині контейнера
-            const grid = container.querySelector('.grid');
-            if (grid) grid.prepend(weightField);
-            else container.prepend(weightField);
-        }
+        // Перше поле в характеристиках — і в модалі, і в акордіоні
+        container.prepend(weightField);
     });
 
     // Перед збереженням: char-000022 → окрема колонка weight
