@@ -317,18 +317,17 @@ function setupLoginTrigger() {
  * Цей обробник викликається коли модал вже завантажений в DOM
  */
 function handleModalOpened(event) {
-  const { modalId, bodyTarget } = event.detail;
+  const { modalId, bodyTarget, modalElement } = event.detail;
 
   // Перевіряємо чи це наш модал входу
   if (modalId !== 'auth-login-modal') {
     return;
   }
 
-
   // Знаходимо елементи в модалі
   const usernameInput = bodyTarget.querySelector('#auth-username');
   const passwordInput = bodyTarget.querySelector('#auth-password');
-  const loginButton = bodyTarget.querySelector('#auth-login-btn');
+  const loginButton = modalElement.querySelector('#auth-login-btn');
   const statusMessage = bodyTarget.querySelector('#auth-login-avatar-message');
   const avatarContainer = bodyTarget.querySelector('#auth-login-avatar-container');
 

@@ -344,6 +344,13 @@ body.modal-open {
     max-height: none;
 }
 
+.modal-small .modal-body {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: var(--space-l);
+    gap: var(--space-m);
+}
+
 .modal-full .modal-container {
     width: 95vw;
     max-width: none;

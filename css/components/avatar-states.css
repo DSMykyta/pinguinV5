@@ -152,6 +152,11 @@
     padding: 24px;
 }
 
+/* modal-small вже дає padding на .modal-body */
+.modal-small .modal-confirm-body {
+    padding: 0;
+}
+
 .modal-confirm-avatar {
     display: flex;
     flex-direction: column;
