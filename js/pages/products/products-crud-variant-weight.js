@@ -36,19 +36,18 @@ function formatWeight(raw, lang) {
 const WEIGHT_CHAR_ID = 'char-000022';
 
 export function init(state) {
-    // Рендеринг поля ваги в основному блоці (поруч з Залишок), НЕ в характеристиках
-    registerProductsPlugin('onCharsRender', (_container, savedValues) => {
-        // Шукаємо основний grid секції variant-info (де ID, Артикул, Ціна...)
-        const section = document.getElementById('section-variant-info');
-        const grid = section?.querySelector('.section-content > .grid');
-        if (!grid) return;
-
+    registerProductsPlugin('onCharsRender', (container, savedValues) => {
+        if (!container) return;
         // Не дублювати
-        if (grid.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;
+        if (container.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;
 
         const saved = savedValues?.[WEIGHT_CHAR_ID] || '';
+
+        const isModal = container.id === 'variant-characteristics-container';
+        const colSize = isModal ? '2' : '3';
+
         const weightField = document.createElement('div');
-        weightField.className = 'group column col-2';
+        weightField.className = `group column col-${colSize}`;
         weightField.innerHTML = `
             <label for="variant-char-${WEIGHT_CHAR_ID}" class="label-l">Вага</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
@@ -61,12 +60,20 @@ export function init(state) {
             </div></div></div>
         `;
 
-        // Вставити перед variant-characteristics-container (останній елемент grid)
-        const charsContainer = grid.querySelector('#variant-characteristics-container');
-        if (charsContainer) {
-            grid.insertBefore(weightField, charsContainer);
+        if (isModal) {
+            // Модал — вставити в основний grid секції (поруч із Залишок)
+            const section = document.getElementById('section-variant-info');
+            const mainGrid = section?.querySelector('.section-content > .grid');
+            if (mainGrid && !mainGrid.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) {
+                const charsEl = mainGrid.querySelector('#variant-characteristics-container');
+                if (charsEl) mainGrid.insertBefore(weightField, charsEl);
+                else mainGrid.appendChild(weightField);
+            }
         } else {
-            grid.appendChild(weightField);
+            // Акордіон — вставити першим у .grid всередині контейнера
+            const grid = container.querySelector('.grid');
+            if (grid) grid.prepend(weightField);
+            else container.prepend(weightField);
         }
     });
 
