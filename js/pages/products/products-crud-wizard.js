@@ -14,6 +14,8 @@
  *   - Очищення при закритті модалу
  */
 
+import { initWizard, destroyWizard, refreshWizard } from '../../components/modal/modal-wizard.js';
+
 let _pendingWizardMode = false;
 let _observer = null;
 
@@ -41,10 +43,7 @@ function _startObserver() {
     _observer = new MutationObserver(() => {
         const container = document.querySelector('#product-edit .modal-container');
         if (!container?.classList.contains('wizard-mode')) return;
-
-        import('../../components/modal/modal-wizard.js').then(({ refreshWizard }) => {
-            refreshWizard();
-        });
+        refreshWizard();
     });
 
     _observer.observe(charContainer, { childList: true });
@@ -71,10 +70,9 @@ function onProductModalOpened(e) {
     const modeSwitch = overlay?.querySelector('#product-mode-switch');
     if (modeSwitch && !modeSwitch._wizardInit) {
         modeSwitch._wizardInit = true;
-        modeSwitch.addEventListener('change', async (ev) => {
+        modeSwitch.addEventListener('change', (ev) => {
             const c = ev.target.closest('.modal-container');
             if (!c) return;
-            const { initWizard, destroyWizard } = await import('../../components/modal/modal-wizard.js');
             if (ev.target.value === 'wizard') {
                 initWizard(c);
                 _startObserver();
@@ -89,10 +87,8 @@ function onProductModalOpened(e) {
     if (_pendingWizardMode && container) {
         _pendingWizardMode = false;
         if (modeSwitch) modeSwitch.classList.remove('u-hidden');
-        import('../../components/modal/modal-wizard.js').then(({ initWizard }) => {
-            initWizard(container);
-            _startObserver();
-        });
+        initWizard(container);
+        _startObserver();
         const radio = overlay.querySelector('#product-mode-wizard');
         if (radio) radio.checked = true;
     } else {
@@ -100,14 +96,13 @@ function onProductModalOpened(e) {
     }
 }
 
-async function onProductModalClosed(e) {
+function onProductModalClosed(e) {
     if (e.detail.modalId !== 'product-edit') return;
 
     _stopObserver();
 
     const container = e.detail.modalElement?.querySelector('.modal-container');
     if (container?.classList.contains('wizard-mode')) {
-        const { destroyWizard } = await import('../../components/modal/modal-wizard.js');
         destroyWizard(container);
     }
 }
