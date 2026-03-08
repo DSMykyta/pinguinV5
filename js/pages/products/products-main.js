@@ -277,7 +277,8 @@ registerAsideInitializer('aside-products', () => {
         } else if (item.id === 'btn-add-variant-aside') {
             // TODO: створити варіант
         } else if (item.id === 'btn-add-group-aside') {
-            // TODO: створити групу
+            const { showAddGroupModal } = await import('./groups-crud.js');
+            showAddGroupModal();
         }
     });
 
