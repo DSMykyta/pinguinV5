@@ -18,6 +18,7 @@ import { initCustomSelects } from '../../components/forms/select.js';
 import { buildParentChildMap, initParentChildListeners, filterChildOptions } from './products-crud-hierarchy.js';
 import { displayName, resolveNameFromCharsAndSpecs } from './products-crud-variant-names.js';
 import { initInlinePhotos, getInlinePhotoUrls } from './products-crud-variant-photos-inline.js';
+import { runHook } from './products-plugins.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPEC JSON PARSER
@@ -127,6 +128,9 @@ export async function renderVariantCharacteristics(productId, savedValues, varia
 
     html += '</div>';
     container.innerHTML = html;
+
+    // Хук: плагіни можуть додати свої поля (наприклад, вага)
+    runHook('onCharsRender', container, savedValues);
 
     initCustomSelects(container);
 
@@ -478,13 +482,12 @@ export function buildVariantFieldsHTML(pid, pv) {
 export function buildExpandContent(row) {
     const id = row.variant_id || row._pendingId;
     return `
-        <div class="grid" style="padding: 12px 16px;">
+        <div class="grid">
             ${buildVariantFieldsHTML(id, row)}
         </div>
         <div class="separator-h"></div>
-        <div id="${id}-chars-container" style="padding: 0 16px 12px;"></div>
-        <div class="separator-h"></div>
-        <div class="grid" style="padding: 0 16px 12px;">
+        <div id="${id}-chars-container"></div>
+        <div class="grid">
             <div class="group column col-4" id="${id}-photos-list">
                 <label class="label-l">Фото</label>
                 <div class="content-bloc" id="${id}-photo-dropzone" data-dropzone>
@@ -677,6 +680,8 @@ export async function renderPendingVariantCharacteristics(categoryId, pendingVar
         html += '</div>';
         container.innerHTML = html;
 
+        runHook('onCharsRender', container, savedValues);
+
         initCustomSelects(container);
         if (parentChildMap.size > 0) {
             initParentChildListeners(container, 'data-vchar-id');
@@ -737,6 +742,8 @@ export async function renderExistingVariantCharacteristics(categoryId, variants)
         });
         html += '</div>';
         container.innerHTML = html;
+
+        runHook('onCharsRender', container, savedValues);
 
         initCustomSelects(container);
         if (parentChildMap.size > 0) {

@@ -7,7 +7,7 @@
  * ║                                                                          ║
  * ║  ПЛАГІН (viewless)                                                       ║
  * ║  Обробка ваги для варіантів:                                             ║
- * ║  ├── Вага вводиться як характеристика char-000022 (блок 8)              ║
+ * ║  ├── char-000022 (блок 1) — примусово рендериться як перше поле         ║
  * ║  ├── При збереженні: char-000022 → колонка weight                       ║
  * ║  └── Якщо вага є — назва збирається заново з частин товару,             ║
  * ║      variation = "{вага} грам/грамм"                                     ║
@@ -17,6 +17,8 @@
 import { getBrandById } from '../brands/brands-data.js';
 import { getBrandLineById } from '../brands/lines-data.js';
 import { buildShortName, buildFullName } from './products-crud-names.js';
+import { registerProductsPlugin } from './products-plugins.js';
+import { escapeHtml } from '../../utils/text-utils.js';
 
 /**
  * Форматування ваги: число грамів → "500 грам" / "500 грамм"
@@ -31,10 +33,42 @@ function formatWeight(raw, lang) {
     return `${display} ${lang === 'ru' ? 'грамм' : 'грам'}`;
 }
 
+const WEIGHT_CHAR_ID = 'char-000022';
+
 export function init(state) {
+    // Рендеринг поля ваги першим у контейнері характеристик
+    registerProductsPlugin('onCharsRender', (container, savedValues) => {
+        if (!container) return;
+        // Не дублювати
+        if (container.querySelector(`[data-vchar-id="${WEIGHT_CHAR_ID}"]`)) return;
+
+        const saved = savedValues?.[WEIGHT_CHAR_ID] || '';
+        const weightField = document.createElement('div');
+        weightField.className = 'group column col-3';
+        weightField.innerHTML = `
+            <label for="variant-char-${WEIGHT_CHAR_ID}" class="label-l">Вага</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="number" step="0.01"
+                    id="variant-char-${WEIGHT_CHAR_ID}"
+                    data-vchar-id="${WEIGHT_CHAR_ID}"
+                    value="${escapeHtml(saved)}"
+                    placeholder="Вага">
+                <span class="tag c-tertiary">г</span>
+            </div></div></div>
+        `;
+
+        // Вставити першим у .grid всередині контейнера
+        const grid = container.querySelector('.grid');
+        if (grid) {
+            grid.prepend(weightField);
+        } else {
+            container.prepend(weightField);
+        }
+    });
+
     // Перед збереженням: char-000022 → окрема колонка weight
     state.registerFilter('onBeforeVariantSave', (formData) => {
-        const weightVal = formData.variant_chars?.['char-000022']?.trim();
+        const weightVal = formData.variant_chars?.[WEIGHT_CHAR_ID]?.trim();
         formData.weight = weightVal || '';
         return formData;
     }, { plugin: 'variant-weight' });
@@ -42,7 +76,7 @@ export function init(state) {
     // Фільтр для генерації назви: якщо variant_chars містить char-000022 (вагу),
     // збираємо назву заново з частин товару, замінюючи variation на форматовану вагу
     state.registerFilter('onComputeVariantNames', (names, ctx) => {
-        const raw = ctx.variantChars?.['char-000022']?.trim();
+        const raw = ctx.variantChars?.[WEIGHT_CHAR_ID]?.trim();
         if (!raw) return names;
 
         const weightUa = formatWeight(raw, 'ua');

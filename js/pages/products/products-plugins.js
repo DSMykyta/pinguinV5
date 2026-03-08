@@ -26,6 +26,7 @@ const hooks = {
     onTabChange: [],         // Після зміни активного табу
     onModalOpen: [],         // Після відкриття модалу товару
     onVariantModalOpen: [],  // Після відкриття модалу варіанту
+    onCharsRender: [],       // Після рендеру характеристик варіанту (container, savedValues)
     onModalClose: [],        // Після закриття модалу
 };
 
