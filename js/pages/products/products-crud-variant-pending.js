@@ -3,18 +3,13 @@
 /**
  * PRODUCTS CRUD — PENDING ВАРІАНТИ
  *
- * Дані + managed table для варіантів нового (ще не збереженого) товару.
- * Та сама таблиця що й для існуючих варіантів (expandable, checkboxes).
- * Редагування — inline або через variant-edit модал.
- * Варіанти додаються вручну через кнопку "+".
+ * In-memory дані для варіантів нового (ще не збереженого) товару.
+ * Рендеринг — через ту саму managed table в products-crud-variants.js.
+ * Редагування — inline (expandable) або через variant-edit модал.
  */
 
 import { addProductVariant } from './variants-data.js';
-import { showToast } from '../../components/feedback/toast.js';
-import { createManagedTable, col } from '../../components/table/table-main.js';
-import { registerActionHandlers, initActionHandlers } from '../../components/actions/actions-main.js';
 import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
-import { getVariantColumns, buildExpandContent, onVariantExpand, readRowFormValues, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -22,8 +17,6 @@ import { getVariantColumns, buildExpandContent, onVariantExpand, readRowFormValu
 
 let _pendingVariants = [];
 let _pendingCounter = 0;
-let _pendingManagedTable = null;
-let _pendingActionCleanup = null;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA API
@@ -65,7 +58,6 @@ export function updatePendingVariant(pendingId, data) {
 
 export function removePendingVariant(pendingId) {
     _pendingVariants = _pendingVariants.filter(v => v._pendingId !== pendingId);
-    renderPendingList();
 }
 
 export function getPendingVariantById(pendingId) {
@@ -76,113 +68,19 @@ export function getPendingVariants() {
     return _pendingVariants;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ACTION HANDLERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-registerActionHandlers('pending-variants', {
-    edit: (rowId) => {
-        document.dispatchEvent(new CustomEvent('pending-variant-edit', { detail: { pendingId: rowId } }));
-    },
-    delete: (rowId) => removePendingVariant(rowId),
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// RENDER — managed table (та сама структура що й для існуючих варіантів)
-// ═══════════════════════════════════════════════════════════════════════════
-
-function _buildTableData() {
-    return _pendingVariants.map((pv, i) => {
+/**
+ * Перетворити pending варіанти в формат для managed table
+ */
+export function getPendingTableData() {
+    return _pendingVariants.map((pv) => {
         const resolvedName = displayName(pv.name_ua);
         return {
             ...pv,
             variant_id: pv._pendingId,
-            variant_display: resolvedName || `Варіант ${i + 1}`,
+            variant_display: resolvedName || '',
             product_name: '',
         };
     });
-}
-
-export function renderPendingList() {
-    const container = document.getElementById('product-variants-accordion');
-    const existingTable = document.getElementById('product-variants-container');
-    if (!container) return;
-
-    container.style.display = '';
-    if (existingTable) existingTable.style.display = 'none';
-
-    const tableData = _buildTableData();
-
-    if (_pendingManagedTable) {
-        _pendingManagedTable.updateData(tableData);
-    } else {
-        _pendingManagedTable = createManagedTable({
-            container: 'product-variants-accordion',
-            columns: getVariantColumns(col).map(c => ({
-                ...c,
-                searchable: false,
-                checked: !['product_name', 'variant_id', 'article', 'image_url'].includes(c.id),
-            })),
-            data: tableData,
-            tableConfig: {
-                rowActionsHeader: ' ',
-                rowActions: () => '',
-                getRowId: (row) => row.variant_id,
-                emptyState: { message: 'Додайте варіант' },
-                withContainer: false,
-                onAfterRender: (cont) => {
-                    if (_pendingActionCleanup) _pendingActionCleanup();
-                    _pendingActionCleanup = initActionHandlers(cont, 'pending-variants');
-                },
-                plugins: {
-                    checkboxes: {},
-                    expandable: {
-                        renderContent: (row) => buildExpandContent(row),
-                        onExpand: async (rowEl, row) => {
-                            onVariantExpand(rowEl, row);
-                            const categoryId = document.getElementById('product-category')?.value || '';
-                            if (categoryId) {
-                                await renderPendingVariantCharacteristics(categoryId, [row]);
-                            }
-                        },
-                        onSave: (rowEl) => _handlePendingRowSave(rowEl),
-                        onOpenFull: (_rowEl, row) => {
-                            document.dispatchEvent(new CustomEvent('pending-variant-edit', { detail: { pendingId: row.variant_id } }));
-                        },
-                    }
-                }
-            },
-            pageSize: null,
-            checkboxPrefix: 'pending-variants',
-        });
-    }
-}
-
-function _handlePendingRowSave(rowEl) {
-    const pendingId = rowEl.dataset.rowId;
-    if (!pendingId) return;
-
-    const formData = readRowFormValues(rowEl);
-
-    // Resolve variant name
-    const resolved = resolveNameFromCharsAndSpecs(formData.variant_chars, formData.spec_ua, formData.spec_ru);
-    formData.name_ua = resolved.ua;
-    formData.name_ru = resolved.ru;
-
-    updatePendingVariant(pendingId, formData);
-    renderPendingList();
-    showToast('Варіант оновлено', 'success');
-}
-
-export function destroyPendingTable() {
-    if (_pendingManagedTable) {
-        _pendingManagedTable.destroy();
-        _pendingManagedTable = null;
-    }
-    if (_pendingActionCleanup) {
-        _pendingActionCleanup();
-        _pendingActionCleanup = null;
-    }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -223,12 +121,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
 
     _pendingVariants = [];
     _pendingCounter = 0;
-    destroyPendingTable();
-
-    const accordion = document.getElementById('product-variants-accordion');
-    const table = document.getElementById('product-variants-container');
-    if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
-    if (table) table.style.display = '';
 
     if (populateProductVariants) populateProductVariants(productId);
 }
@@ -236,10 +128,6 @@ export async function commitPendingVariantChanges(productId, productData, popula
 export function discardPendingVariantChanges() {
     _pendingVariants = [];
     _pendingCounter = 0;
-    destroyPendingTable();
-
-    const accordion = document.getElementById('product-variants-accordion');
-    if (accordion) { accordion.innerHTML = ''; accordion.style.display = 'none'; }
 }
 
 // Backward compat stub
