@@ -435,40 +435,33 @@ export function getVariantCharsData() {
  */
 export function buildVariantFieldsHTML(pid, pv) {
     return `
-        <div class="group column col-4">
+        <div class="group column col-3">
             <label for="${pid}-article" class="label-l">Артикул</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="text" id="${pid}-article" data-field="article" placeholder="Артикул" value="${escapeHtml(pv.article || '')}">
             </div></div></div>
         </div>
-        <div class="group column col-4">
+        <div class="group column col-3">
             <label for="${pid}-barcode" class="label-l">Штрихкод</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
             </div></div></div>
         </div>
-        <div class="group column col-4">
+        <div class="group column col-2">
             <label for="${pid}-price" class="label-l">Ціна</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="0.01" id="${pid}-price" data-field="price" placeholder="0.00" value="${escapeHtml(pv.price || '')}">
                 <span class="tag c-tertiary">UAH</span>
             </div></div></div>
         </div>
-        <div class="group column col-4">
+        <div class="group column col-2">
             <label for="${pid}-old_price" class="label-l">Стара ціна</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="0.01" id="${pid}-old_price" data-field="old_price" placeholder="0.00" value="${escapeHtml(pv.old_price || '')}">
                 <span class="tag c-tertiary">UAH</span>
             </div></div></div>
         </div>
-        <div class="group column col-4">
-            <label for="${pid}-weight" class="label-l">Вага</label>
-            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="text" id="${pid}-weight" data-field="weight" placeholder="Вага" value="${escapeHtml(pv.weight || '')}">
-                <span class="tag c-tertiary">г</span>
-            </div></div></div>
-        </div>
-        <div class="group column col-4">
+        <div class="group column col-2">
             <label for="${pid}-stock" class="label-l">Залишок</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
                 <input type="number" step="1" id="${pid}-stock" data-field="stock" placeholder="0" value="${escapeHtml(pv.stock || '')}">

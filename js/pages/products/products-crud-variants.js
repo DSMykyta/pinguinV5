@@ -214,7 +214,7 @@ async function _handleRowSave(rowEl) {
     // Compute generated names
     const productId = _getCurrentProductId?.();
     if (productId) {
-        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, formData.variant_chars);
         Object.assign(formData, genNames);
     }
 
@@ -297,6 +297,7 @@ async function showAddVariantModal() {
     if (productIdField) productIdField.value = productId;
 
     await renderVariantCharacteristics(productId, {}, {});
+    initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
 }
@@ -330,7 +331,7 @@ async function showPendingVariantModal(pendingId) {
     // categoryIdOverride from product form
     const categoryId = document.getElementById('product-category')?.value || '';
     await renderVariantCharacteristics(null, existing?.variant_chars || {}, existing || {}, categoryId);
-
+    initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
 }
@@ -357,8 +358,32 @@ export async function showEditVariantModal(variantId) {
     initVariantPhotoSection();
     fillVariantForm(variant);
     await renderVariantCharacteristics(variant.product_id, variant.variant_chars || {}, variant);
+    initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LIVE TITLE UPDATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initLiveTitleUpdate() {
+    const container = document.getElementById('variant-characteristics-container');
+    if (!container) return;
+
+    const update = () => {
+        const resolved = resolveVariantName();
+        const text = displayName(resolved.ua);
+        const title = document.getElementById('variant-modal-title');
+        if (!title) return;
+        const prefix = _currentVariantId ? 'Редагувати' : 'Новий варіант';
+        title.textContent = text ? `${prefix} ${text}` : prefix;
+    };
+
+    container.addEventListener('change', update);
+    container.addEventListener('input', (e) => {
+        if (e.target.matches('input[data-spec-char-id], input[data-vchar-id]')) update();
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -540,7 +565,7 @@ function initVariantSaveHandler() {
 async function handleSaveVariant(shouldClose = true) {
     let formData = getVariantFormData();
 
-    // Пропускаємо через фільтри (плагін ваги перехопить і запише char-000022)
+    // Пропускаємо через фільтри (плагін ваги: char-000022 → weight)
     formData = applyFilter('onBeforeVariantSave', formData);
 
     // Авто-генерація name_ua/name_ru: resolveVariantName вже враховує per-char spec
@@ -567,8 +592,8 @@ async function handleSaveVariant(shouldClose = true) {
     // ── Normal mode: API ──
     const productId = formData.product_id;
 
-    // Обчислити згенеровані назви (додаємо formData.weight як 4-й параметр)
-    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.weight);
+    // Обчислити згенеровані назви (variant_chars для плагіна ваги)
+    const genNames = computeVariantGeneratedNames(productId, formData.name_ua, formData.name_ru, formData.variant_chars);
     Object.assign(formData, genNames);
 
     try {

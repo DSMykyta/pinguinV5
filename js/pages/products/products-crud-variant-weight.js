@@ -5,11 +5,12 @@
  * ║        PRODUCTS CRUD — ВАГА ВАРІАНТУ (ПЛАГІН)                            ║
  * ╠══════════════════════════════════════════════════════════════════════════╣
  * ║                                                                          ║
- * ║  🔌 ПЛАГІН (viewless)                                                    ║
- * ║  Обробка поля weight для варіантів:                                      ║
- * ║  ├── Якщо weight заповнено — назва збирається заново з частин товару,   ║
- * ║  │   variation замінюється на "{вага} грам/грамм"                        ║
- * ║  └── Значення weight записується в variant_chars['char-000022']         ║
+ * ║  ПЛАГІН (viewless)                                                       ║
+ * ║  Обробка ваги для варіантів:                                             ║
+ * ║  ├── Вага вводиться як характеристика char-000022 (блок 8)              ║
+ * ║  ├── При збереженні: char-000022 → колонка weight                       ║
+ * ║  └── Якщо вага є — назва збирається заново з частин товару,             ║
+ * ║      variation = "{вага} грам/грамм"                                     ║
  * ╚══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -31,19 +32,17 @@ function formatWeight(raw, lang) {
 }
 
 export function init(state) {
-    // 1. Фільтр перед збереженням: запис ваги як характеристики char-000022
+    // Перед збереженням: char-000022 → окрема колонка weight
     state.registerFilter('onBeforeVariantSave', (formData) => {
-        if (formData.weight && formData.weight.trim() !== '') {
-            formData.variant_chars = formData.variant_chars || {};
-            formData.variant_chars['char-000022'] = formData.weight.trim();
-        }
+        const weightVal = formData.variant_chars?.['char-000022']?.trim();
+        formData.weight = weightVal || '';
         return formData;
     }, { plugin: 'variant-weight' });
 
-    // 2. Фільтр для генерації назви: збираємо заново з частин товару,
-    //    замінюючи variation на форматовану вагу
+    // Фільтр для генерації назви: якщо variant_chars містить char-000022 (вагу),
+    // збираємо назву заново з частин товару, замінюючи variation на форматовану вагу
     state.registerFilter('onComputeVariantNames', (names, ctx) => {
-        const raw = ctx.weight?.trim();
+        const raw = ctx.variantChars?.['char-000022']?.trim();
         if (!raw) return names;
 
         const weightUa = formatWeight(raw, 'ua');

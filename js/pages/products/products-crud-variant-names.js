@@ -171,7 +171,7 @@ export function resolveVariantName() {
  * @param {string} variantNameUa
  * @param {string} variantNameRu
  */
-export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu, variantWeight = '') {
+export function computeVariantGeneratedNames(productId, variantNameUa, variantNameRu, variantChars = {}) {
     const product = getProductById(productId);
     if (!product) return { generated_short_ua: '', generated_short_ru: '', generated_full_ua: '', generated_full_ru: '' };
 
@@ -196,10 +196,10 @@ export function computeVariantGeneratedNames(productId, variantNameUa, variantNa
         generated_full_ru: fullRu,
     };
 
-    // Фільтр дозволяє плагінам перезаписати імена (наприклад, використавши вагу)
+    // Фільтр дозволяє плагінам перезаписати імена (наприклад, використавши вагу з variant_chars)
     return applyFilter('onComputeVariantNames', defaultNames, {
         product,
-        weight: variantWeight,
+        variantChars,
         nameUaDisplay,
         nameRuDisplay
     });

@@ -131,7 +131,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
         const resolved = pv.name_ua
             ? { ua: pv.name_ua, ru: pv.name_ru }
             : resolveNameFromCharsAndSpecs(pv.variant_chars, pv.spec_ua, pv.spec_ru);
-        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru);
+        const genNames = computeVariantGeneratedNames(productId, resolved.ua, resolved.ru, pv.variant_chars);
 
         await addProductVariant({
             product_id: productId,
@@ -142,7 +142,7 @@ export async function commitPendingVariantChanges(productId, productData, popula
             barcode: pv.barcode || '',
             price: pv.price || '',
             old_price: pv.old_price || '',
-            weight: pv.weight || '',
+            weight: pv.variant_chars?.['char-000022'] || pv.weight || '',
             stock: pv.stock || '',
             variant_chars: pv.variant_chars || {},
             image_url: pv.image_url || '',
