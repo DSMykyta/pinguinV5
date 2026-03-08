@@ -13,6 +13,7 @@
 import { uploadProductPhotoFile } from '../../utils/api-client.js';
 import { escapeHtml } from '../../utils/text-utils.js';
 import { showToast } from '../../components/feedback/toast.js';
+import { registerProductsPlugin } from './products-plugins.js';
 
 const MAX_PHOTOS = 10;
 
@@ -231,6 +232,47 @@ function renderGrid(rowId) {
 
     grid.innerHTML = html;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOK: рендер фото блоку в grid характеристик
+// ═══════════════════════════════════════════════════════════════════════════
+
+registerProductsPlugin('onCharsRender', (container) => {
+    if (!container) return;
+    const rowId = container.id?.replace('-chars-container', '');
+    if (!rowId) return;
+    // Не дублювати
+    if (container.querySelector(`#${CSS.escape(rowId)}-photos-list`)) return;
+
+    const photoField = document.createElement('div');
+    photoField.className = 'group column col-3';
+    photoField.id = `${rowId}-photos-list`;
+    photoField.innerHTML = `
+        <label class="label-l">Фото</label>
+        <div class="content-bloc" id="${rowId}-photo-dropzone" data-dropzone>
+            <div class="content-line">
+                <div class="input-box">
+                    <input type="url" id="${rowId}-photo-url-field" placeholder="URL або перетягніть файл...">
+                </div>
+                <button type="button" class="btn-icon ci-action" id="${rowId}-btn-pick-photo" data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                    <span class="material-symbols-outlined">folder_open</span>
+                </button>
+                <button type="button" class="btn-icon ci-action u-hidden" id="${rowId}-btn-upload-photo" data-dz-upload data-tooltip="Завантажити з URL" data-tooltip-always>
+                    <span class="material-symbols-outlined">download</span>
+                </button>
+            </div>
+            <input type="file" id="${rowId}-photo-file-input" accept="image/*" multiple hidden>
+        </div>
+        <div class="content-bloc-container photos" id="${rowId}-photos-grid"></div>
+    `;
+
+    const grid = container.querySelector('.grid');
+    if (grid) {
+        grid.appendChild(photoField);
+    } else {
+        container.appendChild(photoField);
+    }
+}, 20); // priority 20 — після ваги (10)
 
 function parsePhotoUrls(raw) {
     if (!raw) return [];

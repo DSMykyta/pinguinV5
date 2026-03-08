@@ -53,7 +53,7 @@ export function init(state) {
                     data-vchar-id="${WEIGHT_CHAR_ID}"
                     value="${escapeHtml(saved)}"
                     placeholder="Вага">
-                <span class="tag c-tertiary">г</span>
+                <span class="tag c-tertiary">грам</span>
             </div></div></div>
         `;
 

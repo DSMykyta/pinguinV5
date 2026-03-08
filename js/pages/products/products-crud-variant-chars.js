@@ -446,12 +446,6 @@ export function buildVariantFieldsHTML(pid, pv) {
                 <input type="text" id="${pid}-article" data-field="article" placeholder="Артикул" value="${escapeHtml(pv.article || '')}">
             </div></div></div>
         </div>
-        <div class="group column col-3">
-            <label for="${pid}-barcode" class="label-l">Штрихкод</label>
-            <div class="content-bloc"><div class="content-line"><div class="input-box">
-                <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
-            </div></div></div>
-        </div>
         <div class="group column col-2">
             <label for="${pid}-price" class="label-l">Ціна</label>
             <div class="content-bloc"><div class="content-line"><div class="input-box">
@@ -473,6 +467,12 @@ export function buildVariantFieldsHTML(pid, pv) {
                 <span class="tag c-tertiary">шт</span>
             </div></div></div>
         </div>
+        <div class="group column col-3">
+            <label for="${pid}-barcode" class="label-l">Штрихкод</label>
+            <div class="content-bloc"><div class="content-line"><div class="input-box">
+                <input type="text" id="${pid}-barcode" data-field="barcode" placeholder="Barcode" value="${escapeHtml(pv.barcode || '')}">
+            </div></div></div>
+        </div>
     `;
 }
 
@@ -485,28 +485,7 @@ export function buildExpandContent(row) {
         <div class="grid">
             ${buildVariantFieldsHTML(id, row)}
         </div>
-        <div class="separator-h"></div>
         <div id="${id}-chars-container"></div>
-        <div class="grid">
-            <div class="group column col-4" id="${id}-photos-list">
-                <label class="label-l">Фото</label>
-                <div class="content-bloc" id="${id}-photo-dropzone" data-dropzone>
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="url" id="${id}-photo-url-field" placeholder="URL або перетягніть файл...">
-                        </div>
-                        <button type="button" class="btn-icon ci-action" id="${id}-btn-pick-photo" data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
-                            <span class="material-symbols-outlined">folder_open</span>
-                        </button>
-                        <button type="button" class="btn-icon ci-action u-hidden" id="${id}-btn-upload-photo" data-dz-upload data-tooltip="Завантажити з URL" data-tooltip-always>
-                            <span class="material-symbols-outlined">download</span>
-                        </button>
-                    </div>
-                    <input type="file" id="${id}-photo-file-input" accept="image/*" multiple hidden>
-                </div>
-                <div class="content-bloc-container photos" id="${id}-photos-grid"></div>
-            </div>
-        </div>
     `;
 }
 

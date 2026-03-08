@@ -183,6 +183,7 @@ async function populateProductVariants(productId) {
                             stock: 'number',
                         }
                     },
+                    checkboxes: {},
                     expandable: {
                         renderContent: (row) => buildExpandContent(row),
                         renderFooterLeft: (row) => _renderVariantFooterLeft(row),
@@ -195,7 +196,7 @@ async function populateProductVariants(productId) {
                 }
             },
             pageSize: null,
-            checkboxPrefix: 'product-variants'
+            checkboxPrefix: 'product-variants',
         });
 
         initColumnsCharm();
