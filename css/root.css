@@ -7,19 +7,19 @@
        ═══════════════════════════════════════════ */
 
     /* --- Main --- */
-    --color-main: rgb(9, 63, 69);
+    --color-main: /*rgb(9, 63, 69)*/ #007aff;
     --color-on-main: rgb(255, 255, 255);
     --color-main-c: color-mix(in srgb, var(--color-main) 8%, transparent);
     --color-on-main-c: var(--color-main);
 
     /* --- Secondary --- */
-    --color-secondary: rgb(39, 93, 99);
+    --color-secondary: /*rgb(39, 93, 99)*/#113855;
     --color-on-secondary: rgb(255, 255, 255);
     --color-secondary-c: color-mix(in srgb, var(--color-secondary) 8%, transparent);
     --color-on-secondary-c: var(--color-secondary);
 
     /* --- Tertiary --- */
-    --color-tertiary: rgb(232, 110, 80);
+    --color-tertiary: /*rgb(232, 110, 80)*/#ff5223;
     --color-on-tertiary: rgb(255, 255, 255);
     --color-tertiary-c: color-mix(in srgb, var(--color-tertiary) 10%, transparent);
     --color-on-tertiary-c: color-mix(in srgb, var(--color-tertiary), black 20%);
