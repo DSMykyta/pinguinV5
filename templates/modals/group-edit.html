@@ -4,6 +4,14 @@
         <div class="modal-header">
             <h2><span id="group-modal-title">Нова група</span></h2>
             <div class="group">
+                <div class="switch switch-fit" id="group-type-switch">
+                    <input type="radio" id="group-type-label" name="group-type" value="label" checked>
+                    <label for="group-type-label" class="switch-label">Ознака</label>
+                    <input type="radio" id="group-type-detail" name="group-type" value="detail">
+                    <label for="group-type-detail" class="switch-label">Деталь</label>
+                    <input type="radio" id="group-type-variant" name="group-type" value="variant">
+                    <label for="group-type-variant" class="switch-label">Варіант</label>
+                </div>
                 <button id="btn-save-group" class="btn-icon" aria-label="Зберегти">
                     <span class="material-symbols-outlined">save</span>
                 </button>
@@ -16,31 +24,19 @@
         <!-- Body -->
         <div class="modal-body">
 
-            <!-- Пошук і додавання товару -->
+            <!-- Вибір товару через custom select -->
             <div class="group column col-12">
-                <label class="label-l">Додати товар</label>
-                <div class="content-bloc">
-                    <div class="content-line">
-                        <div class="input-box">
-                            <input type="text" id="group-product-search" placeholder="Пошук за назвою або ID...">
-                        </div>
-                        <button type="button" class="btn-icon ci-action" id="btn-add-product-to-group" data-tooltip="Додати по ID" data-tooltip-always>
-                            <span class="material-symbols-outlined">add</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Підказки пошуку -->
-                <div class="content-bloc-container" id="group-product-suggestions">
-                    <!-- Динамічно: результати пошуку -->
-                </div>
+                <label for="group-product-select" class="label-l">Додати товар</label>
+                <select id="group-product-select" data-custom-select>
+                    <option value="">— Оберіть товар —</option>
+                </select>
             </div>
 
-            <!-- Список товарів групи -->
+            <!-- Список товарів групи (draggable) -->
             <div class="group column col-12">
                 <label class="label-l">Товари в групі</label>
                 <div class="content-bloc-container" id="group-products-list">
-                    <!-- Динамічно: картки товарів -->
+                    <!-- Динамічно: картки товарів з drag -->
                 </div>
             </div>
 

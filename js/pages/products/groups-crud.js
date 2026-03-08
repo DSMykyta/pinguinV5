@@ -6,6 +6,12 @@
  * ╚══════════════════════════════════════════════════════════════════════════╝
  *
  * 🔌 ПЛАГІН — CRUD операції для груп товарів (створення, редагування, видалення).
+ *
+ * Модал:
+ * ├── Switcher в хедері: Ознака / Деталь / Варіант (product_type)
+ * ├── Custom select для вибору товарів
+ * ├── Draggable список товарів (порядок = порядок в product_ids)
+ * └── Зберігання: group_id, product_type, product_ids
  */
 
 import { getProductGroups, addProductGroup, updateProductGroup, deleteProductGroup } from './groups-data.js';
@@ -13,6 +19,7 @@ import { getProducts } from './products-data.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
+import { populateSelect } from '../../components/forms/select.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -20,6 +27,21 @@ import { escapeHtml } from '../../utils/text-utils.js';
 
 let _currentGroupId = null;
 let _groupProductIds = [];
+let _groupProductType = 'label';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRODUCT TYPE LABELS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const TYPE_LABELS = {
+    label: 'Ознака',
+    detail: 'Деталь',
+    variant: 'Варіант'
+};
+
+export function getTypeLabel(type) {
+    return TYPE_LABELS[type] || type;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHOW MODALS
@@ -28,15 +50,17 @@ let _groupProductIds = [];
 export async function showAddGroupModal() {
     _currentGroupId = null;
     _groupProductIds = [];
+    _groupProductType = 'label';
 
     await showModal('group-edit', null);
 
     const title = document.getElementById('group-modal-title');
     if (title) title.textContent = 'Нова група';
 
+    setTypeSwitch(_groupProductType);
+    populateProductSelect();
     renderGroupProductsList();
-    initGroupSearch();
-    initGroupSaveHandler();
+    initModalHandlers();
 }
 
 export async function showEditGroupModal(groupId) {
@@ -48,19 +72,68 @@ export async function showEditGroupModal(groupId) {
 
     _currentGroupId = groupId;
     _groupProductIds = [...group.product_ids];
+    _groupProductType = group.product_type || 'label';
 
     await showModal('group-edit', null);
 
     const title = document.getElementById('group-modal-title');
     if (title) title.textContent = `Група ${groupId}`;
 
+    setTypeSwitch(_groupProductType);
+    populateProductSelect();
     renderGroupProductsList();
-    initGroupSearch();
-    initGroupSaveHandler();
+    initModalHandlers();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// GROUP PRODUCTS LIST
+// TYPE SWITCH
+// ═══════════════════════════════════════════════════════════════════════════
+
+function setTypeSwitch(type) {
+    const radio = document.getElementById(`group-type-${type}`);
+    if (radio) radio.checked = true;
+}
+
+function getTypeSwitch() {
+    const checked = document.querySelector('#group-type-switch input[name="group-type"]:checked');
+    return checked?.value || 'label';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CUSTOM SELECT — PRODUCT PICKER
+// ═══════════════════════════════════════════════════════════════════════════
+
+function populateProductSelect() {
+    const products = getProducts();
+    const items = products
+        .filter(p => !_groupProductIds.includes(p.product_id))
+        .map(p => ({
+            value: p.product_id,
+            text: p.generated_short_ua || p.name_ua || p.product_id
+        }));
+
+    populateSelect('group-product-select', items, {
+        placeholder: '— Оберіть товар —',
+        reinit: true
+    });
+}
+
+function initProductSelectHandler() {
+    const selectEl = document.getElementById('group-product-select');
+    if (!selectEl) return;
+
+    selectEl.addEventListener('change', () => {
+        const val = selectEl.value;
+        if (!val || _groupProductIds.includes(val)) return;
+
+        _groupProductIds.push(val);
+        renderGroupProductsList();
+        populateProductSelect();
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GROUP PRODUCTS LIST (DRAGGABLE)
 // ═══════════════════════════════════════════════════════════════════════════
 
 function renderGroupProductsList() {
@@ -76,19 +149,21 @@ function renderGroupProductsList() {
         return;
     }
 
-    container.innerHTML = _groupProductIds.map(id => {
+    container.innerHTML = _groupProductIds.map((id, index) => {
         const p = productMap[id];
         const name = p ? escapeHtml(p.generated_short_ua || p.name_ua || id) : escapeHtml(id);
-        const variation = p?.variation_ua ? ` <span class="tag c-tertiary">${escapeHtml(p.variation_ua)}</span>` : '';
 
         return `
-            <div class="content-bloc" data-group-product-id="${escapeHtml(id)}">
-                <div class="content-line">
-                    <div class="input-box">
-                        <span class="body-s">${name}</span>
-                        ${variation}
+            <div class="content-bloc" draggable="true" data-group-product-id="${escapeHtml(id)}" data-group-index="${index}">
+                <div class="content-line main">
+                    <button class="btn-icon ghost drag" tabindex="-1">
+                        <span class="material-symbols-outlined">expand_all</span>
+                    </button>
+                    <div class="content-line-info">
+                        <span class="content-line-name">${name}</span>
+                        <span class="content-line-label">${escapeHtml(id)}</span>
                     </div>
-                    <button type="button" class="btn-icon ci-action danger" data-remove-product="${escapeHtml(id)}" aria-label="Прибрати">
+                    <button type="button" class="btn-icon ci-remove" data-remove-product="${escapeHtml(id)}" data-tooltip="Прибрати">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
@@ -96,103 +171,88 @@ function renderGroupProductsList() {
         `;
     }).join('');
 
+    // Remove handlers
     container.querySelectorAll('[data-remove-product]').forEach(btn => {
         btn.onclick = () => {
             const removeId = btn.dataset.removeProduct;
             _groupProductIds = _groupProductIds.filter(id => id !== removeId);
             renderGroupProductsList();
+            populateProductSelect();
         };
+    });
+
+    // Init drag reorder
+    initDragReorder(container);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DRAG REORDER
+// ═══════════════════════════════════════════════════════════════════════════
+
+function initDragReorder(grid) {
+    let draggedIndex = null;
+
+    grid.addEventListener('dragstart', (e) => {
+        const bloc = e.target.closest('.content-bloc[data-group-index]');
+        if (!bloc) return;
+        draggedIndex = parseInt(bloc.dataset.groupIndex);
+        bloc.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    grid.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const bloc = e.target.closest('.content-bloc[data-group-index]');
+        if (!bloc) return;
+
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target'));
+        bloc.classList.add('drag-target');
+    });
+
+    grid.addEventListener('dragleave', (e) => {
+        const bloc = e.target.closest('.content-bloc[data-group-index]');
+        if (bloc) bloc.classList.remove('drag-target');
+    });
+
+    grid.addEventListener('drop', (e) => {
+        e.preventDefault();
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('drag-target', 'dragging'));
+
+        const bloc = e.target.closest('.content-bloc[data-group-index]');
+        if (!bloc || draggedIndex === null) return;
+
+        const targetIndex = parseInt(bloc.dataset.groupIndex);
+        if (draggedIndex === targetIndex) return;
+
+        // Переміщуємо елемент в масиві
+        const [moved] = _groupProductIds.splice(draggedIndex, 1);
+        _groupProductIds.splice(targetIndex, 0, moved);
+
+        renderGroupProductsList();
+        draggedIndex = null;
+    });
+
+    grid.addEventListener('dragend', () => {
+        grid.querySelectorAll('.content-bloc').forEach(b => b.classList.remove('dragging', 'drag-target'));
+        draggedIndex = null;
     });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// SEARCH / ADD PRODUCT
+// MODAL HANDLERS
 // ═══════════════════════════════════════════════════════════════════════════
 
-function initGroupSearch() {
-    const input = document.getElementById('group-product-search');
-    const suggestions = document.getElementById('group-product-suggestions');
-    const addBtn = document.getElementById('btn-add-product-to-group');
-    if (!input || !suggestions) return;
+function initModalHandlers() {
+    initProductSelectHandler();
 
-    let debounceTimer;
-
-    input.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            const query = input.value.trim().toLowerCase();
-            if (query.length < 2) {
-                suggestions.innerHTML = '';
-                return;
-            }
-            renderSuggestions(query, suggestions);
-        }, 200);
-    });
-
-    if (addBtn) {
-        addBtn.onclick = () => {
-            const val = input.value.trim();
-            if (val.startsWith('prod-') && !_groupProductIds.includes(val)) {
-                _groupProductIds.push(val);
-                input.value = '';
-                suggestions.innerHTML = '';
-                renderGroupProductsList();
-            }
-        };
-    }
-}
-
-function renderSuggestions(query, container) {
-    const products = getProducts();
-    const matches = products.filter(p => {
-        if (_groupProductIds.includes(p.product_id)) return false;
-        const name = (p.generated_short_ua || p.name_ua || '').toLowerCase();
-        const id = p.product_id.toLowerCase();
-        return name.includes(query) || id.includes(query);
-    }).slice(0, 8);
-
-    if (matches.length === 0) {
-        container.innerHTML = '<span class="body-s">Нічого не знайдено</span>';
-        return;
-    }
-
-    container.innerHTML = matches.map(p => {
-        const name = escapeHtml(p.generated_short_ua || p.name_ua || p.product_id);
-        const variation = p.variation_ua ? ` <span class="tag c-tertiary">${escapeHtml(p.variation_ua)}</span>` : '';
-
-        return `
-            <div class="content-line" data-suggestion-id="${escapeHtml(p.product_id)}">
-                <div class="input-box">
-                    <span class="tag c-secondary">${escapeHtml(p.product_id)}</span>
-                    <span class="body-s">${name}</span>
-                    ${variation}
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    container.querySelectorAll('[data-suggestion-id]').forEach(el => {
-        el.onclick = () => {
-            const id = el.dataset.suggestionId;
-            if (!_groupProductIds.includes(id)) {
-                _groupProductIds.push(id);
-                renderGroupProductsList();
-            }
-            const input = document.getElementById('group-product-search');
-            if (input) input.value = '';
-            container.innerHTML = '';
-        };
-    });
+    const saveBtn = document.getElementById('btn-save-group');
+    if (saveBtn) saveBtn.onclick = () => handleSaveGroup();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SAVE / DELETE
 // ═══════════════════════════════════════════════════════════════════════════
-
-function initGroupSaveHandler() {
-    const saveBtn = document.getElementById('btn-save-group');
-    if (saveBtn) saveBtn.onclick = () => handleSaveGroup();
-}
 
 async function handleSaveGroup() {
     if (_groupProductIds.length < 2) {
@@ -200,12 +260,14 @@ async function handleSaveGroup() {
         return;
     }
 
+    const productType = getTypeSwitch();
+
     try {
         if (_currentGroupId) {
-            await updateProductGroup(_currentGroupId, _groupProductIds);
+            await updateProductGroup(_currentGroupId, productType, _groupProductIds);
             showToast('Групу оновлено', 'success');
         } else {
-            await addProductGroup(_groupProductIds);
+            await addProductGroup(productType, _groupProductIds);
             showToast('Групу створено', 'success');
         }
 

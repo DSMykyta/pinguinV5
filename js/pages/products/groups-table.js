@@ -19,6 +19,7 @@ import {
     actionButton
 } from '../../components/actions/actions-main.js';
 import { initColumnsCharm } from '../../components/charms/charm-columns.js';
+import { getTypeLabel } from './groups-crud.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ACTION HANDLERS
@@ -45,7 +46,8 @@ let _actionCleanup = null;
 function getColumns() {
     return [
         col('group_id', 'ID', 'tag', { span: 2 }),
-        col('products_list', 'Товари', 'text', { span: 8 }),
+        col('products_list', 'Товари', 'text', { span: 6 }),
+        col('product_type_label', 'Тип', 'text', { span: 2 }),
         col('products_count', 'Кількість', 'text', { span: 1, align: 'right' }),
     ];
 }
@@ -55,7 +57,7 @@ function getColumns() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initGroupsPageTable() {
-    const visibleCols = ['group_id', 'products_list', 'products_count'];
+    const visibleCols = ['group_id', 'products_list', 'product_type_label', 'products_count'];
     const searchCols = ['group_id', 'products_list'];
 
     _groupsPageManagedTable = createManagedTable({
@@ -86,6 +88,7 @@ function initGroupsPageTable() {
                     columnTypes: {
                         group_id: 'id-text',
                         products_list: 'string',
+                        product_type_label: 'string',
                         products_count: 'number',
                     }
                 }
@@ -103,6 +106,7 @@ function initGroupsPageTable() {
                 products_list: g.product_ids
                     .map(id => productMap[id] || id)
                     .join(', '),
+                product_type_label: getTypeLabel(g.product_type),
                 products_count: g.product_ids.length,
             }));
         },
