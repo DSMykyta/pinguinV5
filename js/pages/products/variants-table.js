@@ -58,7 +58,7 @@ function getColumns() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function initVariantsPageTable() {
-    const visibleCols = ['variant_id', 'product_name', 'article', 'image_url', 'name_ua', 'price', 'old_price', 'stock', 'status'];
+    const visibleCols = ['variant_id', 'article', 'image_url', 'name_ua', 'price', 'old_price', 'stock', 'status'];
     const searchCols = ['variant_id', 'article', 'name_ua', 'product_name'];
 
     _variantsPageManagedTable = createManagedTable({
