@@ -12,7 +12,7 @@
 import { addProductVariant } from './variants-data.js';
 import { showToast } from '../../components/feedback/toast.js';
 import { escapeHtml } from '../../utils/text-utils.js';
-import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames } from './products-crud-variant-names.js';
+import { resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -90,10 +90,19 @@ export function renderPendingList() {
 
     const canDelete = _pendingVariants.length > 1;
 
-    let html = '<div class="content-bloc-container">';
+    let html = `
+        <div class="section-content">
+            <button type="button" class="btn-icon" id="btn-add-pending-variant" data-tooltip="Додати варіант" data-tooltip-always>
+                <span class="material-symbols-outlined">add</span>
+                <span class="btn-icon-label">Створити варіант</span>
+            </button>
+        </div>
+    `;
+    html += '<div class="content-bloc-container">';
     _pendingVariants.forEach((pv, i) => {
-        const name = pv.name_ua || `Варіант ${i + 1}`;
-        const isDefault = !pv.name_ua && !Object.keys(pv.variant_chars || {}).length;
+        const resolvedName = displayName(pv.name_ua);
+        const name = resolvedName || `Варіант ${i + 1}`;
+        const isDefault = !resolvedName && !Object.keys(pv.variant_chars || {}).length;
         const hint = isDefault ? '<span class="label-s"> — базовий варіант (без смаку/розміру)</span>' : '';
 
         html += `

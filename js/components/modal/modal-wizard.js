@@ -97,8 +97,14 @@ export function destroyWizard(container) {
 
     if (_container) _container.classList.remove('wizard-mode');
 
-    // Повернути footer
-    if (_footer) _footer.innerHTML = _originalFooter;
+    // Повернути footer: видалити wizard елементи, показати оригінальні
+    if (_footer) {
+        _footer.querySelectorAll('[data-wizard]').forEach(el => el.remove());
+        _footer.querySelectorAll('[data-wizard-original]').forEach(el => {
+            delete el.dataset.wizardOriginal;
+            el.classList.remove('u-hidden');
+        });
+    }
 
     // Повернути header
     if (_headerCenter) _headerCenter.innerHTML = _originalCenter;
@@ -229,30 +235,61 @@ function _updateUI() {
 function _buildFooter() {
     if (!_footer) return;
 
-    _footer.innerHTML = `
-        <button type="button" class="btn-icon touch c-secondary" data-wizard="prev">
-            <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <div class="modal-left"></div>
-        <div class="modal-center">
-            <span class="body-s" data-wizard="label"></span>
-        </div>
-        <div class="modal-right"></div>
-        <button type="button" class="btn-icon touch c-main" data-wizard="next">
-            <span class="material-symbols-outlined">arrow_forward</span>
-        </button>
-        <button type="button" class="btn-icon touch c-main u-hidden" data-wizard="save">
-            <span class="material-symbols-outlined">check</span>
-        </button>
-    `;
-
-    _footer.querySelector('[data-wizard="prev"]').addEventListener('click', () => _showStep(_currentStep - 1));
-    _footer.querySelector('[data-wizard="next"]').addEventListener('click', () => _showStep(_currentStep + 1));
-    _footer.querySelector('[data-wizard="save"]').addEventListener('click', () => {
-        // Клікаємо оригінальну кнопку save-close якщо є
-        const saveBtn = _container?.querySelector('[id$="save-close-product"], [id^="save-close"]');
-        if (saveBtn) saveBtn.click();
+    // Сховати оригінальні кнопки (НЕ видаляти — зберігаємо onclick handlers)
+    Array.from(_footer.children).forEach(child => {
+        child.dataset.wizardOriginal = '';
+        child.classList.add('u-hidden');
     });
+
+    // Додати wizard кнопки
+    const frag = document.createDocumentFragment();
+
+    const prev = _createBtn('arrow_back', 'c-secondary', 'prev');
+    prev.addEventListener('click', () => _showStep(_currentStep - 1));
+    frag.appendChild(prev);
+
+    const left = document.createElement('div');
+    left.className = 'modal-left';
+    left.dataset.wizard = 'left';
+    frag.appendChild(left);
+
+    const center = document.createElement('div');
+    center.className = 'modal-center';
+    center.dataset.wizard = 'center';
+    center.innerHTML = '<span class="body-s" data-wizard="label"></span>';
+    frag.appendChild(center);
+
+    const right = document.createElement('div');
+    right.className = 'modal-right';
+    right.dataset.wizard = 'right';
+    frag.appendChild(right);
+
+    const next = _createBtn('arrow_forward', 'c-main', 'next');
+    next.addEventListener('click', () => _showStep(_currentStep + 1));
+    frag.appendChild(next);
+
+    const save = _createBtn('check', 'c-main', 'save');
+    save.classList.add('u-hidden');
+    save.addEventListener('click', () => {
+        // Клікаємо оригінальну save-close кнопку (прихована, але з onclick)
+        const saveClose = _footer?.querySelector('[data-wizard-original][id^="save-close"]');
+        if (saveClose) { saveClose.click(); return; }
+        // Fallback: aside save
+        const asideSave = _container?.querySelector('.modal-aside [id^="btn-save"]');
+        if (asideSave) asideSave.click();
+    });
+    frag.appendChild(save);
+
+    _footer.appendChild(frag);
+}
+
+function _createBtn(icon, colorClass, wizardKey) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `btn-icon touch ${colorClass}`;
+    btn.dataset.wizard = wizardKey;
+    btn.innerHTML = `<span class="material-symbols-outlined">${icon}</span>`;
+    return btn;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

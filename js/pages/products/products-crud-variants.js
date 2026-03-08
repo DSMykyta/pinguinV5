@@ -85,10 +85,15 @@ export function initVariantsSection(getProductIdFn) {
         };
     }
 
-    // Event delegation for pending variant edit clicks
+    // Event delegation for pending variant clicks (add + edit)
     const accordion = document.getElementById('product-variants-accordion');
     if (accordion) {
         accordion.addEventListener('click', (e) => {
+            const addBtn = e.target.closest('#btn-add-pending-variant');
+            if (addBtn) {
+                showPendingVariantModal(null);
+                return;
+            }
             const editBtn = e.target.closest('[data-pending-edit]');
             if (editBtn) {
                 showPendingVariantModal(editBtn.dataset.pendingEdit);
