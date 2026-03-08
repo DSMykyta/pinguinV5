@@ -24,11 +24,11 @@
  * ║                                                                          ║
  * ║  ПІДВАЛ (modal-footer):                                                  ║
  * ║  modal-left:  custom контент (renderFooterLeft)                         ║
- * ║  modal-right: custom + [Відкрити повний][Зберегти] btn-ghost            ║
+ * ║  modal-right: custom (renderFooterRight)                                ║
  * ║                                                                          ║
  * ║  СТАН КНОПОК (автоматично):                                             ║
  * ║  Закрито: [checkbox] [edit]          — початкова action-комірка          ║
- * ║  Відкрито: ... [close]               — кінцева action-комірка            ║
+ * ║  Відкрито: [open-full] [save] ... [close] — дії в першій/останній       ║
  * ║                                                                          ║
  * ║  CSS:                                                                    ║
  * ║  Використовує .u-reveal + .is-open з helpers.css                        ║
@@ -88,17 +88,35 @@ class ExpandablePlugin {
             const rowData = data.find(r => String(this.table.config.getRowId(r)) === String(rowId)) || data[index];
             if (!rowData) return;
 
-            // Інжектимо edit кнопку в початкову rowActions-комірку
+            // Інжектимо кнопки в початкову rowActions-комірку
             const actionsCell =
                 rowEl.querySelector('.row-actions-cell:not([data-expand-close-cell])') ||
                 rowEl.querySelector('.row-actions-cell');
             if (actionsCell && !actionsCell.querySelector('[data-action="expand-edit"]')) {
+                const expandButtons = [];
+                const showOpenFullButton = this.config.showOpenFullButton ?? Boolean(this.config.onOpenFull);
+
+                if (showOpenFullButton) {
+                    expandButtons.push(`
+                        <button class="btn-icon u-hidden" data-action="expand-open-full" data-tooltip="Відкрити повний">
+                            <span class="material-symbols-outlined">open_in_full</span>
+                        </button>`);
+                }
+
+                if (this.config.showSaveButton !== false) {
+                    expandButtons.push(`
+                        <button class="btn-icon u-hidden" data-action="expand-save" data-tooltip="Зберегти">
+                            <span class="material-symbols-outlined">save</span>
+                        </button>`);
+                }
+
                 const btnGroup = document.createElement('span');
                 btnGroup.className = 'expand-actions';
                 btnGroup.innerHTML = `
                     <button class="btn-icon" data-action="expand-edit" data-tooltip="Редагувати">
                         <span class="material-symbols-outlined">edit</span>
-                    </button>`;
+                    </button>
+                    ${expandButtons.join('')}`;
                 actionsCell.prepend(btnGroup);
             }
 
@@ -123,33 +141,16 @@ class ExpandablePlugin {
             const content = this.config.renderContent(rowData, rowEl);
             if (!content) return;
 
-            // Footer (wizard-footer: left + right)
+            // Footer (custom content only — action buttons moved to row-actions-cell)
             const footerLeft = this.config.renderFooterLeft ? this.config.renderFooterLeft(rowData, rowEl) : '';
             const footerRightCustom = this.config.renderFooterRight ? this.config.renderFooterRight(rowData, rowEl) : '';
-            const footerRightButtons = [];
-            const showOpenFullButton = this.config.showOpenFullButton ?? Boolean(this.config.onOpenFull);
+            const hasFooter = footerLeft || footerRightCustom;
 
-            if (showOpenFullButton) {
-                footerRightButtons.push(`
-                    <button class="btn-ghost" data-action="expand-open-full">
-                        <span class="material-symbols-outlined">open_in_full</span>
-                        Відкрити повний
-                    </button>`);
-            }
-
-            if (this.config.showSaveButton !== false) {
-                footerRightButtons.push(`
-                    <button class="btn-ghost" data-action="expand-save">
-                        <span class="material-symbols-outlined">save</span>
-                        Зберегти
-                    </button>`);
-            }
-
-            const footerHtml = `<div class="separator-h"></div>
+            const footerHtml = hasFooter ? `<div class="separator-h"></div>
             <div class="modal-footer">
                 <div class="modal-left">${footerLeft}</div>
-                <div class="modal-right">${footerRightCustom}${footerRightButtons.join('')}</div>
-            </div>`;
+                <div class="modal-right">${footerRightCustom}</div>
+            </div>` : '';
 
             const reveal = document.createElement('div');
             reveal.className = 'u-reveal';
@@ -195,15 +196,22 @@ class ExpandablePlugin {
         const reveal = row.querySelector('.u-reveal');
         if (!reveal) return;
 
+        const actionsCell = row.querySelector('.row-actions-cell:not([data-expand-close-cell])') ||
+            row.querySelector('.row-actions-cell');
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
         const closeCell = row.querySelector('[data-expand-close-cell]');
-        const checkbox = row.querySelector('.pseudo-table-checkbox');
+        const checkbox = actionsCell?.querySelector('.row-checkbox');
 
+        // Закрито → Відкрито: ховаємо edit + checkbox, показуємо save + open-full + close
         editBtn?.classList.add('u-hidden');
+        checkbox?.classList.add('u-hidden');
         closeBtn?.classList.remove('u-hidden');
         closeCell?.querySelectorAll('.tag').forEach(t => t.classList.add('u-hidden'));
-        checkbox?.classList.add('u-hidden');
+
+        // Показати кнопки дій в першій комірці
+        actionsCell?.querySelectorAll('[data-action="expand-save"], [data-action="expand-open-full"]')
+            .forEach(btn => btn.classList.remove('u-hidden'));
 
         reveal.classList.add('is-open');
 
@@ -217,15 +225,22 @@ class ExpandablePlugin {
         const reveal = row.querySelector('.u-reveal');
         if (!reveal) return;
 
+        const actionsCell = row.querySelector('.row-actions-cell:not([data-expand-close-cell])') ||
+            row.querySelector('.row-actions-cell');
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
         const closeCell = row.querySelector('[data-expand-close-cell]');
-        const checkbox = row.querySelector('.pseudo-table-checkbox');
+        const checkbox = actionsCell?.querySelector('.row-checkbox');
 
+        // Відкрито → Закрито: показуємо edit + checkbox, ховаємо save + open-full + close
         editBtn?.classList.remove('u-hidden');
+        checkbox?.classList.remove('u-hidden');
         closeBtn?.classList.add('u-hidden');
         closeCell?.querySelectorAll('.tag').forEach(t => t.classList.remove('u-hidden'));
-        checkbox?.classList.remove('u-hidden');
+
+        // Сховати кнопки дій в першій комірці
+        actionsCell?.querySelectorAll('[data-action="expand-save"], [data-action="expand-open-full"]')
+            .forEach(btn => btn.classList.add('u-hidden'));
 
         reveal.classList.remove('is-open');
 

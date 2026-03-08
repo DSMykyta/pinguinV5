@@ -24,7 +24,8 @@ const hooks = {
     onVariantDelete: [],     // Після видалення варіанту
     onRender: [],            // Після рендеру таблиці
     onTabChange: [],         // Після зміни активного табу
-    onModalOpen: [],         // Після відкриття модалу
+    onModalOpen: [],         // Після відкриття модалу товару
+    onVariantModalOpen: [],  // Після відкриття модалу варіанту
     onModalClose: [],        // Після закриття модалу
 };
 

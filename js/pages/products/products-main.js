@@ -62,6 +62,7 @@ const PLUGINS = [
     './groups-crud.js',
     './products-crud-variant-weight.js',
     './products-crud-article.js',
+    './products-plugin-brand-status.js',
 ];
 
 /**

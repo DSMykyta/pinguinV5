@@ -17,6 +17,7 @@ import { escapeHtml } from '../../utils/text-utils.js';
 import { initCustomSelects } from '../../components/forms/select.js';
 import { buildParentChildMap, initParentChildListeners, filterChildOptions } from './products-crud-hierarchy.js';
 import { displayName, resolveNameFromCharsAndSpecs } from './products-crud-variant-names.js';
+import { initInlinePhotos, getInlinePhotoUrls } from './products-crud-variant-photos-inline.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPEC JSON PARSER
@@ -482,6 +483,27 @@ export function buildExpandContent(row) {
         </div>
         <div class="separator-h"></div>
         <div id="${id}-chars-container" style="padding: 0 16px 12px;"></div>
+        <div class="separator-h"></div>
+        <div class="grid" style="padding: 0 16px 12px;">
+            <div class="group column col-4" id="${id}-photos-list">
+                <label class="label-l">Фото</label>
+                <div class="content-bloc" id="${id}-photo-dropzone" data-dropzone>
+                    <div class="content-line">
+                        <div class="input-box">
+                            <input type="url" id="${id}-photo-url-field" placeholder="URL або перетягніть файл...">
+                        </div>
+                        <button type="button" class="btn-icon ci-action" id="${id}-btn-pick-photo" data-dz-pick data-tooltip="Вибрати файл" data-tooltip-always>
+                            <span class="material-symbols-outlined">folder_open</span>
+                        </button>
+                        <button type="button" class="btn-icon ci-action u-hidden" id="${id}-btn-upload-photo" data-dz-upload data-tooltip="Завантажити з URL" data-tooltip-always>
+                            <span class="material-symbols-outlined">download</span>
+                        </button>
+                    </div>
+                    <input type="file" id="${id}-photo-file-input" accept="image/*" multiple hidden>
+                </div>
+                <div class="content-bloc-container photos" id="${id}-photos-grid"></div>
+            </div>
+        </div>
     `;
 }
 
@@ -495,6 +517,9 @@ export function onVariantExpand(rowEl, row) {
         initCustomSelects(charsContainer);
         _attachLiveVariantDisplay(rowEl, charsContainer);
     }
+
+    // Inline photos
+    initInlinePhotos(id, row.image_url);
 }
 
 /**
@@ -573,6 +598,13 @@ export function readRowFormValues(row) {
         if (Object.keys(specUa).length > 0) data.spec_ua = JSON.stringify(specUa);
         if (Object.keys(specRu).length > 0) data.spec_ru = JSON.stringify(specRu);
     }
+
+    // Inline photos
+    const photoUrls = getInlinePhotoUrls(rowId);
+    if (photoUrls.length > 0) {
+        data.image_url = JSON.stringify(photoUrls);
+    }
+
     return data;
 }
 
@@ -588,6 +620,7 @@ export function getVariantColumns(col) {
         col('price', 'Ціна', 'tag', { span: 1, color: 'c-secondary' }),
         col('old_price', 'Стара ціна', 'tag', { span: 1, color: 'c-secondary' }),
         col('stock', 'Кількість', 'tag', { span: 1, color: 'c-tertiary' }),
+        col('status', 'Статус', 'status-dot'),
     ];
 }
 

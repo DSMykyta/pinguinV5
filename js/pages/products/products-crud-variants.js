@@ -24,7 +24,6 @@ import {
 import { createManagedTable, col } from '../../components/table/table-main.js';
 import { showModal, closeModal, showConfirmModal } from '../../components/modal/modal-main.js';
 import { showToast } from '../../components/feedback/toast.js';
-import { escapeHtml } from '../../utils/text-utils.js';
 import { runHook, applyFilter } from './products-plugins.js';
 import { createHighlightEditor } from '../../components/editor/editor-main.js';
 import { initSectionNav } from '../../layout/layout-plugin-nav-sections.js';
@@ -300,6 +299,7 @@ async function showAddVariantModal() {
     initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
+    runHook('onVariantModalOpen', { productId });
 }
 
 /**
@@ -334,6 +334,9 @@ async function showPendingVariantModal(pendingId) {
     initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
+
+    const brandId = document.getElementById('product-brand')?.value || '';
+    runHook('onVariantModalOpen', { productId: null, brandId });
 }
 
 /**
@@ -361,6 +364,7 @@ export async function showEditVariantModal(variantId) {
     initLiveTitleUpdate();
     initVariantSaveHandler();
     initSectionNavigation();
+    runHook('onVariantModalOpen', { productId: variant.product_id });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
