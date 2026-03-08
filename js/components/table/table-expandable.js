@@ -22,9 +22,9 @@
  * ║      onOpenFull: (rowEl, row) => {},     // callback "відкрити повний"    ║
  * ║  }                                                                       ║
  * ║                                                                          ║
- * ║  ПІДВАЛ (wizard-footer):                                                 ║
- * ║  footer-left:  custom контент (renderFooterLeft)                        ║
- * ║  footer-right: custom + [Відкрити повний][Зберегти] btn-ghost           ║
+ * ║  ПІДВАЛ (modal-footer):                                                  ║
+ * ║  modal-left:  custom контент (renderFooterLeft)                         ║
+ * ║  modal-right: custom + [Відкрити повний][Зберегти] btn-ghost            ║
  * ║                                                                          ║
  * ║  СТАН КНОПОК (автоматично):                                             ║
  * ║  Закрито: [checkbox] [edit]          — початкова action-комірка          ║
@@ -105,7 +105,7 @@ class ExpandablePlugin {
             // Кінцева action-комірка для close кнопки (видима завжди, кнопка — по стану)
             if (!rowEl.querySelector('[data-expand-close-cell]')) {
                 const closeCell = document.createElement('div');
-                closeCell.className = 'pseudo-table-cell row-actions-cell';
+                closeCell.className = 'pseudo-table-cell col-1';
                 closeCell.setAttribute('data-expand-close-cell', '');
 
                 const customContent = this.config.renderCloseCellContent
@@ -113,7 +113,7 @@ class ExpandablePlugin {
                     : '';
 
                 closeCell.innerHTML = `
-                    ${customContent ? `<span class="expand-tags">${customContent}</span>` : ''}
+                    ${customContent}
                     <button class="btn-icon u-hidden" data-action="expand-close" data-tooltip="Згорнути">
                         <span class="material-symbols-outlined">close</span>
                     </button>`;
@@ -145,9 +145,10 @@ class ExpandablePlugin {
                     </button>`);
             }
 
-            const footerHtml = `<div class="wizard-footer">
-                <div class="footer-left">${footerLeft}</div>
-                <div class="footer-right">${footerRightCustom}${footerRightButtons.join('')}</div>
+            const footerHtml = `<div class="separator-h"></div>
+            <div class="modal-footer">
+                <div class="modal-left">${footerLeft}</div>
+                <div class="modal-right">${footerRightCustom}${footerRightButtons.join('')}</div>
             </div>`;
 
             const reveal = document.createElement('div');
@@ -196,12 +197,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
-        const expandTags = row.querySelector('.expand-tags');
+        const closeCell = row.querySelector('[data-expand-close-cell]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.add('u-hidden');
         closeBtn?.classList.remove('u-hidden');
-        expandTags?.classList.add('u-hidden');
+        closeCell?.querySelectorAll('.tag').forEach(t => t.classList.add('u-hidden'));
         checkbox?.classList.add('u-hidden');
 
         reveal.classList.add('is-open');
@@ -218,12 +219,12 @@ class ExpandablePlugin {
 
         const editBtn = row.querySelector('[data-action="expand-edit"]');
         const closeBtn = row.querySelector('[data-action="expand-close"]');
-        const expandTags = row.querySelector('.expand-tags');
+        const closeCell = row.querySelector('[data-expand-close-cell]');
         const checkbox = row.querySelector('.pseudo-table-checkbox');
 
         editBtn?.classList.remove('u-hidden');
         closeBtn?.classList.add('u-hidden');
-        expandTags?.classList.remove('u-hidden');
+        closeCell?.querySelectorAll('.tag').forEach(t => t.classList.remove('u-hidden'));
         checkbox?.classList.remove('u-hidden');
 
         reveal.classList.remove('is-open');
@@ -266,7 +267,7 @@ class ExpandablePlugin {
 
         if (!header.querySelector('[data-expand-close-header]')) {
             const endHeader = document.createElement('div');
-            endHeader.className = 'pseudo-table-cell header-actions-cell';
+            endHeader.className = 'pseudo-table-cell col-1';
             endHeader.setAttribute('data-expand-close-header', '');
 
             if (this.config.closeCellHeader) {

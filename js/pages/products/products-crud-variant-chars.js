@@ -632,13 +632,21 @@ export async function renderPendingVariantCharacteristics(categoryId, pendingVar
         if (block8Chars.length === 0) { container.innerHTML = ''; continue; }
 
         const enrichedPv = { ...pv, _parsedSpecUa: parseSpecJson(pv.spec_ua), _parsedSpecRu: parseSpecJson(pv.spec_ru) };
+        const savedValues = pv.variant_chars || {};
+        const childCharIds = new Set(parentChildMap.keys());
         let html = '<label class="label-l">Характеристики варіанту</label><div class="grid">';
         block8Chars.forEach(c => {
-            const charOptions = options.filter(o => o.characteristic_id === c.id);
-            charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
-            const savedVal = (pv.variant_chars || {})[c.id] || '';
-            const colSize = c.col_size || '4';
-            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedPv);
+            if (childCharIds.has(c.id)) return;
+            const children = block8Chars.filter(ch => parentChildMap.get(ch.id) === c.id);
+            if (children.length > 0) {
+                html += renderGroupedCharField(c, children, savedValues, parentChildMap, options, options, enrichedPv);
+            } else {
+                const charOptions = options.filter(o => o.characteristic_id === c.id);
+                charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+                const savedVal = savedValues[c.id] || '';
+                const colSize = c.col_size || '3';
+                html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedPv);
+            }
         });
         html += '</div>';
         container.innerHTML = html;
@@ -646,6 +654,13 @@ export async function renderPendingVariantCharacteristics(categoryId, pendingVar
         initCustomSelects(container);
         if (parentChildMap.size > 0) {
             initParentChildListeners(container, 'data-vchar-id');
+            for (const [childCharId, parentCharId] of parentChildMap) {
+                const parentSelect = container.querySelector(`select[data-vchar-id="${parentCharId}"]`);
+                if (parentSelect?.value) {
+                    const childSelect = container.querySelector(`select[data-vchar-id="${childCharId}"]`);
+                    if (childSelect) filterChildOptions(childSelect, parentSelect.value);
+                }
+            }
         }
     }
 }
@@ -678,13 +693,21 @@ export async function renderExistingVariantCharacteristics(categoryId, variants)
         if (block8Chars.length === 0) { container.innerHTML = ''; continue; }
 
         const enrichedV = { ...v, _parsedSpecUa: parseSpecJson(v.spec_ua), _parsedSpecRu: parseSpecJson(v.spec_ru) };
+        const savedValues = v.variant_chars || {};
+        const childCharIds = new Set(parentChildMap.keys());
         let html = '<div class="grid">';
         block8Chars.forEach(c => {
-            const charOptions = options.filter(o => o.characteristic_id === c.id);
-            charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
-            const savedVal = (v.variant_chars || {})[c.id] || '';
-            const colSize = c.col_size || '4';
-            html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedV);
+            if (childCharIds.has(c.id)) return;
+            const children = block8Chars.filter(ch => parentChildMap.get(ch.id) === c.id);
+            if (children.length > 0) {
+                html += renderGroupedCharField(c, children, savedValues, parentChildMap, options, options, enrichedV);
+            } else {
+                const charOptions = options.filter(o => o.characteristic_id === c.id);
+                charOptions.sort((a, b) => (parseInt(a.sort_order) || 0) - (parseInt(b.sort_order) || 0));
+                const savedVal = savedValues[c.id] || '';
+                const colSize = c.col_size || '3';
+                html += renderVariantCharField(c, charOptions, savedVal, colSize, parentChildMap, options, enrichedV);
+            }
         });
         html += '</div>';
         container.innerHTML = html;
@@ -692,6 +715,13 @@ export async function renderExistingVariantCharacteristics(categoryId, variants)
         initCustomSelects(container);
         if (parentChildMap.size > 0) {
             initParentChildListeners(container, 'data-vchar-id');
+            for (const [childCharId, parentCharId] of parentChildMap) {
+                const parentSelect = container.querySelector(`select[data-vchar-id="${parentCharId}"]`);
+                if (parentSelect?.value) {
+                    const childSelect = container.querySelector(`select[data-vchar-id="${childCharId}"]`);
+                    if (childSelect) filterChildOptions(childSelect, parentSelect.value);
+                }
+            }
         }
     }
 }

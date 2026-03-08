@@ -169,9 +169,30 @@
        16. ГРАДІЄНТИ
        ═══════════════════════════════════════════ */
 
-    --gradient-light: linear-gradient(to bottom, #5ba3d9, #8ec5e8, #d4eaf5, #edf6fb, #d4eaf5, #8ec5e8);
-    --gradient-storm: linear-gradient(to bottom, #0d1f3c, #0f2847, #1a3a5c, #2d5a7b, #5a9aba, #8ec5e8);
-    --gradient-dawn: linear-gradient(to bottom, #4a8ec9, #5a96cc, #7a8faa, #b07860, #e06030, #f05a28);
+    --gradient-light: linear-gradient(to bottom,
+        color-mix(in srgb, var(--color-secondary) 65%, white),
+        color-mix(in srgb, var(--color-secondary) 45%, white),
+        color-mix(in srgb, var(--color-secondary) 17%, white),
+        color-mix(in srgb, var(--color-secondary) 7%, white),
+        color-mix(in srgb, var(--color-secondary) 17%, white),
+        color-mix(in srgb, var(--color-secondary) 45%, white)
+    );
+    --gradient-storm: linear-gradient(to bottom,
+        color-mix(in srgb, var(--color-main), black 50%),
+        color-mix(in srgb, var(--color-main), black 40%),
+        color-mix(in srgb, var(--color-main), black 20%),
+        color-mix(in srgb, var(--color-main) 50%, var(--color-secondary)),
+        color-mix(in srgb, var(--color-secondary) 65%, white),
+        color-mix(in srgb, var(--color-secondary) 45%, white)
+    );
+    --gradient-dawn: linear-gradient(to bottom,
+        color-mix(in srgb, var(--color-secondary) 65%, white),
+        color-mix(in srgb, var(--color-secondary) 60%, white),
+        color-mix(in srgb, var(--color-secondary) 50%, var(--color-tertiary)),
+        color-mix(in srgb, var(--color-tertiary) 60%, var(--color-secondary)),
+        color-mix(in srgb, var(--color-tertiary), black 10%),
+        var(--color-tertiary)
+    );
 }
 
 /* ═══════════════════════════════════════════════════

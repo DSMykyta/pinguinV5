@@ -245,20 +245,6 @@
     padding: 8px;
 }
 
-/* Close cell з тегами — гнучка ширина */
-[data-expand-close-cell]:has(.expand-tags),
-[data-expand-close-header] {
-    flex: 1 1 auto;
-    justify-content: flex-end;
-}
-
-.expand-tags {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
 /* .row-checkbox, .header-select-all — тільки JS-селектори.
    Візуальні стилі всіх checkbox — у checkbox.css */
 
