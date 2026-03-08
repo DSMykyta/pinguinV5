@@ -32,7 +32,7 @@ import { initColumnsCharm } from '../../components/charms/charm-columns.js';
 
 // Sub-modules
 import { resolveVariantName, resolveNameFromCharsAndSpecs, computeVariantGeneratedNames, displayName } from './products-crud-variant-names.js';
-import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics, renderPendingVariantCharacteristics } from './products-crud-variant-chars.js';
+import { renderVariantCharacteristics, getVariantCharsData, buildExpandContent, onVariantExpand, readRowFormValues, getVariantColumns, renderExistingVariantCharacteristics } from './products-crud-variant-chars.js';
 import { addPendingVariant, updatePendingVariant, getPendingVariantById, renderPendingList, commitPendingVariantChanges, discardPendingVariantChanges } from './products-crud-variant-pending.js';
 
 // Re-exports (used by products-crud.js)
@@ -90,9 +90,8 @@ export function initVariantsSection(getProductIdFn) {
         showPendingVariantModal(e.detail.pendingId);
     });
 
-    // Новий товар → створити 1 дефолтний pending варіант
+    // Новий товар → показати порожню таблицю pending варіантів
     if (!getProductIdFn()) {
-        addPendingVariant({ status: 'active' });
         renderPendingList();
     }
 }
@@ -323,7 +322,10 @@ async function showPendingVariantModal(pendingId) {
     const title = document.getElementById('variant-modal-title');
     const existing = pendingId ? getPendingVariantById(pendingId) : null;
 
-    if (title) title.textContent = existing ? 'Редагувати варіант' : 'Новий варіант';
+    // Назва товару з основної форми
+    const productNameUa = document.getElementById('product-name-ua')?.value?.trim() || '';
+    const prefix = existing ? 'Редагувати' : 'Новий варіант';
+    if (title) title.textContent = productNameUa ? `${prefix} — ${productNameUa}` : prefix;
 
     clearVariantForm();
     clearVariantPhotos();
