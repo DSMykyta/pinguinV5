@@ -12,7 +12,7 @@
  *   текст перед/після, склад, опис, характеристики, фото, SEO поля.
  *
  * СКИДАЄТЬСЯ:
- *   product_id (новий), article (порожній), url (з суфіксом -copy),
+ *   product_id (новий), article (порожній), url (порожній — генерується при збереженні),
  *   status → draft, варіанти НЕ копіюються, дати — нові.
  */
 
@@ -71,7 +71,7 @@ export async function copyProduct(productId) {
 
         // Скидається
         article: '',
-        url: source.url ? `${source.url}-copy` : '',
+        url: '',
         status: 'draft',
     };
 

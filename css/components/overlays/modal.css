@@ -240,6 +240,23 @@ body.modal-open {
     overflow: hidden;
 }
 
+/* Aside columns inside grid sections — sticky with internal scroll */
+.modal-body > main section .section-content.grid > .col-2:last-child {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-body > main section .section-content.grid > .col-2:last-child > .group.scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+}
+
 .modal-body > main section .footer {
     padding: 8px 0;
 }

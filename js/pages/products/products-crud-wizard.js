@@ -24,7 +24,7 @@ let _observer = null;
 // ═══════════════════════════════════════════════════════════════════════════
 
 const EXCLUDED_SECTIONS = ['section-product-block-6'];
-const LAST_SECTIONS = ['section-product-variants'];
+const LAST_SECTIONS = ['section-product-variants', 'section-product-about'];
 
 const productWizardOptions = {
     filterSection: (sec) => !EXCLUDED_SECTIONS.includes(sec.id),
