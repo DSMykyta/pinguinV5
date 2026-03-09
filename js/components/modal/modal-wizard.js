@@ -44,10 +44,10 @@ export function initWizard(container) {
     _originalCenter = _headerCenter?.innerHTML ?? '';
     _originalLeft = _headerLeft?.innerHTML ?? '';
 
-    // Зібрати всі секції
+    // Зібрати всі секції (блок 6 "Куди це?" пропускається)
     _sections = Array.from(
         _main.querySelectorAll(':scope > section, :scope > div > section')
-    );
+    ).filter(sec => sec.id !== 'section-product-block-6');
 
     if (_sections.length === 0) { console.warn('[Wizard] no sections'); return; }
 
@@ -79,8 +79,8 @@ export function refreshWizard() {
         if (header) header.style.display = '';
     });
 
-    // Зібрати всі секції
-    _sections = Array.from(all);
+    // Зібрати всі секції (блок 6 "Куди це?" пропускається)
+    _sections = Array.from(all).filter(sec => sec.id !== 'section-product-block-6');
 
     if (_sections.length === 0) return;
     if (_currentStep >= _sections.length) _currentStep = _sections.length - 1;
